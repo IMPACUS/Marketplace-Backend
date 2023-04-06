@@ -22,9 +22,11 @@
             <column name="refresh_token" type="VARCHAR(255)">
                 <constraints  nullable="false"/>
             </column>
+            <column name="refresh_expired_at" type="DATE"/>
+
 
         </createTable>
-
+        <setColumnRemarks tableName="oauth_token" columnName="refresh_expired_at" remarks="리프레시 토큰 만료 시간"/>
     </changeSet>
 
 </databaseChangeLog>
