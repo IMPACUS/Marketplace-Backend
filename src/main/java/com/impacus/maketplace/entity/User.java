@@ -21,6 +21,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String email; // Format: OauthProviderKey_Email
+
     @Column(nullable = false)
     private String name; // 사용자 이름
 
