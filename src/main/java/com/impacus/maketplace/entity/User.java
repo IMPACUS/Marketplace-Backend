@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity;
 
 import com.impacus.maketplace.common.BaseTimeEntity;
+import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.UserStatus;
@@ -94,6 +95,7 @@ public class User extends BaseTimeEntity {
 
     private Long profileImageId; // 프로필 이미지 아이디
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String password; // 비밀번호
 
     private int wrongPasswordCnt; // 비밀번호 틀린 횟수
@@ -101,16 +103,22 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.ORDINAL)
     private BankCode bankCode; // 은행 코드
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String bankAccountNumber; // 은행 계좌 번호
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String userJumin1; //주민 번호 앞자리
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String userJumin2; //주민 번호 뒷자리
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String authCi;
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String authDi;
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String pccc; // 개인 통관 고유 번호
 
 }
