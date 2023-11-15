@@ -121,4 +121,10 @@ public class User extends BaseTimeEntity {
     @Convert(converter = AES256ToStringConverter.class)
     private String pccc; // 개인 통관 고유 번호
 
+    public User(String email, String password, String name) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+    }
+
 }

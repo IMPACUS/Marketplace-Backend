@@ -22,7 +22,6 @@ public class UserService {
     private final UserRepository userRepository;
 
     public UserDTO addUser(SignInRequest signInRequest) {
-        UserDTO userDTO = null;
         String email = signInRequest.getEmail();
         String password = signInRequest.getPassword();
 
@@ -41,7 +40,12 @@ public class UserService {
             throw new Custom400Exception(ErrorType.INVALID_PASSWORD);
         }
 
-        return userDTO;
+        // 3. User 데이터 생성 및 저장
+        User user = new User(email, password, signInRequest.getName());
+        userRepository.save(user);
+
+        // 4. UserDTO 반환
+        return new UserDTO(user);
     }
 
     /**
@@ -67,6 +71,6 @@ public class UserService {
             .filter(user -> user.getEmail() == providerType + "_" + email)
             .toList();
 
-        return (findUserList.size() > 0) ? findUserList.get(0) : null;
+        return (!findUserList.isEmpty()) ? findUserList.get(0) : null;
     }
 }
