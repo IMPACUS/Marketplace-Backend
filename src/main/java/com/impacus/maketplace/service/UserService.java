@@ -3,6 +3,7 @@ package com.impacus.maketplace.service;
 import com.impacus.maketplace.common.enumType.ErrorType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.exception.Custom400Exception;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.entity.User;
 import com.impacus.maketplace.entity.dto.user.UserDTO;
 import com.impacus.maketplace.entity.dto.user.request.SignInRequest;
@@ -23,6 +24,7 @@ public class UserService {
     public UserDTO addUser(SignInRequest signInRequest) {
         UserDTO userDTO = null;
         String email = signInRequest.getEmail();
+        String password = signInRequest.getPassword();
 
         // 1. 이메일 유효성 검사
         User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
@@ -35,6 +37,9 @@ public class UserService {
         }
 
         // 2. 비밃번호 유효성 검사
+        if (!StringUtils.checkPasswordValidation(password)) {
+            throw new Custom400Exception(ErrorType.INVALID_PASSWORD);
+        }
 
         return userDTO;
     }
