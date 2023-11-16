@@ -6,10 +6,9 @@ import com.impacus.maketplace.common.exception.Custom400Exception;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.entity.User;
 import com.impacus.maketplace.entity.dto.user.UserDTO;
-import com.impacus.maketplace.entity.dto.user.request.SignInRequest;
+import com.impacus.maketplace.entity.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.repository.UserRepository;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,9 +20,9 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserDTO addUser(SignInRequest signInRequest) {
-        String email = signInRequest.getEmail();
-        String password = signInRequest.getPassword();
+    public UserDTO addUser(SignUpRequest signUpRequest) {
+        String email = signUpRequest.getEmail();
+        String password = signUpRequest.getPassword();
 
         // 1. 이메일 유효성 검사
         User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
@@ -41,7 +40,7 @@ public class UserService {
         }
 
         // 3. User 데이터 생성 및 저장
-        User user = new User(email, password, signInRequest.getName());
+        User user = new User(email, password, signUpRequest.getName());
         userRepository.save(user);
 
         // 4. UserDTO 반환
@@ -68,7 +67,7 @@ public class UserService {
     public User findUserByEmailAndOauthProviderType(String email, OauthProviderType providerType) {
         List<User> userList = findUsersByEmailAboutAllProvider(email);
         List<User> findUserList = userList.stream()
-            .filter(user -> user.getEmail() == providerType + "_" + email)
+            .filter(user -> user.getEmail().equals(providerType + "_" + email))
             .toList();
 
         return (!findUserList.isEmpty()) ? findUserList.get(0) : null;

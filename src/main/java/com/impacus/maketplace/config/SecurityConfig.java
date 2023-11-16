@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] DEFAULT_WHITELIST = {
-        "/status", "/images/**"
+        "/status", "/images/**", "/error/**"
     };
     private static final String[] AUTH_WHITELIST = {
         "/auth/sign-up/**", "/auth/login/**"
