@@ -25,6 +25,9 @@ public class AES256ToStringConverter implements AttributeConverter<String, Strin
     @Override
     public String convertToEntityAttribute(String dbData) {
         try {
+            if (dbData == null) {
+                return null;
+            }
             return AES256Utils.decryptAES256(dbData);
         } catch (Exception e) {
             throw new Custom400Exception(ErrorType.DECRYPTION_FAILED, e);

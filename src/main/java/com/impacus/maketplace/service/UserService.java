@@ -40,7 +40,8 @@ public class UserService {
         }
 
         // 3. User 데이터 생성 및 저장
-        User user = new User(email, password, signUpRequest.getName());
+        User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE), password,
+            signUpRequest.getName());
         userRepository.save(user);
 
         // 4. UserDTO 반환

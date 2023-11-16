@@ -1,5 +1,6 @@
 package com.impacus.maketplace.common.utils;
 
+import com.impacus.maketplace.common.enumType.OauthProviderType;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,10 @@ public class StringUtils {
 
     public static Boolean checkPasswordValidation(String password) {
         return password.matches(PASSWORD_PATTERN);
+    }
+
+    public static String createStrEmail(String email, OauthProviderType oauthProviderType) {
+        return oauthProviderType + "_" + email;
     }
 
 }
