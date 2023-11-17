@@ -2,10 +2,12 @@ package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.ErrorType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
+import com.impacus.maketplace.common.enumType.UserStatus;
 import com.impacus.maketplace.common.exception.Custom400Exception;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.entity.User;
 import com.impacus.maketplace.entity.dto.user.UserDTO;
+import com.impacus.maketplace.entity.dto.user.request.LoginRequest;
 import com.impacus.maketplace.entity.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.repository.UserRepository;
 import java.util.List;
@@ -18,7 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserService {
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public UserDTO addUser(SignUpRequest signUpRequest) {
         String email = signUpRequest.getEmail();
@@ -72,5 +78,46 @@ public class UserService {
             .toList();
 
         return (!findUserList.isEmpty()) ? findUserList.get(0) : null;
+    }
+
+    public UserDTO login(LoginRequest loginRequest) {
+        String email = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
+        UserDTO userDTO = null;
+
+        // 1. 이메일 유효성 검사
+        User user = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
+        if (user == null) {
+            throw new Custom400Exception(ErrorType.NOT_EXISTED_EMAIL);
+        } else {
+            if (!user.getEmail().contains(OauthProviderType.NONE.name())) {
+                throw new Custom400Exception(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+            } else {
+                if (user.getStatus() == UserStatus.BLOCKED) {
+                    throw new Custom400Exception(ErrorType.BLOCKED_EMAIL);
+                }
+            }
+        }
+
+        // 2. 비밃번호 유효성 검사
+        if (!StringUtils.checkPasswordValidation(password)) {
+            throw new Custom400Exception(ErrorType.INVALID_PASSWORD);
+        }
+
+        // 3. 비밀번호 확인
+        if (!password.equals(user.getPassword())) {
+            increaseLoginCnt(user);
+            throw new Custom400Exception(ErrorType.WRONG_PASSWORD);
+        }
+
+        return userDTO;
+    }
+
+    /**
+     * 로그인을 요청한 사용자의 비밀번호가 틀린 경우, 로그인 시도 횟수 추가를 진행하는 함수
+     * @param user
+     */
+    private void increaseLoginCnt(User user) {
+
     }
 }
