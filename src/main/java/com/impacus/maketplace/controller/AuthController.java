@@ -21,18 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("auth")
 public class AuthController {
 
-    private UserService userService;
-
-    public AuthController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<Object> addUser(@RequestBody SignUpRequest signUpRequest) {
         UserDTO userDTO = null;
         try {
-            userDTO = userService.addUser(signUpRequest);
+            userDTO = this.userService.addUser(signUpRequest);
         } catch (CustomException ex) {
+            throw new CustomException(ex);
+        } catch (Exception ex) {
             throw new CustomException(ex);
         }
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
@@ -43,7 +41,7 @@ public class AuthController {
         UserDTO userDTO = null;
         try {
             userDTO = userService.login(loginRequest);
-        } catch (CustomException ex) {
+        } catch (Exception ex) {
             throw new CustomException(ex);
         }
         return new ResponseEntity<>(userDTO, HttpStatus.OK);

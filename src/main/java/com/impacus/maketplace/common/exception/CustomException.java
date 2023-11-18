@@ -1,0 +1,50 @@
+package com.impacus.maketplace.common.exception;
+
+import com.impacus.maketplace.common.enumType.ErrorType;
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
+public class CustomException extends RuntimeException {
+
+    private final HttpStatus status;
+    private final ErrorType errorType;
+    private final String detail;
+
+    public CustomException(HttpStatus status, ErrorType errorType) {
+        this.status = status;
+        this.errorType = errorType;
+        this.detail = "";
+    }
+
+    public CustomException(HttpStatus status, ErrorType errorType, String detail) {
+        this.status = status;
+        this.errorType = errorType;
+        this.detail = detail;
+    }
+
+    public CustomException(ErrorType errorType) {
+        this.status = HttpStatus.BAD_REQUEST;
+        this.errorType = errorType;
+        this.detail = "";
+    }
+
+    public CustomException(ErrorType errorType, Throwable cause) {
+        this.status = HttpStatus.BAD_REQUEST;
+        this.errorType = errorType;
+        this.detail = cause.getMessage();
+    }
+
+    public CustomException(CustomException customException) {
+        this.status = customException.getStatus();
+        this.errorType = customException.getErrorType();
+        this.detail = customException.getDetail();
+    }
+
+    public CustomException(Throwable cause) {
+        this.status = HttpStatus.BAD_REQUEST;
+        this.errorType = ErrorType.UNKNOWN;
+        this.detail = cause.getMessage();
+    }
+
+}

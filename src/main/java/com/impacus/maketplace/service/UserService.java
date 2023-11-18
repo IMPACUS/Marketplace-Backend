@@ -5,13 +5,19 @@ import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.entity.User;
 import com.impacus.maketplace.entity.dto.user.UserDTO;
 import com.impacus.maketplace.entity.dto.user.request.LoginRequest;
 import com.impacus.maketplace.entity.dto.user.request.SignUpRequest;
+import com.impacus.maketplace.entity.vo.auth.TokenInfoVO;
 import com.impacus.maketplace.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserService {
 
-    private UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
+    private final AuthenticationManagerBuilder managerBuilder;
+    private final JwtTokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     public UserDTO addUser(SignUpRequest signUpRequest) {
         String email = signUpRequest.getEmail();
@@ -46,7 +51,8 @@ public class UserService {
         }
 
         // 3. User 데이터 생성 및 저장
-        User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE), password,
+        User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
+            encodePassword(password),
             signUpRequest.getName());
         userRepository.save(user);
 
@@ -83,7 +89,6 @@ public class UserService {
     public UserDTO login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
-        UserDTO userDTO = null;
 
         // 1. 이메일 유효성 검사
         User user = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
@@ -105,20 +110,41 @@ public class UserService {
         }
 
         // 3. 비밀번호 확인
-        if (!password.equals(user.getPassword())) {
-            increaseLoginCnt(user);
-            throw new CustomException(ErrorType.WRONG_PASSWORD);
-        }
+//        if (!encodePassword(password).equals(user.getPassword())) {
+//            increaseLoginCnt(user);
+//            throw new CustomException(ErrorType.WRONG_PASSWORD);
+//        }
 
-        return userDTO;
+        // 4. JWT 토큰 생성
+        TokenInfoVO tokenInfoVO = getJwtTokenInfo(user.getEmail(), password);
+
+        return new UserDTO(user, tokenInfoVO);
     }
 
     /**
      * 로그인을 요청한 사용자의 비밀번호가 틀린 경우, 로그인 시도 횟수 추가를 진행하는 함수
+     *
      * @param user
      */
     private void increaseLoginCnt(User user) {
         // redis 설정
         // 비밀번호 증가 로직 설정
+    }
+
+    public TokenInfoVO getJwtTokenInfo(String email, String password) {
+        // 1. Authentication 객체 생성
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+            email, password);
+
+        // 2. 실제 검증 진행
+        Authentication authentication = managerBuilder.getObject()
+            .authenticate(authenticationToken);
+
+        // 3. 인증 정보를 기반으로 JWT 토큰 생성
+        return tokenProvider.createToken(authentication);
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 }

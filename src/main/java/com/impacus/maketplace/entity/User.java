@@ -122,7 +122,7 @@ public class User extends BaseTimeEntity {
         this.password = password;
         this.name = name;
         this.status = UserStatus.ACTIVE;
-        this.type = UserType.UNCERTIFIED_USER;
+        this.type = UserType.ROLE_UNCERTIFIED_USER;
         this.greenLablePoint = 0L;
         this.isAdmin = false;
         this.isCertEmail = false;
