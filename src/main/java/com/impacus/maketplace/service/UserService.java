@@ -3,7 +3,7 @@ package com.impacus.maketplace.service;
 import com.impacus.maketplace.common.enumType.ErrorType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.UserStatus;
-import com.impacus.maketplace.common.exception.Custom400Exception;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.entity.User;
 import com.impacus.maketplace.entity.dto.user.UserDTO;
@@ -34,15 +34,15 @@ public class UserService {
         User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
         if (existedUser != null) {
             if (existedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                throw new Custom400Exception(ErrorType.DUPLICATED_EMAIL);
+                throw new CustomException(ErrorType.DUPLICATED_EMAIL);
             } else {
-                throw new Custom400Exception(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             }
         }
 
         // 2. 비밃번호 유효성 검사
         if (!StringUtils.checkPasswordValidation(password)) {
-            throw new Custom400Exception(ErrorType.INVALID_PASSWORD);
+            throw new CustomException(ErrorType.INVALID_PASSWORD);
         }
 
         // 3. User 데이터 생성 및 저장
@@ -88,26 +88,26 @@ public class UserService {
         // 1. 이메일 유효성 검사
         User user = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
         if (user == null) {
-            throw new Custom400Exception(ErrorType.NOT_EXISTED_EMAIL);
+            throw new CustomException(ErrorType.NOT_EXISTED_EMAIL);
         } else {
             if (!user.getEmail().contains(OauthProviderType.NONE.name())) {
-                throw new Custom400Exception(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             } else {
                 if (user.getStatus() == UserStatus.BLOCKED) {
-                    throw new Custom400Exception(ErrorType.BLOCKED_EMAIL);
+                    throw new CustomException(ErrorType.BLOCKED_EMAIL);
                 }
             }
         }
 
         // 2. 비밃번호 유효성 검사
         if (!StringUtils.checkPasswordValidation(password)) {
-            throw new Custom400Exception(ErrorType.INVALID_PASSWORD);
+            throw new CustomException(ErrorType.INVALID_PASSWORD);
         }
 
         // 3. 비밀번호 확인
         if (!password.equals(user.getPassword())) {
             increaseLoginCnt(user);
-            throw new Custom400Exception(ErrorType.WRONG_PASSWORD);
+            throw new CustomException(ErrorType.WRONG_PASSWORD);
         }
 
         return userDTO;
@@ -118,6 +118,7 @@ public class UserService {
      * @param user
      */
     private void increaseLoginCnt(User user) {
-
+        // redis 설정
+        // 비밀번호 증가 로직 설정
     }
 }

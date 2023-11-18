@@ -1,10 +1,9 @@
 package com.impacus.maketplace.controller;
 
-import com.impacus.maketplace.common.exception.Custom400Exception;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.dto.user.UserDTO;
 import com.impacus.maketplace.entity.dto.user.request.LoginRequest;
 import com.impacus.maketplace.entity.dto.user.request.SignUpRequest;
-import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +32,8 @@ public class AuthController {
         UserDTO userDTO = null;
         try {
             userDTO = userService.addUser(signUpRequest);
-        } catch (Custom400Exception ex) {
-            throw new Custom400Exception(ex);
+        } catch (CustomException ex) {
+            throw new CustomException(ex);
         }
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
@@ -44,8 +43,8 @@ public class AuthController {
         UserDTO userDTO = null;
         try {
             userDTO = userService.login(loginRequest);
-        } catch (Custom400Exception ex) {
-            throw new Custom400Exception(ex);
+        } catch (CustomException ex) {
+            throw new CustomException(ex);
         }
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
