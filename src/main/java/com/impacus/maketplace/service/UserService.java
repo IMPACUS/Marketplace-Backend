@@ -13,6 +13,7 @@ import com.impacus.maketplace.entity.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.entity.vo.auth.TokenInfoVO;
 import com.impacus.maketplace.repository.UserRepository;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import security.CustomUserDetails;
 
 @Service
 @RequiredArgsConstructor
@@ -147,4 +149,23 @@ public class UserService {
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+
+    /**
+     * securityContext에 저장된 User 정보를 가져오는 함수
+     *
+     * @return
+     */
+    public Optional<User> getMyUserWithAuthorities(String accessToken) {
+        if (accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.substring(7);
+        }
+
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        String email = user.getEmail();
+
+        return userRepository.findByEmail(email);
+    }
+
+
 }

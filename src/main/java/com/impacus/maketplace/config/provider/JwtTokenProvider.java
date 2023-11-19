@@ -40,8 +40,8 @@ public class JwtTokenProvider implements InitializingBean {
         @Value("${key.jwt.accesstoken-validity-in-min}") Long accessTokenValidityInMin,
         @Value("${key.jwt.refreshtoken-validity-in-min}") Long refreshTokenValidityInMin) {
         this.jwtSecretKey = jwtSecretKey;
-        this.accessTokenValidityInMin = accessTokenValidityInMin;
-        this.refreshTokenValidityInMin = refreshTokenValidityInMin;
+        this.accessTokenValidityInMin = accessTokenValidityInMin * 1000L * 60;
+        this.refreshTokenValidityInMin = refreshTokenValidityInMin * 1000L * 60;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class JwtTokenProvider implements InitializingBean {
 
         // 4. CustomUserDetails 생성
         CustomUserDetails principal = CustomUserDetails.builder()
-            .email("")
+            .email(claims.getSubject())
             .authorities(authorities)
             .build();
 
@@ -121,9 +121,9 @@ public class JwtTokenProvider implements InitializingBean {
      * @param accessToken
      * @return
      */
-    private Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String accessToken) {
         try {
-            return Jwts.parser().setSigningKey(jwtKey).parseClaimsJws(accessToken).getBody();
+            return Jwts.parserBuilder().setSigningKey(jwtKey).build().parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
@@ -132,12 +132,12 @@ public class JwtTokenProvider implements InitializingBean {
     /**
      * token의 유효성을 확인하는 함수
      *
-     * @param token
+     * @param accessToken
      * @return
      */
-    public Boolean validateToken(String token) {
+    public Boolean validateToken(String accessToken) {
         try {
-            Jwts.parser().setSigningKey(jwtKey).parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(jwtKey).build().parseClaimsJws(accessToken);
             return true;
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");

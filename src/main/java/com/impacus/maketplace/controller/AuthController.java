@@ -9,9 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("auth")
 public class AuthController {
 
+    private static final String AUTHORIZATION_HEADER = "Authorization";
     private final UserService userService;
 
     @PostMapping("/sign-up")
@@ -45,5 +48,12 @@ public class AuthController {
             throw new CustomException(ex);
         }
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/test")
+    @PreAuthorize("hasAnyRole('UNCERTIFIED_USER')")
+    public ResponseEntity<Object> test(
+        @RequestHeader(value = AUTHORIZATION_HEADER) String accessToken) {
+        return ResponseEntity.ok(userService.getMyUserWithAuthorities(accessToken));
     }
 }
