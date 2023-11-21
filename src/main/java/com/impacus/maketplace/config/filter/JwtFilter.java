@@ -1,5 +1,7 @@
 package com.impacus.maketplace.config.filter;
 
+import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -9,13 +11,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class JwtFilter extends GenericFilterBean {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -24,7 +29,7 @@ public class JwtFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-        FilterChain filterChain) throws IOException, ServletException {
+        FilterChain filterChain) throws IOException, ServletException, CustomException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String jwtAccessToken = parseBearerToken(httpServletRequest);
         String requestURI = httpServletRequest.getRequestURI();

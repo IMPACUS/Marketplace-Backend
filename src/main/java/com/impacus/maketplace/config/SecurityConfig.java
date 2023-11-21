@@ -26,7 +26,7 @@ public class SecurityConfig {
         "/status", "/images/**", "/error/**,/favicon.ico"
     };
     private static final String[] AUTH_WHITELIST = {
-        "/auth/sign-up/**", "/auth/login/**"
+        "/auth/sign-up/**", "/auth/login/**", "/auth/reissue/**",
     };
 
     @Bean

@@ -1,12 +1,8 @@
 package com.impacus.maketplace.config.endpoint;
 
-import com.impacus.maketplace.common.enumType.ErrorType;
-import com.impacus.maketplace.common.exception.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;

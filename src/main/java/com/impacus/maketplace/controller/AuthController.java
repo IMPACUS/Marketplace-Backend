@@ -4,7 +4,9 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.dto.user.UserDTO;
 import com.impacus.maketplace.entity.dto.user.request.LoginRequest;
 import com.impacus.maketplace.entity.dto.user.request.SignUpRequest;
+import com.impacus.maketplace.entity.dto.user.request.TokenRequest;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,7 @@ public class AuthController {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private final UserService userService;
+    private final AuthService authService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<Object> addUser(@RequestBody SignUpRequest signUpRequest) {
@@ -44,6 +47,23 @@ public class AuthController {
         UserDTO userDTO = null;
         try {
             userDTO = userService.login(loginRequest);
+        } catch (CustomException ex) {
+            throw new CustomException(ex);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/reissue")
+    public ResponseEntity<Object> reissueToken(
+        @RequestHeader(value = AUTHORIZATION_HEADER) String accessToken,
+        @RequestBody TokenRequest tokenRequest) {
+        UserDTO userDTO = null;
+        try {
+            userDTO = authService.reissueToken(accessToken, tokenRequest.getRefreshToken());
+        } catch (CustomException ex) {
+            throw new CustomException(ex);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

@@ -17,4 +17,13 @@ public class StringUtils {
         return oauthProviderType + "_" + email;
     }
 
+    public static String parseGrantTypeInToken(String strGrantType, String token) {
+        if (token.startsWith(strGrantType + " ")) {
+            return token.substring(strGrantType.length() + 1);
+        }
+
+        return token;
+    }
+
+
 }

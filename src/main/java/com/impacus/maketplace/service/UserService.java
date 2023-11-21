@@ -156,9 +156,7 @@ public class UserService {
      * @return
      */
     public Optional<User> getMyUserWithAuthorities(String accessToken) {
-        if (accessToken.startsWith("Bearer ")) {
-            accessToken = accessToken.substring(7);
-        }
+        accessToken = StringUtils.parseGrantTypeInToken("Bearer", accessToken);
 
         Authentication authentication = tokenProvider.getAuthentication(accessToken);
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
@@ -167,5 +165,9 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+    }
 
 }

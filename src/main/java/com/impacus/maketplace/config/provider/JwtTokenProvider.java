@@ -123,7 +123,8 @@ public class JwtTokenProvider implements InitializingBean {
      */
     public Claims parseClaims(String accessToken) {
         try {
-            return Jwts.parserBuilder().setSigningKey(jwtKey).build().parseClaimsJws(accessToken).getBody();
+            return Jwts.parserBuilder().setSigningKey(jwtKey).build().parseClaimsJws(accessToken)
+                .getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
@@ -132,12 +133,12 @@ public class JwtTokenProvider implements InitializingBean {
     /**
      * token의 유효성을 확인하는 함수
      *
-     * @param accessToken
+     * @param jwtToken
      * @return
      */
-    public Boolean validateToken(String accessToken) {
+    public Boolean validateToken(String jwtToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(jwtKey).build().parseClaimsJws(accessToken);
+            Jwts.parserBuilder().setSigningKey(jwtKey).build().parseClaimsJws(jwtToken);
             return true;
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
