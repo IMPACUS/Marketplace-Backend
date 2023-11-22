@@ -11,6 +11,8 @@ import com.impacus.maketplace.entity.dto.user.UserDTO;
 import com.impacus.maketplace.entity.dto.user.request.LoginRequest;
 import com.impacus.maketplace.entity.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.entity.vo.auth.TokenInfoVO;
+import com.impacus.maketplace.redis.entity.LoginFailAttempt;
+import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -28,16 +30,20 @@ import security.CustomUserDetails;
 @Transactional(readOnly = true)
 public class UserService {
 
+    private static final int LIMIT_LOGIN_FAIL_ATTEMPT = 5;
+
     private final UserRepository userRepository;
     private final AuthenticationManagerBuilder managerBuilder;
     private final JwtTokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final LoginFailAttemptService loginFailAttemptService;
 
+    @Transactional
     public UserDTO addUser(SignUpRequest signUpRequest) {
         String email = signUpRequest.getEmail();
         String password = signUpRequest.getPassword();
 
-        // 1. 이메일 유효성 검사
+        // 1. 이메일 유효성 검사 -> redis 전에도 안됬는지 확인
         User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
         if (existedUser != null) {
             if (existedUser.getEmail().contains(OauthProviderType.NONE.name())) {
@@ -88,6 +94,7 @@ public class UserService {
         return (!findUserList.isEmpty()) ? findUserList.get(0) : null;
     }
 
+    @Transactional
     public UserDTO login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
@@ -112,25 +119,21 @@ public class UserService {
         }
 
         // 3. 비밀번호 확인
-//        if (!encodePassword(password).equals(user.getPassword())) {
-//            increaseLoginCnt(user);
-//            throw new CustomException(ErrorType.WRONG_PASSWORD);
-//        }
+        if (!encodePassword(password).equals(user.getPassword())) {
+            LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
+
+            if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
+                //user.setStatus(UserStatus.BLOCKED, "로그인 시도 가능 횟수 초과");
+                int result = userRepository.updateUserStatus(user.getId(), UserStatus.BLOCKED);
+            }
+
+            throw new CustomException(ErrorType.WRONG_PASSWORD);
+        }
 
         // 4. JWT 토큰 생성
         TokenInfoVO tokenInfoVO = getJwtTokenInfo(user.getEmail(), password);
 
         return new UserDTO(user, tokenInfoVO);
-    }
-
-    /**
-     * 로그인을 요청한 사용자의 비밀번호가 틀린 경우, 로그인 시도 횟수 추가를 진행하는 함수
-     *
-     * @param user
-     */
-    private void increaseLoginCnt(User user) {
-        // redis 설정
-        // 비밀번호 증가 로직 설정
     }
 
     public TokenInfoVO getJwtTokenInfo(String email, String password) {
