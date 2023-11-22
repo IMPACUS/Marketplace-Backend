@@ -1,6 +1,6 @@
 package com.impacus.maketplace.config.filter;
 
-import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -34,7 +33,7 @@ public class JwtFilter extends GenericFilterBean {
         String jwtAccessToken = parseBearerToken(httpServletRequest);
         String requestURI = httpServletRequest.getRequestURI();
 
-        if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateToken(jwtAccessToken)) {
+        if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateToken(jwtAccessToken) == TokenErrorType.NONE) {
             Authentication authentication = tokenProvider.getAuthentication(jwtAccessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {

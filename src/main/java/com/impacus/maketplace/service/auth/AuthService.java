@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.auth;
 
-import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
@@ -32,8 +32,9 @@ public class AuthService {
         accessToken = StringUtils.parseGrantTypeInToken("Bearer", accessToken);
 
         // 1. refresh token 유효성 확인
-        if (!tokenProvider.validateToken(refreshToken)) {
-            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorType.EXPIRED_REFRESH_TOKEN);
+        TokenErrorType validateResult = tokenProvider.validateToken(refreshToken);
+        if (validateResult != TokenErrorType.NONE) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, validateResult.getErrorType());
         }
 
         // 2. Access token 사용자 확인

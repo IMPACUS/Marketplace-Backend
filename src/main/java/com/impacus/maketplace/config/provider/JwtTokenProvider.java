@@ -1,7 +1,8 @@
 package com.impacus.maketplace.config.provider;
 
 
-import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.vo.auth.TokenInfoVO;
 import io.jsonwebtoken.Claims;
@@ -136,17 +137,16 @@ public class JwtTokenProvider implements InitializingBean {
      * @param jwtToken
      * @return
      */
-    public Boolean validateToken(String jwtToken) {
+    public TokenErrorType validateToken(String jwtToken) {
         try {
             Jwts.parserBuilder().setSigningKey(jwtKey).build().parseClaimsJws(jwtToken);
-            return true;
+            return TokenErrorType.NONE;
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            return TokenErrorType.EXPIRED_TOKEN;
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            return TokenErrorType.UNSUPPORTED_TOKEN;
         } catch (IllegalStateException e) {
-            log.info("JWT 토큰이 잘못되었습니다");
+            return TokenErrorType.INVALID_TOKEN;
         }
-        return false;
     }
 }

@@ -1,10 +1,9 @@
 package com.impacus.maketplace.entity.dto.error;
 
-import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Data

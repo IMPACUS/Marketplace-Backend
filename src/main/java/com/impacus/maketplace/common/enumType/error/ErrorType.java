@@ -1,4 +1,4 @@
-package com.impacus.maketplace.common.enumType;
+package com.impacus.maketplace.common.enumType.error;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public enum ErrorType {
 
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),
-    EXPIRED_REFRESH_TOKEN("102_EXPIRED_REFRESH_TOKEN", "만료된 토큰입니다."),
+    EXPIRED_TOKEN("102_EXPIRED_TOKEN", "만료된 토큰입니다."),
 
     // 403
     ACESS_DENIED_EMAIL("301_ACESS_DENIED_EMAIL", "접근 권한이 없는 사용자 요청입니다.");

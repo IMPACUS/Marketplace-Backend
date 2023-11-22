@@ -1,6 +1,6 @@
 package com.impacus.maketplace.common.handler;
 
-import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

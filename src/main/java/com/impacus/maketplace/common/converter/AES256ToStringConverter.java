@@ -1,6 +1,6 @@
 package com.impacus.maketplace.common.converter;
 
-import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.cryptography.AES256Utils;
 import jakarta.persistence.AttributeConverter;

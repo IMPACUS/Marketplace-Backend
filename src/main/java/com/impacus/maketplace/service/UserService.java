@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -48,7 +48,7 @@ public class UserService {
         }
 
         // 2. 비밃번호 유효성 검사
-        if (!StringUtils.checkPasswordValidation(password)) {
+        if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
             throw new CustomException(ErrorType.INVALID_PASSWORD);
         }
 
@@ -107,7 +107,7 @@ public class UserService {
         }
 
         // 2. 비밃번호 유효성 검사
-        if (!StringUtils.checkPasswordValidation(password)) {
+        if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
             throw new CustomException(ErrorType.INVALID_PASSWORD);
         }
 

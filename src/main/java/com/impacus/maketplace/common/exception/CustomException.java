@@ -1,6 +1,6 @@
 package com.impacus.maketplace.common.exception;
 
-import com.impacus.maketplace.common.enumType.ErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
