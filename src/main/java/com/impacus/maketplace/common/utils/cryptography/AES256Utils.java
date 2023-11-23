@@ -70,6 +70,6 @@ public class AES256Utils {
     }
 
     private static String getEncodedIV() {
-        return ENCODER_BASE64.encodeToString(secretKeyAES.substring(0, 17).getBytes());
+        return ENCODER_BASE64.encodeToString(secretKeyAES.substring(0, 16).getBytes());
     }
 }

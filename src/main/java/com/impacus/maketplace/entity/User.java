@@ -79,17 +79,13 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean isWithdrawn; // 철회 여부
 
-    @Column(nullable = false)
-    private Boolean withdrawnDateTime; // 철회 진행 시간
+    private LocalDateTime withdrawnDateTime; // 철회 진행 시간
 
     @Column(nullable = false)
     private Boolean isDormancy; // 휴면 계정 여부
 
-    @Column(nullable = false)
-    private Boolean dormancyDateTime; // 철회 진행 시간
+    private LocalDateTime dormancyDateTime; // 철회 진행 시간
 
-    @ColumnDefault("1")
-    @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private PaymentMethod selectedPaymentMethod; // 선택된 결제 수단
 
@@ -120,5 +116,23 @@ public class User extends BaseTimeEntity {
 
     @Convert(converter = AES256ToStringConverter.class)
     private String pccc; // 개인 통관 고유 번호
+
+    public User(String email, String password, String name) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.status = UserStatus.ACTIVE;
+        this.type = UserType.ROLE_UNCERTIFIED_USER;
+        this.greenLablePoint = 0L;
+        this.isAdmin = false;
+        this.isCertEmail = false;
+        this.isCertPhone = false;
+        this.isCertBank = false;
+        this.doesAgreeServicePolicy = false;
+        this.doesAgreePersonalPolicy = false;
+        this.doesAgreeService = false;
+        this.isWithdrawn = false;
+        this.isDormancy = false;
+    }
 
 }
