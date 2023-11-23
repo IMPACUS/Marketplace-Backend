@@ -68,6 +68,7 @@ public class UserService {
         return new UserDTO(user);
     }
 
+
     /**
      * Oauth Provider와 상관없이 email로 등록된 User를 검색하는 함수
      *
@@ -94,7 +95,7 @@ public class UserService {
         return (!findUserList.isEmpty()) ? findUserList.get(0) : null;
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = CustomException.class)
     public UserDTO login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
@@ -123,8 +124,7 @@ public class UserService {
             LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
 
             if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
-                //user.setStatus(UserStatus.BLOCKED, "로그인 시도 가능 횟수 초과");
-                int result = userRepository.updateUserStatus(user.getId(), UserStatus.BLOCKED);
+                changeUserStatus(user, UserStatus.BLOCKED);
             }
 
             throw new CustomException(ErrorType.WRONG_PASSWORD);
@@ -134,6 +134,17 @@ public class UserService {
         TokenInfoVO tokenInfoVO = getJwtTokenInfo(user.getEmail(), password);
 
         return new UserDTO(user, tokenInfoVO);
+    }
+
+    @Transactional(noRollbackFor = CustomException.class)
+    public void changeUserStatus(User user, UserStatus userStatus) {
+        switch (userStatus) {
+            case BLOCKED: {
+                userRepository.updateUserStatus(user.getId(), UserStatus.BLOCKED,
+                    "로그인 시도 가능 횟수 초과");
+            }
+            break;
+        }
     }
 
     public TokenInfoVO getJwtTokenInfo(String email, String password) {
