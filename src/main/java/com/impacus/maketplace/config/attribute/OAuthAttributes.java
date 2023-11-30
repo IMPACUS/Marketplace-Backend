@@ -44,7 +44,16 @@ public class OAuthAttributes {
 
     private static OAuthAttributes ofNaver(String nameAttributeKey,
         Map<String, Object> attributes) {
-        return null;
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+
+        return OAuthAttributes.builder()
+            .name((String) response.get("name"))
+            .email((String) response.get("email"))
+            .oAuthProvider(OauthProviderType.NAVER)
+            .attributes(response)
+            .nameAttributeKey(nameAttributeKey)
+            .build();
+
     }
 
     private static OAuthAttributes ofGoogle(String nameAttributeKey,
@@ -67,9 +76,6 @@ public class OAuthAttributes {
     }
 
     public User toEntity() {
-        return User.builder()
-            .name(name)
-            .email(StringUtils.createStrEmail(email, oAuthProvider))
-            .build();
+        return new User(StringUtils.createStrEmail(email, oAuthProvider), null, name);
     }
 }
