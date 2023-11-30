@@ -41,6 +41,16 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
             .build();
     }
 
+    public static CustomUserDetails create(User user, Map<String, Object> attributes) {
+        CustomUserDetails userDetails = CustomUserDetails.create(user);
+        userDetails.setAttributes(attributes);
+        return userDetails;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
     @Override
     public String getUsername() {
         return email;
@@ -75,4 +85,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

@@ -1,8 +1,11 @@
 package com.impacus.maketplace.config;
 
 import com.impacus.maketplace.common.handler.JwtAccessDeniedHandler;
+import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
+import com.impacus.maketplace.common.handler.OAuth2AuthenticationSuccessHandler;
 import com.impacus.maketplace.config.endpoint.JwtAuthenticationEntryPoint;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.service.auth.CustomOauth2UserService;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +24,9 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final OAuth2AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
 
     private static final String[] DEFAULT_WHITELIST = {
         "/status", "/images/**", "/error/**,/favicon.ico"
@@ -47,6 +53,13 @@ public class SecurityConfig {
             .requestMatchers(AUTH_WHITELIST).permitAll()
             .anyRequest().authenticated()
         );
+        http
+            .oauth2Login()
+            .userInfoEndpoint()
+            .userService(customOauth2UserService)
+            .and()
+            .successHandler(authenticationSuccessHandler)
+            .failureHandler(authenticationFailureHandler);
         http.apply(new JwtSecurityConfig(jwtTokenProvider));
         return http.build();
     }
