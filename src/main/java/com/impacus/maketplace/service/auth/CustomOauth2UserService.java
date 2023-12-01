@@ -3,11 +3,9 @@ package com.impacus.maketplace.service.auth;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.repository.UserRepository;
-import com.impacus.maketplace.service.UserService;
-import javax.swing.text.html.Option;
+import java.util.List;
 import security.CustomUserDetails;
 import security.SessionUser;
 import com.impacus.maketplace.entity.User;
@@ -56,14 +54,20 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private User saveOrUpdate(OAuthAttributes attributes) {
         OauthProviderType oauthProviderType = attributes.getOAuthProvider();
-        String emailWithPrefix = StringUtils.createStrEmail(attributes.getEmail(),
-            oauthProviderType);
+        String email = attributes.getEmail();
 
-        User user = userRepository.findByEmailLike(emailWithPrefix)
-            .orElse(attributes.toEntity());
+        // 1. 이메일이 등록되어 있는지 확인
+        List<User> userList = userRepository.findByEmailLike("%_" + email);
 
-        if (!user.getEmail().contains(oauthProviderType.name())) {
-            throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+        // 2. 등록되지 않은 경우: 저장 / 다른 제공사로 등록되어 있는 경우 예외 발생
+        User user = null;
+        if (!userList.isEmpty()) {
+            user = userList.get(0);
+            if (!user.getEmail().contains(oauthProviderType.name())) {
+                throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+            }
+        } else {
+            user = attributes.toEntity();
         }
 
         return userRepository.save(user);

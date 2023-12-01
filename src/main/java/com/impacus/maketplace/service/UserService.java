@@ -75,7 +75,7 @@ public class UserService {
      * @param email '%@%.%' 포맷의 이메일 데이터
      * @return 매개변수로 받은 email로 등록된 User 리스트
      */
-    public Optional<User> findUsersByEmailAboutAllProvider(String email) {
+    public List<User> findUsersByEmailAboutAllProvider(String email) {
         return userRepository.findByEmailLike("%_" + email);
     }
 
@@ -87,7 +87,7 @@ public class UserService {
      * @return 요청한 데이터 기준으로 데이터가 존재하는 경우 User, 데이터가 존재하지 않은 경우 null
      */
     public User findUserByEmailAndOauthProviderType(String email, OauthProviderType providerType) {
-        Optional<User> userList = findUsersByEmailAboutAllProvider(email);
+        List<User> userList = findUsersByEmailAboutAllProvider(email);
         List<User> findUserList = userList.stream()
             .filter(user -> user.getEmail().equals(providerType + "_" + email))
             .toList();
