@@ -16,6 +16,7 @@ public class OAuthAttributes {
 
     private final static String NAVER_STRING_KEY = "naver";
     private final static String KAKAO_STRING_KEY = "kakao";
+    private final static String GOOGLE_STRING_KEY = "google";
 
     private Map<String, Object> attributes;
     private String nameAttributeKey;
@@ -38,10 +39,15 @@ public class OAuthAttributes {
         if (NAVER_STRING_KEY.equals(registrationId)) {
             return ofNaver("id", attributes);
         }
-        if (KAKAO_STRING_KEY.equals(registrationId)) {
+        else if (KAKAO_STRING_KEY.equals(registrationId)) {
             return ofKakao("id", attributes);
         }
-        return ofGoogle(userNameAttributeName, attributes);
+        else if (GOOGLE_STRING_KEY.equals(registrationId)) {
+            return ofGoogle(userNameAttributeName, attributes);
+        }
+        else {
+            return ofApple(userNameAttributeName, attributes);
+        }
     }
 
     private static OAuthAttributes ofNaver(String nameAttributeKey,
@@ -90,6 +96,11 @@ public class OAuthAttributes {
             .attributes(attributes)
             .nameAttributeKey(nameAttributeKey)
             .build();
+    }
+
+    private static OAuthAttributes ofApple(String nameAttributeKey,
+        Map<String, Object> attributes) {
+        return null;
     }
 
     public User toEntity() {
