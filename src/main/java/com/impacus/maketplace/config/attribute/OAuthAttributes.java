@@ -1,6 +1,8 @@
 package com.impacus.maketplace.config.attribute;
 
 import com.impacus.maketplace.common.enumType.OauthProviderType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.entity.User;
 import java.util.Map;
@@ -66,8 +68,12 @@ public class OAuthAttributes {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> kakaoProperty = (Map<String, Object>) attributes.get("properties");
 
+        if (!((Boolean) kakaoAccount.get("has_email"))) {
+            throw new CustomException(ErrorType.NOT_ALLOW_EMAIL);
+        }
+
         return OAuthAttributes.builder()
-            .name((String) kakaoAccount.get("nickname"))
+            .name((String) kakaoProperty.get("nickname"))
             .email((String) kakaoAccount.get("email"))
             .oAuthProvider(OauthProviderType.KAKAO)
             .attributes(attributes)

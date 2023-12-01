@@ -16,6 +16,7 @@ public enum ErrorType {
     NOT_EXISTED_EMAIL("006_NOT_EXISTED_EMAIL", "존재하지 않는 회원입니다."),
     BLOCKED_EMAIL("007_BLOCKED_EMAIL", "차단된 사용자 입니다."),
     WRONG_PASSWORD("008_WRONG_PASSWORD", "틀린 비밀번호 입니다."),
+    NOT_ALLOW_EMAIL("009_NOT_ALLOW_EMAIL", "이메일 사용이 허용이 되지 않은 사용자입니다."),
 
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),
