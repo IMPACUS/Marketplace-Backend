@@ -2,9 +2,11 @@ package com.impacus.maketplace.service.auth;
 
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
-import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationException;
+import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.repository.UserRepository;
+import java.io.IOException;
 import java.util.List;
 import security.CustomUserDetails;
 import security.SessionUser;
@@ -26,6 +28,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
     private final HttpSession httpSession;
+    private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
 
     private String oauthToken = "";
 
@@ -36,10 +39,15 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         oauthToken = userRequest.getAccessToken().getTokenValue();
 
-        return process(userRequest, oAuth2User);
+        try {
+            return process(userRequest, oAuth2User);
+        } catch (IOException e) {
+            throw new CustomOAuth2AuthenticationException("SERVER_ERROR");
+        }
     }
 
-    private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
+    private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User oAuth2User)
+        throws IOException {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
             .getUserInfoEndpoint().getUserNameAttributeName();
@@ -52,7 +60,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     }
 
 
-    private User saveOrUpdate(OAuthAttributes attributes) {
+    private User saveOrUpdate(OAuthAttributes attributes)
+        throws CustomOAuth2AuthenticationException {
         OauthProviderType oauthProviderType = attributes.getOAuthProvider();
         String email = attributes.getEmail();
 
@@ -64,7 +73,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         if (!userList.isEmpty()) {
             user = userList.get(0);
             if (!user.getEmail().contains(oauthProviderType.name())) {
-                throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                throw new CustomOAuth2AuthenticationException("SERVER_ERROR",
+                    ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             }
         } else {
             user = attributes.toEntity();

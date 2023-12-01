@@ -46,6 +46,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         response.setStatus(HttpServletResponse.SC_OK);
 
         return UriComponentsBuilder.fromUriString(redirectUri)
+            .queryParam("success", true)
             .queryParam("accessToken", tokenInfoVO.getAccessToken())
             .queryParam("refreshToken", tokenInfoVO.getRefreshToken())
             .build().toUriString();
