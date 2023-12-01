@@ -60,7 +60,18 @@ public class OAuthAttributes {
 
     private static OAuthAttributes ofGoogle(String nameAttributeKey,
         Map<String, Object> attributes) {
-        return null;
+
+        if (Boolean.FALSE.equals((attributes.get("email_verified")))) {
+            throw new CustomException(ErrorType.NOT_ALLOW_EMAIL);
+        }
+
+        return OAuthAttributes.builder()
+            .name((String) attributes.get("name"))
+            .email((String) attributes.get("email"))
+            .oAuthProvider(OauthProviderType.GOOGLE)
+            .attributes(attributes)
+            .nameAttributeKey(nameAttributeKey)
+            .build();
     }
 
     private static OAuthAttributes ofKakao(String nameAttributeKey,
@@ -68,7 +79,7 @@ public class OAuthAttributes {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> kakaoProperty = (Map<String, Object>) attributes.get("properties");
 
-        if (!((Boolean) kakaoAccount.get("has_email"))) {
+        if (Boolean.FALSE.equals((kakaoAccount.get("has_email")))) {
             throw new CustomException(ErrorType.NOT_ALLOW_EMAIL);
         }
 
