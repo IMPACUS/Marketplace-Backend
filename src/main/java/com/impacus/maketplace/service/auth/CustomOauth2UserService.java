@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
@@ -59,8 +58,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         return CustomUserDetails.create(user, oAuth2User.getAttributes());
     }
 
-
-    private User saveOrUpdate(OAuthAttributes attributes)
+    public User saveOrUpdate(OAuthAttributes attributes)
         throws CustomOAuth2AuthenticationException {
         OauthProviderType oauthProviderType = attributes.getOAuthProvider();
         String email = attributes.getEmail();
