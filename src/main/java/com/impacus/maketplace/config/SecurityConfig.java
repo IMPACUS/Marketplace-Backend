@@ -32,7 +32,7 @@ public class SecurityConfig {
         "/status", "/images/**", "/error/**,/favicon.ico"
     };
     private static final String[] AUTH_WHITELIST = {
-        "/auth/v1/sign-up/**", "/auth/v1/login/**", "/auth/v1/reissue/**",
+        "/auth/v1/**",
     };
 
     @Bean
@@ -49,6 +49,7 @@ public class SecurityConfig {
         http.cors();
         http.authorizeHttpRequests(request -> request
             .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+            .requestMatchers("/**").permitAll()
             .requestMatchers(DEFAULT_WHITELIST).permitAll()
             .requestMatchers(AUTH_WHITELIST).permitAll()
             .anyRequest().authenticated()
