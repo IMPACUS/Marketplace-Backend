@@ -29,7 +29,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
 
-    @PostMapping("/sign-up")
+    @PostMapping("v1/sign-up")
     public ResponseEntity<Object> addUser(@RequestBody SignUpRequest signUpRequest) {
         UserDTO userDTO = null;
         try {
@@ -42,7 +42,7 @@ public class AuthController {
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/login")
+    @GetMapping("v1/login")
     public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
         UserDTO userDTO = null;
         try {
@@ -55,7 +55,7 @@ public class AuthController {
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/reissue")
+    @GetMapping("v1/reissue")
     public ResponseEntity<Object> reissueToken(
         @RequestHeader(value = AUTHORIZATION_HEADER) String accessToken,
         @RequestBody TokenRequest tokenRequest) {

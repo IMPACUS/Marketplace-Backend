@@ -120,7 +120,7 @@ public class UserService {
         }
 
         // 3. 비밀번호 확인
-        if (!encodePassword(password).equals(user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
 
             if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
