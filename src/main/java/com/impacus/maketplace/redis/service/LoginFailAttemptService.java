@@ -1,6 +1,6 @@
 package com.impacus.maketplace.redis.service;
 
-import com.impacus.maketplace.entity.User;
+import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.repository.LoginFailAttemptRepository;
 import lombok.RequiredArgsConstructor;

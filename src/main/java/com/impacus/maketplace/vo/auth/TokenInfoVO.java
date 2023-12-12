@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.vo.auth;
+package com.impacus.maketplace.vo.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

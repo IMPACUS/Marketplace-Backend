@@ -2,7 +2,7 @@ package com.impacus.maketplace.service.auth;
 
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.entity.User;
+import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

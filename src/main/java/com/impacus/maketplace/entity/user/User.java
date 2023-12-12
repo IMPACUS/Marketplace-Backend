@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity;
+package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseTimeEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
