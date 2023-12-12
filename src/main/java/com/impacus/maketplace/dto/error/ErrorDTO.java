@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.dto.error;
+package com.impacus.maketplace.dto.error;
 
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;

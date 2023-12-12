@@ -4,7 +4,7 @@ package com.impacus.maketplace.config.provider;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.entity.vo.auth.TokenInfoVO;
+import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

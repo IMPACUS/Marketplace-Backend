@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity;
+package com.impacus.maketplace.entity.common;
 
 import com.impacus.maketplace.common.BaseTimeEntity;
 import jakarta.persistence.*;

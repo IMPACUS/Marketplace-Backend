@@ -1,10 +1,10 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.entity.dto.user.UserDTO;
-import com.impacus.maketplace.entity.dto.user.request.LoginRequest;
-import com.impacus.maketplace.entity.dto.user.request.SignUpRequest;
-import com.impacus.maketplace.entity.dto.user.request.TokenRequest;
+import com.impacus.maketplace.dto.user.UserDTO;
+import com.impacus.maketplace.dto.user.request.LoginRequest;
+import com.impacus.maketplace.dto.user.request.SignUpRequest;
+import com.impacus.maketplace.dto.user.request.TokenRequest;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;

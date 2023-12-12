@@ -1,7 +1,7 @@
 package security;
 
 import com.impacus.maketplace.common.enumType.UserType;
-import com.impacus.maketplace.entity.User;
+import com.impacus.maketplace.entity.user.User;
 import lombok.Getter;
 
 @Getter

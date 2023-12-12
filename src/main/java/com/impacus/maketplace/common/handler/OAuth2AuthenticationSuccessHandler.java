@@ -1,7 +1,7 @@
 package com.impacus.maketplace.common.handler;
 
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
-import com.impacus.maketplace.entity.vo.auth.TokenInfoVO;
+import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

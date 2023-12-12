@@ -1,6 +1,6 @@
 package security;
 
-import com.impacus.maketplace.entity.User;
+import com.impacus.maketplace.entity.user.User;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

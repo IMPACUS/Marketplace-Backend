@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository;
 
 import com.impacus.maketplace.common.enumType.UserStatus;
-import com.impacus.maketplace.entity.User;
+import com.impacus.maketplace.entity.user.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

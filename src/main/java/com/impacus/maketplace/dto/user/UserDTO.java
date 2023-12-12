@@ -1,7 +1,7 @@
-package com.impacus.maketplace.entity.dto.user;
+package com.impacus.maketplace.dto.user;
 
-import com.impacus.maketplace.entity.User;
-import com.impacus.maketplace.entity.vo.auth.TokenInfoVO;
+import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.Data;
 
 @Data
