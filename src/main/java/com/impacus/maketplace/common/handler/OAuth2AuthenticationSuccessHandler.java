@@ -33,7 +33,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(HttpServletResponse response,
         Authentication authentication) {
         TokenInfoVO tokenInfoVO = tokenProvider.createToken(authentication);
-        String jsonResponse = "{\"accessToken\": \"" + tokenInfoVO.getAccessToken() + "\"}";
+        String jsonResponse = "{\"accessToken\": \"" + tokenInfoVO.accessToken() + "\"}";
 
         try {
             PrintWriter writer = response.getWriter();
@@ -47,8 +47,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         return UriComponentsBuilder.fromUriString(redirectUri)
             .queryParam("success", true)
-            .queryParam("accessToken", tokenInfoVO.getAccessToken())
-            .queryParam("refreshToken", tokenInfoVO.getRefreshToken())
+            .queryParam("accessToken", tokenInfoVO.accessToken())
+            .queryParam("refreshToken", tokenInfoVO.refreshToken())
             .build().toUriString();
     }
 }

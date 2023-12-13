@@ -3,13 +3,9 @@ package com.impacus.maketplace.vo.auth;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 @Builder
-@Data
-@AllArgsConstructor
-public class TokenInfoVO {
+public record TokenInfoVO(String grantType, String accessToken, String refreshToken) {
 
-    private String grantType;
-    private String accessToken;
-    private String refreshToken;
 }
