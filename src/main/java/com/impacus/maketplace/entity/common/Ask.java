@@ -1,7 +1,6 @@
 package com.impacus.maketplace.entity.common;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.BaseUserEntity;
 import com.impacus.maketplace.common.enumType.AskType;
 import jakarta.persistence.*;
 import lombok.*;
