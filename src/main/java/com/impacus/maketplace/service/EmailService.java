@@ -50,7 +50,7 @@ public class EmailService {
             javaMailSender.send(mimeMessage);
 
             emailDto.setReceiveEmail(Base64.getEncoder().
-                    encodeToString(emailDto.getReceiveEmail().getBytes()));
+                    encodeToString(emailDto.getReceiveEmail().getBytes(StandardCharsets.UTF_8)));
             emailDto.setAuthNo(authNumber);
             emailDto.setMailType(mailType.getCode());
             EmailHistory emailHistory = objectCopyHelper.copyObject(emailDto, EmailHistory.class);
