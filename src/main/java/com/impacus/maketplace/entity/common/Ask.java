@@ -1,6 +1,6 @@
 package com.impacus.maketplace.entity.common;
 
-import com.impacus.maketplace.common.BaseTimeEntity;
+import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.BaseUserEntity;
 import com.impacus.maketplace.common.enumType.AskType;
 import jakarta.persistence.*;
@@ -11,7 +11,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Ask extends BaseTimeEntity{
+public class Ask extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
