@@ -22,14 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("auth")
+@RequestMapping("api/v1/auth")
 public class AuthController {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private final UserService userService;
     private final AuthService authService;
 
-    @PostMapping("v1/sign-up")
+    @PostMapping("sign-up")
     public ResponseEntity<Object> addUser(@RequestBody SignUpRequest signUpRequest) {
         UserDTO userDTO = null;
         try {
@@ -40,7 +40,7 @@ public class AuthController {
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-    @GetMapping("v1/login")
+    @GetMapping("login")
     public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
         UserDTO userDTO = null;
         try {
@@ -51,7 +51,7 @@ public class AuthController {
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-    @GetMapping("v1/reissue")
+    @GetMapping("reissue")
     public ResponseEntity<Object> reissueToken(
         @RequestHeader(value = AUTHORIZATION_HEADER) String accessToken,
         @RequestBody TokenRequest tokenRequest) {
