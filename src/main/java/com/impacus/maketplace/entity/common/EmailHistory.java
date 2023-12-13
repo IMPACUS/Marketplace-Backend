@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.common;
 
+import com.impacus.maketplace.common.BaseTimeEntity;
 import com.impacus.maketplace.common.enumType.MailType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -8,7 +9,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "email_history")
-public class EmailHistory {
+public class EmailHistory extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +38,4 @@ public class EmailHistory {
     @Column(name = "register_id", nullable = false)
     private String registerId;
 
-    @Column(name = "register_datetime", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date registerDatetime;
 }

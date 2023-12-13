@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
@@ -31,10 +32,8 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
-    private final UserRepository userRepository;
     private final EmailHistoryRepository emailHistoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     public String sendMail(EmailDto emailDto,MailType mailType) {
         String authNumber = createCode();
@@ -59,8 +58,11 @@ public class EmailService {
     }
 
     public Boolean checkAuthNumber(EmailDto emailDto) {
-        String authNumber = emailHistoryRepository.findAuthNoByReceiveEmailAndAuthNoAndSendDatetime(emailDto.getReceiveEmail(), emailDto.getAuthNo()).stream().findFirst().get();
-
+        // 1 안
+//        String authNumber = emailHistoryRepository.findAuthNoByReceiveEmailAndAuthNoAndSendDatetime(emailDto.getReceiveEmail(), emailDto.getAuthNo()).stream().findFirst().get();
+        // 2 안
+        LocalDateTime threeMinutesAgoTime = LocalDateTime.now().minusMinutes(3);
+        String authNumber = emailHistoryRepository.findByReceiveEmailAndAuthNoAndSendDatetimeGreaterThan(emailDto.getReceiveEmail(), emailDto.getAuthNo(), threeMinutesAgoTime).stream().findFirst().get();
         return authNumber == null ? false : true;
     }
 

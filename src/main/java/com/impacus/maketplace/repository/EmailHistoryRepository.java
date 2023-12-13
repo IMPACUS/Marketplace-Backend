@@ -17,6 +17,6 @@ public interface EmailHistoryRepository extends JpaRepository<EmailHistory,Long>
             "  AND e.sendDatetime > (CURRENT_TIMESTAMP - INTERVAL 3 MINUTE)")
     List<String> findAuthNoByReceiveEmailAndAuthNoAndSendDatetime(@Param("receiveEmail") String receiveEmail,
                                                                   @Param("authNo") String authNo);
-//    List<String> findByReceiveEmailAndAuthNoAndSendDatetimeGreaterThan(String receiveEmail, String authNo, LocalDateTime threeMinutesAgo);
+    List<String> findByReceiveEmailAndAuthNoAndSendDatetimeGreaterThan(String receiveEmail, String authNo, LocalDateTime threeMinutesAgo);
 
 }
