@@ -1,7 +1,7 @@
 package com.impacus.maketplace.common.handler;
 
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.error.ErrorDTO;
+import com.impacus.maketplace.dto.error.response.ErrorDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

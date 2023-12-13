@@ -7,7 +7,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.dto.user.UserDTO;
+import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
@@ -67,7 +67,6 @@ public class UserService {
         // 4. UserDTO 반환
         return new UserDTO(user);
     }
-
 
     /**
      * Oauth Provider와 상관없이 email로 등록된 User를 검색하는 함수

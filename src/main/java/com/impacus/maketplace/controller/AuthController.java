@@ -1,7 +1,7 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.user.UserDTO;
+import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.request.TokenRequest;
