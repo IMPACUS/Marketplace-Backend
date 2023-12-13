@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -36,7 +38,7 @@ public class EmailService {
     private final EmailHistoryRepository emailHistoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
 
-    public String sendMail(EmailDto emailDto,MailType mailType) {
+    public Boolean sendMail(EmailDto emailDto,MailType mailType) {
         String authNumber = createCode();
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -47,14 +49,14 @@ public class EmailService {
             msgHelper.setText(setContext(authNumber, mailType.getTemplate()), true);
             javaMailSender.send(mimeMessage);
 
-            // TODO: 추후 이메일 저장시에는 암/복호화를 진행 해야함
             emailDto.setReceiveEmail(Base64.getEncoder().
                     encodeToString(emailDto.getReceiveEmail().getBytes()));
             emailDto.setAuthNo(authNumber);
             emailDto.setMailType(mailType.getCode());
             EmailHistory emailHistory = objectCopyHelper.copyObject(emailDto, EmailHistory.class);
-            emailHistoryRepository.save(emailHistory);
-            return authNumber;
+            EmailHistory result = emailHistoryRepository.save(emailHistory);
+
+            return result != null ? true : false;
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
@@ -62,7 +64,7 @@ public class EmailService {
 
     public Boolean checkAuthNumber(EmailDto emailDto) {
 
-        emailDto.setReceiveEmail(Base64.getEncoder().encodeToString(emailDto.getReceiveEmail().getBytes()));
+        emailDto.setReceiveEmail(Base64.getEncoder().encodeToString(emailDto.getReceiveEmail().getBytes(StandardCharsets.UTF_8)));
 
         // 1 안
 //        String authNumber = emailHistoryRepository.findAuthNoByReceiveEmailAndAuthNoAndSendDatetime(emailDto.getReceiveEmail(), emailDto.getAuthNo()).stream().findFirst().get();
