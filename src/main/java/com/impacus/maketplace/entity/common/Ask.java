@@ -33,6 +33,4 @@ public class Ask extends BaseEntity {
 
     private boolean isDeleted;
 
-
-
 }
