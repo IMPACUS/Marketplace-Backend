@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MailType {
-    AUTH(1, "AUTH"),
-    PASSWORD(2, "PASSWORD");
+    AUTH(1, "auth_mail"),
+    PASSWORD(2, "password_mail");
 
 
     private final int code;
-    private final String value;
+    private final String template;
 
 }

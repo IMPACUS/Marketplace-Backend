@@ -1,6 +1,7 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.enumType.MailType;
+import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.service.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,15 +23,20 @@ public class EmailController {
     private final EmailService emailService;
 
     @PostMapping("/send")
-    public ResponseEntity<EmailDto.Response> sendEmailCode(@RequestBody EmailDto emailDto, HttpServletRequest request) {
+    public ResponseEntity<?> sendEmailCode(@RequestBody EmailDto emailDto) {
 
-        String authCode = emailService.sendMail(emailDto,MailType.AUTH);
-        request.setAttribute("AUTH", authCode);
+        emailService.sendMail(emailDto,MailType.AUTH);
 
-        EmailDto.Response res = new EmailDto.Response();
-        res.setCode(authCode);
+        return ResponseEntity.ok().build();
+    }
 
-        return ResponseEntity.ok(res);
+    @PostMapping("/check")
+    public ApiResponseEntity<?> checkAuthNumber(@RequestBody EmailDto emailDto) {
+        Boolean result = emailService.checkAuthNumber(emailDto);
+
+        return ApiResponseEntity.builder()
+                .result(result)
+                .build();
     }
 
 
