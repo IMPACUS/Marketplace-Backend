@@ -30,7 +30,7 @@ public class AskController {
                 .build();
     }
 
-    @GetMapping("/list")
+    @PostMapping("/list")
     public ApiResponseEntity<List<AskDto>> loadAskList(@RequestBody AskDto askDto) {
         ApiResponseEntity<List<AskDto>> res = new ApiResponseEntity<>();
 
