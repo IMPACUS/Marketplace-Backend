@@ -83,8 +83,8 @@ public class EmailService {
             int index = random.nextInt(4);
 
             switch (index) {
-                case 0: key.append((char) ((int) random.nextInt(26) + 97)); break;
-                case 1: key.append((char) ((int) random.nextInt(26) + 65)); break;
+                case 0: key.append((char) (random.nextInt(26) + 97)); break;
+                case 1: key.append((char) (random.nextInt(26) + 65)); break;
                 default: key.append(random.nextInt(9));
             }
         }
