@@ -22,6 +22,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -47,6 +48,8 @@ public class EmailService {
             javaMailSender.send(mimeMessage);
 
             // TODO: 추후 이메일 저장시에는 암/복호화를 진행 해야함
+            emailDto.setReceiveEmail(Base64.getEncoder().
+                    encodeToString(emailDto.getReceiveEmail().getBytes()));
             emailDto.setAuthNo(authNumber);
             emailDto.setMailType(mailType.getCode());
             EmailHistory emailHistory = objectCopyHelper.copyObject(emailDto, EmailHistory.class);
@@ -58,9 +61,13 @@ public class EmailService {
     }
 
     public Boolean checkAuthNumber(EmailDto emailDto) {
+
+        emailDto.setReceiveEmail(Base64.getEncoder().encodeToString(emailDto.getReceiveEmail().getBytes()));
+
         // 1 안
 //        String authNumber = emailHistoryRepository.findAuthNoByReceiveEmailAndAuthNoAndSendDatetime(emailDto.getReceiveEmail(), emailDto.getAuthNo()).stream().findFirst().get();
         // 2 안
+
         LocalDateTime threeMinutesAgoTime = LocalDateTime.now().minusMinutes(3);
         String authNumber = emailHistoryRepository.findByReceiveEmailAndAuthNoAndSendDatetimeGreaterThan(emailDto.getReceiveEmail(), emailDto.getAuthNo(), threeMinutesAgoTime).stream().findFirst().get();
         return authNumber == null ? false : true;
