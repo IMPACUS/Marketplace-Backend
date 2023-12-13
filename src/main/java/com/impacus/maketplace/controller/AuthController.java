@@ -34,8 +34,6 @@ public class AuthController {
         UserDTO userDTO = null;
         try {
             userDTO = this.userService.addUser(signUpRequest);
-        } catch (CustomException ex) {
-            throw new CustomException(ex);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -47,8 +45,6 @@ public class AuthController {
         UserDTO userDTO = null;
         try {
             userDTO = userService.login(loginRequest);
-        } catch (CustomException ex) {
-            throw new CustomException(ex);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -62,8 +58,6 @@ public class AuthController {
         UserDTO userDTO = null;
         try {
             userDTO = authService.reissueToken(accessToken, tokenRequest.getRefreshToken());
-        } catch (CustomException ex) {
-            throw new CustomException(ex);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

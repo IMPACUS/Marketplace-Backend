@@ -35,16 +35,17 @@ public class CustomException extends RuntimeException {
         this.detail = cause.getMessage();
     }
 
-    public CustomException(CustomException customException) {
-        this.status = customException.getStatus();
-        this.errorType = customException.getErrorType();
-        this.detail = customException.getDetail();
-    }
-
-    public CustomException(Throwable cause) {
-        this.status = HttpStatus.BAD_REQUEST;
-        this.errorType = ErrorType.UNKNOWN;
-        this.detail = cause.getMessage();
+    public CustomException(Exception exception) {
+        if (exception.getClass() == CustomException.class) {
+            CustomException customException = (CustomException) exception;
+            this.status = customException.getStatus();
+            this.errorType = customException.getErrorType();
+            this.detail = customException.getDetail();
+        } else {
+            this.status = HttpStatus.BAD_REQUEST;
+            this.errorType = ErrorType.UNKNOWN;
+            this.detail = exception.getMessage();
+        }
     }
 
 }
