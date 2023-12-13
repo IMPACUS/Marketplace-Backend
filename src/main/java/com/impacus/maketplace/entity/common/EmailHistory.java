@@ -35,7 +35,7 @@ public class EmailHistory extends BaseTimeEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date sendDatetime;
 
-    @Column(name = "register_id", nullable = false)
-    private String registerId;
+    private transient String registerId ;
+    private transient String modifyId;
 
 }

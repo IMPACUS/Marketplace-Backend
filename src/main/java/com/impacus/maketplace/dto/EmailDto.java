@@ -13,6 +13,6 @@ public class EmailDto {
     private String receiveEmail;
     private String subject;
     private String authNo;
-    private int mailType;
+    private String mailType;
 
 }
