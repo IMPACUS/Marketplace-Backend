@@ -1,6 +1,6 @@
 package com.impacus.maketplace.entity.user;
 
-import com.impacus.maketplace.common.BaseTimeEntity;
+import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.UserHistoryType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserHistory extends BaseTimeEntity {
+public class UserHistory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_history_id")
