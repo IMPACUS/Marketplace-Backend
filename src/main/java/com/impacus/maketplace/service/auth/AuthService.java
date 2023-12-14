@@ -5,7 +5,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.dto.user.UserDTO;
+import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import com.impacus.maketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
