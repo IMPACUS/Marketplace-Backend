@@ -10,6 +10,8 @@ import org.hibernate.annotations.ColumnDefault;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@EqualsAndHashCode(callSuper = false)
 public class Ask extends BaseEntity {
 
     @Id
@@ -17,8 +19,8 @@ public class Ask extends BaseEntity {
     @Column(name = "ask_id")
     private Long id;
 
-    @Column(name = "parent_id")
     @ColumnDefault("0")
+    @Column(name = "parent_id")
     private Long parentAskId;
 
     @Enumerated(EnumType.STRING)

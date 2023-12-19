@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 public class ApiResponseEntity<T> {
 
+    @Builder.Default
     private boolean result = true;
+    @Builder.Default
     private boolean isAuthError = false;
     private HttpStatus code;
     private String message;
