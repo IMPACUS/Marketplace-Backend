@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.StringUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,12 +41,15 @@ public class S3Service {
     public String uploadFileInS3(MultipartFile file, String directoryPath) throws IOException {
         // 1. MultipartFile을 File로 변환
         File uploadFile = convertAndSaveInLocal(file)
-            .orElseThrow(() -> new CustomException(ErrorType.FAIL_TO_CONVERT_FILE));
+                .orElseThrow(() -> new CustomException(ErrorType.FAIL_TO_CONVERT_FILE));
 
         // 2. 업로드할 파일명 지정
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(UPLOAD_FILE_NAME_FORMAT);
         String formattedNow = LocalDateTime.now().format(formatter);
-        String fileName = String.format("%s/%s.%s", directoryPath, formattedNow, "png");
+        String fillExtension = StringUtils.getFileExtension(file.getOriginalFilename())
+                .orElse(null);
+        String fileName = (fillExtension == null) ? String.format("%s/%s", directoryPath, formattedNow) :
+                String.format("%s/%s.%s", directoryPath, formattedNow, fillExtension);
 
         // 3. S3에 업로드
         return putFileInS3(uploadFile, fileName);
@@ -57,8 +61,8 @@ public class S3Service {
     private String putFileInS3(File uploadFile, String fileName) {
         try {
             amazonS3Client.putObject(
-                new PutObjectRequest(s3BucketName, fileName, uploadFile).withCannedAcl(
-                    CannedAccessControlList.PublicRead));
+                    new PutObjectRequest(s3BucketName, fileName, uploadFile).withCannedAcl(
+                            CannedAccessControlList.PublicRead));
             return amazonS3Client.getUrl(s3BucketName, fileName).toString();
         } catch (Exception ex) {
             throw new CustomException(ex);

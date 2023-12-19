@@ -1,7 +1,7 @@
 package com.impacus.maketplace.common.utils;
 
 import com.impacus.maketplace.common.enumType.OauthProviderType;
-import java.util.regex.Pattern;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,5 +25,15 @@ public class StringUtils {
         return token;
     }
 
-
+    /**
+     * 파일명에서 파일 확장자를 찾는 함수
+     *
+     * @param filename
+     * @return
+     */
+    public static Optional<String> getFileExtension(String filename) {
+        return Optional.ofNullable(filename)
+                .filter(f -> f.contains("."))
+                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
+    }
 }
