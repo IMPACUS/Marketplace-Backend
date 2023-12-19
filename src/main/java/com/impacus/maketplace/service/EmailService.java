@@ -71,7 +71,7 @@ public class EmailService {
         // 2 안
 
         LocalDateTime threeMinutesAgoTime = LocalDateTime.now().minusMinutes(3);
-        String authNumber = emailHistoryRepository.findByReceiveEmailAndAuthNoAndSendDatetimeGreaterThan(emailDto.getReceiveEmail(), emailDto.getAuthNo(), threeMinutesAgoTime).stream().findFirst().get();
+        String authNumber = emailHistoryRepository.findByReceiveEmailAndAuthNoAndSendAtGreaterThan(emailDto.getReceiveEmail(), emailDto.getAuthNo(), threeMinutesAgoTime).stream().findFirst().get();
         return authNumber == null ? false : true;
     }
 

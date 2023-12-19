@@ -1,6 +1,8 @@
 package com.impacus.maketplace.common;
 
+import com.impacus.maketplace.common.utils.TimestampConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -18,9 +20,11 @@ import java.time.LocalDateTime;
 public abstract class BaseEntity {
 
     @CreatedDate
+    @Convert(converter = TimestampConverter.class)
     private LocalDateTime createAt;
 
     @LastModifiedDate
+    @Convert(converter = TimestampConverter.class)
     private LocalDateTime modifyAt;
 
     @CreatedBy
