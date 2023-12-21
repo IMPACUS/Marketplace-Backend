@@ -1,24 +1,35 @@
 package com.impacus.maketplace.entity.user;
 
-import com.impacus.maketplace.common.BaseTimeEntity;
+import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.UserStatus;
 import com.impacus.maketplace.common.enumType.UserType;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
 @Builder
-@Table(name="user_info")
+@Table(name = "user_info")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseTimeEntity {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +56,7 @@ public class User extends BaseTimeEntity {
 
     @ColumnDefault("0")
     @Column(nullable = false)
-    private Long greenLablePoint; // 그린 라벨 포인트
+    private Long greenLabelPoint; // 그린 라벨 포인트
 
     @Column(nullable = false)
     private Boolean isAdmin; // 관리자 계정 여부
@@ -124,7 +135,7 @@ public class User extends BaseTimeEntity {
         this.name = name;
         this.status = UserStatus.ACTIVE;
         this.type = UserType.ROLE_UNCERTIFIED_USER;
-        this.greenLablePoint = 0L;
+        this.greenLabelPoint = 0L;
         this.isAdmin = false;
         this.isCertEmail = false;
         this.isCertPhone = false;

@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto;
 
+import com.impacus.maketplace.common.enumType.MailType;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -9,12 +10,9 @@ import lombok.experimental.Accessors;
 @Builder
 public class EmailDto {
 
-    private String to;
+    private String receiveEmail;
     private String subject;
-    private String message;
+    private String authNo;
+    private String mailType;
 
-    @Data
-    public static class Response {
-        private String code;
-    }
 }

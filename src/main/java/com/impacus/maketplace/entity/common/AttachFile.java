@@ -1,6 +1,6 @@
 package com.impacus.maketplace.entity.common;
 
-import com.impacus.maketplace.common.BaseTimeEntity;
+import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AttachFile extends BaseTimeEntity {
+public class AttachFile extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
