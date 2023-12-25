@@ -22,7 +22,9 @@ public enum SubCategory {
     GLOVES(12, SuperCategory.FASHION, "장갑"),
     BELT(13, SuperCategory.FASHION, "벨트"),
     SOCKS(14, SuperCategory.FASHION, "양말"),
-    STOCKING(15, SuperCategory.FASHION, "스타킹");
+    STOCKING(15, SuperCategory.FASHION, "스타킹"),
+
+    NONE(100, SuperCategory.NONE, "알수없음");
 
     private final int code;
     private final SuperCategory superCategory;

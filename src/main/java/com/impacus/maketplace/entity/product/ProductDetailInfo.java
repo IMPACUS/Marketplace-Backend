@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.product;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.dto.product.request.ProductDetailInfoRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -54,4 +55,20 @@ public class ProductDetailInfo extends BaseEntity {
 
     @Column(nullable = false)
     private String contactNumber; // 전화번호
+
+    public ProductDetailInfo(Long productId, ProductDetailInfoRequest productDetailInfoRequest) {
+        this.productId = productId;
+        this.productType = productDetailInfoRequest.getProductType();
+        this.productMaterial = productDetailInfoRequest.getProductMaterial();
+        this.productColor = productDetailInfoRequest.getProductColor();
+        this.productSize = productDetailInfoRequest.getProductSize();
+        this.dateOfManufacture = productDetailInfoRequest.getDateOfManufacture();
+        this.washingPrecautions = productDetailInfoRequest.getWashingPrecautions();
+        this.countryOfManufacture = productDetailInfoRequest.getCountryOfManufacture();
+        this.manufacturer = productDetailInfoRequest.getManufacturer();
+        this.importer = productDetailInfoRequest.getImporter();
+        this.qualityAssuranceStandards = productDetailInfoRequest.getQualityAssuranceStandards();
+        this.asManager = productDetailInfoRequest.getAsManager();
+        this.contactNumber = productDetailInfoRequest.getContactNumber();
+    }
 }

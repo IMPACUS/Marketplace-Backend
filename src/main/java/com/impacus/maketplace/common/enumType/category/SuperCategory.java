@@ -12,7 +12,8 @@ public enum SuperCategory {
     ACCESSORY(4, "악세서리"),
     FURNITURE(5, "가정/가구"),
     LIFE_STYLE(6, "라이프 스타일"),
-    ECO(7, "ECO");
+    ECO(7, "ECO"),
+    NONE(100, "알수없음");
 
 
     private final int code;
