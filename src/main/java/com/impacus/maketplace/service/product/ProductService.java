@@ -118,4 +118,15 @@ public class ProductService {
             return true;
         }
     }
+
+    /**
+     * productId로 Product를 찾는 함수
+     *
+     * @param productId
+     * @return
+     */
+    public Product findProductById(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_PRODUCT));
+    }
 }

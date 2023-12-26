@@ -1,12 +1,11 @@
-package com.impacus.maketplace.controller;
+package com.impacus.maketplace.controller.product;
 
+import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -25,11 +24,14 @@ public class ProductController {
 
 
     @PostMapping("/seller/new")
-    public ResponseEntity<Object> addProduct(
+    public ApiResponseEntity<Object> addProduct(
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "product") ProductRequest productRequest) {
         ProductDTO productDTO = productService.addProduct(productImageList, productRequest);
-        return new ResponseEntity<>(productDTO, HttpStatus.OK);
+        return ApiResponseEntity
+                .builder()
+                .data(productDTO)
+                .build();
     }
 
     // TODO 상품 설명에 사용하는 이미지를 저장하는 함수
