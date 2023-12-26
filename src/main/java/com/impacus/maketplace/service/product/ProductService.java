@@ -30,7 +30,7 @@ public class ProductService {
     private final ProductDetailInfoService productDetailInfoService;
     private final BrandService brandService;
     private final AttachFileService attachFileService;
-
+    private final ProductDescriptionService productDescriptionService;
 
     private static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)
     private static final String PRODUCT_IMAGE_DIRECTORY = "productImage";
@@ -65,7 +65,9 @@ public class ProductService {
 
             // 4. Product 저장
             Product newProduct = productRepository.save(new Product(productNumber, productRequest));
-            ;
+
+            // 5. Product description 저장
+            productDescriptionService.addProductDescription(newProduct.getId(), productRequest.getDescription());
 
             // 5. Product option 저장
             productOptionService.addProductOption(newProduct.getId(), productRequest.getProductOptions());

@@ -23,7 +23,7 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private Long brandId;
 
-//    private List<Long> productImageId = new ArrayList<>(); // 상품 대표 이미지 리스트 -> attachFile id 참조
+//    private List<Long> productImageId = new ArrayList<>(); // TODO 상품 대표 이미지 리스트 -> attachFile id 참조
 
     @Column(nullable = false, length = 50)
     private String name; // 상품명
@@ -31,9 +31,6 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String productNumber; // 상품 번호
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String description; // 상품 설명
 
     @ColumnDefault("1")
     @Column(nullable = false)
@@ -67,7 +64,6 @@ public class Product extends BaseEntity {
         this.brandId = productRequest.getBrandId();
         this.name = productRequest.getName();
         this.productNumber = productNumber;
-        this.description = productRequest.getDescription();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryType = productRequest.getCategoryType();
         this.deliveryFee = productRequest.getDeliveryFee();
