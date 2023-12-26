@@ -3,6 +3,7 @@ package com.impacus.maketplace.entity.product;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.category.SubCategory;
+import com.impacus.maketplace.dto.product.request.ProductRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -31,7 +32,7 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String productNumber; // 상품 번호
 
-    @Column(nullable = false, columnDefinition = "LONGTEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description; // 상품 설명
 
     @ColumnDefault("1")
@@ -61,5 +62,20 @@ public class Product extends BaseEntity {
 
     @Column(nullable = false)
     private int weight; // 무게
+
+    public Product(String productNumber, ProductRequest productRequest) {
+        this.brandId = productRequest.getBrandId();
+        this.name = productRequest.getName();
+        this.productNumber = productNumber;
+        this.description = productRequest.getDescription();
+        this.deliveryType = productRequest.getDeliveryType();
+        this.categoryType = productRequest.getCategoryType();
+        this.deliveryFee = productRequest.getDeliveryFee();
+        this.refundFee = productRequest.getRefundFee();
+        this.marketPrice = productRequest.getMarketPrice();
+        this.appSalesPrice = productRequest.getAppSalesPrice();
+        this.discountPrice = productRequest.getDiscountPrice();
+        this.weight = productRequest.getWeight();
+    }
 
 }

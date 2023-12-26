@@ -29,6 +29,13 @@ public class CustomException extends RuntimeException {
         this.detail = "";
     }
 
+    public CustomException(ErrorType errorType, String detail) {
+        this.status = HttpStatus.BAD_REQUEST;
+        this.errorType = errorType;
+        this.detail = detail;
+    }
+
+
     public CustomException(ErrorType errorType, Throwable cause) {
         this.status = HttpStatus.BAD_REQUEST;
         this.errorType = errorType;

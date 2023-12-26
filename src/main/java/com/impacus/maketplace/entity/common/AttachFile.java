@@ -18,7 +18,7 @@ public class AttachFile extends BaseEntity {
 
     private String attachFileName; // 첨부파일 이름
 
-    private int attachFileSize; // 첨부파일 용량
+    private Long attachFileSize; // 첨부파일 용량
 
     private String originalFileName; // 원본 이름
 

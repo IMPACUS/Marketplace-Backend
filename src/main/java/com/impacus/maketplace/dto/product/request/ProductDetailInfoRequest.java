@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class ProductDetailInfoRequest {
     private String productType; // 상품 종류
 
-    private String productMaterial; // 상품 재고
+    private String productMaterial; // 상품 재료
 
     private String productColor; // 상품 색상
 

@@ -24,17 +24,16 @@ public class ProductOptionService {
      * @param productOptionRequestList
      * @return
      */
+    @Transactional
     public void addProductOption(Long productId, List<ProductOptionRequest> productOptionRequestList) {
-        productOptionRequestList.stream().map(
-                productOptionRequest -> {
-                    ProductOption productOption = ProductOption.builder()
-                            .productId(productId)
-                            .color(productOptionRequest.getColor())
-                            .size(productOptionRequest.getSize())
-                            .stock(productOptionRequest.getStock())
-                            .build();
-                    return saveProductOption(productOption);
-                });
+        productOptionRequestList.stream()
+                .map(productOptionRequest -> ProductOption.builder()
+                        .productId(productId)
+                        .color(productOptionRequest.getColor())
+                        .size(productOptionRequest.getSize())
+                        .stock(productOptionRequest.getStock())
+                        .build())
+                .forEach(this::saveProductOption);
     }
 
     /**

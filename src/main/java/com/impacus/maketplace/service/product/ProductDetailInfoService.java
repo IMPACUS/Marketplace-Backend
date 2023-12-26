@@ -19,19 +19,10 @@ public class ProductDetailInfoService {
      * @param productId
      * @param productDetail
      */
-    public void addProductDetailInfo(Long productId, ProductDetailInfoRequest productDetail) {
-        ProductDetailInfo productDetailInfo = new ProductDetailInfo(productId, productDetail);
-        saveProductDetailInfo(productDetailInfo);
-
-    }
-
-    /**
-     * ProductDetailInfo를 DB에 저장하는 함수
-     *
-     * @param newProductDetailInfo
-     */
     @Transactional
-    public void saveProductDetailInfo(ProductDetailInfo newProductDetailInfo) {
+    public void addProductDetailInfo(Long productId, ProductDetailInfoRequest productDetail) {
+        ProductDetailInfo newProductDetailInfo = new ProductDetailInfo(productId, productDetail);
         productDetailInfoRepository.save(newProductDetailInfo);
+
     }
 }

@@ -1,9 +1,15 @@
 package com.impacus.maketplace.service;
 
+import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.repository.AttachFileRepository;
+import com.impacus.maketplace.service.aws.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -11,4 +17,25 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttachFileService {
 
     private final AttachFileRepository attachFileRepository;
+    private final S3Service s3Service;
+
+    /**
+     * MultipartFile을 S3에 업로드하고, AttachFile 객체로 생성하는 함수
+     *
+     * @param file
+     * @param directoryPath
+     * @return
+     */
+    @Transactional
+    public AttachFile uploadFileAndAddAttachFile(MultipartFile file, String directoryPath) throws IOException {
+        String fileName = s3Service.uploadFileInS3(file, directoryPath);
+        AttachFile newAttachFile = AttachFile.builder()
+                .attachFileName(fileName)
+                .attachFileSize(file.getSize())
+                .originalFileName(file.getOriginalFilename())
+                .attachFileExt(StringUtils.getFileExtension(file.getOriginalFilename()).orElse(null))
+                .build();
+
+        return attachFileRepository.save(newAttachFile);
+    }
 }

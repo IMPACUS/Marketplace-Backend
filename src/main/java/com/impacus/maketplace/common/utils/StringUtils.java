@@ -48,7 +48,7 @@ public class StringUtils {
      */
     public static String getProductNumber() {
         String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmm"));
-        Random random = new Random(Integer.parseInt(nowDate));
+        Random random = new Random(Long.parseLong(nowDate));
         int randomNumber = random.nextInt(999 - 100 + 1) + 100;
         
         return nowDate + randomNumber;
