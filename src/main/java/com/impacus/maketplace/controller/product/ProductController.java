@@ -26,15 +26,12 @@ public class ProductController {
     @PostMapping("/seller/new")
     public ApiResponseEntity<Object> addProduct(
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
+            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @RequestPart(value = "product") ProductRequest productRequest) {
-        ProductDTO productDTO = productService.addProduct(productImageList, productRequest);
+        ProductDTO productDTO = productService.addProduct(productImageList, productRequest, productDescriptionImageList);
         return ApiResponseEntity
                 .builder()
                 .data(productDTO)
                 .build();
     }
-
-    // TODO 상품 설명에 사용하는 이미지를 저장하는 함수
-
-    // TODO 상품 설명에 사용하는 이미지를 삭제하는 함수
 }

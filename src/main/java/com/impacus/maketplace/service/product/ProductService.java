@@ -9,6 +9,7 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.entity.product.Product;
+import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.repository.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.BrandService;
@@ -34,7 +35,9 @@ public class ProductService {
     private final ProductDescriptionService productDescriptionService;
 
     private static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)
+    private static final int PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT = 341172; // (1000 * 8000 * 3 = 24MB)
     private static final String PRODUCT_IMAGE_DIRECTORY = "productImage";
+    private static final String PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "productDescriptionImage";
 
     /**
      * 새로운 Product를 저장하는 함수
@@ -43,43 +46,53 @@ public class ProductService {
      * @return
      */
     @Transactional
-    public ProductDTO addProduct(List<MultipartFile> productImageList, ProductRequest productRequest) {
-//        try {
-        // 1. productRequest 데이터 유효성 검사
-            if (!validateProductRequest(productImageList, productRequest)) {
+    public ProductDTO addProduct(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+        try {
+            // 1. productRequest 데이터 유효성 검사
+            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
                 throw new CustomException(ErrorType.INVALID_PRODUCT);
             }
 
-        // 3. 상풍 번호 생성
-        String productNumber = StringUtils.getProductNumber();
+            // 3. 상풍 번호 생성
+            String productNumber = StringUtils.getProductNumber();
 
-        // 4. Product 저장
-        Product newProduct = productRepository.save(new Product(productNumber, productRequest));
-        Long productId = newProduct.getId();
+            // 4. Product 저장
+            Product newProduct = productRepository.save(new Product(productNumber, productRequest));
+            Long productId = newProduct.getId();
 
-        // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-        productImageList.stream()
-                .map(productImage -> {
-                    try {
-                        return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
-                    } catch (IOException e) {
-                        throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
-                    }
-                }).collect(Collectors.toList());
+            // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+            productImageList.stream()
+                    .map(productImage -> {
+                        try {
+                            return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                        }
+                    }).collect(Collectors.toList());
 
-        // 6. Product description 저장
-        productDescriptionService.addProductDescription(productId, productRequest.getDescription());
+            // 6. Product description 저장
+            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest.getDescription());
 
-        // 7. Product option 저장
-        productOptionService.addProductOption(productId, productRequest.getProductOptions());
+            // 7. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            productDescriptionImageList.stream()
+                    .map(productDescriptionImage -> {
+                        try {
+                            return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                        }
+                    }).collect(Collectors.toList());
 
-        // 8. Product detail 저장
-        productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
+            //8. Product option 저장
+            productOptionService.addProductOption(productId, productRequest.getProductOptions());
 
-        return new ProductDTO(newProduct);
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+            // 9. Product detail 저장
+            productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
+
+            return new ProductDTO(newProduct);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
@@ -88,7 +101,7 @@ public class ProductService {
      * @param productRequest
      * @return
      */
-    public boolean validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest) {
+    public boolean validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
         Long brandId = productRequest.getBrandId();
         String productName = productRequest.getName();
         DeliveryType deliveryType = productRequest.getDeliveryType();
@@ -108,7 +121,14 @@ public class ProductService {
             }
         }
 
-        // 3. 상품 내부 데이터 확인
+        // 3. 상품 설명 이미지 크기 확인
+        for (MultipartFile productImage : productDescriptionImageList) {
+            if (productImage.getSize() > PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
+                throw new CustomException(ErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+            }
+        }
+
+        // 4. 상품 내부 데이터 확인
         if (productName.length() > 50) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "상품명은 50자 이내로 가능합니다.");
         } else if (deliveryType == DeliveryType.NONE) {

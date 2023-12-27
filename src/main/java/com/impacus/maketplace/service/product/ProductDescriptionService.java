@@ -20,12 +20,12 @@ public class ProductDescriptionService {
      * @param description
      */
     @Transactional
-    public void addProductDescription(Long productId, String description) {
+    public ProductDescription addProductDescription(Long productId, String description) {
         ProductDescription newProductDescription = ProductDescription.builder()
                 .productId(productId)
                 .description(description)
                 .build();
 
-        productDescriptionRepository.save(newProductDescription);
+        return productDescriptionRepository.save(newProductDescription);
     }
 }

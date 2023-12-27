@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ReferencedEntityType {
-    PRODUCT(0, "PRODUCT"),
+    PRODUCT(0, "Product"),
+    PRODUCT_DESCRIPTION(1, "ProductDescription"),
 
     NONE(100, null);
 
