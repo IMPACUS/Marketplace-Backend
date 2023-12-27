@@ -4,6 +4,9 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.dto.product.request.ProductDetailInfoRequest;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -11,6 +14,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product_detail_info")
+@SQLDelete(sql = "UPDATE product_detail_info SET is_deleted = true WHERE product_detail_info_id = ?")
+@Where(clause = "is_deleted = false")
 public class ProductDetailInfo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,6 +60,10 @@ public class ProductDetailInfo extends BaseEntity {
 
     @Column(nullable = false)
     private String contactNumber; // 전화번호
+
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
 
     public ProductDetailInfo(Long productId, ProductDetailInfoRequest productDetailInfoRequest) {
         this.productId = productId;

@@ -2,12 +2,17 @@ package com.impacus.maketplace.entity.product;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE product_description SET is_deleted = true WHERE product_description_id = ?")
+@Where(clause = "is_deleted = false")
 public class ProductDescription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +25,7 @@ public class ProductDescription {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description; // 상품 설명
 
-    // TODO 상품 설명 이미지 리스트 -> attachFile id 참조
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
 }

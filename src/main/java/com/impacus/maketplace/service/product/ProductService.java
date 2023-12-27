@@ -150,4 +150,22 @@ public class ProductService {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_PRODUCT));
     }
+
+    /**
+     * Product 삭제하는 함수 (isDelete가 true로 변경)
+     *
+     * @param productId
+     */
+    @Transactional
+    public void deleteProduct(Long productId) {
+        try {
+            // 1. Product 존재 확인
+            findProductById(productId);
+
+            // 2. 삭제
+            productRepository.deleteById(productId);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
 }

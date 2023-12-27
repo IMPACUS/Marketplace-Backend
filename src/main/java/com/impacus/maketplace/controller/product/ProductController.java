@@ -6,10 +6,7 @@ import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,6 +29,14 @@ public class ProductController {
         return ApiResponseEntity
                 .builder()
                 .data(productDTO)
+                .build();
+    }
+
+    @DeleteMapping("/seller/{productId}")
+    public ApiResponseEntity<Object> deleteProduct(@PathVariable(name = "productId") Long productId) {
+        productService.deleteProduct(productId);
+        return ApiResponseEntity
+                .builder()
                 .build();
     }
 }
