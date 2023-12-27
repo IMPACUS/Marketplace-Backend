@@ -23,8 +23,6 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private Long brandId;
 
-//    private List<Long> productImageId = new ArrayList<>(); // TODO 상품 대표 이미지 리스트 -> attachFile id 참조
-
     @Column(nullable = false, length = 50)
     private String name; // 상품명
 

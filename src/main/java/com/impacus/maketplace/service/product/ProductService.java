@@ -1,6 +1,7 @@
 package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -43,42 +44,42 @@ public class ProductService {
      */
     @Transactional
     public ProductDTO addProduct(List<MultipartFile> productImageList, ProductRequest productRequest) {
-        try {
-            // 1. productRequest 데이터 유효성 검사
+//        try {
+        // 1. productRequest 데이터 유효성 검사
             if (!validateProductRequest(productImageList, productRequest)) {
                 throw new CustomException(ErrorType.INVALID_PRODUCT);
             }
 
-            // 2. 대표 이미지 저장
-            // TODO AttachFile과 Product 데이터 연결
-            productImageList.stream()
-                    .map(productImage -> {
-                        try {
-                            return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY);
-                        } catch (IOException e) {
-                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
-                        }
-                    }).collect(Collectors.toList());
+        // 3. 상풍 번호 생성
+        String productNumber = StringUtils.getProductNumber();
 
-            // 3. 상풍 번호 생성
-            String productNumber = StringUtils.getProductNumber();
+        // 4. Product 저장
+        Product newProduct = productRepository.save(new Product(productNumber, productRequest));
+        Long productId = newProduct.getId();
 
-            // 4. Product 저장
-            Product newProduct = productRepository.save(new Product(productNumber, productRequest));
+        // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+        productImageList.stream()
+                .map(productImage -> {
+                    try {
+                        return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                    } catch (IOException e) {
+                        throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                    }
+                }).collect(Collectors.toList());
 
-            // 5. Product description 저장
-            productDescriptionService.addProductDescription(newProduct.getId(), productRequest.getDescription());
+        // 6. Product description 저장
+        productDescriptionService.addProductDescription(productId, productRequest.getDescription());
 
-            // 5. Product option 저장
-            productOptionService.addProductOption(newProduct.getId(), productRequest.getProductOptions());
+        // 7. Product option 저장
+        productOptionService.addProductOption(productId, productRequest.getProductOptions());
 
-            // 6. Product detail 저장
-            productDetailInfoService.addProductDetailInfo(newProduct.getId(), productRequest.getProductDetail());
+        // 8. Product detail 저장
+        productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
 
-            return new ProductDTO(newProduct);
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+        return new ProductDTO(newProduct);
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 
     /**
