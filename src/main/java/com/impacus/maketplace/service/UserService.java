@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.OauthProviderType;
-import com.impacus.maketplace.common.enumType.UserStatus;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
