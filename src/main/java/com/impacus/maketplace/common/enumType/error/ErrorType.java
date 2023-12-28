@@ -22,7 +22,8 @@ public enum ErrorType {
     NOT_EXISTED_BRAND("012_NOT_EXISTED_BRAND", "존재하지 않는 브랜드입니다"),
     FAIL_TO_UPLOAD_FILE("013_FAIL_TO_UPLOAD_FILE", "S3로 파일을 첨부하는데 실패했습니다."),
     NOT_EXISTED_PRODUCT("014_NOT_EXISTED_PRODUCT", "존재하지 않는 상품입니다."),
-    REGISTERED_WISHLIST("15_REGISTERED_WISHLIST", "이미 존재하는 찜 데이터 추가 요청입니다."),
+    REGISTERED_WISHLIST("015_REGISTERED_WISHLIST", "이미 존재하는 찜 데이터 추가 요청입니다."),
+    NOT_EXISTED_WISHLIST("016_NOT_EXISTED_WISHLIST", "존재하지 않는 찜 데이터입니다."),
 
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),

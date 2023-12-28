@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,5 +65,36 @@ public class WishlistService {
      */
     public List<Wishlist> findWishlistByProductIdAndUserId(Long productId, Long userId) {
         return wishlistRepository.findByProductIdAndRegisterId(productId, userId.toString());
+    }
+
+    /**
+     * id로 Wishlist를 찾는 함수
+     *
+     * @param wishlistId
+     * @return
+     */
+    public Wishlist findWishlistById(Long wishlistId) {
+        return wishlistRepository.findById(wishlistId)
+                .orElseThrow(() -> new CustomException((ErrorType.NOT_EXISTED_WISHLIST)));
+    }
+
+    /**
+     * Wishlist들을 삭제하는 함수 (isDelete가 true로 변경)
+     *
+     * @param wishlistIdList
+     */
+    @Transactional
+    public void deleteWishlist(List<Long> wishlistIdList) {
+        try {
+            // 1. Wishlist 존재 확인
+            List<Wishlist> wishlists = wishlistIdList.stream()
+                    .map(this::findWishlistById)
+                    .collect(Collectors.toList());
+
+            // 2. 삭제
+            wishlistRepository.deleteAll(wishlists);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

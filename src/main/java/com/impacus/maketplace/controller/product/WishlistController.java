@@ -7,11 +7,10 @@ import com.impacus.maketplace.service.product.WishlistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import security.CustomUserDetails;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -34,6 +33,20 @@ public class WishlistController {
         return ApiResponseEntity
                 .builder()
                 .data(wishlistDTO)
+                .build();
+    }
+
+    /**
+     * 등록된 찜 데이터들를 삭제하는 API
+     *
+     * @param wishlistIdList
+     * @return
+     */
+    @DeleteMapping("/user")
+    public ApiResponseEntity<Object> deleteWishlist(@RequestParam(name = "wishlistId") List<Long> wishlistIdList) {
+        wishlistService.deleteWishlist(wishlistIdList);
+        return ApiResponseEntity
+                .builder()
                 .build();
     }
 }
