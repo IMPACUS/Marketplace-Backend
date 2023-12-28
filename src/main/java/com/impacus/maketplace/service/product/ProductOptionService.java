@@ -46,5 +46,29 @@ public class ProductOptionService {
         return productOptionRepository.save(newProductOption);
     }
 
+    /**
+     * 전달받은 productId로 ProductOption 을 찾는 함수
+     *
+     * @param productId
+     * @return
+     */
+    public List<ProductOption> findProductOptionByProductId(Long productId) {
+        List<ProductOption> productOptions = productOptionRepository.findByProductId(productId);
+
+        return productOptions;
+    }
+
+    /**
+     * productId와 연결된 모든 ProductOption을 삭제하는 함수
+     *
+     * @param productId
+     */
+    @Transactional
+    public void deleteAllProductionOptionByProductId(Long productId) {
+        List<ProductOption> productOptions = findProductOptionByProductId(productId);
+
+        productOptionRepository.deleteAllInBatch(productOptions);
+    }
+
 
 }

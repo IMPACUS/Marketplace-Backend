@@ -66,6 +66,19 @@ public class Product extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
+    public void setProduct(ProductRequest productRequest) {
+        this.brandId = productRequest.getBrandId();
+        this.name = productRequest.getName();
+        this.deliveryType = productRequest.getDeliveryType();
+        this.categoryType = productRequest.getCategoryType();
+        this.deliveryFee = productRequest.getDeliveryFee();
+        this.refundFee = productRequest.getRefundFee();
+        this.marketPrice = productRequest.getMarketPrice();
+        this.appSalesPrice = productRequest.getAppSalesPrice();
+        this.discountPrice = productRequest.getDiscountPrice();
+        this.weight = productRequest.getWeight();
+    }
+
     public Product(String productNumber, ProductRequest productRequest) {
         this.brandId = productRequest.getBrandId();
         this.name = productRequest.getName();

@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,5 +26,17 @@ public class ProductDetailInfoService {
         ProductDetailInfo newProductDetailInfo = new ProductDetailInfo(productId, productDetail);
         productDetailInfoRepository.save(newProductDetailInfo);
 
+    }
+
+    /**
+     * 전달받은 productId로 ProductDetailInfo 을 찾는 함수
+     *
+     * @param productId
+     * @return
+     */
+    public ProductDetailInfo findProductDetailInfoByProductId(Long productId) {
+        List<ProductDetailInfo> productDetailInfos = productDetailInfoRepository.findByProductId(productId);
+
+        return productDetailInfos.get(0);
     }
 }

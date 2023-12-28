@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -29,5 +31,25 @@ public class AttachFileGroupService {
                 .build();
 
         attachFileGroupRepository.save(newAttachFileGroup);
+    }
+
+    /**
+     * AttachFile와 AttachFile을 참조하는 객체의 연관 관계 데이터를 반환하는 함수
+     *
+     * @param referencedId
+     * @param entityType
+     * @return
+     */
+    public List<AttachFileGroup> findAttachFileGroupByReferencedIdAndReferencedEntityType(Long referencedId, ReferencedEntityType entityType) {
+        return attachFileGroupRepository.findByReferencedIdAndReferencedEntity(referencedId, entityType);
+    }
+
+    /**
+     * 전달받은 attachFileGroupList 데이터들 삭제
+     *
+     * @param attachFileGroupList
+     */
+    public void deleteAllAttachFileGroup(List<AttachFileGroup> attachFileGroupList) {
+        attachFileGroupRepository.deleteAllInBatch(attachFileGroupList);
     }
 }

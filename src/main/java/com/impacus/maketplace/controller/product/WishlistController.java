@@ -44,7 +44,7 @@ public class WishlistController {
      */
     @DeleteMapping("/user")
     public ApiResponseEntity<Object> deleteWishlist(@RequestParam(name = "wishlistId") List<Long> wishlistIdList) {
-        wishlistService.deleteWishlist(wishlistIdList);
+        wishlistService.deleteAllWishlist(wishlistIdList);
         return ApiResponseEntity
                 .builder()
                 .build();

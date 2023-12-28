@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AttachFileGroup extends BaseEntity {
+public class AttachFileGroup extends BaseEntity { // TODO 논의 후, soft delete 추가
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "attach_file_group_id")

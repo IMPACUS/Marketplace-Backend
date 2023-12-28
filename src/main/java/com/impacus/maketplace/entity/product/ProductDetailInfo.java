@@ -65,6 +65,21 @@ public class ProductDetailInfo extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
+    public void setProductDetailInfo(ProductDetailInfoRequest productDetailInfoRequest) {
+        this.productType = productDetailInfoRequest.getProductType();
+        this.productMaterial = productDetailInfoRequest.getProductMaterial();
+        this.productColor = productDetailInfoRequest.getProductColor();
+        this.productSize = productDetailInfoRequest.getProductSize();
+        this.dateOfManufacture = productDetailInfoRequest.getDateOfManufacture();
+        this.washingPrecautions = productDetailInfoRequest.getWashingPrecautions();
+        this.countryOfManufacture = productDetailInfoRequest.getCountryOfManufacture();
+        this.manufacturer = productDetailInfoRequest.getManufacturer();
+        this.importer = productDetailInfoRequest.getImporter();
+        this.qualityAssuranceStandards = productDetailInfoRequest.getQualityAssuranceStandards();
+        this.asManager = productDetailInfoRequest.getAsManager();
+        this.contactNumber = productDetailInfoRequest.getContactNumber();
+    }
+
     public ProductDetailInfo(Long productId, ProductDetailInfoRequest productDetailInfoRequest) {
         this.productId = productId;
         this.productType = productDetailInfoRequest.getProductType();

@@ -53,4 +53,25 @@ public class ProductController {
                 .builder()
                 .build();
     }
+
+    /**
+     * 등록된 상품을 수정하는 API
+     *
+     * @param productImageList
+     * @param productDescriptionImageList
+     * @param productRequest
+     * @return
+     */
+    @PutMapping("/seller/{productId}")
+    public ApiResponseEntity<Object> updateProduct(
+            @PathVariable(name = "productId") Long productId,
+            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
+            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
+            @RequestPart(value = "product") ProductRequest productRequest) {
+        ProductDTO productDTO = productService.updateProduct(productId, productImageList, productRequest, productDescriptionImageList);
+        return ApiResponseEntity
+                .builder()
+                .data(productDTO)
+                .build();
+    }
 }

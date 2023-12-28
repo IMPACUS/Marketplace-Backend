@@ -28,4 +28,8 @@ public class ProductDescription {
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

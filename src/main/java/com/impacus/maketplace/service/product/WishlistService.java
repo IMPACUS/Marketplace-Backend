@@ -84,7 +84,7 @@ public class WishlistService {
      * @param wishlistIdList
      */
     @Transactional
-    public void deleteWishlist(List<Long> wishlistIdList) {
+    public void deleteAllWishlist(List<Long> wishlistIdList) {
         try {
             // 1. Wishlist 존재 확인
             List<Wishlist> wishlists = wishlistIdList.stream()
@@ -92,7 +92,7 @@ public class WishlistService {
                     .collect(Collectors.toList());
 
             // 2. 삭제
-            wishlistRepository.deleteAll(wishlists);
+            wishlistRepository.deleteAllInBatch(wishlists);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

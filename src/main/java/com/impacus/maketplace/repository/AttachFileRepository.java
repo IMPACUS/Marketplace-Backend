@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AttachFileRepository extends JpaRepository<AttachFile, Long> {
 
+
 }
