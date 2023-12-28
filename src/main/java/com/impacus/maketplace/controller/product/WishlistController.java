@@ -3,7 +3,6 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.WishlistRequest;
 import com.impacus.maketplace.dto.product.response.WishlistDTO;
-import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.product.WishlistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +19,15 @@ import security.CustomUserDetails;
 @RequestMapping("api/v1/wishlist")
 public class WishlistController {
     private final WishlistService wishlistService;
-    private final UserService userService;
 
 
+    /**
+     * 새로운 찜 데이터를 추가하는 API
+     *
+     * @param user
+     * @param wishlistRequest
+     * @return
+     */
     @PostMapping("/user/new")
     public ApiResponseEntity<Object> addWishlist(@AuthenticationPrincipal CustomUserDetails user, @RequestBody WishlistRequest wishlistRequest) {
         WishlistDTO wishlistDTO = wishlistService.addWishlist(user.getId(), wishlistRequest);

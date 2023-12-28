@@ -20,6 +20,14 @@ public class ProductController {
     private final ProductService productService;
 
 
+    /**
+     * 새로운 상품을 등록하는 API
+     *
+     * @param productImageList
+     * @param productDescriptionImageList
+     * @param productRequest
+     * @return
+     */
     @PostMapping("/seller/new")
     public ApiResponseEntity<Object> addProduct(
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
@@ -32,6 +40,12 @@ public class ProductController {
                 .build();
     }
 
+    /**
+     * 등록된 상품을 삭제하는 API
+     *
+     * @param productId
+     * @return
+     */
     @DeleteMapping("/seller/{productId}")
     public ApiResponseEntity<Object> deleteProduct(@PathVariable(name = "productId") Long productId) {
         productService.deleteProduct(productId);
