@@ -42,4 +42,14 @@ public class ProductDescriptionService {
 
         return descriptions.get(0);
     }
+
+    /**
+     * ProductDescrption 삭제하는 함수
+     *
+     * @param productDescription
+     */
+    @Transactional
+    public void deleteProductDescription(ProductDescription productDescription) {
+        productDescriptionRepository.delete(productDescription);
+    }
 }

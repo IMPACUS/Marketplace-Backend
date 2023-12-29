@@ -166,7 +166,20 @@ public class ProductService {
     public void deleteProduct(Long productId) {
         try {
             // 1. Product 존재 확인
-            findProductById(productId);
+            Product deleteProduct = findProductById(productId);
+
+            // 2. ProductOption 삭제
+            productOptionService.deleteAllProductionOptionByProductId(deleteProduct.getId());
+
+            // 3. ProductDescription 이미지 삭제
+            ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(productId);
+            attachFileService.deleteAttachFile(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+
+            // 4. ProductDescription 삭제
+            productDescriptionService.deleteProductDescription(productDescription);
+
+            // 5. Product의 대표 이미지 삭제
+            attachFileService.deleteAttachFile(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
 
             // 2. 삭제
             productRepository.deleteById(productId);
