@@ -12,9 +12,6 @@ import java.util.Optional;
 public class AuditConfig implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {
-//        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-//        String userId = request.getHeader("uid");
-//        return Optional.of(userId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = null;
         if (authentication != null && authentication.getPrincipal().getClass() == CustomUserDetails.class) {
