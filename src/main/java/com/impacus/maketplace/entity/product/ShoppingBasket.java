@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.common;
+package com.impacus.maketplace.entity.product;
 
 import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
@@ -8,29 +8,25 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Builder
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE attach_file SET is_deleted = true WHERE attach_file_id = ?")
+@SQLDelete(sql = "UPDATE shopping_basket SET is_deleted = true WHERE shopping_basket_id = ?")
 @Where(clause = "is_deleted = false")
-public class AttachFile extends BaseEntity {
-
+public class ShoppingBasket extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "attach_file_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "shopping_basket_id")
     private Long id;
 
-    private String attachFileName; // 첨부파일 이름
+    @Column(nullable = false)
+    private Long productOptionId;
 
-    private Long attachFileSize; // 첨부파일 용량
+    @Column(nullable = false)
+    private Long quantity;
 
-    private String originalFileName; // 원본 이름
-
-    private String attachFileExt; // 첨부파일 확장자
-    
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 }
-

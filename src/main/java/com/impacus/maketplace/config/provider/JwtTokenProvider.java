@@ -60,17 +60,21 @@ public class JwtTokenProvider implements InitializingBean {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        // 2. Access token 생성
+        // 2. userID 가져오기
+        Long userId = ((CustomUserDetails) authentication.getPrincipal()).getId();
+
+        // 3. Access token 생성
         long now = (new Date()).getTime();
         Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMin);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("role", authorities)
+                .claim("id", userId.toString())
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(SignatureAlgorithm.HS256, jwtKey)
                 .compact();
 
-        // 3. Refresh token 생성
+        // 4. Refresh token 생성
         String refreshToken = Jwts.builder()
                 .setExpiration(new Date(now + refreshTokenValidityInMin))
                 .signWith(SignatureAlgorithm.HS256, jwtKey)
@@ -104,9 +108,12 @@ public class JwtTokenProvider implements InitializingBean {
                 Arrays.stream(claims.get("role").toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
+        // 4. user id 가져오기
+        Long userId = Long.parseLong((String) claims.get("id"));
 
-        // 4. CustomUserDetails 생성
+        // 5. CustomUserDetails 생성
         CustomUserDetails principal = CustomUserDetails.builder()
+                .id(userId)
                 .email(claims.getSubject())
                 .authorities(authorities)
                 .build();

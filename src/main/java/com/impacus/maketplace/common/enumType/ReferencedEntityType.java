@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserStatus {
-    ACTIVE(0, "활성화 상태"),
-    BLOCKED(1, "차단된 상태");
+public enum ReferencedEntityType {
+    PRODUCT(0, "Product"),
+    PRODUCT_DESCRIPTION(1, "ProductDescription"),
+
+    NONE(100, null);
 
     private final int code;
-    private final String value;
+    private final String name;
 }

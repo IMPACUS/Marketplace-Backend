@@ -5,9 +5,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserStatus {
-    ACTIVE(0, "활성화 상태"),
-    BLOCKED(1, "차단된 상태");
+public enum DeliveryType {
+    GENERAL_DELIVERY(1, "일반 배송"),
+    PLUS_DELIVERY(2, "배송+"),
+
+    NONE(100, "알수 없음");
 
     private final int code;
     private final String value;
