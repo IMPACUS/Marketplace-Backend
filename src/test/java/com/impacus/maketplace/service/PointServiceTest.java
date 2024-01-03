@@ -1,8 +1,7 @@
 package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.point.PointSettingRequestDto;
-import com.impacus.maketplace.entity.point.PointMaster;
+import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.repository.PointHistoryRepository;
 import com.impacus.maketplace.repository.PointMasterRepository;
 import com.impacus.maketplace.repository.UserRepository;
@@ -29,17 +28,16 @@ public class PointServiceTest {
     private UserRepository userRepository;
 
     @Test
-    void addPointMaster() {
-
-
-        PointSettingRequestDto pointSettingRequestDto = PointSettingRequestDto.builder()
-                .userId(5L)
-                .celebrationPoint(300)
+    void test2() {
+        UserDTO userDTO = UserDTO.builder()
+                .id(5L)
                 .build();
+       pointService.initPointMaster(userDTO);
+    }
 
-
-        PointMaster entity = pointSettingRequestDto.toEntity();
-        PointMaster save = pointMasterRepository.save(entity);
-
+    @Test
+    void test3() {
+        boolean flag = pointMasterRepository.existsPointMasterByUserId(12L);
+        System.out.println(flag);
     }
 }

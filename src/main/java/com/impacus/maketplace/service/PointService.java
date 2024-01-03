@@ -1,8 +1,7 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.point.PointRequestDto;
-import com.impacus.maketplace.dto.point.PointSettingRequestDto;
+import com.impacus.maketplace.common.enumType.PointType;
+import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.entity.point.PointMaster;
 import com.impacus.maketplace.repository.PointHistoryRepository;
@@ -19,21 +18,31 @@ public class PointService {
     private final PointMasterRepository pointMasterRepository;
     private final PointHistoryRepository pointHistoryRepository;
 
-    private final ObjectCopyHelper objectCopyHelper;
+    private final Integer CELEBRATION_POINT = 300;
 
     @Transactional
-    public boolean addPointMaster(PointSettingRequestDto pointSettingRequestDto) {
+    public boolean initPointMaster(UserDTO userDTO) {
+        if (pointMasterRepository.existsPointMasterByUserId(userDTO.id())) {
+            return true;
+        }
 
-        PointMaster pointMaster = objectCopyHelper.copyObject(pointSettingRequestDto, PointMaster.class);
+        PointMaster pointMaster = PointMaster.builder()
+                .userId(userDTO.id())
+                .availablePoint(CELEBRATION_POINT)
+                .userScore(CELEBRATION_POINT)
+                .registerId("ADMIN")
+                .build();
         pointMasterRepository.save(pointMaster);
 
-        PointHistory pointHistory = objectCopyHelper.copyObject(pointSettingRequestDto, PointHistory.class);
+        PointHistory pointHistory = PointHistory.builder()
+                .userId(userDTO.id())
+                .pointMasterId(pointMaster.getId())
+                .pointType(PointType.JOIN)
+                .changePoint(CELEBRATION_POINT)
+                .isManual(false)
+                .build();
         pointHistoryRepository.save(pointHistory);
 
-        //TODO: 변경행햐야함
         return false;
-
     }
-
-
 }

@@ -1,6 +1,5 @@
 package com.impacus.maketplace.controller;
 
-import com.impacus.maketplace.dto.point.PointSettingRequestDto;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.request.TokenRequest;
@@ -33,7 +32,10 @@ public class AuthController {
     @PostMapping("sign-up")
     public ResponseEntity<Object> addUser(@RequestBody SignUpRequest signUpRequest) {
         UserDTO userDTO = this.userService.addUser(signUpRequest);
-
+        boolean existPointMaster = pointService.initPointMaster(userDTO);
+        if (existPointMaster) {
+            return new ResponseEntity<>(userDTO, HttpStatus.CONFLICT);
+        }
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 

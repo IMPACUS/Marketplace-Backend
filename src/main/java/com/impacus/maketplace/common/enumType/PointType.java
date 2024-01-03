@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum PointType {
-
+    JOIN("00","회원가입"),
     SAVE("10","적립"),
     USE("20","사용"),
     EXPIRE("30","소멸");

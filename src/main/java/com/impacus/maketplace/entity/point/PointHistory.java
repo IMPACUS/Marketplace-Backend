@@ -34,6 +34,5 @@ public class PointHistory extends BaseEntity {
 
     @Column(nullable = false)
     @ColumnDefault("false")
-
     private Boolean isManual;
 }
