@@ -32,7 +32,8 @@ public class PointHistory extends BaseEntity {
     @Column(nullable = false)
     private Integer changePoint; // 변동 포인트
 
-    @ColumnDefault("N")
     @Column(nullable = false)
+    @ColumnDefault("false")
+
     private Boolean isManual;
 }

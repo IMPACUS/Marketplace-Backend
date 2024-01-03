@@ -65,7 +65,7 @@ public class UserService {
                     signUpRequest.getName());
             userRepository.save(user);
 
-            // 4. UserDTO 반환
+            // 5. UserDTO 반환
             return new UserDTO(user);
         } catch (Exception ex) {
             throw new CustomException(ex);

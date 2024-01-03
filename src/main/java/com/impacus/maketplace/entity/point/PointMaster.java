@@ -8,7 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Getter
 @Table(name = "point_master")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PointMaster extends BaseEntity {
@@ -21,9 +21,24 @@ public class PointMaster extends BaseEntity {
     @Column(nullable = false)
     private Long userId;
 
-    @Column(name = "userScore")
+    @Column(name = "user_score")
     @ColumnDefault("0")
     private Integer userScore; // 유저 스코어 (유저의 레벨과 진행도 및 퍼센트를 나타내기 위함)
+
+    @ColumnDefault("false")
+    private boolean isBronze;
+
+    @ColumnDefault("false")
+    private boolean isRookie;
+
+    @ColumnDefault("false")
+    private boolean isSilver;
+
+    @ColumnDefault("false")
+    private boolean isGold;
+
+    @ColumnDefault("false")
+    private boolean isEcoVip;
 
     @Column(name = "avl_point")
     @ColumnDefault("0")
@@ -32,4 +47,6 @@ public class PointMaster extends BaseEntity {
     private transient String registerId;
 
     private transient String modifyId;
+
+
 }
