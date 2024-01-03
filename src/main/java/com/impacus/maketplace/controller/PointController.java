@@ -21,6 +21,7 @@ public class PointController {
 
     @PostMapping("/save")
     public ApiResponseEntity<PointDto> addPoint(@RequestBody PointRequestDto pointRequestDto) {
+
         return null;
     }
 

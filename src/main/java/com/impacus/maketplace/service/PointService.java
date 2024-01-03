@@ -1,6 +1,7 @@
 package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.PointType;
+import com.impacus.maketplace.dto.point.PointRequestDto;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.entity.point.PointMaster;
@@ -44,5 +45,13 @@ public class PointService {
         pointHistoryRepository.save(pointHistory);
 
         return false;
+    }
+
+    @Transactional
+    public void addPoint(PointRequestDto pointRequestDto) {
+        PointHistory.builder()
+                        .changePoint(pointRequestDto.getSavePoint())
+                                .
+        pointHistoryRepository.save()
     }
 }
