@@ -80,11 +80,7 @@ public class JwtTokenProvider implements InitializingBean {
                 .signWith(SignatureAlgorithm.HS256, jwtKey)
                 .compact();
 
-        return TokenInfoVO.builder()
-                .grantType(GRANT_TYPE)
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return TokenInfoVO.toVO(GRANT_TYPE, accessToken, refreshToken);
     }
 
     /**
