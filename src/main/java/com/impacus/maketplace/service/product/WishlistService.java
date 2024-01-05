@@ -33,13 +33,11 @@ public class WishlistService {
         validateWishList(userId, wishlistRequest);
 
         // 2. Wishlist 저장
-        Wishlist newWishlist = Wishlist.builder()
-                .productId(wishlistRequest.getProductId())
-                .build();
+        Wishlist newWishlist = wishlistRequest.toEntity();
         wishlistRepository.save(newWishlist);
 
         // 3. WishlistDTO로 반환
-        return new WishlistDTO(newWishlist.getId(), newWishlist.getProductId());
+        return WishlistDTO.toDTO(newWishlist);
     }
 
     public boolean validateWishList(Long userId, WishlistRequest wishlistRequest) {
