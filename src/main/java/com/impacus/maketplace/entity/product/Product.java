@@ -36,14 +36,12 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String productNumber; // 상품 번호
 
-    @ColumnDefault("1")
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private DeliveryType deliveryType; // 배송 타입
 
-    @ColumnDefault("1")
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private SubCategory categoryType; // 카테고리 타입
 
     @Column(nullable = false)
@@ -90,6 +88,8 @@ public class Product extends BaseEntity {
         this.appSalesPrice = productRequest.getAppSalesPrice();
         this.discountPrice = productRequest.getDiscountPrice();
         this.weight = productRequest.getWeight();
+        this.productStatus = ProductStatus.SALES_PROGRESS;
+        this.discountStatus = DiscountStatus.DISCOUNT_STOP;
     }
 
     public void setProduct(ProductRequest productRequest) {
@@ -104,5 +104,4 @@ public class Product extends BaseEntity {
         this.discountPrice = productRequest.getDiscountPrice();
         this.weight = productRequest.getWeight();
     }
-
 }
