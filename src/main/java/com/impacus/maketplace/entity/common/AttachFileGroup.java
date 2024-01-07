@@ -21,6 +21,6 @@ public class AttachFileGroup extends BaseEntity { // TODO 논의 후, soft delet
     private Long referencedId; // AttachFile을 참조하는 id
 
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private ReferencedEntityType referencedEntity;
 }
