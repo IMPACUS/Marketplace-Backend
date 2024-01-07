@@ -90,7 +90,7 @@ public class ProductService {
             // 9. Product detail 저장
             productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
 
-            return new ProductDTO(newProduct);
+            return ProductDTO.toDTO(newProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
