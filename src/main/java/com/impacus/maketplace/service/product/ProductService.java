@@ -15,6 +15,8 @@ import com.impacus.maketplace.repository.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.BrandService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,17 +30,16 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ProductService {
 
+    private static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)
+    private static final int PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT = 341172; // (1000 * 8000 * 3 = 24MB)
+    private static final String PRODUCT_IMAGE_DIRECTORY = "productImage";
+    private static final String PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "productDescriptionImage";
     private final ProductRepository productRepository;
     private final ProductOptionService productOptionService;
     private final ProductDetailInfoService productDetailInfoService;
     private final BrandService brandService;
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
-
-    private static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)
-    private static final int PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT = 341172; // (1000 * 8000 * 3 = 24MB)
-    private static final String PRODUCT_IMAGE_DIRECTORY = "productImage";
-    private static final String PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "productDescriptionImage";
 
     /**
      * 새로운 Product를 저장하는 함수
@@ -246,5 +247,36 @@ public class ProductService {
         productDetailInfo.setProductDetailInfo(productRequest.getProductDetail());
 
         return new ProductDTO(product);
+    }
+
+
+    /**
+     * 전체 상품 조회하는 함수
+     *
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<ProductDTO> findProductByNoAuthAndCategory(SubCategory category, Pageable pageable) {
+        try {
+            return findProductByCategoryType(category, pageable).map(ProductDTO::toDTO);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 카테고리와 페이지네이션으로 전체 상품을 조회하는 함수
+     *
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<Product> findProductByCategoryType(SubCategory category, Pageable pageable) {
+        if (category == null) {
+            return productRepository.findAll(pageable);
+        } else {
+            return productRepository.findByCategoryType(category, pageable);
+        }
     }
 }
