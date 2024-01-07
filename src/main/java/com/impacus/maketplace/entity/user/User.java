@@ -4,24 +4,13 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
-import com.impacus.maketplace.common.enumType.user.UserStatus;
-import com.impacus.maketplace.common.enumType.user.UserType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.impacus.maketplace.common.enumType.UserStatus;
+import com.impacus.maketplace.common.enumType.UserType;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -42,14 +31,14 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String name; // 사용자 이름
 
-    @ColumnDefault("1")
+    @ColumnDefault("0")
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private UserStatus status; // 사용자 계정 상태
 
     private String statusReason; // 사용자 계정 상태 사유
 
-    @ColumnDefault("1")
+    @ColumnDefault("0")
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private UserType type; // 사용자 타입

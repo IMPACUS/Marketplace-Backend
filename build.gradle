@@ -28,6 +28,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'javax.xml.bind:jaxb-api:2.3.0'
 
     // mail
     implementation 'org.springframework.boot:spring-boot-starter-mail:3.2.0'
@@ -54,7 +56,7 @@ dependencies {
     // gson
     implementation 'com.google.code.gson:gson:2.10.1'
 
-
+    // aws s3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     implementation 'com.amazonaws:aws-java-sdk:1.12.529'
     implementation 'com.amazonaws:aws-java-sdk-s3'
