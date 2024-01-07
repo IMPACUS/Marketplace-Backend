@@ -8,7 +8,7 @@ import security.CustomUserDetails;
 
 import java.util.Optional;
 
-@Configuration
+//@Configuration
 public class AuditConfig implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {

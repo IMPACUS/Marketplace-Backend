@@ -26,6 +26,9 @@ public enum ErrorType {
     NOT_EXISTED_WISHLIST("016_NOT_EXISTED_WISHLIST", "존재하지 않는 찜 데이터입니다."),
     NOT_EXISTED_ATTACH_FILE("017_NOT_EXISTED_ATTACH_FILE", "존재하지 않는 첨부 파일입니다."),
 
+    //TODO: 30번 부터 Point 관련 된것 작성하겠습니다!
+    NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),
+
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN("102_EXPIRED_TOKEN", "만료된 토큰입니다."),
