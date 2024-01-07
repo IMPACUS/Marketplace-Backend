@@ -2,6 +2,8 @@ package com.impacus.maketplace.dto.product.request;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.category.SubCategory;
+import com.impacus.maketplace.entity.product.Product;
+import com.impacus.maketplace.entity.product.ProductDescription;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,10 +33,21 @@ public class ProductRequest {
     private int appSalesPrice;
 
     private int discountPrice;
-    
+
     private int weight;
 
     private ProductDetailInfoRequest productDetail;
 
     private List<ProductOptionRequest> productOptions;
+
+    public Product toEntity(String productNumber) {
+        return new Product(productNumber, this);
+    }
+
+    public ProductDescription toEntity(Long productId) {
+        return ProductDescription.builder()
+                .productId(productId)
+                .description(this.description)
+                .build();
+    }
 }

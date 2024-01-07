@@ -23,7 +23,7 @@ public class ProductDetailInfoService {
      */
     @Transactional
     public void addProductDetailInfo(Long productId, ProductDetailInfoRequest productDetail) {
-        ProductDetailInfo newProductDetailInfo = new ProductDetailInfo(productId, productDetail);
+        ProductDetailInfo newProductDetailInfo = productDetail.toEntity(productId);
         productDetailInfoRepository.save(newProductDetailInfo);
 
     }

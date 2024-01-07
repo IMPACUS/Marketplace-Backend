@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.product;
 
+import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.repository.ProductDescriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +20,11 @@ public class ProductDescriptionService {
      * ProductDescription을 저장하는 함수
      *
      * @param productId
-     * @param description
+     * @param productRequest
      */
     @Transactional
-    public ProductDescription addProductDescription(Long productId, String description) {
-        ProductDescription newProductDescription = ProductDescription.builder()
-                .productId(productId)
-                .description(description)
-                .build();
+    public ProductDescription addProductDescription(Long productId, ProductRequest productRequest) {
+        ProductDescription newProductDescription = productRequest.toEntity(productId);
 
         return productDescriptionRepository.save(newProductDescription);
     }
