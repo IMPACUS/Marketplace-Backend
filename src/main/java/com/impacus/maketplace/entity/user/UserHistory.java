@@ -1,7 +1,7 @@
 package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.enumType.UserHistoryType;
+import com.impacus.maketplace.common.enumType.user.UserHistoryType;
 import jakarta.persistence.*;
 import lombok.*;
 

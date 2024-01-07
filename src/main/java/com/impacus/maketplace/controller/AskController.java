@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/ask")
+@RequestMapping("/api/v1/ask")
 public class AskController {
 
     private final AskService askService;
