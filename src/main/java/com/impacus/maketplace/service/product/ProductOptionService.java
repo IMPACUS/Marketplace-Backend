@@ -27,12 +27,7 @@ public class ProductOptionService {
     @Transactional
     public void addProductOption(Long productId, List<ProductOptionRequest> productOptionRequestList) {
         productOptionRequestList.stream()
-                .map(productOptionRequest -> ProductOption.builder()
-                        .productId(productId)
-                        .color(productOptionRequest.getColor())
-                        .size(productOptionRequest.getSize())
-                        .stock(productOptionRequest.getStock())
-                        .build())
+                .map(productOptionRequest -> productOptionRequest.toEntity(productId))
                 .forEach(this::saveProductOption);
     }
 

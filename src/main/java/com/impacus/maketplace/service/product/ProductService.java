@@ -58,7 +58,7 @@ public class ProductService {
             String productNumber = StringUtils.getProductNumber();
 
             // 4. Product 저장
-            Product newProduct = productRepository.save(new Product(productNumber, productRequest));
+            Product newProduct = productRepository.save(productRequest.toEntity(productNumber));
             Long productId = newProduct.getId();
 
             // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
@@ -72,7 +72,7 @@ public class ProductService {
                     }).collect(Collectors.toList());
 
             // 6. Product description 저장
-            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest.getDescription());
+            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest);
 
             // 7. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             productDescriptionImageList.stream()

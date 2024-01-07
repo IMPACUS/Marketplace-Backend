@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.product.request;
 
+import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,4 +32,8 @@ public class ProductDetailInfoRequest {
     private String asManager; // A/S 책임자
 
     private String contactNumber; // 전화번호
+
+    public ProductDetailInfo toEntity(Long productId) {
+        return new ProductDetailInfo(productId, this);
+    }
 }
