@@ -1,4 +1,4 @@
-package com.impacus.maketplace.dto.point;
+package com.impacus.maketplace.dto.point.response;
 
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import lombok.Builder;

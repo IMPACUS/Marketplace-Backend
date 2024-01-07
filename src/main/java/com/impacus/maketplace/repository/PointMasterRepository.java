@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface PointMasterRepository extends JpaRepository<PointMaster, Long> {
 
     boolean existsPointMasterByUserId(Long userId);
+
+    Optional<PointMaster> findByUserId(Long userId);
 }
