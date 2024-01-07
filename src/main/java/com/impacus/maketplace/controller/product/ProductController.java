@@ -1,11 +1,16 @@
 package com.impacus.maketplace.controller.product;
 
+import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,4 +79,22 @@ public class ProductController {
                 .data(productDTO)
                 .build();
     }
+
+    // 사용자 상품 조회
+    @GetMapping("")
+    public ApiResponseEntity<Object> getAllProduct(
+            @RequestParam(name = "category", required = false) SubCategory category,
+            @PageableDefault(size = 9, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ProductDTO> productDTOList = productService.findProductByNoAuthAndCategory(category, pageable);
+        return ApiResponseEntity
+                .builder()
+                .data(productDTOList)
+                .build();
+    }
+
+    // 관리자/판매자 상품 조회
+
+    // 사용자 단일 상품 조회
+
+    // 관리자/판매자 단일 상품 조회
 }
