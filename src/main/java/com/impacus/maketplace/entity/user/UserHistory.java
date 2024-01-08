@@ -20,7 +20,7 @@ public class UserHistory extends BaseEntity {
     private Long userId; // 사용자
 
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private UserHistoryType historyType; // 이력 타입
 
     private String description; // 이력 설명
