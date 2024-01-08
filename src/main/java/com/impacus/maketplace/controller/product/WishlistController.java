@@ -1,8 +1,8 @@
 package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.product.request.WishlistRequest;
-import com.impacus.maketplace.dto.product.response.WishlistDTO;
+import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
+import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.service.product.WishlistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

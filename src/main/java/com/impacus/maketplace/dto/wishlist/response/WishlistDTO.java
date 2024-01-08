@@ -1,4 +1,4 @@
-package com.impacus.maketplace.dto.product.response;
+package com.impacus.maketplace.dto.wishlist.response;
 
 import com.impacus.maketplace.entity.product.Wishlist;
 import lombok.Builder;
