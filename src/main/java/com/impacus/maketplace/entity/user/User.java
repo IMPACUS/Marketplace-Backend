@@ -31,16 +31,16 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String name; // 사용자 이름
 
-    @ColumnDefault("0")
+    @ColumnDefault("'ACTIVE'")
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private UserStatus status; // 사용자 계정 상태
 
     private String statusReason; // 사용자 계정 상태 사유
 
-    @ColumnDefault("0")
+    @ColumnDefault("'ROLE_UNCERTIFIED_USER'")
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private UserType type; // 사용자 타입
 
     @ColumnDefault("0")
@@ -87,7 +87,8 @@ public class User extends BaseEntity {
 
     private LocalDateTime dormancyDateTime; // 철회 진행 시간
 
-    @Enumerated(EnumType.ORDINAL)
+    @ColumnDefault("'NONE'")
+    @Enumerated(EnumType.STRING)
     private PaymentMethod selectedPaymentMethod; // 선택된 결제 수단
 
     private Long profileImageId; // 프로필 이미지 아이디
