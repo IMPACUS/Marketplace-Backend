@@ -1,5 +1,7 @@
 package com.impacus.maketplace.dto.product.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.entity.product.Product;
 import lombok.Builder;
@@ -7,10 +9,15 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record ProductDTO(Long id, String name, String productNumber, int price, DeliveryType deliveryType,
-                         LocalDateTime createAt) {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record ProductDTO(@JsonProperty(value = "id", required = true) Long id,
+                         @JsonProperty(value = "name", required = true) String name,
+                         @JsonProperty(value = "price", required = true) int price,
+                         String productNumber,
+                         DeliveryType deliveryType,
+                         @JsonProperty(value = "createAt", required = true) LocalDateTime createAt) {
     public ProductDTO(Product product) {
-        this(product.getId(), product.getName(), product.getProductNumber(), product.getAppSalesPrice(), product.getDeliveryType(), product.getCreateAt());
+        this(product.getId(), product.getName(), product.getAppSalesPrice(), product.getProductNumber(), product.getDeliveryType(), product.getCreateAt());
     }
 
     public static ProductDTO toDTO(Product product) {
