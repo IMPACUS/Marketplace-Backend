@@ -88,7 +88,7 @@ public class Product extends BaseEntity {
         this.appSalesPrice = productRequest.getAppSalesPrice();
         this.discountPrice = productRequest.getDiscountPrice();
         this.weight = productRequest.getWeight();
-        this.productStatus = ProductStatus.SALES_PROGRESS;
+        this.productStatus = productRequest.getProductStatus();
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
     }
 
@@ -103,5 +103,6 @@ public class Product extends BaseEntity {
         this.appSalesPrice = productRequest.getAppSalesPrice();
         this.discountPrice = productRequest.getDiscountPrice();
         this.weight = productRequest.getWeight();
+        this.productStatus = productRequest.getProductStatus();
     }
 }

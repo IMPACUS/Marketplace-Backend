@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.product.request;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.ProductStatus;
 import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
@@ -39,6 +40,8 @@ public class ProductRequest {
     private ProductDetailInfoRequest productDetail;
 
     private List<ProductOptionRequest> productOptions;
+
+    private ProductStatus productStatus;
 
     public Product toEntity(String productNumber) {
         return new Product(productNumber, this);
