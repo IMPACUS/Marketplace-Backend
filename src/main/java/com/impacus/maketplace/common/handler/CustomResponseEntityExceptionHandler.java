@@ -6,6 +6,7 @@ import com.impacus.maketplace.dto.error.response.ErrorDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +20,16 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        
-        CustomException customException = new CustomException(ErrorType.INVALID_REQUEST_DATA, ex.getBindingResult().getFieldError().getDefaultMessage());
+        String errorMsg = null;
+        FieldError fieldError = ex.getBindingResult().getFieldError();
+        if (fieldError != null) {
+            String field = fieldError.getField();
+            String errormessage = fieldError.getDefaultMessage();
+
+            errorMsg = String.format("field: %s, message: %s", field, errormessage);
+        }
+
+        CustomException customException = new CustomException(ErrorType.INVALID_REQUEST_DATA, errorMsg);
 
         return ErrorDTO.toResponseEntity(customException);
     }

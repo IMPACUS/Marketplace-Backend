@@ -9,7 +9,7 @@ public class CustomException extends RuntimeException {
 
     private final HttpStatus status;
     private final ErrorType errorType;
-    private final String detail;
+    private final Object detail;
 
     public CustomException(HttpStatus status, ErrorType errorType) {
         this.status = status;
@@ -17,7 +17,7 @@ public class CustomException extends RuntimeException {
         this.detail = "";
     }
 
-    public CustomException(HttpStatus status, ErrorType errorType, String detail) {
+    public CustomException(HttpStatus status, ErrorType errorType, Object detail) {
         this.status = status;
         this.errorType = errorType;
         this.detail = detail;
@@ -29,7 +29,7 @@ public class CustomException extends RuntimeException {
         this.detail = "";
     }
 
-    public CustomException(ErrorType errorType, String detail) {
+    public CustomException(ErrorType errorType, Object detail) {
         this.status = HttpStatus.BAD_REQUEST;
         this.errorType = errorType;
         this.detail = detail;
