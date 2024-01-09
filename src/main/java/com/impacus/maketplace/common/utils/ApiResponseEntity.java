@@ -14,9 +14,13 @@ public class ApiResponseEntity<T> {
 
     @Builder.Default
     private boolean result = true;
+
     @Builder.Default
     private boolean isAuthError = false;
+
+    @Builder.Default
     private HttpStatus code = HttpStatus.OK;
+
     private String message;
 
     private T data;
