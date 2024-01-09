@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.service.product.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,7 +38,7 @@ public class ProductController {
     public ApiResponseEntity<Object> addProduct(
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @RequestPart(value = "product") ProductRequest productRequest) {
+            @Valid @RequestPart(value = "product") ProductRequest productRequest) {
         ProductDTO productDTO = productService.addProduct(productImageList, productRequest, productDescriptionImageList);
         return ApiResponseEntity
                 .builder()
@@ -72,7 +73,7 @@ public class ProductController {
             @PathVariable(name = "productId") Long productId,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @RequestPart(value = "product") ProductRequest productRequest) {
+            @Valid @RequestPart(value = "product") ProductRequest productRequest) {
         ProductDTO productDTO = productService.updateProduct(productId, productImageList, productRequest, productDescriptionImageList);
         return ApiResponseEntity
                 .builder()

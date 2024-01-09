@@ -131,9 +131,7 @@ public class ProductService {
         }
 
         // 4. 상품 내부 데이터 확인
-        if (productName.length() > 50) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "상품명은 50자 이내로 가능합니다.");
-        } else if (deliveryType == DeliveryType.NONE) {
+        if (deliveryType == DeliveryType.NONE) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
         } else if (subCategory == SubCategory.NONE) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 카테고리 입니다.");
