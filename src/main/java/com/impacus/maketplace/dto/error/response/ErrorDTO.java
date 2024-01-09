@@ -6,17 +6,17 @@ import lombok.Builder;
 import org.springframework.http.ResponseEntity;
 
 @Builder
-public record ErrorDTO(String code, String msg, String detail) {
-    public static ResponseEntity<ErrorDTO> toResponseEntity(CustomException ex) {
+public record ErrorDTO(String code, String msg, Object detail) {
+    public static ResponseEntity<Object> toResponseEntity(CustomException ex) {
         ErrorType errorType = ex.getErrorType();
-        String detail = ex.getDetail();
+        Object detail = ex.getDetail();
 
         return ResponseEntity
-            .status(ex.getStatus())
-            .body(ErrorDTO.builder()
-                .code(errorType.getCode())
-                .msg(errorType.getMsg())
-                .detail(detail)
-                .build());
+                .status(ex.getStatus())
+                .body(ErrorDTO.builder()
+                        .code(errorType.getCode())
+                        .msg(errorType.getMsg())
+                        .detail(detail)
+                        .build());
     }
 }

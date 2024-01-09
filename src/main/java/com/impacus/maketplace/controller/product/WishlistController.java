@@ -1,9 +1,10 @@
 package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.product.request.WishlistRequest;
-import com.impacus.maketplace.dto.product.response.WishlistDTO;
+import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
+import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.service.product.WishlistService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +29,9 @@ public class WishlistController {
      * @return
      */
     @PostMapping("/user/new")
-    public ApiResponseEntity<Object> addWishlist(@AuthenticationPrincipal CustomUserDetails user, @RequestBody WishlistRequest wishlistRequest) {
+    public ApiResponseEntity<Object> addWishlist(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody WishlistRequest wishlistRequest) {
         WishlistDTO wishlistDTO = wishlistService.addWishlist(user.getId(), wishlistRequest);
         return ApiResponseEntity
                 .builder()

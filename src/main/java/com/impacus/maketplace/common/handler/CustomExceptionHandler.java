@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class CustomExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<ErrorDTO> handleCustom400Exception(CustomException ex) {
+    protected ResponseEntity<Object> handleCustom400Exception(CustomException ex) {
         ErrorType errorType = ex.getErrorType();
         log.warn(
-            String.format("http-status={%d} code={%s} msg={%s} detail={%s}", ex.getStatus().value(),
-                errorType.getCode(), errorType.getMsg(), ex.getDetail())
+                String.format("http-status={%d} code={%s} msg={%s} detail={%s}", ex.getStatus().value(),
+                        errorType.getCode(), errorType.getMsg(), ex.getDetail())
         );
 
         return ErrorDTO.toResponseEntity(ex);

@@ -131,9 +131,7 @@ public class ProductService {
         }
 
         // 4. 상품 내부 데이터 확인
-        if (productName.length() > 50) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "상품명은 50자 이내로 가능합니다.");
-        } else if (deliveryType == DeliveryType.NONE) {
+        if (deliveryType == DeliveryType.NONE) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
         } else if (subCategory == SubCategory.NONE) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 카테고리 입니다.");
@@ -264,6 +262,24 @@ public class ProductService {
     public Page<ProductDTO> findProductByNoAuthAndCategory(SubCategory category, Pageable pageable) {
         try {
             return findProductByCategoryType(category, pageable).map(ProductDTO::toDTO);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
+     *
+     * @param userId
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<ProductDTO> findProductByAuthAndCategory(Long userId, SubCategory category, Pageable pageable) {
+        try {
+            // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
+
+            return findProductByCategoryType(category, pageable).map(product -> ProductDTO.toDTO(product, "", 0L));
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
