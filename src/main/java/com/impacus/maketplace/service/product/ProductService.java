@@ -15,6 +15,8 @@ import com.impacus.maketplace.repository.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.BrandService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,17 +30,16 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ProductService {
 
+    private static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)
+    private static final int PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT = 341172; // (1000 * 8000 * 3 = 24MB)
+    private static final String PRODUCT_IMAGE_DIRECTORY = "productImage";
+    private static final String PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "productDescriptionImage";
     private final ProductRepository productRepository;
     private final ProductOptionService productOptionService;
     private final ProductDetailInfoService productDetailInfoService;
     private final BrandService brandService;
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
-
-    private static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)
-    private static final int PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT = 341172; // (1000 * 8000 * 3 = 24MB)
-    private static final String PRODUCT_IMAGE_DIRECTORY = "productImage";
-    private static final String PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "productDescriptionImage";
 
     /**
      * 새로운 Product를 저장하는 함수
@@ -58,7 +59,7 @@ public class ProductService {
             String productNumber = StringUtils.getProductNumber();
 
             // 4. Product 저장
-            Product newProduct = productRepository.save(new Product(productNumber, productRequest));
+            Product newProduct = productRepository.save(productRequest.toEntity(productNumber));
             Long productId = newProduct.getId();
 
             // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
@@ -72,7 +73,7 @@ public class ProductService {
                     }).collect(Collectors.toList());
 
             // 6. Product description 저장
-            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest.getDescription());
+            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest);
 
             // 7. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             productDescriptionImageList.stream()
@@ -90,7 +91,7 @@ public class ProductService {
             // 9. Product detail 저장
             productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
 
-            return new ProductDTO(newProduct);
+            return ProductDTO.toDTO(newProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -130,9 +131,7 @@ public class ProductService {
         }
 
         // 4. 상품 내부 데이터 확인
-        if (productName.length() > 50) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "상품명은 50자 이내로 가능합니다.");
-        } else if (deliveryType == DeliveryType.NONE) {
+        if (deliveryType == DeliveryType.NONE) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
         } else if (subCategory == SubCategory.NONE) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 카테고리 입니다.");
@@ -199,52 +198,105 @@ public class ProductService {
      */
     @Transactional
     public ProductDTO updateProduct(Long productId, List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
-        // 1. Product 찾기
-        Product product = findProductById(productId);
+        try {
+            // 1. Product 찾기
+            Product product = findProductById(productId);
 
-        // 2. productRequest 데이터 유효성 검사
-        if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT);
+            // 2. productRequest 데이터 유효성 검사
+            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
+                throw new CustomException(ErrorType.INVALID_PRODUCT);
+            }
+
+            // 3. Product 수정
+            product.setProduct(productRequest);
+            productRepository.save(product);
+
+            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+            attachFileService.deleteAttachFile(product.getId(), ReferencedEntityType.PRODUCT);
+            productImageList.stream()
+                    .map(productImage -> {
+                        try {
+                            return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                        }
+                    }).collect(Collectors.toList());
+
+            // 5. Product description 수정
+            ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(product.getId());
+            productDescription.setDescription(productRequest.getDescription());
+
+            // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            attachFileService.deleteAttachFile(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+            productDescriptionImageList.stream()
+                    .map(productDescriptionImage -> {
+                        try {
+                            return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                        }
+                    }).collect(Collectors.toList());
+
+            //8. Product option 수정
+            productOptionService.deleteAllProductionOptionByProductId(product.getId());
+            productOptionService.addProductOption(productId, productRequest.getProductOptions());
+
+            // 9. Product detail 수정
+            ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
+            productDetailInfo.setProductDetailInfo(productRequest.getProductDetail());
+
+            return new ProductDTO(product);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
+    }
 
-        // 3. Product 수정
-        product.setProduct(productRequest);
-        productRepository.save(product);
 
-        // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-        attachFileService.deleteAttachFile(product.getId(), ReferencedEntityType.PRODUCT);
-        productImageList.stream()
-                .map(productImage -> {
-                    try {
-                        return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
-                    } catch (IOException e) {
-                        throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
-                    }
-                }).collect(Collectors.toList());
+    /**
+     * 전체 상품 조회하는 함수
+     *
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<ProductDTO> findProductByNoAuthAndCategory(SubCategory category, Pageable pageable) {
+        try {
+            return findProductByCategoryType(category, pageable).map(ProductDTO::toDTO);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
 
-        // 5. Product description 수정
-        ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(product.getId());
-        productDescription.setDescription(productRequest.getDescription());
+    /**
+     * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
+     *
+     * @param userId
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<ProductDTO> findProductByAuthAndCategory(Long userId, SubCategory category, Pageable pageable) {
+        try {
+            // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
 
-        // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-        attachFileService.deleteAttachFile(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-        productDescriptionImageList.stream()
-                .map(productDescriptionImage -> {
-                    try {
-                        return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-                    } catch (IOException e) {
-                        throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
-                    }
-                }).collect(Collectors.toList());
+            return findProductByCategoryType(category, pageable).map(product -> ProductDTO.toDTO(product, "", 0L));
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
 
-        //8. Product option 수정
-        productOptionService.deleteAllProductionOptionByProductId(product.getId());
-        productOptionService.addProductOption(productId, productRequest.getProductOptions());
-
-        // 9. Product detail 수정
-        ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
-        productDetailInfo.setProductDetailInfo(productRequest.getProductDetail());
-
-        return new ProductDTO(product);
+    /**
+     * 카테고리와 페이지네이션으로 전체 상품을 조회하는 함수
+     *
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<Product> findProductByCategoryType(SubCategory category, Pageable pageable) {
+        if (category == null) {
+            return productRepository.findAll(pageable);
+        } else {
+            return productRepository.findByCategoryType(category, pageable);
+        }
     }
 }

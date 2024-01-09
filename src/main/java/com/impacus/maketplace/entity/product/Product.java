@@ -2,6 +2,8 @@ package com.impacus.maketplace.entity.product;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.DiscountStatus;
+import com.impacus.maketplace.common.enumType.ProductStatus;
 import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import jakarta.persistence.*;
@@ -34,14 +36,12 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String productNumber; // 상품 번호
 
-    @ColumnDefault("1")
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private DeliveryType deliveryType; // 배송 타입
 
-    @ColumnDefault("1")
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private SubCategory categoryType; // 카테고리 타입
 
     @Column(nullable = false)
@@ -66,18 +66,15 @@ public class Product extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
-    public void setProduct(ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
-        this.name = productRequest.getName();
-        this.deliveryType = productRequest.getDeliveryType();
-        this.categoryType = productRequest.getCategoryType();
-        this.deliveryFee = productRequest.getDeliveryFee();
-        this.refundFee = productRequest.getRefundFee();
-        this.marketPrice = productRequest.getMarketPrice();
-        this.appSalesPrice = productRequest.getAppSalesPrice();
-        this.discountPrice = productRequest.getDiscountPrice();
-        this.weight = productRequest.getWeight();
-    }
+    @ColumnDefault("'SALES_PROGRESS'")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductStatus productStatus; // 상품 상태
+
+    @ColumnDefault("'DISCOUNT_STOP'")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DiscountStatus discountStatus; // 할인 상태
 
     public Product(String productNumber, ProductRequest productRequest) {
         this.brandId = productRequest.getBrandId();
@@ -91,6 +88,21 @@ public class Product extends BaseEntity {
         this.appSalesPrice = productRequest.getAppSalesPrice();
         this.discountPrice = productRequest.getDiscountPrice();
         this.weight = productRequest.getWeight();
+        this.productStatus = productRequest.getProductStatus();
+        this.discountStatus = DiscountStatus.DISCOUNT_STOP;
     }
 
+    public void setProduct(ProductRequest productRequest) {
+        this.brandId = productRequest.getBrandId();
+        this.name = productRequest.getName();
+        this.deliveryType = productRequest.getDeliveryType();
+        this.categoryType = productRequest.getCategoryType();
+        this.deliveryFee = productRequest.getDeliveryFee();
+        this.refundFee = productRequest.getRefundFee();
+        this.marketPrice = productRequest.getMarketPrice();
+        this.appSalesPrice = productRequest.getAppSalesPrice();
+        this.discountPrice = productRequest.getDiscountPrice();
+        this.weight = productRequest.getWeight();
+        this.productStatus = productRequest.getProductStatus();
+    }
 }

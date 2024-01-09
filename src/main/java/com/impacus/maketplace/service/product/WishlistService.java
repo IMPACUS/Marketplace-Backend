@@ -2,8 +2,8 @@ package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.product.request.WishlistRequest;
-import com.impacus.maketplace.dto.product.response.WishlistDTO;
+import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
+import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.entity.product.Wishlist;
 import com.impacus.maketplace.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,13 +33,11 @@ public class WishlistService {
         validateWishList(userId, wishlistRequest);
 
         // 2. Wishlist 저장
-        Wishlist newWishlist = Wishlist.builder()
-                .productId(wishlistRequest.getProductId())
-                .build();
+        Wishlist newWishlist = wishlistRequest.toEntity();
         wishlistRepository.save(newWishlist);
 
         // 3. WishlistDTO로 반환
-        return new WishlistDTO(newWishlist.getId(), newWishlist.getProductId());
+        return WishlistDTO.toDTO(newWishlist);
     }
 
     public boolean validateWishList(Long userId, WishlistRequest wishlistRequest) {
