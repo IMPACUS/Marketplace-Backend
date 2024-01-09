@@ -268,6 +268,24 @@ public class ProductService {
     }
 
     /**
+     * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
+     *
+     * @param userId
+     * @param category
+     * @param pageable
+     * @return
+     */
+    public Page<ProductDTO> findProductByAuthAndCategory(Long userId, SubCategory category, Pageable pageable) {
+        try {
+            // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
+
+            return findProductByCategoryType(category, pageable).map(product -> ProductDTO.toDTO(product, "", 0L));
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
      * 카테고리와 페이지네이션으로 전체 상품을 조회하는 함수
      *
      * @param category
