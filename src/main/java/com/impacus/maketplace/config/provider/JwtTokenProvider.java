@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider implements InitializingBean {
 
-    private static final String GRANT_TYPE = "Bearer ";
+    private static final String GRANT_TYPE = "Bearer";
     private final String jwtSecretKey;
     private final Long accessTokenValidityInMin;
     private final Long refreshTokenValidityInMin;
