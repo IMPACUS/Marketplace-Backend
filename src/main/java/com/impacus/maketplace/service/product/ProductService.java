@@ -151,6 +151,16 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_PRODUCT));
     }
 
+    @Transactional
+    public void deleteAllProduct(List<Long> productIdList) {
+        try {
+            productIdList.stream()
+                    .forEach(this::deleteProduct);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
     /**
      * Product 삭제하는 함수 (isDelete가 true로 변경)
      * 1. ProductOption 삭제
@@ -166,6 +176,7 @@ public class ProductService {
         try {
             // 1. Product 존재 확인
             Product deleteProduct = findProductById(productId);
+
 
             // 2. ProductOption 삭제
             productOptionService.deleteAllProductionOptionByProductId(deleteProduct.getId());
