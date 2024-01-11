@@ -49,15 +49,14 @@ public class ProductController {
     }
 
     /**
-     * 등록된 상품을 삭제하는 API
-     * TODO 다중 삭제 요청으로 변경 필요
+     * 상품 다중 삭제 API
      *
-     * @param productId
+     * @param productIdList
      * @return
      */
-    @DeleteMapping("/seller/{productId}")
-    public ApiResponseEntity<Object> deleteProduct(@PathVariable(name = "productId") Long productId) {
-        productService.deleteProduct(productId);
+    @DeleteMapping("/seller/")
+    public ApiResponseEntity<Object> deleteAllProduct(@RequestParam(name = "productId") List<Long> productIdList) {
+        productService.deleteAllProduct(productIdList);
         return ApiResponseEntity
                 .builder()
                 .build();
