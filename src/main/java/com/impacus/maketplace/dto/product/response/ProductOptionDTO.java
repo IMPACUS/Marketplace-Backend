@@ -3,8 +3,10 @@ package com.impacus.maketplace.dto.product.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductOptionDTO {
     private Long productOptionId;

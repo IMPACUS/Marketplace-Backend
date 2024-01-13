@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository;
 
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.querydsl.core.BooleanBuilder;
@@ -43,14 +44,31 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private List<ProductForWebDTO> getProductDTO(LocalDate startAt, LocalDate endAt, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        List<ProductForWebDTO> result = queryFactory.selectFrom(product)
+        return queryFactory.selectFrom(product)
                 .leftJoin(productOption).on(product.id.eq(productOption.productId))
                 .where(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
                 .where(builder)
+                .groupBy(product.id, productOption.id)
                 .transform(
-                        GroupBy.groupBy(product.id).list(Projections.constructor(ProductForWebDTO.class, product, GroupBy.list(productOption)))
+                        GroupBy.groupBy(product.id).list(Projections.constructor(
+                                        ProductForWebDTO.class,
+                                        product.id,
+                                        product.name,
+                                        product.appSalesPrice,
+                                        product.productNumber,
+                                        product.deliveryType,
+                                        product.productStatus,
+                                        productOption.stock.sum(),
+                                        product.createAt,
+                                        Projections.list(Projections.fields(
+                                                        ProductOptionDTO.class,
+                                                        productOption.id,
+                                                        productOption.color,
+                                                        productOption.size
+                                                )
+                                        )
+                                )
+                        )
                 );
-
-        return result;
     }
 }
