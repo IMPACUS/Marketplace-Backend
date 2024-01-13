@@ -8,6 +8,8 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
+import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
@@ -17,11 +19,13 @@ import com.impacus.maketplace.service.BrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -270,7 +274,7 @@ public class ProductService {
      * @param pageable
      * @return
      */
-    public Page<ProductDTO> findProductByNoAuthAndCategory(SubCategory category, Pageable pageable) {
+    public Slice<ProductDTO> findProductByCategoryForApp(SubCategory category, Pageable pageable) {
         try {
             return findProductByCategoryType(category, pageable).map(ProductDTO::toDTO);
         } catch (Exception ex) {
@@ -282,18 +286,18 @@ public class ProductService {
      * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
      *
      * @param userId
-     * @param category
+     * @param startAt
+     * @param endAt
      * @param pageable
      * @return
      */
-    public Page<ProductDTO> findProductByAuthAndCategory(Long userId, SubCategory category, Pageable pageable) {
-        try {
-            // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
-
-            return findProductByCategoryType(category, pageable).map(product -> ProductDTO.toDTO(product, "", 0L));
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+    public Page<ProductForWebDTO> findProductForWeb(Long userId, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+//        try {
+        // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
+        return productRepository.findAllProduct(startAt, endAt, pageable);
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 
     /**
@@ -308,6 +312,21 @@ public class ProductService {
             return productRepository.findAll(pageable);
         } else {
             return productRepository.findByCategoryType(category, pageable);
+        }
+    }
+
+    /***
+     * 상품에 대한 전체 상세 정보를 조회하는 API
+     * @param productId
+     * @return
+     */
+    public ProductDetailDTO findProductDetail(Long productId) {
+        try {
+            Product product = findProductById(productId);
+
+            return null;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
     }
 }
