@@ -98,7 +98,7 @@ public class ProductController {
     @GetMapping("")
     public ApiResponseEntity<Object> getAllProductForApp(
             @RequestParam(name = "category", required = false) SubCategory category,
-            @PageableDefault(size = 16, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(category, pageable);
         return ApiResponseEntity
                 .builder()
