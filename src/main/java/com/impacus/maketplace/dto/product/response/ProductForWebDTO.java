@@ -1,6 +1,5 @@
 package com.impacus.maketplace.dto.product.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ProductStatus;
 import com.querydsl.core.annotations.QueryProjection;
@@ -10,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductForWebDTO {
     private Long id;
     private String name;
