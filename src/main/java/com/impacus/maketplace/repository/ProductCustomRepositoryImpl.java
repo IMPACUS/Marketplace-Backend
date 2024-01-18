@@ -1,12 +1,13 @@
 package com.impacus.maketplace.repository;
 
+import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
 
-
     @Override
     public Page<ProductForWebDTO> findAllProduct(LocalDate startAt, LocalDate endAt, Pageable pageable) {
         List<ProductForWebDTO> content = getProductDTO(startAt, endAt, pageable);
@@ -42,12 +42,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
 
     private List<ProductForWebDTO> getProductDTO(LocalDate startAt, LocalDate endAt, Pageable pageable) {
-        BooleanBuilder builder = new BooleanBuilder();
-
         return queryFactory.selectFrom(product)
                 .leftJoin(productOption).on(product.id.eq(productOption.productId))
                 .where(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
-                .where(builder)
                 .groupBy(product.id, productOption.id)
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
@@ -70,5 +67,29 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         )
                 );
+    }
+
+    @Override
+    public ProductDetailDTO findProductByProductId(Long productId) {
+        JPAQuery<ProductDetailDTO> query = queryFactory.select(Projections.constructor(
+                        ProductDetailDTO.class,
+                        product.id,
+                        product.name,
+                        product.appSalesPrice,
+                        product.discountPrice,
+                        Projections.list(Projections.fields(
+                                        ProductOptionDTO.class,
+                                        productOption.id,
+                                        productOption.color,
+                                        productOption.size
+                                )
+                        )
+                ))
+                .from(product)
+                .leftJoin(productOption).on(product.id.eq(productOption.productId))
+                .where(product.id.eq(productId))
+                .groupBy(product.id, productOption.id);
+
+        return query.fetchOne();
     }
 }
