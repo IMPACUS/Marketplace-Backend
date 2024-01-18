@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
@@ -181,7 +182,6 @@ public class ProductService {
             // 1. Product 존재 확인
             Product deleteProduct = findProductById(productId);
 
-
             // 2. ProductOption 삭제
             productOptionService.deleteAllProductionOptionByProductId(deleteProduct.getId());
 
@@ -292,12 +292,12 @@ public class ProductService {
      * @return
      */
     public Page<ProductForWebDTO> findProductForWeb(Long userId, LocalDate startAt, LocalDate endAt, Pageable pageable) {
-//        try {
-        // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
-        return productRepository.findAllProduct(startAt, endAt, pageable);
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+        try {
+            // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
+            return productRepository.findAllProduct(startAt, endAt, pageable);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
@@ -316,15 +316,24 @@ public class ProductService {
     }
 
     /***
-     * 상품에 대한 전체 상세 정보를 조회하는 API
+     * 상품에 대한 전체 상세 정보를 조회하는 함수
+     *
      * @param productId
      * @return
      */
     public ProductDetailDTO findProductDetail(Long productId) {
         try {
-            Product product = findProductById(productId);
+            // 1. productId 존재확인
+            findProductById(productId);
 
-            return null;
+            // 2. Product 세부 데이터 가져오기
+            ProductDetailDTO productDetailDTO = productRepository.findProductByProductId(productId);
+
+            // 3. Product 대표 이미지 리스트 가져오기
+            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
+            productDetailDTO.setProductImageList(attachFileDTOS);
+
+            return productDetailDTO;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
