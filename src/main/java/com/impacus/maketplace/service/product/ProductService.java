@@ -6,8 +6,11 @@ import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
+import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
@@ -17,11 +20,13 @@ import com.impacus.maketplace.service.BrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -151,6 +156,16 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_PRODUCT));
     }
 
+    @Transactional
+    public void deleteAllProduct(List<Long> productIdList) {
+        try {
+            productIdList.stream()
+                    .forEach(this::deleteProduct);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
     /**
      * Product 삭제하는 함수 (isDelete가 true로 변경)
      * 1. ProductOption 삭제
@@ -259,7 +274,7 @@ public class ProductService {
      * @param pageable
      * @return
      */
-    public Page<ProductDTO> findProductByNoAuthAndCategory(SubCategory category, Pageable pageable) {
+    public Slice<ProductDTO> findProductByCategoryForApp(SubCategory category, Pageable pageable) {
         try {
             return findProductByCategoryType(category, pageable).map(ProductDTO::toDTO);
         } catch (Exception ex) {
@@ -271,15 +286,15 @@ public class ProductService {
      * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
      *
      * @param userId
-     * @param category
+     * @param startAt
+     * @param endAt
      * @param pageable
      * @return
      */
-    public Page<ProductDTO> findProductByAuthAndCategory(Long userId, SubCategory category, Pageable pageable) {
+    public Page<ProductForWebDTO> findProductForWeb(Long userId, LocalDate startAt, LocalDate endAt, Pageable pageable) {
         try {
             // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
-
-            return findProductByCategoryType(category, pageable).map(product -> ProductDTO.toDTO(product, "", 0L));
+            return productRepository.findAllProduct(startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -297,6 +312,30 @@ public class ProductService {
             return productRepository.findAll(pageable);
         } else {
             return productRepository.findByCategoryType(category, pageable);
+        }
+    }
+
+    /***
+     * 상품에 대한 전체 상세 정보를 조회하는 함수
+     *
+     * @param productId
+     * @return
+     */
+    public ProductDetailDTO findProductDetail(Long productId) {
+        try {
+            // 1. productId 존재확인
+            findProductById(productId);
+
+            // 2. Product 세부 데이터 가져오기
+            ProductDetailDTO productDetailDTO = productRepository.findProductByProductId(productId);
+
+            // 3. Product 대표 이미지 리스트 가져오기
+            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
+            productDetailDTO.setProductImageList(attachFileDTOS);
+
+            return productDetailDTO;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
     }
 }

@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.common.AttachFileGroup;
 import com.impacus.maketplace.repository.AttachFileRepository;
@@ -83,5 +84,16 @@ public class AttachFileService {
     public AttachFile findAttachFileById(Long attachFileId) {
         return attachFileRepository.findById(attachFileId)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_ATTACH_FILE));
+    }
+
+    /**
+     * referencedId에 연관된 AttachFile 데이터 반환하는 함수
+     *
+     * @param referencedId
+     * @param referencedEntityType
+     * @return
+     */
+    public List<AttachFileDTO> findAllAttachFileByReferencedId(Long referencedId, ReferencedEntityType referencedEntityType) {
+        return attachFileRepository.findAllAttachFileByReferencedId(referencedId, referencedEntityType);
     }
 }
