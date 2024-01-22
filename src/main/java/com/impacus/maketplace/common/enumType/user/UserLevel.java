@@ -10,17 +10,19 @@ import java.util.Comparator;
 @RequiredArgsConstructor
 public enum UserLevel {
 
-    BRONZE(1,0,100000),
-    ROOKIE(2,100001,300000),
-    SILVER(3,300001,500000),
-    GOLD(4,500001,900000),
-    ECO_VIP(5,900001,999999999),
-    UNKNOWN(0,0,0);
+    BRONZE(1,0,100000, 0, 1.0),
+    ROOKIE(2,100001,300000, 10000, 1.5),
+    SILVER(3,300001,500000, 30000, 2.0),
+    GOLD(4,500001,900000, 90000, 2.5),
+    ECO_VIP(5,900001,999999999, 50000, 3.5),
+    UNKNOWN(0,0,0,0,0);
 
 
     private final int level;
     private final int minScore;
     private final int maxScore;
+    private final int celebrationPoint;
+    private final double reserveRate;
 
     public static UserLevel fromLevel(int level) {
         if (level >= 1 && level <= 100) {
@@ -68,5 +70,14 @@ public enum UserLevel {
         double percentage = 100 - ((double) (userLevel.getMaxScore() - score) / scoreRange) * 100.0;
         int result = (int) Math.round(percentage);
         return result;
+    }
+
+    public static int getUpcomingPoint(int score) {
+        UserLevel userLevel = fromScore(score);
+
+        if (userLevel == UserLevel.ECO_VIP) {
+            return 0;
+        }
+        return userLevel.getMaxScore() - score;
     }
 }
