@@ -23,8 +23,10 @@ public class ProductOption extends BaseEntity {
     @Column(nullable = false)
     private Long productId;
 
+    @Column(nullable = false)
     private String color; // 색
 
+    @Column(nullable = false)
     private String size; // 크기
 
     @Column(nullable = false)

@@ -41,7 +41,7 @@ public class ProductController {
      * @param productRequest
      * @return
      */
-    @PostMapping("/seller/new")
+    @PostMapping("/seller")
     public ApiResponseEntity<Object> addProduct(
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
