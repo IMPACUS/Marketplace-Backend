@@ -1,4 +1,4 @@
-package com.impacus.maketplace.controller.product;
+package com.impacus.maketplace.controller.temporaryProduct;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
@@ -59,5 +59,6 @@ public class TemporaryProductController {
                 .build();
     }
 
+    // TODO 조회
 
 }

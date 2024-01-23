@@ -35,7 +35,7 @@ public class TemporaryProductDescriptionService {
      * @param temporaryProductId
      * @return
      */
-    public TemporaryProductDescription findProductDescriptionByProductId(Long temporaryProductId) {
+    public TemporaryProductDescription findProductDescriptionByTemporaryProductId(Long temporaryProductId) {
         List<TemporaryProductDescription> descriptions = temporaryProductDescriptionRepository.findByTemporaryProductId(temporaryProductId);
 
         return descriptions.get(0);

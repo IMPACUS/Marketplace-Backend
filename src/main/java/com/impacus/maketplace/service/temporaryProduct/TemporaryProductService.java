@@ -10,6 +10,7 @@ import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryPr
 import com.impacus.maketplace.dto.temporaryProduct.response.SimpleTemporaryProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.BrandService;
@@ -36,6 +37,7 @@ public class TemporaryProductService {
     private final BrandService brandService;
     private final TemporaryProductDescriptionService temporaryProductDescriptionService;
     private final TemporaryProductOptionService temporaryProductOptionService;
+    private final TemporaryProductDetailInfoService temporaryProductDetailInfoService;
 
     /**
      * TemporaryProduct 데이터가 사용자에게 등록되어 있는지 확인하는 함수
@@ -71,6 +73,7 @@ public class TemporaryProductService {
         if (optionalData.isPresent()) {
             // 임시 저장 상품 수정
             TemporaryProduct temporaryProduct = optionalData.get();
+            updateTemporaryProduct(temporaryProduct, productImageList, productRequest, productDescriptionImageList);
             return null;
         } else {
             // 임시 저장 상품 저장
@@ -136,7 +139,7 @@ public class TemporaryProductService {
         temporaryProductOptionService.addTemporaryProductOption(temporaryProductId, productRequest.getProductOptions());
 
         // 7. Product detail 저장
-        temporaryProductDescriptionService.addTemporaryProductDescription(temporaryProductId, productRequest);
+        temporaryProductDetailInfoService.addTemporaryProductDetailInfo(temporaryProductId, productRequest.getProductDetail());
 
         return SimpleTemporaryProductDTO.toDTO(newTemporaryProduct);
     }
@@ -180,6 +183,78 @@ public class TemporaryProductService {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 카테고리 입니다.");
         } else {
             return true;
+        }
+    }
+
+    /**
+     * 등록된 임시 상품 정보를 수정하는 API
+     *
+     * @param temporaryProduct
+     * @param productImageList
+     * @param productRequest
+     * @param productDescriptionImageList
+     * @return
+     */
+    @Transactional
+    public SimpleTemporaryProductDTO updateTemporaryProduct(TemporaryProduct temporaryProduct, List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+        try {
+            // 1. productRequest 데이터 유효성 검사
+            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
+                throw new CustomException(ErrorType.INVALID_PRODUCT);
+            }
+
+            // 2. Product 수정
+            temporaryProduct.setProduct(productRequest);
+            temporaryProductRepository.save(temporaryProduct);
+            Long temporaryProductId = temporaryProduct.getId();
+
+            // 3. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
+            productImageList.stream()
+                    .map(productImage -> {
+                        try {
+                            return attachFileService.uploadFileAndAddAttachFile(
+                                    productImage,
+                                    TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
+                                    temporaryProductId,
+                                    ReferencedEntityType.PRODUCT
+                            );
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                        }
+                    }).collect(Collectors.toList());
+
+            // 4. Product description 수정
+            TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
+            description.setDescription(productRequest.getDescription());
+
+            // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            attachFileService.deleteAttachFile(description.getId(), ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
+            productDescriptionImageList.stream()
+                    .map(productDescriptionImage -> {
+                        try {
+                            return attachFileService.uploadFileAndAddAttachFile(
+                                    productDescriptionImage,
+                                    TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY,
+                                    description.getId(),
+                                    ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION
+                            );
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                        }
+                    }).collect(Collectors.toList());
+
+            //8. Product option 수정
+            temporaryProductOptionService.deleteAllTemporaryProductionOptionByTemporaryProductId(temporaryProductId);
+            temporaryProductOptionService.addTemporaryProductOption(temporaryProductId, productRequest.getProductOptions());
+
+            // 9. Product detail 수정
+            TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
+            detailInfo.setTemporaryProductDetailInfo(productRequest.getProductDetail());
+
+            return SimpleTemporaryProductDTO.toDTO(temporaryProduct);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
     }
 }

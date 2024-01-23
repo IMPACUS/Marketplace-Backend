@@ -14,11 +14,11 @@ import lombok.*;
 public class TemporaryProductDetailInfo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_detail_info_id")
+    @Column(name = "temporary_product_detail_info_id")
     private Long id;
 
     @Column(nullable = false)
-    private Long productId;
+    private Long temporaryProductId;
 
     @Column
     private String productType; // 상품 종류
@@ -57,7 +57,7 @@ public class TemporaryProductDetailInfo extends BaseEntity {
     private String contactNumber; // 전화번호
 
     public TemporaryProductDetailInfo(Long productId, ProductDetailInfoRequest productDetailInfoRequest) {
-        this.productId = productId;
+        this.temporaryProductId = productId;
         this.productType = productDetailInfoRequest.getProductType();
         this.productMaterial = productDetailInfoRequest.getProductMaterial();
         this.productColor = productDetailInfoRequest.getProductColor();
@@ -72,7 +72,7 @@ public class TemporaryProductDetailInfo extends BaseEntity {
         this.contactNumber = productDetailInfoRequest.getContactNumber();
     }
 
-    public void setProductDetailInfo(ProductDetailInfoRequest productDetailInfoRequest) {
+    public void setTemporaryProductDetailInfo(ProductDetailInfoRequest productDetailInfoRequest) {
         this.productType = productDetailInfoRequest.getProductType();
         this.productMaterial = productDetailInfoRequest.getProductMaterial();
         this.productColor = productDetailInfoRequest.getProductColor();
