@@ -29,10 +29,6 @@ public class TemporaryProduct extends BaseEntity {
     private String name; // 상품명
 
     @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String productNumber; // 상품 번호
-
-    @Column
     @Enumerated(EnumType.STRING)
     private DeliveryType deliveryType; // 배송 타입
 
@@ -68,10 +64,9 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountStatus discountStatus; // 할인 상태
 
-    public TemporaryProduct(String productNumber, ProductRequest productRequest) {
+    public TemporaryProduct(ProductRequest productRequest) {
         this.brandId = productRequest.getBrandId();
         this.name = productRequest.getName();
-        this.productNumber = productNumber;
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryType = productRequest.getCategoryType();
         this.deliveryFee = productRequest.getDeliveryFee();

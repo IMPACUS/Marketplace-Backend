@@ -14,7 +14,7 @@ import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
-import com.impacus.maketplace.repository.ProductRepository;
+import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.BrandService;
 import lombok.RequiredArgsConstructor;
@@ -60,14 +60,14 @@ public class ProductService {
                 throw new CustomException(ErrorType.INVALID_PRODUCT);
             }
 
-            // 3. 상풍 번호 생성
+            // 2. 상풍 번호 생성
             String productNumber = StringUtils.getProductNumber();
 
-            // 4. Product 저장
+            // 3. Product 저장
             Product newProduct = productRepository.save(productRequest.toEntity(productNumber));
             Long productId = newProduct.getId();
 
-            // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
             productImageList.stream()
                     .map(productImage -> {
                         try {
@@ -77,10 +77,10 @@ public class ProductService {
                         }
                     }).collect(Collectors.toList());
 
-            // 6. Product description 저장
+            // 5. Product description 저장
             ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest);
 
-            // 7. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            // 6. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             productDescriptionImageList.stream()
                     .map(productDescriptionImage -> {
                         try {
@@ -90,10 +90,10 @@ public class ProductService {
                         }
                     }).collect(Collectors.toList());
 
-            //8. Product option 저장
+            //7. Product option 저장
             productOptionService.addProductOption(productId, productRequest.getProductOptions());
 
-            // 9. Product detail 저장
+            // 8. Product detail 저장
             productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
 
             return ProductDTO.toDTO(newProduct);
