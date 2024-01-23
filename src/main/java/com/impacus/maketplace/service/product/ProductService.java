@@ -96,6 +96,8 @@ public class ProductService {
             // 8. Product detail 저장
             productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
 
+            // 9. TemporaryProduct 삭제
+
             return ProductDTO.toDTO(newProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -260,7 +262,7 @@ public class ProductService {
             ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
             productDetailInfo.setProductDetailInfo(productRequest.getProductDetail());
 
-            return new ProductDTO(product);
+            return ProductDTO.toDTO(product);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
