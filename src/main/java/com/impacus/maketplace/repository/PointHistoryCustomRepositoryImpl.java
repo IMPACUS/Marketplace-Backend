@@ -46,17 +46,14 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
         return result;
     }
 
-    /**
-     * 오늘 부터 6개월 전의 데이터를 가져오는 로직 수정 중
-     */
     @Override
-    public List<Long> findAllWithNoUseOrSavePoint(LocalDateTime startDate) {
+    public List<Long> findAllWithNoUseOrSavePoint(LocalDateTime startDate, LocalDateTime endDate) {
         List<Long> result = queryFactory.selectDistinct(userEntity.id)
                 .from(pointHistoryEntity)
-                .join(pointMasterEntity).on(pointMasterEntity.userId.eq(pointHistoryEntity.pointMasterId))
+                .join(pointMasterEntity).on(pointMasterEntity.id.eq(pointHistoryEntity.pointMasterId))
                 .join(userEntity).on(userEntity.id.eq(pointMasterEntity.userId))
-                .where(pointHistoryEntity.createAt.goe(startDate),
-                        pointHistoryEntity.pointType.in(PointType.USE, PointType.SAVE))
+                .where(pointHistoryEntity.createAt.between(startDate, endDate)
+                        ,pointHistoryEntity.pointType.notIn(PointType.USE, PointType.SAVE))
                 .fetch();
 
         return result;
