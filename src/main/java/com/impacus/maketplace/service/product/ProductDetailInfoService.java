@@ -2,7 +2,7 @@ package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.dto.product.request.ProductDetailInfoRequest;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
-import com.impacus.maketplace.repository.ProductDetailInfoRepository;
+import com.impacus.maketplace.repository.product.ProductDetailInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
