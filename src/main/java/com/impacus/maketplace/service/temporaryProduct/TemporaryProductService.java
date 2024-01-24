@@ -5,9 +5,10 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
-import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
-import com.impacus.maketplace.dto.temporaryProduct.response.SimpleTemporaryProductDTO;
+import com.impacus.maketplace.dto.temporaryProduct.response.*;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
@@ -38,6 +39,7 @@ public class TemporaryProductService {
     private final TemporaryProductDescriptionService temporaryProductDescriptionService;
     private final TemporaryProductOptionService temporaryProductOptionService;
     private final TemporaryProductDetailInfoService temporaryProductDetailInfoService;
+    private final ObjectCopyHelper objectCopyHelper;
 
     /**
      * TemporaryProduct 데이터가 사용자에게 등록되어 있는지 확인하는 함수
@@ -270,6 +272,17 @@ public class TemporaryProductService {
     }
 
     /**
+     * userId로 TemporaryProduct를 찾는 함수
+     *
+     * @param userId
+     * @return
+     */
+    public TemporaryProduct findTemporaryProductByUserId(Long userId) {
+        return temporaryProductRepository.findByRegisterId(userId.toString())
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_TEMPORARY_PRODUCT));
+    }
+
+    /**
      * TemporaryProduct 삭제하는 함수
      * 1. TemporaryProductOption 삭제
      * 2. TemporaryProductDescription 이미지 삭제
@@ -281,24 +294,59 @@ public class TemporaryProductService {
      */
     @Transactional
     public void deleteTemporaryProduct(Long userId) {
-        // 1. Product 존재 확인
-        TemporaryProduct deleteTemporaryProduct = temporaryProductRepository.findByRegisterId(userId.toString()).get();
+        // 1. TemporaryProduct 존재 확인
+        TemporaryProduct deleteTemporaryProduct = findTemporaryProductByUserId(userId);
         Long temporaryProductId = deleteTemporaryProduct.getId();
 
-        // 2. ProductOption 삭제
+        // 2. TemporaryProductOption 삭제
         temporaryProductOptionService.deleteAllTemporaryProductionOptionByTemporaryProductId(temporaryProductId);
 
-        // 3. ProductDescription 이미지 삭제
+        // 3. TemporaryProductDescription 이미지 삭제
         TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
         attachFileService.deleteAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
 
-        // 4. ProductDescription 삭제
+        // 4. TemporaryProductDescription 삭제
         temporaryProductDescriptionService.deleteTemporaryProductDescription(description);
 
-        // 5. Product의 대표 이미지 삭제
+        // 5. TemporaryProduct의 대표 이미지 삭제
         attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.PRODUCT);
 
         // 6. 삭제
         temporaryProductRepository.deleteById(temporaryProductId);
+    }
+
+    /**
+     * TemporaryProduct를 조회하는 함수
+     *
+     * @param userId
+     * @return
+     */
+    public TemporaryProductDTO findTemporaryProduct(Long userId) {
+        TemporaryProduct temporaryProduct = findTemporaryProductByUserId(userId);
+        TemporaryProductDTO dto = objectCopyHelper.copyObject(temporaryProduct, TemporaryProductDTO.class);
+        Long temporaryProductId = temporaryProduct.getId();
+
+        // TemporaryProductDescription 값 가져오기
+        TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
+        dto.setDescription(description.getDescription());
+
+        // TemporaryProductOption 값 가져오기
+        List<TemporaryProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
+                .stream()
+                .map(option -> objectCopyHelper.copyObject(option, TemporaryProductOptionDTO.class))
+                .collect(Collectors.toList());
+        dto.setTemporaryProductOptionDTO(options);
+
+        // TemporaryProductDescription 값 가져오기
+        TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
+        dto.setTemporaryDetailInfoDTO(objectCopyHelper.copyObject(detailInfo, TemporaryDetailInfoDTO.class));
+
+        // 대표이미지 데이터 가져오기
+        List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
+                .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
+                .collect(Collectors.toList());
+        dto.setProductImageList(attachFileDTOS);
+
+        return dto;
     }
 }

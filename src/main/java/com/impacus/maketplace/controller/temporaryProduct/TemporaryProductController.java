@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.SimpleTemporaryProductDTO;
+import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,14 @@ public class TemporaryProductController {
                 .build();
     }
 
-    // TODO 조회
+    @GetMapping("/seller")
+    public ApiResponseEntity<Object> getTemporaryProduct(
+            @AuthenticationPrincipal CustomUserDetails user) {
+        TemporaryProductDTO temporaryProductDTO = temporaryProductService.findTemporaryProduct(user.getId());
+        return ApiResponseEntity
+                .builder()
+                .data(temporaryProductDTO)
+                .build();
+    }
 
 }
