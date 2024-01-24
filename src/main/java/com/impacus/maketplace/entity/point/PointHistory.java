@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@ToString(callSuper = true)
 @Table(name = "point_history")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -43,4 +44,8 @@ public class PointHistory extends BaseEntity {
 
     @Convert(converter = TimestampConverter.class)
     private LocalDateTime expiredAt;
+
+    @Builder.Default
+    @Setter
+    private Boolean expiredCheck = false;
 }

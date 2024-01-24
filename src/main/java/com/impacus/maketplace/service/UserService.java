@@ -65,6 +65,7 @@ public class UserService {
                     signUpRequest.getName());
             userRepository.save(user);
 
+
             // 5. UserDTO 반환
             return new UserDTO(user);
         } catch (Exception ex) {

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface PointMasterRepository extends JpaRepository<PointMaster, Long> {
+public interface PointMasterRepository extends JpaRepository<PointMaster, Long>, PointMasterCustomRepository {
 
     boolean existsPointMasterByUserId(Long userId);
 

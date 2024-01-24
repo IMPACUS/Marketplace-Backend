@@ -6,7 +6,9 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
+import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
 import com.impacus.maketplace.dto.point.response.PointHistoryDto;
+import com.impacus.maketplace.dto.point.response.PointInfoDto;
 import com.impacus.maketplace.dto.point.response.PointMasterDto;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.point.PointHistory;
@@ -14,20 +16,21 @@ import com.impacus.maketplace.entity.point.PointMaster;
 import com.impacus.maketplace.repository.PointHistoryRepository;
 import com.impacus.maketplace.repository.PointMasterRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 import security.CustomUserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class PointService {
 
     private final PointMasterRepository pointMasterRepository;
@@ -45,6 +48,7 @@ public class PointService {
                 .userId(userDTO.id())
                 .availablePoint(CELEBRATION_POINT)
                 .userScore(CELEBRATION_POINT)
+                .isBronze(true)
                 .registerId("ADMIN")
                 .build();
         pointMasterRepository.save(pointMaster);
@@ -77,10 +81,10 @@ public class PointService {
                 .build();
         pointHistoryRepository.save(pointHistory);
 
-
         Integer availablePoint = pointMaster.getAvailablePoint();
         Integer userScore = pointMaster.getUserScore();
         Integer savePoint = pointRequestDto.getSavePoint();
+
         UserLevel currentUserLevel = pointMaster.getUserLevel();
 
         switch (pointHistory.getPointType()) {
@@ -95,25 +99,105 @@ public class PointService {
             }
         }
 
-        UserLevel changeUserLevel = UserLevel.fromScore(userScore);
-        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
-            pointMaster.setUserLevel(changeUserLevel);
-        }
+        changeUpLevel(pointMaster, userScore, currentUserLevel);
 
         PointMasterDto pointMasterDto = new PointMasterDto(pointMaster);
         return pointMasterDto;
     }
 
+    //1월16일 12시 10분
+    private static void changeUpLevel(PointMaster pointMaster, Integer userScore, UserLevel currentUserLevel) {
+        UserLevel changeUserLevel = UserLevel.fromScore(userScore);
+        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
+            pointMaster.setUserLevel(changeUserLevel);
+
+            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
+            switch (changeUserLevel) {
+                case BRONZE  -> pointMaster.setBronze(true);
+                case ROOKIE  -> {
+                    if (!pointMaster.isRookie()) {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.ROOKIE.getCelebrationPoint());
+                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.ROOKIE.getCelebrationPoint());
+                    } else {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.ROOKIE.getCelebrationPoint() / 2));
+                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.ROOKIE.getCelebrationPoint() / 2));
+                    }
+                    pointMaster.setRookie(true);
+                }
+                case SILVER  -> {
+                    if (!pointMaster.isSilver()) {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.SILVER.getCelebrationPoint());
+                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.SILVER.getCelebrationPoint());
+                    } else {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.SILVER.getCelebrationPoint() / 2));
+                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.SILVER.getCelebrationPoint() / 2));
+                    }
+                    pointMaster.setSilver(true);
+                }
+                case GOLD    -> {
+                    if (!pointMaster.isGold()) {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.GOLD.getCelebrationPoint());
+                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.GOLD.getCelebrationPoint());
+                    } else {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.GOLD.getCelebrationPoint() / 2));
+                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.GOLD.getCelebrationPoint() / 2));
+                    }
+                    pointMaster.setGold(true);
+                }
+                case ECO_VIP -> pointMaster.setEcoVip(true);
+            }
+        }
+    }
+
     public List<PointHistoryDto> findPointHistory(PointHistorySearchDto pointHistorySearchDto) {
-//        PointMaster pointMaster = pointMasterRepository.findByUserId(pointHistorySearchDto.getUserId())
-//                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
-//
-//        List<PointHistory> userPointHistoryList = pointHistoryRepository.findByPointMasterId(pointMaster.getId());
-//
-//        List<PointHistoryDto> resultList = userPointHistoryList.stream()
-//                .sorted(Comparator.comparing(PointHistory::getCreateAt))
-//                .map(PointHistoryDto::new)
-//                .collect(Collectors.toList());
         return pointHistoryRepository.findAllPointHistory(pointHistorySearchDto);
     }
+
+    public PointInfoDto findMyPointInfo(CustomUserDetails user) {
+        PointMaster pointMaster = pointMasterRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+        PointInfoDto pointInfoDto = new PointInfoDto(pointMaster.getUserScore());
+        return pointInfoDto;
+    }
+
+    public CurrentPointInfoDto findCurrentMyPointStatus(CustomUserDetails user) {
+
+        CurrentPointInfoDto data = pointMasterRepository.findByUserIdForMyCurrentPointStatus(user.getId());
+        if (data == null) {
+            throw new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER);
+        }
+        return data;
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void updateDisappearPoint() {
+        LocalDateTime sixMonthAgoDate = LocalDateTime.now().minusMonths(6).minusDays(1);
+        List<PointHistory> sixMonthDataList = pointHistoryRepository.findByCreateAtGreaterThanEqualAndExpiredAtIsNotNullAndExpiredCheckIsFalse(sixMonthAgoDate);
+        for (PointHistory pointHistory : sixMonthDataList) {
+            LocalDate expiredDate = pointHistory.getExpiredAt().plusDays(1).toLocalDate();
+            LocalDate currentDate = LocalDate.now();
+
+            if (expiredDate.isEqual(currentDate) || expiredDate.isBefore(currentDate)) {
+                pointHistory.setExpiredCheck(true);
+                Long pointMasterId = pointHistory.getPointMasterId();
+
+                PointMaster pointMaster = pointMasterRepository.findById(pointMasterId).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+                int saveScore = pointMaster.getAvailablePoint() - pointHistory.getChangePoint();
+                pointMaster.setAvailablePoint(saveScore);
+            }
+        }
+    }
+
+    public void longTermDisappearPoint() {
+        /**
+         * 포인트 소멸은 6개월간 구매 혹은 포인트 적립이 없을시 2주마다 -150P씩 소멸하는 것이고,
+         * 예를 들어 현재 99,000P를 소유하고 있는 BRONZE 에서
+         * 상품 구매로 인한 +1,200P를 받아 100,200 가 되었을 때, 30,000포인트를 지급합니다.
+         * 따라서 130,200이 되어 있을 거고,
+         * 여기서 장기간 미사용 시 , 포인트 소멸이 일어나 Rookie 의 포인트가 내려갈 경우 Bronze 레벨로 변할거고
+         * 다시 포인트를 적립하여 Rookie로 올경우 그에 절반인 15,000포인트만 적립이 되는 것
+         */
+
+    }
+
 }

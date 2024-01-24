@@ -5,6 +5,7 @@ import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
 import com.impacus.maketplace.dto.point.response.PointHistoryDto;
 import com.impacus.maketplace.dto.user.response.UserDTO;
+import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.repository.PointHistoryRepository;
 import com.impacus.maketplace.repository.PointMasterRepository;
 import com.impacus.maketplace.repository.UserRepository;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootTest
@@ -63,5 +66,19 @@ public class PointServiceTest {
         List<PointHistoryDto> pointHistory = pointService.findPointHistory(pointHistorySearchDto);
         System.out.println(pointHistory);
         pointHistory.forEach(i -> System.out.println("\n" + i));
+    }
+
+//    @Test
+//    void test6() {
+//        LocalDateTime localDateTime = LocalDateTime.now().minusMonths(6);
+//        long count = pointHistoryRepository.findByCreateAtGreaterThanEqualAndExpiredAtIsNotNull(localDateTime).stream().count();
+//        System.out.println("count = " + count); // 10
+//        pointHistoryRepository.findByCreateAtGreaterThanEqualAndExpiredAtIsNotNull(localDateTime).forEach(i -> System.out.println("create : " + i.getCreateAt() + " expire : " + i.getExpiredAt()));
+//    }
+
+    @Test
+    void test7() {
+        LocalDateTime now = LocalDateTime.now();
+        pointHistoryRepository.findAllWithNoUseOrSavePoint(now).forEach( i -> System.out.println(i));
     }
 }

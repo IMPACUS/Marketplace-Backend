@@ -8,13 +8,13 @@ import com.impacus.maketplace.entity.point.QPointHistory;
 import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import io.lettuce.core.internal.Exceptions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -43,6 +43,22 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
         builder.and(userEntity.id.eq(pointHistorySearchDto.getUserId()));
 
         List<PointHistoryDto> result = query.where(builder).orderBy(pointHistoryEntity.createAt.desc()).fetch();
+        return result;
+    }
+
+    /**
+     * 오늘 부터 6개월 전의 데이터를 가져오는 로직 수정 중
+     */
+    @Override
+    public List<Long> findAllWithNoUseOrSavePoint(LocalDateTime startDate) {
+        List<Long> result = queryFactory.selectDistinct(userEntity.id)
+                .from(pointHistoryEntity)
+                .join(pointMasterEntity).on(pointMasterEntity.userId.eq(pointHistoryEntity.pointMasterId))
+                .join(userEntity).on(userEntity.id.eq(pointMasterEntity.userId))
+                .where(pointHistoryEntity.createAt.goe(startDate),
+                        pointHistoryEntity.pointType.in(PointType.USE, PointType.SAVE))
+                .fetch();
+
         return result;
     }
 }
