@@ -68,20 +68,20 @@ public class TemporaryProductService {
             List<MultipartFile> productImageList,
             ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
-//        try {
-        // 1. 임시 저장 상품이 존재하는지 확인
-        Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(userId.toString());
-        if (optionalData.isPresent()) {
-            // 임시 저장 상품 수정
-            TemporaryProduct temporaryProduct = optionalData.get();
-            return updateTemporaryProduct(temporaryProduct, productImageList, productRequest, productDescriptionImageList);
-        } else {
-            // 임시 저장 상품 저장
-            return addTemporaryProduct(productImageList, productRequest, productDescriptionImageList);
+        try {
+            // 1. 임시 저장 상품이 존재하는지 확인
+            Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(userId.toString());
+            if (optionalData.isPresent()) {
+                // 임시 저장 상품 수정
+                TemporaryProduct temporaryProduct = optionalData.get();
+                return updateTemporaryProduct(temporaryProduct, productImageList, productRequest, productDescriptionImageList);
+            } else {
+                // 임시 저장 상품 저장
+                return addTemporaryProduct(productImageList, productRequest, productDescriptionImageList);
+            }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
     }
 
     /**
@@ -270,12 +270,35 @@ public class TemporaryProductService {
     }
 
     /**
-     * TemporaryProduct 삭제하는 API
+     * TemporaryProduct 삭제하는 함수
+     * 1. TemporaryProductOption 삭제
+     * 2. TemporaryProductDescription 이미지 삭제
+     * 3. TemporaryProductDescription 삭제
+     * 4. TemporaryProduct 대표 이미지 삭제
+     * 5. TemporaryProduct 삭제
      *
      * @param userId
      */
     @Transactional
     public void deleteTemporaryProduct(Long userId) {
+        // 1. Product 존재 확인
+        TemporaryProduct deleteTemporaryProduct = temporaryProductRepository.findByRegisterId(userId.toString()).get();
+        Long temporaryProductId = deleteTemporaryProduct.getId();
 
+        // 2. ProductOption 삭제
+        temporaryProductOptionService.deleteAllTemporaryProductionOptionByTemporaryProductId(temporaryProductId);
+
+        // 3. ProductDescription 이미지 삭제
+        TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
+        attachFileService.deleteAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+
+        // 4. ProductDescription 삭제
+        temporaryProductDescriptionService.deleteTemporaryProductDescription(description);
+
+        // 5. Product의 대표 이미지 삭제
+        attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.PRODUCT);
+
+        // 6. 삭제
+        temporaryProductRepository.deleteById(temporaryProductId);
     }
 }
