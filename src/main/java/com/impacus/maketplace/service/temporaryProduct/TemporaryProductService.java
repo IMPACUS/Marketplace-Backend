@@ -322,31 +322,35 @@ public class TemporaryProductService {
      * @return
      */
     public TemporaryProductDTO findTemporaryProduct(Long userId) {
-        TemporaryProduct temporaryProduct = findTemporaryProductByUserId(userId);
-        TemporaryProductDTO dto = objectCopyHelper.copyObject(temporaryProduct, TemporaryProductDTO.class);
-        Long temporaryProductId = temporaryProduct.getId();
+        try {
+            TemporaryProduct temporaryProduct = findTemporaryProductByUserId(userId);
+            TemporaryProductDTO dto = objectCopyHelper.copyObject(temporaryProduct, TemporaryProductDTO.class);
+            Long temporaryProductId = temporaryProduct.getId();
 
-        // TemporaryProductDescription 값 가져오기
-        TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
-        dto.setDescription(description.getDescription());
+            // TemporaryProductDescription 값 가져오기
+            TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
+            dto.setDescription(description.getDescription());
 
-        // TemporaryProductOption 값 가져오기
-        List<TemporaryProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
-                .stream()
-                .map(option -> objectCopyHelper.copyObject(option, TemporaryProductOptionDTO.class))
-                .collect(Collectors.toList());
-        dto.setTemporaryProductOptionDTO(options);
+            // TemporaryProductOption 값 가져오기
+            List<TemporaryProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
+                    .stream()
+                    .map(option -> objectCopyHelper.copyObject(option, TemporaryProductOptionDTO.class))
+                    .toList();
+            dto.setTemporaryProductOptionDTO(options);
 
-        // TemporaryProductDescription 값 가져오기
-        TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
-        dto.setTemporaryDetailInfoDTO(objectCopyHelper.copyObject(detailInfo, TemporaryDetailInfoDTO.class));
+            // TemporaryProductDescription 값 가져오기
+            TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
+            dto.setTemporaryDetailInfoDTO(objectCopyHelper.copyObject(detailInfo, TemporaryDetailInfoDTO.class));
 
-        // 대표이미지 데이터 가져오기
-        List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
-                .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
-                .collect(Collectors.toList());
-        dto.setProductImageList(attachFileDTOS);
+            // 대표이미지 데이터 가져오기
+            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
+                    .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
+                    .toList();
+            dto.setProductImageList(attachFileDTOS);
 
-        return dto;
+            return dto;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

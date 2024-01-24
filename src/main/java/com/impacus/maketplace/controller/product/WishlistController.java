@@ -28,7 +28,7 @@ public class WishlistController {
      * @param wishlistRequest
      * @return
      */
-    @PostMapping("/user/new")
+    @PostMapping("/user")
     public ApiResponseEntity<Object> addWishlist(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody WishlistRequest wishlistRequest) {
