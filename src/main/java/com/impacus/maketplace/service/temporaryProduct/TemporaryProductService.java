@@ -68,17 +68,20 @@ public class TemporaryProductService {
             List<MultipartFile> productImageList,
             ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
+//        try {
         // 1. 임시 저장 상품이 존재하는지 확인
         Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(userId.toString());
         if (optionalData.isPresent()) {
             // 임시 저장 상품 수정
             TemporaryProduct temporaryProduct = optionalData.get();
-            updateTemporaryProduct(temporaryProduct, productImageList, productRequest, productDescriptionImageList);
-            return null;
+            return updateTemporaryProduct(temporaryProduct, productImageList, productRequest, productDescriptionImageList);
         } else {
             // 임시 저장 상품 저장
             return addTemporaryProduct(productImageList, productRequest, productDescriptionImageList);
         }
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 
     /**
@@ -150,7 +153,11 @@ public class TemporaryProductService {
      * @param productRequest
      * @return
      */
-    public boolean validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+    public boolean validateProductRequest(
+            List<MultipartFile> productImageList,
+            ProductRequest productRequest,
+            List<MultipartFile> productDescriptionImageList) {
+
         Long brandId = productRequest.getBrandId();
         DeliveryType deliveryType = productRequest.getDeliveryType();
         SubCategory subCategory = productRequest.getCategoryType();
@@ -196,7 +203,11 @@ public class TemporaryProductService {
      * @return
      */
     @Transactional
-    public SimpleTemporaryProductDTO updateTemporaryProduct(TemporaryProduct temporaryProduct, List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+    public SimpleTemporaryProductDTO updateTemporaryProduct(
+            TemporaryProduct temporaryProduct,
+            List<MultipartFile> productImageList,
+            ProductRequest productRequest,
+            List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. productRequest 데이터 유효성 검사
             if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
@@ -208,7 +219,7 @@ public class TemporaryProductService {
             temporaryProductRepository.save(temporaryProduct);
             Long temporaryProductId = temporaryProduct.getId();
 
-            // 3. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            // 3. 대표 이미지 저장 및 AttachFileGroup과 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
             productImageList.stream()
                     .map(productImage -> {
@@ -217,7 +228,7 @@ public class TemporaryProductService {
                                     productImage,
                                     TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
                                     temporaryProductId,
-                                    ReferencedEntityType.PRODUCT
+                                    ReferencedEntityType.TEMPORARY_PRODUCT
                             );
                         } catch (IOException e) {
                             throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
@@ -256,5 +267,15 @@ public class TemporaryProductService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * TemporaryProduct 삭제하는 API
+     *
+     * @param userId
+     */
+    @Transactional
+    public void deleteTemporaryProduct(Long userId) {
+
     }
 }

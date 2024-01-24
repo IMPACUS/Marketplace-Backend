@@ -17,6 +17,7 @@ import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.BrandService;
+import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +46,7 @@ public class ProductService {
     private final BrandService brandService;
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
+    private final TemporaryProductService temporaryProductService;
 
     /**
      * 새로운 Product를 저장하는 함수
@@ -53,7 +55,11 @@ public class ProductService {
      * @return
      */
     @Transactional
-    public ProductDTO addProduct(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+    public ProductDTO addProduct(
+            Long userId,
+            List<MultipartFile> productImageList,
+            ProductRequest productRequest,
+            List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. productRequest 데이터 유효성 검사
             if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
@@ -97,6 +103,9 @@ public class ProductService {
             productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
 
             // 9. TemporaryProduct 삭제
+            if (productRequest.isDoesUseTemporaryProduct()) {
+                temporaryProductService.deleteTemporaryProduct(userId);
+            }
 
             return ProductDTO.toDTO(newProduct);
         } catch (Exception ex) {
@@ -112,7 +121,6 @@ public class ProductService {
      */
     public boolean validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
         Long brandId = productRequest.getBrandId();
-        String productName = productRequest.getName();
         DeliveryType deliveryType = productRequest.getDeliveryType();
         SubCategory subCategory = productRequest.getCategoryType();
 
