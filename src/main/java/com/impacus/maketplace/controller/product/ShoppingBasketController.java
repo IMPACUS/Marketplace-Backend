@@ -12,6 +12,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import security.CustomUserDetails;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +40,19 @@ public class ShoppingBasketController {
                 .build();
     }
 
-    // TODO 삭제
+    /**
+     * 장바구니 데이터들를 삭제하는 API
+     *
+     * @param shoppingBasketList
+     * @return
+     */
+    @DeleteMapping("/user")
+    public ApiResponseEntity<Object> deleteShoppingBasket(@RequestParam(name = "shoppingBasketId") List<Long> shoppingBasketList) {
+        shoppingBasketService.deleteAllShoppingBasket(shoppingBasketList);
+        return ApiResponseEntity
+                .builder()
+                .build();
+    }
 
     /**
      * 장바구니 수량을 수정하는 API

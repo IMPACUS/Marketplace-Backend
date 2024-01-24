@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,12 @@ public class ShoppingBasketService {
         }
     }
 
+    /**
+     * id로 ShoppingBasket를 찾는 함수
+     *
+     * @param shoppingBasketId
+     * @return
+     */
     public ShoppingBasket findShoppingBasketById(Long shoppingBasketId) {
         return shoppingBasketRepository.findById(shoppingBasketId)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SHOPPING_CART));
@@ -76,6 +84,26 @@ public class ShoppingBasketService {
             shoppingBasketRepository.save(shoppingBasket);
 
             return SimpleShoppingBasketDTO.toDTO(shoppingBasket);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 요청한 장바구니 데이터들을 삭제하는 함수 (isDelete가 true로 변경)
+     *
+     * @param shoppingBasketList
+     */
+    @Transactional
+    public void deleteAllShoppingBasket(List<Long> shoppingBasketList) {
+        try {
+            // 1. ShoppingBasket 존재 확인
+            List<ShoppingBasket> shoppingBaskets = shoppingBasketList.stream()
+                    .map(this::findShoppingBasketById)
+                    .collect(Collectors.toList());
+
+            // 2. 삭제
+            shoppingBasketRepository.deleteAllInBatch(shoppingBaskets);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
