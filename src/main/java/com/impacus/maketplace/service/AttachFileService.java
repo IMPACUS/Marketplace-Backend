@@ -54,6 +54,22 @@ public class AttachFileService {
     }
 
     /**
+     * 참조하는 객체와 연결되어 있는 AttachFile들을 반환하는 함수
+     *
+     * @param referencedId
+     * @param referencedEntityType
+     */
+    public List<AttachFile> findAllAttachFile(Long referencedId, ReferencedEntityType referencedEntityType) {
+        // 1. AttachFileGroup 찾기
+        List<AttachFileGroup> attachFileGroupList = attachFileGroupService.findAttachFileGroupByReferencedIdAndReferencedEntityType(referencedId, referencedEntityType);
+
+        // 2. AttachFileGroup에 연결된 AttachFile 찾기
+        return attachFileGroupList.stream()
+                .map(attachFileGroup -> findAttachFileById(attachFileGroup.getAttachFileId()))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 참조하는 객체와 연결되어 있는 AttachFile 삭제
      *
      * @param referencedId

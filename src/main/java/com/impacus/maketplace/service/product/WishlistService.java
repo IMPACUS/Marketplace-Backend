@@ -5,7 +5,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.entity.product.Wishlist;
-import com.impacus.maketplace.repository.WishlistRepository;
+import com.impacus.maketplace.repository.product.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

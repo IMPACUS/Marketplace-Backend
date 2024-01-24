@@ -26,6 +26,8 @@ public enum ErrorType {
     NOT_EXISTED_WISHLIST("016_NOT_EXISTED_WISHLIST", "존재하지 않는 찜 데이터입니다."),
     NOT_EXISTED_ATTACH_FILE("017_NOT_EXISTED_ATTACH_FILE", "존재하지 않는 첨부 파일입니다."),
     INVALID_REQUEST_DATA("018_INVALID_REQUEST_DATA", "유효하지 않은 데이터에 대한 요청입니다."),
+    NOT_EXISTED_TEMPORARY_PRODUCT("019_NOT_EXISTED_TEMPORARY_PRODUCT", "임시 저장 데이터가 존재하지 않습니다."),
+    NOT_EXISTED_SHOPPING_CART("019_NOT_EXISTED_SHOPPING_CART", "장바구니 데이터가 존재하지 않습니다."),
 
     //TODO: 30번 부터 Point 관련 된것 작성하겠습니다!
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),

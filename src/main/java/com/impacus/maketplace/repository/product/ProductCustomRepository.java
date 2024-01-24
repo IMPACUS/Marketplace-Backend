@@ -1,4 +1,4 @@
-package com.impacus.maketplace.repository;
+package com.impacus.maketplace.repository.product;
 
 import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;

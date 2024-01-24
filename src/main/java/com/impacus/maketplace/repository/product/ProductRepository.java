@@ -1,4 +1,4 @@
-package com.impacus.maketplace.repository;
+package com.impacus.maketplace.repository.product;
 
 import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.entity.product.Product;
