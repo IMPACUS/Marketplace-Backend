@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - develop
+      - feature/lchy/deploy
   pull_request:
     branches:
       - develop
+      - feature/lchy/deploy
 
 permissions:
   contents: read
