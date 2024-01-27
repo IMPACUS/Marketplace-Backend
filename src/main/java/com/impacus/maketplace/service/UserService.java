@@ -129,6 +129,7 @@ public class UserService {
 
             // 3. 비밀번호 확인
             if (!passwordEncoder.matches(password, user.getPassword())) {
+                log.info("Increse the cnt -------------------------");
                 LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
 
                 if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
