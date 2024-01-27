@@ -20,6 +20,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Deploy to server 1
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_KEY }}
+          port: 22
+          script: |
+            sudo docker rm -f $(docker ps -qa)
+            sudo docker pull ${{ secrets.DOCKER_REPO }}
+            docker-compose up -d
+            docker image prune -f
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -47,8 +60,8 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_REPO }}
 
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.9
+      - name: Deploy to server 2
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ubuntu
