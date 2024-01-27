@@ -47,17 +47,13 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_REPO }}
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    steps:
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         id: deploy
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.AWS_HOST }}
           username: ubuntu
-          key: ${{ secrets.KEY }}
+          key: ${{ secrets.AWS_KEY }}
           envs: GITHUB_SHA
           script: |
             sudo docker rm -f $(docker ps -qa)
