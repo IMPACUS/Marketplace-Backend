@@ -49,7 +49,6 @@ jobs:
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
-        id: deploy
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ubuntu
