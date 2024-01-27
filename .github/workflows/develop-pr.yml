@@ -41,11 +41,11 @@ jobs:
       - name: Docker build
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/impacus-dev:0.0.01 .
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }} .
 
       - name: push to docker repo
         run: |
-          docker push ${{ secrets.DOCKER_REPO }}/impacus-dev:0.0.01 
+          docker push ${{ secrets.DOCKER_REPO }}
 
   deploy:
     name: Deploy
@@ -61,6 +61,6 @@ jobs:
           envs: GITHUB_SHA
           script: |
             sudo docker rm -f $(docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/impacus-dev:0.0.01 
+            sudo docker pull ${{ secrets.DOCKER_REPO }}
             docker-compose up -d
             docker image prune -f
