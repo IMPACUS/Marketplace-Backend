@@ -39,9 +39,11 @@ jobs:
 
       - name: Docker build & push to docker repo
         run: |
+          eco ${{ secrets.DOCKER_USERNAME }}
+          eco ${{ secrets.DOCKER_PASSWORD }}
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/directors-dev .
-          docker push ${{ secrets.DOCKER_REPO }}/directors-dev
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/impacus-dev .
+          docker push ${{ secrets.DOCKER_REPO }}/impacus-dev
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
@@ -53,6 +55,6 @@ jobs:
           envs: GITHUB_SHA
           script: |
             sudo docker rm -f $(docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/directors-dev
+            sudo docker pull ${{ secrets.DOCKER_REPO }}/impacus-dev
             docker-compose up -d
             docker image prune -f
