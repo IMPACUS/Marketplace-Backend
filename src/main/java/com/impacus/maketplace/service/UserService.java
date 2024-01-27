@@ -144,7 +144,6 @@ public class UserService {
 
             return new UserDTO(user, tokenInfoVO);
         } catch (Exception ex) {
-            log.info(ex.toString());
             throw new CustomException(ex);
         }
     }
