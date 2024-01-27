@@ -14,7 +14,6 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity<Object> handleCustom400Exception(CustomException ex) {
-        log.info("IN ---- handler");
         ErrorType errorType = ex.getErrorType();
         log.warn(
                 String.format("http-status={%s} code={%s} msg={%s} detail={%s}", ex.getStatus().value(),
