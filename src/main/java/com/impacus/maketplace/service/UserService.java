@@ -1,8 +1,8 @@
 package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.OauthProviderType;
-import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
@@ -14,9 +14,8 @@ import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -25,6 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
+import java.util.List;
+import java.util.Optional;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -131,7 +134,7 @@ public class UserService {
                 if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
                     changeUserStatus(user, UserStatus.BLOCKED);
                 }
-
+                log.info("Invoke the error -------------------------");
                 throw new CustomException(ErrorType.WRONG_PASSWORD);
             }
 
@@ -140,6 +143,7 @@ public class UserService {
 
             return new UserDTO(user, tokenInfoVO);
         } catch (Exception ex) {
+            log.info(ex.toString());
             throw new CustomException(ex);
         }
     }
