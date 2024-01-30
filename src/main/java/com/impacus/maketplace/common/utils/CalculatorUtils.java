@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CalculatorUtils {
-    public static float calculateDiscountRate(int appSalePrice, int discountPrice) {
-        return ((float) discountPrice * 100) * (float) appSalePrice;
+    public static double calculateDiscountRate(int appSalePrice, int discountPrice) {
+        return ((double) discountPrice * 100) / (double) appSalePrice;
     }
 }

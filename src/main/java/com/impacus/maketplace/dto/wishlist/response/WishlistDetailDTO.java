@@ -18,7 +18,7 @@ public class WishlistDetailDTO {
     private int appSalePrice; // 판매가
     private DeliveryType deliveryType;
     private int discountPrice; // 할인가
-    private float discountRate; // 할인률
+    private double discountRate; // 할인률
 
 
     @QueryProjection
