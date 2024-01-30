@@ -14,8 +14,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
-        AccessDeniedException accessDeniedException) {
-        throw new CustomException(HttpStatus.FORBIDDEN, ErrorType.ACESS_DENIED_EMAIL);
+                       AccessDeniedException accessDeniedException) {
+        throw new CustomException(HttpStatus.FORBIDDEN, ErrorType.ACCESS_DENIED_EMAIL);
     }
 
 }
