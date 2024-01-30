@@ -16,7 +16,7 @@ public class ProductDetailDTO {
     private Long reviewCnt;
     private int appSalePrice; // 판매가
     private int discountPrice; // 할인가
-    private float discountRate; // 할인률
+    private double discountRate; // 할인률
     private List<ProductOptionDTO> options;
 
     @QueryProjection
