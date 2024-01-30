@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
+public interface WishlistRepository extends JpaRepository<Wishlist, Long>, WishlistCustomRepository {
 
     List<Wishlist> findByProductIdAndRegisterId(Long productId, String userId);
 }

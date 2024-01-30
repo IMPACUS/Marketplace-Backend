@@ -1,11 +1,15 @@
 package com.impacus.maketplace.service.product;
 
+import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
+import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
 import com.impacus.maketplace.entity.product.Wishlist;
 import com.impacus.maketplace.repository.product.WishlistRepository;
+import com.impacus.maketplace.service.AttachFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +24,7 @@ public class WishlistService {
 
     private final WishlistRepository wishlistRepository;
     private final ProductService productService;
+    private final AttachFileService attachFileService;
 
     /**
      * Wishlist를 저장하는 함수
@@ -94,5 +99,26 @@ public class WishlistService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * 찜 데이터를 조회하는 함수
+     *
+     * @param userId
+     * @return
+     */
+    public List<WishlistDetailDTO> getAllWishlist(Long userId) {
+        // 1. 찜 세부 데이터 가져오기
+        return wishlistRepository.findAllWishListByUserId(userId)
+                .stream()
+                .map(w -> {
+
+                    // 2. Product 대표 이미지 리스트 가져오기
+                    List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(w.getProductId(), ReferencedEntityType.PRODUCT);
+                    w.setProductImageList(attachFileDTOS);
+
+                    return w;
+                })
+                .collect(Collectors.toList());
     }
 }
