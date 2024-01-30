@@ -1,5 +1,6 @@
-package com.impacus.maketplace.dto.product.response;
+package com.impacus.maketplace.dto.wishlist.response;
 
+import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.querydsl.core.annotations.QueryProjection;
@@ -8,28 +9,35 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ProductDetailDTO {
-    private Long id;
+public class WishlistDetailDTO {
+    private Long wishlistId;
+    private Long productId;
     private String name;
     private List<AttachFileDTO> productImageList;
-    private float averageRating; // 평균 평점
-    private Long reviewCnt;
+    private String brandName;
     private int appSalePrice; // 판매가
+    private DeliveryType deliveryType;
     private int discountPrice; // 할인가
     private float discountRate; // 할인률
-    private List<ProductOptionDTO> options;
+
 
     @QueryProjection
-    public ProductDetailDTO(Long id,
-                            String name,
-                            int appSalePrice,
-                            int discountPrice,
-                            List<ProductOptionDTO> options) {
-        this.id = id;
+    public WishlistDetailDTO(
+            Long wishlistId,
+            Long productId,
+            String name,
+            String brandName,
+            int appSalePrice,
+            DeliveryType deliveryType,
+            int discountPrice
+    ) {
+        this.wishlistId = wishlistId;
+        this.productId = productId;
         this.name = name;
+        this.brandName = brandName;
         this.appSalePrice = appSalePrice;
+        this.deliveryType = deliveryType;
         this.discountPrice = discountPrice;
-        this.options = options;
         this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
     }
 
