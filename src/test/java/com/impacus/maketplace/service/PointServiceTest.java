@@ -10,11 +10,13 @@ import com.impacus.maketplace.repository.PointHistoryRepository;
 import com.impacus.maketplace.repository.PointMasterRepository;
 import com.impacus.maketplace.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @SpringBootTest
@@ -78,7 +80,13 @@ public class PointServiceTest {
 
     @Test
     void test7() {
-        LocalDateTime now = LocalDateTime.now();
-        pointHistoryRepository.findAllWithNoUseOrSavePoint(now).forEach( i -> System.out.println(i));
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusMonths(6);
+        pointHistoryRepository.findAllWithNoUseOrSavePoint(startDate, endDate).forEach( i -> System.out.println(i));
+    }
+
+    @Test
+    void test8() {
+        pointService.longTermDisappearPoint();
     }
 }

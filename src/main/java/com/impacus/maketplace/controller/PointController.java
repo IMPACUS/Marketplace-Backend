@@ -96,6 +96,5 @@ public class PointController {
 
     /**
      *  - 소멸 예정 포인트 포인트 삭감 배치작업
-     *  -
      */
 }

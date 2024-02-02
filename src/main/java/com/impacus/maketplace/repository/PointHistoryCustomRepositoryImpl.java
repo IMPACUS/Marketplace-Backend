@@ -50,8 +50,10 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
     public List<Long> findAllWithNoUseOrSavePoint(LocalDateTime startDate, LocalDateTime endDate) {
         List<Long> result = queryFactory.selectDistinct(userEntity.id)
                 .from(pointHistoryEntity)
-                .join(pointMasterEntity).on(pointMasterEntity.id.eq(pointHistoryEntity.pointMasterId))
-                .join(userEntity).on(userEntity.id.eq(pointMasterEntity.userId))
+                .join(pointMasterEntity)
+                .on(pointMasterEntity.id.eq(pointHistoryEntity.pointMasterId))
+                .join(userEntity)
+                .on(userEntity.id.eq(pointMasterEntity.userId), userEntity.isDormancy.eq(false))
                 .where(pointHistoryEntity.createAt.between(startDate, endDate)
                         ,pointHistoryEntity.pointType.notIn(PointType.USE, PointType.SAVE))
                 .fetch();
