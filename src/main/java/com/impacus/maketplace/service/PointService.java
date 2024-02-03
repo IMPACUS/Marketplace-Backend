@@ -41,7 +41,8 @@ public class PointService {
     private final PointHistoryRepository pointHistoryRepository;
     private final UserRepository userRepository;
     private final DormancyUserRepository dormancyUserRepository;
-    private final Integer CELEBRATION_POINT = 300;
+    private final Integer CELEBRATION_POINT = 2000;
+    private final Integer DORMANCY_POINT = 150;
 
     @Transactional
     public boolean initPointMaster(UserDTO userDTO) {
@@ -206,12 +207,12 @@ public class PointService {
         for (Long userId : findDormancyUser) {
             User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
             user.setIsDormancy(true);
-            user.setDormancyDateTime(LocalDateTime.now());
+            user.setDormancyDateTime(LocalDate.now().atStartOfDay());
             
             DormancyUser dormancyUser = DormancyUser.builder()
                     .userId(userId)
                     .userName(user.getName())
-                    .updateDormancyDateTime(LocalDateTime.now().plusDays(14))
+                    .updateDormancyAt(LocalDate.now().plusDays(14).atStartOfDay())
                     .build();
 
             dormancyUserRepository.save(dormancyUser);
@@ -220,7 +221,7 @@ public class PointService {
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
-    public void deductionPointForDormancyUser() {
+    public void reductionPointForDormancyUser() {
         /**
          * 포인트 소멸은 6개월간 구매 혹은 포인트 적립이 없을시 2주마다 -150P씩 소멸하는 것이고,
          * 예를 들어 현재 99,000P를 소유하고 있는 BRONZE 에서
@@ -229,8 +230,24 @@ public class PointService {
          * 여기서 장기간 미사용 시 , 포인트 소멸이 일어나 Rookie 의 포인트가 내려갈 경우 Bronze 레벨로 변할거고
          * 다시 포인트를 적립하여 Rookie로 올경우 그에 절반인 15,000포인트만 적립이 되는 것
          */
-        List<DormancyUser> allDormancyUserList = dormancyUserRepository.findAll();
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        List<DormancyUser> dormancyUsers = dormancyUserRepository.findByUpdateDormancyAt(today);
+        for (DormancyUser dormancyUser : dormancyUsers) {
+            PointMaster pointMaster = pointMasterRepository.findByUserId(dormancyUser.getUserId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
 
+            int saveAvailablePoint = pointMaster.getAvailablePoint() - DORMANCY_POINT;
+            int saveUserScore = pointMaster.getUserScore() - DORMANCY_POINT;
+
+
+            pointMaster.setAvailablePoint(saveAvailablePoint);
+            pointMaster.setUserScore(saveUserScore);
+
+            UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
+            if (!StringUtils.equals(changeUserLevel, pointMaster.getUserLevel())) {
+                pointMaster.setUserLevel(changeUserLevel);
+            }
+            dormancyUser.setUpdateDormancyAt(today.plusWeeks(2));
+        }
     }
 
 }

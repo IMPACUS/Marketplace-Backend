@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.user;
 
+import com.impacus.maketplace.common.utils.TimestampConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,12 +22,13 @@ public class DormancyUser {
     private String userName;
 
     @Setter
-    private LocalDateTime updateDormancyDateTime;
+    @Convert(converter = TimestampConverter.class)
+    private LocalDateTime updateDormancyAt;
 
     @Builder
-    public DormancyUser(Long userId, String userName, LocalDateTime updateDormancyDateTime) {
+    public DormancyUser(Long userId, String userName, LocalDateTime updateDormancyAt) {
         this.userId = userId;
         this.userName = userName;
-        this.updateDormancyDateTime = updateDormancyDateTime;
+        this.updateDormancyAt = updateDormancyAt;
     }
 }

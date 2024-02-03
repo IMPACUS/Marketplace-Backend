@@ -87,6 +87,11 @@ public class PointServiceTest {
 
     @Test
     void test8() {
-        pointService.longTermDisappearPoint();
+        pointService.addDormancyUser();
+    }
+
+    @Test
+    void test9() {
+        pointService.reductionPointForDormancyUser();
     }
 }
