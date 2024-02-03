@@ -83,9 +83,11 @@ public class User extends BaseEntity {
     private LocalDateTime withdrawnDateTime; // 철회 진행 시간
 
     @Column(nullable = false)
+    @Setter
     private Boolean isDormancy; // 휴면 계정 여부
 
-    private LocalDateTime dormancyDateTime; // 철회 진행 시간
+    @Setter
+    private LocalDateTime dormancyDateTime; // 휴면 계정 등록 시간
 
     @ColumnDefault("'NONE'")
     @Enumerated(EnumType.STRING)
