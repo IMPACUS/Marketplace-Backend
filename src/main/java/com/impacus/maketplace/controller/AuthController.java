@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller;
 
+import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.request.TokenRequest;
@@ -11,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -26,28 +26,37 @@ public class AuthController {
     private final PointService pointService;
 
     @PostMapping("sign-up")
-    public ResponseEntity<Object> addUser(@RequestBody SignUpRequest signUpRequest) {
+    public ApiResponseEntity<UserDTO> addUser(@RequestBody SignUpRequest signUpRequest) {
         UserDTO userDTO = this.userService.addUser(signUpRequest);
         boolean existPointMaster = pointService.initPointMaster(userDTO);
         if (existPointMaster) {
-            return new ResponseEntity<>(userDTO, HttpStatus.CONFLICT);
+            return ApiResponseEntity.<UserDTO>builder()
+                    .code(HttpStatus.CONFLICT)
+                    .data(userDTO)
+                    .build();
         }
-        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        return ApiResponseEntity.<UserDTO>builder()
+                .data(userDTO)
+                .build();
     }
 
     @GetMapping("login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
         UserDTO userDTO = userService.login(loginRequest);
 
-        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        return ApiResponseEntity.<UserDTO>builder()
+                .data(userDTO)
+                .build();
     }
 
     @GetMapping("reissue")
-    public ResponseEntity<Object> reissueToken(
+    public ApiResponseEntity<UserDTO> reissueToken(
             @RequestHeader(value = AUTHORIZATION_HEADER) String accessToken,
             @RequestBody TokenRequest tokenRequest) {
         UserDTO userDTO = authService.reissueToken(accessToken, tokenRequest.getRefreshToken());
 
-        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        return ApiResponseEntity.<UserDTO>builder()
+                .data(userDTO)
+                .build();
     }
 }

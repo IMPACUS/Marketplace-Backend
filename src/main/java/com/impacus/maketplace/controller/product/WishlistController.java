@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
+import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
 import com.impacus.maketplace.service.product.WishlistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class WishlistController {
      * @param wishlistRequest
      * @return
      */
-    @PostMapping("/user/new")
+    @PostMapping("/user")
     public ApiResponseEntity<Object> addWishlist(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody WishlistRequest wishlistRequest) {
@@ -50,6 +51,21 @@ public class WishlistController {
         wishlistService.deleteAllWishlist(wishlistIdList);
         return ApiResponseEntity
                 .builder()
+                .build();
+    }
+
+    /**
+     * 찜 데이터 조회 API
+     *
+     * @param user
+     * @return
+     */
+    @GetMapping("/user")
+    public ApiResponseEntity<Object> getWishlist(@AuthenticationPrincipal CustomUserDetails user) {
+        List<WishlistDetailDTO> wishlistDetailDTOS = wishlistService.getAllWishlist(user.getId());
+        return ApiResponseEntity
+                .builder()
+                .data(wishlistDetailDTOS)
                 .build();
     }
 }

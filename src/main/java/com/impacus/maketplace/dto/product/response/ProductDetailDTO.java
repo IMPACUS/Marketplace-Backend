@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.product.response;
 
+import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
@@ -15,7 +16,7 @@ public class ProductDetailDTO {
     private Long reviewCnt;
     private int appSalePrice; // 판매가
     private int discountPrice; // 할인가
-    private int discountRate; // 할인률
+    private double discountRate; // 할인률
     private List<ProductOptionDTO> options;
 
     @QueryProjection
@@ -29,7 +30,7 @@ public class ProductDetailDTO {
         this.appSalePrice = appSalePrice;
         this.discountPrice = discountPrice;
         this.options = options;
-
+        this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
     }
 
     public void setProductImageList(List<AttachFileDTO> productImageList) {

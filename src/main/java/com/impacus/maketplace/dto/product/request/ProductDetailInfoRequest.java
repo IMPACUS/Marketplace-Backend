@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.product.request;
 
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,5 +38,9 @@ public class ProductDetailInfoRequest {
 
     public ProductDetailInfo toEntity(Long productId) {
         return new ProductDetailInfo(productId, this);
+    }
+
+    public TemporaryProductDetailInfo toTemporaryEntity(Long temporaryProductId) {
+        return new TemporaryProductDetailInfo(temporaryProductId, this);
     }
 }
