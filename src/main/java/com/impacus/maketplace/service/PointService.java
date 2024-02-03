@@ -41,7 +41,7 @@ public class PointService {
     private final PointHistoryRepository pointHistoryRepository;
     private final UserRepository userRepository;
     private final DormancyUserRepository dormancyUserRepository;
-    private final Integer CELEBRATION_POINT = 2000;
+    private final Integer CELEBRATION_POINT = 5000;
     private final Integer DORMANCY_POINT = 150;
 
     @Transactional
