@@ -10,5 +10,5 @@ import java.util.List;
 public interface PointHistoryCustomRepository {
     List<PointHistoryDto> findAllPointHistory(PointHistorySearchDto pointHistorySearchDto);
 
-    List<Long> findAllWithNoUseOrSavePoint(LocalDateTime startDate);
+    List<Long> findAllWithNoUseOrSavePoint(LocalDateTime startDate, LocalDateTime endDate);
 }

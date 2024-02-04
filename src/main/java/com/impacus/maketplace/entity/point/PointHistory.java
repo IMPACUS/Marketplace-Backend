@@ -43,7 +43,7 @@ public class PointHistory extends BaseEntity {
     // 추후 관리자 페이지에서 오류,보상 지급을 위해 관리자가 직접 포인트를 부여하는 경우를 대비해서 만들어 놓았습니다!
 
     @Convert(converter = TimestampConverter.class)
-    private LocalDateTime expiredAt;
+    private LocalDateTime expiredAt; // 소멸 시간
 
     @Builder.Default
     @Setter

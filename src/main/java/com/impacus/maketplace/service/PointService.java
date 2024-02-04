@@ -13,8 +13,12 @@ import com.impacus.maketplace.dto.point.response.PointMasterDto;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.entity.point.PointMaster;
+import com.impacus.maketplace.entity.user.DormancyUser;
+import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.repository.DormancyUserRepository;
 import com.impacus.maketplace.repository.PointHistoryRepository;
 import com.impacus.maketplace.repository.PointMasterRepository;
+import com.impacus.maketplace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,8 +39,10 @@ public class PointService {
 
     private final PointMasterRepository pointMasterRepository;
     private final PointHistoryRepository pointHistoryRepository;
-
-    private final Integer CELEBRATION_POINT = 300;
+    private final UserRepository userRepository;
+    private final DormancyUserRepository dormancyUserRepository;
+    private final Integer CELEBRATION_POINT = 5000;
+    private final Integer DORMANCY_POINT = 150;
 
     @Transactional
     public boolean initPointMaster(UserDTO userDTO) {
@@ -168,6 +174,9 @@ public class PointService {
         return data;
     }
 
+    /**
+     * 6개월의 유효기간이 있는 포인트 내역은 기간이 지나면 소멸 스케줄러  -> 추후 배치로 변경 예정
+     */
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void updateDisappearPoint() {
@@ -188,7 +197,31 @@ public class PointService {
         }
     }
 
-    public void longTermDisappearPoint() {
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void addDormancyUser() {
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusMonths(6);
+        List<Long> findDormancyUser = pointHistoryRepository.findAllWithNoUseOrSavePoint(startDate, endDate);
+
+        for (Long userId : findDormancyUser) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+            user.setIsDormancy(true);
+            user.setDormancyDateTime(LocalDate.now().atStartOfDay());
+            
+            DormancyUser dormancyUser = DormancyUser.builder()
+                    .userId(userId)
+                    .userName(user.getName())
+                    .updateDormancyAt(LocalDate.now().plusDays(14).atStartOfDay())
+                    .build();
+
+            dormancyUserRepository.save(dormancyUser);
+        }
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void reductionPointForDormancyUser() {
         /**
          * 포인트 소멸은 6개월간 구매 혹은 포인트 적립이 없을시 2주마다 -150P씩 소멸하는 것이고,
          * 예를 들어 현재 99,000P를 소유하고 있는 BRONZE 에서
@@ -197,7 +230,24 @@ public class PointService {
          * 여기서 장기간 미사용 시 , 포인트 소멸이 일어나 Rookie 의 포인트가 내려갈 경우 Bronze 레벨로 변할거고
          * 다시 포인트를 적립하여 Rookie로 올경우 그에 절반인 15,000포인트만 적립이 되는 것
          */
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        List<DormancyUser> dormancyUsers = dormancyUserRepository.findByUpdateDormancyAt(today);
+        for (DormancyUser dormancyUser : dormancyUsers) {
+            PointMaster pointMaster = pointMasterRepository.findByUserId(dormancyUser.getUserId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
 
+            int saveAvailablePoint = pointMaster.getAvailablePoint() - DORMANCY_POINT;
+            int saveUserScore = pointMaster.getUserScore() - DORMANCY_POINT;
+
+
+            pointMaster.setAvailablePoint(saveAvailablePoint);
+            pointMaster.setUserScore(saveUserScore);
+
+            UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
+            if (!StringUtils.equals(changeUserLevel, pointMaster.getUserLevel())) {
+                pointMaster.setUserLevel(changeUserLevel);
+            }
+            dormancyUser.setUpdateDormancyAt(today.plusWeeks(2));
+        }
     }
 
 }
