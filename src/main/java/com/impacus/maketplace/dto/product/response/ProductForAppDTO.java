@@ -1,8 +1,8 @@
 package com.impacus.maketplace.dto.product.response;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
-import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +22,8 @@ public class ProductForAppDTO {
     private int discountPrice; // 할인가
     private double discountRate; // 할인률
 
-    public static ProductForAppDTO toDTO(
+    @QueryProjection
+    public ProductForAppDTO(
             Long productId,
             String name,
             String brandName,
@@ -30,15 +31,12 @@ public class ProductForAppDTO {
             DeliveryType deliveryType,
             int discountPrice
     ) {
-        return ProductForAppDTO.builder()
-                .productId(productId)
-                .name(name)
-                .brandName(brandName)
-                .appSalePrice(appSalePrice)
-                .deliveryType(deliveryType)
-                .discountPrice(discountPrice)
-                .discountRate(CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice))
-                .build();
+        this.productId = productId;
+        this.name = name;
+        this.brandName = brandName;
+        this.appSalePrice = appSalePrice;
+        this.deliveryType = deliveryType;
+        this.discountPrice = discountPrice;
     }
 
     public void setProductImageList(List<AttachFileDTO> productImageList) {
