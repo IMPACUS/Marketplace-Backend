@@ -108,17 +108,21 @@ public class WishlistService {
      * @return
      */
     public List<WishlistDetailDTO> getAllWishlist(Long userId) {
-        // 1. 찜 세부 데이터 가져오기
-        return wishlistRepository.findAllWishListByUserId(userId)
-                .stream()
-                .map(w -> {
+        try {
+            // 1. 찜 세부 데이터 가져오기
+            return wishlistRepository.findAllWishListByUserId(userId)
+                    .stream()
+                    .map(w -> {
 
-                    // 2. Product 대표 이미지 리스트 가져오기
-                    List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(w.getProductId(), ReferencedEntityType.PRODUCT);
-                    w.setProductImageList(attachFileDTOS);
+                        // 2. Product 대표 이미지 리스트 가져오기
+                        List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(w.getProduct().getProductId(), ReferencedEntityType.PRODUCT);
+                        w.setProductImageList(attachFileDTOS);
 
-                    return w;
-                })
-                .collect(Collectors.toList());
+                        return w;
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

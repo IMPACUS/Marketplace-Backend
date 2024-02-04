@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ShoppingBasketRepository extends JpaRepository<ShoppingBasket, Long> {
+public interface ShoppingBasketRepository extends JpaRepository<ShoppingBasket, Long>, ShoppingBasketCustomRepository {
 
     Optional<ShoppingBasket> findByProductOptionIdAndRegisterId(Long productOptionId, String registerId);
 }
