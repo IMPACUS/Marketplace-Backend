@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketForQuantityRequest;
 import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketRequest;
+import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.SimpleShoppingBasketDTO;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
 import jakarta.validation.Valid;
@@ -68,6 +69,21 @@ public class ShoppingBasketController {
         return ApiResponseEntity
                 .builder()
                 .data(dto)
+                .build();
+    }
+
+    /**
+     * 장바구니 데이터 조회 API
+     *
+     * @param user
+     * @return
+     */
+    @GetMapping("/user")
+    public ApiResponseEntity<Object> getShoppingBasket(@AuthenticationPrincipal CustomUserDetails user) {
+        List<ShoppingBasketDetailDTO> shoppingBasketDetailDTOS = shoppingBasketService.getAllShoppingBasket(user.getId());
+        return ApiResponseEntity
+                .builder()
+                .data(shoppingBasketDetailDTOS)
                 .build();
     }
 }
