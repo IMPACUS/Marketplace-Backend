@@ -88,6 +88,9 @@ public class DormantUser {
     @Setter
     private LocalDateTime dormancyDateTime; // 휴면 계정 등록 시간
 
+    @Setter
+    private LocalDateTime dormancyUpdateDateTime; // 휴면 계정 등록 시간
+
     @ColumnDefault("'NONE'")
     @Enumerated(EnumType.STRING)
     private PaymentMethod selectedPaymentMethod; // 선택된 결제 수단
