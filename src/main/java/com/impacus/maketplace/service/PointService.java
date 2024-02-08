@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.PointType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
 import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
@@ -14,11 +15,9 @@ import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.entity.point.PointMaster;
 import com.impacus.maketplace.entity.user.DormancyUser;
+import com.impacus.maketplace.entity.user.DormantUser;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.DormancyUserRepository;
-import com.impacus.maketplace.repository.PointHistoryRepository;
-import com.impacus.maketplace.repository.PointMasterRepository;
-import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,7 +39,10 @@ public class PointService {
     private final PointMasterRepository pointMasterRepository;
     private final PointHistoryRepository pointHistoryRepository;
     private final UserRepository userRepository;
+    private final DormantUserRepository dormantUserRepository;
     private final DormancyUserRepository dormancyUserRepository;
+
+    private final ObjectCopyHelper objectCopyHelper;
     private final Integer CELEBRATION_POINT = 5000;
     private final Integer DORMANCY_POINT = 150;
 
@@ -208,14 +210,12 @@ public class PointService {
             User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
             user.setIsDormancy(true);
             user.setDormancyDateTime(LocalDate.now().atStartOfDay());
-            
-            DormancyUser dormancyUser = DormancyUser.builder()
-                    .userId(userId)
-                    .userName(user.getName())
-                    .updateDormancyAt(LocalDate.now().plusDays(14).atStartOfDay())
-                    .build();
 
-            dormancyUserRepository.save(dormancyUser);
+            DormantUser dormantUser = objectCopyHelper.copyObject(user, DormantUser.class);
+            dormantUser.setDormancyUpdateDateTime(LocalDate.now().plusWeeks(2).atStartOfDay());
+
+            dormantUserRepository.save(dormantUser);
+            userRepository.deleteById(userId);
         }
     }
 
