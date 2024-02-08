@@ -55,7 +55,8 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
                 .join(userEntity)
                 .on(userEntity.id.eq(pointMasterEntity.userId), userEntity.isDormancy.eq(false))
                 .where(pointHistoryEntity.createAt.between(startDate, endDate)
-                        ,pointHistoryEntity.pointType.notIn(PointType.USE, PointType.SAVE, PointType.JOIN, PointType.CHECK))
+                        , userEntity.createAt.before(LocalDateTime.now().minusMonths(6))
+                        ,pointHistoryEntity.pointType.in(PointType.USE, PointType.SAVE, PointType.JOIN, PointType.CHECK))
                 .fetch();
 
         return result;
