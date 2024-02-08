@@ -1,9 +1,11 @@
 package com.impacus.maketplace.service;
 
+import com.amazonaws.services.dynamodbv2.xspec.M;
 import com.impacus.maketplace.common.enumType.PointType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
 import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
@@ -13,12 +15,9 @@ import com.impacus.maketplace.dto.point.response.PointMasterDto;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.entity.point.PointMaster;
-import com.impacus.maketplace.entity.user.DormancyUser;
+import com.impacus.maketplace.entity.user.DormantUser;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.DormancyUserRepository;
-import com.impacus.maketplace.repository.PointHistoryRepository;
-import com.impacus.maketplace.repository.PointMasterRepository;
-import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,7 +39,9 @@ public class PointService {
     private final PointMasterRepository pointMasterRepository;
     private final PointHistoryRepository pointHistoryRepository;
     private final UserRepository userRepository;
-    private final DormancyUserRepository dormancyUserRepository;
+    private final DormantUserRepository dormantUserRepository;
+
+    private final ObjectCopyHelper objectCopyHelper;
     private final Integer CELEBRATION_POINT = 5000;
     private final Integer DORMANCY_POINT = 150;
 
@@ -208,46 +209,56 @@ public class PointService {
             User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
             user.setIsDormancy(true);
             user.setDormancyDateTime(LocalDate.now().atStartOfDay());
-            
-            DormancyUser dormancyUser = DormancyUser.builder()
-                    .userId(userId)
-                    .userName(user.getName())
-                    .updateDormancyAt(LocalDate.now().plusDays(14).atStartOfDay())
-                    .build();
 
-            dormancyUserRepository.save(dormancyUser);
+            DormantUser dormantUser = objectCopyHelper.copyObject(user, DormantUser.class);
+            dormantUser.setDormancyUpdateDateTime(LocalDate.now().plusWeeks(2).atStartOfDay());
+
+            dormantUserRepository.save(dormantUser);
+            userRepository.deleteById(userId);
         }
     }
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
     public void reductionPointForDormancyUser() {
-        /**
-         * 포인트 소멸은 6개월간 구매 혹은 포인트 적립이 없을시 2주마다 -150P씩 소멸하는 것이고,
-         * 예를 들어 현재 99,000P를 소유하고 있는 BRONZE 에서
-         * 상품 구매로 인한 +1,200P를 받아 100,200 가 되었을 때, 30,000포인트를 지급합니다.
-         * 따라서 130,200이 되어 있을 거고,
-         * 여기서 장기간 미사용 시 , 포인트 소멸이 일어나 Rookie 의 포인트가 내려갈 경우 Bronze 레벨로 변할거고
-         * 다시 포인트를 적립하여 Rookie로 올경우 그에 절반인 15,000포인트만 적립이 되는 것
-         */
+
         LocalDateTime today = LocalDate.now().atStartOfDay();
-        List<DormancyUser> dormancyUsers = dormancyUserRepository.findByUpdateDormancyAt(today);
-        for (DormancyUser dormancyUser : dormancyUsers) {
-            PointMaster pointMaster = pointMasterRepository.findByUserId(dormancyUser.getUserId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+        List<DormantUser> dormantUsers = dormantUserRepository.findByDormancyUpdateDateTime(today);
+        for (DormantUser dormantUser : dormantUsers) {
+            PointMaster pointMaster = pointMasterRepository.findByUserId(dormantUser.getId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
 
-            int saveAvailablePoint = pointMaster.getAvailablePoint() - DORMANCY_POINT;
-            int saveUserScore = pointMaster.getUserScore() - DORMANCY_POINT;
+            /**
+             * 만약 사용가능한 포인트가 dormancy_point 보다 낮으면,
+             * 어떻게 할지 또한 유저의 레벨및 등급을 나타내는 userScore가 dormancy_point 보다 낮으면 ? 어떻게 할지 추가해야함
+             */
 
+            if (pointMaster.getAvailablePoint() < DORMANCY_POINT) {
+                pointMaster.setAvailablePoint(0);
+            } else {
+                int saveAvailablePoint = pointMaster.getAvailablePoint() - DORMANCY_POINT;
+                int saveUserScore = pointMaster.getUserScore() - DORMANCY_POINT;
 
-            pointMaster.setAvailablePoint(saveAvailablePoint);
-            pointMaster.setUserScore(saveUserScore);
+                PointHistory pointHistory = PointHistory.builder()
+                        .pointMasterId(pointMaster.getId())
+                        .pointType(PointType.DORMANCY)
+                        .changePoint(DORMANCY_POINT)
+                        .isManual(true)
+                        .build();
 
-            UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
-            if (!StringUtils.equals(changeUserLevel, pointMaster.getUserLevel())) {
-                pointMaster.setUserLevel(changeUserLevel);
+                pointHistoryRepository.save(pointHistory);
+
+                pointMaster.setAvailablePoint(saveAvailablePoint);
+                pointMaster.setUserScore(saveUserScore);
+
+                UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
+                if (!StringUtils.equals(changeUserLevel, pointMaster.getUserLevel())) {
+                    pointMaster.setUserLevel(changeUserLevel);
+                }
+
+                dormantUser.setDormancyUpdateDateTime(today.plusWeeks(2));
             }
-            dormancyUser.setUpdateDormancyAt(today.plusWeeks(2));
         }
-    }
 
+
+    }
 }
