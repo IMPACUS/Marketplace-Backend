@@ -13,7 +13,8 @@ public enum PointType {
     SAVE("10","적립"),
     USE("20","결제 시 사용"),
     EXPIRE("30","소멸"),
-    CHECK("40", "출석체크"),;
+    CHECK("40", "출석체크"),
+    DORMANCY("50", "휴면에 의한 포인트 감소");
 
     private final String code;
     private final String value;
