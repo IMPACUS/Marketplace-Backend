@@ -60,57 +60,57 @@ public class ProductService {
             List<MultipartFile> productImageList,
             ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
-//        try {
-        // 1. productRequest 데이터 유효성 검사
-        if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT);
+        try {
+            // 1. productRequest 데이터 유효성 검사
+            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
+                throw new CustomException(ErrorType.INVALID_PRODUCT);
+            }
+
+            // 2. 상풍 번호 생성
+            String productNumber = StringUtils.getProductNumber();
+
+            // 3. Product 저장
+            Product newProduct = productRepository.save(productRequest.toEntity(productNumber));
+            Long productId = newProduct.getId();
+
+            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+            productImageList.stream()
+                    .map(productImage -> {
+                        try {
+                            return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                        }
+                    }).collect(Collectors.toList());
+
+            // 5. Product description 저장
+            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest);
+
+            // 6. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            productDescriptionImageList.stream()
+                    .map(productDescriptionImage -> {
+                        try {
+                            return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                        }
+                    }).collect(Collectors.toList());
+
+            //7. Product option 저장
+            productOptionService.addProductOption(productId, productRequest.getProductOptions());
+
+            // 8. Product detail 저장
+            productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
+
+            // 9. TemporaryProduct 삭제
+            if (productRequest.isDoesUseTemporaryProduct()) {
+                temporaryProductService.deleteTemporaryProduct(userId);
+            }
+
+            return ProductDTO.toDTO(newProduct);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
-
-        // 2. 상풍 번호 생성
-        String productNumber = StringUtils.getProductNumber();
-
-        // 3. Product 저장
-        Product newProduct = productRepository.save(productRequest.toEntity(productNumber));
-        Long productId = newProduct.getId();
-
-        // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-        productImageList.stream()
-                .map(productImage -> {
-                    try {
-                        return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
-                    } catch (IOException e) {
-                        throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
-                    }
-                }).collect(Collectors.toList());
-
-        // 5. Product description 저장
-        ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest);
-
-        // 6. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-        productDescriptionImageList.stream()
-                .map(productDescriptionImage -> {
-                    try {
-                        return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-                    } catch (IOException e) {
-                        throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
-                    }
-                }).collect(Collectors.toList());
-
-        //7. Product option 저장
-        productOptionService.addProductOption(productId, productRequest.getProductOptions());
-
-        // 8. Product detail 저장
-        productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
-
-        // 9. TemporaryProduct 삭제
-        if (productRequest.isDoesUseTemporaryProduct()) {
-            temporaryProductService.deleteTemporaryProduct(userId);
-        }
-
-        return ProductDTO.toDTO(newProduct);
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
     }
 
     /**
@@ -263,8 +263,7 @@ public class ProductService {
                     }).collect(Collectors.toList());
 
             //8. Product option 수정
-            productOptionService.deleteAllProductionOptionByProductId(product.getId());
-            productOptionService.addProductOption(productId, productRequest.getProductOptions());
+            productOptionService.updateProductOptionList(productId, productRequest.getProductOptions());
 
             // 9. Product detail 수정
             ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
