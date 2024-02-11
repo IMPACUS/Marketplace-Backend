@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductOptionRequest {
+    private Long productOptionId;
     private String color;
     private String size;
     @NotNull

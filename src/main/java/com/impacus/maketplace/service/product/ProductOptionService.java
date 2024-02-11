@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service.product;
 
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.product.request.ProductOptionRequest;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
@@ -8,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +30,21 @@ public class ProductOptionService {
      */
     @Transactional
     public void addProductOption(Long productId, List<ProductOptionRequest> productOptionRequestList) {
-        productOptionRequestList.stream()
+        List<ProductOption> newProductOptions = productOptionRequestList.stream()
                 .map(productOptionRequest -> productOptionRequest.toEntity(productId))
-                .forEach(this::saveProductOption);
+                .collect(Collectors.toList());
+
+        saveAllProductOptions(newProductOptions);
+    }
+
+    /**
+     * 상품 옵션 리스트 일괄 저장
+     *
+     * @param productOptions
+     */
+    @Transactional
+    public void saveAllProductOptions(List<ProductOption> productOptions) {
+        productOptionRepository.saveAll(productOptions);
     }
 
     /**
@@ -48,9 +64,8 @@ public class ProductOptionService {
      * @return
      */
     public List<ProductOption> findProductOptionByProductId(Long productId) {
-        List<ProductOption> productOptions = productOptionRepository.findByProductId(productId);
 
-        return productOptions;
+        return productOptionRepository.findByProductId(productId);
     }
 
     /**
@@ -62,8 +77,70 @@ public class ProductOptionService {
     public void deleteAllProductionOptionByProductId(Long productId) {
         List<ProductOption> productOptions = findProductOptionByProductId(productId);
 
+        deleteAllProductOption(productOptions);
+    }
+
+    /**
+     * productOption 데이터를 모두 삭제하는 함수
+     *
+     * @param productOptions
+     */
+    public void deleteAllProductOption(List<ProductOption> productOptions) {
         productOptionRepository.deleteAllInBatch(productOptions);
     }
 
+    /**
+     * production option을 수정하는 함수
+     * - productOptionId 존재: 기존 데이터 수정
+     * - productOptionId 존재 X: 생성
+     * - productOptionRequestList 존재하지 않는 기존 데이터는 삭제
+     * <p>
+     * TODO 디버깅 필요, 모든 케이스에 대해서
+     *
+     * @param productId
+     * @param productOptionRequestList
+     */
+    @Transactional
+    public void updateProductOptionList(Long productId, List<ProductOptionRequest> productOptionRequestList) {
+        List<ProductOption> productOptionList = findProductOptionByProductId(productId);
 
+        // 1. 전달 받은 데이터 생성&수정
+        for (ProductOptionRequest productOptionRequest : productOptionRequestList) {
+            if (productOptionRequest.getProductOptionId() == null) {
+                ProductOption productOption = productOptionRequest.toEntity(productId);
+                saveProductOption(productOption);
+            } else {
+                ProductOption modifiedData = productOptionList.stream()
+                        .filter(p -> Objects.equals(p.getId(), productOptionRequest.getProductOptionId()))
+                        .findAny()
+                        .orElse(null);
+
+                if (modifiedData == null) {
+                    // 생성
+                    throw new CustomException(ErrorType.NOT_EXISTED_PRODUCT_OPTION);
+                } else {
+                    // 수정
+                    modifiedData.setColor(productOptionRequest.getColor());
+                    modifiedData.setSize(productOptionRequest.getSize());
+                    modifiedData.setStock(productOptionRequest.getStock());
+
+                    productOptionRepository.save(modifiedData);
+                    productOptionList.remove(modifiedData);
+                }
+            }
+        }
+
+        // 2. 전달 받지 않은 옵션 데이터 삭제
+        deleteAllProductOption(productOptionList);
+    }
+
+    /**
+     * productOption 삭제
+     * - 연결되어 있는 장바구니 데이터 삭제
+     *
+     * @param productOption
+     */
+    public void deleteProductOption(ProductOption productOption) {
+
+    }
 }
