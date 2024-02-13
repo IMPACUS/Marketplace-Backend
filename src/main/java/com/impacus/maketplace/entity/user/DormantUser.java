@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.user;
 
+import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @Table(name = "dormant_user")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DormantUser {
+public class DormantUser extends BaseEntity {
 
     @Id
     @Column(name = "user_id")
