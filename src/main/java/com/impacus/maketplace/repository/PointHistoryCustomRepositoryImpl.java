@@ -8,6 +8,7 @@ import com.impacus.maketplace.entity.point.QPointHistory;
 import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -47,16 +48,22 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
     }
 
     @Override
-    public List<Long> findAllWithNoUseOrSavePoint(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Long> findAllNoUseUser(LocalDateTime startDate, LocalDateTime endDate) {
         List<Long> result = queryFactory.selectDistinct(userEntity.id)
                 .from(pointHistoryEntity)
                 .join(pointMasterEntity)
-                .on(pointMasterEntity.id.eq(pointHistoryEntity.pointMasterId))
+                    .on(pointMasterEntity.id.eq(pointHistoryEntity.pointMasterId))
                 .join(userEntity)
-                .on(userEntity.id.eq(pointMasterEntity.userId), userEntity.isDormancy.eq(false))
-                .where(pointHistoryEntity.createAt.between(startDate, endDate)
-                        , userEntity.createAt.before(LocalDateTime.now().minusMonths(6))
-                        ,pointHistoryEntity.pointType.in(PointType.USE, PointType.SAVE, PointType.JOIN, PointType.CHECK))
+                    .on(userEntity.id.eq(pointMasterEntity.userId)
+                      , userEntity.isDormancy.eq(false)
+                      , userEntity.createAt.before(startDate))
+                .where(pointHistoryEntity.pointMasterId.notIn(
+                        JPAExpressions
+                                .selectDistinct(pointHistoryEntity.pointMasterId)
+                                .from(pointHistoryEntity)
+                                .where(pointHistoryEntity.createAt.between(startDate, endDate)
+                                     , pointHistoryEntity.pointType.in(PointType.USE, PointType.SAVE, PointType.JOIN, PointType.CHECK))
+                ))
                 .fetch();
 
         return result;

@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 public class DormantUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 

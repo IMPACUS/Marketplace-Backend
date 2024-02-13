@@ -201,9 +201,9 @@ public class PointService {
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void addDormancyUser() {
-        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime endDate = LocalDate.now().atStartOfDay();
         LocalDateTime startDate = endDate.minusMonths(6);
-        List<Long> findDormancyUser = pointHistoryRepository.findAllWithNoUseOrSavePoint(startDate, endDate);
+        List<Long> findDormancyUser = pointHistoryRepository.findAllNoUseUser(startDate, endDate);
 
         for (Long userId : findDormancyUser) {
             User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
