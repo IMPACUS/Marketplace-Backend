@@ -220,45 +220,38 @@ public class PointService {
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
-    public void reductionPointForDormancyUser() {
+    public void reductionPointForDormantUsers() {
 
         LocalDateTime today = LocalDate.now().atStartOfDay();
         List<DormantUser> dormantUsers = dormantUserRepository.findByDormancyUpdateDateTime(today);
         for (DormantUser dormantUser : dormantUsers) {
             PointMaster pointMaster = pointMasterRepository.findByUserId(dormantUser.getId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
 
-            /**
-             * 만약 사용가능한 포인트가 dormancy_point 보다 낮으면,
-             * 어떻게 할지 또한 유저의 레벨및 등급을 나타내는 userScore가 dormancy_point 보다 낮으면 ? 어떻게 할지 추가해야함
-             */
+            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
+            Integer currentUserScore = pointMaster.getUserScore();
 
-            if (pointMaster.getAvailablePoint() < DORMANCY_POINT) {
+            if (currentAvailablePoint < DORMANCY_POINT) {
                 pointMaster.setAvailablePoint(0);
             } else {
-                int saveAvailablePoint = pointMaster.getAvailablePoint() - DORMANCY_POINT;
-                int saveUserScore = pointMaster.getUserScore() - DORMANCY_POINT;
-
-                PointHistory pointHistory = PointHistory.builder()
-                        .pointMasterId(pointMaster.getId())
-                        .pointType(PointType.DORMANCY)
-                        .changePoint(DORMANCY_POINT)
-                        .isManual(true)
-                        .build();
-
-                pointHistoryRepository.save(pointHistory);
-
-                pointMaster.setAvailablePoint(saveAvailablePoint);
-                pointMaster.setUserScore(saveUserScore);
-
-                UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
-                if (!StringUtils.equals(changeUserLevel, pointMaster.getUserLevel())) {
-                    pointMaster.setUserLevel(changeUserLevel);
-                }
-
-                dormantUser.setDormancyUpdateDateTime(today.plusWeeks(2));
+                pointMaster.setAvailablePoint(currentAvailablePoint - DORMANCY_POINT);
             }
+            pointMaster.setUserScore(currentUserScore- DORMANCY_POINT);
+
+            PointHistory pointHistory = PointHistory.builder()
+                    .pointMasterId(pointMaster.getId())
+                    .pointType(PointType.DORMANCY)
+                    .changePoint(DORMANCY_POINT)
+                    .isManual(true)
+                    .build();
+
+            pointHistoryRepository.save(pointHistory);
+
+            UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
+            if (!StringUtils.equals(changeUserLevel, pointMaster.getUserLevel())) {
+                pointMaster.setUserLevel(changeUserLevel);
+            }
+
+            dormantUser.setDormancyUpdateDateTime(today.plusWeeks(2));
         }
-
-
     }
 }
