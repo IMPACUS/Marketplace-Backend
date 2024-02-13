@@ -55,7 +55,7 @@ public class PointServiceTest {
     void test4() {
         PointRequestDto requestDto = PointRequestDto.builder()
                 .pointCode("10") // SAVE
-                .userId(9L)
+                .userId(22L)
                 .savePoint(100000)
                 .build();
         pointService.changePoint(requestDto);
@@ -82,7 +82,7 @@ public class PointServiceTest {
     void test7() {
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minusMonths(6);
-        pointHistoryRepository.findAllWithNoUseOrSavePoint(startDate, endDate).forEach( i -> System.out.println(i));
+        pointHistoryRepository.findAllNoUseUser(startDate, endDate).forEach( i -> System.out.println(i));
     }
 
     @Test
@@ -92,6 +92,6 @@ public class PointServiceTest {
 
     @Test
     void test9() {
-        pointService.reductionPointForDormancyUser();
+        pointService.reductionPointForDormantUsers();
     }
 }
