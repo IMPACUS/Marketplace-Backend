@@ -26,27 +26,25 @@ public class Coupon extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "coupon_id")
     private Long id;
 
     @Pattern(regexp = CouponService.COUPON_CODE)
     private String code;
 
 //    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss")
-    private LocalDateTime expiredAt;
-
-//    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss")
-    private LocalDateTime assignedAt;
+    private LocalDateTime expiredAt;    // 쿠폰 만료 날짜
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Boolean isUsed = false;
+    private Boolean isActive = true; // 해당 쿠폰을 관리자가 정지할 수 있게 만든 칼럼
 
     private Integer discount;
 
     @Enumerated(EnumType.STRING)
-    private CouponType couponType;
+    private CouponType couponType;  // 쿠폰 타입 : [ 금액, 퍼센트 ]
 
     private Integer constraints; //  쿠폰 사용 제약 조건 ( 최소 이용 금액 )
 
