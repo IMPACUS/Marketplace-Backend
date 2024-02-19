@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -94,8 +95,6 @@ public class ProductOptionService {
      * - productOptionId 존재: 기존 데이터 수정
      * - productOptionId 존재 X: 생성
      * - productOptionRequestList 존재하지 않는 기존 데이터는 삭제
-     * <p>
-     * TODO 디버깅 필요, 모든 케이스에 대해서
      *
      * @param productId
      * @param productOptionRequestList
@@ -104,11 +103,12 @@ public class ProductOptionService {
     public void updateProductOptionList(Long productId, List<ProductOptionRequest> productOptionRequestList) {
         List<ProductOption> productOptionList = findProductOptionByProductId(productId);
 
-        // 1. 전달 받은 데이터 생성&수정
+        // 1. 전달 받은 데이터 중 생성&수정할 데이터 취합
+        List<ProductOption> updatedProductOptionList = new ArrayList<>();
         for (ProductOptionRequest productOptionRequest : productOptionRequestList) {
             if (productOptionRequest.getProductOptionId() == null) {
                 ProductOption productOption = productOptionRequest.toEntity(productId);
-                saveProductOption(productOption);
+                updatedProductOptionList.add(productOption);
             } else {
                 ProductOption modifiedData = productOptionList.stream()
                         .filter(p -> Objects.equals(p.getId(), productOptionRequest.getProductOptionId()))
@@ -124,13 +124,16 @@ public class ProductOptionService {
                     modifiedData.setSize(productOptionRequest.getSize());
                     modifiedData.setStock(productOptionRequest.getStock());
 
-                    productOptionRepository.save(modifiedData);
+                    updatedProductOptionList.add(modifiedData);
                     productOptionList.remove(modifiedData);
                 }
             }
         }
 
-        // 2. 전달 받지 않은 옵션 데이터 삭제
+        // 2. 생성&수정
+        productOptionRepository.saveAll(updatedProductOptionList);
+
+        // 3. 전달 받지 않은 옵션 데이터 삭제
         deleteAllProductOption(productOptionList);
     }
 
