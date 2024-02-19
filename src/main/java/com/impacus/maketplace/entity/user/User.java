@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.utils.TimestampConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -121,6 +122,9 @@ public class User extends BaseEntity {
     @Convert(converter = AES256ToStringConverter.class)
     private String pccc; // 개인 통관 고유 번호
 
+    @Convert(converter = TimestampConverter.class)
+    private LocalDateTime recentLoginAt;
+
     public User(String email, String password, String name) {
         this.email = email;
         this.password = password;
@@ -137,6 +141,10 @@ public class User extends BaseEntity {
         this.doesAgreeService = false;
         this.isWithdrawn = false;
         this.isDormancy = false;
+    }
+
+    public void setRecentLoginAt() {
+        this.recentLoginAt = LocalDateTime.now();
     }
 
 }

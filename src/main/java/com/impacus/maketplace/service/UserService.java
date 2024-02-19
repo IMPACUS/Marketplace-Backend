@@ -129,23 +129,35 @@ public class UserService {
 
             // 3. 비밀번호 확인
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                log.info("Increse the cnt -------------------------");
                 LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
 
                 if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
                     changeUserStatus(user, UserStatus.BLOCKED);
                 }
-                log.info("Invoke the error -------------------------");
                 throw new CustomException(ErrorType.WRONG_PASSWORD);
             }
 
             // 4. JWT 토큰 생성
             TokenInfoVO tokenInfoVO = getJwtTokenInfo(user.getEmail(), password);
 
+            // 5. 최근 로그인 시간 갱신
+            updateRecentLoginAt(user);
+
             return new UserDTO(user, tokenInfoVO);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * 최근 로그인한 시간을 업데이트하는 함수
+     *
+     * @param user
+     */
+    @Transactional
+    public void updateRecentLoginAt(User user) {
+        user.setRecentLoginAt();
+        userRepository.save(user);
     }
 
     @Transactional(noRollbackFor = CustomException.class)
