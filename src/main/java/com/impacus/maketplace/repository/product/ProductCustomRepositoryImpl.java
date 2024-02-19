@@ -7,7 +7,6 @@ import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -57,11 +56,13 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         product.productStatus,
                                         productOption.stock.sum(),
                                         product.createAt,
-                                        Projections.list(Projections.fields(
-                                                        ProductOptionDTO.class,
-                                                        productOption.id,
-                                                        productOption.color,
-                                                        productOption.size
+                                        GroupBy.list(
+                                                Projections.list(Projections.fields(
+                                                                ProductOptionDTO.class,
+                                                                productOption.id,
+                                                                productOption.color,
+                                                                productOption.size
+                                                        )
                                                 )
                                         )
                                 )
@@ -71,25 +72,28 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
     @Override
     public ProductDetailDTO findProductByProductId(Long productId) {
-        JPAQuery<ProductDetailDTO> query = queryFactory.select(Projections.constructor(
-                        ProductDetailDTO.class,
-                        product.id,
-                        product.name,
-                        product.appSalesPrice,
-                        product.discountPrice,
-                        Projections.list(Projections.fields(
-                                        ProductOptionDTO.class,
-                                        productOption.id,
-                                        productOption.color,
-                                        productOption.size
+        return queryFactory
+                .selectFrom(product)
+                .innerJoin(productOption).on(productOption.productId.eq(product.id))
+                .where(product.id.eq(productId))
+                .transform(GroupBy.groupBy(product.id).list(
+                                Projections.constructor(
+                                        ProductDetailDTO.class,
+                                        product.id,
+                                        product.name,
+                                        product.appSalesPrice,
+                                        product.discountPrice,
+                                        GroupBy.list(
+                                                Projections.list(Projections.constructor(
+                                                                ProductOptionDTO.class,
+                                                                productOption.id,
+                                                                productOption.color,
+                                                                productOption.size
+                                                        )
+                                                )
+                                        )
                                 )
                         )
-                ))
-                .from(product)
-                .leftJoin(productOption).on(product.id.eq(productOption.productId))
-                .where(product.id.eq(productId))
-                .groupBy(product.id, productOption.id);
-
-        return query.fetchOne();
+                ).get(0);
     }
 }
