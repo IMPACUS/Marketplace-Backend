@@ -5,12 +5,11 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
-import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
@@ -47,6 +46,7 @@ public class ProductService {
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
+    private final ObjectCopyHelper objectCopyHelper;
 
     /**
      * 새로운 Product를 저장하는 함수
@@ -331,20 +331,63 @@ public class ProductService {
      * @return
      */
     public ProductDetailDTO findProductDetail(Long productId) {
-//        try {
-        // 1. productId 존재확인
-        findProductById(productId);
+        try {
+            // 1. productId 존재확인
+            findProductById(productId);
 
-        // 2. Product 세부 데이터 가져오기
-        ProductDetailDTO productDetailDTO = productRepository.findProductByProductId(productId);
+            // 2. Product 세부 데이터 가져오기
+            ProductDetailDTO productDetailDTO = productRepository.findProductByProductId(productId);
 
-        // 3. Product 대표 이미지 리스트 가져오기
-        List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
-        productDetailDTO.setProductImageList(attachFileDTOS);
+            // 3. Product 대표 이미지 리스트 가져오기
+            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
+            productDetailDTO.setProductImageList(attachFileDTOS);
 
-        return productDetailDTO;
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+            return productDetailDTO;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 판매자용 웹에서 상품 전체 정보를 조회하는 함수
+     *
+     * @param userId
+     * @param productId
+     * @return
+     */
+    public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
+
+        try {
+
+            Product product = findProductById(productId);
+            ProductDetailForWebDTO dto = objectCopyHelper.copyObject(product, ProductDetailForWebDTO.class);
+
+            // TODO 1. 요청한 판매자의 상품인지 확인
+
+            // 2. TemporaryProductDescription 값 가져오기
+            ProductDescription description = productDescriptionService.findProductDescriptionByProductId(productId);
+            dto.setDescription(description.getDescription());
+
+            // 3. TemporaryProductOption 값 가져오기
+            List<ProductOptionDTO> options = productOptionService.findProductOptionByProductId(productId)
+                    .stream()
+                    .map(option -> new ProductOptionDTO(option.getId(), option.getColor(), option.getSize()))
+                    .toList();
+            dto.setProductOptionDTO(options);
+
+            // 4. TemporaryProductDescription 값 가져오기
+            ProductDetailInfo detailInfo = productDetailInfoService.findProductDetailInfoByProductId(productId);
+            dto.setProductDetail(objectCopyHelper.copyObject(detailInfo, ProductDetailDTO.class));
+
+            // 5. 대표이미지 데이터 가져오기
+            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
+                    .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
+                    .toList();
+            dto.setProductImageList(attachFileDTOS);
+
+            return dto;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }
