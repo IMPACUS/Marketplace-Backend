@@ -1,10 +1,7 @@
 package com.impacus.maketplace.entity.coupon;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.CouponType;
-import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.CouponService;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
@@ -19,8 +16,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(
-        name = "coupon",
-        indexes = {@Index(name = "coupon_expired_at_index", columnList = "expired_at", unique = false)}
+//        name = "coupon",
+//        indexes = {@Index(name = "coupon_expired_at_index", columnList = "expired_at", unique = false)}
 )
 public class Coupon extends BaseEntity {
 
@@ -46,8 +43,6 @@ public class Coupon extends BaseEntity {
 
     @Version // 낙관적 락 ( 여러 트랜잭션에서 유저에게 할당할 때 대비 => 최최 커밋만 인정)
     private Integer version;
-
-
 
 
 }
