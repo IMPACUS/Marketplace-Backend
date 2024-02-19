@@ -2,11 +2,13 @@ package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.common.response.CategoryDTO;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.service.common.EnumService;
 import com.impacus.maketplace.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final EnumService enumService;
 
 
     /**
@@ -165,6 +168,15 @@ public class ProductController {
         return ApiResponseEntity
                 .builder()
                 .data(productDetailDTO)
+                .build();
+    }
+
+    @GetMapping("/category")
+    public ApiResponseEntity<Object> getAllCategory() {
+        List<CategoryDTO> categoryDTOS = enumService.getAllCategory();
+        return ApiResponseEntity
+                .builder()
+                .data(categoryDTOS)
                 .build();
     }
 
