@@ -5,12 +5,8 @@ import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationException;
 import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
-import com.impacus.maketplace.repository.UserRepository;
-import java.io.IOException;
-import java.util.List;
-import security.CustomUserDetails;
-import security.SessionUser;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -19,6 +15,11 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import security.CustomUserDetails;
+import security.SessionUser;
+
+import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,20 +46,20 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     }
 
     private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User oAuth2User)
-        throws IOException {
+            throws IOException {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
-            .getUserInfoEndpoint().getUserNameAttributeName();
+                .getUserInfoEndpoint().getUserNameAttributeName();
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName,
-            oAuth2User.getAttributes());
+                oAuth2User.getAttributes());
         User user = saveOrUpdate(attributes);
         httpSession.setAttribute("user", new SessionUser(user));
         return CustomUserDetails.create(user, oAuth2User.getAttributes());
     }
 
     public User saveOrUpdate(OAuthAttributes attributes)
-        throws CustomOAuth2AuthenticationException {
+            throws CustomOAuth2AuthenticationException {
         OauthProviderType oauthProviderType = attributes.getOAuthProvider();
         String email = attributes.getEmail();
 
@@ -71,12 +72,18 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             user = userList.get(0);
             if (!user.getEmail().contains(oauthProviderType.name())) {
                 throw new CustomOAuth2AuthenticationException("SERVER_ERROR",
-                    ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                        ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             }
         } else {
             user = attributes.toEntity();
         }
 
+        updateRecentLoginAt(user);
         return userRepository.save(user);
+    }
+
+    public void updateRecentLoginAt(User user) {
+        user.setRecentLoginAt();
+        userRepository.save(user);
     }
 }
