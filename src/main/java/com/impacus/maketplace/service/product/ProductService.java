@@ -331,20 +331,20 @@ public class ProductService {
      * @return
      */
     public ProductDetailDTO findProductDetail(Long productId) {
-        try {
-            // 1. productId 존재확인
-            findProductById(productId);
+//        try {
+        // 1. productId 존재확인
+        findProductById(productId);
 
-            // 2. Product 세부 데이터 가져오기
-            ProductDetailDTO productDetailDTO = productRepository.findProductByProductId(productId);
+        // 2. Product 세부 데이터 가져오기
+        ProductDetailDTO productDetailDTO = productRepository.findProductByProductId(productId);
 
-            // 3. Product 대표 이미지 리스트 가져오기
-            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
-            productDetailDTO.setProductImageList(attachFileDTOS);
+        // 3. Product 대표 이미지 리스트 가져오기
+        List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
+        productDetailDTO.setProductImageList(attachFileDTOS);
 
-            return productDetailDTO;
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+        return productDetailDTO;
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 }
