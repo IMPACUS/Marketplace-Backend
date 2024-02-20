@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feature/lchy/apple-login
   pull_request:
     branches:
       - develop
@@ -24,11 +25,18 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Make application.properties
+      - name: Make application.yml
         run: |
           cd ./src/main/resources
           touch ./application.yml
           echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
+        shell: bash
+
+      - name: Make apple login key
+        run: |
+          cd ./src/main/resources
+          touch ./AuthKey_66Y3WF7DG3.p8
+          echo "${{ secrets.APPLE_LOGIN_KEY }}" > ./AuthKey_66Y3WF7DG3.p8
         shell: bash
 
       - name: Build with Gradle
