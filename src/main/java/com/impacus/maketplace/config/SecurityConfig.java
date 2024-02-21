@@ -69,12 +69,6 @@ public class SecurityConfig {
                 .oauth2Login()
                 .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
                 .and()
-                .authorizationEndpoint()
-                .baseUri("/oauth2/authorization")
-                .and()
-                .redirectionEndpoint()
-                .baseUri("/*/oauth2/code/*")
-                .and()
                 .userInfoEndpoint()
                 .userService(customOauth2UserService)
                 .and()
@@ -83,4 +77,5 @@ public class SecurityConfig {
         http.apply(new JwtSecurityConfig(jwtTokenProvider));
         return http.build();
     }
+
 }
