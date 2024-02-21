@@ -1,6 +1,7 @@
 package com.impacus.maketplace.common.converter;
 
 import io.jsonwebtoken.Jwts;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
@@ -24,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class Oauth2RequestEntityConverter implements Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>> {
     private final String APPLE_URL = "https://appleid.apple.com";
     @Value("${spring.security.oauth2.client.registration.apple.clientId}")
@@ -42,6 +44,8 @@ public class Oauth2RequestEntityConverter implements Converter<OAuth2Authorizati
 
     @Override
     public RequestEntity<?> convert(OAuth2AuthorizationCodeGrantRequest req) {
+        log.info("++++++++++++ Oauth2RequestEntityConverter ++++++++");
+
         RequestEntity<?> entity = defaultConverter.convert(req);
         String registrationId = req.getClientRegistration().getRegistrationId();
         MultiValueMap<String, String> params = (MultiValueMap<String, String>) entity.getBody();
