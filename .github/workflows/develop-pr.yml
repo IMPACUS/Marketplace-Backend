@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feature/lchy/apple-login-ver2
   pull_request:
     branches:
       - develop
