@@ -32,6 +32,13 @@ jobs:
           echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
         shell: bash
 
+      - name: Make apple login key
+        run: |
+          cd ./src/main/resources
+          touch ./AuthKey_66Y3WF7DG3.p8
+          echo "${{ secrets.APPLE_LOGIN_KEY }}" > ./AuthKey_66Y3WF7DG3.p8
+        shell: bash
+
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew
