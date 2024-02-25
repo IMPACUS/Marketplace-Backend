@@ -34,6 +34,7 @@ jobs:
 
       - name: Make apple login key
         run: |
+          cd ./
           touch ./AuthKey_66Y3WF7DG3.p8
           echo "${{ secrets.APPLE_LOGIN_KEY }}" > ./AuthKey_66Y3WF7DG3.p8
         shell: bash

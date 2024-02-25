@@ -62,6 +62,7 @@ public class Oauth2RequestEntityConverter implements Converter<OAuth2Authorizati
     }
 
     public PrivateKey getPrivateKey() throws IOException {
+        log.info("++++++++++++ Oauth2RequestEntityConverter IN 3 getPrivateKey ++++++++");
         ClassPathResource resource = new ClassPathResource(appleKeyPath);
 
         InputStream in = resource.getInputStream();
