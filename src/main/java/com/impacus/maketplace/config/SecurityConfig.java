@@ -37,6 +37,7 @@ public class SecurityConfig {
     private final CustomOauth2UserService customOauth2UserService;
     private final OAuth2AuthenticationSuccessHandler authenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
+    private final CORSConfig corsConfig;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -57,7 +58,7 @@ public class SecurityConfig {
         http.exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler);
-        http.cors();
+        http.cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfig.corsConfigurationSource()));
         http.authorizeHttpRequests(request -> request
                 .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 .requestMatchers("/**").permitAll()
