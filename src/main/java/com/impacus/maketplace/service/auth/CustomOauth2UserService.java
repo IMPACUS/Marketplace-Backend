@@ -102,6 +102,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             user = attributes.toEntity();
         }
 
+        updateRecentLoginAt(user);
         return userRepository.save(user);
     }
 
@@ -121,5 +122,10 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         } catch (JsonProcessingException e) {
         }
         return jwtClaims;
+    }
+    
+    public void updateRecentLoginAt(User user) {
+        user.setRecentLoginAt();
+        userRepository.save(user);
     }
 }
