@@ -12,7 +12,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         registry
                 .addMapping("/**")
                 .allowedHeaders("*")
-                .allowedOrigins("http://localhost:3000")
+                .allowedOrigins("http://localhost:3000", "https://back-dev.implace.kr", "https://appleid.apple.com")
                 .allowedMethods("*");
     }
 }

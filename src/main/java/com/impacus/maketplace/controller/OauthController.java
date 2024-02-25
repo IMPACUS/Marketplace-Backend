@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("oauth")
 public class OauthController {
 
+    //https://appleid.apple.com/auth/authorize?client_id=implace.kr&redirect_uri=https://back-dev.implace.kr/oauth/apple/login/code&response_type=code%20id_token&scope=name%20email&response_mode=form_post
+
     @PostMapping("apple/login/callback")
     public ResponseEntity<Object> getAppleLoginResult(@RequestBody AppleLoginCodeRequest appleLoginCodeRequest) throws Exception {
         log.info("IN ----- /oauth/apple/login/callback ");
