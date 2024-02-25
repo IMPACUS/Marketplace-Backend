@@ -34,7 +34,7 @@ public class Oauth2RequestEntityConverter implements Converter<OAuth2Authorizati
     private String appleTeamId;
     @Value("${apple.keyId}")
     private String appleKeyId;
-    @Value("${spring.security.oauth2.client.registration.apple.clientSecret}")
+    @Value("${apple.keyPath}")
     private String appleKeyPath;
     private OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
 
