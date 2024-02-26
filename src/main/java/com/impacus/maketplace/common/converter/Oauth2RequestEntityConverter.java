@@ -6,12 +6,14 @@ import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequestEntityConverter;
+import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
@@ -26,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@Component
 public class Oauth2RequestEntityConverter implements Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>> {
     private static final String APPLE_URL = "https://appleid.apple.com";
     private static final String APPLE_KEY_PATH = "apple-login-key.p8";
@@ -35,6 +38,7 @@ public class Oauth2RequestEntityConverter implements Converter<OAuth2Authorizati
     private static String appleKeyPath;
     private OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
 
+    @Autowired
     public Oauth2RequestEntityConverter() {
         defaultConverter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
     }
