@@ -1,6 +1,6 @@
 package com.impacus.maketplace.dto.coupon.request;
 
-import com.impacus.maketplace.common.enumType.CouponType;
+import com.impacus.maketplace.common.enumType.coupon.CouponBenefitClassification;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,8 +20,8 @@ public class CouponIssuedDto {
 
     private Integer constraints;
 
-    public CouponType getCouponTypeEnum() {
-        return CouponType.fromCode(this.couponType);
+    public CouponBenefitClassification getCouponTypeEnum() {
+        return CouponBenefitClassification.fromCode(this.couponType);
     }
 
 }

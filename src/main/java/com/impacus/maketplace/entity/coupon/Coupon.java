@@ -1,10 +1,7 @@
 package com.impacus.maketplace.entity.coupon;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.enumType.CouponType;
-import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.common.enumType.coupon.CouponBenefitClassification;
 import com.impacus.maketplace.service.CouponService;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
@@ -37,7 +34,7 @@ public class Coupon extends BaseEntity {
     private Integer discount;
 
     @Enumerated(EnumType.STRING)
-    private CouponType couponType;  // 쿠폰 타입 : [ 금액, 퍼센트 ]
+    private CouponBenefitClassification couponType;  // 쿠폰 타입 : [ 금액, 퍼센트 ]
 
     private Integer constraints; //  쿠폰 사용 제약 조건 ( 최소 이용 금액 )
 
