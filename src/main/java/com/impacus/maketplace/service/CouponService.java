@@ -59,13 +59,8 @@ public class CouponService {
                 .code(getUUIDCouponCode())
                 .benefitAmount(req.getBenefitAmount())
                 .name(req.getName())
-                .desc(req.getDesc())
+                .description(req.getDesc())
                 .build();
-
-
-
-
-
 
 //        Coupon coupon = Coupon.builder()
 //                .code(CouponUtils.getUUIDCouponCode())
