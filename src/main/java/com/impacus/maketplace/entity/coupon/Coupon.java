@@ -18,10 +18,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(
-        name = "coupon",
-        indexes = {@Index(name = "coupon_expired_at_index", columnList = "expired_at", unique = false)}
-)
+//@Table(
+//        name = "coupon",
+//        indexes = {@Index(name = "coupon_expired_at_index", columnList = "expired_at", unique = false)}
+//)
 public class Coupon extends BaseEntity {
 
     @Id

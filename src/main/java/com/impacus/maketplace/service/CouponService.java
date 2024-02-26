@@ -23,6 +23,9 @@ public class CouponService {
 
     public static final String COUPON_CODE = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
 
+    /**
+     * 관리자 페이지에서 등록할 쿠폰
+     */
     public Boolean addCoupon(CouponIssuedDto couponIssuedDto) {
         Coupon coupon = Coupon.builder()
                 .code(CouponUtils.getUUIDCouponCode())
@@ -31,8 +34,9 @@ public class CouponService {
                 .couponType(couponIssuedDto.getCouponTypeEnum())
                 .constraints(couponIssuedDto.getConstraints())
                 .build();
-        // TODO: 쿠폰 저장 해야할 차례 02-13
-        return null;
+        coupon = couponRepository.save(coupon);
+
+        return coupon != null ? true : false;
     }
 
     private LocalDateTime stringToLocalDateTime(String time) {
