@@ -12,6 +12,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequestEntityConverter;
+import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
@@ -26,21 +27,40 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@Component
 public class Oauth2RequestEntityConverter implements Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>> {
+    private static String appleClientId;
+    private static String appleTeamId;
+    private static String appleKeyId;
+    private static String appleKeyPath;
     private final String APPLE_URL = "https://appleid.apple.com";
-    @Value("${spring.security.oauth2.client.registration.apple.clientId}")
-    private String appleClientId;
-    @Value("${apple.teamId}")
-    private String appleTeamId;
-    @Value("${apple.keyId}")
-    private String appleKeyId;
-    @Value("${apple.keyPath}")
-    private String appleKeyPath;
+    private final String APPLE_KEY_PATH = "apple-login-key.p8";
     private OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
 
     public Oauth2RequestEntityConverter() {
         defaultConverter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
     }
+
+    @Value("${spring.security.oauth2.client.registration.apple.clientId}")
+    private void setAppleClientId(String appleClientId) {
+        this.appleClientId = appleClientId;
+    }
+
+    @Value("${apple.teamId}")
+    private void setAppleTeamId(String appleTeamId) {
+        this.appleTeamId = appleTeamId;
+    }
+
+    @Value("${apple.keyId}")
+    private void setAppleKeyId(String appleKeyId) {
+        this.appleKeyId = appleKeyId;
+    }
+
+    @Value("${apple.keyPath}")
+    private void setAppleKeyPath(String appleKeyPath) {
+        this.appleKeyPath = appleKeyPath;
+    }
+
 
     @Override
     public RequestEntity<?> convert(OAuth2AuthorizationCodeGrantRequest req) {
