@@ -3,6 +3,9 @@ package com.impacus.maketplace.common.enumType.category;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Getter
 @RequiredArgsConstructor
 public enum SuperCategory {
@@ -18,4 +21,8 @@ public enum SuperCategory {
 
     private final int code;
     private final String value;
+
+    public static List<SuperCategory> getAllSuperCategory() {
+        return Arrays.stream(SuperCategory.values()).toList();
+    }
 }

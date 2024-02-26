@@ -35,4 +35,16 @@ public class ProductOption extends BaseEntity {
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public void setStock(Long stock) {
+        this.stock = stock;
+    }
 }
