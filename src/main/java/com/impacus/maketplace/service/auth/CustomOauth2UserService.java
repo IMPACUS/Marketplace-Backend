@@ -12,12 +12,10 @@ import com.impacus.maketplace.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import security.CustomUserDetails;
@@ -25,7 +23,10 @@ import security.SessionUser;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -44,29 +45,29 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         log.info("++++++++++++ loadUser ++++++++" + registrationId);
 
-        if (registrationId.contains(APPLE_REGISTRATION_ID)) {
-            Map<String, Object> attributes;
+//        if (registrationId.contains(APPLE_REGISTRATION_ID)) {
+//            Map<String, Object> attributes;
+//
+//            String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+//            attributes = decodeJwtTokenPayload(idToken);
+//            attributes.put("id_token", idToken);
+//            Map<String, Object> userAttributes = new HashMap<>();
+//            userAttributes.put("resultcode", "00");
+//            userAttributes.put("message", "success");
+//            userAttributes.put("response", attributes);
+//
+//            return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), userAttributes, "response");
+//
+//        } else {
+        OAuth2User oAuth2User = delegate.loadUser(userRequest);
+        oauthToken = userRequest.getAccessToken().getTokenValue();
 
-            String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
-            attributes = decodeJwtTokenPayload(idToken);
-            attributes.put("id_token", idToken);
-            Map<String, Object> userAttributes = new HashMap<>();
-            userAttributes.put("resultcode", "00");
-            userAttributes.put("message", "success");
-            userAttributes.put("response", attributes);
-
-            return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), userAttributes, "response");
-
-        } else {
-            OAuth2User oAuth2User = delegate.loadUser(userRequest);
-            oauthToken = userRequest.getAccessToken().getTokenValue();
-
-            try {
-                return process(userRequest, oAuth2User);
-            } catch (IOException e) {
-                throw new CustomOAuth2AuthenticationException("SERVER_ERROR");
-            }
+        try {
+            return process(userRequest, oAuth2User);
+        } catch (IOException e) {
+            throw new CustomOAuth2AuthenticationException("SERVER_ERROR");
         }
+//        }
     }
 
     private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User oAuth2User)
@@ -123,7 +124,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         }
         return jwtClaims;
     }
-    
+
     public void updateRecentLoginAt(User user) {
         user.setRecentLoginAt();
         userRepository.save(user);

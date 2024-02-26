@@ -8,9 +8,11 @@ import com.impacus.maketplace.entity.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+@Slf4j
 @Getter
 @NoArgsConstructor
 public class OAuthAttributes {
@@ -99,6 +101,7 @@ public class OAuthAttributes {
 
     private static OAuthAttributes ofApple(String nameAttributeKey,
                                            Map<String, Object> attributes) {
+        log.info("IN ========= ofApple");
         return null;
     }
 

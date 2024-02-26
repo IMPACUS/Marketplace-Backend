@@ -29,12 +29,12 @@ import java.util.Map;
 @Slf4j
 @Component
 public class Oauth2RequestEntityConverter implements Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>> {
+    private static final String APPLE_URL = "https://appleid.apple.com";
+    private static final String APPLE_KEY_PATH = "apple-login-key.p8";
     private static String appleClientId;
     private static String appleTeamId;
     private static String appleKeyId;
     private static String appleKeyPath;
-    private final String APPLE_URL = "https://appleid.apple.com";
-    private final String APPLE_KEY_PATH = "apple-login-key.p8";
     private OAuth2AuthorizationCodeGrantRequestEntityConverter defaultConverter;
 
     public Oauth2RequestEntityConverter() {
