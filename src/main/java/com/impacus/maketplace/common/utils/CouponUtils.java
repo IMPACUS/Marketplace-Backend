@@ -34,4 +34,15 @@ public class CouponUtils {
             throw new CustomException(ErrorType.INVALID_COUPON_FORMAT, "Invalid format of coupon code.");
         }
     }
+
+    public static <E extends Enum<E> & CommonFieldInterface> E fromCode(Class<E> enumClass, String code) {
+        return Arrays.stream(enumClass.getEnumConstants())
+                .filter(c -> c.getCode().equalsIgnoreCase(code))
+                .findFirst().orElseThrow(() -> new CustomException(ErrorType.UNKNOWN));
+    }
+
+    public interface CommonFieldInterface {
+        String getCode();
+        String getValue();
+    }
 }

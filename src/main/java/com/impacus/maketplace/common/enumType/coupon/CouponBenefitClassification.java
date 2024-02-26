@@ -1,5 +1,6 @@
 package com.impacus.maketplace.common.enumType.coupon;
 
+import com.impacus.maketplace.common.utils.CouponUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -7,7 +8,7 @@ import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponBenefitClassification {
+public enum CouponBenefitClassification  implements CouponUtils.CommonFieldInterface {
 
     AMOUNT("amount", "원"),
     PERCENTAGE("percent" , "%"),
@@ -15,10 +16,6 @@ public enum CouponBenefitClassification {
 
 
     private final String code;
-    private final String unit;
+    private final String value;
 
-    public static CouponBenefitClassification fromCode(String code) {
-        return Arrays.stream(CouponBenefitClassification.values()).filter(c -> c.getCode().equalsIgnoreCase(code))
-                .findFirst().orElse(UNKNOWN);
-    }
 }

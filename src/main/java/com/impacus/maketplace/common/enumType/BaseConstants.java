@@ -2,6 +2,9 @@ package com.impacus.maketplace.common.enumType;
 
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Getter
 public class BaseConstants {
 
@@ -66,4 +69,9 @@ public class BaseConstants {
     public final static String DATE_FORMAT      = "yyyy-MM-dd";
     public final static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:ms:ss";
     public final static String DATE_FORMAT_INT  = "yyyyMMdd";
+
+    public LocalDateTime stringToLocalDateTime(String time) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
+        return LocalDateTime.parse(time, dtf);
+    }
 }

@@ -1,11 +1,12 @@
 package com.impacus.maketplace.common.enumType.coupon;
 
+import com.impacus.maketplace.common.utils.CouponUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponIssuanceClassification {
+public enum CouponIssuanceClassification implements CouponUtils.CommonFieldInterface {
 
     CIC_1("CIC_1", "그린 태그 구매"),
     CIC_2("CIC_2", "유저 일반 쿠폰"),
