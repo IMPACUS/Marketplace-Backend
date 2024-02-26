@@ -85,7 +85,7 @@ public class Oauth2RequestEntityConverter implements Converter<OAuth2Authorizati
 
     public PrivateKey getPrivateKey() throws IOException {
         log.info("++++++++++++ Oauth2RequestEntityConverter IN 3 getPrivateKey ++++++++");
-        ClassPathResource resource = new ClassPathResource("static/key" + appleKeyPath);
+        ClassPathResource resource = new ClassPathResource("static/key/" + appleKeyPath);
 
         InputStream in = resource.getInputStream();
         PEMParser pemParser = new PEMParser(new StringReader(IOUtils.toString(in, StandardCharsets.UTF_8)));
