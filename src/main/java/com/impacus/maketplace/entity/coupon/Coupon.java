@@ -25,7 +25,7 @@ public class Coupon extends BaseEntity {
 
     private String name;    // 쿠폰 이름
 
-    private String desc;    // 쿠폰 설명
+    private String description;    // 쿠폰 설명
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cbc_code")
@@ -84,7 +84,7 @@ public class Coupon extends BaseEntity {
     private PaymentMethod paymentMethod;    // 결제수단 [ 카드, XXX 페이, 간편결제 ]
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_code")
+    @Column(name = "cip_code")
     private CouponIssuancePeriodType couponIssuancePeriod;  // 기간 설정
 
     private LocalDate startIssuanceAt;  // 기간설정 시작 기간
@@ -94,16 +94,19 @@ public class Coupon extends BaseEntity {
     private Long numberOfWithPeriod;    // 기간 내 N 회 주문 시
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_code")
+    @Column(name = "ci_code")
     private CouponIssuanceType couponIssuance;  // 자동 / 수동 발급 [ 자동, 수동 ]
 
+    @Builder.Default
     private String loginCouponIssueNotification = "N";  // 로그인 쿠폰 발급 알림
 
+    @Builder.Default
     private String issuingCouponsSendSMS = "N"; // 쿠폰발급 SMS 발송
 
+    @Builder.Default
     private String issuanceCouponSendEmail = "N";   // 쿠폰 발급 Email 발송
 
-
+    @Builder.Default
     private Boolean isActive = false;    // 활성화 여부
 
     @Version    // 낙관적 락 ( 여러 트랜잭션에서 유저에게 할당할 때 대비 => 최초 커밋만 인정)
