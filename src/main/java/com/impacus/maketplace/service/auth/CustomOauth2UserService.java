@@ -123,6 +123,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     }
 
     public void updateRecentLoginAt(User user) {
+        log.info("IN ========== updateRecentLoginAt");
         user.setRecentLoginAt();
         userRepository.save(user);
     }
