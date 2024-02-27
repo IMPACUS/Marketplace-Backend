@@ -99,7 +99,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     public User saveOrUpdate(OAuthAttributes attributes)
             throws CustomOAuth2AuthenticationException {
-        log.info("IN ========== saveOrUpdate");
         OauthProviderType oauthProviderType = attributes.getOAuthProvider();
         String email = attributes.getEmail();
 
@@ -123,7 +122,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     }
 
     public void updateRecentLoginAt(User user) {
-        log.info("IN ========== updateRecentLoginAt");
         user.setRecentLoginAt();
         userRepository.save(user);
     }
