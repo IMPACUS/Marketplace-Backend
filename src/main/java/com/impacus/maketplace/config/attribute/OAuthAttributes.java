@@ -1,7 +1,5 @@
 package com.impacus.maketplace.config.attribute;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -12,9 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -110,13 +105,13 @@ public class OAuthAttributes {
         log.info("IN ========= ofApple");
         log.info(attributes.toString());
 
-        String idToken = attributes.get("id_token").toString();
-        Map<String, Object> payload = decodeJwtTokenPayload(idToken);
-        payload.put("id_token", idToken);
-        Map<String, Object> userAttributes = new HashMap<>();
-        userAttributes.put("resultcode", "00");
-        userAttributes.put("message", "success");
-        userAttributes.put("response", attributes);
+//        String idToken = attributes.get("id_token").toString();
+//        Map<String, Object> payload = decodeJwtTokenPayload(idToken);
+//        payload.put("id_token", idToken);
+//        Map<String, Object> userAttributes = new HashMap<>();
+//        userAttributes.put("resultcode", "00");
+//        userAttributes.put("message", "success");
+//        userAttributes.put("response", attributes);
 
 //        return OAuthAttributes.builder()
 //                .name((String) kakaoProperty.get("nickname"))
@@ -128,24 +123,6 @@ public class OAuthAttributes {
         return null;
 
         //return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), userAttributes, "response");
-    }
-
-    public static Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
-        Map<String, Object> jwtClaims = new HashMap<>();
-        try {
-            String[] parts = jwtToken.split("\\.");
-            Base64.Decoder decoder = Base64.getUrlDecoder();
-
-            byte[] decodedBytes = decoder.decode(parts[1].getBytes(StandardCharsets.UTF_8));
-            String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
-            ObjectMapper mapper = new ObjectMapper();
-
-            Map<String, Object> map = mapper.readValue(decodedString, Map.class);
-            jwtClaims.putAll(map);
-
-        } catch (JsonProcessingException e) {
-        }
-        return jwtClaims;
     }
 
 
