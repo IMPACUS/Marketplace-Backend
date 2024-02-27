@@ -40,7 +40,6 @@ public class OAuthAttributes {
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName,
                                      Map<String, Object> attributes) {
-        log.info("IN ------ OAuthAttributes of ------  " + registrationId);
         if (NAVER_STRING_KEY.equals(registrationId)) {
             return ofNaver("id", attributes);
         } else if (KAKAO_STRING_KEY.equals(registrationId)) {
@@ -105,24 +104,20 @@ public class OAuthAttributes {
         log.info("IN ========= ofApple");
         log.info(attributes.toString());
 
-//        String idToken = attributes.get("id_token").toString();
-//        Map<String, Object> payload = decodeJwtTokenPayload(idToken);
-//        payload.put("id_token", idToken);
-//        Map<String, Object> userAttributes = new HashMap<>();
-//        userAttributes.put("resultcode", "00");
-//        userAttributes.put("message", "success");
-//        userAttributes.put("response", attributes);
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
-//        return OAuthAttributes.builder()
-//                .name((String) kakaoProperty.get("nickname"))
-//                .email((String) kakaoAccount.get("email"))
-//                .oAuthProvider(OauthProviderType.KAKAO)
-//                .attributes(attributes)
-//                .nameAttributeKey(nameAttributeKey)
-//                .build();
-        return null;
+        if (Boolean.FALSE.equals((response.get("email_verified")))) {
+            throw new CustomException(ErrorType.NOT_ALLOW_EMAIL);
+        }
 
-        //return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), userAttributes, "response");
+        String email = (String) response.get("email");
+        return OAuthAttributes.builder()
+                .name(email)
+                .email(email)
+                .oAuthProvider(OauthProviderType.APPLE)
+                .attributes(attributes)
+                .nameAttributeKey(nameAttributeKey)
+                .build();
     }
 
 

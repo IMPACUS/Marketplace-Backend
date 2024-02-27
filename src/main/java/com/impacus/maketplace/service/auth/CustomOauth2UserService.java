@@ -61,9 +61,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         oauthToken = userRequest.getAccessToken().getTokenValue();
-        log.info("++++++++++++ loadUser ++++++++" + registrationId);
 
-        OAuth2User oAuth2User = null;
+        OAuth2User oAuth2User;
         if (registrationId.contains(APPLE_REGISTRATION_ID)) {
             String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
             Map<String, Object> attributes = decodeJwtTokenPayload(idToken);
@@ -87,7 +86,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User oAuth2User)
             throws IOException {
-        log.info("++++++++++++ process ++++++++");
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName();
@@ -101,6 +99,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     public User saveOrUpdate(OAuthAttributes attributes)
             throws CustomOAuth2AuthenticationException {
+        log.info("IN ========== saveOrUpdate");
         OauthProviderType oauthProviderType = attributes.getOAuthProvider();
         String email = attributes.getEmail();
 
