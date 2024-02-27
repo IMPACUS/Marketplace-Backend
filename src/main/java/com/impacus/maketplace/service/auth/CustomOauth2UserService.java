@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationException;
@@ -9,34 +11,71 @@ import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import security.CustomUserDetails;
 import security.SessionUser;
 
 import java.io.IOException;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
+    private static final String APPLE_REGISTRATION_ID = "apple";
     private final UserRepository userRepository;
     private final HttpSession httpSession;
     private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
-
     private String oauthToken = "";
+
+    public static Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
+        Map<String, Object> jwtClaims = new HashMap<>();
+        try {
+            String[] parts = jwtToken.split("\\.");
+            Base64.Decoder decoder = Base64.getUrlDecoder();
+
+            byte[] decodedBytes = decoder.decode(parts[1].getBytes(StandardCharsets.UTF_8));
+            String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+            ObjectMapper mapper = new ObjectMapper();
+
+            Map<String, Object> map = mapper.readValue(decodedString, Map.class);
+            jwtClaims.putAll(map);
+
+        } catch (JsonProcessingException e) {
+        }
+        return jwtClaims;
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
-        OAuth2User oAuth2User = delegate.loadUser(userRequest);
-
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
         oauthToken = userRequest.getAccessToken().getTokenValue();
+
+        OAuth2User oAuth2User;
+        if (registrationId.contains(APPLE_REGISTRATION_ID)) {
+            String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+            Map<String, Object> attributes = decodeJwtTokenPayload(idToken);
+            attributes.put("id_token", idToken);
+            Map<String, Object> userAttributes = new HashMap<>();
+            userAttributes.put("resultcode", "00");
+            userAttributes.put("message", "success");
+            userAttributes.put("response", attributes);
+
+            oAuth2User = new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), userAttributes, "response");
+        } else {
+            oAuth2User = delegate.loadUser(userRequest);
+        }
 
         try {
             return process(userRequest, oAuth2User);

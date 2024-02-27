@@ -5,7 +5,12 @@ import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.Builder;
 
 @Builder
-public record UserDTO(Long id, String email, String password, String name, TokenInfoVO token) {
+public record UserDTO(
+        Long id,
+        String email,
+        String password,
+        String name,
+        TokenInfoVO token) {
 
     public UserDTO(User user, TokenInfoVO token) {
         this(user.getId(), user.getEmail(), user.getPassword(), user.getName(), token);
