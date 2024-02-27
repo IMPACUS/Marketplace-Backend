@@ -66,13 +66,10 @@ public class Oauth2RequestEntityConverter implements Converter<OAuth2Authorizati
 
     @Override
     public RequestEntity<?> convert(OAuth2AuthorizationCodeGrantRequest req) {
-        log.info("++++++++++++ Oauth2RequestEntityConverter IN 1++++++++");
-
         RequestEntity<?> entity = defaultConverter.convert(req);
         String registrationId = req.getClientRegistration().getRegistrationId();
         MultiValueMap<String, String> params = (MultiValueMap<String, String>) entity.getBody();
         if (registrationId.contains("apple")) {
-            log.info("++++++++++++ Oauth2RequestEntityConverter IN 2 ++++++++");
             try {
                 params.set("client_secret", createClientSecret());
             } catch (IOException e) {
@@ -84,7 +81,6 @@ public class Oauth2RequestEntityConverter implements Converter<OAuth2Authorizati
     }
 
     public PrivateKey getPrivateKey() throws IOException {
-        log.info("++++++++++++ Oauth2RequestEntityConverter IN 3 getPrivateKey ++++++++");
         ClassPathResource resource = new ClassPathResource("static/key/" + appleKeyPath);
 
         InputStream in = resource.getInputStream();
