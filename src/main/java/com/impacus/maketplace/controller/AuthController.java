@@ -40,7 +40,7 @@ public class AuthController {
                 .build();
     }
 
-    @GetMapping("login")
+    @PostMapping("login")
     public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
         UserDTO userDTO = userService.login(loginRequest);
 
@@ -49,7 +49,7 @@ public class AuthController {
                 .build();
     }
 
-    @GetMapping("reissue")
+    @PostMapping("reissue")
     public ApiResponseEntity<UserDTO> reissueToken(
             @RequestHeader(value = AUTHORIZATION_HEADER) String accessToken,
             @RequestBody TokenRequest tokenRequest) {
