@@ -37,7 +37,6 @@ public class DatabaseCleanup implements InitializingBean {
 		tableNames.add("Product_Info");
 		tableNames.add("User_Info");
 		tableNames.add("temporary_product_info");
-		tableNames.forEach(System.out::println);
 	}
 
 

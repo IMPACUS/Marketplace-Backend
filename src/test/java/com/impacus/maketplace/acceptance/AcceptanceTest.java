@@ -27,6 +27,6 @@ public class AcceptanceTest {
 		databaseCleanup.execute();
 		dataLoader.loadData();
 
-		관리자 = 베어러_인증_로그인_요청(EMAIL, PASSWORD).jsonPath().getString("accessToken");
+		관리자 = 베어러_인증_로그인_요청(EMAIL, PASSWORD).jsonPath().getString("data.token.accessToken");
 	}
 }
