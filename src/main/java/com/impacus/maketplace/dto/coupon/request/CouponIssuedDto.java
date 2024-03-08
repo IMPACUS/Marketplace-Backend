@@ -21,11 +21,13 @@ public class CouponIssuedDto {
     private String couponBenefitClassificationType;
     private BigDecimal benefitAmount;
     private String couponIssuanceClassificationType;
+    private Long couponIssuanceClassificationData;
     private String couponPaymentTargetType;
     private Long firstComeFirstServedAmount;
     private String couponIssuedTimeType;
     private String couponExpireTimeType;
     private Long expireDays;
+
     private String couponIssuanceCoverageType;
     private String couponUseCoverageType;
 
@@ -43,8 +45,10 @@ public class CouponIssuedDto {
     private Long numberOfWithPeriod;
     private String couponIssuanceType;
 
+    @Builder.Default
     private String loginCouponIssueNotification = "N";  // 로그인 쿠폰 발급 알림
 
+    @Builder.Default
     private String issuingCouponsSendSMS = "N"; // 쿠폰발급 SMS 발송
 
     private String issuanceCouponSendEmail = "N";   // 쿠폰 발급 Email 발송

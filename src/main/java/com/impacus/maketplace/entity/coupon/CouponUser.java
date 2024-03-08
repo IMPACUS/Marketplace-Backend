@@ -35,6 +35,4 @@ public class CouponUser extends BaseEntity {
 
     private LocalDateTime expiredAt;
 
-
-
 }

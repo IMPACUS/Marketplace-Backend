@@ -35,7 +35,7 @@ public enum ErrorType {
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),
 
     //TODO: 4X번 부터 쿠폰 관련
-    INVALID_COUPON_FORMAT("040_INVALID_COUPON_FORMAT", "유효하지 않은 쿠폰 데이터 입니다."),
+    INVALID_COUPON_FORMAT("040_INVALID_COUPON_FORMAT", "유효하지 않은 쿠폰입니다.\n쿠폰코드를 다시 한번 확인해주세요"),
 
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),
