@@ -31,9 +31,13 @@ public class CouponController {
         //TODO: 관리자 검증 로직 추가
         Boolean result = couponService.addCoupon(couponIssuedDto);
 
+        String message = "";
+        if (!result) {
+            message = "쿠폰 발급 오류";
+        }
         return ApiResponseEntity.builder()
                 .result(result)
-                .message("")
+                .message(message)
                 .data(result)
                 .build();
     }
