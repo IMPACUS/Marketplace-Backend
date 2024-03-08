@@ -22,7 +22,7 @@ import static com.impacus.maketplace.common.utils.CouponUtils.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CouponService {
+public class CouponAdminService {
 
     private final CouponRepository couponRepository;
     private final CouponUserRepository couponUserRepository;
