@@ -31,6 +31,9 @@ public enum ErrorType {
     FAIL_TO_APPLE_LOGIN("020_FAIL_TO_APPLE_LOGIN", "apple 로그인에 실패하셨습니다."),
     NOT_EXISTED_PRODUCT_OPTION("021_NOT_EXISTED_PRODUCT_OPTION", "존재하지 않는 상품 옵션입니다"),
     DUPLICATED_SUPER_CATEGORY("22_DUPLICATED_SUPER_CATEGORY", "중복된 1차 카테고리 명이 존재합나디."),
+    DUPLICATED_SUB_CATEGORY("22_DUPLICATED_SUB_CATEGORY", "중복된 2차 카테고리 명이 존재합나디."),
+    NOT_EXISTED_SUPER_CATEGORY("23_NOT_EXISTED_SUPER_CATEGORY", "존재하지 않는 1차 카테고리 옵션입니다."),
+    INVALID_THUMBNAIL("24_INVALID_THUMBNAIL", "유효하지 않은 데이터에 대한 요청입니다."),
 
     //TODO: 3X번 Point 관련 된것 작성하겠습니다!
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),

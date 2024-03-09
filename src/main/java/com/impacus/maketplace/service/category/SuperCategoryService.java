@@ -19,7 +19,12 @@ public class SuperCategoryService {
     private final SuperCategoryRepository superCategoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
 
-    // 1차 카테고리를 추가하는 API
+    /**
+     * 1차 카테고리 추가하는 함수
+     *
+     * @param superCategoryRequest
+     * @return
+     */
     @Transactional
     public SuperCategoryDTO addSuperCategory(SuperCategoryRequest superCategoryRequest) {
         try {
@@ -47,5 +52,15 @@ public class SuperCategoryService {
      */
     private boolean existsBySuperCategoryName(String name) {
         return superCategoryRepository.existsByName(name);
+    }
+
+    /**
+     * 1차 카테고리에 id이 존재하는지 확인하는 함수
+     *
+     * @param id
+     * @return
+     */
+    public boolean existsBySuperCategoryId(Long id) {
+        return superCategoryRepository.existsById(id);
     }
 }

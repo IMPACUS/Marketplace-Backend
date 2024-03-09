@@ -1,13 +1,13 @@
 package com.impacus.maketplace.entity.category;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
 @Table(name = "sub_category")
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubCategory {
     @Id
@@ -21,7 +21,17 @@ public class SubCategory {
     @Column(nullable = false)
     private Long thumbnailId;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 10)
     private String name;
+
+    public SubCategory(Long superCategoryId, Long thumbnailId, String name) {
+        this.superCategoryId = superCategoryId;
+        this.thumbnailId = thumbnailId;
+        this.name = name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
 }
