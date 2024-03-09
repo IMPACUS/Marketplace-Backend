@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service;
 
-import com.amazonaws.services.dynamodbv2.xspec.M;
 import com.impacus.maketplace.common.enumType.PointType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
@@ -17,7 +16,10 @@ import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.entity.point.PointMaster;
 import com.impacus.maketplace.entity.user.DormantUser;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.*;
+import com.impacus.maketplace.repository.DormantUserRepository;
+import com.impacus.maketplace.repository.PointHistoryRepository;
+import com.impacus.maketplace.repository.PointMasterRepository;
+import com.impacus.maketplace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -201,6 +203,17 @@ public class PointService {
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void addDormancyUser() {
+        /**
+         * 회원 휴면 전환 기간 1년 (일시적 중지)
+         * - 1차(휴면)
+         *  : 12개월간 로그인을 안했을 경우 30일 전에 회원에게 휴면 안내 메일, 문자(알림) 전송
+         *  : 12개월 채울시, 휴면 계정으로 자동 전환된다.
+         *  : 휴면 상태에서  로그인 시 자동 휴면 해제
+         *
+         * - 2차(초기화)
+         *  : 휴면 전환 후 120일(4개월)이상 해제 하지 않은 경우: 계정 및 모든 데이터 삭제( 복구불가 )
+         *
+         */
         LocalDateTime endDate = LocalDate.now().atStartOfDay();
         LocalDateTime startDate = endDate.minusMonths(6);
         List<Long> findDormancyUser = pointHistoryRepository.findAllNoUseUser(startDate, endDate);
@@ -221,7 +234,28 @@ public class PointService {
     @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
     public void reductionPointForDormantUsers() {
+        /**
+         * 회원 휴면 -> 가용/레벨 포인트 관련 유효기간
+         *   : 6개월간 로그인 하지 않았을 경우, 30일 전에 회원에게 포인소멸 안내 매일, 문자(알림) 전송
+         *   : 6개월 채울 시, 첫 3개월 간 1달 간격으로 1500P 감소, 이후 한달 간격으로 2000P 감소
+         *
+         * 이 때, 2차라면 모든 포인트, 쿠폰 관련 데이터 삭제, 그 전까지는 유지 및 소멸
+         */
 
+        /**
+         * 그럼 마지막 로그인 시각이 현재보다 5개월 후일 경우, 회원에게 포인트 소멸 안내 메일 및 문자 전송
+         * 이 때 1달이 지난 6개월 시점에, 7,8,9 개월 지난 시점에 1500P 소멸
+         * 10개월이 지난 시점으로는 2000P 소멸
+         * 이 때 11개월이 지나면 회원에게 휴면 안내 메일, 문자(알림) 발송
+         * 12개월 채울시 휴면 계정으로 (상태값) 자동 전환 ,
+         * 14개월 시점에 데이터 삭제 관련 안내 메일 전송
+         * (16개월 전까지 로그인 한다면, 자동 휴면 해제)
+         * 하지만 마지막 로그인 시점 이후 16개월 이후에는 관련 데이터 삭제 (이 때 메세지, 문의, 리뷰 관련은 모두 삭제)
+         *
+         * 따라서 16개월 초기화 전까지는 매달 포인트 차감!
+         *
+         *
+         */
         LocalDateTime today = LocalDate.now().atStartOfDay();
         List<DormantUser> dormantUsers = dormantUserRepository.findByDormancyUpdateDateTime(today);
         for (DormantUser dormantUser : dormantUsers) {
