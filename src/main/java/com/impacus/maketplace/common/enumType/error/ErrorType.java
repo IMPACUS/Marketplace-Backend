@@ -30,6 +30,7 @@ public enum ErrorType {
     NOT_EXISTED_SHOPPING_CART("019_NOT_EXISTED_SHOPPING_CART", "장바구니 데이터가 존재하지 않습니다."),
     FAIL_TO_APPLE_LOGIN("020_FAIL_TO_APPLE_LOGIN", "apple 로그인에 실패하셨습니다."),
     NOT_EXISTED_PRODUCT_OPTION("021_NOT_EXISTED_PRODUCT_OPTION", "존재하지 않는 상품 옵션입니다"),
+    DUPLICATED_SUPER_CATEGORY("22_DUPLICATED_SUPER_CATEGORY", "중복된 1차 카테고리 명이 존재합나디."),
 
     //TODO: 3X번 Point 관련 된것 작성하겠습니다!
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),

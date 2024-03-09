@@ -86,13 +86,11 @@ public class ProductController {
      */
     @PutMapping("/seller/{productId}")
     public ApiResponseEntity<Object> updateProduct(
-
             @PathVariable(name = "productId") Long productId,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") ProductRequest productRequest) {
         ProductDTO productDTO = productService.updateProduct(
-
                 productId,
                 productImageList,
                 productRequest,
