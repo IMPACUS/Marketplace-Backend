@@ -1,11 +1,13 @@
 package com.impacus.maketplace.service;
 
+import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.response.UserDTO;
@@ -24,6 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +45,7 @@ public class UserService {
     private final JwtTokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final LoginFailAttemptService loginFailAttemptService;
+    private final EmailService emailService;
 
     @Transactional
     public UserDTO addUser(SignUpRequest signUpRequest) {
@@ -208,4 +214,27 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
     }
 
+
+    @Transactional
+    public void findFistDormancyUser() {
+        LocalDateTime fiveMonthAgo = LocalDateTime.now().minusMonths(5).plusDays(1).truncatedTo(ChronoUnit.DAYS);
+        List<User> firstDormancyUser = userRepository.findByRecentLoginAtBeforeAndFirstDormancyIsFalse(fiveMonthAgo);
+        LocalDate updateDormancyAt = LocalDateTime.now().plusMonths(1).toLocalDate();
+
+        for (User user : firstDormancyUser) {
+            user.setDormancyMonths(5);
+            user.setFirstDormancy(true);
+            user.setUpdateDormancyAt(updateDormancyAt);
+
+
+            int underscoreIndex = user.getEmail().indexOf("_") + 1;
+            String realUserEmail = user.getEmail().substring(underscoreIndex);
+
+            EmailDto emailDto = EmailDto.builder()
+                    .subject(MailType.POINT_REDUCTION.getSubject())
+                    .receiveEmail(realUserEmail)
+                    .build();
+            emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
+        }
+    }
 }

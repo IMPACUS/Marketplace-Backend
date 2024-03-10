@@ -5,27 +5,19 @@ import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.entity.common.EmailHistory;
 import com.impacus.maketplace.repository.EmailHistoryRepository;
-import com.impacus.maketplace.repository.UserRepository;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MailDateFormat;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.List;
 import java.util.Random;
 
 @Service
@@ -40,12 +32,14 @@ public class EmailService {
 
     public Boolean sendMail(EmailDto emailDto,MailType mailType) {
         String authNumber = createCode();
-
+        if (!mailType.equals(MailType.AUTH)) {
+            authNumber = "";
+        }
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             msgHelper.setTo(emailDto.getReceiveEmail());
-            msgHelper.setSubject(emailDto.getSubject());
+            msgHelper.setSubject(mailType.getSubject());
             msgHelper.setText(setContext(authNumber, mailType.getTemplate()), true);
             javaMailSender.send(mimeMessage);
 
@@ -53,7 +47,14 @@ public class EmailService {
                     encodeToString(emailDto.getReceiveEmail().getBytes(StandardCharsets.UTF_8)));
             emailDto.setAuthNo(authNumber);
             emailDto.setMailType(mailType.getCode());
-            EmailHistory emailHistory = objectCopyHelper.copyObject(emailDto, EmailHistory.class);
+
+            EmailHistory emailHistory = EmailHistory
+                    .builder()
+                    .receiveEmail(emailDto.getReceiveEmail())
+                    .mailType(mailType)
+                    .authNo(authNumber)
+                    .sendAt(LocalDateTime.now())
+                    .build();
             EmailHistory result = emailHistoryRepository.save(emailHistory);
 
             return result != null ? true : false;
