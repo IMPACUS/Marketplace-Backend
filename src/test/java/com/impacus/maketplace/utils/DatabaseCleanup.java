@@ -33,10 +33,11 @@ public class DatabaseCleanup implements InitializingBean {
 
 
 		// table 이름 안맞는경우
-		tableNames = removeNameFromList( tableNames,"Product","User","Temporary_Product");
+		tableNames = removeNameFromList( tableNames,"Product","User","Temporary_Product","Order");
 		tableNames.add("Product_Info");
 		tableNames.add("User_Info");
 		tableNames.add("temporary_product_info");
+		tableNames.add("orders");
 	}
 
 
@@ -63,10 +64,10 @@ public class DatabaseCleanup implements InitializingBean {
 		entityManager.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();
 	}
 
-	private static List<String> removeNameFromList( List<String> stringList, String name1, String name2, String name3) {
+	private static List<String> removeNameFromList( List<String> stringList, String name1, String name2, String name3, String name4) {
 		List<String> modifiedList = new ArrayList<>();
 		for (String str : stringList) {
-			if (!str.equals(name1) && !str.equals(name2) && !str.equals(name3)) {
+			if (!str.equals(name1) && !str.equals(name2) && !str.equals(name3) && !str.equals(name4)) {
 				modifiedList.add(str);
 			}
 		}
