@@ -1,8 +1,9 @@
 package com.impacus.maketplace.dto;
 
-import com.impacus.maketplace.common.enumType.MailType;
-import lombok.*;
-import lombok.experimental.Accessors;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor

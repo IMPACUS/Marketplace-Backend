@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -83,12 +84,23 @@ public class User extends BaseEntity {
 
     private LocalDateTime withdrawnDateTime; // 철회 진행 시간
 
+
+    @ColumnDefault("false")
     @Column(nullable = false)
     @Setter
-    private Boolean isDormancy; // 휴면 계정 여부
+    private Boolean firstDormancy; // 1차 휴면 상태 (6개월)
+
+    @ColumnDefault("false")
+    @Column(nullable = false)
+    @Setter
+    private Boolean secondDormancy; // 2차 휴면 상태 (12개월) <-
+
+    @Column(nullable = false)
+    @Setter
+    private Integer dormancyMonths; // 휴면 개월 수 ( 7,8,9 개월 차와 그 이후의 포인트 감소를 구별 하기 위함)
 
     @Setter
-    private LocalDateTime dormancyDateTime; // 휴면 계정 등록 시간
+    private LocalDate updateDormancyAt; // 휴면 계정 포인트 감소할 날짜
 
     @ColumnDefault("'NONE'")
     @Enumerated(EnumType.STRING)
@@ -140,7 +152,9 @@ public class User extends BaseEntity {
         this.doesAgreePersonalPolicy = false;
         this.doesAgreeService = false;
         this.isWithdrawn = false;
-        this.isDormancy = false;
+        this.firstDormancy = false;
+        this.secondDormancy = false;
+        this.dormancyMonths = 0;
     }
 
     public void setRecentLoginAt() {

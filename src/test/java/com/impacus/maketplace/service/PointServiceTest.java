@@ -5,18 +5,14 @@ import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
 import com.impacus.maketplace.dto.point.response.PointHistoryDto;
 import com.impacus.maketplace.dto.user.response.UserDTO;
-import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.repository.PointHistoryRepository;
 import com.impacus.maketplace.repository.PointMasterRepository;
 import com.impacus.maketplace.repository.UserRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @SpringBootTest
@@ -80,9 +76,8 @@ public class PointServiceTest {
 
     @Test
     void test7() {
-        LocalDateTime endDate = LocalDateTime.now();
-        LocalDateTime startDate = endDate.minusMonths(6);
-        pointHistoryRepository.findAllNoUseUser(startDate, endDate).forEach( i -> System.out.println(i));
+        LocalDate localDate = LocalDate.now().minusMonths(5);
+        System.out.println(localDate);
     }
 
     @Test

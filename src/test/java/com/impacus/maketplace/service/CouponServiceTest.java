@@ -1,15 +1,12 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.coupon.CouponIssuanceClassification;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
-import com.impacus.maketplace.entity.coupon.CouponIssuanceClassificationData;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 @SpringBootTest
 public class CouponServiceTest {
@@ -18,7 +15,7 @@ public class CouponServiceTest {
     private CouponIssuanceClassificationDataRepository couponIssuanceClassificationDataRepository;
 
     @Autowired
-    private CouponService couponService;
+    private CouponAdminService couponAdminService;
 
     // 구분 상세 데이터 insert
 //    @Test
@@ -102,7 +99,7 @@ public class CouponServiceTest {
                 .loginCouponIssueNotification("Y")
                 .build();
 
-        Boolean result = couponService.addCoupon(newCoupon);
+        Boolean result = couponAdminService.addCoupon(newCoupon);
         System.out.println(result);
 
     }

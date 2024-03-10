@@ -4,13 +4,18 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.utils.TimestampConverter;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.CreatedDate;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "email_history")
 public class EmailHistory extends BaseEntity {
 
@@ -29,7 +34,8 @@ public class EmailHistory extends BaseEntity {
 
     @ColumnDefault("'implace'")
     @Column(name = "receiver_id",nullable = false)
-    private String receiverId; // 발신인
+    @Builder.Default
+    private String receiverId = "implace"; // 발신인
 
     @Column(name = "auth_no")
     private String authNo; // 인증번호
