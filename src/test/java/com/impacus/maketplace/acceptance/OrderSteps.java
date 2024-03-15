@@ -27,6 +27,20 @@ public class OrderSteps {
                 .then().log().all().extract();
     }
 
+    public static ExtractableResponse<Response> 주문_전체_조회_요청(String accessToken, String startAt, String endAt) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startAt", startAt);
+        params.put("endAt", endAt);
+
+        return RestAssured
+                .given().log().all()
+                .auth().oauth2(accessToken)
+                .params(params)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/api/v1/order/all")
+                .then().log().all().extract();
+    }
+
     public static CreateOrderRequest createCreateOrderRequest(Long shoppingBasketId, OrderStatus orderStatus, PaymentMethod paymentMethod) {
         CreateOrderRequest createOrderRequest = new CreateOrderRequest();
         createOrderRequest.setShoppingBasketId(shoppingBasketId);

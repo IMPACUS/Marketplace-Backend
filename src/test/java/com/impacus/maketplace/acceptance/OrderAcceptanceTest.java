@@ -12,8 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import static com.impacus.maketplace.acceptance.OrderSteps.createCreateOrderRequest;
-import static com.impacus.maketplace.acceptance.OrderSteps.주문_추가_요청;
+import static com.impacus.maketplace.acceptance.OrderSteps.*;
 import static com.impacus.maketplace.acceptance.ProductSteps.shoppingBasketRequest;
 import static com.impacus.maketplace.acceptance.ProductSteps.장바구니_추가_요청;
 
@@ -39,5 +38,22 @@ public class OrderAcceptanceTest extends AcceptanceTest {
 		ExtractableResponse<Response> response = 주문_추가_요청(관리자, createOrderRequest);
 
 		Assertions.assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+	}
+
+	@DisplayName("주문리스트 조회")
+	@Test
+	void getOrders() {
+		CreateOrderRequest createOrderRequest = createCreateOrderRequest(쇼핑바구니, OrderStatus.SOLD_OUT, PaymentMethod.CARD);
+		주문_추가_요청(관리자, createOrderRequest);
+		주문_추가_요청(관리자, createOrderRequest);
+		주문_추가_요청(관리자, createOrderRequest);
+
+		String startAt = "2024-03-01";
+		String endAt = "2024-03-31";
+
+		ExtractableResponse<Response> response = 주문_전체_조회_요청(관리자, startAt, endAt);
+
+		Assertions.assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+		Assertions.assertThat(response.jsonPath().getList("data.content")).hasSize(3);
 	}
 }
