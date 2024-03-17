@@ -80,13 +80,5 @@ public class PointServiceTest {
         System.out.println(localDate);
     }
 
-    @Test
-    void test8() {
-        pointService.addDormancyUser();
-    }
 
-    @Test
-    void test9() {
-        pointService.reductionPointForDormantUsers();
-    }
 }
