@@ -1,6 +1,7 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
 import com.impacus.maketplace.dto.category.request.SubCategoryRequest;
 import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
 import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
@@ -52,6 +53,24 @@ public class CategoryController {
         return ApiResponseEntity
                 .builder()
                 .data(subCategoryDTO)
+                .build();
+    }
+
+    /**
+     * 1차 카테고리명 수정 API
+     *
+     * @param categoryId
+     * @param categoryNameRequest
+     * @return
+     */
+    @PutMapping("admin/super-category/{categoryId}")
+    public ApiResponseEntity<Object> updateSuperCategory(
+            @PathVariable(name = "categoryId") Long categoryId,
+            @Valid @RequestBody ChangeCategoryNameRequest categoryNameRequest) {
+        SuperCategoryDTO superCategoryDTO = superCategoryService.updateSuperCategory(categoryId, categoryNameRequest);
+        return ApiResponseEntity
+                .builder()
+                .data(superCategoryDTO)
                 .build();
     }
 }

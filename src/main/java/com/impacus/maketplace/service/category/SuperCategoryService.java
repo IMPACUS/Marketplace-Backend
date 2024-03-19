@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.category;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
 import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
@@ -62,5 +63,32 @@ public class SuperCategoryService {
      */
     public boolean existsBySuperCategoryId(Long id) {
         return superCategoryRepository.existsById(id);
+    }
+
+    /**
+     * 1차 카테고리 명 수정 함수
+     *
+     * @param categoryId
+     * @param categoryNameRequest
+     * @return
+     */
+    @Transactional
+    public SuperCategoryDTO updateSuperCategory(Long categoryId, ChangeCategoryNameRequest categoryNameRequest) {
+        SuperCategory superCategory = findBySuperCategoryId(categoryId);
+
+        superCategory.setName(categoryNameRequest.getName());
+        superCategoryRepository.save(superCategory);
+        return objectCopyHelper.copyObject(superCategory, SuperCategoryDTO.class);
+    }
+
+    /**
+     * id로 SuperCategory를 찾는 함수
+     *
+     * @param id
+     * @return
+     */
+    public SuperCategory findBySuperCategoryId(Long id) {
+        return superCategoryRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SUPER_CATEGORY));
     }
 }

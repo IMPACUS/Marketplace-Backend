@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.category;
 
+import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "super_category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SuperCategory {
+public class SuperCategory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "super_category_id")
