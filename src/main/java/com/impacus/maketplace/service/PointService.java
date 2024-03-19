@@ -1,11 +1,12 @@
 package com.impacus.maketplace.service;
 
-import com.amazonaws.services.dynamodbv2.xspec.M;
+import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.PointType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
 import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
@@ -17,7 +18,10 @@ import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.entity.point.PointMaster;
 import com.impacus.maketplace.entity.user.DormantUser;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.*;
+import com.impacus.maketplace.repository.DormantUserRepository;
+import com.impacus.maketplace.repository.PointHistoryRepository;
+import com.impacus.maketplace.repository.PointMasterRepository;
+import com.impacus.maketplace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,10 +44,12 @@ public class PointService {
     private final PointHistoryRepository pointHistoryRepository;
     private final UserRepository userRepository;
     private final DormantUserRepository dormantUserRepository;
+    private final EmailService emailService;
 
     private final ObjectCopyHelper objectCopyHelper;
     private final Integer CELEBRATION_POINT = 5000;
-    private final Integer DORMANCY_POINT = 150;
+    private final Integer FIRST_DORMANCY_POINT = 1500;
+    private final Integer SECOND_DORMANCY_POINT = 2000;
 
     @Transactional
     public boolean initPointMaster(UserDTO userDTO) {
@@ -198,60 +204,175 @@ public class PointService {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    //TODO: 6개월 지난 시점에 상태  dormancy_update_at update
     @Transactional
-    public void addDormancyUser() {
-        LocalDateTime endDate = LocalDate.now().atStartOfDay();
-        LocalDateTime startDate = endDate.minusMonths(6);
-        List<Long> findDormancyUser = pointHistoryRepository.findAllNoUseUser(startDate, endDate);
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void updateDormancyUser() {
+        LocalDate nextUpdateAt = LocalDateTime.now().plusMonths(1).toLocalDate();
+        LocalDate nowDate = LocalDate.now();
+        List<User> usersToUpdate = userRepository.findByUpdateDormancyAtAndFirstDormancyIsTrueOrSecondDormancyIsTrue(nowDate);
+        for (User user : usersToUpdate) {
+            if (user.getFirstDormancy() || user.getSecondDormancy()) { // 임시 휴면 회원 || 12개월 휴면 회원
+                PointMaster pointMaster = pointMasterRepository.findByUserId(user.getId())
+                        .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
 
-        for (Long userId : findDormancyUser) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
-            user.setIsDormancy(true);
-            user.setDormancyDateTime(LocalDate.now().atStartOfDay());
+                Integer currentAvailablePoint = pointMaster.getAvailablePoint();
+                Integer currentUserScore = pointMaster.getUserScore();
+                UserLevel currentUserLevel = pointMaster.getUserLevel();
 
-            DormantUser dormantUser = objectCopyHelper.copyObject(user, DormantUser.class);
-            dormantUser.setDormancyUpdateDateTime(LocalDate.now().plusWeeks(2).atStartOfDay());
+                int underscoreIndex = user.getEmail().indexOf("_") + 1;
+                String realUserEmail = user.getEmail().substring(underscoreIndex);
 
-            dormantUserRepository.save(dormantUser);
-            userRepository.deleteById(userId);
+                switch (user.getDormancyMonths()) {
+                    case 5, 6 -> {
+                        user.setUpdateDormancyAt(nextUpdateAt);
+                        user.setDormancyMonths(user.getDormancyMonths() + 1); // 현재 휴면 개월수 + 1
+                    }
+                    case 7, 8, 9 -> {
+                        if (currentAvailablePoint <= FIRST_DORMANCY_POINT) {
+                            pointMaster.setAvailablePoint(0);
+                        } else {
+                            pointMaster.setAvailablePoint(currentAvailablePoint - FIRST_DORMANCY_POINT);
+                        }
+                        if (currentUserScore <= FIRST_DORMANCY_POINT) {
+                            pointMaster.setUserScore(0);
+                        } else {
+                            pointMaster.setUserScore(currentUserScore - FIRST_DORMANCY_POINT);
+                        }
+
+                        PointHistory pointHistory = PointHistory.builder()
+                                .pointMasterId(pointMaster.getId())
+                                .pointType(PointType.DORMANCY)
+                                .changePoint(FIRST_DORMANCY_POINT)
+                                .isManual(false)
+                                .build();
+                        pointHistoryRepository.save(pointHistory);
+
+                        UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
+                        if (!StringUtils.equals(changeUserLevel,currentUserLevel)) {
+                            pointMaster.setUserLevel(changeUserLevel);
+                        }
+
+                        user.setUpdateDormancyAt(nextUpdateAt);
+                        user.setDormancyMonths(user.getDormancyMonths() + 1); // 현재 휴면 개월수 + 1
+                    }
+                    case 10 -> {
+
+                        if (currentAvailablePoint <= SECOND_DORMANCY_POINT) {
+                            pointMaster.setAvailablePoint(0);
+                        } else {
+                            pointMaster.setAvailablePoint(currentAvailablePoint - SECOND_DORMANCY_POINT);
+                        }
+                        if (currentUserScore <= SECOND_DORMANCY_POINT) {
+                            pointMaster.setUserScore(0);
+                        } else {
+                            pointMaster.setUserScore(currentUserScore - SECOND_DORMANCY_POINT);
+                        }
+
+                        PointHistory pointHistory = PointHistory.builder()
+                                .pointMasterId(pointMaster.getId())
+                                .pointType(PointType.DORMANCY)
+                                .changePoint(SECOND_DORMANCY_POINT)
+                                .isManual(false)
+                                .build();
+                        pointHistoryRepository.save(pointHistory);
+
+                        UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
+                        if (!StringUtils.equals(changeUserLevel,currentUserLevel)) {
+                            pointMaster.setUserLevel(changeUserLevel);
+                        }
+
+                        user.setUpdateDormancyAt(nextUpdateAt);
+                        user.setDormancyMonths(user.getDormancyMonths() + 1); // 현재 휴면 개월수 + 1
+                    }
+                    case 11, 12 -> {
+                        if (user.getDormancyMonths() == 11) {
+                            //TODO: 11개월 휴먼 안내 메일
+                            EmailDto emailDto = EmailDto.builder()
+                                    .subject(MailType.DORMANCY_INFO.getSubject())
+                                    .receiveEmail(realUserEmail)
+                                    .build();
+                            emailService.sendMail(emailDto, MailType.DORMANCY_INFO);
+                        } else if (user.getDormancyMonths() == 12) {
+                            //TODO: 휴면 계정으로 전환 및 dormancy_user 테이블에 이관
+                            user.setSecondDormancy(true);
+
+                            DormantUser dormantUser = objectCopyHelper.copyObject(user, DormantUser.class);
+                            dormantUserRepository.save(dormantUser);
+                        }
+
+                        if (currentAvailablePoint <= SECOND_DORMANCY_POINT) {
+                            pointMaster.setAvailablePoint(0);
+                        } else {
+                            pointMaster.setAvailablePoint(currentAvailablePoint - SECOND_DORMANCY_POINT);
+                        }
+                        if (currentUserScore <= SECOND_DORMANCY_POINT) {
+                            pointMaster.setUserScore(0);
+                        } else {
+                            pointMaster.setUserScore(currentUserScore - SECOND_DORMANCY_POINT);
+                        }
+
+                        PointHistory pointHistory = PointHistory.builder()
+                                .pointMasterId(pointMaster.getId())
+                                .pointType(PointType.DORMANCY)
+                                .changePoint(SECOND_DORMANCY_POINT)
+                                .isManual(false)
+                                .build();
+                        pointHistoryRepository.save(pointHistory);
+
+                        UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
+                        if (!StringUtils.equals(changeUserLevel,currentUserLevel)) {
+                            pointMaster.setUserLevel(changeUserLevel);
+                        }
+
+                        user.setUpdateDormancyAt(nextUpdateAt);
+                        user.setDormancyMonths(user.getDormancyMonths() + 1); // 현재 휴면 개월수 + 1
+                    }
+                    case 13, 14 -> {
+                        if (user.getDormancyMonths() == 14) {
+                            //TODO: 데이터 삭제 관련 안내 메일 전송
+                            EmailDto emailDto = EmailDto.builder()
+                                    .subject(MailType.USER_DELETE.getSubject())
+                                    .receiveEmail(realUserEmail)
+                                    .build();
+                            emailService.sendMail(emailDto, MailType.USER_DELETE);
+
+                        }
+
+                        if (currentAvailablePoint <= SECOND_DORMANCY_POINT) {
+                            pointMaster.setAvailablePoint(0);
+                        } else {
+                            pointMaster.setAvailablePoint(currentAvailablePoint - SECOND_DORMANCY_POINT);
+                        }
+                        if (currentUserScore <= SECOND_DORMANCY_POINT) {
+                            pointMaster.setUserScore(0);
+                        } else {
+                            pointMaster.setUserScore(currentUserScore - SECOND_DORMANCY_POINT);
+                        }
+
+                        PointHistory pointHistory = PointHistory.builder()
+                                .pointMasterId(pointMaster.getId())
+                                .pointType(PointType.DORMANCY)
+                                .changePoint(SECOND_DORMANCY_POINT)
+                                .isManual(false)
+                                .build();
+                        pointHistoryRepository.save(pointHistory);
+
+                        UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
+                        if (!StringUtils.equals(changeUserLevel,currentUserLevel)) {
+                            pointMaster.setUserLevel(changeUserLevel);
+                        }
+
+                        user.setUpdateDormancyAt(nextUpdateAt);
+                        user.setDormancyMonths(user.getDormancyMonths() + 1); // 현재 휴면 개월수 + 1
+                    }
+                    case 16 -> {
+                        //TODO: 데이터 자동 삭제 ( 메시지, 문의, 리뷰 관련 모두 삭제)
+                    }
+
+                }
+            }
         }
     }
 
-    @Transactional
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void reductionPointForDormantUsers() {
-
-        LocalDateTime today = LocalDate.now().atStartOfDay();
-        List<DormantUser> dormantUsers = dormantUserRepository.findByDormancyUpdateDateTime(today);
-        for (DormantUser dormantUser : dormantUsers) {
-            PointMaster pointMaster = pointMasterRepository.findByUserId(dormantUser.getId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
-
-            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
-            Integer currentUserScore = pointMaster.getUserScore();
-
-            if (currentAvailablePoint < DORMANCY_POINT) {
-                pointMaster.setAvailablePoint(0);
-            } else {
-                pointMaster.setAvailablePoint(currentAvailablePoint - DORMANCY_POINT);
-            }
-            pointMaster.setUserScore(currentUserScore- DORMANCY_POINT);
-
-            PointHistory pointHistory = PointHistory.builder()
-                    .pointMasterId(pointMaster.getId())
-                    .pointType(PointType.DORMANCY)
-                    .changePoint(DORMANCY_POINT)
-                    .isManual(true)
-                    .build();
-
-            pointHistoryRepository.save(pointHistory);
-
-            UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
-            if (!StringUtils.equals(changeUserLevel, pointMaster.getUserLevel())) {
-                pointMaster.setUserLevel(changeUserLevel);
-            }
-
-            dormantUser.setDormancyUpdateDateTime(today.plusWeeks(2));
-        }
-    }
 }

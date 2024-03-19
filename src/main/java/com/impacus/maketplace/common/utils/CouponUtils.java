@@ -2,7 +2,7 @@ package com.impacus.maketplace.common.utils;
 
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.service.CouponService;
+import com.impacus.maketplace.service.CouponAdminService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class CouponUtils {
     }
 
     public static void validateCouponCode(String code) throws CustomException {
-        if(!Pattern.matches(CouponService.COUPON_CODE, code)) {
+        if(!Pattern.matches(CouponAdminService.COUPON_CODE, code)) {
             throw new CustomException(ErrorType.INVALID_COUPON_FORMAT, "Invalid format of coupon code.");
         }
     }
