@@ -85,6 +85,7 @@ public class SubCategoryService {
      * @param categoryNameRequest
      * @return
      */
+    @Transactional
     public SubCategoryDTO updateSubCategory(Long categoryId, ChangeCategoryNameRequest categoryNameRequest) {
         try {
             SubCategory subCategory = findBySubCategoryId(categoryId);

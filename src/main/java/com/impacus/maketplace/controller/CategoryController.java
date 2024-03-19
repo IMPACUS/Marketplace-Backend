@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
 import com.impacus.maketplace.dto.category.request.SubCategoryRequest;
 import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
+import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.service.category.SubCategoryService;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -89,6 +92,15 @@ public class CategoryController {
         return ApiResponseEntity
                 .builder()
                 .data(subCategoryDTO)
+                .build();
+    }
+
+    @GetMapping("")
+    public ApiResponseEntity<Object> getAllCategory() {
+        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory();
+        return ApiResponseEntity
+                .builder()
+                .data(categoryDTOs)
                 .build();
     }
 }

@@ -5,12 +5,15 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
 import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
+import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -94,5 +97,14 @@ public class SuperCategoryService {
     public SuperCategory findBySuperCategoryId(Long id) {
         return superCategoryRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SUPER_CATEGORY));
+    }
+
+    /**
+     * 전체 1차/2차 카테고리를 찾는 함수
+     *
+     * @return
+     */
+    public List<CategoryDetailDTO> findAllCategory() {
+        return superCategoryRepository.findAllCategory();
     }
 }

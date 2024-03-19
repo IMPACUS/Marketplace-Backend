@@ -1,0 +1,46 @@
+package com.impacus.maketplace.repository.category;
+
+import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
+import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
+import com.impacus.maketplace.entity.category.QSubCategory;
+import com.impacus.maketplace.entity.category.QSuperCategory;
+import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+@RequiredArgsConstructor
+public class SuperCategoryCustomRepositoryImpl implements SuperCategoryCustomRepository {
+    private final JPAQueryFactory queryFactory;
+    private final QSuperCategory superCategory = QSuperCategory.superCategory;
+    private final QSubCategory subCategory = QSubCategory.subCategory;
+
+    @Override
+    public List<CategoryDetailDTO> findAllCategory() {
+        var a = queryFactory.selectFrom(superCategory)
+                .leftJoin(subCategory).on(subCategory.superCategoryId.eq(superCategory.id))
+                .groupBy(superCategory.id, subCategory.id)
+                .transform(
+                        GroupBy.groupBy(superCategory.id).list(Projections.constructor(
+                                        CategoryDetailDTO.class,
+                                        superCategory.id,
+                                        superCategory.name,
+                                        GroupBy.list(
+                                                Projections.list(Projections.constructor(
+                                                                SubCategoryDetailDTO.class,
+                                                                subCategory.id,
+                                                                subCategory.name
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                );
+
+        return a;
+    }
+}
