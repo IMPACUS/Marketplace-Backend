@@ -74,15 +74,19 @@ public class SuperCategoryService {
      */
     @Transactional
     public SuperCategoryDTO updateSuperCategory(Long categoryId, ChangeCategoryNameRequest categoryNameRequest) {
-        SuperCategory superCategory = findBySuperCategoryId(categoryId);
+        try {
+            SuperCategory superCategory = findBySuperCategoryId(categoryId);
 
-        superCategory.setName(categoryNameRequest.getName());
-        superCategoryRepository.save(superCategory);
-        return objectCopyHelper.copyObject(superCategory, SuperCategoryDTO.class);
+            superCategory.setName(categoryNameRequest.getName());
+            superCategoryRepository.save(superCategory);
+            return objectCopyHelper.copyObject(superCategory, SuperCategoryDTO.class);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
-     * id로 SuperCategory를 찾는 함수
+     * id로 SuperCategory 를 찾는 함수
      *
      * @param id
      * @return

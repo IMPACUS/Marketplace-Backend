@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.category;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
 import com.impacus.maketplace.dto.category.request.SubCategoryRequest;
 import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.entity.category.SubCategory;
@@ -75,5 +76,35 @@ public class SubCategoryService {
      */
     private boolean existsBySuperCategoryName(String name) {
         return subCategoryRepository.existsByName(name);
+    }
+
+    /**
+     * 2차 카테고리 명 수정 함수
+     *
+     * @param categoryId
+     * @param categoryNameRequest
+     * @return
+     */
+    public SubCategoryDTO updateSubCategory(Long categoryId, ChangeCategoryNameRequest categoryNameRequest) {
+        try {
+            SubCategory subCategory = findBySubCategoryId(categoryId);
+
+            subCategory.setName(categoryNameRequest.getName());
+            subCategoryRepository.save(subCategory);
+            return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * id로 SubCategory 를 찾는 함수
+     *
+     * @param id
+     * @return
+     */
+    public SubCategory findBySubCategoryId(Long id) {
+        return subCategoryRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY));
     }
 }

@@ -73,4 +73,22 @@ public class CategoryController {
                 .data(superCategoryDTO)
                 .build();
     }
+
+    /**
+     * 2차 카테고리명 수정 API
+     *
+     * @param categoryId
+     * @param categoryNameRequest
+     * @return
+     */
+    @PutMapping("admin/sub-category/{categoryId}")
+    public ApiResponseEntity<Object> updateSubCategory(
+            @PathVariable(name = "categoryId") Long categoryId,
+            @Valid @RequestBody ChangeCategoryNameRequest categoryNameRequest) {
+        SubCategoryDTO subCategoryDTO = subCategoryService.updateSubCategory(categoryId, categoryNameRequest);
+        return ApiResponseEntity
+                .builder()
+                .data(subCategoryDTO)
+                .build();
+    }
 }
