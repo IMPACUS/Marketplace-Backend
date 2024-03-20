@@ -21,26 +21,22 @@ public class SuperCategoryCustomRepositoryImpl implements SuperCategoryCustomRep
 
     @Override
     public List<CategoryDetailDTO> findAllCategory() {
-        var a = queryFactory.selectFrom(superCategory)
-                .leftJoin(subCategory).on(subCategory.superCategoryId.eq(superCategory.id))
-                .groupBy(superCategory.id, subCategory.id)
+        return queryFactory.selectFrom(superCategory)
+                .leftJoin(subCategory).on(superCategory.id.eq(subCategory.superCategoryId))
                 .transform(
                         GroupBy.groupBy(superCategory.id).list(Projections.constructor(
                                         CategoryDetailDTO.class,
                                         superCategory.id,
                                         superCategory.name,
                                         GroupBy.list(
-                                                Projections.list(Projections.constructor(
-                                                                SubCategoryDetailDTO.class,
-                                                                subCategory.id,
-                                                                subCategory.name
-                                                        )
+                                                Projections.constructor(
+                                                        SubCategoryDetailDTO.class,
+                                                        subCategory.id,
+                                                        subCategory.name
                                                 )
                                         )
                                 )
                         )
                 );
-
-        return a;
     }
 }

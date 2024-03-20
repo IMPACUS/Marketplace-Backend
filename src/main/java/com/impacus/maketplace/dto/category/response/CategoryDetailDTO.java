@@ -17,6 +17,18 @@ public class CategoryDetailDTO {
                              List<SubCategoryDetailDTO> subCategories) {
         this.superCategoryId = superCategoryId;
         this.superCategoryName = superCategoryName;
-        this.subCategories = subCategories;
+        this.subCategories = validateSubCategories(subCategories) ? subCategories : null;
+    }
+
+    public boolean validateSubCategories(List<SubCategoryDetailDTO> subCategories) {
+        if (subCategories.size() == 1) {
+            SubCategoryDetailDTO subCategoryDetailDTO = subCategories.get(0);
+
+            if (subCategoryDetailDTO.getSubCategoryId() == null && subCategoryDetailDTO.getSubCategoryName() == null) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
