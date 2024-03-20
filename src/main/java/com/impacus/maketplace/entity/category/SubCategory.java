@@ -19,7 +19,7 @@ public class SubCategory extends BaseEntity {
     @Column(nullable = false)
     private Long superCategoryId;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Long thumbnailId;
 
     @Column(nullable = false, length = 10)
