@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
 import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
+import com.impacus.maketplace.dto.coupon.request.CouponUserIssuedDto;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
@@ -127,6 +128,13 @@ public class CouponController {
 
         return ApiResponseEntity.<CouponDetailDto>builder()
                 .data(result)
+                .build();
+    }
+
+    @PostMapping("/admin/issueCoupon")
+    public ApiResponseEntity<Object> issueCoupon(@RequestBody CouponUserIssuedDto couponUserIssuedDto) {
+
+        return ApiResponseEntity.builder()
                 .build();
     }
 
