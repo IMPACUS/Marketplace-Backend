@@ -5,7 +5,6 @@ import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.entity.coupon.CouponIssuanceClassificationData;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
 public class CouponListDto {
 
     private Long id;
@@ -51,6 +49,15 @@ public class CouponListDto {
     private String issuanceCouponSendEmail = "N";   // 쿠폰 발급 Email 발송
     private IssuanceStatus status;
     private LocalDateTime modifyAt;
+
+    // code To String
+    private String issuanceStandard;    // 지급 조건
+    private String expiredPeriod;      // 사용기간
+    private String numberOfIssuance;    // 발급수
+    private String manualOrAutomatic;   // 자동/수동
+    private String issuanceStatus;      // 발급 상태
+    private String recentActivity;      // 최근활동
+
 
     @QueryProjection
     public CouponListDto(Long id, String code, String name, String description, CouponBenefitClassification couponBenefitClassification, BigDecimal benefitAmount, CouponIssuanceClassification couponIssuanceClassification, CouponIssuanceClassificationData couponIssuanceClassificationData, CouponPaymentTarget couponPaymentTarget, Long firstComeFirstServedAmount, CouponIssuedTime couponIssuedTime, CouponExpireTime couponExpireTime, Long expireDays, CouponCoverage couponIssuanceCoverage, CouponCoverage couponUseCoverage, CouponStandardAmountType couponUsableStandardAmount, BigDecimal usableStandardMount, CouponStandardAmountType couponIssuanceStandardAmount, BigDecimal issueStandardMount, PaymentMethod paymentMethod, CouponIssuancePeriodType couponIssuancePeriod, LocalDate startIssuanceAt, LocalDate endIssuanceAt, Long numberOfWithPeriod, CouponIssuanceType couponIssuance, String loginCouponIssueNotification, String issuingCouponsSendSMS, String issuanceCouponSendEmail, IssuanceStatus status, LocalDateTime modifyAt) {

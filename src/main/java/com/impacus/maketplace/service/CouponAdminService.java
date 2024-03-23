@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
 import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
@@ -137,8 +138,40 @@ public class CouponAdminService {
     }
 
     public Page<CouponListDto> getCouponList(CouponSearchDto couponSearchDto, Pageable pageable) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         try {
-            return couponRepository.findAllCouponList(couponSearchDto, pageable);
+            Page<CouponListDto> dataList = couponRepository.findAllCouponList(couponSearchDto, pageable);
+            if (!couponSearchDto.getSearchNotStop()) {
+                dataList.forEach(data -> {
+                    if (data.getCouponIssuanceStandardAmount() == CouponStandardAmountType.CSA_1) {
+                        data.setIssuanceStandard(CouponStandardAmountType.CSA_1.getValue());
+                    } else if (data.getCouponIssuanceStandardAmount() == CouponStandardAmountType.CSA_2) {
+                        String number = String.valueOf(data.getIssueStandardMount().intValue());
+                        number = StringUtils.updateNumberFormat(number);
+                        String issuanceStandard = CouponStandardAmountType.CSA_2.getValue().replace("N", String.valueOf(number));
+                        data.setIssuanceStandard(issuanceStandard);
+                    }
+
+                    if (data.getCouponExpireTime() == CouponExpireTime.CET_2) {
+                        data.setExpiredPeriod(CouponExpireTime.CET_2.getValue());
+                    } else if (data.getCouponExpireTime() == CouponExpireTime.CET_1) {
+                        Long number = data.getExpireDays();
+                        String expiredPeriod = CouponExpireTime.CET_1.getValue().replace("N", String.valueOf(number));
+                        data.setExpiredPeriod(expiredPeriod);
+                    }
+
+                    if (data.getCouponPaymentTarget() == CouponPaymentTarget.CPT_1) {
+                        data.setNumberOfIssuance(CouponPaymentTarget.CPT_1.getValue());
+                    } else if (data.getCouponPaymentTarget() == CouponPaymentTarget.CPT_2) {
+                        data.setNumberOfIssuance(String.valueOf(data.getFirstComeFirstServedAmount()));
+                    }
+
+                    data.setManualOrAutomatic(data.getCouponIssuance().getValue());
+                    data.setIssuanceStatus(data.getStatus().getValue());
+                    data.setRecentActivity(dtf.format(data.getModifyAt()));
+                });
+            }
+            return dataList;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
