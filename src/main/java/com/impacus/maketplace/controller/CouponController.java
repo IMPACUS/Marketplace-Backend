@@ -4,11 +4,17 @@ import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
+import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
+import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.service.CouponAdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -96,6 +102,19 @@ public class CouponController {
         }
 
         return res;
+    }
+    /**
+     *  1.쿠폰 리스트 뿌리기
+     */
+    @PostMapping("/admin/couponList")
+    public ApiResponseEntity<Page<CouponListDto>> getCouponList(@RequestBody CouponSearchDto couponSearchDto,
+                                                                @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<CouponListDto> result = couponAdminService.getCouponList(couponSearchDto, pageable);
+
+        return ApiResponseEntity.<Page<CouponListDto>>builder()
+                .data(result)
+                .result(result.hasContent())
+                .build();
     }
 
     /** TODO: 기능 정의 사용자

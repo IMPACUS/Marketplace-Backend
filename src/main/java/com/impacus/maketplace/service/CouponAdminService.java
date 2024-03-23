@@ -4,22 +4,28 @@ import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
+import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
+import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponIssuanceClassificationData;
+import com.impacus.maketplace.repository.CouponUserRepository;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
-import com.impacus.maketplace.repository.CouponUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static com.impacus.maketplace.common.utils.CouponUtils.*;
+import static com.impacus.maketplace.common.utils.CouponUtils.fromCode;
+import static com.impacus.maketplace.common.utils.CouponUtils.getUUIDCouponCode;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +35,7 @@ public class CouponAdminService {
     private final CouponRepository couponRepository;
     private final CouponUserRepository couponUserRepository;
     private final CouponIssuanceClassificationDataRepository couponIssuanceClassificationDataRepository;
+    private final ObjectCopyHelper objectCopyHelper;
 
     public static final String COUPON_CODE = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
 
@@ -125,6 +132,14 @@ public class CouponAdminService {
             return null;
         } else {
             return couponRepository.findByAddCouponInfo(req);
+        }
+    }
+
+    public Page<CouponListDto> getCouponList(CouponSearchDto couponSearchDto, Pageable pageable) {
+        try {
+            return couponRepository.findAllCouponList(couponSearchDto, pageable);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
     }
 
