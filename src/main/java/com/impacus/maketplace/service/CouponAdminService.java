@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
 import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
+import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.entity.coupon.Coupon;
@@ -140,6 +141,18 @@ public class CouponAdminService {
             return couponRepository.findAllCouponList(couponSearchDto, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    public CouponDetailDto getCouponDetail(CouponSearchDto couponSearchDto) {
+        try {
+            Coupon data = couponRepository.findById(couponSearchDto.getId())
+                    .orElseThrow(() -> new CustomException(ErrorType.INVALID_COUPON_FORMAT));
+            CouponDetailDto result = objectCopyHelper.copyObject(data, CouponDetailDto.class);
+
+            return result;
+        } catch (Exception e) {
+            throw new CustomException(e);
         }
     }
 

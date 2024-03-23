@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
 import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
+import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.service.CouponAdminService;
@@ -36,17 +37,17 @@ public class CouponController {
      */
 
     /** TODO: 기능 정의 관리자
-     * 1. 쿠폰/포인트 지급 페이지에서 회원 검색
-     *      - 아이디와 성함을 입력 시
-     *      이메일, 프로필 이미지, 등급, 휴대폰번호, 레벨 포인트, 가입일이 나와야함
+//     * 1. 쿠폰/포인트 지급 페이지에서 회원 검색
+//     *      - 아이디와 성함을 입력 시
+//     *      이메일, 프로필 이미지, 등급, 휴대폰번호, 레벨 포인트, 가입일이 나와야함
      *
      * 2. 이메일, 카카오, 문자 알림 넣는 법 개발 하기                            -- 추후
      *
-     * 3. 쿠폰명을 누르면 사용가능한 쿠폰을 리스트업 하게 해야함
+//     * 3. 쿠폰명을 누르면 사용가능한 쿠폰을 리스트업 하게 해야함                        -- OK
      *
      * 4. 쿠폰명 클릭시금액과, 할인율 쿠폰 설명을 나타나게 해야함
      *
-     * 5. 수정하여 수동 지급 하는 건                                           -- 일단 보류
+//     * 5. 수정하여 수동 지급 하는 건                                           -- 일단 보류
      *
      * 6. 쿠폰 지급 하기 기능
      *
@@ -114,6 +115,18 @@ public class CouponController {
         return ApiResponseEntity.<Page<CouponListDto>>builder()
                 .data(result)
                 .result(result.hasContent())
+                .build();
+    }
+
+    /**
+     *  2. 쿠폰 등록 페이지에서 쿠폰 상세 내용 입력
+     */
+    @PostMapping("/admin/couponDetail")
+    public ApiResponseEntity<CouponDetailDto> getCouponDetail(@RequestBody CouponSearchDto couponSearchDto) {
+        CouponDetailDto result = couponAdminService.getCouponDetail(couponSearchDto);
+
+        return ApiResponseEntity.<CouponDetailDto>builder()
+                .data(result)
                 .build();
     }
 

@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CouponSearchDto {
+    private Long id;
+
     private String searchCouponName;    //  쿠폰이름검색
     private String orderStatus;         //  발급중, 발급됨, 발급중지 별로 검색
     private Integer searchCount;        //  N 개씩보기

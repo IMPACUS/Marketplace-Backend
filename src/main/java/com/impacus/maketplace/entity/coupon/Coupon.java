@@ -60,7 +60,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cet_code")
-    private CouponExpireTime couponExpireTime;  // 사용기간 [ 발급잉로 부터 N일, 무제한 ]
+    private CouponExpireTime couponExpireTime;  // 사용기간 [ 발급일로 부터 N일, 무제한 ]
 
     @Builder.Default
     private Long expireDays = 0L;    // 유효기간(일)
