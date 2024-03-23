@@ -48,10 +48,10 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cpt_code")
-    private CouponPaymentTarget couponPaymentTarget;    // 지급 대상 [ 모든 회원, 선찫순 ]
+    private CouponPaymentTarget couponPaymentTarget;    // 지급 대상 [ 모든 회원, 선착순 ]
 
-    @Builder.Default
     @Column(name = "first_come_first_served_count")
+    @Builder.Default
     private Long firstComeFirstServedAmount = 0L; // 선착순 발급 수
 
     @Enumerated(EnumType.STRING)
@@ -124,8 +124,9 @@ public class Coupon extends BaseEntity {
     @Builder.Default
     private String issuanceCouponSendEmail = "N";   // 쿠폰 발급 Email 발송
 
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Boolean isActive = false;    // 활성화 여부
+    private IssuanceStatus status = IssuanceStatus.ISSUING;    // 발급 상태
 
     @Version    // 낙관적 락 ( 여러 트랜잭션에서 유저에게 할당할 때 대비 => 최초 커밋만 인정)
     private Integer version;
