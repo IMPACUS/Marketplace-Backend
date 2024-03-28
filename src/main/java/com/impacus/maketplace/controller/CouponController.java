@@ -1,12 +1,20 @@
 package com.impacus.maketplace.controller;
 
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
-import com.impacus.maketplace.dto.coupon.request.UserInfoRequest;
-import com.impacus.maketplace.dto.coupon.response.UserInfoResponse;
+import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
+import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
+import com.impacus.maketplace.dto.coupon.response.CouponListDto;
+import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.service.CouponAdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,14 +76,44 @@ public class CouponController {
                 .build();
     }
 
+    /**
+     *  실제 쿠폰 및 포인트 지급 페이지 에서 사용할 정보뿌리기
+     *  User 쪽 Controller 로 빼야할지 의논 필요
+     */
     @PostMapping("/admin/userInfo")
-    public ApiResponseEntity<UserInfoResponse> getUserInfoForAdmin(@RequestBody UserInfoRequest userInfoRequest) {
+    public ApiResponseEntity<CouponUserInfoResponse> getUserInfoForAdmin(@RequestBody CouponUserInfoRequest userInfoRequest) {
         //TODO: 관리자 검증 로직 추가
 
-        return ApiResponseEntity.<UserInfoResponse>builder()
-                .result(true)
-                .message(null)
-                .data(null)
+
+        ApiResponseEntity<CouponUserInfoResponse> res = new ApiResponseEntity<>();
+
+        CouponUserInfoResponse userTargetInfo = couponAdminService.getUserTargetInfo(userInfoRequest);
+
+        if (userTargetInfo == null) {
+            res.setResult(false);
+            res.setMessage(ErrorType.NOT_EXISTED_EMAIL.getMsg());
+        } else {
+            if (userTargetInfo.getStatus().equals(UserStatus.BLOCKED)) {
+                res.setMessage(ErrorType.BLOCKED_EMAIL.getMsg());
+            } else if (userTargetInfo.getStatus().equals(UserStatus.DORMANT)) {
+                res.setMessage(ErrorType.NOT_ACTIVE_EMAIL.getMsg());
+            }
+            res.setData(userTargetInfo);
+        }
+
+        return res;
+    }
+    /**
+     *  1.쿠폰 리스트 뿌리기
+     */
+    @PostMapping("/admin/couponList")
+    public ApiResponseEntity<Page<CouponListDto>> getCouponList(@RequestBody CouponSearchDto couponSearchDto,
+                                                                @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
+        Page<CouponListDto> result = couponAdminService.getCouponList(couponSearchDto, pageable);
+
+        return ApiResponseEntity.<Page<CouponListDto>>builder()
+                .data(result)
+                .result(result.hasContent())
                 .build();
     }
 
