@@ -108,4 +108,15 @@ public class SubCategoryService {
         return subCategoryRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY));
     }
+
+
+    /**
+     * 2차 카테고리에 id이 존재하는지 확인하는 함수
+     *
+     * @param id
+     * @return
+     */
+    public boolean existsBySubCategoryId(Long id) {
+        return subCategoryRepository.existsById(id);
+    }
 }
