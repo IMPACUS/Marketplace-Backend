@@ -36,6 +36,8 @@ public enum ErrorType {
     INVALID_THUMBNAIL("24_INVALID_THUMBNAIL", "유효하지 않은 데이터에 대한 요청입니다."),
     NOT_EXISTED_SUB_CATEGORY("25_NOT_EXISTED_SUB_CATEGORY", "존재하지 않는 2차 카테고리 옵션입니다."),
     NOT_ACTIVE_EMAIL("026_NOT_ACTIVE_EMAIL", "휴면 회원 입니다."),
+    EXCEED_MAX_SUB_CATEGORY("27_EXCEED_MAX_SUB_CATEGORY", "생성할 수 있는 최대 2차 카테고리 수를 초과하였습니다."),
+    CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT("28_CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT", "상품이 존재하는 2차 카테고리는 삭제할 수 없습니다."),
 
     //TODO: 3X번 Point 관련 된것 작성하겠습니다!
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),

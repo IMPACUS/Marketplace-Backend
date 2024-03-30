@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SubCategoryRepository extends JpaRepository<SubCategory, Long> {
     boolean existsByName(String name);
+
+    int countBySuperCategoryId(Long superCategoryId);
 }

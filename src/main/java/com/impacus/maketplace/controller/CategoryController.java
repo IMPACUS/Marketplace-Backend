@@ -103,4 +103,18 @@ public class CategoryController {
                 .data(categoryDTOs)
                 .build();
     }
+
+    /**
+     * 2차 카테고리 삭제 API
+     *
+     * @return
+     */
+    @DeleteMapping("admin")
+    public ApiResponseEntity<Object> deleteSubCategory(
+            @RequestParam(name = "subCategoryId") List<Long> subCategoryIdList) {
+        subCategoryService.deleteSubCategory(subCategoryIdList);
+        return ApiResponseEntity
+                .builder()
+                .build();
+    }
 }
