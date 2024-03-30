@@ -3,10 +3,6 @@ package com.impacus.maketplace.common.enumType.category;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Getter
 @RequiredArgsConstructor
 public enum SubCategory {
@@ -32,10 +28,4 @@ public enum SubCategory {
     private final int code;
     private final SuperCategory superCategory;
     private final String value;
-
-    public static List<SubCategory> getSubCategoryBySuperCategory(SuperCategory superCategory) {
-        return Arrays.stream(SubCategory.values())
-                .filter(sc -> sc.getSuperCategory().equals(superCategory))
-                .collect(Collectors.toList());
-    }
 }

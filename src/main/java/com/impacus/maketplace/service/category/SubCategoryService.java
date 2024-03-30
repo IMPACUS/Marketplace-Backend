@@ -9,22 +9,28 @@ import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.entity.category.SubCategory;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
+import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SubCategoryService {
     private static final int THUMBNAIL_SIZE_LIMIT = 10800; // 60 픽셀 * 60픽셀
+    private static final int MAX_SUBCATEGORY_CNT = 20;
     private static final String THUMBNAIL_IMAGE_DIRECTORY = "subCategoryThumbnail";
     private final SubCategoryRepository subCategoryRepository;
     private final SuperCategoryService superCategoryService;
     private final AttachFileService attachFileService;
     private final ObjectCopyHelper objectCopyHelper;
+    private final ProductRepository productRepository;
 
     /**
      * 2차 카테고리 추가하는 함수
@@ -47,6 +53,10 @@ public class SubCategoryService {
             // 2. 1차 카테고리 존재 확인
             if (!superCategoryService.existsBySuperCategoryId(superCategoryId)) {
                 throw new CustomException(ErrorType.NOT_EXISTED_SUPER_CATEGORY);
+            } else {
+                if (countBySuperCategoryId(superCategoryId) > MAX_SUBCATEGORY_CNT) {
+                    throw new CustomException(ErrorType.EXCEED_MAX_SUB_CATEGORY);
+                }
             }
 
             // 3. 썸네일 용량 확인 & 저장
@@ -118,5 +128,36 @@ public class SubCategoryService {
      */
     public boolean existsBySubCategoryId(Long id) {
         return subCategoryRepository.existsById(id);
+    }
+
+    private int countBySuperCategoryId(Long superCategoryId) {
+        return subCategoryRepository.countBySuperCategoryId(superCategoryId);
+    }
+
+    /**
+     * subCategory 이중 삭제
+     *
+     * @param subCategoryIdList
+     * @return
+     */
+    @Transactional
+    public void deleteSubCategory(List<Long> subCategoryIdList) {
+        try {
+            // 1. ShoppingBasket 존재 확인
+            List<SubCategory> subCategories = new ArrayList<>();
+            for (Long subCategoryId : subCategoryIdList) {
+                if (productRepository.existsByCategoryId(subCategoryId)) {
+                    throw new CustomException(ErrorType.CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT);
+                }
+
+                SubCategory subCategory = findBySubCategoryId(subCategoryId);
+                subCategories.add(subCategory);
+            }
+
+            // 2. 삭제
+            subCategoryRepository.deleteAllInBatch(subCategories);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }
