@@ -1,12 +1,14 @@
 package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
+import com.impacus.maketplace.dto.coupon.request.CouponUpdateDto;
+import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
+import com.impacus.maketplace.repository.coupon.CouponRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.math.BigDecimal;
+import org.springframework.test.annotation.Rollback;
 
 @SpringBootTest
 public class CouponServiceTest {
@@ -16,6 +18,9 @@ public class CouponServiceTest {
 
     @Autowired
     private CouponAdminService couponAdminService;
+
+    @Autowired
+    private CouponRepository couponRepository;
 
     // 구분 상세 데이터 insert
 //    @Test
@@ -68,30 +73,28 @@ public class CouponServiceTest {
 
     @Test
     void addCouponForAdmin() {
-        BigDecimal benefitAmount = BigDecimal.valueOf(15000);
-        BigDecimal usableStandardMount = BigDecimal.valueOf(30000);
-        BigDecimal issueStandardMount = BigDecimal.valueOf(100000);
 
         CouponIssuedDto newCoupon = CouponIssuedDto.builder()
                 .name("테스트 쿠퐆 V1")
                 .desc("이것은 테스트 쿠폰V1 입니다.")
                 .couponBenefitClassificationType("amount") // 원
-                .benefitAmount(benefitAmount)
+                .benefitAmount(15000)
                 .couponIssuanceClassificationType("CIC_2") //유저 일반
                 .couponIssuanceClassificationData(15L)
                 .couponPaymentTargetType("CPT_1") // 모든 회원
                 .firstComeFirstServedAmount(null)
                 .couponIssuedTimeType("CIT_2") // 즉시 발급
                 .couponExpireTimeType("CET_1") // 발급일로 부터 N일
+                .couponType("CT_2")
                 .expireDays(7L)
                 .numberOfWithPeriod(3L)
                 .couponIssuanceCoverageType("CC_1") // 모든 브랜드
                 .couponUseCoverageType("CC_1")  // 모든 브랜드
                 .couponUsableStandardAmountType("CSA_2") // N원 이상 구매시 사용 가능
-                .usableStandardMount(usableStandardMount)
+                .usableStandardMount(30000)
                 .paymentMethodType("1") // 제한 없음
                 .couponIssuanceStandardAmount("CSA_2") // N원 이상 구매 쿠폰 발급
-                .issueStandardMount(issueStandardMount)
+                .issueStandardMount(10000)
                 .couponIssuancePeriodType("CIP_1")  // 지정 기간 설정
                 .startIssuanceAt("2024-07-01")
                 .endIssuanceAt("2024-09-30")
@@ -102,5 +105,19 @@ public class CouponServiceTest {
         Boolean result = couponAdminService.addCoupon(newCoupon);
         System.out.println(result);
 
+    }
+
+    @Test
+    @Rollback(value = false)
+    void updateTest() {
+        CouponUpdateDto updateDto = CouponUpdateDto.builder()
+                .couponBenefitClassificationType("percent").build();
+        couponAdminService.updateCouponDetail(updateDto);
+    }
+
+    @Test
+    void showTest() {
+        Coupon coupon = couponRepository.findById(1L).get();
+        System.out.println(coupon);
     }
 }

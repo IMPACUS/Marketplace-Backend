@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -25,7 +23,7 @@ public class CouponDetailDto {
     private CouponExpireTime couponExpireTime;
     private Long expireDays;
     private CouponStandardAmountType couponUsableStandardAmount;
-    private BigDecimal usableStandardMount;
+    private int usableStandardMount;
     private CouponCoverage couponUseCoverage;
 
 

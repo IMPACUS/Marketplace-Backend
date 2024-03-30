@@ -3,10 +3,7 @@ package com.impacus.maketplace.controller;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
-import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
-import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
-import com.impacus.maketplace.dto.coupon.request.CouponUserIssuedDto;
+import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
@@ -132,9 +129,16 @@ public class CouponController {
     }
 
     @PostMapping("/admin/issueCoupon")
-    public ApiResponseEntity<Object> issueCoupon(@RequestBody CouponUserIssuedDto couponUserIssuedDto) {
-
+    public ApiResponseEntity<Object> issuingCoupon(@RequestBody CouponUserIssuedDto couponUserIssuedDto) {
         return ApiResponseEntity.builder()
+                .build();
+    }
+
+    @PostMapping("/admin/updateCoupon")
+    public ApiResponseEntity<Object> updateCoupon(@RequestBody CouponUpdateDto couponUpdateDto) {
+        boolean result = couponAdminService.updateCouponDetail(couponUpdateDto);
+        return ApiResponseEntity.builder()
+                .result(result)
                 .build();
     }
 

@@ -1,13 +1,9 @@
 package com.impacus.maketplace.dto.coupon.request;
 
-import com.impacus.maketplace.common.enumType.PaymentMethod;
-import com.impacus.maketplace.common.enumType.coupon.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -19,12 +15,13 @@ public class CouponIssuedDto {
     private String name;
     private String desc;
     private String couponBenefitClassificationType;
-    private BigDecimal benefitAmount;
+    private int benefitAmount;
     private String couponIssuanceClassificationType;
     private Long couponIssuanceClassificationData;
     private String couponPaymentTargetType;
     private Long firstComeFirstServedAmount;
     private String couponIssuedTimeType;
+    private String couponType;
     private String couponExpireTimeType;
     private Long expireDays;
 
@@ -32,10 +29,10 @@ public class CouponIssuedDto {
     private String couponUseCoverageType;
 
     private String couponUsableStandardAmountType;
-    private BigDecimal usableStandardMount;
+    private int usableStandardMount;
 
     private String couponIssuanceStandardAmount;
-    private BigDecimal issueStandardMount;
+    private int issueStandardMount;
 
     private String paymentMethodType;
 
@@ -54,9 +51,4 @@ public class CouponIssuedDto {
     private String issuanceCouponSendEmail = "N";   // 쿠폰 발급 Email 발송
 
     private Boolean isActive = false;
-
-//    public CouponBenefitClassification getCouponTypeEnum() {
-//        return CouponBenefitClassification.fromCode(this.couponType);
-//    }
-
 }
