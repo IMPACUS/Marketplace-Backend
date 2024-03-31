@@ -1,8 +1,6 @@
 package com.impacus.maketplace.controller.product;
 
-import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.common.response.CategoryDTO;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
@@ -105,15 +103,15 @@ public class ProductController {
     /**
      * 앱용 소비자가 전체 상품 조회 API
      *
-     * @param category
+     * @param subCategoryId
      * @param pageable
      * @return
      */
     @GetMapping("")
     public ApiResponseEntity<Object> getAllProductForApp(
-            @RequestParam(name = "category", required = false) SubCategory category,
+            @RequestParam(name = "subCategoryId", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(category, pageable);
+        Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
         return ApiResponseEntity
                 .builder()
                 .data(productDTOList)
@@ -166,15 +164,6 @@ public class ProductController {
         return ApiResponseEntity
                 .builder()
                 .data(productDetailDTO)
-                .build();
-    }
-
-    @GetMapping("/category")
-    public ApiResponseEntity<Object> getAllCategory() {
-        List<CategoryDTO> categoryDTOS = enumService.getAllCategory();
-        return ApiResponseEntity
-                .builder()
-                .data(categoryDTOS)
                 .build();
     }
 
