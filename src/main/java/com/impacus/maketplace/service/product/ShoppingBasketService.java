@@ -74,7 +74,6 @@ public class ShoppingBasketService {
     /**
      * 장바구니에 상품의 수량을 수정하는 함수
      *
-     * @param userId
      * @param shoppingBasketId
      * @param shoppingBasketRequest
      * @return

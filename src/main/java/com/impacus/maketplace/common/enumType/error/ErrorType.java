@@ -30,13 +30,22 @@ public enum ErrorType {
     NOT_EXISTED_SHOPPING_CART("019_NOT_EXISTED_SHOPPING_CART", "장바구니 데이터가 존재하지 않습니다."),
     FAIL_TO_APPLE_LOGIN("020_FAIL_TO_APPLE_LOGIN", "apple 로그인에 실패하셨습니다."),
     NOT_EXISTED_PRODUCT_OPTION("021_NOT_EXISTED_PRODUCT_OPTION", "존재하지 않는 상품 옵션입니다"),
-    NOT_ACTIVE_EMAIL("022_NOT_ACTIVE_EMAIL", "휴면 회원 입니다."),
+    DUPLICATED_SUPER_CATEGORY("022_DUPLICATED_SUPER_CATEGORY", "중복된 1차 카테고리 명이 존재합나디."),
+    NOT_EXISTED_SUPER_CATEGORY("023_NOT_EXISTED_SUPER_CATEGORY", "존재하지 않는 1차 카테고리 옵션입니다."),
+    INVALID_THUMBNAIL("024_INVALID_THUMBNAIL", "유효하지 않은 데이터에 대한 요청입니다."),
+    NOT_EXISTED_SUB_CATEGORY("205_NOT_EXISTED_SUB_CATEGORY", "존재하지 않는 2차 카테고리 옵션입니다."),
+    NOT_ACTIVE_EMAIL("026_NOT_ACTIVE_EMAIL", "휴면 회원 입니다."),
+    EXCEED_MAX_SUB_CATEGORY("027_EXCEED_MAX_SUB_CATEGORY", "생성할 수 있는 최대 2차 카테고리 수를 초과하였습니다."),
+    CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT("028_CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT", "상품이 존재하는 2차 카테고리는 삭제할 수 없습니다."),
+    CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT("029_CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT", "상품이 존재하는 1차 카테고리는 삭제할 수 없습니다."),
 
     //TODO: 3X번 Point 관련 된것 작성하겠습니다!
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),
 
     //TODO: 4X번 부터 쿠폰 관련
     INVALID_COUPON_FORMAT("040_INVALID_COUPON_FORMAT", "유효하지 않은 쿠폰입니다.\n쿠폰코드를 다시 한번 확인해주세요"),
+
+    DUPLICATED_SUB_CATEGORY("050_DUPLICATED_SUB_CATEGORY", "중복된 2차 카테고리 명이 존재합나디."),
 
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),

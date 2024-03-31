@@ -28,7 +28,30 @@ public class AttachFileService {
     private final AttachFileGroupService attachFileGroupService;
 
     /**
-     * MultipartFile을 S3에 업로드하고, AttachFile 객체로 생성하는 함수
+     * (일대일 관계로) MultipartFile을 S3에 업로드하고, AttachFile 객체로 생성하는 함수
+     *
+     * @param file
+     * @param directoryPath
+     * @return
+     */
+    @Transactional
+    public AttachFile uploadFileAndAddAttachFile(MultipartFile file, String directoryPath) throws IOException {
+        String fileName = s3Service.uploadFileInS3(file, directoryPath);
+
+        // 1. AttachFile 저장
+        AttachFile newAttachFile = AttachFile.builder()
+                .attachFileName(fileName)
+                .attachFileSize(file.getSize())
+                .originalFileName(file.getOriginalFilename())
+                .attachFileExt(StringUtils.getFileExtension(file.getOriginalFilename()).orElse(null))
+                .build();
+        attachFileRepository.save(newAttachFile);
+
+        return newAttachFile;
+    }
+
+    /**
+     * (다대다 관계로) MultipartFile을 S3에 업로드하고, AttachFile 객체로 생성하는 함수
      *
      * @param file
      * @param directoryPath

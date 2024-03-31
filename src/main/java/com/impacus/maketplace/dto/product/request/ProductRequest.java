@@ -2,7 +2,6 @@ package com.impacus.maketplace.dto.product.request;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ProductStatus;
-import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
@@ -37,7 +36,7 @@ public class ProductRequest {
     private DeliveryType deliveryType;
 
     @NotNull
-    private SubCategory categoryType;
+    private Long categoryId;
 
     @NotNull
     private int deliveryFee;
