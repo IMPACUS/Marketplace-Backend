@@ -107,4 +107,8 @@ public class SuperCategoryService {
     public List<CategoryDetailDTO> findAllCategory() {
         return superCategoryRepository.findAllCategory();
     }
+
+    public void deleteAllInBatch(List<SuperCategory> superCategories) {
+        superCategoryRepository.deleteAllInBatch(superCategories);
+    }
 }

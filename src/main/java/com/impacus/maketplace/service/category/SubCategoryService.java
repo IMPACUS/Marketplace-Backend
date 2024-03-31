@@ -7,6 +7,7 @@ import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
 import com.impacus.maketplace.dto.category.request.SubCategoryRequest;
 import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.entity.category.SubCategory;
+import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.product.ProductRepository;
@@ -135,7 +136,7 @@ public class SubCategoryService {
     }
 
     /**
-     * subCategory 이중 삭제
+     * 2차 카테고리 다중 삭제
      *
      * @param subCategoryIdList
      * @return
@@ -143,7 +144,7 @@ public class SubCategoryService {
     @Transactional
     public void deleteSubCategory(List<Long> subCategoryIdList) {
         try {
-            // 1. ShoppingBasket 존재 확인
+            // 1. 2차 카테고리 존재 확인
             List<SubCategory> subCategories = new ArrayList<>();
             for (Long subCategoryId : subCategoryIdList) {
                 if (productRepository.existsByCategoryId(subCategoryId)) {
@@ -156,6 +157,36 @@ public class SubCategoryService {
 
             // 2. 삭제
             subCategoryRepository.deleteAllInBatch(subCategories);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 1차 카테고리 다중 삭제
+     *
+     * @param superCategoryIdList
+     * @return
+     */
+    @Transactional
+    public void deleteSuperCategory(List<Long> superCategoryIdList) {
+        try {
+            // 1. 2차 카테고리 존재 확인
+            List<SuperCategory> superCategories = new ArrayList<>();
+            List<SubCategory> subCategories = new ArrayList<>();
+            for (Long superCategoryId : superCategoryIdList) {
+                if (productRepository.existsBySuperCategoryId(superCategoryId)) {
+                    throw new CustomException(ErrorType.CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT);
+                }
+
+                SuperCategory superCategory = superCategoryService.findBySuperCategoryId(superCategoryId);
+                subCategories.addAll(subCategoryRepository.findBySuperCategoryId(superCategoryId));
+                superCategories.add(superCategory);
+            }
+
+            // 2. 삭제
+            subCategoryRepository.deleteAllInBatch(subCategories);
+            superCategoryService.deleteAllInBatch(superCategories);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

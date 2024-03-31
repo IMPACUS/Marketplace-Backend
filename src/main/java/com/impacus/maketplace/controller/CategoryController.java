@@ -109,10 +109,24 @@ public class CategoryController {
      *
      * @return
      */
-    @DeleteMapping("admin")
+    @DeleteMapping("admin/sub-category")
     public ApiResponseEntity<Object> deleteSubCategory(
             @RequestParam(name = "subCategoryId") List<Long> subCategoryIdList) {
         subCategoryService.deleteSubCategory(subCategoryIdList);
+        return ApiResponseEntity
+                .builder()
+                .build();
+    }
+
+    /**
+     * 1차 카테고리 삭제 API
+     *
+     * @return
+     */
+    @DeleteMapping("admin/super-category")
+    public ApiResponseEntity<Object> deleteSuperCategory(
+            @RequestParam(name = "superCategoryId") List<Long> superCategoryIdList) {
+        subCategoryService.deleteSuperCategory(superCategoryIdList);
         return ApiResponseEntity
                 .builder()
                 .build();
