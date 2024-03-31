@@ -40,6 +40,7 @@ public class Product extends BaseEntity {
     private DeliveryType deliveryType; // 배송 타입
 
     @Column(nullable = false)
+    @ColumnDefault("1")
     private Long categoryId; // 카테고리 id
 
     @Column(nullable = false)
