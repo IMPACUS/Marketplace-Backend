@@ -8,6 +8,7 @@ import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.service.CouponAdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -60,7 +61,7 @@ public class CouponController {
      */
 
     @PostMapping("/admin/register")
-    public ApiResponseEntity<Boolean> registerCouponForAdmin(@RequestBody CouponIssuedDto couponIssuedDto) {
+    public ApiResponseEntity<Boolean> registerCouponForAdmin(@Valid @RequestBody CouponIssuedDto couponIssuedDto) {
         //TODO: 관리자 검증 로직 추가
         Boolean result = couponAdminService.addCoupon(couponIssuedDto);
 
@@ -135,7 +136,7 @@ public class CouponController {
     }
 
     @PostMapping("/admin/updateCoupon")
-    public ApiResponseEntity<Object> updateCoupon(@RequestBody CouponUpdateDto couponUpdateDto) {
+    public ApiResponseEntity<Object> updateCoupon(@Valid @RequestBody CouponUpdateDto couponUpdateDto) {
         boolean result = couponAdminService.updateCouponDetail(couponUpdateDto);
         return ApiResponseEntity.builder()
                 .result(result)

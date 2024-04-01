@@ -7,6 +7,7 @@ import com.impacus.maketplace.service.CouponAdminService;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -44,5 +45,23 @@ public class CouponUtils {
     public interface CommonFieldInterface {
         String getCode();
         String getValue();
+    }
+
+    public static String generateCode() {
+        final int CHAR_LENGTH = 8;
+
+        final char[] charTable = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+                'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+                'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',};
+
+        Random random = new Random(System.currentTimeMillis());
+        int charSize = charTable.length;
+        StringBuffer buffer = new StringBuffer();
+
+        for (int i =0; i < charSize; i++) {
+            buffer.append(charTable[random.nextInt(charSize)]);
+        }
+        return buffer.toString();
+
     }
 }

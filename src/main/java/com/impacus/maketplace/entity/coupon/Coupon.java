@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Builder
 @ToString(exclude = "couponUsers")
 public class Coupon extends BaseEntity {
@@ -67,7 +67,7 @@ public class Coupon extends BaseEntity {
     private CouponExpireTime couponExpireTime;  // 사용기간 [ 발급일로 부터 N일, 무제한 ]
 
     @Builder.Default
-    private Long expireDays = 0L;    // 유효기간(일)
+    private Long expireDays = -1L;    // 유효기간(일)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cc_issue_code")

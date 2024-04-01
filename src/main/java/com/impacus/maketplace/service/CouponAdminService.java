@@ -3,6 +3,7 @@ package com.impacus.maketplace.service;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
@@ -22,11 +23,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import static com.impacus.maketplace.common.utils.CouponUtils.fromCode;
-import static com.impacus.maketplace.common.utils.CouponUtils.getUUIDCouponCode;
 
 @Service
 @RequiredArgsConstructor
@@ -49,85 +50,112 @@ public class CouponAdminService {
 
         boolean result = true;
 
-        try {
-            CouponBenefitClassification benefitClassificationType   // 혜택 구분 [ 원, % ]
-                    = fromCode(CouponBenefitClassification.class, req.getCouponBenefitClassificationType());
-            CouponIssuanceClassification issuanceClassificationType //  벌굽 구분 [ 그린 태그, 유저 일반, 신규고객 첫 주문 ]
-                    = fromCode(CouponIssuanceClassification.class, req.getCouponIssuanceClassificationType());
-            CouponPaymentTarget paymentTargetType   //  지급 대상 [ 모든 회원 , 선착순 ]
-                    = fromCode(CouponPaymentTarget.class, req.getCouponPaymentTargetType());
-            CouponIssuedTime issuedTimeType //  발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
-                    = fromCode(CouponIssuedTime.class, req.getCouponIssuedTimeType());
-            CouponExpireTime expireTimeType //  사용기간 [ 발급잉로 부터 N일, 무제한 ]
-                    = fromCode(CouponExpireTime.class, req.getCouponExpireTimeType());
-            CouponCoverage issuanceCoverageType //  발급 적용 범위 [ 모든상품/브랜드, 특정 브랜드]
-                    = fromCode(CouponCoverage.class, req.getCouponIssuanceCoverageType());
-            CouponCoverage useCoverageType  //  쿠폰 사용 범위 [ 모든상품/브랜드, 특정 브랜드]
-                    = fromCode(CouponCoverage.class, req.getCouponUseCoverageType());
-            CouponStandardAmountType usableStandardAmountType   //  쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-                    = fromCode(CouponStandardAmountType.class, req.getCouponUsableStandardAmountType());
-            CouponStandardAmountType issuanceStandardAmountType //  쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-                    = fromCode(CouponStandardAmountType.class, req.getCouponIssuanceStandardAmount());
-            CouponIssuancePeriodType issuancePeriodType //  기간 설정 [ 기간내 N 회 이상 주문시 , 지정 기간 없음 (지속적인 기준) ]
-                    = fromCode(CouponIssuancePeriodType.class, req.getCouponIssuancePeriodType());
-            CouponIssuanceType issuanceType //  자동 / 수동 발급 [ 자동, 수동 ]
-                    = fromCode(CouponIssuanceType.class, req.getCouponIssuanceType());
-            CouponType couponType           // 쿠폰 타입 [ 이벤트, 지급형 ]
-                    = fromCode(CouponType.class, req.getCouponType());
+        CouponBenefitClassification benefitClassificationType   // 혜택 구분 [ 원, % ]
+                = fromCode(CouponBenefitClassification.class, req.getCouponBenefitClassificationType());
+        CouponIssuanceClassification issuanceClassificationType //  벌굽 구분 [ 그린 태그, 유저 일반, 신규고객 첫 주문 ]
+                = fromCode(CouponIssuanceClassification.class, req.getCouponIssuanceClassificationType());
+        CouponPaymentTarget paymentTargetType   //  지급 대상 [ 모든 회원 , 선착순 ]
+                = fromCode(CouponPaymentTarget.class, req.getCouponPaymentTargetType());
+        CouponIssuedTime issuedTimeType //  발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
+                = fromCode(CouponIssuedTime.class, req.getCouponIssuedTimeType());
+        CouponExpireTime expireTimeType //  사용기간 [ 발급잉로 부터 N일, 무제한 ]
+                = fromCode(CouponExpireTime.class, req.getCouponExpireTimeType());
+        CouponCoverage issuanceCoverageType //  발급 적용 범위 [ 모든상품/브랜드, 특정 브랜드]
+                = fromCode(CouponCoverage.class, req.getCouponIssuanceCoverageType());
+        CouponCoverage useCoverageType  //  쿠폰 사용 범위 [ 모든상품/브랜드, 특정 브랜드]
+                = fromCode(CouponCoverage.class, req.getCouponUseCoverageType());
+        CouponStandardAmountType usableStandardAmountType   //  쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+                = fromCode(CouponStandardAmountType.class, req.getCouponUsableStandardAmountType());
+        CouponStandardAmountType issuanceStandardAmountType //  쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+                = fromCode(CouponStandardAmountType.class, req.getCouponIssuanceStandardAmount());
+        CouponIssuancePeriodType issuancePeriodType //  기간 설정 [ 기간내 N 회 이상 주문시 , 지정 기간 없음 (지속적인 기준) ]
+                = fromCode(CouponIssuancePeriodType.class, req.getCouponIssuancePeriodType());
+        CouponIssuanceType issuanceType //  자동 / 수동 발급 [ 자동, 수동 ]
+                = fromCode(CouponIssuanceType.class, req.getCouponIssuanceType());
+        CouponType couponType           // 쿠폰 타입 [ 이벤트, 지급형 ]
+                = fromCode(CouponType.class, req.getCouponType());
 
 
-            Coupon newCoupon = Coupon.builder()
-                    .name(req.getName())
-                    .description(req.getDesc())
-                    .couponBenefitClassification(benefitClassificationType)
-                    .benefitAmount(req.getBenefitAmount())
-                    .couponIssuanceClassification(issuanceClassificationType)
-                    .couponPaymentTarget(paymentTargetType)
-                    // 지급 대상 중 선착순 일경우 선착순 명수
-                    .firstComeFirstServedAmount(req.getFirstComeFirstServedAmount())
-                    .couponIssuedTime(issuedTimeType)
-                    .couponExpireTime(expireTimeType)
-                    .couponType(couponType)
-                    .couponIssuanceCoverage(issuanceCoverageType)
-                    .couponUseCoverage(useCoverageType)
-                    .couponUsableStandardAmountType(usableStandardAmountType)
-                    .usableStandardAmount(req.getUsableStandardMount())
-                    .numberOfWithPeriod(req.getNumberOfWithPeriod())
-                    .couponIssuanceStandardAmount(issuanceStandardAmountType)
-                    .issueStandardMount(req.getIssueStandardMount())
-                    .couponIssuancePeriod(issuancePeriodType)
-                    .couponIssuance(issuanceType)
-                    .code(getUUIDCouponCode())
-                    .loginCouponIssueNotification(req.getLoginCouponIssueNotification())
-                    .issuingCouponsSendSMS(req.getIssuingCouponsSendSMS())
-                    .issuanceCouponSendEmail(req.getIssuingCouponsSendSMS())
-                    .build();
+        Coupon coupon = new Coupon();
+        coupon.setName(req.getName());
+        coupon.setDescription(req.getDesc());
+        coupon.setCouponBenefitClassification(benefitClassificationType);
+        coupon.setBenefitAmount(req.getBenefitAmount());
 
-            // 쿠폰 발급 구분 중 구분 상세
-            if (req.getCouponIssuanceClassificationData() != null) {
-                CouponIssuanceClassificationData couponIssuanceClassificationData =
-                        couponIssuanceClassificationDataRepository.findById(req.getCouponIssuanceClassificationData())
-                                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_BRAND));
-                newCoupon.setCouponIssuanceClassificationData(couponIssuanceClassificationData);
+        coupon.setCouponIssuanceClassification(issuanceClassificationType);
+        switch (issuanceClassificationType) {
+            case CIC_1, CIC_2 -> {
+                CouponIssuanceClassificationData couponIssuanceClassificationData = couponIssuanceClassificationDataRepository.findById(req.getCouponIssuanceClassificationData())
+                        .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_ISSUANCE));
+                coupon.setCouponIssuanceClassificationData(couponIssuanceClassificationData);
             }
-
-            // 기간 설정 상세
-            switch (issuancePeriodType) {
-                case CIP_1 -> { // 지정 기간 설정
-                    newCoupon.setStartIssuanceAt(LocalDate.parse(req.getStartIssuanceAt(), DateTimeFormatter.ISO_DATE));
-                    newCoupon.setEndIssuanceAt(LocalDate.parse(req.getEndIssuanceAt(), DateTimeFormatter.ISO_DATE));
-                    newCoupon.setNumberOfWithPeriod(req.getNumberOfWithPeriod());
-                }
-                case CIP_2 -> { // 지정 기간 없음 (지속적인 기준)
-                    newCoupon.setStartIssuanceAt(null);
-                    newCoupon.setEndIssuanceAt(null);
-                    newCoupon.setNumberOfWithPeriod(0L);
-                }
+            case CIC_3, CIC_4 -> {
+                // TODO: 추후 개발 예정
             }
-            couponRepository.save(newCoupon);
-        } catch (Exception e) {
-            return false;
         }
+        coupon.setCouponPaymentTarget(paymentTargetType);
+        if (paymentTargetType == CouponPaymentTarget.CPT_2 && req.getFirstComeFirstServedAmount() > 0) {
+            coupon.setFirstComeFirstServedAmount(req.getFirstComeFirstServedAmount());
+        } else {
+            coupon.setFirstComeFirstServedAmount(-1L);
+        }
+
+        coupon.setCouponIssuedTime(issuedTimeType);
+        coupon.setCouponType(couponType);
+
+        coupon.setCouponExpireTime(expireTimeType);
+        if (expireTimeType == CouponExpireTime.CET_1 && req.getExpireDays() > 0) {
+            coupon.setExpireDays(req.getExpireDays());
+        } else {
+            coupon.setExpireDays(-1L);
+        }
+
+        //TODO: Temp Fix
+        coupon.setCouponIssuanceCoverage(issuanceCoverageType);
+        coupon.setCouponUseCoverage(useCoverageType);
+        //
+
+        coupon.setCouponUsableStandardAmountType(usableStandardAmountType);
+        if (usableStandardAmountType == CouponStandardAmountType.CSA_2 && req.getUsableStandardMount() > 0) {
+            coupon.setUsableStandardAmount(req.getUsableStandardMount());
+        } else {
+            coupon.setUsableStandardAmount(-1);
+        }
+
+        coupon.setCouponIssuanceStandardAmount(issuanceStandardAmountType);
+        if (issuanceStandardAmountType == CouponStandardAmountType.CSA_2 && req.getIssueStandardMount() > 0) {
+            coupon.setIssueStandardMount(req.getIssueStandardMount());
+        } else {
+            coupon.setIssueStandardMount(-1);
+        }
+
+        coupon.setCouponIssuancePeriod(issuancePeriodType);
+        if (issuancePeriodType == CouponIssuancePeriodType.CIP_1) {
+            if (req.getStartIssuanceAt() != null && req.getEndIssuanceAt() != null && req.getNumberOfWithPeriod() != null) {
+                LocalDate startAt = LocalDate.parse(req.getStartIssuanceAt(), DateTimeFormatter.ISO_DATE);
+                coupon.setStartIssuanceAt(startAt);
+                LocalDate endAt = LocalDate.parse(req.getEndIssuanceAt(), DateTimeFormatter.ISO_DATE);
+                coupon.setEndIssuanceAt(endAt);
+
+                coupon.setNumberOfWithPeriod(req.getNumberOfWithPeriod());
+            }
+        } else {
+            coupon.setStartIssuanceAt(null);
+            coupon.setEndIssuanceAt(null);
+            coupon.setNumberOfWithPeriod(req.getNumberOfWithPeriod());
+        }
+
+        coupon.setCouponIssuance(issuanceType);
+
+        coupon.setLoginCouponIssueNotification(req.getLoginCouponIssueNotification());
+        coupon.setIssuingCouponsSendSMS(req.getIssuingCouponsSendSMS());
+        coupon.setIssuanceCouponSendEmail(req.getIssuanceCouponSendEmail());
+
+        String couponCode = CouponUtils.generateCode();
+        coupon.setCode(couponCode);
+
+        couponRepository.save(coupon);
+
         return result;
     }
 
@@ -217,48 +245,77 @@ public class CouponAdminService {
         CouponType couponType           // 쿠폰 타입 [ 이벤트, 지급형 ]
                 = fromCode(CouponType.class, req.getCouponType());
 
-            Coupon coupon = couponRepository.findById(req.getId())
-                    .orElseThrow(() -> new CustomException(ErrorType.INVALID_COUPON_FORMAT));
+        Coupon coupon = couponRepository.findById(req.getId())
+                .orElseThrow(() -> new CustomException(ErrorType.INVALID_COUPON_FORMAT));
 
+        coupon.setCouponBenefitClassification(benefitClassificationType);
+        coupon.setBenefitAmount(req.getBenefitAmount());
 
-            coupon.setCouponBenefitClassification(benefitClassificationType);
-            coupon.setBenefitAmount(req.getBenefitAmount());
-            coupon.setCouponIssuanceClassification(issuanceClassificationType);
-            if (req.getCouponIssuanceClassificationData() != null) {
-                CouponIssuanceClassificationData couponIssuanceClassificationData =
-                        couponIssuanceClassificationDataRepository.findById(req.getCouponIssuanceClassificationData())
-                                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_BRAND));
+        coupon.setCouponIssuanceClassification(issuanceClassificationType);
+        switch (issuanceClassificationType) {
+            case CIC_1, CIC_2 -> {
+                CouponIssuanceClassificationData couponIssuanceClassificationData = couponIssuanceClassificationDataRepository.findById(req.getCouponIssuanceClassificationData())
+                        .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_ISSUANCE));
                 coupon.setCouponIssuanceClassificationData(couponIssuanceClassificationData);
             }
-            coupon.setCouponPaymentTarget(paymentTargetType);
-            coupon.setFirstComeFirstServedAmount(req.getFirstComeFirstServedAmount());
-            coupon.setCouponIssuedTime(issuedTimeType);
-            coupon.setCouponType(couponType);
-            coupon.setCouponIssuanceCoverage(issuanceCoverageType);
-            coupon.setCouponUseCoverage(useCoverageType);
-            coupon.setCouponUsableStandardAmountType(usableStandardAmountType);
-            coupon.setCouponIssuanceStandardAmount(issuanceStandardAmountType);
-            coupon.setIssueStandardMount(req.getIssueStandardAmount());
-            coupon.setCouponIssuancePeriod(issuancePeriodType);
-            // 기간 설정 상세
-            switch (issuancePeriodType) {
-                case CIP_1 -> { // 지정 기간 설정
-                    coupon.setStartIssuanceAt(LocalDate.parse(req.getStartIssuanceAt(), DateTimeFormatter.ISO_DATE));
-                    coupon.setEndIssuanceAt(LocalDate.parse(req.getEndIssuanceAt(), DateTimeFormatter.ISO_DATE));
-                    coupon.setNumberOfWithPeriod(req.getNumberOfWithPeriod());
-                }
-                case CIP_2 -> { // 지정 기간 없음 (지속적인 기준)
-                    coupon.setStartIssuanceAt(null);
-                    coupon.setEndIssuanceAt(null);
-                    coupon.setNumberOfWithPeriod(0L);
-                }
+            case CIC_3, CIC_4 -> {
+                // TODO: 추후 개발 예정
             }
-            coupon.setCouponIssuance(issuanceType);
-            coupon.setLoginCouponIssueNotification(req.getLoginCouponIssueNotification());
-            coupon.setIssuingCouponsSendSMS(req.getIssuingCouponsSendSMS());
-            coupon.setIssuanceCouponSendEmail(req.getIssuanceCouponSendEmail());
-            return true;
+        }
+        coupon.setCouponPaymentTarget(paymentTargetType);
+        if (paymentTargetType == CouponPaymentTarget.CPT_2 && req.getFirstComeFirstServedAmount() > 0) {
+            coupon.setFirstComeFirstServedAmount(req.getFirstComeFirstServedAmount());
+        } else {
+            coupon.setFirstComeFirstServedAmount(-1L);
+        }
+        coupon.setCouponIssuedTime(issuedTimeType);
+        coupon.setCouponType(couponType);
+
+        //TODO: Temp Fix
+        coupon.setCouponIssuanceCoverage(issuanceCoverageType);
+        coupon.setCouponUseCoverage(useCoverageType);
+        //
+
+        coupon.setCouponUsableStandardAmountType(usableStandardAmountType);
+        if (usableStandardAmountType == CouponStandardAmountType.CSA_2 && req.getUsableStandardAmount() > 0) {
+            coupon.setUsableStandardAmount(req.getUsableStandardAmount());
+        } else {
+            coupon.setUsableStandardAmount(-1);
+        }
+
+        coupon.setCouponIssuanceStandardAmount(issuanceStandardAmountType);
+        if (issuanceStandardAmountType == CouponStandardAmountType.CSA_2 && req.getIssueStandardAmount() > 0) {
+            coupon.setIssueStandardMount(req.getIssueStandardAmount());
+        } else {
+            coupon.setIssueStandardMount(-1);
+        }
+
+        coupon.setCouponIssuancePeriod(issuancePeriodType);
+        if (issuancePeriodType == CouponIssuancePeriodType.CIP_1) {
+            if (req.getStartIssuanceAt() != null && req.getEndIssuanceAt() != null && req.getNumberOfWithPeriod() != null) {
+                LocalDate startAt = LocalDate.parse(req.getStartIssuanceAt(), DateTimeFormatter.ISO_DATE);
+                coupon.setStartIssuanceAt(startAt);
+                LocalDate endAt = LocalDate.parse(req.getEndIssuanceAt(), DateTimeFormatter.ISO_DATE);
+                coupon.setEndIssuanceAt(endAt);
+
+                coupon.setNumberOfWithPeriod(req.getNumberOfWithPeriod());
+            }
+        } else {
+            coupon.setStartIssuanceAt(null);
+            coupon.setEndIssuanceAt(null);
+            coupon.setNumberOfWithPeriod(req.getNumberOfWithPeriod());
+        }
+
+        coupon.setCouponIssuance(issuanceType);
+
+        coupon.setLoginCouponIssueNotification(req.getLoginCouponIssueNotification());
+        coupon.setIssuingCouponsSendSMS(req.getIssuingCouponsSendSMS());
+        coupon.setIssuanceCouponSendEmail(req.getIssuanceCouponSendEmail());
+
+        return true;
     }
+
+
 
 
     // 선착순 분산 락

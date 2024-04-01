@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service;
 
+import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUpdateDto;
 import com.impacus.maketplace.entity.coupon.Coupon;
@@ -75,8 +76,8 @@ public class CouponServiceTest {
     void addCouponForAdmin() {
 
         CouponIssuedDto newCoupon = CouponIssuedDto.builder()
-                .name("테스트 쿠퐆 V1")
-                .desc("이것은 테스트 쿠폰V1 입니다.")
+                .name("테스트 쿠퐆 V2")
+                .desc("이것은 테스트 쿠폰V2 입니다.")
                 .couponBenefitClassificationType("amount") // 원
                 .benefitAmount(15000)
                 .couponIssuanceClassificationType("CIC_2") //유저 일반
@@ -92,7 +93,6 @@ public class CouponServiceTest {
                 .couponUseCoverageType("CC_1")  // 모든 브랜드
                 .couponUsableStandardAmountType("CSA_2") // N원 이상 구매시 사용 가능
                 .usableStandardMount(30000)
-                .paymentMethodType("1") // 제한 없음
                 .couponIssuanceStandardAmount("CSA_2") // N원 이상 구매 쿠폰 발급
                 .issueStandardMount(10000)
                 .couponIssuancePeriodType("CIP_1")  // 지정 기간 설정
@@ -119,5 +119,16 @@ public class CouponServiceTest {
     void showTest() {
         Coupon coupon = couponRepository.findById(1L).get();
         System.out.println(coupon);
+    }
+
+    @Test
+    void generateCoupon() {
+        String s = CouponUtils.generateCode();
+        System.out.println(s);
+        System.out.println("ss " +  s.length());
+        String test = "WWJWP46JHG8SOYPPXT9FY2JTX4I2OLOD8YPQ";
+        System.out.println(test.length());
+
+
     }
 }
