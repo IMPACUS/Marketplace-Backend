@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum PointManageType {
-    PAYMENT("payment", "지급"),
+    PROVIDE("provide", "지급"),
     RECEIVE("receive","수취");
 
     private final String code;

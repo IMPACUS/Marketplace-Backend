@@ -105,6 +105,7 @@ public class PointController {
     @PostMapping("/manage")
     public ApiResponseEntity<?> pointManageForAdmin(@Valid @RequestBody PointManageDto pointManageDto) {
         boolean result = pointService.pointManage(pointManageDto);
+
         return ApiResponseEntity.<Object>builder().result(result).build();
     }
 }

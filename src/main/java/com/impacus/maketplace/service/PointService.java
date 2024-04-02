@@ -3,6 +3,7 @@ package com.impacus.maketplace.service;
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.PointType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.point.PointManageType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
@@ -383,10 +384,49 @@ public class PointService {
     @Transactional
     public boolean pointManage(PointManageDto pointManageDto) {
 
-        PointMaster pointMaster = pointMasterRepository.findById(pointManageDto.getUserId())
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+        try {
+            PointMaster pointMaster = pointMasterRepository.findByUserId(pointManageDto.getUserId())
+                    .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
 
-        return false;
+            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
+            Integer currentUserScore = pointMaster.getUserScore();
+            int manageAvailablePoint = pointManageDto.getManageAvailablePoint();
+            int manageUserScore = pointManageDto.getManageLevelPoint();
+            UserLevel currentUserLevel = pointMaster.getUserLevel();
+
+            if (pointManageDto.getPointManageType() == PointManageType.PROVIDE) {   //    지급
+                if (manageAvailablePoint > 0) {
+                    pointMaster.setAvailablePoint(currentAvailablePoint + manageAvailablePoint);
+                }
+                if (manageUserScore > 0) {
+                    int resultUserScore = currentUserScore + manageUserScore;
+                    pointMaster.setUserScore(currentUserScore + manageUserScore);
+                    changeUpLevel(pointMaster, resultUserScore, currentUserLevel);
+                }
+            } else if (pointManageDto.getPointManageType() == PointManageType.RECEIVE) {    //  수취
+                if (manageAvailablePoint > 0) {
+                    int resultAvailablePoint = currentAvailablePoint - manageAvailablePoint;
+                    if (resultAvailablePoint <= 0) {
+                       throw new CustomException(ErrorType.INVALID_POINT_MANAGE);
+                    } else {
+                        pointMaster.setAvailablePoint(resultAvailablePoint);
+                    }
+                }
+                if (manageUserScore > 0) {
+                    int resultUserScore = currentUserScore - manageUserScore;
+                    if (resultUserScore <= 0) {
+                        throw new CustomException(ErrorType.INVALID_POINT_MANAGE);
+                    } else {
+                        pointMaster.setUserScore(currentUserScore - manageUserScore);
+                        changeUpLevel(pointMaster, resultUserScore, currentUserLevel);
+                    }
+
+                }
+            }
+        } catch (CustomException e) {
+            return false;
+        }
+        return true;
     }
 
 }
