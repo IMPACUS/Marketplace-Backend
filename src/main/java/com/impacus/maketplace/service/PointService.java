@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
+import com.impacus.maketplace.dto.point.request.PointManageDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
 import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
 import com.impacus.maketplace.dto.point.response.PointHistoryDto;
@@ -373,6 +374,19 @@ public class PointService {
                 }
             }
         }
+    }
+
+
+    /**
+     * ADMIN POINT
+     */
+    @Transactional
+    public boolean pointManage(PointManageDto pointManageDto) {
+
+        PointMaster pointMaster = pointMasterRepository.findById(pointManageDto.getUserId())
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+
+        
     }
 
 }

@@ -14,7 +14,7 @@ public class CouponIssuedDto {
 
     private String code;
 
-    @NotNull
+    @NotNull(message = "쿠폰 이름은 필수값 입니다.")
     private String name;
     @NotNull
     private String desc;
