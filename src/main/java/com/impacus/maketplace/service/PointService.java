@@ -386,7 +386,7 @@ public class PointService {
         PointMaster pointMaster = pointMasterRepository.findById(pointManageDto.getUserId())
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
 
-        
+        return false;
     }
 
 }

@@ -125,6 +125,7 @@ public class CouponController {
         CouponDetailDto result = couponAdminService.getCouponDetail(couponSearchDto);
 
         return ApiResponseEntity.<CouponDetailDto>builder()
+                .result(result != null ? true : false)
                 .data(result)
                 .build();
     }

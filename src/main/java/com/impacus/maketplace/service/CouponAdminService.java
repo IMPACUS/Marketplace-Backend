@@ -212,11 +212,10 @@ public class CouponAdminService {
         try {
             Coupon data = couponRepository.findById(couponSearchDto.getId())
                     .orElseThrow(() -> new CustomException(ErrorType.INVALID_COUPON_FORMAT));
-            CouponDetailDto result = objectCopyHelper.copyObject(data, CouponDetailDto.class);
 
-            return result;
-        } catch (Exception e) {
-            throw new CustomException(e);
+            return CouponDetailDto.entityToDto(data);
+        } catch (CustomException e) {
+            return null;
         }
     }
 
