@@ -1,20 +1,20 @@
 package com.impacus.maketplace.entity.coupon;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
+@Setter
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Builder
+@ToString(exclude = "couponUsers")
 public class Coupon extends BaseEntity {
 
     @Id
@@ -35,7 +35,7 @@ public class Coupon extends BaseEntity {
     @Column(name = "cbc_code")
     private CouponBenefitClassification couponBenefitClassification;    // 혜택 구분 [ 원, % ]
 
-    private BigDecimal benefitAmount;   // 혜택 금액 및 퍼센트
+    private int benefitAmount;   // 혜택 금액 및 퍼센트
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cic_code")
@@ -59,11 +59,15 @@ public class Coupon extends BaseEntity {
     private CouponIssuedTime couponIssuedTime;  // 발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "cpn_type")
+    private CouponType couponType;              // 쿠폰 형식 [ 이벤트 , 지급형 ]
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "cet_code")
-    private CouponExpireTime couponExpireTime;  // 사용기간 [ 발급잉로 부터 N일, 무제한 ]
+    private CouponExpireTime couponExpireTime;  // 사용기간 [ 발급일로 부터 N일, 무제한 ]
 
     @Builder.Default
-    private Long expireDays = 0L;    // 유효기간(일)
+    private Long expireDays = -1L;    // 유효기간(일)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cc_issue_code")
@@ -81,21 +85,17 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cusa_use_code")
-    private CouponStandardAmountType couponUsableStandardAmount;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+    private CouponStandardAmountType couponUsableStandardAmountType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
     @Builder.Default
-    private BigDecimal usableStandardMount = BigDecimal.ZERO; // N원 (N원 이상 주문시 사용 가능)
+    private int usableStandardAmount = 0; // N원 (N원 이상 주문시 사용 가능)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cusa_issue_code")
     private CouponStandardAmountType couponIssuanceStandardAmount;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
     @Builder.Default
-    private BigDecimal issueStandardMount = BigDecimal.ZERO;  // N원 (N원 이상 주문시 쿠폰 발급)
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_code")
-    private PaymentMethod paymentMethod;    // 결제수단 [ 카드, XXX 페이, 간편결제 ]
+    private int issueStandardMount = 0;  // N원 (N원 이상 주문시 쿠폰 발급)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cip_code")
@@ -128,6 +128,6 @@ public class Coupon extends BaseEntity {
     @Builder.Default
     private IssuanceStatus status = IssuanceStatus.ISSUING;    // 발급 상태
 
-    @Version    // 낙관적 락 ( 여러 트랜잭션에서 유저에게 할당할 때 대비 => 최초 커밋만 인정)
+//    @Version    // 낙관적 락 ( 여러 트랜잭션에서 유저에게 할당할 때 대비 => 최초 커밋만 인정)
     private Integer version;
 }

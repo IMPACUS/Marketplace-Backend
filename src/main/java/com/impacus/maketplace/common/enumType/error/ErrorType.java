@@ -41,9 +41,13 @@ public enum ErrorType {
 
     //TODO: 3X번 Point 관련 된것 작성하겠습니다!
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),
+    INVALID_POINT_MANAGE("031_INVALID_POINT_MANAGE","유효하지 않은 포인트 입니다."),
 
     //TODO: 4X번 부터 쿠폰 관련
     INVALID_COUPON_FORMAT("040_INVALID_COUPON_FORMAT", "유효하지 않은 쿠폰입니다.\n쿠폰코드를 다시 한번 확인해주세요"),
+    NOT_EXISTED_ISSUANCE("041_NOT_EXISTED_ISSUANCE", "존재하지 않는 발급 데이터입니다."),
+    NOT_EXISTED_COUPON("042_NOT_EXISTED_COUPON", "존재하지 않는 쿠폰 데이터입니다."),
+    INVALID_ALARM("043_INVALID_ALARM", "유효하지 않는 알림 타입입니다."),
 
     DUPLICATED_SUB_CATEGORY("050_DUPLICATED_SUB_CATEGORY", "중복된 2차 카테고리 명이 존재합나디."),
 

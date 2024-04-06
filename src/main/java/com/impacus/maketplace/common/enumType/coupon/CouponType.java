@@ -4,13 +4,14 @@ import com.impacus.maketplace.common.utils.CouponUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor
-public enum CouponExpireTime implements CouponUtils.CommonFieldInterface{
+@Getter
+public enum CouponType implements CouponUtils.CommonFieldInterface{
 
-    CET_1("CET_1", "발급일로 부터 N 일 이내"),
-    CET_2("CET_2", "기간제한 없음(무제한)");
+    EVENT("CT_1", "이벤트_실행형"),
+    REQUITAL("CT_2", "지급형_일괄지급형");
 
     private final String code;
     private final String value;
+
 }

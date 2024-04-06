@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ProvisionTarget {
 
-    USER("1", "TARGET_USER"),
-    ALL("2", "TARGET_ALL");
+    USER("user", "TARGET_USER"),
+    ALL("all", "TARGET_ALL");
 
     private final String code;
     private final String value;

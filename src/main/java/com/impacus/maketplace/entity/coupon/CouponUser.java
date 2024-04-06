@@ -3,10 +3,7 @@ package com.impacus.maketplace.entity.coupon;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.entity.user.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class CouponUser extends BaseEntity {
 
     @Id
@@ -29,9 +27,18 @@ public class CouponUser extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Boolean isUsed = false;
+    private boolean couponLock;
 
-    private LocalDateTime usedAt;
+    private LocalDateTime availableDownloadAt;
+
+    @Builder.Default
+    private boolean isDownloaded = false;
+
+    @Builder.Default
+    private boolean isUsed = false;
+
+    @Builder.Default
+    private LocalDateTime usedAt = null;
 
     private LocalDateTime expiredAt;
 
