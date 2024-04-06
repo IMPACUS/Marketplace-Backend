@@ -92,10 +92,10 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cusa_issue_code")
-    private CouponStandardAmountType couponIssuanceStandardAmount;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+    private CouponStandardAmountType couponIssuanceStandardAmountType;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
     @Builder.Default
-    private int issueStandardMount = 0;  // N원 (N원 이상 주문시 쿠폰 발급)
+    private int issueStandardAmount = 0;  // N원 (N원 이상 주문시 쿠폰 발급)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cip_code")

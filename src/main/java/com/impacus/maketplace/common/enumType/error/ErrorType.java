@@ -48,6 +48,7 @@ public enum ErrorType {
     NOT_EXISTED_ISSUANCE("041_NOT_EXISTED_ISSUANCE", "존재하지 않는 발급 데이터입니다."),
     NOT_EXISTED_COUPON("042_NOT_EXISTED_COUPON", "존재하지 않는 쿠폰 데이터입니다."),
     INVALID_ALARM("043_INVALID_ALARM", "유효하지 않는 알림 타입입니다."),
+    INVALID_PERCENT("044_INVALID_PERCENT", "유효하지 않는 퍼센트 입니다."),
 
     DUPLICATED_SUB_CATEGORY("050_DUPLICATED_SUB_CATEGORY", "중복된 2차 카테고리 명이 존재합나디."),
 

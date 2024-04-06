@@ -57,7 +57,7 @@ public class CouponListDto {
 
 
     @QueryProjection
-    public CouponListDto(Long id, String code, String name, String description, CouponBenefitClassification couponBenefitClassification, int benefitAmount, CouponIssuanceClassification couponIssuanceClassification, CouponIssuanceClassificationData couponIssuanceClassificationData, CouponPaymentTarget couponPaymentTarget, Long firstComeFirstServedAmount, CouponIssuedTime couponIssuedTime, CouponExpireTime couponExpireTime, Long expireDays, CouponCoverage couponIssuanceCoverage, CouponCoverage couponUseCoverage, CouponStandardAmountType couponUsableStandardAmount, int usableStandardMount, CouponStandardAmountType couponIssuanceStandardAmount, int issueStandardMount, CouponIssuancePeriodType couponIssuancePeriod, LocalDate startIssuanceAt, LocalDate endIssuanceAt, Long numberOfWithPeriod, CouponIssuanceType couponIssuance, String loginCouponIssueNotification, String issuingCouponsSendSMS, String issuanceCouponSendEmail, IssuanceStatus status, LocalDateTime modifyAt) {
+    public CouponListDto(Long id, String code, String name, String description, CouponBenefitClassification couponBenefitClassification, int benefitAmount, CouponIssuanceClassification couponIssuanceClassification, CouponIssuanceClassificationData couponIssuanceClassificationData, CouponPaymentTarget couponPaymentTarget, Long firstComeFirstServedAmount, CouponIssuedTime couponIssuedTime, CouponExpireTime couponExpireTime, Long expireDays, CouponCoverage couponIssuanceCoverage, CouponCoverage couponUseCoverage, CouponStandardAmountType couponUsableStandardAmount, int usableStandardMount, CouponStandardAmountType couponIssuanceStandardAmountType, int issueStandardAmount, CouponIssuancePeriodType couponIssuancePeriod, LocalDate startIssuanceAt, LocalDate endIssuanceAt, Long numberOfWithPeriod, CouponIssuanceType couponIssuance, String loginCouponIssueNotification, String issuingCouponsSendSMS, String issuanceCouponSendEmail, IssuanceStatus status, LocalDateTime modifyAt) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -75,8 +75,8 @@ public class CouponListDto {
         this.couponUseCoverage = couponUseCoverage;
         this.couponUsableStandardAmountType = couponUsableStandardAmount;
         this.usableStandardAmount = usableStandardMount;
-        this.couponIssuanceStandardAmountType = couponIssuanceStandardAmount;
-        this.issueStandardAmount = issueStandardMount;
+        this.couponIssuanceStandardAmountType = couponIssuanceStandardAmountType;
+        this.issueStandardAmount = issueStandardAmount;
         this.couponIssuancePeriod = couponIssuancePeriod;
         this.startIssuanceAt = startIssuanceAt;
         this.endIssuanceAt = endIssuanceAt;

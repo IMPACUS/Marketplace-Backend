@@ -2,9 +2,8 @@ package com.impacus.maketplace.utils;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class DataLoaderBootstrap implements ApplicationListener<ContextRefreshedEvent> {
 	private DataLoader dataLoader;
 

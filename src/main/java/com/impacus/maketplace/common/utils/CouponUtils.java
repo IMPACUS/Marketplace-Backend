@@ -2,7 +2,7 @@ package com.impacus.maketplace.common.utils;
 
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.service.CouponAdminService;
+import com.impacus.maketplace.service.coupon.CouponAdminService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ public class CouponUtils {
     }
 
     public static String generateCode() {
-        final int CHAR_LENGTH = 8;
+        final int CHAR_LENGTH = 10;
 
         final char[] charTable = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
                 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
@@ -56,9 +56,10 @@ public class CouponUtils {
 
         Random random = new Random(System.currentTimeMillis());
         int charSize = charTable.length;
+
         StringBuffer buffer = new StringBuffer();
 
-        for (int i =0; i < charSize; i++) {
+        for (int i =0; i < CHAR_LENGTH; i++) {
             buffer.append(charTable[random.nextInt(charSize)]);
         }
         return buffer.toString();

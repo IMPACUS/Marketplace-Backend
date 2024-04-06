@@ -25,6 +25,7 @@ public class CouponUpdateDto {
     @NotNull
     private String couponPaymentTargetType;    // 지급 대상 [ 모든 회원, 선착순 ]
 
+    @Builder.Default
     private Long firstComeFirstServedAmount = 0L; // 선착순 발급 수
     @NotNull
     private String couponIssuedTimeType;  // 발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
@@ -45,7 +46,9 @@ public class CouponUpdateDto {
     @NotNull
     private String couponUsableStandardAmountType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
+    @Builder.Default
     private int usableStandardAmount = 0; // N원 (N원 이상 주문시 사용 가능)
+
     @NotNull
     private String couponIssuanceStandardAmountType;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
@@ -57,6 +60,7 @@ public class CouponUpdateDto {
 
     private String endIssuanceAt;    // 기간설정 종료 기간
 
+    @Builder.Default
     private Long numberOfWithPeriod = 0L;    // 기간 내 N 회 주문 시
 
     @NotNull
