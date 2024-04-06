@@ -4,8 +4,11 @@ import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUpdateDto;
 import com.impacus.maketplace.entity.coupon.Coupon;
+import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
+import com.impacus.maketplace.repository.coupon.CouponUserRepository;
+import com.impacus.maketplace.service.coupon.CouponAdminService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +25,12 @@ public class CouponServiceTest {
 
     @Autowired
     private CouponRepository couponRepository;
+
+    @Autowired
+    private CouponUserRepository couponUserRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // 구분 상세 데이터 insert
 //    @Test
@@ -93,8 +102,8 @@ public class CouponServiceTest {
                 .couponUseCoverageType("CC_1")  // 모든 브랜드
                 .couponUsableStandardAmountType("CSA_2") // N원 이상 구매시 사용 가능
                 .usableStandardMount(30000)
-                .couponIssuanceStandardAmount("CSA_2") // N원 이상 구매 쿠폰 발급
-                .issueStandardMount(10000)
+                .couponIssuanceStandardAmountType("CSA_2") // N원 이상 구매 쿠폰 발급
+                .issueStandardAmount(10000)
                 .couponIssuancePeriodType("CIP_1")  // 지정 기간 설정
                 .startIssuanceAt("2024-07-01")
                 .endIssuanceAt("2024-09-30")
@@ -128,7 +137,11 @@ public class CouponServiceTest {
         System.out.println("ss " +  s.length());
         String test = "WWJWP46JHG8SOYPPXT9FY2JTX4I2OLOD8YPQ";
         System.out.println(test.length());
+    }
 
+
+    @Test
+    void test(){
 
     }
 }

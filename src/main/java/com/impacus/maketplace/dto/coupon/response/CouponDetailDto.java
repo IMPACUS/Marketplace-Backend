@@ -26,10 +26,10 @@ public class CouponDetailDto {
     private Long expireDays;
     private String couponIssuanceCoverage;
     private String couponUseCoverage;
-    private String couponUsableStandardAmount;
+    private String couponUsableStandardAmountType;
     private int usableStandardMount;
-    private String couponIssuanceStandardAmount;
-    private int issueStandardMount;
+    private String couponIssuanceStandardAmountType;
+    private int issueStandardAmount;
     private String couponIssuancePeriod;
     private String startIssuanceAt;
     private String endIssuanceAt;
@@ -56,10 +56,10 @@ public class CouponDetailDto {
                 .expireDays(entity.getExpireDays())
                 .couponIssuanceCoverage(entity.getCouponIssuanceCoverage().getCode())
                 .couponUseCoverage(entity.getCouponUseCoverage().getCode())
-                .couponUsableStandardAmount(entity.getCouponUsableStandardAmountType().getCode())
+                .couponUsableStandardAmountType(entity.getCouponUsableStandardAmountType().getCode())
                 .usableStandardMount(entity.getUsableStandardAmount())
-                .couponIssuanceStandardAmount(entity.getCouponIssuanceStandardAmount().getCode())
-                .issueStandardMount(entity.getIssueStandardMount())
+                .couponIssuanceStandardAmountType(entity.getCouponIssuanceStandardAmountType().getCode())
+                .issueStandardAmount(entity.getIssueStandardAmount())
                 .couponIssuancePeriod(entity.getCouponIssuancePeriod().getCode())
                 .startIssuanceAt(entity.getStartIssuanceAt() != null ? entity.getStartIssuanceAt().toString() : null)
                 .endIssuanceAt(entity.getEndIssuanceAt() != null ? entity.getEndIssuanceAt().toString() : null)

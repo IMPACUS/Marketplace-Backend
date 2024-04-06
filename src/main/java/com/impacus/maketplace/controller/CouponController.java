@@ -7,7 +7,9 @@ import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
-import com.impacus.maketplace.service.CouponAdminService;
+import com.impacus.maketplace.dto.coupon.response.CouponUserListDto;
+import com.impacus.maketplace.service.coupon.CouponAdminService;
+import com.impacus.maketplace.service.coupon.CouponService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CouponController {
 
     private final CouponAdminService couponAdminService;
+    private final CouponService couponService;
 
     /** TODO : Admin Page 추가 쿠폰 발급
      *  1. 오픈 기념 첫 회원 가입 20% 할인 쿠폰
@@ -171,6 +174,15 @@ public class CouponController {
      * 3. 쿠폰 다운 받기
      *
      */
+
+    @PostMapping("/user/list")
+    public ApiResponseEntity<Page<CouponUserListDto>> getCouponUserList(@Valid @RequestBody CouponUserSearchDto couponUserSearchDto, @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<CouponUserListDto> result = couponService.getCouponUserList(couponUserSearchDto, pageable);
+
+        return ApiResponseEntity.<Page<CouponUserListDto>>builder()
+                .data(result)
+                .build();
+    }
 
 
 }

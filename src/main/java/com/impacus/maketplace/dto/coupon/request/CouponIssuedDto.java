@@ -22,7 +22,7 @@ public class CouponIssuedDto {
     private String couponBenefitClassificationType;
     @NotNull
     private int benefitAmount;
-    @NotNull
+
     private String couponIssuanceClassificationType;
 
     private Long couponIssuanceClassificationData;
@@ -51,10 +51,10 @@ public class CouponIssuedDto {
     private int usableStandardMount = -1;
 
     @NotNull
-    private String couponIssuanceStandardAmount;
+    private String couponIssuanceStandardAmountType;
 
     @Builder.Default
-    private int issueStandardMount = -1;
+    private int issueStandardAmount = -1;
 
     private String couponIssuancePeriodType;
     private String startIssuanceAt;

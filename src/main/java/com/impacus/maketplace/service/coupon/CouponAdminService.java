@@ -1,4 +1,4 @@
-package com.impacus.maketplace.service;
+package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
@@ -14,7 +14,7 @@ import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponIssuanceClassificationData;
 import com.impacus.maketplace.entity.coupon.CouponUser;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.CouponUserRepository;
+import com.impacus.maketplace.repository.coupon.CouponUserRepository;
 import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
@@ -56,8 +56,13 @@ public class CouponAdminService {
 
         CouponBenefitClassification benefitClassificationType   // 혜택 구분 [ 원, % ]
                 = fromCode(CouponBenefitClassification.class, req.getCouponBenefitClassificationType());
-        CouponIssuanceClassification issuanceClassificationType //  벌굽 구분 [ 그린 태그, 유저 일반, 신규고객 첫 주문 ]
-                = fromCode(CouponIssuanceClassification.class, req.getCouponIssuanceClassificationType());
+        
+        CouponIssuanceClassification issuanceClassificationType = CouponIssuanceClassification.UNKNOWN;
+        if (req.getCouponIssuanceClassificationType() != "") {
+            issuanceClassificationType //  벌굽 구분 [ 그린 태그, 유저 일반, 신규고객 첫 주문 ]
+                    = fromCode(CouponIssuanceClassification.class, req.getCouponIssuanceClassificationType());
+        }
+        
         CouponPaymentTarget paymentTargetType   //  지급 대상 [ 모든 회원 , 선착순 ]
                 = fromCode(CouponPaymentTarget.class, req.getCouponPaymentTargetType());
         CouponIssuedTime issuedTimeType //  발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
@@ -71,7 +76,7 @@ public class CouponAdminService {
         CouponStandardAmountType usableStandardAmountType   //  쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
                 = fromCode(CouponStandardAmountType.class, req.getCouponUsableStandardAmountType());
         CouponStandardAmountType issuanceStandardAmountType //  쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-                = fromCode(CouponStandardAmountType.class, req.getCouponIssuanceStandardAmount());
+                = fromCode(CouponStandardAmountType.class, req.getCouponIssuanceStandardAmountType());
         CouponIssuancePeriodType issuancePeriodType //  기간 설정 [ 기간내 N 회 이상 주문시 , 지정 기간 없음 (지속적인 기준) ]
                 = fromCode(CouponIssuancePeriodType.class, req.getCouponIssuancePeriodType());
         CouponIssuanceType issuanceType //  자동 / 수동 발급 [ 자동, 수동 ]
@@ -84,9 +89,15 @@ public class CouponAdminService {
         coupon.setName(req.getName());
         coupon.setDescription(req.getDesc());
         coupon.setCouponBenefitClassification(benefitClassificationType);
+        if (benefitClassificationType == CouponBenefitClassification.PERCENTAGE && req.getBenefitAmount() > 100) {
+            throw new CustomException(ErrorType.INVALID_PERCENT);
+        }
         coupon.setBenefitAmount(req.getBenefitAmount());
 
-        coupon.setCouponIssuanceClassification(issuanceClassificationType);
+        if (req.getCouponIssuanceClassificationType() != "") {
+            coupon.setCouponIssuanceClassification(issuanceClassificationType);    
+        }
+
         switch (issuanceClassificationType) {
             case CIC_1, CIC_2 -> {
                 CouponIssuanceClassificationData couponIssuanceClassificationData = couponIssuanceClassificationDataRepository.findById(req.getCouponIssuanceClassificationData())
@@ -126,11 +137,11 @@ public class CouponAdminService {
             coupon.setUsableStandardAmount(-1);
         }
 
-        coupon.setCouponIssuanceStandardAmount(issuanceStandardAmountType);
-        if (issuanceStandardAmountType == CouponStandardAmountType.CSA_2 && req.getIssueStandardMount() > 0) {
-            coupon.setIssueStandardMount(req.getIssueStandardMount());
+        coupon.setCouponIssuanceStandardAmountType(issuanceStandardAmountType);
+        if (issuanceStandardAmountType == CouponStandardAmountType.CSA_2 && req.getIssueStandardAmount() > 0) {
+            coupon.setIssueStandardAmount(req.getIssueStandardAmount());
         } else {
-            coupon.setIssueStandardMount(-1);
+            coupon.setIssueStandardAmount(-1);
         }
 
         coupon.setCouponIssuancePeriod(issuancePeriodType);
@@ -238,8 +249,13 @@ public class CouponAdminService {
     public boolean updateCouponDetail(CouponUpdateDto req) {
         CouponBenefitClassification benefitClassificationType   // 혜택 구분 [ 원, % ]
                 = fromCode(CouponBenefitClassification.class, req.getCouponBenefitClassificationType());
-        CouponIssuanceClassification issuanceClassificationType //  벌굽 구분 [ 그린 태그, 유저 일반, 신규고객 첫 주문 ]
-                = fromCode(CouponIssuanceClassification.class, req.getCouponIssuanceClassificationType());
+
+        CouponIssuanceClassification issuanceClassificationType = CouponIssuanceClassification.UNKNOWN;
+        if (req.getCouponIssuanceClassificationType() != "") {
+            issuanceClassificationType //  발굽 구분 [ 그린 태그, 유저 일반, 신규고객 첫 주문 ]
+                    = fromCode(CouponIssuanceClassification.class, req.getCouponIssuanceClassificationType());
+        }
+
         CouponPaymentTarget paymentTargetType   //  지급 대상 [ 모든 회원 , 선착순 ]
                 = fromCode(CouponPaymentTarget.class, req.getCouponPaymentTargetType());
         CouponIssuedTime issuedTimeType //  발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
@@ -297,11 +313,11 @@ public class CouponAdminService {
             coupon.setUsableStandardAmount(-1);
         }
 
-        coupon.setCouponIssuanceStandardAmount(issuanceStandardAmountType);
+        coupon.setCouponIssuanceStandardAmountType(issuanceStandardAmountType);
         if (issuanceStandardAmountType == CouponStandardAmountType.CSA_2 && req.getIssueStandardAmount() > 0) {
-            coupon.setIssueStandardMount(req.getIssueStandardAmount());
+            coupon.setIssueStandardAmount(req.getIssueStandardAmount());
         } else {
-            coupon.setIssueStandardMount(-1);
+            coupon.setIssueStandardAmount(-1);
         }
 
         coupon.setCouponIssuancePeriod(issuancePeriodType);
@@ -336,85 +352,80 @@ public class CouponAdminService {
     public boolean addCouponUser(CouponUserIssuedDto couponUserIssuedDto) {
         Coupon coupon;
         LocalDateTime couponExpireAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
-        try {
-            if (couponUserIssuedDto.getCouponId() != null) {
-                coupon = couponRepository.findById(couponUserIssuedDto.getCouponId())
-                        .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_COUPON, ErrorType.NOT_EXISTED_COUPON.getMsg()));
-            } else {
-                return false;
-            }
-
-            if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.USER.getCode())) {
-                User user = userRepository.findById(couponUserIssuedDto.getUserId())
-                        .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
-
-
-                Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
-                if (couponExpireDay < 0) {
-                    couponExpireAt = null;
-                } else {
-                    couponExpireAt = couponExpireAt.plusDays(couponExpireDay).minusMinutes(1);
-                }
-
-                CouponIssuedTime couponIssuedTime = coupon.getCouponIssuedTime();
-                boolean couponLock = false;
-
-                if (couponIssuedTime == CouponIssuedTime.CIT_1) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
-                    couponLock = true;
-                }
-
-                CouponUser couponUser = CouponUser.builder()
-                        .coupon(coupon)
-                        .user(user)
-                        .expiredAt(couponExpireAt)
-                        .couponLock(couponLock)
-                        .build();
-
-                couponUserRepository.save(couponUser);
-            } else if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.ALL.getCode())) {
-                List<User> userList = userRepository.findAll();
-
-                Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
-                if (couponExpireDay < 0) {
-                    couponExpireAt = null;
-                } else {
-                    couponExpireAt = couponExpireAt.plusDays(couponExpireDay).minusMinutes(1);
-                }
-                final LocalDateTime resultCouponExpireAt = couponExpireAt;
-                CouponIssuedTime couponIssuedTime = coupon.getCouponIssuedTime();
-
-
-                boolean couponLock = false;
-
-                if (couponIssuedTime == CouponIssuedTime.CIT_1) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
-                    couponLock = true;
-                }
-                final boolean resultCouponLock = couponLock;
-
-                userList.parallelStream().forEach((user) -> {
-                    CouponUser couponUser = CouponUser.builder()
-                            .coupon(coupon)
-                            .user(user)
-                            .expiredAt(resultCouponExpireAt)
-                            .couponLock(resultCouponLock)
-                            .build();
-
-                    couponUserRepository.save(couponUser);
-                });
-            } else {
-                return false;
-            }
-            //TODO: 알림 서비스
-            couponAlarm(couponUserIssuedDto.getAlarmType());
-            return true;
-        } catch (CustomException e) {
+        if (couponUserIssuedDto.getCouponId() != null) {
+            coupon = couponRepository.findById(couponUserIssuedDto.getCouponId())
+                    .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_COUPON, ErrorType.NOT_EXISTED_COUPON.getMsg()));
+        } else {
             return false;
         }
 
+        if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.USER.getCode())) {
+            User user = userRepository.findById(couponUserIssuedDto.getUserId())
+                    .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+
+
+            Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
+            if (couponExpireDay < 0) {
+                couponExpireAt = null;
+            } else {
+                couponExpireAt = couponExpireAt.plusDays(couponExpireDay).minusMinutes(1);
+            }
+
+            CouponIssuedTime couponIssuedTime = coupon.getCouponIssuedTime();
+            boolean couponLock = false;
+
+            if (couponIssuedTime == CouponIssuedTime.CIT_1) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
+                couponLock = true;
+            }
+
+            CouponUser couponUser = CouponUser.builder()
+                    .coupon(coupon)
+                    .user(user)
+                    .expiredAt(couponExpireAt)
+                    .couponLock(couponLock)
+                    .build();
+
+            couponUserRepository.save(couponUser);
+        } else if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.ALL.getCode())) {
+            List<User> userList = userRepository.findAll();
+
+            Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
+            if (couponExpireDay < 0) {
+                couponExpireAt = null;
+            } else {
+                couponExpireAt = couponExpireAt.plusDays(couponExpireDay).minusMinutes(1);
+            }
+            final LocalDateTime resultCouponExpireAt = couponExpireAt;
+            CouponIssuedTime couponIssuedTime = coupon.getCouponIssuedTime();
+
+
+            boolean couponLock = false;
+
+            if (couponIssuedTime == CouponIssuedTime.CIT_1) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
+                couponLock = true;
+            }
+            final boolean resultCouponLock = couponLock;
+
+            userList.parallelStream().forEach((user) -> {
+                CouponUser couponUser = CouponUser.builder()
+                        .coupon(coupon)
+                        .user(user)
+                        .expiredAt(resultCouponExpireAt)
+                        .couponLock(resultCouponLock)
+                        .build();
+
+                couponUserRepository.save(couponUser);
+            });
+        } else {
+            return false;
+        }
+        //TODO: 알림 서비스
+        couponAlarm(couponUserIssuedDto.getAlarmType());
+        return true;
     }
 
     public void couponAlarm(String alarmTypeCode) {
-        CouponProvideAlarmType couponProvideAlarmType = CouponProvideAlarmType.fromCode(alarmTypeCode);
+        CouponProvideAlarmType couponProvideAlarmType = fromCode(CouponProvideAlarmType.class, alarmTypeCode);
         switch (couponProvideAlarmType) {
             case EMAIL_ALARM -> {
                 //TODO: 이메일 알림 개발 예정
@@ -425,7 +436,7 @@ public class CouponAdminService {
             case SMS_ALARM -> {
                 //TODO: SMS 알림 개발 예정
             }
-            case UNKOWN -> {
+            case UNKNOWN -> {
                 throw new CustomException(ErrorType.INVALID_ALARM);
             }
         }
