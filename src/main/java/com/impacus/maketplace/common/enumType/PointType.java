@@ -1,7 +1,6 @@
 package com.impacus.maketplace.common.enumType;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -14,7 +13,9 @@ public enum PointType {
     USE("20","결제 시 사용"),
     EXPIRE("30","소멸"),
     CHECK("40", "출석체크"),
-    DORMANCY("50", "휴면에 의한 포인트 감소");
+    DORMANCY("50", "휴면에 의한 포인트 감소"),
+    ADMIN_PROVIDE("60","관리자에 의한 포인트 지급"),
+    ADMIN_RECEIVE("70","관리자에 의한 포인트 감소");
 
     private final String code;
     private final String value;
