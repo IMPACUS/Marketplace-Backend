@@ -50,12 +50,12 @@ public class CouponController {
      *
      * 6. 쿠폰 지급 하기 기능
      *
-     * 7. 회원의 가용 포인트와 레벨 포인트를 가져와야함  <- 이것 1번이랑 합치고 싶음.
+     * 7. 회원의 가용 포인트와 레벨 포인트를 가져와야함  <- 이것 1번이랑 합치고 싶음.         -- OK
      *
      *
-     * 8. 포인트 지금 (레벨 포인트, 가용 포인트)
+     * 8. 포인트 지금 (레벨 포인트, 가용 포인트)                                  -- OK
      *
-     * 9. 포인트 수취 (레벨 포인트 , 가용 포인트)
+     * 9. 포인트 수취 (레벨 포인트 , 가용 포인트)                                  -- OK
      *
      *
      */
@@ -143,6 +143,20 @@ public class CouponController {
                 .result(result)
                 .build();
     }
+
+    /**
+     * ADMIN 쿠폰 지급 API
+     */
+    @PostMapping("/admin/provide")
+    public ApiResponseEntity<Object> provideCoupon(@Valid @RequestBody CouponUserIssuedDto couponUserIssuedDto) {
+        boolean result = couponAdminService.addCouponUser(couponUserIssuedDto);
+        return ApiResponseEntity
+                .builder()
+                .result(result)
+                .build();
+    }
+
+
 
 
     /** TODO: 기능 정의 사용자

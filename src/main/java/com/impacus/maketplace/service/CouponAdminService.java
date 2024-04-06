@@ -6,16 +6,16 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
-import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
-import com.impacus.maketplace.dto.coupon.request.CouponUpdateDto;
-import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
+import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponIssuanceClassificationData;
+import com.impacus.maketplace.entity.coupon.CouponUser;
+import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.CouponUserRepository;
+import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static com.impacus.maketplace.common.utils.CouponUtils.fromCode;
 
@@ -35,6 +38,7 @@ import static com.impacus.maketplace.common.utils.CouponUtils.fromCode;
 public class CouponAdminService {
 
     private final CouponRepository couponRepository;
+    private final UserRepository userRepository;
     private final CouponUserRepository couponUserRepository;
     private final CouponIssuanceClassificationDataRepository couponIssuanceClassificationDataRepository;
     private final ObjectCopyHelper objectCopyHelper;
@@ -312,6 +316,105 @@ public class CouponAdminService {
         coupon.setIssuanceCouponSendEmail(req.getIssuanceCouponSendEmail());
 
         return true;
+    }
+
+    @Transactional
+    public boolean addCouponUser(CouponUserIssuedDto couponUserIssuedDto) {
+        Coupon coupon;
+        LocalDateTime couponExpireAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        try {
+            if (couponUserIssuedDto.getCouponId() != null) {
+                coupon = couponRepository.findById(couponUserIssuedDto.getCouponId())
+                        .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_COUPON, ErrorType.NOT_EXISTED_COUPON.getMsg()));
+            } else {
+                return false;
+            }
+
+            if (couponUserIssuedDto.getCouponTarget().equals(CouponTargetType.USER.getCode())) {
+                User user = userRepository.findById(couponUserIssuedDto.getUserId())
+                        .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+
+
+                Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
+                if (couponExpireDay < 0) {
+                    couponExpireAt = null;
+                } else {
+                    couponExpireAt = couponExpireAt.plusDays(couponExpireDay).minusMinutes(1);
+                }
+
+                CouponIssuedTime couponIssuedTime = coupon.getCouponIssuedTime();
+                boolean couponLock = false;
+
+                if (couponIssuedTime == CouponIssuedTime.CIT_1) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
+                    couponLock = true;
+                }
+
+                CouponUser couponUser = CouponUser.builder()
+                        .coupon(coupon)
+                        .user(user)
+                        .expiredAt(couponExpireAt)
+                        .couponLock(couponLock)
+                        .build();
+
+                couponUserRepository.save(couponUser);
+            } else if (couponUserIssuedDto.getCouponTarget().equals(CouponTargetType.ALL.getCode())) {
+                List<User> userList = userRepository.findAll();
+
+                Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
+                if (couponExpireDay < 0) {
+                    couponExpireAt = null;
+                } else {
+                    couponExpireAt = couponExpireAt.plusDays(couponExpireDay).minusMinutes(1);
+                }
+                final LocalDateTime resultCouponExpireAt = couponExpireAt;
+                CouponIssuedTime couponIssuedTime = coupon.getCouponIssuedTime();
+
+
+                boolean couponLock = false;
+
+                if (couponIssuedTime == CouponIssuedTime.CIT_1) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
+                    couponLock = true;
+                }
+                final boolean resultCouponLock = couponLock;
+
+                userList.parallelStream().forEach((user) -> {
+                    CouponUser couponUser = CouponUser.builder()
+                            .coupon(coupon)
+                            .user(user)
+                            .expiredAt(resultCouponExpireAt)
+                            .couponLock(resultCouponLock)
+                            .build();
+
+                    couponUserRepository.save(couponUser);
+                });
+            } else {
+                return false;
+            }
+            //TODO: 알림 서비스
+            couponAlarm(couponUserIssuedDto.getAlarmType());
+            return true;
+        } catch (CustomException e) {
+            return false;
+        }
+
+    }
+
+    public void couponAlarm(String alarmTypeCode) {
+        CouponProvideAlarmType couponProvideAlarmType = CouponProvideAlarmType.fromCode(alarmTypeCode);
+        switch (couponProvideAlarmType) {
+            case EMAIL_ALARM -> {
+                //TODO: 이메일 알림 개발 예정
+            }
+            case KAKAO_ALARM -> {
+                //TODO: 카카오 알림 개발 예정
+            }
+            case SMS_ALARM -> {
+                //TODO: SMS 알림 개발 예정
+            }
+            case UNKOWN -> {
+                throw new CustomException(ErrorType.INVALID_ALARM);
+            }
+        }
     }
 
 
