@@ -47,7 +47,7 @@ public class CouponAdminService {
 
 
     /**
-     * 관리자 페이지에서 등록할 쿠폰
+     * 관리자 페이지에서 쿠폰을 등록하는 함수
      */
     @Transactional
     public Boolean addCoupon(CouponIssuedDto req) {
@@ -163,6 +163,9 @@ public class CouponAdminService {
         return result;
     }
 
+    /**
+     *  ADMIN 쿠폰 페이지에서 회원 정보 조회 해오는 함수
+     */
     @Transactional
     public CouponUserInfoResponse getUserTargetInfo(CouponUserInfoRequest req) {
         if (!ProvisionTarget.USER.getCode().equals(req.getProvisionTarget())) {
@@ -171,6 +174,10 @@ public class CouponAdminService {
             return couponRepository.findByAddCouponInfo(req);
         }
     }
+
+    /**
+     * ADMIN 페이지에서 쿠폰 리스트 불로오는 함수
+     */
 
     public Page<CouponListDto> getCouponList(CouponSearchDto couponSearchDto, Pageable pageable) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -222,6 +229,10 @@ public class CouponAdminService {
             return null;
         }
     }
+
+    /**
+     *  ADMIN 페이지에서 등록된 쿠폰을 수정할 수 있는 함수
+     */
 
     @Transactional
     public boolean updateCouponDetail(CouponUpdateDto req) {
@@ -318,6 +329,9 @@ public class CouponAdminService {
         return true;
     }
 
+    /**
+     *  ADMIN 페이지에서 회원 검색 및 모든 유저에게 쿠폰을 지급 하는 함수
+     */
     @Transactional
     public boolean addCouponUser(CouponUserIssuedDto couponUserIssuedDto) {
         Coupon coupon;
@@ -330,7 +344,7 @@ public class CouponAdminService {
                 return false;
             }
 
-            if (couponUserIssuedDto.getCouponTarget().equals(CouponTargetType.USER.getCode())) {
+            if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.USER.getCode())) {
                 User user = userRepository.findById(couponUserIssuedDto.getUserId())
                         .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
 
@@ -357,7 +371,7 @@ public class CouponAdminService {
                         .build();
 
                 couponUserRepository.save(couponUser);
-            } else if (couponUserIssuedDto.getCouponTarget().equals(CouponTargetType.ALL.getCode())) {
+            } else if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.ALL.getCode())) {
                 List<User> userList = userRepository.findAll();
 
                 Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
