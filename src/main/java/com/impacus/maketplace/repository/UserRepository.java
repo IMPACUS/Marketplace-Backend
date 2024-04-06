@@ -27,4 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User u SET u.status = :status, u.statusReason = :statusReason WHERE u.id = :id")
     int updateUserStatus(@Param("id") Long id, @Param("status") UserStatus status,
         @Param("statusReason") String statusReason);
+
+
+
 }

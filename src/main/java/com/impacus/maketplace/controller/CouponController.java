@@ -3,12 +3,12 @@ package com.impacus.maketplace.controller;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
-import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
-import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
+import com.impacus.maketplace.dto.coupon.request.*;
+import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.service.CouponAdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,32 +36,32 @@ public class CouponController {
      */
 
     /** TODO: 기능 정의 관리자
-     * 1. 쿠폰/포인트 지급 페이지에서 회원 검색
-     *      - 아이디와 성함을 입력 시
-     *      이메일, 프로필 이미지, 등급, 휴대폰번호, 레벨 포인트, 가입일이 나와야함
+//     * 1. 쿠폰/포인트 지급 페이지에서 회원 검색
+//     *      - 아이디와 성함을 입력 시
+//     *      이메일, 프로필 이미지, 등급, 휴대폰번호, 레벨 포인트, 가입일이 나와야함
      *
      * 2. 이메일, 카카오, 문자 알림 넣는 법 개발 하기                            -- 추후
      *
-     * 3. 쿠폰명을 누르면 사용가능한 쿠폰을 리스트업 하게 해야함
+//     * 3. 쿠폰명을 누르면 사용가능한 쿠폰을 리스트업 하게 해야함                        -- OK
      *
-     * 4. 쿠폰명 클릭시금액과, 할인율 쿠폰 설명을 나타나게 해야함
+//     * 4. 쿠폰명 클릭시금액과, 할인율 쿠폰 설명을 나타나게 해야함
      *
-     * 5. 수정하여 수동 지급 하는 건                                           -- 일단 보류
+//     * 5. 수정하여 수동 지급 하는 건                                           -- 일단 보류
      *
      * 6. 쿠폰 지급 하기 기능
      *
-     * 7. 회원의 가용 포인트와 레벨 포인트를 가져와야함  <- 이것 1번이랑 합치고 싶음.
+     * 7. 회원의 가용 포인트와 레벨 포인트를 가져와야함  <- 이것 1번이랑 합치고 싶음.         -- OK
      *
      *
-     * 8. 포인트 지금 (레벨 포인트, 가용 포인트)
+     * 8. 포인트 지금 (레벨 포인트, 가용 포인트)                                  -- OK
      *
-     * 9. 포인트 수취 (레벨 포인트 , 가용 포인트)
+     * 9. 포인트 수취 (레벨 포인트 , 가용 포인트)                                  -- OK
      *
      *
      */
 
     @PostMapping("/admin/register")
-    public ApiResponseEntity<Boolean> registerCouponForAdmin(@RequestBody CouponIssuedDto couponIssuedDto) {
+    public ApiResponseEntity<Boolean> registerCouponForAdmin(@Valid @RequestBody CouponIssuedDto couponIssuedDto) {
         //TODO: 관리자 검증 로직 추가
         Boolean result = couponAdminService.addCoupon(couponIssuedDto);
 
@@ -116,6 +116,48 @@ public class CouponController {
                 .result(result.hasContent())
                 .build();
     }
+
+    /**
+     *  2. 쿠폰 등록 페이지에서 쿠폰 상세 내용 입력
+     */
+    @PostMapping("/admin/couponDetail")
+    public ApiResponseEntity<CouponDetailDto> getCouponDetail(@RequestBody CouponSearchDto couponSearchDto) {
+        CouponDetailDto result = couponAdminService.getCouponDetail(couponSearchDto);
+
+        return ApiResponseEntity.<CouponDetailDto>builder()
+                .result(result != null ? true : false)
+                .data(result)
+                .build();
+    }
+
+    @PostMapping("/admin/issueCoupon")
+    public ApiResponseEntity<Object> issuingCoupon(@RequestBody CouponUserIssuedDto couponUserIssuedDto) {
+        return ApiResponseEntity.builder()
+                .build();
+    }
+
+    @PostMapping("/admin/updateCoupon")
+    public ApiResponseEntity<Object> updateCoupon(@Valid @RequestBody CouponUpdateDto couponUpdateDto) {
+        boolean result = couponAdminService.updateCouponDetail(couponUpdateDto);
+        return ApiResponseEntity.builder()
+                .result(result)
+                .build();
+    }
+
+    /**
+     * ADMIN 쿠폰 지급 API
+     */
+    @PostMapping("/admin/provide")
+    public ApiResponseEntity<Object> provideCoupon(@Valid @RequestBody CouponUserIssuedDto couponUserIssuedDto) {
+        boolean result = couponAdminService.addCouponUser(couponUserIssuedDto);
+        return ApiResponseEntity
+                .builder()
+                .result(result)
+                .build();
+    }
+
+
+
 
     /** TODO: 기능 정의 사용자
      * 1.쿠폰 리스트 뿌리기

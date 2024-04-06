@@ -1,15 +1,15 @@
 package com.impacus.maketplace.controller;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
-import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
-import com.impacus.maketplace.dto.point.response.*;
+import com.impacus.maketplace.dto.point.request.PointManageDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
+import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
 import com.impacus.maketplace.dto.point.response.PointHistoryDto;
+import com.impacus.maketplace.dto.point.response.PointInfoDto;
 import com.impacus.maketplace.dto.point.response.PointMasterDto;
-import com.impacus.maketplace.entity.point.PointMaster;
 import com.impacus.maketplace.service.PointService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -97,4 +97,15 @@ public class PointController {
     /**
      *  - 소멸 예정 포인트 포인트 삭감 배치작업
      */
+
+
+    /**
+     * ADMIN 포인트 지급 및 수취
+     */
+    @PostMapping("/manage")
+    public ApiResponseEntity<?> pointManageForAdmin(@Valid @RequestBody PointManageDto pointManageDto) {
+        boolean result = pointService.pointManage(pointManageDto);
+
+        return ApiResponseEntity.<Object>builder().result(result).build();
+    }
 }

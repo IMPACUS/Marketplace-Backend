@@ -137,6 +137,30 @@ public class User extends BaseEntity {
     @Convert(converter = TimestampConverter.class)
     private LocalDateTime recentLoginAt;
 
+    @ColumnDefault("true")
+    @Column(nullable = false)
+    private Boolean orderDeliveryAlarm;     //  주문/배송 알람
+
+    @ColumnDefault("true")
+    @Column(nullable = false)
+    private Boolean restockAlarm;           //  재입고 알람
+
+    @ColumnDefault("true")
+    @Column(nullable = false)
+    private Boolean reviewAlarm;            //  리뷰 알람
+
+    @ColumnDefault("true")
+    @Column(nullable = false)
+    private Boolean serviceCenterAlarm;     //  고객센터 알람
+
+    @ColumnDefault("true")
+    @Column(nullable = false)
+    private Boolean brandShopAlarm;         //  브랜드샵 알람
+
+    @ColumnDefault("true")
+    @Column(nullable = false)
+    private Boolean shoppingBenefitsAlarm;  //  숖핑혜택 (광고성, 쿠폰) 알람
+
     public User(String email, String password, String name) {
         this.email = email;
         this.password = password;
@@ -155,6 +179,12 @@ public class User extends BaseEntity {
         this.firstDormancy = false;
         this.secondDormancy = false;
         this.dormancyMonths = 0;
+        this.orderDeliveryAlarm = true;
+        this.restockAlarm = true;
+        this.reviewAlarm = true;
+        this.serviceCenterAlarm = true;
+        this.brandShopAlarm = true;
+        this.shoppingBenefitsAlarm = true;
     }
 
     public void setRecentLoginAt() {

@@ -3,11 +3,13 @@ package com.impacus.maketplace.service;
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.PointType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.point.PointManageType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
+import com.impacus.maketplace.dto.point.request.PointManageDto;
 import com.impacus.maketplace.dto.point.request.PointRequestDto;
 import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
 import com.impacus.maketplace.dto.point.response.PointHistoryDto;
@@ -373,6 +375,68 @@ public class PointService {
                 }
             }
         }
+    }
+
+
+    /**
+     * ADMIN MANAGE POINT
+     * 1. 포인트 지급 / 수취
+     * 2. 포인트 이력 저장
+     */
+    @Transactional
+    public boolean pointManage(PointManageDto pointManageDto) {
+        try {
+            PointMaster pointMaster = pointMasterRepository.findByUserId(pointManageDto.getUserId())
+                    .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+
+            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
+            Integer currentUserScore = pointMaster.getUserScore();
+            int manageAvailablePoint = pointManageDto.getManageAvailablePoint();
+            int manageUserScore = pointManageDto.getManageLevelPoint();
+            UserLevel currentUserLevel = pointMaster.getUserLevel();
+
+            if (pointManageDto.getPointManageType().equals(PointManageType.PROVIDE.getCode())) {   //    지급
+                if (manageAvailablePoint > 0) {
+                    pointMaster.setAvailablePoint(currentAvailablePoint + manageAvailablePoint);
+                }
+                if (manageUserScore > 0) {
+                    int resultUserScore = currentUserScore + manageUserScore;
+                    pointMaster.setUserScore(currentUserScore + manageUserScore);
+                    changeUpLevel(pointMaster, resultUserScore, currentUserLevel);
+                }
+            } else if (pointManageDto.getPointManageType().equals(PointManageType.RECEIVE.getCode())) {    //  수취
+                if (manageAvailablePoint > 0) {
+                    int resultAvailablePoint = currentAvailablePoint - manageAvailablePoint;
+                    if (resultAvailablePoint <= 0) {
+                       throw new CustomException(ErrorType.INVALID_POINT_MANAGE);
+                    } else {
+                        pointMaster.setAvailablePoint(resultAvailablePoint);
+                    }
+                }
+                if (manageUserScore > 0) {
+                    int resultUserScore = currentUserScore - manageUserScore;
+                    if (resultUserScore <= 0) {
+                        throw new CustomException(ErrorType.INVALID_POINT_MANAGE);
+                    } else {
+                        pointMaster.setUserScore(currentUserScore - manageUserScore);
+                        changeUpLevel(pointMaster, resultUserScore, currentUserLevel);
+                    }
+                }
+            }
+            //TODO: 관리자가 지정한 point에도 유효기간을 준다면 expiredAt으로 설정
+            PointHistory pointHistory = PointHistory.builder()
+                    .pointMasterId(pointMaster.getId())
+                    .pointType(pointManageDto.getPointManageType().equals(PointManageType.PROVIDE.getCode()) ? PointType.ADMIN_PROVIDE : PointType.ADMIN_RECEIVE)
+                    .changePoint(pointManageDto.getManageAvailablePoint())
+                    .isManual(true)
+                    .expiredAt(null)
+                    .build();
+            pointHistoryRepository.save(pointHistory);
+
+        } catch (CustomException e) {
+            return false;
+        }
+        return true;
     }
 
 }
