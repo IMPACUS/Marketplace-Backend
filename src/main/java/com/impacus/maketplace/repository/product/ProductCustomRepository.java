@@ -11,4 +11,6 @@ public interface ProductCustomRepository {
     Page<ProductForWebDTO> findAllProduct(LocalDate startAt, LocalDate endAt, Pageable pageable);
 
     ProductDetailDTO findProductByProductId(Long productId);
+
+    boolean existsBySuperCategoryId(Long superCategoryId);
 }

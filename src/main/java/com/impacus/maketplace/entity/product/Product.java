@@ -4,7 +4,6 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.ProductStatus;
-import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,8 +40,8 @@ public class Product extends BaseEntity {
     private DeliveryType deliveryType; // 배송 타입
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private SubCategory categoryType; // 카테고리 타입
+    @ColumnDefault("1")
+    private Long categoryId; // 카테고리 id
 
     @Column(nullable = false)
     private int deliveryFee; // 배송비
@@ -81,7 +80,7 @@ public class Product extends BaseEntity {
         this.name = productRequest.getName();
         this.productNumber = productNumber;
         this.deliveryType = productRequest.getDeliveryType();
-        this.categoryType = productRequest.getCategoryType();
+        this.categoryId = productRequest.getCategoryId();
         this.deliveryFee = productRequest.getDeliveryFee();
         this.refundFee = productRequest.getRefundFee();
         this.marketPrice = productRequest.getMarketPrice();
@@ -96,7 +95,7 @@ public class Product extends BaseEntity {
         this.brandId = productRequest.getBrandId();
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
-        this.categoryType = productRequest.getCategoryType();
+        this.categoryId = productRequest.getCategoryId();
         this.deliveryFee = productRequest.getDeliveryFee();
         this.refundFee = productRequest.getRefundFee();
         this.marketPrice = productRequest.getMarketPrice();

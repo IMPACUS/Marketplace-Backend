@@ -2,7 +2,6 @@ package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
@@ -16,6 +15,7 @@ import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.BrandService;
+import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,6 +47,7 @@ public class ProductService {
     private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
     private final ObjectCopyHelper objectCopyHelper;
+    private final SubCategoryService subCategoryService;
 
     /**
      * 새로운 Product를 저장하는 함수
@@ -122,7 +123,7 @@ public class ProductService {
     public boolean validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
         Long brandId = productRequest.getBrandId();
         DeliveryType deliveryType = productRequest.getDeliveryType();
-        SubCategory subCategory = productRequest.getCategoryType();
+        Long categoryId = productRequest.getCategoryId();
 
         // 1. brand 가 존재하는지 확인
         brandService.findBrandById(brandId);
@@ -148,11 +149,13 @@ public class ProductService {
         // 4. 상품 내부 데이터 확인
         if (deliveryType == DeliveryType.NONE) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
-        } else if (subCategory == SubCategory.NONE) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 카테고리 입니다.");
-        } else {
-            return true;
         }
+
+        if (!subCategoryService.existsBySubCategoryId(categoryId)) {
+            throw new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY);
+        }
+
+        return true;
     }
 
     /**
@@ -279,13 +282,17 @@ public class ProductService {
     /**
      * 전체 상품 조회하는 함수
      *
-     * @param category
+     * @param subCategoryId
      * @param pageable
      * @return
      */
-    public Slice<ProductDTO> findProductByCategoryForApp(SubCategory category, Pageable pageable) {
+    public Slice<ProductDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
         try {
-            return findProductByCategoryType(category, pageable).map(ProductDTO::toDTO);
+            if (subCategoryId != null && !subCategoryService.existsBySubCategoryId(subCategoryId)) {
+                throw new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY);
+            }
+
+            return findProductByCategoryId(subCategoryId, pageable).map(ProductDTO::toDTO);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -316,11 +323,11 @@ public class ProductService {
      * @param pageable
      * @return
      */
-    public Page<Product> findProductByCategoryType(SubCategory category, Pageable pageable) {
-        if (category == null) {
+    public Page<Product> findProductByCategoryId(Long subCategoryId, Pageable pageable) {
+        if (subCategoryId == null) {
             return productRepository.findAll(pageable);
         } else {
-            return productRepository.findByCategoryType(category, pageable);
+            return productRepository.findByCategoryId(subCategoryId, pageable);
         }
     }
 

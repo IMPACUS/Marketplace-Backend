@@ -2,7 +2,6 @@ package com.impacus.maketplace.service.temporaryProduct;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
@@ -15,6 +14,7 @@ import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.BrandService;
+import com.impacus.maketplace.service.category.SubCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +40,7 @@ public class TemporaryProductService {
     private final TemporaryProductOptionService temporaryProductOptionService;
     private final TemporaryProductDetailInfoService temporaryProductDetailInfoService;
     private final ObjectCopyHelper objectCopyHelper;
+    private final SubCategoryService subCategoryService;
 
     /**
      * TemporaryProduct 데이터가 사용자에게 등록되어 있는지 확인하는 함수
@@ -101,19 +102,17 @@ public class TemporaryProductService {
             List<MultipartFile> productDescriptionImageList
     ) {
         // 1. productRequest 데이터 유효성 검사
-        if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT);
-        }
+        validateProductRequest(productImageList, productRequest, productDescriptionImageList);
 
         // 2. Product 저장
         TemporaryProduct newTemporaryProduct = temporaryProductRepository.save(productRequest.toTemporaryEntity());
         Long temporaryProductId = newTemporaryProduct.getId();
 
         // 3. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-        productImageList.stream()
-                .map(productImage -> {
+        productImageList
+                .forEach(productImage -> {
                     try {
-                        return attachFileService.uploadFileAndAddAttachFile(
+                        attachFileService.uploadFileAndAddAttachFile(
                                 productImage,
                                 TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
                                 temporaryProductId,
@@ -121,7 +120,7 @@ public class TemporaryProductService {
                     } catch (IOException e) {
                         throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
                     }
-                }).collect(Collectors.toList());
+                });
 
         // 4. Product description 저장
         TemporaryProductDescription temporaryProductDescription = temporaryProductDescriptionService.addTemporaryProductDescription(temporaryProductId, productRequest);
@@ -155,14 +154,14 @@ public class TemporaryProductService {
      * @param productRequest
      * @return
      */
-    public boolean validateProductRequest(
+    public void validateProductRequest(
             List<MultipartFile> productImageList,
             ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
 
         Long brandId = productRequest.getBrandId();
         DeliveryType deliveryType = productRequest.getDeliveryType();
-        SubCategory subCategory = productRequest.getCategoryType();
+        Long subCategoryId = productRequest.getCategoryId();
 
         // 1. brand 가 존재하는지 확인
         brandService.findBrandById(brandId);
@@ -188,10 +187,9 @@ public class TemporaryProductService {
         // 4. 상품 내부 데이터 확인
         if (deliveryType == DeliveryType.NONE) {
             throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
-        } else if (subCategory == SubCategory.NONE) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 카테고리 입니다.");
-        } else {
-            return true;
+        }
+        if (!subCategoryService.existsBySubCategoryId(subCategoryId)) {
+            throw new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY);
         }
     }
 
@@ -212,9 +210,7 @@ public class TemporaryProductService {
             List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. productRequest 데이터 유효성 검사
-            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-                throw new CustomException(ErrorType.INVALID_PRODUCT);
-            }
+            validateProductRequest(productImageList, productRequest, productDescriptionImageList);
 
             // 2. Product 수정
             temporaryProduct.setProduct(productRequest);
@@ -224,9 +220,9 @@ public class TemporaryProductService {
             // 3. 대표 이미지 저장 및 AttachFileGroup과 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
             productImageList.stream()
-                    .map(productImage -> {
+                    .forEach(productImage -> {
                         try {
-                            return attachFileService.uploadFileAndAddAttachFile(
+                            attachFileService.uploadFileAndAddAttachFile(
                                     productImage,
                                     TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
                                     temporaryProductId,
@@ -235,7 +231,7 @@ public class TemporaryProductService {
                         } catch (IOException e) {
                             throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
                         }
-                    }).collect(Collectors.toList());
+                    });
 
             // 4. Product description 수정
             TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);

@@ -2,7 +2,6 @@ package com.impacus.maketplace.dto.product.response;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ProductStatus;
-import com.impacus.maketplace.common.enumType.category.SubCategory;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import lombok.Data;
 
@@ -13,7 +12,7 @@ public class ProductDetailForWebDTO {
     private String name;
     private String description;
     private DeliveryType deliveryType;
-    private SubCategory categoryType;
+    private Long categoryId;
     private int deliveryFee;
     private int refundFee;
     private int marketPrice;
