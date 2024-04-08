@@ -4,8 +4,11 @@ import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.category.QSuperCategory;
+import com.impacus.maketplace.entity.common.QAttachFile;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -18,6 +21,7 @@ public class SuperCategoryCustomRepositoryImpl implements SuperCategoryCustomRep
     private final JPAQueryFactory queryFactory;
     private final QSuperCategory superCategory = QSuperCategory.superCategory;
     private final QSubCategory subCategory = QSubCategory.subCategory;
+    private final QAttachFile attachFile = QAttachFile.attachFile;
 
     @Override
     public List<CategoryDetailDTO> findAllCategory() {
@@ -32,7 +36,13 @@ public class SuperCategoryCustomRepositoryImpl implements SuperCategoryCustomRep
                                                 Projections.constructor(
                                                         SubCategoryDetailDTO.class,
                                                         subCategory.id,
-                                                        subCategory.name
+                                                        subCategory.name,
+                                                        ExpressionUtils.as(
+                                                                JPAExpressions.select(attachFile.attachFileName)
+                                                                        .from(attachFile)
+                                                                        .where(attachFile.id.eq(subCategory.thumbnailId))
+                                                                , "thumbnailUrl"
+                                                        )
                                                 )
                                         )
                                 )
