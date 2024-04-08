@@ -87,8 +87,9 @@ public class CategoryController {
     @PutMapping("admin/sub-category/{categoryId}")
     public ApiResponseEntity<Object> updateSubCategory(
             @PathVariable(name = "categoryId") Long categoryId,
-            @Valid @RequestBody ChangeCategoryNameRequest categoryNameRequest) {
-        SubCategoryDTO subCategoryDTO = subCategoryService.updateSubCategory(categoryId, categoryNameRequest);
+            @RequestPart(value = "sub-category-thumbnail", required = false) MultipartFile thumbnail,
+            @Valid @RequestPart(value = "sub-category") ChangeCategoryNameRequest subCategoryRequest) {
+        SubCategoryDTO subCategoryDTO = subCategoryService.updateSubCategory(categoryId, thumbnail, subCategoryRequest);
         return ApiResponseEntity
                 .builder()
                 .data(subCategoryDTO)
