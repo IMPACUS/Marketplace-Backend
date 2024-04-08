@@ -4,14 +4,12 @@ import com.impacus.maketplace.common.utils.CouponUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-
 @Getter
 @RequiredArgsConstructor
 public enum CouponBenefitClassification  implements CouponUtils.CommonFieldInterface {
 
-    AMOUNT("amount", "원"),
-    PERCENTAGE("percent" , "%"),
+    AMOUNT("AMOUNT", "원"),
+    PERCENTAGE("PERCENT" , "%"),
     UNKNOWN("", "");
 
 

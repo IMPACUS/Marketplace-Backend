@@ -1,7 +1,6 @@
 package com.impacus.maketplace.repository.order;
 
 import com.impacus.maketplace.dto.order.response.GetOrdersResponse;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

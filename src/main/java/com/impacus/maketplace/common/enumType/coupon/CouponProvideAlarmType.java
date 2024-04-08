@@ -6,11 +6,14 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponExpireTime implements CouponUtils.CommonFieldInterface{
+public enum CouponProvideAlarmType implements CouponUtils.CommonFieldInterface{
 
-    CET_1("CET_1", "발급일로 부터 N 일 이내"),
-    CET_2("CET_2", "기간제한 없음");
+    EMAIL_ALARM("email", "이메일 알림"),
+    KAKAO_ALARM("kakaoTalk", "카카오톡 알림"),
+    SMS_ALARM("sms", "문자 알림"),
+    UNKNOWN("", "");
 
     private final String code;
     private final String value;
+
 }

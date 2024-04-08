@@ -3,6 +3,7 @@ package com.impacus.maketplace.common.utils;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -53,4 +54,19 @@ public class StringUtils {
         
         return nowDate + randomNumber;
     }
+
+    /**
+     * String 타입의 number 가 들어오면 구분[,] 넣어주기
+     * ex ) String number = 4000;
+     *
+     * @return 4,000
+     */
+
+    public static String updateNumberFormat(String number) {
+        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        // 문자열을 숫자로 파싱하여 형식 지정 적용 후 다시 문자열로 변환
+        return decimalFormat.format(Integer.parseInt(number));
+
+    }
+
 }

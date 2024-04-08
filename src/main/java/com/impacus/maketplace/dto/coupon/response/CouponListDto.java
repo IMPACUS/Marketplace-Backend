@@ -1,19 +1,15 @@
 package com.impacus.maketplace.dto.coupon.response;
 
 
-import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.entity.coupon.CouponIssuanceClassificationData;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
 public class CouponListDto {
 
     private Long id;
@@ -22,7 +18,7 @@ public class CouponListDto {
     private String name;    // 쿠폰 이름
     private String description;    // 쿠폰 설명
     private CouponBenefitClassification couponBenefitClassification;    // 혜택 구분 [ 원, % ]
-    private BigDecimal benefitAmount;   // 혜택 금액 및 퍼센트
+    private int benefitAmount;   // 혜택 금액 및 퍼센트
     private CouponIssuanceClassification couponIssuanceClassification;  // 발급 구분 [ 그린 태그, 유저 일반, 신규 고객 첫 주문, SNS 홍보 태그 ]
     private CouponIssuanceClassificationData couponIssuanceClassificationData; // 발급 구분 별 데이터
     private CouponPaymentTarget couponPaymentTarget;    // 지급 대상 [ 모든 회원, 선착순 ]
@@ -36,11 +32,10 @@ public class CouponListDto {
     private CouponCoverage couponUseCoverage;   // 쿠폰 사용 범위 [ 모든상품/브랜드, 특정 브랜드]
     //TODO: 브랜드 추가시 브랜드 코드추가 예정
 //    private Brand useBrand;
-    private CouponStandardAmountType couponUsableStandardAmount;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-    private BigDecimal usableStandardMount = BigDecimal.ZERO; // N원 (N원 이상 주문시 사용 가능)
-    private CouponStandardAmountType couponIssuanceStandardAmount;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-    private BigDecimal issueStandardMount = BigDecimal.ZERO;  // N원 (N원 이상 주문시 쿠폰 발급)
-    private PaymentMethod paymentMethod;    // 결제수단 [ 카드, XXX 페이, 간편결제 ]
+    private CouponStandardAmountType couponUsableStandardAmountType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+    private int usableStandardAmount = 0; // N원 (N원 이상 주문시 사용 가능)
+    private CouponStandardAmountType couponIssuanceStandardAmountType;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+    private int issueStandardAmount = 0;  // N원 (N원 이상 주문시 쿠폰 발급)
     private CouponIssuancePeriodType couponIssuancePeriod;  // 기간 설정
     private LocalDate startIssuanceAt;  // 기간설정 시작 기간
     private LocalDate endIssuanceAt;    // 기간설정 종료 기간
@@ -52,8 +47,17 @@ public class CouponListDto {
     private IssuanceStatus status;
     private LocalDateTime modifyAt;
 
+    // code To String
+    private String issuanceStandard;    // 지급 조건
+    private String expiredPeriod;      // 사용기간
+    private String numberOfIssuance;    // 발급수
+    private String manualOrAutomatic;   // 자동/수동
+    private String issuanceStatus;      // 발급 상태
+    private String recentActivity;      // 최근활동
+
+
     @QueryProjection
-    public CouponListDto(Long id, String code, String name, String description, CouponBenefitClassification couponBenefitClassification, BigDecimal benefitAmount, CouponIssuanceClassification couponIssuanceClassification, CouponIssuanceClassificationData couponIssuanceClassificationData, CouponPaymentTarget couponPaymentTarget, Long firstComeFirstServedAmount, CouponIssuedTime couponIssuedTime, CouponExpireTime couponExpireTime, Long expireDays, CouponCoverage couponIssuanceCoverage, CouponCoverage couponUseCoverage, CouponStandardAmountType couponUsableStandardAmount, BigDecimal usableStandardMount, CouponStandardAmountType couponIssuanceStandardAmount, BigDecimal issueStandardMount, PaymentMethod paymentMethod, CouponIssuancePeriodType couponIssuancePeriod, LocalDate startIssuanceAt, LocalDate endIssuanceAt, Long numberOfWithPeriod, CouponIssuanceType couponIssuance, String loginCouponIssueNotification, String issuingCouponsSendSMS, String issuanceCouponSendEmail, IssuanceStatus status, LocalDateTime modifyAt) {
+    public CouponListDto(Long id, String code, String name, String description, CouponBenefitClassification couponBenefitClassification, int benefitAmount, CouponIssuanceClassification couponIssuanceClassification, CouponIssuanceClassificationData couponIssuanceClassificationData, CouponPaymentTarget couponPaymentTarget, Long firstComeFirstServedAmount, CouponIssuedTime couponIssuedTime, CouponExpireTime couponExpireTime, Long expireDays, CouponCoverage couponIssuanceCoverage, CouponCoverage couponUseCoverage, CouponStandardAmountType couponUsableStandardAmount, int usableStandardMount, CouponStandardAmountType couponIssuanceStandardAmountType, int issueStandardAmount, CouponIssuancePeriodType couponIssuancePeriod, LocalDate startIssuanceAt, LocalDate endIssuanceAt, Long numberOfWithPeriod, CouponIssuanceType couponIssuance, String loginCouponIssueNotification, String issuingCouponsSendSMS, String issuanceCouponSendEmail, IssuanceStatus status, LocalDateTime modifyAt) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -69,11 +73,10 @@ public class CouponListDto {
         this.expireDays = expireDays;
         this.couponIssuanceCoverage = couponIssuanceCoverage;
         this.couponUseCoverage = couponUseCoverage;
-        this.couponUsableStandardAmount = couponUsableStandardAmount;
-        this.usableStandardMount = usableStandardMount;
-        this.couponIssuanceStandardAmount = couponIssuanceStandardAmount;
-        this.issueStandardMount = issueStandardMount;
-        this.paymentMethod = paymentMethod;
+        this.couponUsableStandardAmountType = couponUsableStandardAmount;
+        this.usableStandardAmount = usableStandardMount;
+        this.couponIssuanceStandardAmountType = couponIssuanceStandardAmountType;
+        this.issueStandardAmount = issueStandardAmount;
         this.couponIssuancePeriod = couponIssuancePeriod;
         this.startIssuanceAt = startIssuanceAt;
         this.endIssuanceAt = endIssuanceAt;
