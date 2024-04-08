@@ -2,7 +2,6 @@ package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
-import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -66,9 +65,7 @@ public class User extends BaseEntity {
 
     @ColumnDefault("false")
     @Column(nullable = false)
-    private Boolean isCertBank; // 계좌 인증 여부
-
-    private LocalDateTime certBankDateTime; // 계좌 인증 시간
+    private Boolean isCertBank; // 계좌 인증 여부 -> TODO 삭제 필요
 
     @Column(nullable = false)
     private Boolean doesAgreeServicePolicy; // 서비스 보안 동의 여부
@@ -80,10 +77,7 @@ public class User extends BaseEntity {
     private Boolean doesAgreeService; // 서비스 이용 여부
 
     @Column(nullable = false)
-    private Boolean isWithdrawn; // 철회 여부
-
-    private LocalDateTime withdrawnDateTime; // 철회 진행 시간
-
+    private Boolean isWithdrawn; // 철회 여부 -> TODO 삭제 필요
 
     @ColumnDefault("false")
     @Column(nullable = false)
@@ -111,25 +105,11 @@ public class User extends BaseEntity {
     @Convert(converter = AES256ToStringConverter.class)
     private String password; // 비밀번호
 
-    private int wrongPasswordCnt; // 비밀번호 틀린 횟수
-
-    @Enumerated(EnumType.ORDINAL)
-    private BankCode bankCode; // 은행 코드
-
-    @Convert(converter = AES256ToStringConverter.class)
-    private String bankAccountNumber; // 은행 계좌 번호
-
     @Convert(converter = AES256ToStringConverter.class)
     private String userJumin1; //주민 번호 앞자리
 
     @Convert(converter = AES256ToStringConverter.class)
     private String userJumin2; //주민 번호 뒷자리
-
-    @Convert(converter = AES256ToStringConverter.class)
-    private String authCi;
-
-    @Convert(converter = AES256ToStringConverter.class)
-    private String authDi;
 
     @Convert(converter = AES256ToStringConverter.class)
     private String pccc; // 개인 통관 고유 번호
