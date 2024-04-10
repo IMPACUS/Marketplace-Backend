@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CouponPaymentTarget implements CouponUtils.CommonFieldInterface {
 
-    CPT_1("CPT_1", "모든 회원"),
-    CPT_2("CPT_2", "선착순");
+    ALL("ALL", "모든 회원"),
+    FIRST("FIRST", "선착순");
 
     private final String code;
     private final String value;

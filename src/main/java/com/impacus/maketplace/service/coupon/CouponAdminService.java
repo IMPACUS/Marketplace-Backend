@@ -109,7 +109,7 @@ public class CouponAdminService {
             }
         }
         coupon.setCouponPaymentTarget(paymentTargetType);
-        if (paymentTargetType == CouponPaymentTarget.CPT_2 && req.getFirstComeFirstServedAmount() > 0) {
+        if (paymentTargetType == CouponPaymentTarget.FIRST && req.getFirstComeFirstServedAmount() > 0) {
             coupon.setFirstComeFirstServedAmount(req.getFirstComeFirstServedAmount());
         } else {
             coupon.setFirstComeFirstServedAmount(-1L);
@@ -119,7 +119,7 @@ public class CouponAdminService {
         coupon.setCouponType(couponType);
 
         coupon.setCouponExpireTime(expireTimeType);
-        if (expireTimeType == CouponExpireTime.CET_1 && req.getExpireDays() > 0) {
+        if (expireTimeType == CouponExpireTime.LIMIT && req.getExpireDays() > 0) {
             coupon.setExpireDays(req.getExpireDays());
         } else {
             coupon.setExpireDays(-1L);
@@ -131,21 +131,21 @@ public class CouponAdminService {
         //
 
         coupon.setCouponUsableStandardAmountType(usableStandardAmountType);
-        if (usableStandardAmountType == CouponStandardAmountType.CSA_2 && req.getUsableStandardMount() > 0) {
+        if (usableStandardAmountType == CouponStandardAmountType.LIMIT && req.getUsableStandardMount() > 0) {
             coupon.setUsableStandardAmount(req.getUsableStandardMount());
         } else {
             coupon.setUsableStandardAmount(-1);
         }
 
         coupon.setCouponIssuanceStandardAmountType(issuanceStandardAmountType);
-        if (issuanceStandardAmountType == CouponStandardAmountType.CSA_2 && req.getIssueStandardAmount() > 0) {
+        if (issuanceStandardAmountType == CouponStandardAmountType.LIMIT && req.getIssueStandardAmount() > 0) {
             coupon.setIssueStandardAmount(req.getIssueStandardAmount());
         } else {
             coupon.setIssueStandardAmount(-1);
         }
 
         coupon.setCouponIssuancePeriod(issuancePeriodType);
-        if (issuancePeriodType == CouponIssuancePeriodType.CIP_1) {
+        if (issuancePeriodType == CouponIssuancePeriodType.SET) {
             if (req.getStartIssuanceAt() != null && req.getEndIssuanceAt() != null && req.getNumberOfWithPeriod() != null) {
                 LocalDate startAt = LocalDate.parse(req.getStartIssuanceAt(), DateTimeFormatter.ISO_DATE);
                 coupon.setStartIssuanceAt(startAt);
@@ -196,26 +196,26 @@ public class CouponAdminService {
             Page<CouponListDto> dataList = couponRepository.findAllCouponList(couponSearchDto, pageable);
             if (!couponSearchDto.getSearchNotStop()) {
                 dataList.forEach(data -> {
-                    if (data.getCouponIssuanceStandardAmountType() == CouponStandardAmountType.CSA_1) {
-                        data.setIssuanceStandard(CouponStandardAmountType.CSA_1.getValue());
-                    } else if (data.getCouponIssuanceStandardAmountType() == CouponStandardAmountType.CSA_2) {
+                    if (data.getCouponIssuanceStandardAmountType() == CouponStandardAmountType.UNLIMITED) {
+                        data.setIssuanceStandard(CouponStandardAmountType.LIMIT.getValue());
+                    } else if (data.getCouponIssuanceStandardAmountType() == CouponStandardAmountType.LIMIT) {
                         String number = String.valueOf(data.getIssueStandardAmount());
                         number = StringUtils.updateNumberFormat(number);
-                        String issuanceStandard = CouponStandardAmountType.CSA_2.getValue().replace("N", String.valueOf(number));
+                        String issuanceStandard = CouponStandardAmountType.LIMIT.getValue().replace("N", String.valueOf(number));
                         data.setIssuanceStandard(issuanceStandard);
                     }
 
-                    if (data.getCouponExpireTime() == CouponExpireTime.CET_2) {
-                        data.setExpiredPeriod(CouponExpireTime.CET_2.getValue());
-                    } else if (data.getCouponExpireTime() == CouponExpireTime.CET_1) {
+                    if (data.getCouponExpireTime() == CouponExpireTime.UNLIMITED) {
+                        data.setExpiredPeriod(CouponExpireTime.UNLIMITED.getValue());
+                    } else if (data.getCouponExpireTime() == CouponExpireTime.LIMIT) {
                         Long number = data.getExpireDays();
-                        String expiredPeriod = CouponExpireTime.CET_1.getValue().replace("N", String.valueOf(number));
+                        String expiredPeriod = CouponExpireTime.LIMIT.getValue().replace("N", String.valueOf(number));
                         data.setExpiredPeriod(expiredPeriod);
                     }
 
-                    if (data.getCouponPaymentTarget() == CouponPaymentTarget.CPT_1) {
-                        data.setNumberOfIssuance(CouponPaymentTarget.CPT_1.getValue());
-                    } else if (data.getCouponPaymentTarget() == CouponPaymentTarget.CPT_2) {
+                    if (data.getCouponPaymentTarget() == CouponPaymentTarget.ALL) {
+                        data.setNumberOfIssuance(CouponPaymentTarget.ALL.getValue());
+                    } else if (data.getCouponPaymentTarget() == CouponPaymentTarget.FIRST) {
                         data.setNumberOfIssuance(String.valueOf(data.getFirstComeFirstServedAmount()));
                     }
 
@@ -293,7 +293,7 @@ public class CouponAdminService {
             }
         }
         coupon.setCouponPaymentTarget(paymentTargetType);
-        if (paymentTargetType == CouponPaymentTarget.CPT_2 && req.getFirstComeFirstServedAmount() > 0) {
+        if (paymentTargetType == CouponPaymentTarget.FIRST && req.getFirstComeFirstServedAmount() > 0) {
             coupon.setFirstComeFirstServedAmount(req.getFirstComeFirstServedAmount());
         } else {
             coupon.setFirstComeFirstServedAmount(-1L);
@@ -307,21 +307,21 @@ public class CouponAdminService {
         //
 
         coupon.setCouponUsableStandardAmountType(usableStandardAmountType);
-        if (usableStandardAmountType == CouponStandardAmountType.CSA_2 && req.getUsableStandardAmount() > 0) {
+        if (usableStandardAmountType == CouponStandardAmountType.LIMIT && req.getUsableStandardAmount() > 0) {
             coupon.setUsableStandardAmount(req.getUsableStandardAmount());
         } else {
             coupon.setUsableStandardAmount(-1);
         }
 
         coupon.setCouponIssuanceStandardAmountType(issuanceStandardAmountType);
-        if (issuanceStandardAmountType == CouponStandardAmountType.CSA_2 && req.getIssueStandardAmount() > 0) {
+        if (issuanceStandardAmountType == CouponStandardAmountType.UNLIMITED && req.getIssueStandardAmount() > 0) {
             coupon.setIssueStandardAmount(req.getIssueStandardAmount());
         } else {
             coupon.setIssueStandardAmount(-1);
         }
 
         coupon.setCouponIssuancePeriod(issuancePeriodType);
-        if (issuancePeriodType == CouponIssuancePeriodType.CIP_1) {
+        if (issuancePeriodType == CouponIssuancePeriodType.SET) {
             if (req.getStartIssuanceAt() != null && req.getEndIssuanceAt() != null && req.getNumberOfWithPeriod() != null) {
                 LocalDate startAt = LocalDate.parse(req.getStartIssuanceAt(), DateTimeFormatter.ISO_DATE);
                 coupon.setStartIssuanceAt(startAt);
@@ -374,7 +374,7 @@ public class CouponAdminService {
             CouponIssuedTime couponIssuedTime = coupon.getCouponIssuedTime();
             boolean couponLock = false;
 
-            if (couponIssuedTime == CouponIssuedTime.CIT_1) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
+            if (couponIssuedTime == CouponIssuedTime.WEEK) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
                 couponLock = true;
             }
 
@@ -401,7 +401,7 @@ public class CouponAdminService {
 
             boolean couponLock = false;
 
-            if (couponIssuedTime == CouponIssuedTime.CIT_1) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
+            if (couponIssuedTime == CouponIssuedTime.WEEK) {   // 1주일 뒤 발급 따라서 기본적으로 lock, 조건충족시 해제
                 couponLock = true;
             }
             final boolean resultCouponLock = couponLock;

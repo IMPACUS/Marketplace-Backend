@@ -186,17 +186,17 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
         }
 
         name = coupon.getName();
-        if (coupon.getCouponUsableStandardAmountType() == CouponStandardAmountType.CSA_2) {
-            desc = CouponStandardAmountType.CSA_2.getValue().replaceAll("N", String.valueOf(coupon.getUsableStandardAmount()));
-        } else if (coupon.getCouponUsableStandardAmountType() == CouponStandardAmountType.CSA_1) {
-            desc = CouponStandardAmountType.CSA_1.getValue();
+        if (coupon.getCouponUsableStandardAmountType() == CouponStandardAmountType.LIMIT) {
+            desc = CouponStandardAmountType.LIMIT.getValue().replaceAll("N", String.valueOf(coupon.getUsableStandardAmount()));
+        } else if (coupon.getCouponUsableStandardAmountType() == CouponStandardAmountType.UNLIMITED) {
+            desc = CouponStandardAmountType.UNLIMITED.getValue();
         } else {
             throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
         }
-        if (coupon.getCouponExpireTime() == CouponExpireTime.CET_1) {
+        if (coupon.getCouponExpireTime() == CouponExpireTime.LIMIT) {
             expireDate = dtf.format(couponUser.getExpiredAt())+"까지";
-        } else if (coupon.getCouponExpireTime() == CouponExpireTime.CET_2){
-            expireDate = CouponExpireTime.CET_2.getValue();
+        } else if (coupon.getCouponExpireTime() == CouponExpireTime.UNLIMITED){
+            expireDate = CouponExpireTime.UNLIMITED.getValue();
         } else {
             throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
         }
