@@ -35,4 +35,8 @@ public class SubCategory extends BaseEntity {
         this.name = name;
     }
 
+    public void setThumbnailId(Long id) {
+        this.thumbnailId = id;
+    }
+
 }

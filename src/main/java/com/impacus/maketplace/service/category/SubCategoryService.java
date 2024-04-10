@@ -97,11 +97,27 @@ public class SubCategoryService {
      * @return
      */
     @Transactional
-    public SubCategoryDTO updateSubCategory(Long categoryId, ChangeCategoryNameRequest categoryNameRequest) {
+    public SubCategoryDTO updateSubCategory(Long categoryId, MultipartFile thumbnail, ChangeCategoryNameRequest categoryNameRequest) {
         try {
+            String subCategoryName = categoryNameRequest.getName();
+
+            // 1. 중복된 2차 카테고리 명 확인
+            if (existsBySuperCategoryName(subCategoryName)) {
+                throw new CustomException(ErrorType.DUPLICATED_SUB_CATEGORY);
+            }
+
+            // 2. 썸네일 용량 확인 & 저장
+            AttachFile attachFile = null;
+            if (thumbnail.getSize() > THUMBNAIL_SIZE_LIMIT) {
+                throw new CustomException(ErrorType.INVALID_THUMBNAIL, "2차 카테고리 이미지 크기가 제한 사이즈보다 큽니다.");
+            } else {
+                attachFile = attachFileService.uploadFileAndAddAttachFile(thumbnail, THUMBNAIL_IMAGE_DIRECTORY);
+            }
+
             SubCategory subCategory = findBySubCategoryId(categoryId);
 
             subCategory.setName(categoryNameRequest.getName());
+            subCategory.setThumbnailId(attachFile.getId());
             subCategoryRepository.save(subCategory);
             return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
         } catch (Exception ex) {
