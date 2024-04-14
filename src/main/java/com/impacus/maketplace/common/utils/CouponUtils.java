@@ -10,6 +10,12 @@ import java.util.Random;
 import java.util.UUID;
 
 public class CouponUtils {
+
+    /** 오픈 기념 회원가입 이벤트 쿠폰 */
+    public static final String OPEN_EVENT_CODE = "O9P7E5N3!1";
+
+
+
     private static List<Integer> percentages = Arrays.asList(10,20,30,40,50);
     public CouponUtils() throws Exception {
         throw new Exception("you do not need to construct CouponUtils class!");
