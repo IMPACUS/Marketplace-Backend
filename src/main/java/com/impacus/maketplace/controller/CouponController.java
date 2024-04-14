@@ -209,5 +209,15 @@ public class CouponController {
      *  쿠폰 다운로드
      */
 
+    @PostMapping("/user/download")
+    public ApiResponseEntity<CouponUserListDto> couponDownload(Long couponUserId, @AuthenticationPrincipal CustomUserDetails user) {
+        CouponUserListDto data = couponService.couponDownload(couponUserId);
+
+        return ApiResponseEntity.<CouponUserListDto>builder()
+                .result(data != null ? true : false)
+                .data(data)
+                .build();
+    }
+
 
 }

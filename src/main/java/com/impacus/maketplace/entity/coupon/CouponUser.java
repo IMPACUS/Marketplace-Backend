@@ -27,14 +27,17 @@ public class CouponUser extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Setter
     private Boolean couponLock; // 쿠폰을 다운로드 받을 수 없는 상태 (N일 뒤 발급)
 
     private LocalDateTime availableDownloadAt;  //  N일뒤 발급시에 대한 기간
 
     @Builder.Default
+    @Setter
     private Boolean isDownloaded = false;
 
     @Builder.Default
+    @Setter
     private Boolean isUsed = false;
 
     @Builder.Default

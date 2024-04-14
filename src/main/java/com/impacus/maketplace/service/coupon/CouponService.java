@@ -11,6 +11,7 @@ import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponUser;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.repository.coupon.CouponCustomRepositoryImpl;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.CouponUserRepository;
@@ -99,5 +100,23 @@ public class CouponService {
             couponUserRepository.save(newCouponUser);
             return true;
         }
+    }
+
+    @Transactional
+    public CouponUserListDto couponDownload(Long couponUserId) {
+        CouponUser couponUser = couponUserRepository.findById(couponUserId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_COUPON));
+
+        if (couponUser.getCouponLock() == true ||
+            couponUser.getExpiredAt().isBefore(LocalDateTime.now()) ||
+            couponUser.getIsDownloaded() == true ||
+            couponUser.getIsUsed() == true) {
+            throw new CustomException(ErrorType.INVALID_COUPON_REQUEST);
+        }
+
+        couponUser.setIsDownloaded(true);
+        couponUserRepository.save(couponUser);
+
+        return CouponCustomRepositoryImpl.entityToDto(couponUser);
     }
 }

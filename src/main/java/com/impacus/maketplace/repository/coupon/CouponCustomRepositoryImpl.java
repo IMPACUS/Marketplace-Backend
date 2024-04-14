@@ -166,7 +166,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
         return new PageImpl<>(result, pageable, count);
     }
 
-    private CouponUserListDto entityToDto(CouponUser couponUser) {
+    public static CouponUserListDto entityToDto(CouponUser couponUser) {
         String price;   // ex) 20,000원
         String name;    // ex) 환경을 위한 감사 쿠폰
         String desc;    // ex) 13만원 이상의 제품 구매시 사용 가능
