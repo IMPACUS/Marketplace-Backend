@@ -178,6 +178,9 @@ public class CouponController {
      *
      */
 
+    /**
+     *  유저의 보유중인 쿠폰 리스트 (검색)
+     */
     @PostMapping("/user/list")
     public ApiResponseEntity<Page<CouponUserListDto>> getCouponUserList(@Valid @RequestBody CouponUserSearchDto couponUserSearchDto,
                                                                         @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable,
@@ -188,6 +191,23 @@ public class CouponController {
                 .data(result)
                 .build();
     }
+
+    /**
+     *  쿠폰 등록하기
+     */
+    @PostMapping("/user/register")
+    public ApiResponseEntity<Object> registerCouponForUser(@Valid @RequestBody CouponRegisterDto couponRegisterDto, @AuthenticationPrincipal CustomUserDetails user) {
+        couponRegisterDto.setUserId(user.getId());
+        boolean result = couponService.couponRegister(couponRegisterDto);
+
+        return ApiResponseEntity.<Object>builder()
+                .result(result)
+                .data(result)
+                .build();
+    }
+    /**
+     *  쿠폰 다운로드
+     */
 
 
 }

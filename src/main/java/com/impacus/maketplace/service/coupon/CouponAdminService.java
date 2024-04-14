@@ -366,7 +366,7 @@ public class CouponAdminService {
 
 
             Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
-            if (couponExpireDay < 0) {
+            if (coupon.getExpireDays() < 0) {
                 couponExpireAt = null;
             } else {
                 couponExpireAt = couponExpireAt.plusDays(couponExpireDay).minusMinutes(1);
