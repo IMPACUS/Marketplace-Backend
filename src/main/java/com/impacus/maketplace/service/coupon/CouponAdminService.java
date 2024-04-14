@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import static com.impacus.maketplace.common.utils.CouponUtils.fromCode;
 
@@ -43,7 +44,7 @@ public class CouponAdminService {
     private final CouponIssuanceClassificationDataRepository couponIssuanceClassificationDataRepository;
     private final ObjectCopyHelper objectCopyHelper;
 
-    public static final String COUPON_CODE = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
+//    public static final String COUPON_CODE = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
 
 
     /**
@@ -99,12 +100,12 @@ public class CouponAdminService {
         }
 
         switch (issuanceClassificationType) {
-            case CIC_1, CIC_2 -> {
+            case GREEN_TAG, USER_BASIC -> {
                 CouponIssuanceClassificationData couponIssuanceClassificationData = couponIssuanceClassificationDataRepository.findById(req.getCouponIssuanceClassificationData())
                         .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_ISSUANCE));
                 coupon.setCouponIssuanceClassificationData(couponIssuanceClassificationData);
             }
-            case CIC_3, CIC_4 -> {
+            case WELCOME_USER, SNS -> {
                 // TODO: 추후 개발 예정
             }
         }
@@ -166,7 +167,7 @@ public class CouponAdminService {
         coupon.setIssuingCouponsSendSMS(req.getIssuingCouponsSendSMS());
         coupon.setIssuanceCouponSendEmail(req.getIssuanceCouponSendEmail());
 
-        String couponCode = CouponUtils.generateCode();
+        String couponCode = generateCode();
         coupon.setCode(couponCode);
 
         couponRepository.save(coupon);
@@ -283,12 +284,12 @@ public class CouponAdminService {
 
         coupon.setCouponIssuanceClassification(issuanceClassificationType);
         switch (issuanceClassificationType) {
-            case CIC_1, CIC_2 -> {
+            case GREEN_TAG, USER_BASIC -> {
                 CouponIssuanceClassificationData couponIssuanceClassificationData = couponIssuanceClassificationDataRepository.findById(req.getCouponIssuanceClassificationData())
                         .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_ISSUANCE));
                 coupon.setCouponIssuanceClassificationData(couponIssuanceClassificationData);
             }
-            case CIC_3, CIC_4 -> {
+            case WELCOME_USER, SNS -> {
                 // TODO: 추후 개발 예정
             }
         }
@@ -475,6 +476,15 @@ public class CouponAdminService {
 //        }
 //    }
 
+
+    private String generateCode() {
+        String couponCode = CouponUtils.generateCode();
+        Optional<Coupon> findCode = couponRepository.findByCode(couponCode);
+        if (findCode.isPresent()) {
+            generateCode();
+        }
+        return couponCode;
+    }
 
 
 

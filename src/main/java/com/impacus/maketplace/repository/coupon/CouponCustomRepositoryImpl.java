@@ -11,10 +11,7 @@ import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
 import com.impacus.maketplace.dto.coupon.request.CouponUserSearchDto;
 import com.impacus.maketplace.dto.coupon.response.*;
-import com.impacus.maketplace.entity.coupon.Coupon;
-import com.impacus.maketplace.entity.coupon.CouponUser;
-import com.impacus.maketplace.entity.coupon.QCoupon;
-import com.impacus.maketplace.entity.coupon.QCouponUser;
+import com.impacus.maketplace.entity.coupon.*;
 import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.entity.user.User;
@@ -45,6 +42,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
     private final QPointMaster pointMasterEntity = QPointMaster.pointMaster;
     private final QUser userEntity = QUser.user;
     private final QCoupon couponEntity = QCoupon.coupon;
+    private final QCouponIssuanceClassificationData couponClassificationEntity = QCouponIssuanceClassificationData.couponIssuanceClassificationData;
 
     private final QCouponUser couponUserEntity = QCouponUser.couponUser;
 
@@ -71,7 +69,6 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
 
     @Override
     public Page<CouponListDto> findAllCouponList(CouponSearchDto couponSearchDto, Pageable pageable) {
-
         BooleanBuilder builder = new BooleanBuilder();
 
         if (couponSearchDto.getSearchCouponName() != null) {
@@ -91,7 +88,6 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
                 couponEntity.couponBenefitClassification,
                 couponEntity.benefitAmount,
                 couponEntity.couponIssuanceClassification,
-                couponEntity.couponIssuanceClassificationData,
                 couponEntity.couponPaymentTarget,
                 couponEntity.firstComeFirstServedAmount,
                 couponEntity.couponIssuedTime,
@@ -115,6 +111,8 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
                 couponEntity.modifyAt
         ))
                 .from(couponEntity)
+                .leftJoin(couponClassificationEntity)
+                .on(couponEntity.couponIssuanceClassificationData.eq(couponClassificationEntity))
                 .where(builder).orderBy(couponEntity.name.asc());
 
         if (couponSearchDto.getSearchCount() > 0) { // 쿠폰 등록 페이지에서는 LIMIT를 주지 않음
