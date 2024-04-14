@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum CouponType implements CouponUtils.CommonFieldInterface{
 
-    EVENT("CT_1", "이벤트_실행형"),
-    REQUITAL("CT_2", "지급형_일괄지급형");
+    EVENT("EVENT", "이벤트_실행형"),
+    PROVISION("PROVISION", "지급형_일괄지급형");
 
     private final String code;
     private final String value;

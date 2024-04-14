@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CouponStandardAmountType implements CouponUtils.CommonFieldInterface {
 
-    CSA_1("CSA_1", "가격 제한 없음"),
-    CSA_2("CSA_2", "N원 이상 구매시");
+    UNLIMITED("UNLIMITED", "가격 제한 없음"),
+    LIMIT("LIMIT", "N원 이상 구매시");
 
     private final String code;
     private final String value;

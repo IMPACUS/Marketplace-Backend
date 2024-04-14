@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CouponCoverage implements CouponUtils.CommonFieldInterface{
 
-    CC_1("CC_1", "모든 상품 / 브랜드"),
-    CC_2("CC_2", "특정 브랜드");
+    ALL("ALL", "모든 상품 / 브랜드"),
+    BRAND("BRAND", "특정 브랜드");
 
     private final String code;
     private final String value;
