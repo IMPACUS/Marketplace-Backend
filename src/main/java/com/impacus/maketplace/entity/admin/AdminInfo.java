@@ -6,7 +6,6 @@ import lombok.*;
 @Data
 @Entity
 @Getter
-@Builder
 @Table(name = "admin_info")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AdminInfo {
