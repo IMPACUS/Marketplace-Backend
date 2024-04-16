@@ -1,11 +1,17 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.admin.AdminUserListDto;
+import com.impacus.maketplace.dto.coupon.response.CouponListDto;
+import com.impacus.maketplace.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 
 @Slf4j
@@ -13,15 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
 public class AdminController {
-
+    private final AdminService adminService;
 
     /**
      * 설계도 - 추후 API 개발 하면서 정리 예정
-     *
-     * 1) /api/v1/admin/list : Get 방식 할지 Post 로 통일 할지 고민중
-     *  - 사용 목적 : 어드민 계정 목록 표시
-     *  - Admin Name / Email / Account type / 전화번호 / 최근 활동 / 활동 내역 / 비밀번호 /
-     *
      *
      * 2) /api/v1/admin/create : Post
      *  - 사용 목적 : 어드민 등록
@@ -47,6 +48,21 @@ public class AdminController {
      *   - 로그인 로그 추가
      *
      */
+
+    /**
+     * 1) 사용 목적 : 어드민 계정 목록 표시
+     * @return : 관리자 회원 리스트 출력
+     */
+    @GetMapping("/list")
+    public ApiResponseEntity<?> displayAdminList() {
+        // 하드코딩으로 연동 먼저 테스트 진행
+        List<AdminUserListDto> adminUserListDto = adminService.displayAdminList();
+
+        return ApiResponseEntity
+                .builder()
+                .data(adminUserListDto)
+                .build();
+    }
 
 
     // 여기는 api 통신하는지만 테스트용
