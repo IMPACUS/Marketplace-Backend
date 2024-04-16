@@ -15,6 +15,10 @@ import java.util.List;
 public class AdminService {
     private final AdminInfoRepository adminInfoRepository;
 
+    /**
+     * (1) [리스트] 관리자 회원 조회 - 쿼리문 결과 값 추출
+     * @return : 쿼리문 결과 값 조회 (리스트 - 관리자)
+     */
     public List<AdminUserListDto> displayAdminList() {
         return adminInfoRepository.findAdminInfoList();
     }

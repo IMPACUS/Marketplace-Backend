@@ -25,6 +25,10 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
     private final QUser userEntity = QUser.user;
 
 
+    /**
+     * 쿼리문 : 관리자 전체 조회 (리스트 형태)
+     * @return : [리스트] 관리자 회원 조회
+     */
     @Override
     public List<AdminUserListDto> findAdminInfoList() {
         JPAQuery<AdminUserListDto> query = queryFactory.select(
