@@ -1,5 +1,12 @@
 package com.impacus.maketplace.service.product;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -11,13 +18,8 @@ import com.impacus.maketplace.dto.shoppingBasket.response.SimpleShoppingBasketDT
 import com.impacus.maketplace.entity.product.ShoppingBasket;
 import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import com.impacus.maketplace.service.AttachFileService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class ShoppingBasketService {
     @Transactional
     public SimpleShoppingBasketDTO addShoppingBasket(Long userId, ShoppingBasketRequest shoppingBasketRequest) {
         try {
-            Optional<ShoppingBasket> optional = shoppingBasketRepository.findByProductOptionIdAndRegisterId(
+            Optional<ShoppingBasket> optional = shoppingBasketRepository.findByProductOptionIdAndUserId(
                     shoppingBasketRequest.getProductOptionId(),
                     userId.toString()
             );
@@ -50,7 +52,7 @@ public class ShoppingBasketService {
                 return SimpleShoppingBasketDTO.toDTO(shoppingBasket);
 
             } else {
-                ShoppingBasket shoppingBasket = shoppingBasketRequest.toEntity();
+                ShoppingBasket shoppingBasket = shoppingBasketRequest.toEntity(userId);
                 shoppingBasketRepository.save(shoppingBasket);
 
                 return SimpleShoppingBasketDTO.toDTO(shoppingBasket);
