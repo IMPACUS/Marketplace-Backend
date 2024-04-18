@@ -56,8 +56,8 @@ public class ProductController {
     @PostMapping("/seller")
     public ApiResponseEntity<Object> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
+            @RequestPart(value = "product-image", required = false) List<MultipartFile> productImageList,
+            @RequestPart(value = "product-description-image", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") ProductRequest productRequest) {
         ProductDTO productDTO = productService.addProduct(
                 user.getId(),
