@@ -1,13 +1,14 @@
 package com.impacus.maketplace.repository.product;
 
-import com.impacus.maketplace.entity.product.ShoppingBasket;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.impacus.maketplace.entity.product.ShoppingBasket;
 
 @Repository
 public interface ShoppingBasketRepository extends JpaRepository<ShoppingBasket, Long>, ShoppingBasketCustomRepository {
 
-    Optional<ShoppingBasket> findByProductOptionIdAndRegisterId(Long productOptionId, String registerId);
+    Optional<ShoppingBasket> findByProductOptionIdAndUserId(Long productOptionId, String registerId);
 }

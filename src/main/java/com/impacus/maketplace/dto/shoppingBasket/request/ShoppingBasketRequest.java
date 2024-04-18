@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.shoppingBasket.request;
 
 import com.impacus.maketplace.entity.product.ShoppingBasket;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +16,7 @@ public class ShoppingBasketRequest {
     @NotNull
     private Long quantity;
 
-    public ShoppingBasket toEntity() {
-        return new ShoppingBasket(this.productOptionId, this.quantity);
+    public ShoppingBasket toEntity(Long userId) {
+        return new ShoppingBasket(this.productOptionId, this.quantity, this.userId);
     }
 }
