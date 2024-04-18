@@ -1,26 +1,20 @@
 package com.impacus.maketplace.controller.temporaryProduct;
 
-import java.util.List;
-
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.SimpleTemporaryProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -56,8 +50,8 @@ public class TemporaryProductController {
     @PutMapping("/seller")
     public ApiResponseEntity<Object> addOrModifyTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart(value = "product-image", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "product-description-image", required = false) List<MultipartFile> productDescriptionImageList,
+            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
+            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") ProductRequest productRequest) {
         SimpleTemporaryProductDTO simpleTemporaryProductDTO = temporaryProductService.addOrModifyTemporaryProduct(user.getId(), productImageList, productRequest, productDescriptionImageList);
         return ApiResponseEntity

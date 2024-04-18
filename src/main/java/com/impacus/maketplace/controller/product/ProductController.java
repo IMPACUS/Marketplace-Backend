@@ -1,26 +1,5 @@
 package com.impacus.maketplace.controller.product;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
@@ -29,11 +8,22 @@ import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.service.common.EnumService;
 import com.impacus.maketplace.service.product.ProductService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -56,8 +46,8 @@ public class ProductController {
     @PostMapping("/seller")
     public ApiResponseEntity<Object> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart(value = "product-image", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "product-description-image", required = false) List<MultipartFile> productDescriptionImageList,
+            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
+            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") ProductRequest productRequest) {
         ProductDTO productDTO = productService.addProduct(
                 user.getId(),
@@ -94,9 +84,9 @@ public class ProductController {
      */
     @PutMapping("/seller/{productId}")
     public ApiResponseEntity<Object> updateProduct(
-            @PathVariable(name = "product-id") Long productId,
-            @RequestPart(value = "product-image", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "product-description-image", required = false) List<MultipartFile> productDescriptionImageList,
+            @PathVariable(name = "productId") Long productId,
+            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
+            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") ProductRequest productRequest) {
         ProductDTO productDTO = productService.updateProduct(
                 productId,
