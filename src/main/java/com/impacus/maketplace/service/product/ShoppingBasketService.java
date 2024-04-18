@@ -1,12 +1,5 @@
 package com.impacus.maketplace.service.product;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -18,8 +11,13 @@ import com.impacus.maketplace.dto.shoppingBasket.response.SimpleShoppingBasketDT
 import com.impacus.maketplace.entity.product.ShoppingBasket;
 import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import com.impacus.maketplace.service.AttachFileService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +40,7 @@ public class ShoppingBasketService {
         try {
             Optional<ShoppingBasket> optional = shoppingBasketRepository.findByProductOptionIdAndUserId(
                     shoppingBasketRequest.getProductOptionId(),
-                    userId.toString()
+                    userId
             );
             if (optional.isPresent()) {
                 ShoppingBasket shoppingBasket = optional.get();

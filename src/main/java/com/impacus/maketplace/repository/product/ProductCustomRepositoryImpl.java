@@ -78,9 +78,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
     @Override
     public ProductDetailDTO findProductByProductId(Long productId) {
-        return queryFactory
+        List<ProductDetailDTO> result = queryFactory
                 .selectFrom(product)
-                .innerJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(productOption).on(productOption.productId.eq(product.id))
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
@@ -100,7 +100,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         )
                                 )
                         )
-                ).get(0);
+                );
+        return result.isEmpty() ? null : result.get(0);
     }
 
     @Override
