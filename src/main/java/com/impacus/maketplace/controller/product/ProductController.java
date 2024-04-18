@@ -1,5 +1,26 @@
 package com.impacus.maketplace.controller.product;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
@@ -8,22 +29,11 @@ import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.service.common.EnumService;
 import com.impacus.maketplace.service.product.ProductService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -67,7 +77,7 @@ public class ProductController {
      * @return
      */
     @DeleteMapping("/seller/")
-    public ApiResponseEntity<Object> deleteAllProduct(@RequestParam(name = "productId") List<Long> productIdList) {
+    public ApiResponseEntity<Object> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
         productService.deleteAllProduct(productIdList);
         return ApiResponseEntity
                 .builder()
@@ -84,9 +94,9 @@ public class ProductController {
      */
     @PutMapping("/seller/{productId}")
     public ApiResponseEntity<Object> updateProduct(
-            @PathVariable(name = "productId") Long productId,
-            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
+            @PathVariable(name = "product-id") Long productId,
+            @RequestPart(value = "product-image", required = false) List<MultipartFile> productImageList,
+            @RequestPart(value = "product-description-image", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") ProductRequest productRequest) {
         ProductDTO productDTO = productService.updateProduct(
                 productId,
@@ -109,7 +119,7 @@ public class ProductController {
      */
     @GetMapping("")
     public ApiResponseEntity<Object> getAllProductForApp(
-            @RequestParam(name = "subCategoryId", required = false) Long subCategoryId,
+            @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
         return ApiResponseEntity
@@ -130,8 +140,8 @@ public class ProductController {
     @GetMapping("/seller")
     public ApiResponseEntity<Object> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(name = "startAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-            @RequestParam(name = "endAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+            @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+            @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(size = 12, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(user.getId(), startAt, endAt, pageable);
         return ApiResponseEntity
