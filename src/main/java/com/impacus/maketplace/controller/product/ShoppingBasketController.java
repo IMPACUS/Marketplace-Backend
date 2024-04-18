@@ -48,7 +48,7 @@ public class ShoppingBasketController {
      * @return
      */
     @DeleteMapping("/user")
-    public ApiResponseEntity<Object> deleteShoppingBasket(@RequestParam(name = "shoppingBasketId") List<Long> shoppingBasketList) {
+    public ApiResponseEntity<Object> deleteShoppingBasket(@RequestParam(name = "shopping-basket-id") List<Long> shoppingBasketList) {
         shoppingBasketService.deleteAllShoppingBasket(shoppingBasketList);
         return ApiResponseEntity
                 .builder()
