@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CouponIssuedTime implements CouponUtils.CommonFieldInterface {
 
-    CIT_1("CIT_1", "구매 후 1 주일 뒤"),
-    CIT_2("CIT_2", "즉시 발급");
+    WEEK("WEEK", "구매 후 1 주일 뒤"),
+    IMMEDIATE("IMMEDIATE", "즉시 발급");
 
     private final String code;
     private final String value;

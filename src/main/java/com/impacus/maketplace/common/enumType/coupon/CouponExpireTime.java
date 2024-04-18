@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CouponExpireTime implements CouponUtils.CommonFieldInterface{
 
-    CET_1("CET_1", "발급일로 부터 N 일 이내"),
-    CET_2("CET_2", "기간제한 없음");
+    LIMIT("LIMIT", "발급일로 부터 N 일 이내"),
+    UNLIMITED("UNLIMITED", "기간제한 없음");
 
     private final String code;
     private final String value;
