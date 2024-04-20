@@ -8,6 +8,7 @@ import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.PointService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
+import com.impacus.maketplace.service.coupon.CouponAdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,15 @@ public class AuthController {
     private final AuthService authService;
     private final PointService pointService;
 
+    private final CouponAdminService couponAdminService;
+
     @PostMapping("sign-up")
     public ApiResponseEntity<UserDTO> addUser(@RequestBody SignUpRequest signUpRequest) {
         UserDTO userDTO = this.userService.addUser(signUpRequest);
         boolean existPointMaster = pointService.initPointMaster(userDTO);
+        // 회원 가입 축하 이벤트
+        couponAdminService.joinCouponForOpenEvent(userDTO.id());
+
         if (existPointMaster) {
             return ApiResponseEntity.<UserDTO>builder()
                     .code(HttpStatus.CONFLICT)

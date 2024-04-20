@@ -19,7 +19,6 @@ public class Coupon extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "coupon_id")
     private Long id;
 
     @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
@@ -29,12 +28,14 @@ public class Coupon extends BaseEntity {
 
     private String name;    // 쿠폰 이름
 
+    @Column(name = "cpn_desc")
     private String description;    // 쿠폰 설명
 
     @Enumerated(EnumType.STRING)
     @Column(name = "cbc_code")
     private CouponBenefitClassification couponBenefitClassification;    // 혜택 구분 [ 원, % ]
 
+    @Column(name = "cbc_value")
     private int benefitAmount;   // 혜택 금액 및 퍼센트
 
     @Enumerated(EnumType.STRING)
@@ -50,7 +51,7 @@ public class Coupon extends BaseEntity {
     @Column(name = "cpt_code")
     private CouponPaymentTarget couponPaymentTarget;    // 지급 대상 [ 모든 회원, 선착순 ]
 
-    @Column(name = "first_come_first_served_count")
+    @Column(name = "first_count")
     @Builder.Default
     private Long firstComeFirstServedAmount = 0L; // 선착순 발급 수
 
@@ -88,6 +89,7 @@ public class Coupon extends BaseEntity {
     private CouponStandardAmountType couponUsableStandardAmountType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
     @Builder.Default
+    @Column(name = "cusa_use_value")
     private int usableStandardAmount = 0; // N원 (N원 이상 주문시 사용 가능)
 
     @Enumerated(EnumType.STRING)
@@ -95,6 +97,7 @@ public class Coupon extends BaseEntity {
     private CouponStandardAmountType couponIssuanceStandardAmountType;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
     @Builder.Default
+    @Column(name = "cusa_issue_value")
     private int issueStandardAmount = 0;  // N원 (N원 이상 주문시 쿠폰 발급)
 
     @Enumerated(EnumType.STRING)
@@ -102,13 +105,16 @@ public class Coupon extends BaseEntity {
     private CouponIssuancePeriodType couponIssuancePeriod;  // 기간 설정
 
     @Setter
+    @Column(name = "cip_start")
     private LocalDate startIssuanceAt;  // 기간설정 시작 기간
 
     @Setter
+    @Column(name = "cip_end")
     private LocalDate endIssuanceAt;    // 기간설정 종료 기간
 
     @Builder.Default
     @Setter
+    @Column(name = "number_of_period")
     private Long numberOfWithPeriod = 0L;    // 기간 내 N 회 주문 시
 
     @Enumerated(EnumType.STRING)
@@ -116,12 +122,15 @@ public class Coupon extends BaseEntity {
     private CouponIssuanceType couponIssuance;  // 자동 / 수동 발급 [ 자동, 수동 ]
 
     @Builder.Default
+    @Column(name = "login_alert")
     private String loginCouponIssueNotification = "N";  // 로그인 쿠폰 발급 알림
 
     @Builder.Default
+    @Column(name = "sms_alert")
     private String issuingCouponsSendSMS = "N"; // 쿠폰발급 SMS 발송
 
     @Builder.Default
+    @Column(name = "email_alert")
     private String issuanceCouponSendEmail = "N";   // 쿠폰 발급 Email 발송
 
     @Enumerated(EnumType.STRING)
