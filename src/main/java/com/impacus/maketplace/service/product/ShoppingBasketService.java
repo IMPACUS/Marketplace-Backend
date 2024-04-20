@@ -38,9 +38,9 @@ public class ShoppingBasketService {
     @Transactional
     public SimpleShoppingBasketDTO addShoppingBasket(Long userId, ShoppingBasketRequest shoppingBasketRequest) {
         try {
-            Optional<ShoppingBasket> optional = shoppingBasketRepository.findByProductOptionIdAndRegisterId(
+            Optional<ShoppingBasket> optional = shoppingBasketRepository.findByProductOptionIdAndUserId(
                     shoppingBasketRequest.getProductOptionId(),
-                    userId.toString()
+                    userId
             );
             if (optional.isPresent()) {
                 ShoppingBasket shoppingBasket = optional.get();
@@ -50,7 +50,7 @@ public class ShoppingBasketService {
                 return SimpleShoppingBasketDTO.toDTO(shoppingBasket);
 
             } else {
-                ShoppingBasket shoppingBasket = shoppingBasketRequest.toEntity();
+                ShoppingBasket shoppingBasket = shoppingBasketRequest.toEntity(userId);
                 shoppingBasketRepository.save(shoppingBasket);
 
                 return SimpleShoppingBasketDTO.toDTO(shoppingBasket);

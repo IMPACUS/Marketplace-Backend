@@ -1,5 +1,19 @@
 package com.impacus.maketplace.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
 import com.impacus.maketplace.dto.category.request.SubCategoryRequest;
@@ -9,13 +23,10 @@ import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.category.SuperCategoryService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -112,7 +123,7 @@ public class CategoryController {
      */
     @DeleteMapping("admin/sub-category")
     public ApiResponseEntity<Object> deleteSubCategory(
-            @RequestParam(name = "subCategoryId") List<Long> subCategoryIdList) {
+            @RequestParam(name = "sub-category-id") List<Long> subCategoryIdList) {
         subCategoryService.deleteSubCategory(subCategoryIdList);
         return ApiResponseEntity
                 .builder()
@@ -126,7 +137,7 @@ public class CategoryController {
      */
     @DeleteMapping("admin/super-category")
     public ApiResponseEntity<Object> deleteSuperCategory(
-            @RequestParam(name = "superCategoryId") List<Long> superCategoryIdList) {
+            @RequestParam(name = "super-category-id") List<Long> superCategoryIdList) {
         subCategoryService.deleteSuperCategory(superCategoryIdList);
         return ApiResponseEntity
                 .builder()

@@ -15,7 +15,7 @@ public class ShoppingBasketRequest {
     @NotNull
     private Long quantity;
 
-    public ShoppingBasket toEntity() {
-        return new ShoppingBasket(this.productOptionId, this.quantity);
+    public ShoppingBasket toEntity(Long userId) {
+        return new ShoppingBasket(this.productOptionId, this.quantity, userId);
     }
 }

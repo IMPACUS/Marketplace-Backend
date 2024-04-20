@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface ShoppingBasketRepository extends JpaRepository<ShoppingBasket, Long>, ShoppingBasketCustomRepository {
 
-    Optional<ShoppingBasket> findByProductOptionIdAndRegisterId(Long productOptionId, String registerId);
+    Optional<ShoppingBasket> findByProductOptionIdAndUserId(Long productOptionId, Long registerId);
 }

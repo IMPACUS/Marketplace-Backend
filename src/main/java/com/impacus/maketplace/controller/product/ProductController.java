@@ -67,7 +67,7 @@ public class ProductController {
      * @return
      */
     @DeleteMapping("/seller/")
-    public ApiResponseEntity<Object> deleteAllProduct(@RequestParam(name = "productId") List<Long> productIdList) {
+    public ApiResponseEntity<Object> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
         productService.deleteAllProduct(productIdList);
         return ApiResponseEntity
                 .builder()
@@ -109,7 +109,7 @@ public class ProductController {
      */
     @GetMapping("")
     public ApiResponseEntity<Object> getAllProductForApp(
-            @RequestParam(name = "subCategoryId", required = false) Long subCategoryId,
+            @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
         return ApiResponseEntity
@@ -130,8 +130,8 @@ public class ProductController {
     @GetMapping("/seller")
     public ApiResponseEntity<Object> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(name = "startAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-            @RequestParam(name = "endAt") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+            @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+            @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(size = 12, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(user.getId(), startAt, endAt, pageable);
         return ApiResponseEntity
