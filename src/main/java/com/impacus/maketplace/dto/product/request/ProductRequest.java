@@ -33,7 +33,7 @@ public class ProductRequest {
     @NotBlank
     private String description;
 
-    @NotNull
+    @ValidEnum(enumClass = DeliveryType.class)
     private DeliveryType deliveryType;
 
     @NotNull
