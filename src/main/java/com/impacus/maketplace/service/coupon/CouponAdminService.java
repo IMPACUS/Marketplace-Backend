@@ -108,7 +108,7 @@ public class CouponAdminService {
                         .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_ISSUANCE));
                 coupon.setCouponIssuanceClassificationData(couponIssuanceClassificationData);
             }
-            case WELCOME_USER, SNS -> {
+            case SNS -> {
                 // TODO: 추후 개발 예정
             }
         }
@@ -292,7 +292,7 @@ public class CouponAdminService {
                         .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_ISSUANCE));
                 coupon.setCouponIssuanceClassificationData(couponIssuanceClassificationData);
             }
-            case WELCOME_USER, SNS -> {
+            case SNS -> {
                 // TODO: 추후 개발 예정
             }
         }

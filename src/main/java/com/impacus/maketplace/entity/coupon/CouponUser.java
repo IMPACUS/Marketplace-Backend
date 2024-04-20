@@ -16,7 +16,6 @@ public class CouponUser extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "coupon_user_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -28,6 +27,7 @@ public class CouponUser extends BaseEntity {
     private User user;
 
     @Setter
+    @Column(name = "lock")
     private Boolean couponLock; // 쿠폰을 다운로드 받을 수 없는 상태 (N일 뒤 발급)
 
     private LocalDateTime availableDownloadAt;  //  N일뒤 발급시에 대한 기간
