@@ -1,18 +1,5 @@
 package com.impacus.maketplace.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
@@ -31,10 +18,21 @@ import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -241,10 +239,11 @@ public class UserService {
             emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
         }
     }
-    
+
     /**
-     * 이메일 인증 요청 이메일을 보내는 함수 
-     * @param email
+     * 이메일 인증 요청 이메일을 보내는 함수
+     *
+     * @param email 인증 요청 이메일
      */
     public void sendVerificationCodeToEmail(String email) {
         try {
@@ -257,22 +256,22 @@ public class UserService {
             throw new CustomException(ex);
         }
     }
-    
+
     /**
      * 이메일 인증 확인 결과를 전달하는 API
+     *
      * @param email
      */
     public boolean confirmEmail(String email, String code) {
         try {
-            EmailVerificationCode emailVerificationCode = emailVerificationCodeService
-                    .findEmailVerificationCodeByEmailAndCode(email, code);
+            EmailVerificationCode emailVerificationCode = emailVerificationCodeService.findEmailVerificationCodeByEmailAndCode(email, code);
             if (emailVerificationCode != null) {
                 emailVerificationCodeService.deleteEmailVerificationCode(emailVerificationCode);
             }
 
             return emailVerificationCode != null;
-       } catch (Exception ex) {
+        } catch (Exception ex) {
             throw new CustomException(ex);
-       }
+        }
     }
 }

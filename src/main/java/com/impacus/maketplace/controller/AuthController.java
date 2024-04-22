@@ -1,13 +1,5 @@
 package com.impacus.maketplace.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
 import com.impacus.maketplace.dto.seller.response.SellerDTO;
@@ -87,6 +79,9 @@ public class AuthController {
         SellerDTO sellerDTO = new SellerDTO();
         return ApiResponseEntity.<SellerDTO>builder()
                 .data(sellerDTO)
+                .build();
+    }
+
     @PostMapping("/email/verification-request")
     public ApiResponseEntity<Object> sendVerificationCodeToEmail(@RequestParam("email") @Valid @Email String email) {
         userService.sendVerificationCodeToEmail(email);
@@ -97,10 +92,11 @@ public class AuthController {
 
     @PostMapping("/email/confirm")
     public ApiResponseEntity<Object> confirmEmail(@RequestParam("email") @Valid @Email String email,
-    @RequestParam("code") String code) {
-        userService.confirmEmail(email, code);
+                                                  @RequestParam("code") String code) {
+        boolean result = userService.confirmEmail(email, code);
         return ApiResponseEntity
                 .builder()
+                .data(result)
                 .build();
     }
 }
