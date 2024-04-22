@@ -1,9 +1,9 @@
 package com.impacus.maketplace.common.enumType;
 
+import java.util.Arrays;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor
@@ -13,6 +13,7 @@ public enum MailType {
     POINT_REDUCTION("10", "points_reduction_mail", "5개월 휴면 메일입니다."),
     DORMANCY_INFO("11", "dormancy_info_mail", "11개월 휴면 메일 입니다."),
     USER_DELETE("12", "user_delete_mail", "14개월 휴면 메일 입니다."),
+    EMAIL_VERIFICATION("13", "auth_mail", "이메일 인증"),
     UNKNOWN("99","", "");
 
 

@@ -1,5 +1,18 @@
 package com.impacus.maketplace.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
@@ -12,25 +25,16 @@ import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.redis.entity.EmailVerificationCode;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
+import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -46,6 +50,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
+    private final EmailVerificationCodeService emailVerificationCodeService;
 
     @Transactional
     public UserDTO addUser(SignUpRequest signUpRequest) {
@@ -226,7 +231,6 @@ public class UserService {
             user.setFirstDormancy(true);
             user.setUpdateDormancyAt(updateDormancyAt);
 
-
             int underscoreIndex = user.getEmail().indexOf("_") + 1;
             String realUserEmail = user.getEmail().substring(underscoreIndex);
 
@@ -236,5 +240,39 @@ public class UserService {
                     .build();
             emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
         }
+    }
+    
+    /**
+     * 이메일 인증 요청 이메일을 보내는 함수 
+     * @param email
+     */
+    public void sendVerificationCodeToEmail(String email) {
+        try {
+            // 1. 이메일 전송
+            String code = emailService.sendEmailVerificationMail(email);
+
+            // 2. 이메일 인증 코드 저장
+            emailVerificationCodeService.saveEmailVerificationCode(email, code);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+    
+    /**
+     * 이메일 인증 확인 결과를 전달하는 API
+     * @param email
+     */
+    public boolean confirmEmail(String email, String code) {
+        try {
+            EmailVerificationCode emailVerificationCode = emailVerificationCodeService
+                    .findEmailVerificationCodeByEmailAndCode(email, code);
+            if (emailVerificationCode != null) {
+                emailVerificationCodeService.deleteEmailVerificationCode(emailVerificationCode);
+            }
+
+            return emailVerificationCode != null;
+       } catch (Exception ex) {
+            throw new CustomException(ex);
+       }
     }
 }

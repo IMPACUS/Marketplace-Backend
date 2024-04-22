@@ -1,13 +1,10 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.MailType;
-import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.EmailDto;
-import com.impacus.maketplace.entity.common.EmailHistory;
-import com.impacus.maketplace.repository.EmailHistoryRepository;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.Random;
+
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -15,10 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Random;
+import com.impacus.maketplace.common.enumType.MailType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.entity.common.EmailHistory;
+import com.impacus.maketplace.repository.EmailHistoryRepository;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class EmailService {
     private final EmailHistoryRepository emailHistoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
 
-    public Boolean sendMail(EmailDto emailDto,MailType mailType) {
+    public Boolean sendMail(EmailDto emailDto, MailType mailType) {
         String authNumber = createCode();
         if (!mailType.equals(MailType.AUTH)) {
             authNumber = "";
@@ -98,8 +102,28 @@ public class EmailService {
         return templateEngine.process(type, context);
     }
 
+    /**
+     * 이메일 인증 메일을 보내는 함수
+     * @param receiver
+     * @return
+     */
+    public String sendEmailVerificationMail(String receiver) {
+        MailType mailType = MailType.AUTH;
+        String authNumber = createCode();
 
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            msgHelper.setTo(receiver);
+            msgHelper.setSubject(mailType.getSubject());
+            msgHelper.setText(setContext(authNumber, mailType.getTemplate()), true);
+            javaMailSender.send(mimeMessage);
 
+            return authNumber;
+        } catch (MessagingException e) {
+            throw new CustomException(ErrorType.FAIL_TO_SEND_EMAIL);
+        }
+    }
 
 
 }
