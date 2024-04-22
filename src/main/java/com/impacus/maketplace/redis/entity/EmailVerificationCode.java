@@ -1,6 +1,5 @@
 package com.impacus.maketplace.redis.entity;
 
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
@@ -19,7 +18,6 @@ public class EmailVerificationCode {
 
     @Indexed
     private String email;
-    @ColumnDefault("0")
     private String code;
 
     public EmailVerificationCode(String email, String code) {

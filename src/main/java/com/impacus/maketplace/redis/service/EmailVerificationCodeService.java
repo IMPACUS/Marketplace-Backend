@@ -26,5 +26,23 @@ public class EmailVerificationCodeService {
 
         emailAuthenticationNumberRepository.save(emailVerificationCode);
     }
+
+    /**
+     * 전달받은 email, code에 대해서 EmailVerificationCode를 조회하는 함수
+     * @param email
+     * @param code
+     * @return
+     */
+    public EmailVerificationCode findEmailVerificationCodeByEmailAndCode(String email, String code) {
+        return emailAuthenticationNumberRepository.findByEmailAndCode(email, code).orElse(null);
+    }
+
+    /**
+     * emailVerificationCode 삭제하는 함수
+     * @param emailVerificationCode
+     */
+    public void deleteEmailVerificationCode(EmailVerificationCode emailVerificationCode) {
+        emailAuthenticationNumberRepository.delete(emailVerificationCode);
+    }
     
 }

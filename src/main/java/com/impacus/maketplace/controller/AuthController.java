@@ -68,9 +68,18 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/emails/verification-requests")
-    public ApiResponseEntity<Object> sendMessage(@RequestParam("email") @Valid @Email String email) {
-        userService.sendCodeToEmail(email);
+    @PostMapping("/email/verification-request")
+    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@RequestParam("email") @Valid @Email String email) {
+        userService.sendVerificationCodeToEmail(email);
+        return ApiResponseEntity
+                .builder()
+                .build();
+    }
+
+    @PostMapping("/email/confirm")
+    public ApiResponseEntity<Object> confirmEmail(@RequestParam("email") @Valid @Email String email,
+    @RequestParam("code") String code) {
+        userService.confirmEmail(email, code);
         return ApiResponseEntity
                 .builder()
                 .build();
