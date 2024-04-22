@@ -5,7 +5,6 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.coupon.CouponIssuanceClassification;
 import jakarta.persistence.*;
 import lombok.*;
-import org.aspectj.lang.annotation.control.CodeGenerationHint;
 
 @Entity
 @Getter
@@ -16,7 +15,6 @@ public class CouponIssuanceClassificationData extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cic_id")
     private Long id;
 
     private String title;
