@@ -1,51 +1,40 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.MailType;
-import com.impacus.maketplace.common.enumType.OauthProviderType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
-import com.impacus.maketplace.common.enumType.seller.BusinessType;
-import com.impacus.maketplace.common.enumType.user.UserStatus;
-import com.impacus.maketplace.common.enumType.user.UserType;
-import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.config.provider.JwtTokenProvider;
-import com.impacus.maketplace.dto.EmailDto;
-import com.impacus.maketplace.dto.seller.request.SellerRequest;
-import com.impacus.maketplace.dto.seller.response.SellerDTO;
-import com.impacus.maketplace.dto.user.request.LoginRequest;
-import com.impacus.maketplace.dto.user.request.SignUpRequest;
-import com.impacus.maketplace.dto.user.response.UserDTO;
-import com.impacus.maketplace.entity.common.AttachFile;
-import com.impacus.maketplace.entity.seller.Seller;
-import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
-import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
-import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.redis.entity.EmailVerificationCode;
-import com.impacus.maketplace.redis.entity.LoginFailAttempt;
-import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
-import com.impacus.maketplace.redis.service.LoginFailAttemptService;
-import com.impacus.maketplace.repository.UserRepository;
-import com.impacus.maketplace.service.seller.SellerAdjustmentInfoService;
-import com.impacus.maketplace.service.seller.SellerBusinessInfoService;
-import com.impacus.maketplace.service.seller.SellerService;
-import com.impacus.maketplace.vo.auth.TokenInfoVO;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import security.CustomUserDetails;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
+import com.impacus.maketplace.common.enumType.MailType;
+import com.impacus.maketplace.common.enumType.OauthProviderType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.user.request.LoginRequest;
+import com.impacus.maketplace.dto.user.request.SignUpRequest;
+import com.impacus.maketplace.dto.user.response.UserDTO;
+import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.redis.entity.EmailVerificationCode;
+import com.impacus.maketplace.redis.entity.LoginFailAttempt;
+import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
+import com.impacus.maketplace.redis.service.LoginFailAttemptService;
+import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.vo.auth.TokenInfoVO;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import security.CustomUserDetails;
 
 @Slf4j
 @Service
@@ -54,10 +43,6 @@ import java.util.Optional;
 public class UserService {
 
     private static final int LIMIT_LOGIN_FAIL_ATTEMPT = 5;
-    private static final int FILE_LIMIT = 5242880;
-    private static final int LOGO_IMAGE_LIMIT = 187500;
-    private static final String LOGO_IMAGE_DIRECTORY = "logoImage";
-    private static final String COPY_FILE_DIRECTORY = "copyFile";
 
     private final UserRepository userRepository;
     private final AuthenticationManagerBuilder managerBuilder;
@@ -66,10 +51,7 @@ public class UserService {
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
     private final EmailVerificationCodeService emailVerificationCodeService;
-    private final AttachFileService attachFileService;
-    private final SellerService sellerService;
-    private final SellerBusinessInfoService sellerBusinessInfoService;
-    private final SellerAdjustmentInfoService sellerAdjustmentInfoService;
+
 
     @Transactional
     public UserDTO addUser(SignUpRequest signUpRequest) {
@@ -214,7 +196,7 @@ public class UserService {
         return tokenProvider.createToken(authentication);
     }
 
-    private String encodePassword(String password) {
+    public String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
 
@@ -285,7 +267,8 @@ public class UserService {
      */
     public boolean confirmEmail(String email, String code) {
         try {
-            EmailVerificationCode emailVerificationCode = emailVerificationCodeService.findEmailVerificationCodeByEmailAndCode(email, code);
+            EmailVerificationCode emailVerificationCode = emailVerificationCodeService
+                    .findEmailVerificationCodeByEmailAndCode(email, code);
             if (emailVerificationCode != null) {
                 emailVerificationCodeService.deleteEmailVerificationCode(emailVerificationCode);
             }
@@ -295,106 +278,12 @@ public class UserService {
             throw new CustomException(ex);
         }
     }
-
+    
     /**
-     * 판매자를 생성하는 함수
-     *
-     * @param sellerRequest
-     * @param logoImage
-     * @param businessRegistrationImage
-     * @param mailOrderBusinessReportImage
-     * @param bankBookImage
-     * @return
+     * User를 저장하는 함수
+     * @param user
      */
-    @Transactional
-    public SellerDTO addSeller(SellerRequest sellerRequest,
-                               MultipartFile logoImage,
-                               MultipartFile businessRegistrationImage,
-                               MultipartFile mailOrderBusinessReportImage,
-                               MultipartFile bankBookImage) throws IOException {
-//        try {
-        String email = sellerRequest.getEmail();
-        String password = sellerRequest.getPassword();
-
-        // 1. 이메일 유효성 검사
-        User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
-        if (existedUser != null) {
-            throw new CustomException(ErrorType.DUPLICATED_EMAIL);
-        }
-
-        // 2. 비밃번호 유효성 검사
-        if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-            throw new CustomException(ErrorType.INVALID_PASSWORD);
-        }
-
-        // 3. 상세 데이터 유효성 검사
-        if (sellerRequest.getBusinessType() == BusinessType.SIMPLIFIED_TAXABLE_PERSON) {
-            if (mailOrderBusinessReportImage != null || sellerRequest.getMailOrderBusinessReportNumber() != null) {
-                throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "간이 과세자인 경우, 통신판매업신고증관련 값이 null 이여야 합니다.");
-            }
-        } else {
-            if (mailOrderBusinessReportImage == null || sellerRequest.getMailOrderBusinessReportNumber() == null) {
-                throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "간이 과세자가 아닌 경우, 통신판매업신고증관련 값이 null 이면 안됩니다.");
-            }
-        }
-        validateFileLimit(logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
-
-        // 4. 로고 이미지, 사업자 등록증 사본, 통신판매업신고증사본, 통장 사본 저장
-        AttachFile logoImageFile = attachFileService.uploadFileAndAddAttachFile(logoImage, LOGO_IMAGE_DIRECTORY);
-        AttachFile businessRegistrationFile = attachFileService.uploadFileAndAddAttachFile(businessRegistrationImage, COPY_FILE_DIRECTORY);
-        AttachFile mailOrderBusinessReportFile = mailOrderBusinessReportImage == null ? null : attachFileService.uploadFileAndAddAttachFile(mailOrderBusinessReportImage, COPY_FILE_DIRECTORY);
-        AttachFile bankBookFile = attachFileService.uploadFileAndAddAttachFile(bankBookImage, COPY_FILE_DIRECTORY);
-
-        // 5. User 저장
-        User user = new User(
-                StringUtils.createStrEmail(email, OauthProviderType.NONE),
-                encodePassword(password),
-                email,
-                sellerRequest.getContactNumber(),
-                UserType.ROLE_SELLER);
+    public void saveUser(User user) {
         userRepository.save(user);
-
-        // 6. Seller 저장
-        Seller seller = sellerService.saveSeller(sellerRequest.toSellerEntity(user.getId(),
-                logoImageFile.getId()));
-        Long sellerId = seller.getId();
-
-        // 7. SellerBusinessInfo 저장
-        SellerBusinessInfo sellerBusinessInfo = sellerRequest.toSellerBusinessInfoEntity(sellerId,
-                businessRegistrationFile.getId(),
-                mailOrderBusinessReportFile == null ? null : mailOrderBusinessReportFile.getId());
-        sellerBusinessInfoService.saveSellerBusinessInfo(sellerBusinessInfo);
-
-        // 8. SellerAdjustmentInfo 저장
-        SellerAdjustmentInfo adjustmentInfo = sellerRequest.toSellerAdjustmentInfo(sellerId, bankBookFile.getId());
-        sellerAdjustmentInfoService.saveSellerAdjustmentInfo(adjustmentInfo);
-
-        return SellerDTO.toDTO(user);
-//        } catch (Exception e) {
-//            throw new CustomException(e);
-//        }
     }
-
-    private void validateFileLimit(MultipartFile logoImage,
-                                   MultipartFile businessRegistrationImage,
-                                   MultipartFile mailOrderBusinessReportImage,
-                                   MultipartFile bankBookImage) {
-        if (logoImage.getSize() > LOGO_IMAGE_LIMIT) {
-            new CustomException(ErrorType.INVALID_REQUEST_DATA, "로고 이미지 크기가 제한을 넘었습니다.");
-        }
-
-        if (businessRegistrationImage.getSize() > FILE_LIMIT) {
-            new CustomException(ErrorType.INVALID_REQUEST_DATA, "사업자 등록증 사본의 이미지 크기가 제한을 넘었습니다.");
-        }
-
-        if (mailOrderBusinessReportImage != null && mailOrderBusinessReportImage.getSize() > FILE_LIMIT) {
-            new CustomException(ErrorType.INVALID_REQUEST_DATA, "통신판매업신고증 사본의 크기가 제한을 넘었습니다.");
-        }
-
-        if (bankBookImage.getSize() > FILE_LIMIT) {
-            new CustomException(ErrorType.INVALID_REQUEST_DATA, "통장 사본의 이미지 크기가 제한을 넘었습니다.");
-        }
-
-    }
-
 }
