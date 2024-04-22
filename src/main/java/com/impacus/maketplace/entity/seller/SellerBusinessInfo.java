@@ -1,20 +1,7 @@
 package com.impacus.maketplace.entity.seller;
 
-import com.impacus.maketplace.common.enumType.BankCode;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Getter
@@ -25,19 +12,39 @@ import lombok.NoArgsConstructor;
 public class SellerBusinessInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "seller_business_info_id")
+    @Column(name = "seller_adjustment_info")
     private Long id;
 
     @Column(nullable = false)
     private Long sellerId;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private BankCode bankCode;
+    private String representativeName;
 
     @Column(nullable = false)
-    private String accountName;
+    private String representativeContact;
 
     @Column(nullable = false)
-    private String accountNumber;
+    private String businessName;
+
+    @Column(nullable = false)
+    private String businessRegistrationNumber;
+
+    @Column(nullable = false)
+    private String businessCondition;
+
+    @Column(nullable = false)
+    private String businessAddress;
+
+    @Column(nullable = false)
+    private String businessEmail;
+
+    @Column(nullable = false)
+    private Long copyBusinessRegistrationCertificateId; // 사업자 등록증 사본 이미지 id
+
+    @Column(nullable = true)
+    private Long copyMainOrderBusinessReportCardId; // 통신 판매업 신고증 id
+
+    @Column(nullable = false)
+    private String mailOrderBusinessReportNumber;
 }

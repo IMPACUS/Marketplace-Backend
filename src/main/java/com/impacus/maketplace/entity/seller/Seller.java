@@ -1,20 +1,8 @@
 package com.impacus.maketplace.entity.seller;
 
-import com.impacus.maketplace.common.enumType.seller.SellerType;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.impacus.maketplace.common.enumType.seller.BusinessType;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Getter
@@ -32,15 +20,17 @@ public class Seller {
     private Long userId;
 
     @Column(nullable = false)
-    private String contactName;
+    private String contactName; // 판매 담당자 이름
 
     @Column(nullable = false)
     private String marketName;
 
     @Column(nullable = false)
-    private Long brandLogoImageId; // 변경 가능: Base64로 저장 시, String으로 될 수도 있음.
+    private Long logoImageId;
+
+    private String customerServiceName; // 고객센터 전화 번호
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private SellerType sellerType;
+    private BusinessType businessType;
 }

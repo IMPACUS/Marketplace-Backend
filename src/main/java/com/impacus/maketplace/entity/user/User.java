@@ -117,7 +117,10 @@ public class User extends BaseEntity {
     @Convert(converter = TimestampConverter.class)
     private LocalDateTime recentLoginAt;
 
-    @ColumnDefault("true")
+    @ColumnDefault("'010-0000-0000'")
+    @Column(nullable = false)
+    private String phoneNumber; // 소비자: 휴대폰 번호/ 관리자: 판매 담당자의 수신 가능한 휴대폰 번호
+
     @Column(nullable = false)
     private Boolean orderDeliveryAlarm;     //  주문/배송 알람
 
