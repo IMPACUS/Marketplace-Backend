@@ -248,21 +248,11 @@ public class UserService {
      */
     public void sendVerificationCodeToEmail(String email) {
         try {
-            EmailDto emailDTO = EmailDto.builder()
-                    .subject(MailType.AUTH.getSubject())
-                    .receiveEmail(email)
-                    .build();
+            // 1. 이메일 전송
+            String code = emailService.sendEmailVerificationMail(email);
 
-            if (emailService.sendMail(emailDTO, MailType.AUTH)) {
-                EmailVerificationCode emailVerificationCode = emailVerificationCodeService
-                        .findEmailVerificationCodeByEmail(email);
-                if (emailVerificationCode == null) {
-
-                }
-                // saveEmailVerificationCode
-            } else {
-                throw new CustomException(ErrorType.FAIL_TO_SEND_EMAIL);
-            }
+            // 2. 이메일 인증 코드 저장
+            emailVerificationCodeService.saveEmailVerificationCode(email, code);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

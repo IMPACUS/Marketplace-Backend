@@ -13,6 +13,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import com.impacus.maketplace.common.enumType.MailType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.entity.common.EmailHistory;
@@ -100,8 +102,28 @@ public class EmailService {
         return templateEngine.process(type, context);
     }
 
+    /**
+     * 이메일 인증 메일을 보내는 함수
+     * @param receiver
+     * @return
+     */
+    public String sendEmailVerificationMail(String receiver) {
+        MailType mailType = MailType.AUTH;
+        String authNumber = createCode();
 
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            msgHelper.setTo(receiver);
+            msgHelper.setSubject(mailType.getSubject());
+            msgHelper.setText(setContext(authNumber, mailType.getTemplate()), true);
+            javaMailSender.send(mimeMessage);
 
+            return authNumber;
+        } catch (MessagingException e) {
+            throw new CustomException(ErrorType.FAIL_TO_SEND_EMAIL);
+        }
+    }
 
 
 }
