@@ -1,5 +1,18 @@
 package com.impacus.maketplace.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
@@ -16,21 +29,10 @@ import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -226,7 +228,6 @@ public class UserService {
             user.setFirstDormancy(true);
             user.setUpdateDormancyAt(updateDormancyAt);
 
-
             int underscoreIndex = user.getEmail().indexOf("_") + 1;
             String realUserEmail = user.getEmail().substring(underscoreIndex);
 
@@ -236,5 +237,22 @@ public class UserService {
                     .build();
             emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
         }
+    }
+    
+    public void sendCodeToEmail(String email) {
+        try {
+            EmailDto emailDTO = EmailDto.builder()
+                    .subject(MailType.EMAIL_VERIFICATION.getSubject())
+                    .receiveEmail(email)
+                    .build();
+            
+            if (emailService.sendMail(emailDTO, MailType.EMAIL_VERIFICATION)) {
+                // saveEmailVerificationCode
+            } else {
+                // 이메일 인증에 실패하였습니다 에러
+            }
+       } catch (Exception ex) {
+            throw new CustomException(ex);
+       }
     }
 }

@@ -1,5 +1,13 @@
 package com.impacus.maketplace.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
@@ -8,11 +16,11 @@ import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.PointService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
+
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -57,6 +65,14 @@ public class AuthController {
 
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
+                .build();
+    }
+
+    @PostMapping("/emails/verification-requests")
+    public ApiResponseEntity<Object> sendMessage(@RequestParam("email") @Valid @Email String email) {
+        userService.sendCodeToEmail(email);
+        return ApiResponseEntity
+                .builder()
                 .build();
     }
 }
