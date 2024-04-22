@@ -1,12 +1,10 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.admin.AdminUserListDto;
-import com.impacus.maketplace.dto.coupon.response.CouponListDto;
+import com.impacus.maketplace.dto.admin.AdminUserDto;
 import com.impacus.maketplace.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,11 +54,11 @@ public class AdminController {
     @GetMapping("/")
     public ApiResponseEntity<?> displayAdminList() {
         // 하드코딩으로 연동 먼저 테스트 진행
-        List<AdminUserListDto> adminUserListDto = adminService.displayAdmins();
+        List<AdminUserDto> adminUserDto = adminService.displayAdmins();
 
         return ApiResponseEntity
                 .builder()
-                .data(adminUserListDto)
+                .data(adminUserDto)
                 .build();
     }
 

@@ -1,6 +1,6 @@
 package com.impacus.maketplace.repository.admin;
 
-import com.impacus.maketplace.dto.admin.AdminUserListDto;
+import com.impacus.maketplace.dto.admin.AdminUserDto;
 import com.impacus.maketplace.dto.admin.QAdminUserListDto;
 import com.impacus.maketplace.entity.admin.QAdminActivityLog;
 import com.impacus.maketplace.entity.admin.QAdminInfo;
@@ -30,8 +30,8 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
      * @return : [리스트] 관리자 회원 조회
      */
     @Override
-    public List<AdminUserListDto> findAdminAll() {
-        JPAQuery<AdminUserListDto> query = queryFactory.select(
+    public List<AdminUserDto> findAdminAll() {
+        JPAQuery<AdminUserDto> query = queryFactory.select(
                 new QAdminUserListDto(
                         adminInfo.id,
                         userEntity.id,

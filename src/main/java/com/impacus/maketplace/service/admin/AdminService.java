@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.admin;
 
 
-import com.impacus.maketplace.dto.admin.AdminUserListDto;
+import com.impacus.maketplace.dto.admin.AdminUserDto;
 import com.impacus.maketplace.repository.admin.AdminInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class AdminService {
      * (1) [리스트] 관리자 회원 조회 - 쿼리문 결과 값 추출
      * @return : 쿼리문 결과 값 조회 (리스트 - 관리자)
      */
-    public List<AdminUserListDto> displayAdmins() {
+    public List<AdminUserDto> displayAdmins() {
         return adminInfoRepository.findAdminAll();
     }
 
