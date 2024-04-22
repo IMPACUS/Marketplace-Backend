@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.seller;
 
+import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.BankCode;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,10 +24,17 @@ public class SellerAdjustmentInfo {
     @Enumerated(EnumType.STRING)
     private BankCode bankCode;
 
+    @Convert(converter = AES256ToStringConverter.class)
     @Column(nullable = false)
     private String accountName;
 
+    @Convert(converter = AES256ToStringConverter.class)
     @Column(nullable = false)
     private String accountNumber;
+
+    @Column(nullable = false)
+    private Long copyBankBookId; // 통장 사본 이미지 id
+
+
 }
 

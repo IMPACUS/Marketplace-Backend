@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -70,13 +72,26 @@ public class AuthController {
                 .build();
     }
 
+    /**
+     * 판매자 입점 신청 API
+     *
+     * @param sellerRequest
+     * @param logoImage
+     * @param businessRegistrationImage
+     * @param mailOrderBusinessReportImage
+     * @param bankBookImage
+     * @return
+     */
     @PostMapping("seller-entry")
     public ApiResponseEntity<SellerDTO> addSeller(
-            @Valid @RequestPart(value = "seller") SellerRequest sellerRequest,
-            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage
+            @RequestPart(value = "seller") @Valid SellerRequest sellerRequest,
+            @RequestPart(value = "logo-image", required = false) MultipartFile logoImage,
+            @RequestPart(value = "business-registration-image", required = false) MultipartFile businessRegistrationImage,
+            @RequestPart(value = "mail-order-business-report-image", required = false) MultipartFile mailOrderBusinessReportImage,
+            @RequestPart(value = "bank-book-image", required = false) MultipartFile bankBookImage
 
-    ) {
-        SellerDTO sellerDTO = new SellerDTO();
+    ) throws IOException {
+        SellerDTO sellerDTO = userService.addSeller(sellerRequest, logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
         return ApiResponseEntity.<SellerDTO>builder()
                 .data(sellerDTO)
                 .build();
