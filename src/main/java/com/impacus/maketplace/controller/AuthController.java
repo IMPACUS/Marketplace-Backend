@@ -1,6 +1,8 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.seller.request.SellerRequest;
+import com.impacus.maketplace.dto.seller.response.SellerDTO;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.request.TokenRequest;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -57,6 +60,18 @@ public class AuthController {
 
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
+                .build();
+    }
+
+    @PostMapping("seller-entry")
+    public ApiResponseEntity<SellerDTO> addSeller(
+            @Valid @RequestPart(value = "seller") SellerRequest sellerRequest,
+            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage
+
+    ) {
+        SellerDTO sellerDTO = new SellerDTO();
+        return ApiResponseEntity.<SellerDTO>builder()
+                .data(sellerDTO)
                 .build();
     }
 }
