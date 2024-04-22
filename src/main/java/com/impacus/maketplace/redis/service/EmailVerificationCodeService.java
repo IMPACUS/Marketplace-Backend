@@ -22,9 +22,23 @@ public class EmailVerificationCodeService {
      */
     @Transactional
     public void saveEmailVerificationCode(String email, String code) {
-        EmailVerificationCode emailVerificationCode = EmailVerificationCode.toEntity(email, code);
+        // 1. email에 대해서 인증 데이터가 존재하는지 확인
+        EmailVerificationCode existedCode = findEmailVerificationCodeByEmail(email);
+        if (existedCode != null) {
+            deleteEmailVerificationCode(existedCode);
+        }
 
+        EmailVerificationCode emailVerificationCode = EmailVerificationCode.toEntity(email, code);
         emailAuthenticationNumberRepository.save(emailVerificationCode);
+    }
+
+    /**
+     * email에 대해서 EmailVerificationCode를 조회하는 함수
+     * @param email
+     * @return
+     */
+    public EmailVerificationCode findEmailVerificationCodeByEmail(String email) {
+        return emailAuthenticationNumberRepository.findByEmail(email).orElse(null);
     }
 
     /**

@@ -249,15 +249,19 @@ public class UserService {
     public void sendVerificationCodeToEmail(String email) {
         try {
             EmailDto emailDTO = EmailDto.builder()
-                    .subject(MailType.EMAIL_VERIFICATION.getSubject())
+                    .subject(MailType.AUTH.getSubject())
                     .receiveEmail(email)
                     .build();
 
-            if (emailService.sendMail(emailDTO, MailType.EMAIL_VERIFICATION)) {
-                // 이전에 해당 이메일에 대해서 인증 코드가 존재하였으면 삭제하는 로직 추가
+            if (emailService.sendMail(emailDTO, MailType.AUTH)) {
+                EmailVerificationCode emailVerificationCode = emailVerificationCodeService
+                        .findEmailVerificationCodeByEmail(email);
+                if (emailVerificationCode == null) {
+
+                }
                 // saveEmailVerificationCode
             } else {
-                // 이메일 인증에 실패하였습니다 에러
+                throw new CustomException(ErrorType.FAIL_TO_SEND_EMAIL);
             }
         } catch (Exception ex) {
             throw new CustomException(ex);

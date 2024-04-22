@@ -32,7 +32,7 @@ public class EmailService {
     private final EmailHistoryRepository emailHistoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
 
-    public Boolean sendMail(EmailDto emailDto,MailType mailType) {
+    public Boolean sendMail(EmailDto emailDto, MailType mailType) {
         String authNumber = createCode();
         if (!mailType.equals(MailType.AUTH)) {
             authNumber = "";
