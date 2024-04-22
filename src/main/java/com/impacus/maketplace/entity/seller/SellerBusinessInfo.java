@@ -1,8 +1,22 @@
 package com.impacus.maketplace.entity.seller;
 
+import org.hibernate.annotations.ColumnDefault;
+
+import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
-import jakarta.persistence.*;
-import lombok.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -10,7 +24,7 @@ import lombok.*;
 @Table(name = "seller_business_info")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SellerBusinessInfo {
+public class SellerBusinessInfo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seller_adjustment_info")
@@ -53,4 +67,8 @@ public class SellerBusinessInfo {
 
     @Convert(converter = AES256ToStringConverter.class)
     private String mailOrderBusinessReportNumber; // 통신 판매업 번호
+
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
 }

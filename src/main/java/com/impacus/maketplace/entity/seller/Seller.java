@@ -1,16 +1,31 @@
 package com.impacus.maketplace.entity.seller;
 
+import org.hibernate.annotations.ColumnDefault;
+
+import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
-import jakarta.persistence.*;
-import lombok.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Table(name = "seller_info")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Seller {
+public class Seller extends BaseEntity  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seller_id")
@@ -37,6 +52,10 @@ public class Seller {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private BusinessType businessType; // 사업자 구분
+
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
 
     @Builder
     public Seller(Long userId,
