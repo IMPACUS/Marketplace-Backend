@@ -53,10 +53,10 @@ public class AdminController {
      * 1) 사용 목적 : 어드민 계정 목록 표시
      * @return : 관리자 회원 리스트 출력
      */
-    @GetMapping("/list")
+    @GetMapping("/")
     public ApiResponseEntity<?> displayAdminList() {
         // 하드코딩으로 연동 먼저 테스트 진행
-        List<AdminUserListDto> adminUserListDto = adminService.displayAdminList();
+        List<AdminUserListDto> adminUserListDto = adminService.displayAdmins();
 
         return ApiResponseEntity
                 .builder()

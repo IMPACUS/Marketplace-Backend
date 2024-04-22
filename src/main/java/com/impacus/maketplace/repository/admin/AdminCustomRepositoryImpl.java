@@ -30,7 +30,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
      * @return : [리스트] 관리자 회원 조회
      */
     @Override
-    public List<AdminUserListDto> findAdminInfoList() {
+    public List<AdminUserListDto> findAdminAll() {
         JPAQuery<AdminUserListDto> query = queryFactory.select(
                 new QAdminUserListDto(
                         adminInfo.id,
