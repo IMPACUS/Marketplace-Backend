@@ -290,4 +290,15 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * id로 판매자를 조회하는 함수
+     *
+     * @param id
+     * @return
+     */
+    public User findUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+    }
+
 }

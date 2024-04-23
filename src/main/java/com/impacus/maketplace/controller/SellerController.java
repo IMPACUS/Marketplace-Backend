@@ -1,13 +1,15 @@
 package com.impacus.maketplace.controller;
 
+import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.seller.request.SellerChargePercentageRequest;
+import com.impacus.maketplace.dto.seller.request.SellerEntryStatusRequest;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
 import com.impacus.maketplace.service.seller.SellerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -48,11 +50,11 @@ public class SellerController {
      * @param pageable
      * @return
      */
-    @GetMapping("/entry-status/sellers")
+    @GetMapping("/entry/sellers")
     private ApiResponseEntity<Page<SimpleSellerEntryDTO>> getSellerEntryList(
             @RequestParam(value = "start-at") LocalDate startAt,
             @RequestParam(value = "end-at") LocalDate endAt,
-            @RequestParam(value = "entry-status", required = false) EntryStatus[] entryStatus,
+            @RequestParam(value = "entry-status", required = false) @Valid @ValidEnum(enumClass = EntryStatus.class) EntryStatus[] entryStatus,
             @PageableDefault(size = 6, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<SimpleSellerEntryDTO> entryDTOList = sellerService.getSellerEntryList(startAt, endAt, entryStatus, pageable);
@@ -67,7 +69,7 @@ public class SellerController {
      * @param userId
      * @return
      */
-    @GetMapping("/entry-status/sellers/{userId}")
+    @GetMapping("/entry/sellers/{userId}")
     public ApiResponseEntity<DetailedSellerEntryDTO> getDetailedSellerEntry(@PathVariable(value = "userId") Long userId) {
         DetailedSellerEntryDTO detailedSellerEntry = sellerService.getDetailedSellerEntry(userId);
         return ApiResponseEntity.<DetailedSellerEntryDTO>builder()
@@ -79,16 +81,17 @@ public class SellerController {
     /**
      * 판매자 입점 요청 상태 변경 API
      *
-     * @param sellerId
+     * @param userId
      * @param request
      * @return
      */
-    @PatchMapping("/entry-status/sellers/{sellerId}/entry-status")
-    public ApiResponseEntity<SimpleSellerDTO> changeEntryStatus(@PathVariable(value = "sellerId") Long sellerId,
-                                                                @RequestBody SellerChargePercentageRequest request) {
-        SimpleSellerDTO sellerEntryStatusDTO = sellerService.changeEntryStatus(sellerId, request);
+    @PatchMapping("/entry/sellers/{userId}/entry-status")
+    public ApiResponseEntity<SimpleSellerDTO> changeEntryStatus(
+            @PathVariable(value = "userId") Long userId,
+            @Valid @RequestBody SellerEntryStatusRequest request) {
+        SimpleSellerDTO sellerEntryStatusDTO = sellerService.changeEntryStatus(userId, request);
         return ApiResponseEntity.<SimpleSellerDTO>builder()
-                .data(null)
+                .data(sellerEntryStatusDTO)
                 .build();
     }
 

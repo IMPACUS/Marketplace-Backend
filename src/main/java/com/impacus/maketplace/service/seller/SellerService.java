@@ -6,7 +6,7 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.seller.request.SellerChargePercentageRequest;
+import com.impacus.maketplace.dto.seller.request.SellerEntryStatusRequest;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
@@ -129,7 +129,7 @@ public class SellerService {
             SellerAdjustmentInfo adjustmentInfo = sellerRequest.toSellerAdjustmentInfo(sellerId, bankBookFile.getId());
             sellerAdjustmentInfoService.saveSellerAdjustmentInfo(adjustmentInfo);
 
-            return SimpleSellerDTO.toDTO(user);
+            return SimpleSellerDTO.toDTO(user.getId(), seller);
         } catch (Exception e) {
             throw new CustomException(e);
         }
@@ -168,7 +168,7 @@ public class SellerService {
                     .todayEntryCnt(getTodayCreatedSellerCnt())
                     .thisWeekEntryCnt(getThisWeekCreatedSellerCnt())
                     .approveEntryCnt(getApprovedSellerCnt())
-                    .rejectEntryCnt(getApprovedSellerCnt())
+                    .rejectEntryCnt(getRejectedSellerCnt())
                     .build();
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -223,10 +223,49 @@ public class SellerService {
     /**
      * 판매자 입점 상태를 변경하는 함수
      *
+     * @param userId
+     * @param entryStatusRequest
      * @return
      */
-    public SimpleSellerDTO changeEntryStatus(Long sellerId, SellerChargePercentageRequest feePercentageRequest) {
-        return new SimpleSellerDTO();
+    @Transactional
+    public SimpleSellerDTO changeEntryStatus(Long userId, SellerEntryStatusRequest entryStatusRequest) {
+        EntryStatus entryStatus = entryStatusRequest.getEntryStatus();
+        Integer charge = entryStatusRequest.getCharge();
+
+        // 1. 판매자 유효성 검사
+        Seller seller = findSellerByUserId(userId);
+
+        // 2. 데이터 유효성 검사
+        if (entryStatus == EntryStatus.APPROVE) {
+            if (charge == null) {
+                throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "charge는 null이 될 수 없습니다.");
+            }
+        } else if (entryStatus == EntryStatus.REJECT) {
+            if (charge != null) {
+                throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "charge는 null이여야 합니다.");
+            }
+        } else {
+            throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "entryStatus 데이터가 올바르지 않습니다.");
+        }
+
+        // 3. 입점 상태 및 판매자 수수료 저장
+        seller.setEntryStatus(entryStatus);
+        seller.setChargePercent(charge == null ? 0 : charge);
+
+        sellerRepository.save(seller);
+
+        return SimpleSellerDTO.toDTO(userId, seller);
+    }
+
+    /**
+     * userId로 판매자 조회하는 함수
+     *
+     * @param userId
+     * @return
+     */
+    private Seller findSellerByUserId(Long userId) {
+        return sellerRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SELLER));
     }
 
     /**
@@ -249,9 +288,18 @@ public class SellerService {
         }
     }
 
-
+    /**
+     * 판매자 입점 관련 상세 데이터 조회하는 함수
+     *
+     * @param userId
+     * @return
+     */
     public DetailedSellerEntryDTO getDetailedSellerEntry(Long userId) {
         try {
+            // 1. 판매자 유효성 검사
+            findSellerByUserId(userId);
+
+            // 2. 데이터 조회
             return sellerRepository.findDetailedSellerEntry(userId);
         } catch (Exception ex) {
             throw new CustomException(ex);

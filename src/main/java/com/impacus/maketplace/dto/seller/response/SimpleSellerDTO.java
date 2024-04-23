@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.seller.response;
 
-import com.impacus.maketplace.common.enumType.user.UserType;
-import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.entity.seller.Seller;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,16 +9,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SimpleSellerDTO {
     private Long id;
-    private String email;
-    private UserType userType;
+    private String contactName;
+    private EntryStatus entryStatus;
 
-    public SimpleSellerDTO(User user) {
-        this.email = user.getEmail();
-        this.id = user.getId();
-        this.userType = user.getType();
+    public SimpleSellerDTO(Long userId, Seller seller) {
+        this.id = userId;
+        this.contactName = seller.getContactName();
+        this.entryStatus = seller.getEntryStatus();
     }
 
-    public static SimpleSellerDTO toDTO(User user) {
-        return new SimpleSellerDTO(user);
+    public static SimpleSellerDTO toDTO(Long userId, Seller seller) {
+        return new SimpleSellerDTO(userId, seller);
     }
 }

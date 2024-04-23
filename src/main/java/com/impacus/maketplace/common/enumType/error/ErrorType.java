@@ -41,6 +41,7 @@ public enum ErrorType {
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),
     INVALID_POINT_MANAGE("031_INVALID_POINT_MANAGE", "유효하지 않은 포인트 입니다."),
     FAIL_TO_SEND_EMAIL("32_FAIL_TO_SEND_EMAIL", "이메일 전송에 실패하였습니다."),
+    NOT_EXISTED_SELLER("33_NOT_EXISTED_SELLER", "존재하지 않는 사용자 입니다."),
 
     //TODO: 4X번 부터 쿠폰 관련
     INVALID_COUPON_FORMAT("040_INVALID_COUPON_FORMAT", "유효하지 않은 쿠폰입니다.\n쿠폰코드를 다시 한번 확인해주세요"),
