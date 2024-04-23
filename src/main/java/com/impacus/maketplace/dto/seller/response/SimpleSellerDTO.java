@@ -7,18 +7,18 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class SellerDTO {
+public class SimpleSellerDTO {
     private Long id;
     private String email;
     private UserType userType;
 
-    public SellerDTO(User user) {
+    public SimpleSellerDTO(User user) {
         this.email = user.getEmail();
         this.id = user.getId();
         this.userType = user.getType();
     }
 
-    public static SellerDTO toDTO(User user) {
-        return new SellerDTO(user);
+    public static SimpleSellerDTO toDTO(User user) {
+        return new SimpleSellerDTO(user);
     }
 }

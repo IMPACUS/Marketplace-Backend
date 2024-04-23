@@ -2,7 +2,7 @@ package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
-import com.impacus.maketplace.dto.seller.response.SellerDTO;
+import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.request.TokenRequest;
@@ -83,7 +83,7 @@ public class AuthController {
      * @return
      */
     @PostMapping("seller-entry")
-    public ApiResponseEntity<SellerDTO> addSeller(
+    public ApiResponseEntity<SimpleSellerDTO> addSeller(
             @RequestPart(value = "seller") @Valid SellerRequest sellerRequest,
             @RequestPart(value = "logo-image", required = false) MultipartFile logoImage,
             @RequestPart(value = "business-registration-image", required = false) MultipartFile businessRegistrationImage,
@@ -91,8 +91,8 @@ public class AuthController {
             @RequestPart(value = "bank-book-image", required = false) MultipartFile bankBookImage
 
     ) throws IOException {
-        SellerDTO sellerDTO = userService.addSeller(sellerRequest, logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
-        return ApiResponseEntity.<SellerDTO>builder()
+        SimpleSellerDTO sellerDTO = userService.addSeller(sellerRequest, logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
+        return ApiResponseEntity.<SimpleSellerDTO>builder()
                 .data(sellerDTO)
                 .build();
     }
