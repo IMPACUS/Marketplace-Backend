@@ -1,9 +1,13 @@
 package com.impacus.maketplace.service.seller;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.forecast.model.DayOfWeek;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
@@ -108,8 +112,7 @@ public class SellerService {
         userService.saveUser(user);
 
         // 6. Seller 저장
-        Seller seller = saveSeller(sellerRequest.toSellerEntity(user.getId(),
-                logoImageFile.getId()));
+        Seller seller = saveSeller(sellerRequest.toSellerEntity(user.getId(), logoImageFile.getId()));
         Long sellerId = seller.getId();
 
         // 7. SellerBusinessInfo 저장
@@ -131,7 +134,7 @@ public class SellerService {
     private void validateFileLimit(MultipartFile logoImage,
                                    MultipartFile businessRegistrationImage,
                                    MultipartFile mailOrderBusinessReportImage,
-                                   MultipartFile bankBookImage) {
+            MultipartFile bankBookImage) {
         if (logoImage.getSize() > LOGO_IMAGE_LIMIT) {
             new CustomException(ErrorType.INVALID_REQUEST_DATA, "로고 이미지 크기가 제한을 넘었습니다.");
         }
@@ -149,4 +152,30 @@ public class SellerService {
         }
 
     }
+
+    /**
+     * 오늘 입점 요청한 생성자 수를 찾는 함수
+     * @return
+     */
+    private int getTodayCreatedSellerCnt() {
+        LocalDate nowDate = LocalDate.now();
+        LocalDateTime startOfDay = nowDate.atStartOfDay();
+        LocalDateTime endOfDay = nowDate.atTime(LocalDate.MAX);
+
+        return sellerRepository.countByCreateAtBetweenAndIsDeletedFalse(startOfDay, endOfDay);
+    }
+
+    /**
+     * 이번 주 입점 요청한 생성자 수를 찾는 함수
+     * @return
+     */
+    private int getThisWeekCreatedSellerCnt() {
+        LocalDate nowDate = LocalDate.now();
+        LocalDateTime startOfWeek = LocalDateTime.of(LocalDate.now().with(DayOfWeek.MONDAY), LocalTime.MIN);
+        LocalDateTime endOfWeek = LocalDateTime.of(LocalDate.now().with(DayOfWeek.SUNDAY), LocalTime.MAX);
+
+        return sellerRepository.countByCreateAtBetweenAndIsDeletedFalse(startOfWeek, endOfWeek);
+    }
+    
+
 }
