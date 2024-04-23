@@ -1,5 +1,17 @@
 package com.impacus.maketplace.controller;
 
+import java.io.IOException;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
@@ -11,15 +23,12 @@ import com.impacus.maketplace.service.PointService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
+import com.impacus.maketplace.service.seller.SellerService;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -31,6 +40,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
     private final PointService pointService;
+    private final SellerService sellerService;
 
     private final CouponAdminService couponAdminService;
 

@@ -1,17 +1,32 @@
 package com.impacus.maketplace.entity.user;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.ColumnDefault;
+
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.TimestampConverter;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -25,6 +40,10 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
 
     @Column(nullable = false, unique = true)
     private String email; // Format: OauthProviderKey_Email
