@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.seller.request.SellerChargePercentageRequest;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
+import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
@@ -241,6 +242,19 @@ public class SellerService {
                                                          LocalDate endAt,
                                                          EntryStatus[] entryStatus,
                                                          Pageable pageable) {
-        return sellerRepository.findAllSellerWithEntry(startAt, endAt, pageable, entryStatus);
+        try {
+            return sellerRepository.findAllSellerWithEntry(startAt, endAt, pageable, entryStatus);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+
+    public DetailedSellerEntryDTO getDetailedSellerEntry(Long userId) {
+        try {
+            return sellerRepository.findDetailedSellerEntry(userId);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

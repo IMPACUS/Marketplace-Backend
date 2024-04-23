@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.SellerChargePercentageRequest;
+import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
@@ -47,7 +48,7 @@ public class SellerController {
      * @param pageable
      * @return
      */
-    @GetMapping("/entry/sellers")
+    @GetMapping("/entry-status/sellers")
     private ApiResponseEntity<Page<SimpleSellerEntryDTO>> getSellerEntryList(
             @RequestParam(value = "start-at") LocalDate startAt,
             @RequestParam(value = "end-at") LocalDate endAt,
@@ -60,6 +61,20 @@ public class SellerController {
                 .build();
     }
 
+    /**
+     * 판매자 입점 관련 데이터 조회 API
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/entry-status/sellers/{userId}")
+    public ApiResponseEntity<DetailedSellerEntryDTO> getDetailedSellerEntry(@PathVariable(value = "userId") Long userId) {
+        DetailedSellerEntryDTO detailedSellerEntry = sellerService.getDetailedSellerEntry(userId);
+        return ApiResponseEntity.<DetailedSellerEntryDTO>builder()
+                .data(detailedSellerEntry)
+                .build();
+    }
+
 
     /**
      * 판매자 입점 요청 상태 변경 API
@@ -68,7 +83,7 @@ public class SellerController {
      * @param request
      * @return
      */
-    @PatchMapping("/{sellerId}/entry-status")
+    @PatchMapping("/entry-status/sellers/{sellerId}/entry-status")
     public ApiResponseEntity<SimpleSellerDTO> changeEntryStatus(@PathVariable(value = "sellerId") Long sellerId,
                                                                 @RequestBody SellerChargePercentageRequest request) {
         SimpleSellerDTO sellerEntryStatusDTO = sellerService.changeEntryStatus(sellerId, request);
