@@ -11,11 +11,14 @@ import com.amazonaws.services.forecast.model.DayOfWeek;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
+import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.seller.request.SellerFeePercentageRequest;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
 import com.impacus.maketplace.dto.seller.response.SellerDTO;
+import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -154,7 +157,15 @@ public class SellerService {
     }
 
     /**
-     * 오늘 입점 요청한 생성자 수를 찾는 함수
+     * 판매자 입점 현황을 조회하는 함수
+     * @return
+     */
+    public SellerEntryStatusDTO getEntryStatusStatistics() {
+        return new SellerEntryStatusDTO();
+    }
+
+    /**
+     * 오늘 입점 요청한 판매자 수를 찾는 함수
      * @return
      */
     private int getTodayCreatedSellerCnt() {
@@ -166,7 +177,7 @@ public class SellerService {
     }
 
     /**
-     * 이번 주 입점 요청한 생성자 수를 찾는 함수
+     * 이번 주 입점 요청한 판매자 수를 찾는 함수
      * @return
      */
     private int getThisWeekCreatedSellerCnt() {
@@ -176,6 +187,29 @@ public class SellerService {
 
         return sellerRepository.countByCreateAtBetweenAndIsDeletedFalse(startOfWeek, endOfWeek);
     }
+
+    /**
+     * 입점 승인된 판매자 수를 찾는 함수
+     * @return
+     */
+    private int getApprovedSellerCnt() {
+        return sellerRepository.countByEntryStatusAndIsDeletedFalse(EntryStatus.APPROVE);
+    }
+
+    /**
+     * 입점 거절된 판매자 수를 찾는 함수
+     * @return
+     */
+    private int getRejectedSellerCnt() {
+        return sellerRepository.countByEntryStatusAndIsDeletedFalse(EntryStatus.REJECT);
+    }
     
 
+    /**
+     * 판매자 입점 상태를 변경하는 함수
+     * @return
+     */
+    public object changeEntryStatus(Long sellerId, SellerFeePercentageRequest feePercentageRequest) {
+        return new SellerEntryStatusDTO();
+    }
 }
