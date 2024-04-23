@@ -10,6 +10,7 @@ import com.impacus.maketplace.dto.seller.request.SellerChargePercentageRequest;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
+import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -19,6 +20,8 @@ import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -159,12 +162,16 @@ public class SellerService {
      * @return
      */
     public SellerEntryStatusDTO getEntryStatusStatistics() {
-        return SellerEntryStatusDTO.builder()
-                .todayEntryCnt(getTodayCreatedSellerCnt())
-                .thisWeekEntryCnt(getThisWeekCreatedSellerCnt())
-                .approveEntryCnt(getApprovedSellerCnt())
-                .rejectEntryCnt(getApprovedSellerCnt())
-                .build();
+        try {
+            return SellerEntryStatusDTO.builder()
+                    .todayEntryCnt(getTodayCreatedSellerCnt())
+                    .thisWeekEntryCnt(getThisWeekCreatedSellerCnt())
+                    .approveEntryCnt(getApprovedSellerCnt())
+                    .rejectEntryCnt(getApprovedSellerCnt())
+                    .build();
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
@@ -219,5 +226,21 @@ public class SellerService {
      */
     public SimpleSellerDTO changeEntryStatus(Long sellerId, SellerChargePercentageRequest feePercentageRequest) {
         return new SimpleSellerDTO();
+    }
+
+    /**
+     * 전체 판매자 입점 상태 리스트를 조회하는 함수
+     *
+     * @param startAt
+     * @param endAt
+     * @param entryStatus
+     * @param pageable
+     * @return
+     */
+    public Page<SimpleSellerEntryDTO> getSellerEntryList(LocalDate startAt,
+                                                         LocalDate endAt,
+                                                         EntryStatus[] entryStatus,
+                                                         Pageable pageable) {
+        return sellerRepository.findAllSellerWithEntry(startAt, endAt, pageable, entryStatus);
     }
 }

@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller;
 
+import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.SellerChargePercentageRequest;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
@@ -8,11 +9,12 @@ import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
 import com.impacus.maketplace.service.seller.SellerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 import java.time.LocalDate;
 
 
@@ -46,15 +48,15 @@ public class SellerController {
      * @return
      */
     @GetMapping("/entry/sellers")
-    private ApiResponseEntity<SimpleSellerEntryDTO> getSellerEntryList(
+    private ApiResponseEntity<Page<SimpleSellerEntryDTO>> getSellerEntryList(
             @RequestParam(value = "start-at") LocalDate startAt,
             @RequestParam(value = "end-at") LocalDate endAt,
-            @RequestParam(value = "entry-status") String[] entryStatus,
+            @RequestParam(value = "entry-status", required = false) EntryStatus[] entryStatus,
             @PageableDefault(size = 6, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-
-        return ApiResponseEntity.<SimpleSellerEntryDTO>builder()
-                .data(null)
+        Page<SimpleSellerEntryDTO> entryDTOList = sellerService.getSellerEntryList(startAt, endAt, entryStatus, pageable);
+        return ApiResponseEntity.<Page<SimpleSellerEntryDTO>>builder()
+                .data(entryDTOList)
                 .build();
     }
 

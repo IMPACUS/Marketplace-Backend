@@ -44,6 +44,10 @@ public class Seller extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
+    @ColumnDefault("0")
+    @Column(nullable = false, name = "charge_percent")
+    private int chargePercent; // 수수료 비율
+
     @Builder
     public Seller(Long userId,
                   String contactName,
@@ -59,6 +63,6 @@ public class Seller extends BaseEntity {
         this.businessType = businessType;
         this.entryStatus = EntryStatus.REQUEST;
         this.isDeleted = false;
-
+        this.chargePercent = 0;
     }
 }
