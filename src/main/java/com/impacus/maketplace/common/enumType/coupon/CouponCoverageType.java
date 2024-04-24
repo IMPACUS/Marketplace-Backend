@@ -6,14 +6,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponBenefitClassification  implements CouponUtils.CommonFieldInterface {
+public enum CouponCoverageType implements CouponUtils.CommonFieldInterface{
 
-    AMOUNT("AMOUNT", "원"),
-    PERCENTAGE("PERCENT" , "%"),
-    UNKNOWN("", "");
-
+    ALL("ALL", "모든 상품 / 브랜드"),
+    BRAND("BRAND", "특정 브랜드");
 
     private final String code;
     private final String value;
-
 }

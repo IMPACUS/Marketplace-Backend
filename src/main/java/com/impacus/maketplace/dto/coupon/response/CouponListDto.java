@@ -16,33 +16,33 @@ public class CouponListDto {
     private String code;    // 쿠폰 코드 (임시로 UUID)
     private String name;    // 쿠폰 이름
     private String description;    // 쿠폰 설명
-    private CouponBenefitClassification couponBenefitClassification;    // 혜택 구분 [ 원, % ]
-    private int benefitAmount;   // 혜택 금액 및 퍼센트
-    private CouponIssuanceClassification couponIssuanceClassification;  // 발급 구분 [ 그린 태그, 유저 일반, 신규 고객 첫 주문, SNS 홍보 태그 ]
-    private CouponPaymentTarget couponPaymentTarget;    // 지급 대상 [ 모든 회원, 선착순 ]
-    private Long firstComeFirstServedAmount = 0L; // 선착순 발급 수
-    private CouponIssuedTime couponIssuedTime;  // 발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
-    private CouponExpireTime couponExpireTime;  // 사용기간 [ 발급잉로 부터 N일, 무제한 ]
+    private CouponBenefitType benefitType;    // 혜택 구분 [ 원, % ]
+    private int benefitValue;   // 혜택 금액 및 퍼센트
+    private CouponProductTargetType productTargetType;
+    private CouponPaymentTargetType paymentTargetType;    // 지급 대상 [ 모든 회원, 선착순 ]
+    private Long firstCount = 0L; // 선착순 발급 수
+    private CouponIssuedTimeType issuedTimeType;  // 발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
+    private CouponExpireTimeType expireTimeType;  // 사용기간 [ 발급잉로 부터 N일, 무제한 ]
     private Long expireDays = 0L;    // 유효기간(일)
-    private CouponCoverage couponIssuanceCoverage;  // 발급 적용 범위 [ 모든상품/브랜드, 특정 브랜드]
+    private CouponCoverageType issueCoverageType;  // 발급 적용 범위 [ 모든상품/브랜드, 특정 브랜드]
     //TODO: 브랜드 추가시 브랜드 코드추가 예정
 //    private Brand issueBrand;
-    private CouponCoverage couponUseCoverage;   // 쿠폰 사용 범위 [ 모든상품/브랜드, 특정 브랜드]
+    private CouponCoverageType useCoverageType;   // 쿠폰 사용 범위 [ 모든상품/브랜드, 특정 브랜드]
     //TODO: 브랜드 추가시 브랜드 코드추가 예정
 //    private Brand useBrand;
-    private CouponStandardAmountType couponUsableStandardAmountType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-    private int usableStandardAmount = 0; // N원 (N원 이상 주문시 사용 가능)
-    private CouponStandardAmountType couponIssuanceStandardAmountType;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-    private int issueStandardAmount = 0;  // N원 (N원 이상 주문시 쿠폰 발급)
-    private CouponIssuancePeriodType couponIssuancePeriod;  // 기간 설정
-    private LocalDate startIssuanceAt;  // 기간설정 시작 기간
-    private LocalDate endIssuanceAt;    // 기간설정 종료 기간
-    private Long numberOfWithPeriod = 0L;    // 기간 내 N 회 주문 시
-    private CouponIssuanceType couponIssuance;  // 자동 / 수동 발급 [ 자동, 수동 ]
-    private String loginCouponIssueNotification = "N";  // 로그인 쿠폰 발급 알림
-    private String issuingCouponsSendSMS = "N"; // 쿠폰발급 SMS 발송
-    private String issuanceCouponSendEmail = "N";   // 쿠폰 발급 Email 발송
-    private IssuanceStatus status;
+    private CouponStandardType useStandardType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+    private Integer useStandardValue = 0; // N원 (N원 이상 주문시 사용 가능)
+    private CouponStandardType issueStandardType;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+    private int issueStandardValue = 0;  // N원 (N원 이상 주문시 쿠폰 발급)
+    private CouponPeriodType periodType;  // 기간 설정
+    private LocalDate periodStartAt;  // 기간설정 시작 기간
+    private LocalDate periodEndAt;    // 기간설정 종료 기간
+    private Long numberOfPeriod = 0L;    // 기간 내 N 회 주문 시
+    private CouponAutoManualType autoManualType;  // 자동 / 수동 발급 [ 자동, 수동 ]
+    private String loginAlert = "N";  // 로그인 쿠폰 발급 알림
+    private String smsAlert = "N"; // 쿠폰발급 SMS 발송
+    private String emailAlert = "N";   // 쿠폰 발급 Email 발송
+    private CouponStatusType statusType;
     private LocalDateTime modifyAt;
 
     // code To String
@@ -55,34 +55,35 @@ public class CouponListDto {
 
 
     @QueryProjection
-    public CouponListDto(Long id, String code, String name, String description, CouponBenefitClassification couponBenefitClassification, int benefitAmount, CouponIssuanceClassification couponIssuanceClassification, CouponPaymentTarget couponPaymentTarget, Long firstComeFirstServedAmount, CouponIssuedTime couponIssuedTime, CouponExpireTime couponExpireTime, Long expireDays, CouponCoverage couponIssuanceCoverage, CouponCoverage couponUseCoverage, CouponStandardAmountType couponUsableStandardAmount, int usableStandardMount, CouponStandardAmountType couponIssuanceStandardAmountType, int issueStandardAmount, CouponIssuancePeriodType couponIssuancePeriod, LocalDate startIssuanceAt, LocalDate endIssuanceAt, Long numberOfWithPeriod, CouponIssuanceType couponIssuance, String loginCouponIssueNotification, String issuingCouponsSendSMS, String issuanceCouponSendEmail, IssuanceStatus status, LocalDateTime modifyAt) {
+
+    public CouponListDto(Long id, String code, String name, String description, CouponBenefitType benefitType, int benefitValue, CouponProductTargetType productTargetType, CouponPaymentTargetType paymentTargetType, Long firstCount, CouponIssuedTimeType issuedTimeType, CouponExpireTimeType expireTimeType, Long expireDays, CouponCoverageType issueCoverageType, CouponCoverageType useCoverageType, CouponStandardType useStandardType, Integer useStandardValue, CouponStandardType issueStandardType, int issueStandardValue, CouponPeriodType periodType, LocalDate periodStartAt, LocalDate periodEndAt, Long numberOfPeriod, CouponAutoManualType autoManualType, String loginAlert, String smsAlert, String emailAlert, CouponStatusType statusType, LocalDateTime modifyAt) {
         this.id = id;
         this.code = code;
         this.name = name;
         this.description = description;
-        this.couponBenefitClassification = couponBenefitClassification;
-        this.benefitAmount = benefitAmount;
-        this.couponIssuanceClassification = couponIssuanceClassification;
-        this.couponPaymentTarget = couponPaymentTarget;
-        this.firstComeFirstServedAmount = firstComeFirstServedAmount;
-        this.couponIssuedTime = couponIssuedTime;
-        this.couponExpireTime = couponExpireTime;
+        this.benefitType = benefitType;
+        this.benefitValue = benefitValue;
+        this.productTargetType = productTargetType;
+        this.paymentTargetType = paymentTargetType;
+        this.firstCount = firstCount;
+        this.issuedTimeType = issuedTimeType;
+        this.expireTimeType = expireTimeType;
         this.expireDays = expireDays;
-        this.couponIssuanceCoverage = couponIssuanceCoverage;
-        this.couponUseCoverage = couponUseCoverage;
-        this.couponUsableStandardAmountType = couponUsableStandardAmount;
-        this.usableStandardAmount = usableStandardMount;
-        this.couponIssuanceStandardAmountType = couponIssuanceStandardAmountType;
-        this.issueStandardAmount = issueStandardAmount;
-        this.couponIssuancePeriod = couponIssuancePeriod;
-        this.startIssuanceAt = startIssuanceAt;
-        this.endIssuanceAt = endIssuanceAt;
-        this.numberOfWithPeriod = numberOfWithPeriod;
-        this.couponIssuance = couponIssuance;
-        this.loginCouponIssueNotification = loginCouponIssueNotification;
-        this.issuingCouponsSendSMS = issuingCouponsSendSMS;
-        this.issuanceCouponSendEmail = issuanceCouponSendEmail;
-        this.status = status;
+        this.issueCoverageType = issueCoverageType;
+        this.useCoverageType = useCoverageType;
+        this.useStandardType = useStandardType;
+        this.useStandardValue = useStandardValue;
+        this.issueStandardType = issueStandardType;
+        this.issueStandardValue = issueStandardValue;
+        this.periodType = periodType;
+        this.periodStartAt = periodStartAt;
+        this.periodEndAt = periodEndAt;
+        this.numberOfPeriod = numberOfPeriod;
+        this.autoManualType = autoManualType;
+        this.loginAlert = loginAlert;
+        this.smsAlert = smsAlert;
+        this.emailAlert = emailAlert;
+        this.statusType = statusType;
         this.modifyAt = modifyAt;
     }
 }

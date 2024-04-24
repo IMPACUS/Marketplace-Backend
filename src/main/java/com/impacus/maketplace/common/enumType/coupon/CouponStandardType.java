@@ -6,13 +6,12 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum IssuanceStatus implements CouponUtils.CommonFieldInterface{
-    ISSUING("ISSUING", "발급중"),
-    ISSUED("ISSUED", "발급 됨"),
-    STOP("STOP", "발급 중지"),
-    UNKNOWN("","");
+public enum CouponStandardType implements CouponUtils.CommonFieldInterface {
+
+    UNLIMITED("UNLIMITED", "가격 제한 없음"),
+    LIMIT("LIMIT", "N원 이상 구매시"),
+    UNKNOWN("", "");
 
     private final String code;
     private final String value;
-
 }

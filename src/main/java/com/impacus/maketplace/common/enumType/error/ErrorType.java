@@ -50,10 +50,13 @@ public enum ErrorType {
     INVALID_ALARM("043_INVALID_ALARM", "유효하지 않는 알림 타입입니다."),
     INVALID_PERCENT("044_INVALID_PERCENT", "유효하지 않는 퍼센트 입니다."),
     DUPLICATED_COUPON("45_DUPLICATE_COUPON", "중복되는 쿠폰이 존재합니다."),
-    INVALID_COUPON_REQUEST("46_INVALID_COUPON_REQUSET", "유효하지 않는 쿠폰 요청입니다."),
+    INVALID_COUPON_REQUEST("46_INVALID_COUPON_REQUEST", "유효하지 않는 쿠폰 요청입니다."),
+    INVALID_FIRST_COUNT("047_INVALID_FIRST_COUNT", "유효하지 않는 선착순 수 입니다."),
+    INVALID_VALUE("048_INVALID_VALUE", "유효하지 않는 수 입니다."),
+    DUPLICATED_COUPON_CODE("048_DUPLICATED_COUPON_CODE", "중복되는 쿠폰 코드입니다."),
+
 
     DUPLICATED_SUB_CATEGORY("050_DUPLICATED_SUB_CATEGORY", "중복된 2차 카테고리 명이 존재합나디."),
-
 
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),

@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponIssuanceType implements CouponUtils.CommonFieldInterface{
+public enum CouponPaymentTargetType implements CouponUtils.CommonFieldInterface {
 
-    AUTO("AUTO", "자동 발급"),
-    MANUAL("MANUAL", "수동 발급");
+    ALL("ALL", "모든 회원"),
+    FIRST("FIRST", "선착순");
 
     private final String code;
     private final String value;
