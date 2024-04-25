@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
@@ -12,12 +13,15 @@ import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.redis.entity.EmailVerificationCode;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
+import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -46,6 +50,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
+    private final EmailVerificationCodeService emailVerificationCodeService;
+
 
     @Transactional
     public UserDTO addUser(SignUpRequest signUpRequest) {
@@ -109,24 +115,13 @@ public class UserService {
     }
 
     @Transactional(noRollbackFor = CustomException.class)
-    public UserDTO login(LoginRequest loginRequest) {
+    public UserDTO login(LoginRequest loginRequest, UserType userType) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
         try {
             // 1. 이메일 유효성 검사
-            User user = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
-            if (user == null) {
-                throw new CustomException(ErrorType.NOT_EXISTED_EMAIL);
-            } else {
-                if (!user.getEmail().contains(OauthProviderType.NONE.name())) {
-                    throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
-                } else {
-                    if (user.getStatus() == UserStatus.BLOCKED) {
-                        throw new CustomException(ErrorType.BLOCKED_EMAIL);
-                    }
-                }
-            }
+            User user = validateAndFindUser(email, userType);
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
@@ -152,6 +147,63 @@ public class UserService {
             return new UserDTO(user, tokenInfoVO);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 이메일 유효성 검사를 한 후, 유효성 검사에 통과한 경우, User를 반환하는 함수
+     *
+     * @param email
+     * @param userType
+     * @return
+     */
+    private User validateAndFindUser(String email, UserType userType) {
+        User user = switch (userType) {
+            case ROLE_CERTIFIED_USER -> {
+                User checkedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
+                validateCertifiedUser(checkedUser);
+
+                yield checkedUser;
+            }
+            case ROLE_APPROVED_SELLER -> {
+                User checkedSeller = findUserByEmail(email);
+                validateApprovedSeller(checkedSeller);
+
+                yield checkedSeller;
+            }
+            default -> throw new CustomException(HttpStatus.FORBIDDEN, ErrorType.ACCESS_DENIED_EMAIL);
+        };
+
+        if (user.getStatus() == UserStatus.BLOCKED) {
+            throw new CustomException(ErrorType.BLOCKED_EMAIL);
+        }
+
+        return user;
+    }
+
+    /**
+     * User 유효성 검사를 하는 함수 (사용자인 경우)
+     *
+     * @param checkedUser
+     */
+    private void validateCertifiedUser(User checkedUser) {
+        if (checkedUser == null) {
+            throw new CustomException(ErrorType.NOT_EXISTED_EMAIL);
+        } else {
+            if (!checkedUser.getEmail().contains(OauthProviderType.NONE.name())) {
+                throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+            }
+        }
+    }
+
+    /**
+     * User 유효성 검사를 하는 함수 (판매자인 경우)
+     *
+     * @param checkedSeller
+     */
+    private void validateApprovedSeller(User checkedSeller) {
+        if (checkedSeller.getType() != UserType.ROLE_APPROVED_SELLER) {
+            throw new CustomException(HttpStatus.FORBIDDEN, ErrorType.ACCESS_DENIED_EMAIL);
         }
     }
 
@@ -190,7 +242,7 @@ public class UserService {
         return tokenProvider.createToken(authentication);
     }
 
-    private String encodePassword(String password) {
+    public String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
 
@@ -214,6 +266,10 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
     }
 
+    public boolean existUserByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
 
     @Transactional
     public void findFistDormancyUser() {
@@ -226,7 +282,6 @@ public class UserService {
             user.setFirstDormancy(true);
             user.setUpdateDormancyAt(updateDormancyAt);
 
-
             int underscoreIndex = user.getEmail().indexOf("_") + 1;
             String realUserEmail = user.getEmail().substring(underscoreIndex);
 
@@ -237,4 +292,73 @@ public class UserService {
             emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
         }
     }
+
+    /**
+     * 이메일 인증 요청 이메일을 보내는 함수
+     *
+     * @param email 인증 요청 이메일
+     */
+    public void sendVerificationCodeToEmail(String email) {
+        try {
+            // 1. 이메일 전송
+            String code = emailService.sendEmailVerificationMail(email);
+
+            // 2. 이메일 인증 코드 저장
+            emailVerificationCodeService.saveEmailVerificationCode(email, code);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 이메일 인증 확인 결과를 전달하는 API
+     *
+     * @param email
+     */
+    public boolean confirmEmail(String email, String code) {
+        try {
+            EmailVerificationCode emailVerificationCode = emailVerificationCodeService
+                    .findEmailVerificationCodeByEmailAndCode(email, code);
+            if (emailVerificationCode != null) {
+                emailVerificationCodeService.deleteEmailVerificationCode(emailVerificationCode);
+            }
+
+            return emailVerificationCode != null;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * User 저장하는 함수
+     *
+     * @param user
+     */
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
+    /**
+     * id로 판매자를 조회하는 함수
+     *
+     * @param id
+     * @return
+     */
+    public User findUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+    }
+
+    /**
+     * userType을 업데이트하는 합수
+     *
+     * @param user
+     * @param userType
+     */
+    @Transactional
+    public void updateUserType(User user, UserType userType) {
+        user.setType(userType);
+        userRepository.save(user);
+    }
+
 }

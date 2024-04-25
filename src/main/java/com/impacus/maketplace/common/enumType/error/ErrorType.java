@@ -38,10 +38,10 @@ public enum ErrorType {
     EXCEED_MAX_SUB_CATEGORY("027_EXCEED_MAX_SUB_CATEGORY", "생성할 수 있는 최대 2차 카테고리 수를 초과하였습니다."),
     CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT("028_CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT", "상품이 존재하는 2차 카테고리는 삭제할 수 없습니다."),
     CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT("029_CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT", "상품이 존재하는 1차 카테고리는 삭제할 수 없습니다."),
-
-    //TODO: 3X번 Point 관련 된것 작성하겠습니다!
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),
-    INVALID_POINT_MANAGE("031_INVALID_POINT_MANAGE","유효하지 않은 포인트 입니다."),
+    INVALID_POINT_MANAGE("031_INVALID_POINT_MANAGE", "유효하지 않은 포인트 입니다."),
+    FAIL_TO_SEND_EMAIL("32_FAIL_TO_SEND_EMAIL", "이메일 전송에 실패하였습니다."),
+    NOT_EXISTED_SELLER("33_NOT_EXISTED_SELLER", "존재하지 않는 사용자 입니다."),
 
     //TODO: 4X번 부터 쿠폰 관련
     INVALID_COUPON_FORMAT("040_INVALID_COUPON_FORMAT", "유효하지 않은 쿠폰입니다.\n쿠폰코드를 다시 한번 확인해주세요"),
