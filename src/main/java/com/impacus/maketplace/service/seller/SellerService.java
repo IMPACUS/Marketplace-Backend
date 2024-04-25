@@ -1,11 +1,13 @@
 package com.impacus.maketplace.service.seller;
 
+import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.seller.request.SellerEntryStatusRequest;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
@@ -19,6 +21,7 @@ import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -46,6 +49,7 @@ public class SellerService {
     private final SellerAdjustmentInfoService sellerAdjustmentInfoService;
     private final AttachFileService attachFileService;
     private final UserService userService;
+    private final EmailService emailService;
 
     /**
      * Seller를 저장하는 함수
@@ -254,11 +258,18 @@ public class SellerService {
             seller.setEntryStatus(entryStatus);
             seller.setChargePercent(charge == null ? 0 : charge);
 
+            EmailDto emailDto = EmailDto.builder()
+                    .subject("입점 결과 메일 입니다.")
+                    .receiveEmail(user.getEmail())
+                    .build();
+
             // 4. Role 변경
             if (entryStatus == EntryStatus.APPROVE) {
                 userService.updateUserType(user, UserType.ROLE_APPROVED_SELLER);
+                emailService.sendMail(emailDto, MailType.SELLER_APPROVE);
             } else {
                 userService.updateUserType(user, UserType.ROLE_UNAPPROVED_SELLER);
+                emailService.sendMail(emailDto, MailType.SELLER_REJECT);
             }
 
             sellerRepository.save(seller);

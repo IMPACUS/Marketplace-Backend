@@ -11,6 +11,7 @@ public class DetailedSellerEntryDTO {
     private Long id;
     private String marketName;
     private String contactName;
+    private String email;
     private String contactNumber;
     private String businessRegistrationNumber;
     private String mailOrderBusinessReportNumber;
@@ -27,6 +28,7 @@ public class DetailedSellerEntryDTO {
             Long id,
             String marketName,
             String contactName,
+            String email,
             String contactNumber,
             String businessRegistrationNumber,
             String mailOrderBusinessReportNumber,
@@ -38,6 +40,7 @@ public class DetailedSellerEntryDTO {
         this.id = id;
         this.marketName = marketName;
         this.contactName = contactName;
+        this.email = email;
         this.contactNumber = contactNumber;
         this.businessRegistrationNumber = businessRegistrationNumber;
         this.mailOrderBusinessReportNumber = mailOrderBusinessReportNumber;

@@ -56,6 +56,7 @@ public class SellerCustomRepositoryImpl implements SellerCustomRepository {
                                 user.id,
                                 seller.marketName,
                                 seller.contactName,
+                                user.email,
                                 user.phoneNumber,
                                 sellerBusinessInfo.businessRegistrationNumber,
                                 sellerBusinessInfo.mailOrderBusinessReportNumber,
