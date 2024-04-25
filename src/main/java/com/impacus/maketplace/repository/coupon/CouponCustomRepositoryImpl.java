@@ -1,9 +1,9 @@
 package com.impacus.maketplace.repository.coupon;
 
-import com.impacus.maketplace.common.enumType.coupon.CouponBenefitClassification;
-import com.impacus.maketplace.common.enumType.coupon.CouponExpireTime;
-import com.impacus.maketplace.common.enumType.coupon.CouponStandardAmountType;
-import com.impacus.maketplace.common.enumType.coupon.IssuanceStatus;
+import com.impacus.maketplace.common.enumType.coupon.CouponBenefitType;
+import com.impacus.maketplace.common.enumType.coupon.CouponExpireTimeType;
+import com.impacus.maketplace.common.enumType.coupon.CouponStandardType;
+import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -11,7 +11,10 @@ import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
 import com.impacus.maketplace.dto.coupon.request.CouponUserSearchDto;
 import com.impacus.maketplace.dto.coupon.response.*;
-import com.impacus.maketplace.entity.coupon.*;
+import com.impacus.maketplace.entity.coupon.Coupon;
+import com.impacus.maketplace.entity.coupon.CouponUser;
+import com.impacus.maketplace.entity.coupon.QCoupon;
+import com.impacus.maketplace.entity.coupon.QCouponUser;
 import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.entity.user.User;
@@ -42,8 +45,6 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
     private final QPointMaster pointMasterEntity = QPointMaster.pointMaster;
     private final QUser userEntity = QUser.user;
     private final QCoupon couponEntity = QCoupon.coupon;
-    private final QCouponIssuanceClassificationData couponClassificationEntity = QCouponIssuanceClassificationData.couponIssuanceClassificationData;
-
     private final QCouponUser couponUserEntity = QCouponUser.couponUser;
 
     @Override
@@ -75,9 +76,9 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
             builder.and(couponEntity.name.like("%" + couponSearchDto.getSearchCouponName() + "%"));
         }
         if (StringUtils.isNotBlank(couponSearchDto.getOrderStatus())) {
-            builder.and(couponEntity.status.eq(fromCode(IssuanceStatus.class, couponSearchDto.getOrderStatus().toLowerCase())));
+            builder.and(couponEntity.statusType.eq(fromCode(CouponStatusType.class, couponSearchDto.getOrderStatus().toLowerCase())));
         } else {
-            builder.and(couponEntity.status.ne(IssuanceStatus.STOP));
+            builder.and(couponEntity.statusType.ne(CouponStatusType.STOP));
         }
 
         JPAQuery<CouponListDto> query = queryFactory.select(new QCouponListDto(
@@ -85,34 +86,32 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
                 couponEntity.code,
                 couponEntity.name,
                 couponEntity.description,
-                couponEntity.couponBenefitClassification,
-                couponEntity.benefitAmount,
-                couponEntity.couponIssuanceClassification,
-                couponEntity.couponPaymentTarget,
-                couponEntity.firstComeFirstServedAmount,
-                couponEntity.couponIssuedTime,
-                couponEntity.couponExpireTime,
+                couponEntity.benefitType,
+                couponEntity.benefitValue,
+                couponEntity.productTargetType,
+                couponEntity.paymentTargetType,
+                couponEntity.firstCount,
+                couponEntity.issuedTimeType,
+                couponEntity.expireTimeType,
                 couponEntity.expireDays,
-                couponEntity.couponIssuanceCoverage,
-                couponEntity.couponUseCoverage,
-                couponEntity.couponUsableStandardAmountType,
-                couponEntity.usableStandardAmount,
-                couponEntity.couponUsableStandardAmountType,
-                couponEntity.issueStandardAmount,
-                couponEntity.couponIssuancePeriod,
-                couponEntity.startIssuanceAt,
-                couponEntity.endIssuanceAt,
-                couponEntity.numberOfWithPeriod,
-                couponEntity.couponIssuance,
-                couponEntity.loginCouponIssueNotification,
-                couponEntity.issuingCouponsSendSMS,
-                couponEntity.issuanceCouponSendEmail,
-                couponEntity.status,
+                couponEntity.issueCoverageType,
+                couponEntity.useCoverageType,
+                couponEntity.useStandardType,
+                couponEntity.useStandardValue,
+                couponEntity.issueStandardType,
+                couponEntity.issueStandardValue,
+                couponEntity.periodType,
+                couponEntity.periodStartAt,
+                couponEntity.periodEndAt,
+                couponEntity.numberOfPeriod,
+                couponEntity.autoManualType,
+                couponEntity.loginAlert,
+                couponEntity.smsAlert,
+                couponEntity.emailAlert,
+                couponEntity.statusType,
                 couponEntity.modifyAt
         ))
                 .from(couponEntity)
-                .leftJoin(couponClassificationEntity)
-                .on(couponEntity.couponIssuanceClassificationData.eq(couponClassificationEntity))
                 .where(builder).orderBy(couponEntity.name.asc());
 
         if (couponSearchDto.getSearchCount() > 0) { // 쿠폰 등록 페이지에서는 LIMIT를 주지 않음
@@ -155,7 +154,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
         if (couponUserSearchDto.getSortType().equals("RECENT")) {
             query = query.orderBy(couponUserEntity.createAt.desc());
         } else if (couponUserSearchDto.getSortType().equals("PRICE")) {
-            query = query.orderBy(couponEntity.couponBenefitClassification.desc(), couponEntity.benefitAmount.desc());
+            query = query.orderBy(couponEntity.benefitType.desc(), couponEntity.benefitValue.desc());
         }
 
         List<CouponUser> data = query.fetch();
@@ -175,26 +174,26 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
 
         Coupon coupon = couponUser.getCoupon();
-        if (coupon.getCouponBenefitClassification() == CouponBenefitClassification.AMOUNT) {
-            price = String.format("%,d", coupon.getBenefitAmount()) + "원 할인";
-        } else if (coupon.getCouponBenefitClassification() == CouponBenefitClassification.PERCENTAGE) {
-            price = coupon.getBenefitAmount() + "% 할인";
+        if (coupon.getBenefitType() == CouponBenefitType.AMOUNT) {
+            price = String.format("%,d", coupon.getBenefitValue()) + "원 할인";
+        } else if (coupon.getBenefitType() == CouponBenefitType.PERCENTAGE) {
+            price = coupon.getBenefitValue() + "% 할인";
         } else {
             throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
         }
 
         name = coupon.getName();
-        if (coupon.getCouponUsableStandardAmountType() == CouponStandardAmountType.LIMIT) {
-            desc = CouponStandardAmountType.LIMIT.getValue().replaceAll("N", String.valueOf(coupon.getUsableStandardAmount()));
-        } else if (coupon.getCouponUsableStandardAmountType() == CouponStandardAmountType.UNLIMITED) {
-            desc = CouponStandardAmountType.UNLIMITED.getValue();
+        if (coupon.getUseStandardType() == CouponStandardType.LIMIT) {
+            desc = CouponStandardType.LIMIT.getValue().replaceAll("N", String.valueOf(coupon.getUseStandardValue()));
+        } else if (coupon.getUseStandardType() == CouponStandardType.UNLIMITED) {
+            desc = CouponStandardType.UNLIMITED.getValue();
         } else {
             throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
         }
-        if (coupon.getCouponExpireTime() == CouponExpireTime.LIMIT) {
+        if (coupon.getExpireTimeType() == CouponExpireTimeType.LIMIT) {
             expireDate = dtf.format(couponUser.getExpiredAt())+"까지";
-        } else if (coupon.getCouponExpireTime() == CouponExpireTime.UNLIMITED){
-            expireDate = CouponExpireTime.UNLIMITED.getValue();
+        } else if (coupon.getExpireTimeType() == CouponExpireTimeType.UNLIMITED){
+            expireDate = CouponExpireTimeType.UNLIMITED.getValue();
         } else {
             throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
         }
@@ -205,7 +204,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
         if (couponUser.getCouponLock() == true && couponUser.getAvailableDownloadAt() != null) {
             dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             availableDownloadDate = dtf.format(couponUser.getAvailableDownloadAt());
-            buttonValue = "일 뒤 쿠 발급 가능";
+            buttonValue = "일 뒤 발급 가능";
         } else if (couponUser.getCouponLock() == true && couponUser.getAvailableDownloadAt() == null) {
             buttonValue = "ERROR";
         } else if (couponUser.getIsUsed() == false){
@@ -224,15 +223,15 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
                 .availableDownloadAt(availableDownloadDate)
                 .couponLock(couponUser.getCouponLock())
                 .buttonValue(buttonValue)
-                .couponBenefitClassification(coupon.getCouponBenefitClassification())
-                .benefitAmount(coupon.getBenefitAmount())
-                .couponPaymentTarget(coupon.getCouponPaymentTarget())
-                .firstComeFirstServedAmount(coupon.getFirstComeFirstServedAmount())
-                .couponExpireTime(coupon.getCouponExpireTime())
-                .couponUsableStandardAmountType(coupon.getCouponUsableStandardAmountType())
-                .usableStandardAmount(coupon.getUsableStandardAmount())
+                .benefitType(coupon.getBenefitType())
+                .benefitValue(coupon.getBenefitValue())
+                .paymentTargetType(coupon.getPaymentTargetType())
+                .firstCount(coupon.getFirstCount())
+                .expireTimeType(coupon.getExpireTimeType())
+                .useStandardType(coupon.getUseStandardType())
+                .useStandardValue(coupon.getUseStandardValue())
                 .createAt(dtf.format(couponUser.getCreateAt()))
-                .couponType(coupon.getCouponType())
+                .type(coupon.getType())
                 .build();
     }
 

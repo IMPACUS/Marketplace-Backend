@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.impacus.maketplace.common.enumType.coupon.CouponIssuedTime;
+import com.impacus.maketplace.common.enumType.coupon.CouponIssuedTimeType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
@@ -12,7 +12,6 @@ import com.impacus.maketplace.entity.coupon.CouponUser;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.coupon.CouponCustomRepositoryImpl;
-import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.CouponUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,26 +33,7 @@ public class CouponService {
     private final CouponRepository couponRepository;
     private final UserRepository userRepository;
     private final CouponUserRepository couponUserRepository;
-    private final CouponIssuanceClassificationDataRepository couponIssuanceClassificationDataRepository;
     private final ObjectCopyHelper objectCopyHelper;
-
-    /** TODO: 기능 정의 사용자
-     * 1.쿠폰 리스트 뿌리기
-     *  - 검색 가능하게 ( 최신 순, 가격 순 )
-     *  - 보유 쿠폰 개수 카운트
-     *  - 쿠폰 다운로드 유무 표시 + 쿠폰 금액 + 쿠폰 이름 + XXX 구매시 사용 가능 + 쿠폰 발급 유효 기간
-     *
-     * 2. 쿠폰 등록하기
-     *  - 쿠폰 등록 ( 쿠폰 조회시 없다면 "유효하지 않은 쿠폰입니다.\n쿠폰코드를 다시 한번 확인해주세요")
-     *
-     * 3. 쿠폰 다운 받기
-     *
-     */
-
-    /**
-     *  쿠폰 리스트 보여주는 함수
-     */
-
 
     public Page<CouponUserListDto> getCouponUserList(CouponUserSearchDto couponUserSearchDto, Pageable pageable) {
         return couponUserRepository.findAllCouponUserData(couponUserSearchDto, pageable);
@@ -82,10 +62,10 @@ public class CouponService {
                 couponExpireAt = couponExpireAt.plusDays(couponExpireDay).minusMinutes(1);
             }
 
-            CouponIssuedTime couponIssuedTime = coupon.getCouponIssuedTime();
+            CouponIssuedTimeType couponIssuedTime = coupon.getIssuedTimeType();
             boolean couponLock = false;
 
-            if (couponIssuedTime == CouponIssuedTime.WEEK) {
+            if (couponIssuedTime == couponIssuedTime.WEEK) {
                 couponLock = true;
             }
 

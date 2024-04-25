@@ -5,7 +5,6 @@ import com.impacus.maketplace.dto.coupon.request.CouponIssuedDto;
 import com.impacus.maketplace.dto.coupon.request.CouponUpdateDto;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.repository.UserRepository;
-import com.impacus.maketplace.repository.coupon.CouponIssuanceClassificationDataRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.CouponUserRepository;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
