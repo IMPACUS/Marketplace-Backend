@@ -26,6 +26,10 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
+
     @Column(nullable = false, unique = true)
     private String email; // Format: OauthProviderKey_Email
 
@@ -117,7 +121,11 @@ public class User extends BaseEntity {
     @Convert(converter = TimestampConverter.class)
     private LocalDateTime recentLoginAt;
 
-    @ColumnDefault("true")
+    @Convert(converter = AES256ToStringConverter.class)
+    @ColumnDefault("'010-0000-0000'")
+    @Column(nullable = false)
+    private String phoneNumber; // 소비자: 휴대폰 번호/ 관리자: 판매 담당자의 수신 가능한 휴대폰 번호
+
     @Column(nullable = false)
     private Boolean orderDeliveryAlarm;     //  주문/배송 알람
 
@@ -165,10 +173,46 @@ public class User extends BaseEntity {
         this.serviceCenterAlarm = true;
         this.brandShopAlarm = true;
         this.shoppingBenefitsAlarm = true;
+        this.phoneNumber = "010-0000-0000";
+    }
+
+    public User(String email,
+                String password,
+                String name,
+                String phoneNumber,
+                UserType userType) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.status = UserStatus.ACTIVE;
+        this.type = userType;
+        this.greenLabelPoint = 0L;
+        this.isAdmin = false;
+        this.isCertEmail = false;
+        this.isCertPhone = false;
+        this.isCertBank = false;
+        this.doesAgreeServicePolicy = false;
+        this.doesAgreePersonalPolicy = false;
+        this.doesAgreeService = false;
+        this.isWithdrawn = false;
+        this.firstDormancy = false;
+        this.secondDormancy = false;
+        this.dormancyMonths = 0;
+        this.orderDeliveryAlarm = true;
+        this.restockAlarm = true;
+        this.reviewAlarm = true;
+        this.serviceCenterAlarm = true;
+        this.brandShopAlarm = true;
+        this.shoppingBenefitsAlarm = true;
     }
 
     public void setRecentLoginAt() {
         this.recentLoginAt = LocalDateTime.now();
+    }
+
+    public void setType(UserType userType) {
+        this.type = userType;
     }
 
 }

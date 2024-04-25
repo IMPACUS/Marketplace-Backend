@@ -20,14 +20,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    boolean existsByEmail(String email);
+
     List<User> findByRecentLoginAtBeforeAndFirstDormancyIsFalse(LocalDateTime fiveMonthAgo); // 1차 휴면이 false 이고, 마지막로그인 후 5개월찾기
 
     List<User> findByUpdateDormancyAtAndFirstDormancyIsTrueOrSecondDormancyIsTrue(LocalDate nowDate);
+
     @Modifying
     @Query("UPDATE User u SET u.status = :status, u.statusReason = :statusReason WHERE u.id = :id")
     int updateUserStatus(@Param("id") Long id, @Param("status") UserStatus status,
-        @Param("statusReason") String statusReason);
-
+                         @Param("statusReason") String statusReason);
 
 
 }
