@@ -112,7 +112,7 @@ public class SellerService {
                     userService.encodePassword(password),
                     email,
                     sellerRequest.getContactNumber(),
-                    UserType.ROLE_SELLER);
+                    UserType.ROLE_UNAPPROVED_SELLER);
             userService.saveUser(user);
 
             // 6. Seller 저장
@@ -229,32 +229,44 @@ public class SellerService {
      */
     @Transactional
     public SimpleSellerDTO changeEntryStatus(Long userId, SellerEntryStatusRequest entryStatusRequest) {
-        EntryStatus entryStatus = entryStatusRequest.getEntryStatus();
-        Integer charge = entryStatusRequest.getCharge();
+        try {
+            EntryStatus entryStatus = entryStatusRequest.getEntryStatus();
+            Integer charge = entryStatusRequest.getCharge();
 
-        // 1. 판매자 유효성 검사
-        Seller seller = findSellerByUserId(userId);
+            // 1. 판매자 유효성 검사
+            User user = userService.findUserById(userId);
+            Seller seller = findSellerByUserId(userId);
 
-        // 2. 데이터 유효성 검사
-        if (entryStatus == EntryStatus.APPROVE) {
-            if (charge == null) {
-                throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "charge는 null이 될 수 없습니다.");
+            // 2. 데이터 유효성 검사
+            if (entryStatus == EntryStatus.APPROVE) {
+                if (charge == null) {
+                    throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "charge는 null이 될 수 없습니다.");
+                }
+            } else if (entryStatus == EntryStatus.REJECT) {
+                if (charge != null) {
+                    throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "charge는 null 이여야 합니다.");
+                }
+            } else {
+                throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "entryStatus 데이터가 올바르지 않습니다.");
             }
-        } else if (entryStatus == EntryStatus.REJECT) {
-            if (charge != null) {
-                throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "charge는 null이여야 합니다.");
+
+            // 3. 입점 상태 및 판매자 수수료 저장
+            seller.setEntryStatus(entryStatus);
+            seller.setChargePercent(charge == null ? 0 : charge);
+
+            // 4. Role 변경
+            if (entryStatus == EntryStatus.APPROVE) {
+                userService.updateUserType(user, UserType.ROLE_APPROVED_SELLER);
+            } else {
+                userService.updateUserType(user, UserType.ROLE_UNAPPROVED_SELLER);
             }
-        } else {
-            throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "entryStatus 데이터가 올바르지 않습니다.");
+
+            sellerRepository.save(seller);
+
+            return SimpleSellerDTO.toDTO(userId, seller);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
-
-        // 3. 입점 상태 및 판매자 수수료 저장
-        seller.setEntryStatus(entryStatus);
-        seller.setChargePercent(charge == null ? 0 : charge);
-
-        sellerRepository.save(seller);
-
-        return SimpleSellerDTO.toDTO(userId, seller);
     }
 
     /**

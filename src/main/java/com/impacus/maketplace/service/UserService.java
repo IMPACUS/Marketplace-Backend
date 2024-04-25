@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
@@ -20,6 +21,7 @@ import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -113,24 +115,13 @@ public class UserService {
     }
 
     @Transactional(noRollbackFor = CustomException.class)
-    public UserDTO login(LoginRequest loginRequest) {
+    public UserDTO login(LoginRequest loginRequest, UserType userType) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
         try {
             // 1. 이메일 유효성 검사
-            User user = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
-            if (user == null) {
-                throw new CustomException(ErrorType.NOT_EXISTED_EMAIL);
-            } else {
-                if (!user.getEmail().contains(OauthProviderType.NONE.name())) {
-                    throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
-                } else {
-                    if (user.getStatus() == UserStatus.BLOCKED) {
-                        throw new CustomException(ErrorType.BLOCKED_EMAIL);
-                    }
-                }
-            }
+            User user = validateAndFindUser(email, userType);
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
@@ -156,6 +147,63 @@ public class UserService {
             return new UserDTO(user, tokenInfoVO);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 이메일 유효성 검사를 한 후, 유효성 검사에 통과한 경우, User를 반환하는 함수
+     *
+     * @param email
+     * @param userType
+     * @return
+     */
+    private User validateAndFindUser(String email, UserType userType) {
+        User user = switch (userType) {
+            case ROLE_CERTIFIED_USER -> {
+                User checkedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
+                validateCertifiedUser(checkedUser);
+
+                yield checkedUser;
+            }
+            case ROLE_APPROVED_SELLER -> {
+                User checkedSeller = findUserByEmail(email);
+                validateApprovedSeller(checkedSeller);
+
+                yield checkedSeller;
+            }
+            default -> throw new CustomException(HttpStatus.FORBIDDEN, ErrorType.ACCESS_DENIED_EMAIL);
+        };
+
+        if (user.getStatus() == UserStatus.BLOCKED) {
+            throw new CustomException(ErrorType.BLOCKED_EMAIL);
+        }
+
+        return user;
+    }
+
+    /**
+     * User 유효성 검사를 하는 함수 (사용자인 경우)
+     *
+     * @param checkedUser
+     */
+    private void validateCertifiedUser(User checkedUser) {
+        if (checkedUser == null) {
+            throw new CustomException(ErrorType.NOT_EXISTED_EMAIL);
+        } else {
+            if (!checkedUser.getEmail().contains(OauthProviderType.NONE.name())) {
+                throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+            }
+        }
+    }
+
+    /**
+     * User 유효성 검사를 하는 함수 (판매자인 경우)
+     *
+     * @param checkedSeller
+     */
+    private void validateApprovedSeller(User checkedSeller) {
+        if (checkedSeller.getType() != UserType.ROLE_APPROVED_SELLER) {
+            throw new CustomException(HttpStatus.FORBIDDEN, ErrorType.ACCESS_DENIED_EMAIL);
         }
     }
 
@@ -299,6 +347,18 @@ public class UserService {
     public User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+    }
+
+    /**
+     * userType을 업데이트하는 합수
+     *
+     * @param user
+     * @param userType
+     */
+    @Transactional
+    public void updateUserType(User user, UserType userType) {
+        user.setType(userType);
+        userRepository.save(user);
     }
 
 }

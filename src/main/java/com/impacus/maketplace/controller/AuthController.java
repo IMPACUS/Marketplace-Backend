@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.SellerRequest;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
@@ -54,7 +55,7 @@ public class AuthController {
 
     @PostMapping("login")
     public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
-        UserDTO userDTO = userService.login(loginRequest);
+        UserDTO userDTO = userService.login(loginRequest, UserType.ROLE_CERTIFIED_USER);
 
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
