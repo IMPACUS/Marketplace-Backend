@@ -6,10 +6,12 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponPaymentTarget implements CouponUtils.CommonFieldInterface {
+public enum CouponPeriodType implements CouponUtils.CommonFieldInterface{
 
-    ALL("ALL", "모든 회원"),
-    FIRST("FIRST", "선착순");
+    SET("SET", "지정 기간 설정"),
+    UNSET("UNSET", "지정 기간 없음 (지속적인 기준)"),
+    UNKNOWN("","");
+
 
     private final String code;
     private final String value;

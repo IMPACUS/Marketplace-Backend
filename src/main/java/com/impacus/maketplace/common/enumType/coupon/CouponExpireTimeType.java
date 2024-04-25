@@ -6,14 +6,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponIssuanceClassification implements CouponUtils.CommonFieldInterface {
+public enum CouponExpireTimeType implements CouponUtils.CommonFieldInterface{
 
-    GREEN_TAG("GREEN_TAG", "그린 태그 구매"),
-    USER_BASIC("USER_BASIC", "유저 일반 쿠폰"),
-    SNS("SNS", "SNS 홍보 태그"),
-    UNKNOWN("", "");
+    LIMIT("LIMIT", "발급일로 부터 N 일 이내"),
+    UNLIMITED("UNLIMITED", "기간제한 없음");
 
     private final String code;
     private final String value;
-
 }
