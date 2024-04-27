@@ -9,6 +9,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.response.UserDTO;
@@ -313,9 +314,12 @@ public class UserService {
     /**
      * 이메일 인증 확인 결과를 전달하는 API
      *
-     * @param email
+     * @param request
      */
-    public boolean confirmEmail(String email, String code) {
+    public boolean confirmEmail(EmailVerificationRequest request) {
+        String email = request.getEmail();
+        String code = request.getCode();
+
         try {
             EmailVerificationCode emailVerificationCode = emailVerificationCodeService
                     .findEmailVerificationCodeByEmailAndCode(email, code);
