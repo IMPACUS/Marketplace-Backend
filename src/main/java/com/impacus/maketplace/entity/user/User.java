@@ -2,7 +2,6 @@ package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
-import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -26,6 +25,10 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
 
     @Column(nullable = false, unique = true)
     private String email; // Format: OauthProviderKey_Email
@@ -66,9 +69,7 @@ public class User extends BaseEntity {
 
     @ColumnDefault("false")
     @Column(nullable = false)
-    private Boolean isCertBank; // 계좌 인증 여부
-
-    private LocalDateTime certBankDateTime; // 계좌 인증 시간
+    private Boolean isCertBank; // 계좌 인증 여부 -> TODO 삭제 필요
 
     @Column(nullable = false)
     private Boolean doesAgreeServicePolicy; // 서비스 보안 동의 여부
@@ -80,10 +81,7 @@ public class User extends BaseEntity {
     private Boolean doesAgreeService; // 서비스 이용 여부
 
     @Column(nullable = false)
-    private Boolean isWithdrawn; // 철회 여부
-
-    private LocalDateTime withdrawnDateTime; // 철회 진행 시간
-
+    private Boolean isWithdrawn; // 철회 여부 -> TODO 삭제 필요
 
     @ColumnDefault("false")
     @Column(nullable = false)
@@ -111,14 +109,6 @@ public class User extends BaseEntity {
     @Convert(converter = AES256ToStringConverter.class)
     private String password; // 비밀번호
 
-    private int wrongPasswordCnt; // 비밀번호 틀린 횟수
-
-    @Enumerated(EnumType.ORDINAL)
-    private BankCode bankCode; // 은행 코드
-
-    @Convert(converter = AES256ToStringConverter.class)
-    private String bankAccountNumber; // 은행 계좌 번호
-
     @Convert(converter = AES256ToStringConverter.class)
     private String userJumin1; //주민 번호 앞자리
 
@@ -126,18 +116,16 @@ public class User extends BaseEntity {
     private String userJumin2; //주민 번호 뒷자리
 
     @Convert(converter = AES256ToStringConverter.class)
-    private String authCi;
-
-    @Convert(converter = AES256ToStringConverter.class)
-    private String authDi;
-
-    @Convert(converter = AES256ToStringConverter.class)
     private String pccc; // 개인 통관 고유 번호
 
     @Convert(converter = TimestampConverter.class)
     private LocalDateTime recentLoginAt;
 
-    @ColumnDefault("true")
+    @Convert(converter = AES256ToStringConverter.class)
+    @ColumnDefault("'010-0000-0000'")
+    @Column(nullable = false)
+    private String phoneNumber; // 소비자: 휴대폰 번호/ 관리자: 판매 담당자의 수신 가능한 휴대폰 번호
+
     @Column(nullable = false)
     private Boolean orderDeliveryAlarm;     //  주문/배송 알람
 
@@ -185,10 +173,46 @@ public class User extends BaseEntity {
         this.serviceCenterAlarm = true;
         this.brandShopAlarm = true;
         this.shoppingBenefitsAlarm = true;
+        this.phoneNumber = "010-0000-0000";
+    }
+
+    public User(String email,
+                String password,
+                String name,
+                String phoneNumber,
+                UserType userType) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.status = UserStatus.ACTIVE;
+        this.type = userType;
+        this.greenLabelPoint = 0L;
+        this.isAdmin = false;
+        this.isCertEmail = false;
+        this.isCertPhone = false;
+        this.isCertBank = false;
+        this.doesAgreeServicePolicy = false;
+        this.doesAgreePersonalPolicy = false;
+        this.doesAgreeService = false;
+        this.isWithdrawn = false;
+        this.firstDormancy = false;
+        this.secondDormancy = false;
+        this.dormancyMonths = 0;
+        this.orderDeliveryAlarm = true;
+        this.restockAlarm = true;
+        this.reviewAlarm = true;
+        this.serviceCenterAlarm = true;
+        this.brandShopAlarm = true;
+        this.shoppingBenefitsAlarm = true;
     }
 
     public void setRecentLoginAt() {
         this.recentLoginAt = LocalDateTime.now();
+    }
+
+    public void setType(UserType userType) {
+        this.type = userType;
     }
 
 }

@@ -1,13 +1,10 @@
 package com.impacus.maketplace.entity.point;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.converter.PointTypeEnumConverter;
 import com.impacus.maketplace.common.enumType.PointType;
 import com.impacus.maketplace.common.utils.TimestampConverter;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 

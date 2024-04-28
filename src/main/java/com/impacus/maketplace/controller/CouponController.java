@@ -7,7 +7,9 @@ import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
 import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
-import com.impacus.maketplace.service.CouponAdminService;
+import com.impacus.maketplace.dto.coupon.response.CouponUserListDto;
+import com.impacus.maketplace.service.coupon.CouponAdminService;
+import com.impacus.maketplace.service.coupon.CouponService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +17,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import security.CustomUserDetails;
 
 @Slf4j
 @RestController
@@ -27,41 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class CouponController {
 
     private final CouponAdminService couponAdminService;
-
-    /** TODO : Admin Page 추가 쿠폰 발급
-     *  1. 오픈 기념 첫 회원 가입 20% 할인 쿠폰
-     *  2. 선택적 일정 (n월 회원가입 이벤트 20%할인 쿠폰 증젖ㅇ)
-     *  3. (_주 회원가입 이벤트 15% 할인 쿠폱 증정)
-     *  4. 친구 초대 이벤트 (ex 1주일간 친구초대 5명, 친구랑 10% 할인 크푼 증정) 보류 (가능한)
-     */
-
-    /** TODO: 기능 정의 관리자
-//     * 1. 쿠폰/포인트 지급 페이지에서 회원 검색
-//     *      - 아이디와 성함을 입력 시
-//     *      이메일, 프로필 이미지, 등급, 휴대폰번호, 레벨 포인트, 가입일이 나와야함
-     *
-     * 2. 이메일, 카카오, 문자 알림 넣는 법 개발 하기                            -- 추후
-     *
-//     * 3. 쿠폰명을 누르면 사용가능한 쿠폰을 리스트업 하게 해야함                        -- OK
-     *
-//     * 4. 쿠폰명 클릭시금액과, 할인율 쿠폰 설명을 나타나게 해야함
-     *
-//     * 5. 수정하여 수동 지급 하는 건                                           -- 일단 보류
-     *
-     * 6. 쿠폰 지급 하기 기능
-     *
-     * 7. 회원의 가용 포인트와 레벨 포인트를 가져와야함  <- 이것 1번이랑 합치고 싶음.         -- OK
-     *
-     *
-     * 8. 포인트 지금 (레벨 포인트, 가용 포인트)                                  -- OK
-     *
-     * 9. 포인트 수취 (레벨 포인트 , 가용 포인트)                                  -- OK
-     *
-     *
-     */
+    private final CouponService couponService;
 
     @PostMapping("/admin/register")
-    public ApiResponseEntity<Boolean> registerCouponForAdmin(@Valid @RequestBody CouponIssuedDto couponIssuedDto) {
+    public ApiResponseEntity<Boolean> registerCouponForAdmin(@Valid @RequestBody CouponIssuedDto couponIssuedDto, @AuthenticationPrincipal CustomUserDetails user) {
         //TODO: 관리자 검증 로직 추가
         Boolean result = couponAdminService.addCoupon(couponIssuedDto);
 
@@ -81,7 +54,7 @@ public class CouponController {
      *  User 쪽 Controller 로 빼야할지 의논 필요
      */
     @PostMapping("/admin/userInfo")
-    public ApiResponseEntity<CouponUserInfoResponse> getUserInfoForAdmin(@RequestBody CouponUserInfoRequest userInfoRequest) {
+    public ApiResponseEntity<CouponUserInfoResponse> getUserInfoForAdmin(@RequestBody CouponUserInfoRequest userInfoRequest, @AuthenticationPrincipal CustomUserDetails user) {
         //TODO: 관리자 검증 로직 추가
 
 
@@ -108,7 +81,8 @@ public class CouponController {
      */
     @PostMapping("/admin/couponList")
     public ApiResponseEntity<Page<CouponListDto>> getCouponList(@RequestBody CouponSearchDto couponSearchDto,
-                                                                @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable) {
+                                                                @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC) Pageable pageable,
+                                                                @AuthenticationPrincipal CustomUserDetails user) {
         Page<CouponListDto> result = couponAdminService.getCouponList(couponSearchDto, pageable);
 
         return ApiResponseEntity.<Page<CouponListDto>>builder()
@@ -121,7 +95,7 @@ public class CouponController {
      *  2. 쿠폰 등록 페이지에서 쿠폰 상세 내용 입력
      */
     @PostMapping("/admin/couponDetail")
-    public ApiResponseEntity<CouponDetailDto> getCouponDetail(@RequestBody CouponSearchDto couponSearchDto) {
+    public ApiResponseEntity<CouponDetailDto> getCouponDetail(@RequestBody CouponSearchDto couponSearchDto, @AuthenticationPrincipal CustomUserDetails user) {
         CouponDetailDto result = couponAdminService.getCouponDetail(couponSearchDto);
 
         return ApiResponseEntity.<CouponDetailDto>builder()
@@ -131,13 +105,13 @@ public class CouponController {
     }
 
     @PostMapping("/admin/issueCoupon")
-    public ApiResponseEntity<Object> issuingCoupon(@RequestBody CouponUserIssuedDto couponUserIssuedDto) {
+    public ApiResponseEntity<Object> issuingCoupon(@RequestBody CouponUserIssuedDto couponUserIssuedDto, @AuthenticationPrincipal CustomUserDetails user) {
         return ApiResponseEntity.builder()
                 .build();
     }
 
     @PostMapping("/admin/updateCoupon")
-    public ApiResponseEntity<Object> updateCoupon(@Valid @RequestBody CouponUpdateDto couponUpdateDto) {
+    public ApiResponseEntity<Object> updateCoupon(@Valid @RequestBody CouponUpdateDto couponUpdateDto, @AuthenticationPrincipal CustomUserDetails user) {
         boolean result = couponAdminService.updateCouponDetail(couponUpdateDto);
         return ApiResponseEntity.builder()
                 .result(result)
@@ -148,7 +122,7 @@ public class CouponController {
      * ADMIN 쿠폰 지급 API
      */
     @PostMapping("/admin/provide")
-    public ApiResponseEntity<Object> provideCoupon(@Valid @RequestBody CouponUserIssuedDto couponUserIssuedDto) {
+    public ApiResponseEntity<Object> provideCoupon(@Valid @RequestBody CouponUserIssuedDto couponUserIssuedDto, @AuthenticationPrincipal CustomUserDetails user) {
         boolean result = couponAdminService.addCouponUser(couponUserIssuedDto);
         return ApiResponseEntity
                 .builder()
@@ -157,20 +131,54 @@ public class CouponController {
     }
 
 
-
-
-    /** TODO: 기능 정의 사용자
-     * 1.쿠폰 리스트 뿌리기
-     *  - 검색 가능하게 ( 최신 순, 가격 순 )
-     *  - 보유 쿠폰 개수 카운트
-     *  - 쿠폰 다운로드 유무 표시 + 쿠폰 금액 + 쿠폰 이름 + XXX 구매시 사용 가능 + 쿠폰 발급 유효 기간
-     *
-     * 2. 쿠폰 등록하기
-     *  - 쿠폰 등록 ( 쿠폰 조회시 없다면 "유효하지 않은 쿠폰입니다.\n쿠폰코드를 다시 한번 확인해주세요")
-     *
-     * 3. 쿠폰 다운 받기
-     *
+    /** TODO : Admin Page 추가 쿠폰 발급
+     *  1. 오픈 기념 첫 회원 가입 20% 할인 쿠폰
+     *  2. 선택적 일정 (n월 회원가입 이벤트 20%할인 쿠폰 증젖ㅇ)
+     *  3. (_주 회원가입 이벤트 15% 할인 쿠폱 증정)
+     *  4. 친구 초대 이벤트 (ex 1주일간 친구초대 5명, 친구랑 10% 할인 크푼 증정) 보류 (가능한)
      */
+
+
+    /**
+     *  유저의 보유중인 쿠폰 리스트 (검색)
+     */
+    @PostMapping("/user/list")
+    public ApiResponseEntity<Page<CouponUserListDto>> getCouponUserList(@Valid @RequestBody CouponUserSearchDto couponUserSearchDto,
+                                                                        @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                                                        @AuthenticationPrincipal CustomUserDetails user) {
+        Page<CouponUserListDto> result = couponService.getCouponUserList(couponUserSearchDto, pageable);
+
+        return ApiResponseEntity.<Page<CouponUserListDto>>builder()
+                .data(result)
+                .build();
+    }
+
+    /**
+     *  쿠폰 등록하기
+     */
+    @PostMapping("/user/register")
+    public ApiResponseEntity<Object> registerCouponForUser(@Valid @RequestBody CouponRegisterDto couponRegisterDto, @AuthenticationPrincipal CustomUserDetails user) {
+        couponRegisterDto.setUserId(user.getId());
+        boolean result = couponService.couponRegister(couponRegisterDto);
+
+        return ApiResponseEntity.<Object>builder()
+                .result(result)
+                .data(result)
+                .build();
+    }
+    /**
+     *  쿠폰 다운로드
+     */
+
+    @PostMapping("/user/download")
+    public ApiResponseEntity<CouponUserListDto> couponDownload(Long couponUserId, @AuthenticationPrincipal CustomUserDetails user) {
+        CouponUserListDto data = couponService.couponDownload(couponUserId);
+
+        return ApiResponseEntity.<CouponUserListDto>builder()
+                .result(data != null ? true : false)
+                .data(data)
+                .build();
+    }
 
 
 }

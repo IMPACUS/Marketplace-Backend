@@ -18,7 +18,7 @@ public class CouponUserIssuedDto {
     @NotNull
     private Long userId;                          //    유저 아이디
     @NotBlank
-    private String alarmType;                     //    지금 알림 방식
+    private String[] alarmType;                     //    지금 알림 방식
     @NotNull
     private Long couponId;                        //    쿠폰 아이디폰
 

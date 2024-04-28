@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserStatus {
     ACTIVE(0, "활성화 상태"),
-    BLOCKED(1, "차단된 상태"),
+    BLOCKED(1, "차단된 상태/정지된 상태"),
     DORMANT(2, "휴면 상태");
 
     private final int code;

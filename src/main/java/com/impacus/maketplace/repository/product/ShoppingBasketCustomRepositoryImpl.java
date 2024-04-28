@@ -52,7 +52,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                 .leftJoin(productOption).on(shoppingBasket.productOptionId.eq(productOption.id))
                 .leftJoin(product).on(product.id.eq(productOption.productId))
                 .leftJoin(brand).on(brand.id.eq(product.brandId))
-                .where(shoppingBasket.registerId.eq(userId.toString()))
+                .where(shoppingBasket.userId.eq(userId))
                 .fetch();
     }
 }

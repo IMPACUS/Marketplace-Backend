@@ -2,16 +2,20 @@ package com.impacus.maketplace.common.utils;
 
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.service.CouponAdminService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 public class CouponUtils {
+
+    /** 오픈 기념 회원가입 이벤트 쿠폰 */
+    public static final String OPEN_EVENT_CODE = "O9P7E5N3!1";
+
+
+
     private static List<Integer> percentages = Arrays.asList(10,20,30,40,50);
     public CouponUtils() throws Exception {
         throw new Exception("you do not need to construct CouponUtils class!");
@@ -30,11 +34,6 @@ public class CouponUtils {
         return percentages.get((int) (Math.random() * (percentages.size())));
     }
 
-    public static void validateCouponCode(String code) throws CustomException {
-        if(!Pattern.matches(CouponAdminService.COUPON_CODE, code)) {
-            throw new CustomException(ErrorType.INVALID_COUPON_FORMAT, "Invalid format of coupon code.");
-        }
-    }
 
     public static <E extends Enum<E> & CommonFieldInterface> E fromCode(Class<E> enumClass, String code) {
         return Arrays.stream(enumClass.getEnumConstants())
@@ -48,7 +47,7 @@ public class CouponUtils {
     }
 
     public static String generateCode() {
-        final int CHAR_LENGTH = 8;
+        final int CHAR_LENGTH = 10;
 
         final char[] charTable = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
                 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
@@ -56,9 +55,10 @@ public class CouponUtils {
 
         Random random = new Random(System.currentTimeMillis());
         int charSize = charTable.length;
+
         StringBuffer buffer = new StringBuffer();
 
-        for (int i =0; i < charSize; i++) {
+        for (int i =0; i < CHAR_LENGTH; i++) {
             buffer.append(charTable[random.nextInt(charSize)]);
         }
         return buffer.toString();

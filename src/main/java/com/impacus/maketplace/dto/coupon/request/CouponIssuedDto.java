@@ -17,61 +17,67 @@ public class CouponIssuedDto {
     @NotNull(message = "쿠폰 이름은 필수값 입니다.")
     private String name;
     @NotNull
-    private String desc;
+    private String description;
     @NotNull
-    private String couponBenefitClassificationType;
+    private String benefitType;
     @NotNull
-    private int benefitAmount;
-    @NotNull
-    private String couponIssuanceClassificationType;
+    private int benefitValue;
 
-    private Long couponIssuanceClassificationData;
+    @NotNull
+    private String productTargetType;
+
+
     @NotNull
     private String couponPaymentTargetType;
 
-    private Long firstComeFirstServedAmount;
+    private Long firstCount;
+
     @NotNull
-    private String couponIssuedTimeType;
+    private String issuedTimeType;
+
     @NotNull
-    private String couponType;
+    private String type;
+
     @NotNull
-    private String couponExpireTimeType;
+    private String expireTimeType;
 
     private Long expireDays;
 
     @NotNull
-    private String couponIssuanceCoverageType;
+    private String issueCoverageType;
     @NotNull
-    private String couponUseCoverageType;
+    private String useCoverageType;
 
     @NotNull
-    private String couponUsableStandardAmountType;
+    private String useStandardType;
 
     @Builder.Default
-    private int usableStandardMount = -1;
+    private Integer useStandardValue = -1;
 
     @NotNull
-    private String couponIssuanceStandardAmount;
+    private String issueStandardType;
 
     @Builder.Default
-    private int issueStandardMount = -1;
+    private Integer issueStandardValue = -1;
 
-    private String couponIssuancePeriodType;
-    private String startIssuanceAt;
-    private String endIssuanceAt;
-    private Long numberOfWithPeriod = -1L;
+    private String periodType;
+    private String periodStartAt;
+    private String periodEndAt;
+    private Long numberOfPeriod = -1L;
 
     @NotNull
-    private String couponIssuanceType;
+    private String autoManualType;
 
     @Builder.Default
-    private String loginCouponIssueNotification = "N";  // 로그인 쿠폰 발급 알림
+    private String loginAlert = "N";  // 로그인 쿠폰 발급 알림
 
     @Builder.Default
     @NotNull
-    private String issuingCouponsSendSMS = "N"; // 쿠폰발급 SMS 발송
+    private String smsAlert = "N"; // 쿠폰발급 SMS 발송
+
+    @Builder.Default
     @NotNull
-    private String issuanceCouponSendEmail = "N";   // 쿠폰 발급 Email 발송
+    private String emailAlert = "N";   // 쿠폰 발급 Email 발송
 
     private Boolean isActive = false;
 }

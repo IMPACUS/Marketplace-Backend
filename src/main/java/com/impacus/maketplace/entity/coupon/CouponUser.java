@@ -16,10 +16,9 @@ public class CouponUser extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "coupon_user_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "coupon_id")
     private Coupon coupon;
 
@@ -27,15 +26,19 @@ public class CouponUser extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private boolean couponLock;
+    @Setter
+    @Column(name = "lock")
+    private Boolean couponLock; // 쿠폰을 다운로드 받을 수 없는 상태 (N일 뒤 발급)
 
-    private LocalDateTime availableDownloadAt;
+    private LocalDateTime availableDownloadAt;  //  N일뒤 발급시에 대한 기간
 
     @Builder.Default
-    private boolean isDownloaded = false;
+    @Setter
+    private Boolean isDownloaded = false;
 
     @Builder.Default
-    private boolean isUsed = false;
+    @Setter
+    private Boolean isUsed = false;
 
     @Builder.Default
     private LocalDateTime usedAt = null;

@@ -3,9 +3,11 @@ package com.impacus.maketplace.common.handler;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.error.response.ErrorDTO;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestController
 @ControllerAdvice
 public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
@@ -30,6 +33,26 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         }
 
         CustomException customException = new CustomException(ErrorType.INVALID_REQUEST_DATA, errorMsg);
+
+        return ErrorDTO.toResponseEntity(customException);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(
+            TypeMismatchException ex,
+            HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        String errorMsg = String.format("property: %s, message: %s", ex.getPropertyName(), ex.getMessage());
+        CustomException customException = new CustomException(ErrorType.INVALID_REQUEST_DATA, errorMsg);
+
+        return ErrorDTO.toResponseEntity(customException);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex,
+            HttpHeaders headers, HttpStatusCode status, WebRequest request
+    ) {
+        CustomException customException = new CustomException(ErrorType.INVALID_REQUEST_DATA, ex.getMessage());
 
         return ErrorDTO.toResponseEntity(customException);
     }

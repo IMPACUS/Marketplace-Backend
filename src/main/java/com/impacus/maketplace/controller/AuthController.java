@@ -1,6 +1,11 @@
 package com.impacus.maketplace.controller;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.auth.request.EmailRequest;
+import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.seller.request.SellerRequest;
+import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
 import com.impacus.maketplace.dto.user.request.TokenRequest;
@@ -8,11 +13,14 @@ import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.PointService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
+import com.impacus.maketplace.service.coupon.CouponAdminService;
+import com.impacus.maketplace.service.seller.SellerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -24,11 +32,17 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
     private final PointService pointService;
+    private final SellerService sellerService;
+
+    private final CouponAdminService couponAdminService;
 
     @PostMapping("sign-up")
     public ApiResponseEntity<UserDTO> addUser(@RequestBody SignUpRequest signUpRequest) {
         UserDTO userDTO = this.userService.addUser(signUpRequest);
         boolean existPointMaster = pointService.initPointMaster(userDTO);
+        // 회원 가입 축하 이벤트
+        couponAdminService.joinCouponForOpenEvent(userDTO.id());
+
         if (existPointMaster) {
             return ApiResponseEntity.<UserDTO>builder()
                     .code(HttpStatus.CONFLICT)
@@ -42,7 +56,7 @@ public class AuthController {
 
     @PostMapping("login")
     public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
-        UserDTO userDTO = userService.login(loginRequest);
+        UserDTO userDTO = userService.login(loginRequest, UserType.ROLE_CERTIFIED_USER);
 
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
@@ -57,6 +71,60 @@ public class AuthController {
 
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
+                .build();
+    }
+
+    /**
+     * 판매자 입점 신청 API
+     *
+     * @param sellerRequest
+     * @param logoImage
+     * @param businessRegistrationImage
+     * @param mailOrderBusinessReportImage
+     * @param bankBookImage
+     * @return
+     */
+    @PostMapping("seller-entry")
+    public ApiResponseEntity<SimpleSellerDTO> addSeller(
+            @RequestPart(value = "seller") @Valid SellerRequest sellerRequest,
+            @RequestPart(value = "logo-image", required = false) MultipartFile logoImage,
+            @RequestPart(value = "business-registration-image", required = false) MultipartFile businessRegistrationImage,
+            @RequestPart(value = "mail-order-business-report-image", required = false) MultipartFile mailOrderBusinessReportImage,
+            @RequestPart(value = "bank-book-image", required = false) MultipartFile bankBookImage
+
+    ) {
+        SimpleSellerDTO sellerDTO = sellerService.addSeller(sellerRequest, logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
+        return ApiResponseEntity.<SimpleSellerDTO>builder()
+                .data(sellerDTO)
+                .build();
+    }
+
+    /**
+     * 이메일 인증 코드 요청 API
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/email/verification-request")
+    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailRequest request) {
+        userService.sendVerificationCodeToEmail(request.getEmail());
+        return ApiResponseEntity
+                .builder()
+                .build();
+    }
+
+    /**
+     * 이메일 인증 API
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/email/confirm")
+    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationRequest request) {
+        boolean result = userService.confirmEmail(request);
+        return ApiResponseEntity
+                .builder()
+                .data(result)
                 .build();
     }
 }

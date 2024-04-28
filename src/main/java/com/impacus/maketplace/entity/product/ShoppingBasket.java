@@ -25,6 +25,10 @@ public class ShoppingBasket extends BaseEntity {
     @Column(nullable = false)
     private Long productOptionId;
 
+    @ColumnDefault("1")
+    @Column(nullable = false)
+    private Long userId;
+
     @Column(nullable = false)
     private Long quantity;
 
@@ -32,9 +36,10 @@ public class ShoppingBasket extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
-    public ShoppingBasket(Long productOptionId, Long quantity) {
+    public ShoppingBasket(Long productOptionId, Long quantity, Long userId) {
         this.productOptionId = productOptionId;
         this.quantity = quantity;
+        this.userId = userId;
     }
 
     public void setQuantity(Long quantity) {
