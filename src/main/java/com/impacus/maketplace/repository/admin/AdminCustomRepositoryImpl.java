@@ -1,7 +1,10 @@
 package com.impacus.maketplace.repository.admin;
 
+import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
 import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.dto.admin.QAdminLoginHistoryDTO;
 import com.impacus.maketplace.dto.admin.QAdminUserDTO;
+import com.impacus.maketplace.entity.admin.AdminLoginLog;
 import com.impacus.maketplace.entity.admin.QAdminActivityLog;
 import com.impacus.maketplace.entity.admin.QAdminInfo;
 import com.impacus.maketplace.entity.admin.QAdminLoginLog;
@@ -48,6 +51,20 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
                 .where(userEntity.isAdmin)
                 .fetchJoin();
         return query.fetch();
+    }
+
+    @Override
+    public List<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long userId) {
+        return queryFactory.select(
+                        new QAdminLoginHistoryDTO(
+                                adminLoginLog.id,
+                                adminLoginLog.crtDate,
+                                adminLoginLog.status
+                        )
+                )
+                .from(adminLoginLog)
+                .where(adminLoginLog.userId.eq(userId))
+                .fetch();
     }
 
 }

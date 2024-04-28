@@ -3,6 +3,8 @@ package com.impacus.maketplace.entity.admin;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.ZonedDateTime;
+
 @Data
 @Entity
 @Getter
@@ -18,7 +20,7 @@ public class AdminActivityLog {
     private Long userId;
 
     @Column(name = "crtDate")
-    private String crtDate;
+    private ZonedDateTime crtDate;
 
     @Column(name = "activity_detail")
     private String activityDetail;

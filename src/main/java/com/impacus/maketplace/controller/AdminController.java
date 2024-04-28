@@ -25,9 +25,6 @@ public class AdminController {
      *  7) /api/v1/admin/te : Post
      *  - 사용 목적 : 어드민 등록
      *
-     * 3) /api/v1/admin/login/log/list : Get 할지 Post로 통일하여 할지 고민 중
-     *  - 사용 목적 : 로그인 내역
-     *
      *
      * 4) /api/v1/admin/activity/log : Get 할지 Post 할지 고민중
      *  - 사용 목적 : 활동 내역
@@ -45,6 +42,7 @@ public class AdminController {
 
     /**
      * 1) 사용 목적 : 어드민 계정 목록 표시
+     *
      * @return : 관리자 회원 리스트 출력
      */
     @GetMapping("/")
@@ -60,8 +58,9 @@ public class AdminController {
 
 
     /**
-     *  2) /api/v1/admin/register/login/history
-     *      - 사용 목적 : 로그인 로그 남기기 위한 히스토리 등록
+     * 2) /api/v1/admin/register/login/history
+     * - 사용 목적 : 로그인 로그 남기기 위한 히스토리 등록
+     *
      * @param adminLoginHistoryDTO : 로그인 생성에 필요한 파라미터 등록 (userId : 회원번호, status : 로그인/로그아웃 상태 등록)
      * @return : 쿼리 결과 값 출력
      */
@@ -74,5 +73,19 @@ public class AdminController {
                 .build();
     }
 
+    /**
+     * 3) /api/v1/admin/login/history: Get
+     *  - 로그인 내역
+     * @param userId
+     * @return
+     */
+    @GetMapping("login/history")
+    public ApiResponseEntity<?> displayAdminsHistory(@RequestParam("userId") Long userId) {
+        List<AdminLoginHistoryDTO> adminLoginHistoryDTO = adminService.displayAdminsHistory(userId);
+        return ApiResponseEntity
+                .builder()
+                .data(adminLoginHistoryDTO)
+                .build();
+    }
 
 }
