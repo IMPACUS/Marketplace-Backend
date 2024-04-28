@@ -75,14 +75,4 @@ public class AdminController {
     }
 
 
-    // 여기는 api 통신하는지만 테스트용
-    @GetMapping("/test")
-    public ApiResponseEntity<?> test() {
-        String result = "test";
-
-        return ApiResponseEntity
-                .builder()
-                .data(result)
-                .build();
-    }
 }
