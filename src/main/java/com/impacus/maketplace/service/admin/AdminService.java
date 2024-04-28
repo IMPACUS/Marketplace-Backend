@@ -49,4 +49,14 @@ public class AdminService {
         return adminLoginLogRepository.save(adminLoginLog);
     }
 
+    /**
+     * (3) 로그인 히스토리
+     * @param userId : 해당 유저 번호로만 로그인 / 로그아웃 내역 출력
+     * @return : 로그인, 로그아웃 등 히스토리 내역 리스트 형태로 출력
+     */
+    @Transactional(readOnly = true)
+    public List<AdminLoginHistoryDTO> displayAdminsHistory(Long userId) {
+        return adminLoginLogRepository.findAdminLoginHistoryAll(userId);
+    }
+
 }
