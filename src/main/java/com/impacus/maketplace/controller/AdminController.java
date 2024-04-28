@@ -1,13 +1,13 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.admin.AdminUserDto;
+import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
+import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.entity.admin.AdminLoginLog;
 import com.impacus.maketplace.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,9 +22,8 @@ public class AdminController {
     /**
      * 설계도 - 추후 API 개발 하면서 정리 예정
      *
-     * 2) /api/v1/admin/create : Post
+     *  7) /api/v1/admin/te : Post
      *  - 사용 목적 : 어드민 등록
-     *
      *
      * 3) /api/v1/admin/login/log/list : Get 할지 Post로 통일하여 할지 고민 중
      *  - 사용 목적 : 로그인 내역
@@ -42,9 +41,6 @@ public class AdminController {
      *   - 활동 내역 로그 추가
      *
      *
-     * 7) /api/v1/admin/create/login/log : Post
-     *   - 로그인 로그 추가
-     *
      */
 
     /**
@@ -54,11 +50,27 @@ public class AdminController {
     @GetMapping("/")
     public ApiResponseEntity<?> displayAdminList() {
         // 하드코딩으로 연동 먼저 테스트 진행
-        List<AdminUserDto> adminUserDto = adminService.displayAdmins();
+        List<AdminUserDTO> adminUserDto = adminService.displayAdmins();
 
         return ApiResponseEntity
                 .builder()
                 .data(adminUserDto)
+                .build();
+    }
+
+
+    /**
+     *  2) /api/v1/admin/register/login/history
+     *      - 사용 목적 : 로그인 로그 남기기 위한 히스토리 등록
+     * @param adminLoginHistoryDTO : 로그인 생성에 필요한 파라미터 등록 (userId : 회원번호, status : 로그인/로그아웃 상태 등록)
+     * @return : 쿼리 결과 값 출력
+     */
+    @PostMapping("register/login/history")
+    public ApiResponseEntity<?> registerLoginHistory(@RequestBody AdminLoginHistoryDTO adminLoginHistoryDTO) {
+        AdminLoginLog adminLoginLog = adminService.createAdminLoginHistory(adminLoginHistoryDTO);
+        return ApiResponseEntity
+                .builder()
+                .data(adminLoginLog)
                 .build();
     }
 

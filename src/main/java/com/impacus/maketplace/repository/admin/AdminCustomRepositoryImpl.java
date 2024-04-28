@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository.admin;
 
-import com.impacus.maketplace.dto.admin.AdminUserDto;
-import com.impacus.maketplace.dto.admin.QAdminUserListDto;
+import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.dto.admin.QAdminUserDTO;
 import com.impacus.maketplace.entity.admin.QAdminActivityLog;
 import com.impacus.maketplace.entity.admin.QAdminInfo;
 import com.impacus.maketplace.entity.admin.QAdminLoginLog;
@@ -27,27 +27,27 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
 
     /**
      * 쿼리문 : 관리자 전체 조회 (리스트 형태)
+     *
      * @return : [리스트] 관리자 회원 조회
      */
     @Override
-    public List<AdminUserDto> findAdminAll() {
-        JPAQuery<AdminUserDto> query = queryFactory.select(
-                new QAdminUserListDto(
-                        adminInfo.id,
-                        userEntity.id,
-                        userEntity.email,
-                        userEntity.password,
-                        adminInfo.accountType,
-                        adminInfo.activityDetail
+    public List<AdminUserDTO> findAdminAll() {
+        JPAQuery<AdminUserDTO> query = queryFactory.select(
+                        new QAdminUserDTO(
+                                adminInfo.id,
+                                userEntity.id,
+                                userEntity.email,
+                                userEntity.password,
+                                adminInfo.accountType,
+                                adminInfo.activityDetail
+                        )
                 )
-        )
                 .from(userEntity)
                 .innerJoin(adminInfo)
                 .on(userEntity.id.eq(adminInfo.userId))
                 .where(userEntity.isAdmin)
                 .fetchJoin();
-
-
         return query.fetch();
     }
+
 }
