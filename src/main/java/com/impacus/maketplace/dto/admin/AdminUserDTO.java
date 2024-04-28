@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class AdminUserDto {
+public class AdminUserDTO {
     private Long id;
     private Long userId;
     private String email;
@@ -17,7 +17,7 @@ public class AdminUserDto {
     private String activityDetail;
 
     @QueryProjection
-    public AdminUserDto(Long id, Long userId, String email, String password, String accountType, String activityDetail) {
+    public AdminUserDTO(Long id, Long userId, String email, String password, String accountType, String activityDetail) {
         this.id = id;
         this.userId = userId;
         this.email = email;
