@@ -2,6 +2,7 @@ package com.impacus.maketplace.dto.product.response;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import lombok.Data;
 
@@ -19,7 +20,8 @@ public class ProductDetailForWebDTO {
     private int appSalesPrice;
     private int discountPrice;
     private int weight;
-    private ProductDetailDTO productDetail;
+    private ProductType type;
+    private ProductDetailInfoDTO productDetail;
     private List<ProductOptionDTO> productOptions;
     private ProductStatus productStatus;
     private List<AttachFileDTO> productImageList;
@@ -32,7 +34,7 @@ public class ProductDetailForWebDTO {
         this.productOptions = productOptions;
     }
 
-    public void setDetailInfoDTO(ProductDetailDTO productDetail) {
+    public void setDetailInfoDTO(ProductDetailInfoDTO productDetail) {
         this.productDetail = productDetail;
     }
 

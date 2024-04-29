@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
 import jakarta.persistence.*;
 import lombok.*;
@@ -75,6 +76,11 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountStatus discountStatus; // 할인 상태
 
+    @ColumnDefault("'GENERAL'")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductType type; // 상품 타입
+
     public Product(String productNumber, ProductRequest productRequest) {
         this.brandId = productRequest.getBrandId();
         this.name = productRequest.getName();
@@ -89,6 +95,7 @@ public class Product extends BaseEntity {
         this.weight = productRequest.getWeight();
         this.productStatus = productRequest.getProductStatus();
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
+        this.type = productRequest.getType();
     }
 
     public void setProduct(ProductRequest productRequest) {
@@ -103,5 +110,6 @@ public class Product extends BaseEntity {
         this.discountPrice = productRequest.getDiscountPrice();
         this.weight = productRequest.getWeight();
         this.productStatus = productRequest.getProductStatus();
+        this.type = productRequest.getType();
     }
 }

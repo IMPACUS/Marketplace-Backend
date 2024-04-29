@@ -3,6 +3,7 @@ package com.impacus.maketplace.dto.product.request;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
@@ -63,6 +64,9 @@ public class ProductRequest {
 
     @ValidEnum(enumClass = ProductStatus.class)
     private ProductStatus productStatus;
+
+    @ValidEnum(enumClass = ProductType.class)
+    private ProductType type;
 
     public Product toEntity(String productNumber) {
         return new Product(productNumber, this);

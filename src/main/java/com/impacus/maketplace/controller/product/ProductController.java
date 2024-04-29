@@ -2,8 +2,8 @@ package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.service.common.EnumService;
@@ -36,14 +36,14 @@ public class ProductController {
 
 
     /**
-     * 새로운 상품을 등록하는 API
+     * 새로운 상품을 등록하는 API (ROLE: seller)
      *
      * @param productImageList
      * @param productDescriptionImageList
      * @param productRequest
      * @return
      */
-    @PostMapping("/seller")
+    @PostMapping("")
     public ApiResponseEntity<Object> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
@@ -66,7 +66,7 @@ public class ProductController {
      * @param productIdList
      * @return
      */
-    @DeleteMapping("/seller/")
+    @DeleteMapping("")
     public ApiResponseEntity<Object> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
         productService.deleteAllProduct(productIdList);
         return ApiResponseEntity
@@ -82,7 +82,7 @@ public class ProductController {
      * @param productRequest
      * @return
      */
-    @PutMapping("/seller/{productId}")
+    @PutMapping("/{productId}")
     public ApiResponseEntity<Object> updateProduct(
             @PathVariable(name = "productId") Long productId,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
@@ -147,11 +147,11 @@ public class ProductController {
      * @return
      */
     @GetMapping("{productId}")
-    public ApiResponseEntity<Object> getProductByNoAuth(@PathVariable(name = "productId") Long productId) {
-        ProductDetailDTO productDetailDTO = productService.findProductDetail(productId);
+    public ApiResponseEntity<Object> getProductForApp(@PathVariable(name = "productId") Long productId) {
+        DetailedProductDTO detailedProductDTO = productService.findDetailedProduct(productId);
         return ApiResponseEntity
                 .builder()
-                .data(productDetailDTO)
+                .data(detailedProductDTO)
                 .build();
     }
 

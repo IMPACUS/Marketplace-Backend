@@ -1,10 +1,9 @@
 package com.impacus.maketplace.repository.product;
 
-import com.impacus.maketplace.dto.product.response.ProductDetailDTO;
+import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.entity.category.QSubCategory;
-import com.impacus.maketplace.entity.category.QSuperCategory;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.querydsl.core.group.GroupBy;
@@ -28,7 +27,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
-    private final QSuperCategory superCategory = QSuperCategory.superCategory;
     private final QSubCategory subCategory = QSubCategory.subCategory;
 
     @Override
@@ -77,18 +75,19 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public ProductDetailDTO findProductByProductId(Long productId) {
-        List<ProductDetailDTO> result = queryFactory
+    public DetailedProductDTO findProductByProductId(Long productId) {
+        List<DetailedProductDTO> result = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
-                                        ProductDetailDTO.class,
+                                        DetailedProductDTO.class,
                                         product.id,
                                         product.name,
                                         product.appSalesPrice,
                                         product.discountPrice,
+                                        product.type,
                                         GroupBy.list(
                                                 Projections.list(Projections.constructor(
                                                                 ProductOptionDTO.class,

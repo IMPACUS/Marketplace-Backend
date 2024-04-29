@@ -205,7 +205,7 @@ public class ProductService {
             // 4. ProductDescription 삭제
             productDescriptionService.deleteProductDescription(productDescription);
 
-            // 5. Product의 대표 이미지 삭제
+            // 5. Product 대표 이미지 삭제
             attachFileService.deleteAttachFile(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
 
             // 2. 삭제
@@ -319,11 +319,11 @@ public class ProductService {
     /**
      * 카테고리와 페이지네이션으로 전체 상품을 조회하는 함수
      *
-     * @param category
+     * @param subCategoryId
      * @param pageable
      * @return
      */
-    public Page<Product> findProductByCategoryId(Long subCategoryId, Pageable pageable) {
+    public Slice<Product> findProductByCategoryId(Long subCategoryId, Pageable pageable) {
         if (subCategoryId == null) {
             return productRepository.findAll(pageable);
         } else {
@@ -337,19 +337,19 @@ public class ProductService {
      * @param productId
      * @return
      */
-    public ProductDetailDTO findProductDetail(Long productId) {
+    public DetailedProductDTO findDetailedProduct(Long productId) {
         try {
             // 1. productId 존재확인
             findProductById(productId);
 
             // 2. Product 세부 데이터 가져오기
-            ProductDetailDTO productDetailDTO = productRepository.findProductByProductId(productId);
+            DetailedProductDTO detailedProductDTO = productRepository.findProductByProductId(productId);
 
             // 3. Product 대표 이미지 리스트 가져오기
             List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
-            productDetailDTO.setProductImageList(attachFileDTOS);
+            detailedProductDTO.setProductImageList(attachFileDTOS);
 
-            return productDetailDTO;
+            return detailedProductDTO;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -384,7 +384,7 @@ public class ProductService {
 
             // 4. TemporaryProductDescription 값 가져오기
             ProductDetailInfo detailInfo = productDetailInfoService.findProductDetailInfoByProductId(productId);
-            dto.setProductDetail(objectCopyHelper.copyObject(detailInfo, ProductDetailDTO.class));
+            dto.setProductDetail(objectCopyHelper.copyObject(detailInfo, ProductDetailInfoDTO.class));
 
             // 5. 대표이미지 데이터 가져오기
             List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
