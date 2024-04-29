@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketForQuantityRequest;
@@ -68,7 +68,7 @@ public class ShoppingBasketService {
      */
     public ShoppingBasket findShoppingBasketById(Long shoppingBasketId) {
         return shoppingBasketRepository.findById(shoppingBasketId)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SHOPPING_CART));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_SHOPPING_CART));
     }
 
     /**

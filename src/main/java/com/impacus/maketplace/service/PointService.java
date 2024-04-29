@@ -2,7 +2,7 @@ package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.PointType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.point.PointManageType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -53,6 +53,50 @@ public class PointService {
     private final Integer FIRST_DORMANCY_POINT = 1500;
     private final Integer SECOND_DORMANCY_POINT = 2000;
 
+    //1월16일 12시 10분
+    private static void changeUpLevel(PointMaster pointMaster, Integer userScore, UserLevel currentUserLevel) {
+        UserLevel changeUserLevel = UserLevel.fromScore(userScore);
+        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
+            pointMaster.setUserLevel(changeUserLevel);
+
+            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
+            switch (changeUserLevel) {
+                case BRONZE -> pointMaster.setBronze(true);
+                case ROOKIE -> {
+                    if (!pointMaster.isRookie()) {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.ROOKIE.getCelebrationPoint());
+                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.ROOKIE.getCelebrationPoint());
+                    } else {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.ROOKIE.getCelebrationPoint() / 2));
+                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.ROOKIE.getCelebrationPoint() / 2));
+                    }
+                    pointMaster.setRookie(true);
+                }
+                case SILVER -> {
+                    if (!pointMaster.isSilver()) {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.SILVER.getCelebrationPoint());
+                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.SILVER.getCelebrationPoint());
+                    } else {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.SILVER.getCelebrationPoint() / 2));
+                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.SILVER.getCelebrationPoint() / 2));
+                    }
+                    pointMaster.setSilver(true);
+                }
+                case GOLD -> {
+                    if (!pointMaster.isGold()) {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.GOLD.getCelebrationPoint());
+                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.GOLD.getCelebrationPoint());
+                    } else {
+                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.GOLD.getCelebrationPoint() / 2));
+                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.GOLD.getCelebrationPoint() / 2));
+                    }
+                    pointMaster.setGold(true);
+                }
+                case ECO_VIP -> pointMaster.setEcoVip(true);
+            }
+        }
+    }
+
     @Transactional
     public boolean initPointMaster(UserDTO userDTO) {
         if (pointMasterRepository.existsPointMasterByUserId(userDTO.id())) {
@@ -82,7 +126,7 @@ public class PointService {
 
     @Transactional
     public PointMasterDto changePoint(PointRequestDto pointRequestDto) {
-        PointMaster pointMaster = pointMasterRepository.findByUserId(pointRequestDto.getUserId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+        PointMaster pointMaster = pointMasterRepository.findByUserId(pointRequestDto.getUserId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
         LocalDateTime settingExpiredAt = null;
         if (pointRequestDto.getPointTypeEnum() != PointType.USE &&
                 pointRequestDto.getPointTypeEnum() != PointType.EXPIRE) {
@@ -120,56 +164,12 @@ public class PointService {
         return pointMasterDto;
     }
 
-    //1월16일 12시 10분
-    private static void changeUpLevel(PointMaster pointMaster, Integer userScore, UserLevel currentUserLevel) {
-        UserLevel changeUserLevel = UserLevel.fromScore(userScore);
-        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
-            pointMaster.setUserLevel(changeUserLevel);
-
-            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
-            switch (changeUserLevel) {
-                case BRONZE  -> pointMaster.setBronze(true);
-                case ROOKIE  -> {
-                    if (!pointMaster.isRookie()) {
-                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.ROOKIE.getCelebrationPoint());
-                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.ROOKIE.getCelebrationPoint());
-                    } else {
-                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.ROOKIE.getCelebrationPoint() / 2));
-                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.ROOKIE.getCelebrationPoint() / 2));
-                    }
-                    pointMaster.setRookie(true);
-                }
-                case SILVER  -> {
-                    if (!pointMaster.isSilver()) {
-                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.SILVER.getCelebrationPoint());
-                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.SILVER.getCelebrationPoint());
-                    } else {
-                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.SILVER.getCelebrationPoint() / 2));
-                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.SILVER.getCelebrationPoint() / 2));
-                    }
-                    pointMaster.setSilver(true);
-                }
-                case GOLD    -> {
-                    if (!pointMaster.isGold()) {
-                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.GOLD.getCelebrationPoint());
-                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.GOLD.getCelebrationPoint());
-                    } else {
-                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.GOLD.getCelebrationPoint() / 2));
-                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.GOLD.getCelebrationPoint() / 2));
-                    }
-                    pointMaster.setGold(true);
-                }
-                case ECO_VIP -> pointMaster.setEcoVip(true);
-            }
-        }
-    }
-
     public List<PointHistoryDto> findPointHistory(PointHistorySearchDto pointHistorySearchDto) {
         return pointHistoryRepository.findAllPointHistory(pointHistorySearchDto);
     }
 
     public PointInfoDto findMyPointInfo(CustomUserDetails user) {
-        PointMaster pointMaster = pointMasterRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+        PointMaster pointMaster = pointMasterRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
         PointInfoDto pointInfoDto = new PointInfoDto(pointMaster.getUserScore());
         return pointInfoDto;
     }
@@ -178,7 +178,7 @@ public class PointService {
 
         CurrentPointInfoDto data = pointMasterRepository.findByUserIdForMyCurrentPointStatus(user.getId());
         if (data == null) {
-            throw new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER);
+            throw new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER);
         }
         return data;
     }
@@ -199,7 +199,7 @@ public class PointService {
                 pointHistory.setExpiredCheck(true);
                 Long pointMasterId = pointHistory.getPointMasterId();
 
-                PointMaster pointMaster = pointMasterRepository.findById(pointMasterId).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+                PointMaster pointMaster = pointMasterRepository.findById(pointMasterId).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
                 int saveScore = pointMaster.getAvailablePoint() - pointHistory.getChangePoint();
                 pointMaster.setAvailablePoint(saveScore);
             }
@@ -216,7 +216,7 @@ public class PointService {
         for (User user : usersToUpdate) {
             if (user.getFirstDormancy() || user.getSecondDormancy()) { // 임시 휴면 회원 || 12개월 휴면 회원
                 PointMaster pointMaster = pointMasterRepository.findByUserId(user.getId())
-                        .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+                        .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
 
                 Integer currentAvailablePoint = pointMaster.getAvailablePoint();
                 Integer currentUserScore = pointMaster.getUserScore();
@@ -251,7 +251,7 @@ public class PointService {
                         pointHistoryRepository.save(pointHistory);
 
                         UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
-                        if (!StringUtils.equals(changeUserLevel,currentUserLevel)) {
+                        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
                             pointMaster.setUserLevel(changeUserLevel);
                         }
 
@@ -280,7 +280,7 @@ public class PointService {
                         pointHistoryRepository.save(pointHistory);
 
                         UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
-                        if (!StringUtils.equals(changeUserLevel,currentUserLevel)) {
+                        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
                             pointMaster.setUserLevel(changeUserLevel);
                         }
 
@@ -323,7 +323,7 @@ public class PointService {
                         pointHistoryRepository.save(pointHistory);
 
                         UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
-                        if (!StringUtils.equals(changeUserLevel,currentUserLevel)) {
+                        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
                             pointMaster.setUserLevel(changeUserLevel);
                         }
 
@@ -361,7 +361,7 @@ public class PointService {
                         pointHistoryRepository.save(pointHistory);
 
                         UserLevel changeUserLevel = UserLevel.fromScore(pointMaster.getUserScore());
-                        if (!StringUtils.equals(changeUserLevel,currentUserLevel)) {
+                        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
                             pointMaster.setUserLevel(changeUserLevel);
                         }
 
@@ -387,7 +387,7 @@ public class PointService {
     public boolean pointManage(PointManageDto pointManageDto) {
         try {
             PointMaster pointMaster = pointMasterRepository.findByUserId(pointManageDto.getUserId())
-                    .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_POINT_MASTER));
+                    .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
 
             Integer currentAvailablePoint = pointMaster.getAvailablePoint();
             Integer currentUserScore = pointMaster.getUserScore();
@@ -408,7 +408,7 @@ public class PointService {
                 if (manageAvailablePoint > 0) {
                     int resultAvailablePoint = currentAvailablePoint - manageAvailablePoint;
                     if (resultAvailablePoint <= 0) {
-                       throw new CustomException(ErrorType.INVALID_POINT_MANAGE);
+                        throw new CustomException(CommonErrorType.INVALID_POINT_MANAGE);
                     } else {
                         pointMaster.setAvailablePoint(resultAvailablePoint);
                     }
@@ -416,7 +416,7 @@ public class PointService {
                 if (manageUserScore > 0) {
                     int resultUserScore = currentUserScore - manageUserScore;
                     if (resultUserScore <= 0) {
-                        throw new CustomException(ErrorType.INVALID_POINT_MANAGE);
+                        throw new CustomException(CommonErrorType.INVALID_POINT_MANAGE);
                     } else {
                         pointMaster.setUserScore(currentUserScore - manageUserScore);
                         changeUpLevel(pointMaster, resultUserScore, currentUserLevel);

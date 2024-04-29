@@ -1,6 +1,6 @@
 package com.impacus.maketplace.common.utils;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 
 import java.time.LocalDateTime;
@@ -11,12 +11,14 @@ import java.util.UUID;
 
 public class CouponUtils {
 
-    /** 오픈 기념 회원가입 이벤트 쿠폰 */
+    /**
+     * 오픈 기념 회원가입 이벤트 쿠폰
+     */
     public static final String OPEN_EVENT_CODE = "O9P7E5N3!1";
 
 
+    private static List<Integer> percentages = Arrays.asList(10, 20, 30, 40, 50);
 
-    private static List<Integer> percentages = Arrays.asList(10,20,30,40,50);
     public CouponUtils() throws Exception {
         throw new Exception("you do not need to construct CouponUtils class!");
     }
@@ -27,7 +29,7 @@ public class CouponUtils {
 
     public static LocalDateTime getRandomExpiredAt(LocalDateTime fromDate) {
         // add random expired days from now date (1 day ~ 7 days)
-        return fromDate.plusDays((long)(Math.random() * 7) + 1);
+        return fromDate.plusDays((long) (Math.random() * 7) + 1);
     }
 
     public static Integer getRandomDiscountRate() {
@@ -38,12 +40,7 @@ public class CouponUtils {
     public static <E extends Enum<E> & CommonFieldInterface> E fromCode(Class<E> enumClass, String code) {
         return Arrays.stream(enumClass.getEnumConstants())
                 .filter(c -> c.getCode().equalsIgnoreCase(code))
-                .findFirst().orElseThrow(() -> new CustomException(ErrorType.UNKNOWN));
-    }
-
-    public interface CommonFieldInterface {
-        String getCode();
-        String getValue();
+                .findFirst().orElseThrow(() -> new CustomException(CommonErrorType.UNKNOWN));
     }
 
     public static String generateCode() {
@@ -58,10 +55,16 @@ public class CouponUtils {
 
         StringBuffer buffer = new StringBuffer();
 
-        for (int i =0; i < CHAR_LENGTH; i++) {
+        for (int i = 0; i < CHAR_LENGTH; i++) {
             buffer.append(charTable[random.nextInt(charSize)]);
         }
         return buffer.toString();
 
+    }
+
+    public interface CommonFieldInterface {
+        String getCode();
+
+        String getValue();
     }
 }

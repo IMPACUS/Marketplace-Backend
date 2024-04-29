@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.Brand;
 import com.impacus.maketplace.repository.BrandRepository;
@@ -22,6 +22,6 @@ public class BrandService {
      */
     public Brand findBrandById(Long brandId) {
         return brandRepository.findById(brandId)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_BRAND));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_BRAND));
     }
 }

@@ -1,7 +1,7 @@
 package com.impacus.maketplace.config.provider;
 
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
@@ -95,7 +95,7 @@ public class JwtTokenProvider implements InitializingBean {
 
         // 2. 토큰 권한 확인
         if (claims.get("role") == null) {
-            throw new CustomException(HttpStatus.NOT_FOUND, ErrorType.INVALID_TOKEN,
+            throw new CustomException(HttpStatus.NOT_FOUND, CommonErrorType.INVALID_TOKEN,
                     "권한 정보가 없는 토큰입니다.");
         }
 

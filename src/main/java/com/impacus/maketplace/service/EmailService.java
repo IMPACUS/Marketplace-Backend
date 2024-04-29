@@ -1,10 +1,15 @@
 package com.impacus.maketplace.service;
 
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.Random;
-
+import com.impacus.maketplace.common.enumType.MailType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.entity.common.EmailHistory;
+import com.impacus.maketplace.repository.EmailHistoryRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -12,17 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import com.impacus.maketplace.common.enumType.MailType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
-import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.EmailDto;
-import com.impacus.maketplace.entity.common.EmailHistory;
-import com.impacus.maketplace.repository.EmailHistoryRepository;
-
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class EmailService {
     private final ObjectCopyHelper objectCopyHelper;
 
     @Transactional
-    public Boolean sendMail(EmailDto emailDto,MailType mailType) {
+    public Boolean sendMail(EmailDto emailDto, MailType mailType) {
         String authNumber = createCode();
         if (!mailType.equals(MailType.AUTH)) {
             authNumber = "";
@@ -89,9 +87,14 @@ public class EmailService {
             int index = random.nextInt(4);
 
             switch (index) {
-                case 0: key.append((char) (random.nextInt(26) + 97)); break;
-                case 1: key.append((char) (random.nextInt(26) + 65)); break;
-                default: key.append(random.nextInt(9));
+                case 0:
+                    key.append((char) (random.nextInt(26) + 97));
+                    break;
+                case 1:
+                    key.append((char) (random.nextInt(26) + 65));
+                    break;
+                default:
+                    key.append(random.nextInt(9));
             }
         }
         return key.toString();
@@ -105,6 +108,7 @@ public class EmailService {
 
     /**
      * 이메일 인증 메일을 보내는 함수
+     *
      * @param receiver
      * @return
      */
@@ -122,7 +126,7 @@ public class EmailService {
 
             return authNumber;
         } catch (MessagingException e) {
-            throw new CustomException(ErrorType.FAIL_TO_SEND_EMAIL);
+            throw new CustomException(CommonErrorType.FAIL_TO_SEND_EMAIL);
         }
     }
 
