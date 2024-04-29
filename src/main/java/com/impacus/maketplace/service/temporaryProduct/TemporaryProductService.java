@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
-import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -159,12 +158,7 @@ public class TemporaryProductService {
             ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
 
-        Long brandId = productRequest.getBrandId();
-        DeliveryType deliveryType = productRequest.getDeliveryType();
         Long subCategoryId = productRequest.getCategoryId();
-
-        // 1. brand 가 존재하는지 확인
-        brandService.findBrandById(brandId);
 
         // 2. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
@@ -184,10 +178,6 @@ public class TemporaryProductService {
             }
         }
 
-        // 4. 상품 내부 데이터 확인
-        if (deliveryType == DeliveryType.NONE) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
-        }
         if (!subCategoryService.existsBySubCategoryId(subCategoryId)) {
             throw new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY);
         }

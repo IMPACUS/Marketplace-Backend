@@ -27,7 +27,7 @@ public class Product extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long brandId;
+    private Long sellerId;
 
     @Column(nullable = false, length = 50)
     private String name; // 상품명
@@ -81,8 +81,8 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductType type; // 상품 타입
 
-    public Product(String productNumber, ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
+    public Product(String productNumber, Long sellerId, ProductRequest productRequest) {
+        this.sellerId = sellerId;
         this.name = productRequest.getName();
         this.productNumber = productNumber;
         this.deliveryType = productRequest.getDeliveryType();
@@ -99,7 +99,6 @@ public class Product extends BaseEntity {
     }
 
     public void setProduct(ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();

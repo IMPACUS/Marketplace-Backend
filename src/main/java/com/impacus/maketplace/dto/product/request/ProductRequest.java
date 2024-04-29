@@ -22,9 +22,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductRequest {
     @NotNull
-    private Long brandId; // TODO 판매자 설계된 이후에 요청한 판매자와 연결된 Brand를 가져오는 것으로 변경
-
-    @NotNull
     private boolean doesUseTemporaryProduct;
 
     @NotBlank
@@ -68,8 +65,8 @@ public class ProductRequest {
     @ValidEnum(enumClass = ProductType.class)
     private ProductType type;
 
-    public Product toEntity(String productNumber) {
-        return new Product(productNumber, this);
+    public Product toEntity(String productNumber, Long sellerId) {
+        return new Product(productNumber, sellerId, this);
     }
 
     public ProductDescription toEntity(Long productId) {

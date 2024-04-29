@@ -286,7 +286,7 @@ public class SellerService {
      * @param userId
      * @return
      */
-    private Seller findSellerByUserId(Long userId) {
+    public Seller findSellerByUserId(Long userId) {
         return sellerRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SELLER));
     }

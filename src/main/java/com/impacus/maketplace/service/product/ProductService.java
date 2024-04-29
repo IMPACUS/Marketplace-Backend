@@ -12,10 +12,11 @@ import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
+import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
-import com.impacus.maketplace.service.BrandService;
 import com.impacus.maketplace.service.category.SubCategoryService;
+import com.impacus.maketplace.service.seller.SellerService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,7 +43,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductOptionService productOptionService;
     private final ProductDetailInfoService productDetailInfoService;
-    private final BrandService brandService;
+    private final SellerService sellerService;
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
@@ -50,7 +51,7 @@ public class ProductService {
     private final SubCategoryService subCategoryService;
 
     /**
-     * 새로운 Product를 저장하는 함수
+     * 새로운 Product 생성 함수
      *
      * @param productRequest
      * @return
@@ -62,40 +63,40 @@ public class ProductService {
             ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
         try {
+            Seller seller = sellerService.findSellerByUserId(userId);
+
             // 1. productRequest 데이터 유효성 검사
-            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-                throw new CustomException(ErrorType.INVALID_PRODUCT);
-            }
+            validateProductRequest(productImageList, productRequest, productDescriptionImageList);
 
             // 2. 상풍 번호 생성
             String productNumber = StringUtils.getProductNumber();
 
             // 3. Product 저장
-            Product newProduct = productRepository.save(productRequest.toEntity(productNumber));
+            Product newProduct = productRepository.save(productRequest.toEntity(productNumber, seller.getId()));
             Long productId = newProduct.getId();
 
-            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-            productImageList.stream()
-                    .map(productImage -> {
+            // 4. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            productImageList
+                    .forEach(productImage -> {
                         try {
-                            return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                            attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
                         } catch (IOException e) {
                             throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
                         }
-                    }).collect(Collectors.toList());
+                    });
 
             // 5. Product description 저장
             ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest);
 
             // 6. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            productDescriptionImageList.stream()
-                    .map(productDescriptionImage -> {
+            productDescriptionImageList
+                    .forEach(productDescriptionImage -> {
                         try {
-                            return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
                         } catch (IOException e) {
                             throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
                         }
-                    }).collect(Collectors.toList());
+                    });
 
             //7. Product option 저장
             productOptionService.addProductOption(productId, productRequest.getProductOptions());
@@ -120,13 +121,9 @@ public class ProductService {
      * @param productRequest
      * @return
      */
-    public boolean validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
-        Long brandId = productRequest.getBrandId();
+    public void validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
         DeliveryType deliveryType = productRequest.getDeliveryType();
         Long categoryId = productRequest.getCategoryId();
-
-        // 1. brand 가 존재하는지 확인
-        brandService.findBrandById(brandId);
 
         // 2. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
@@ -147,15 +144,9 @@ public class ProductService {
         }
 
         // 4. 상품 내부 데이터 확인
-        if (deliveryType == DeliveryType.NONE) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
-        }
-
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
             throw new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY);
         }
-
-        return true;
     }
 
     /**
@@ -231,9 +222,7 @@ public class ProductService {
             Product product = findProductById(productId);
 
             // 2. productRequest 데이터 유효성 검사
-            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-                throw new CustomException(ErrorType.INVALID_PRODUCT);
-            }
+            validateProductRequest(productImageList, productRequest, productDescriptionImageList);
 
             // 3. Product 수정
             product.setProduct(productRequest);

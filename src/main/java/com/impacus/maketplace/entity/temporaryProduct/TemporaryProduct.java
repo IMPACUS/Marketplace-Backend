@@ -21,8 +21,8 @@ public class TemporaryProduct extends BaseEntity {
     @Column(name = "temporary_product_info_id")
     private Long id;
 
-    @Column(nullable = false)
-    private Long brandId;
+    @Column(nullable = false, unique = true)
+    private Long userId;
 
     @Column(length = 50)
     private String name; // 상품명
@@ -63,7 +63,6 @@ public class TemporaryProduct extends BaseEntity {
     private DiscountStatus discountStatus; // 할인 상태
 
     public TemporaryProduct(ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();
@@ -78,7 +77,6 @@ public class TemporaryProduct extends BaseEntity {
     }
 
     public void setProduct(ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();

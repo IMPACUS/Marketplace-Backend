@@ -1,25 +1,11 @@
 package com.impacus.maketplace.entity.seller;
 
-import org.hibernate.annotations.ColumnDefault;
-
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.BankCode;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -33,7 +19,7 @@ public class SellerAdjustmentInfo extends BaseEntity {
     @Column(name = "seller_business_info_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private Long sellerId;
 
     @Column(nullable = false)
