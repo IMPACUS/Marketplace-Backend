@@ -1,6 +1,6 @@
 package com.impacus.maketplace.controller;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.*;
@@ -50,8 +50,8 @@ public class CouponController {
     }
 
     /**
-     *  실제 쿠폰 및 포인트 지급 페이지 에서 사용할 정보뿌리기
-     *  User 쪽 Controller 로 빼야할지 의논 필요
+     * 실제 쿠폰 및 포인트 지급 페이지 에서 사용할 정보뿌리기
+     * User 쪽 Controller 로 빼야할지 의논 필요
      */
     @PostMapping("/admin/userInfo")
     public ApiResponseEntity<CouponUserInfoResponse> getUserInfoForAdmin(@RequestBody CouponUserInfoRequest userInfoRequest, @AuthenticationPrincipal CustomUserDetails user) {
@@ -64,20 +64,21 @@ public class CouponController {
 
         if (userTargetInfo == null) {
             res.setResult(false);
-            res.setMessage(ErrorType.NOT_EXISTED_EMAIL.getMsg());
+            res.setMessage(CommonErrorType.NOT_EXISTED_EMAIL.getMsg());
         } else {
             if (userTargetInfo.getStatus().equals(UserStatus.BLOCKED)) {
-                res.setMessage(ErrorType.BLOCKED_EMAIL.getMsg());
+                res.setMessage(CommonErrorType.BLOCKED_EMAIL.getMsg());
             } else if (userTargetInfo.getStatus().equals(UserStatus.DORMANT)) {
-                res.setMessage(ErrorType.NOT_ACTIVE_EMAIL.getMsg());
+                res.setMessage(CommonErrorType.NOT_ACTIVE_EMAIL.getMsg());
             }
             res.setData(userTargetInfo);
         }
 
         return res;
     }
+
     /**
-     *  1.쿠폰 리스트 뿌리기
+     * 1.쿠폰 리스트 뿌리기
      */
     @PostMapping("/admin/couponList")
     public ApiResponseEntity<Page<CouponListDto>> getCouponList(@RequestBody CouponSearchDto couponSearchDto,
@@ -92,7 +93,7 @@ public class CouponController {
     }
 
     /**
-     *  2. 쿠폰 등록 페이지에서 쿠폰 상세 내용 입력
+     * 2. 쿠폰 등록 페이지에서 쿠폰 상세 내용 입력
      */
     @PostMapping("/admin/couponDetail")
     public ApiResponseEntity<CouponDetailDto> getCouponDetail(@RequestBody CouponSearchDto couponSearchDto, @AuthenticationPrincipal CustomUserDetails user) {
@@ -140,7 +141,7 @@ public class CouponController {
 
 
     /**
-     *  유저의 보유중인 쿠폰 리스트 (검색)
+     * 유저의 보유중인 쿠폰 리스트 (검색)
      */
     @PostMapping("/user/list")
     public ApiResponseEntity<Page<CouponUserListDto>> getCouponUserList(@Valid @RequestBody CouponUserSearchDto couponUserSearchDto,
@@ -154,7 +155,7 @@ public class CouponController {
     }
 
     /**
-     *  쿠폰 등록하기
+     * 쿠폰 등록하기
      */
     @PostMapping("/user/register")
     public ApiResponseEntity<Object> registerCouponForUser(@Valid @RequestBody CouponRegisterDto couponRegisterDto, @AuthenticationPrincipal CustomUserDetails user) {
@@ -166,8 +167,9 @@ public class CouponController {
                 .data(result)
                 .build();
     }
+
     /**
-     *  쿠폰 다운로드
+     * 쿠폰 다운로드
      */
 
     @PostMapping("/user/download")

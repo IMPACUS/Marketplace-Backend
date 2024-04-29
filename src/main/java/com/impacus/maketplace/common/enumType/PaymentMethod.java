@@ -1,8 +1,7 @@
 package com.impacus.maketplace.common.enumType;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.CouponUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +22,6 @@ public enum PaymentMethod {
 
     public static PaymentMethod fromCode(int code) {
         return Arrays.stream(PaymentMethod.values()).filter(t -> t.getCode() == code).findFirst()
-                .orElseThrow(() -> new CustomException(ErrorType.UNKNOWN));
+                .orElseThrow(() -> new CustomException(CommonErrorType.UNKNOWN));
     }
 }

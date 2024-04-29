@@ -1,6 +1,6 @@
 package com.impacus.maketplace.common.handler;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.error.response.ErrorDTO;
 import org.springframework.beans.TypeMismatchException;
@@ -32,7 +32,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
             errorMsg = String.format("field: %s, message: %s", field, errormessage);
         }
 
-        CustomException customException = new CustomException(ErrorType.INVALID_REQUEST_DATA, errorMsg);
+        CustomException customException = new CustomException(CommonErrorType.INVALID_REQUEST_DATA, errorMsg);
 
         return ErrorDTO.toResponseEntity(customException);
     }
@@ -42,7 +42,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
             TypeMismatchException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         String errorMsg = String.format("property: %s, message: %s", ex.getPropertyName(), ex.getMessage());
-        CustomException customException = new CustomException(ErrorType.INVALID_REQUEST_DATA, errorMsg);
+        CustomException customException = new CustomException(CommonErrorType.INVALID_REQUEST_DATA, errorMsg);
 
         return ErrorDTO.toResponseEntity(customException);
     }
@@ -52,7 +52,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
             HttpMessageNotReadableException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request
     ) {
-        CustomException customException = new CustomException(ErrorType.INVALID_REQUEST_DATA, ex.getMessage());
+        CustomException customException = new CustomException(CommonErrorType.INVALID_REQUEST_DATA, ex.getMessage());
 
         return ErrorDTO.toResponseEntity(customException);
     }

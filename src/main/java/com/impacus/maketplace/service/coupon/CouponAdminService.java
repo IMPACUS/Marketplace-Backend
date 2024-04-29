@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.*;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
@@ -39,7 +39,6 @@ public class CouponAdminService {
     private final UserRepository userRepository;
     private final CouponUserRepository couponUserRepository;
     private final CouponService couponService;
-
 
 
 //    public static final String COUPON_CODE = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
@@ -84,7 +83,7 @@ public class CouponAdminService {
         if (req.getCode() != null) {
             Optional<Coupon> findCode = couponRepository.findByCode(req.getCode());
             if (findCode.isPresent()) {
-                throw new CustomException(ErrorType.DUPLICATED_COUPON_CODE);
+                throw new CustomException(CommonErrorType.DUPLICATED_COUPON_CODE);
             } else {
                 coupon.setCode(req.getCode());
             }
@@ -94,18 +93,17 @@ public class CouponAdminService {
         }
 
 
-
         coupon.setName(req.getName());
         coupon.setDescription(req.getDescription());
         coupon.setBenefitType(benefitType);
         // 퍼센트 할인일 때 100%가 넘어가는 경우 throw
         if (benefitType == CouponBenefitType.PERCENTAGE && req.getBenefitValue() > 100) {
-            throw new CustomException(ErrorType.INVALID_PERCENT);
+            throw new CustomException(CommonErrorType.INVALID_PERCENT);
         }
         if (req.getBenefitValue() > 0) {
             coupon.setBenefitValue(req.getBenefitValue());
         } else {
-            throw new CustomException(ErrorType.INVALID_VALUE);
+            throw new CustomException(CommonErrorType.INVALID_VALUE);
         }
 
         coupon.setProductTargetType(productTargetType);
@@ -115,9 +113,9 @@ public class CouponAdminService {
             if (req.getFirstCount() > 0) {
                 coupon.setFirstCount(req.getFirstCount());
             } else {
-                throw new CustomException(ErrorType.INVALID_FIRST_COUNT);
+                throw new CustomException(CommonErrorType.INVALID_FIRST_COUNT);
             }
-        } else if (paymentTargetType == CouponPaymentTargetType.ALL){
+        } else if (paymentTargetType == CouponPaymentTargetType.ALL) {
             coupon.setFirstCount(null);
         }
 
@@ -140,7 +138,7 @@ public class CouponAdminService {
             if (req.getUseStandardValue() >= 0) {
                 coupon.setUseStandardValue(req.getUseStandardValue());
             } else {
-                throw new CustomException(ErrorType.INVALID_VALUE);
+                throw new CustomException(CommonErrorType.INVALID_VALUE);
             }
         } else {
             coupon.setUseStandardValue(null);
@@ -151,7 +149,7 @@ public class CouponAdminService {
             if (req.getIssueStandardValue() >= 0) {
                 coupon.setIssueStandardValue(req.getIssueStandardValue());
             } else {
-                throw new CustomException(ErrorType.INVALID_VALUE);
+                throw new CustomException(CommonErrorType.INVALID_VALUE);
             }
         } else {
             coupon.setIssueStandardValue(null);
@@ -167,7 +165,7 @@ public class CouponAdminService {
                 coupon.setPeriodEndAt(endAt);
                 coupon.setNumberOfPeriod(req.getNumberOfPeriod());
             } else {
-                throw new CustomException(ErrorType.INVALID_VALUE);
+                throw new CustomException(CommonErrorType.INVALID_VALUE);
             }
         } else {
             coupon.setPeriodStartAt(null);
@@ -187,7 +185,7 @@ public class CouponAdminService {
     }
 
     /**
-     *  ADMIN 쿠폰 페이지에서 회원 정보 조회 해오는 함수
+     * ADMIN 쿠폰 페이지에서 회원 정보 조회 해오는 함수
      */
     @Transactional
     public CouponUserInfoResponse getUserTargetInfo(CouponUserInfoRequest req) {
@@ -245,7 +243,7 @@ public class CouponAdminService {
     public CouponDetailDto getCouponDetail(CouponSearchDto couponSearchDto) {
         try {
             Coupon data = couponRepository.findById(couponSearchDto.getId())
-                    .orElseThrow(() -> new CustomException(ErrorType.INVALID_COUPON_FORMAT));
+                    .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_COUPON_FORMAT));
 
             return CouponDetailDto.entityToDto(data);
         } catch (CustomException e) {
@@ -254,7 +252,7 @@ public class CouponAdminService {
     }
 
     /**
-     *  ADMIN 페이지에서 등록된 쿠폰을 수정할 수 있는 함수
+     * ADMIN 페이지에서 등록된 쿠폰을 수정할 수 있는 함수
      */
 
     @Transactional
@@ -282,16 +280,17 @@ public class CouponAdminService {
         CouponAutoManualType autoManualType //  자동 / 수동 발급 [ 자동, 수동 ]
                 = fromCode(CouponAutoManualType.class, req.getAutoManualType());
         CouponType couponType           // 쿠폰 타입 [ 이벤트, 지급형 ]
-                = fromCode(CouponType.class, req.getType());;
+                = fromCode(CouponType.class, req.getType());
+        ;
 
         Coupon coupon = couponRepository.findById(req.getId())
-                .orElseThrow(() -> new CustomException(ErrorType.INVALID_COUPON_FORMAT));
+                .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_COUPON_FORMAT));
 
         coupon.setBenefitType(benefitType);
         if (req.getBenefitValue() > 0) {
             coupon.setBenefitValue(req.getBenefitValue());
         } else {
-            throw new CustomException(ErrorType.INVALID_VALUE);
+            throw new CustomException(CommonErrorType.INVALID_VALUE);
         }
 
         coupon.setProductTargetType(productTargetType);
@@ -309,7 +308,7 @@ public class CouponAdminService {
         if (req.getExpireDays() > 0) {
             coupon.setExpireDays(req.getExpireDays());
         } else {
-            throw new CustomException(ErrorType.INVALID_VALUE);
+            throw new CustomException(CommonErrorType.INVALID_VALUE);
         }
 
         //TODO: Temp Fix
@@ -350,7 +349,7 @@ public class CouponAdminService {
         if (req.getCode() != null) {
             Optional<Coupon> findCode = couponRepository.findByCode(req.getCode());
             if (findCode.isPresent()) {
-                throw new CustomException(ErrorType.DUPLICATED_COUPON_CODE);
+                throw new CustomException(CommonErrorType.DUPLICATED_COUPON_CODE);
             } else {
                 coupon.setCode(req.getCode());
             }
@@ -366,7 +365,7 @@ public class CouponAdminService {
     }
 
     /**
-     *  ADMIN 페이지에서 회원 검색 및 모든 유저에게 쿠폰을 지급 하는 함수
+     * ADMIN 페이지에서 회원 검색 및 모든 유저에게 쿠폰을 지급 하는 함수
      */
     @Transactional
     public boolean addCouponUser(CouponUserIssuedDto couponUserIssuedDto) {
@@ -374,14 +373,14 @@ public class CouponAdminService {
         LocalDateTime couponExpireAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
         if (couponUserIssuedDto.getCouponId() != null) {
             coupon = couponRepository.findById(couponUserIssuedDto.getCouponId())
-                    .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_COUPON, ErrorType.NOT_EXISTED_COUPON.getMsg()));
+                    .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_COUPON, CommonErrorType.NOT_EXISTED_COUPON.getMsg()));
         } else {
             return false;
         }
 
         if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.USER.getCode())) {
             User user = userRepository.findById(couponUserIssuedDto.getUserId())
-                    .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+                    .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
 
 
             Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
@@ -457,13 +456,11 @@ public class CouponAdminService {
                     //TODO: SMS 알림 개발 예정
                 }
                 case UNKNOWN -> {
-                    throw new CustomException(ErrorType.INVALID_ALARM);
+                    throw new CustomException(CommonErrorType.INVALID_ALARM);
                 }
             }
         }
     }
-
-
 
 
     // 선착순 분산 락
@@ -523,7 +520,6 @@ public class CouponAdminService {
         }
         return couponCode;
     }
-
 
 
 }

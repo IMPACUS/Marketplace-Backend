@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.auth;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.UserRepository;
@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
         return CustomUserDetails.create(user);
     }
 

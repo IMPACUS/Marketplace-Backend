@@ -2,7 +2,7 @@ package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
@@ -64,7 +64,7 @@ public class ProductService {
         try {
             // 1. productRequest 데이터 유효성 검사
             if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-                throw new CustomException(ErrorType.INVALID_PRODUCT);
+                throw new CustomException(CommonErrorType.INVALID_PRODUCT);
             }
 
             // 2. 상풍 번호 생성
@@ -80,7 +80,7 @@ public class ProductService {
                         try {
                             return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
                         } catch (IOException e) {
-                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
                     }).collect(Collectors.toList());
 
@@ -93,7 +93,7 @@ public class ProductService {
                         try {
                             return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
                         } catch (IOException e) {
-                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
                     }).collect(Collectors.toList());
 
@@ -130,29 +130,29 @@ public class ProductService {
 
         // 2. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
+            throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
 
         for (MultipartFile productImage : productImageList) {
             if (productImage.getSize() > PRODUCT_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 3. 상품 설명 이미지 크기 확인
         for (MultipartFile productImage : productDescriptionImageList) {
             if (productImage.getSize() > PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 4. 상품 내부 데이터 확인
         if (deliveryType == DeliveryType.NONE) {
-            throw new CustomException(ErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
+            throw new CustomException(CommonErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
         }
 
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
-            throw new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY);
+            throw new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY);
         }
 
         return true;
@@ -166,7 +166,7 @@ public class ProductService {
      */
     public Product findProductById(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_PRODUCT));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_PRODUCT));
     }
 
     @Transactional
@@ -232,7 +232,7 @@ public class ProductService {
 
             // 2. productRequest 데이터 유효성 검사
             if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-                throw new CustomException(ErrorType.INVALID_PRODUCT);
+                throw new CustomException(CommonErrorType.INVALID_PRODUCT);
             }
 
             // 3. Product 수정
@@ -246,7 +246,7 @@ public class ProductService {
                         try {
                             return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
                         } catch (IOException e) {
-                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
                     }).collect(Collectors.toList());
 
@@ -261,7 +261,7 @@ public class ProductService {
                         try {
                             return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
                         } catch (IOException e) {
-                            throw new CustomException(ErrorType.FAIL_TO_UPLOAD_FILE);
+                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
                     }).collect(Collectors.toList());
 
@@ -289,7 +289,7 @@ public class ProductService {
     public Slice<ProductDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
         try {
             if (subCategoryId != null && !subCategoryService.existsBySubCategoryId(subCategoryId)) {
-                throw new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY);
+                throw new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY);
             }
 
             return findProductByCategoryId(subCategoryId, pageable).map(ProductDTO::toDTO);
