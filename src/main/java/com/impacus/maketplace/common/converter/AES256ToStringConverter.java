@@ -1,6 +1,6 @@
 package com.impacus.maketplace.common.converter;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.cryptography.AES256Utils;
 import jakarta.persistence.AttributeConverter;
@@ -18,7 +18,7 @@ public class AES256ToStringConverter implements AttributeConverter<String, Strin
         try {
             return AES256Utils.encryptAES256(attribute);
         } catch (Exception e) {
-            throw new CustomException(ErrorType.ENCRYPTION_FAILED, e);
+            throw new CustomException(CommonErrorType.ENCRYPTION_FAILED, e);
         }
     }
 
@@ -30,7 +30,7 @@ public class AES256ToStringConverter implements AttributeConverter<String, Strin
             }
             return AES256Utils.decryptAES256(dbData);
         } catch (Exception e) {
-            throw new CustomException(ErrorType.DECRYPTION_FAILED, e);
+            throw new CustomException(CommonErrorType.DECRYPTION_FAILED, e);
         }
     }
 }

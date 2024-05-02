@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
@@ -53,7 +53,7 @@ public class WishlistService {
 
         // 2. 요청한 유저의 Wishlist에 상품이 존재하는지 확인
         if (!findWishlistByProductIdAndUserId(productId, userId).isEmpty()) {
-            throw new CustomException(ErrorType.REGISTERED_WISHLIST);
+            throw new CustomException(CommonErrorType.REGISTERED_WISHLIST);
         }
 
         return true;
@@ -78,7 +78,7 @@ public class WishlistService {
      */
     public Wishlist findWishlistById(Long wishlistId) {
         return wishlistRepository.findById(wishlistId)
-                .orElseThrow(() -> new CustomException((ErrorType.NOT_EXISTED_WISHLIST)));
+                .orElseThrow(() -> new CustomException((CommonErrorType.NOT_EXISTED_WISHLIST)));
     }
 
     /**

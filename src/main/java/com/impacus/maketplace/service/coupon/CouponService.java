@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.CouponIssuedTimeType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.coupon.request.CouponRegisterDto;
@@ -43,13 +43,13 @@ public class CouponService {
     public boolean couponRegister(CouponRegisterDto couponRegisterDto) {
         Optional<Coupon> byCode = couponRepository.findByCode(couponRegisterDto.getCouponCode());
         if (!byCode.isPresent()) {
-            throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
+            throw new CustomException(CommonErrorType.INVALID_COUPON_FORMAT);
         } else {
             Coupon coupon = byCode.get();
-            User user = userRepository.findById(couponRegisterDto.getUserId()).orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+            User user = userRepository.findById(couponRegisterDto.getUserId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
             CouponUser couponUser = couponUserRepository.findByCouponAndUser(coupon, user);
             if (couponUser != null) {
-                throw new CustomException(ErrorType.DUPLICATED_COUPON);
+                throw new CustomException(CommonErrorType.DUPLICATED_COUPON);
             }
 
             LocalDateTime couponExpireAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
@@ -85,13 +85,13 @@ public class CouponService {
     @Transactional
     public CouponUserListDto couponDownload(Long couponUserId) {
         CouponUser couponUser = couponUserRepository.findById(couponUserId)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_COUPON));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_COUPON));
 
         if (couponUser.getCouponLock() == true ||
-            couponUser.getExpiredAt().isBefore(LocalDateTime.now()) ||
-            couponUser.getIsDownloaded() == true ||
-            couponUser.getIsUsed() == true) {
-            throw new CustomException(ErrorType.INVALID_COUPON_REQUEST);
+                couponUser.getExpiredAt().isBefore(LocalDateTime.now()) ||
+                couponUser.getIsDownloaded() == true ||
+                couponUser.getIsUsed() == true) {
+            throw new CustomException(CommonErrorType.INVALID_COUPON_REQUEST);
         }
 
         couponUser.setIsDownloaded(true);

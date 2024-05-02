@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.category;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
@@ -48,22 +48,22 @@ public class SubCategoryService {
 
             // 1. 중복된 2차 카테고리 명 확인
             if (existsBySuperCategoryName(subCategoryName)) {
-                throw new CustomException(ErrorType.DUPLICATED_SUB_CATEGORY);
+                throw new CustomException(CommonErrorType.DUPLICATED_SUB_CATEGORY);
             }
 
             // 2. 1차 카테고리 존재 확인
             if (!superCategoryService.existsBySuperCategoryId(superCategoryId)) {
-                throw new CustomException(ErrorType.NOT_EXISTED_SUPER_CATEGORY);
+                throw new CustomException(CommonErrorType.NOT_EXISTED_SUPER_CATEGORY);
             } else {
                 if (countBySuperCategoryId(superCategoryId) > MAX_SUBCATEGORY_CNT) {
-                    throw new CustomException(ErrorType.EXCEED_MAX_SUB_CATEGORY);
+                    throw new CustomException(CommonErrorType.EXCEED_MAX_SUB_CATEGORY);
                 }
             }
 
             // 3. 썸네일 용량 확인 & 저장
             AttachFile attachFile = null;
             if (thumbnail.getSize() > THUMBNAIL_SIZE_LIMIT) {
-                throw new CustomException(ErrorType.INVALID_THUMBNAIL, "2차 카테고리 이미지 크기가 제한 사이즈보다 큽니다.");
+                throw new CustomException(CommonErrorType.INVALID_THUMBNAIL, "2차 카테고리 이미지 크기가 제한 사이즈보다 큽니다.");
             } else {
                 attachFile = attachFileService.uploadFileAndAddAttachFile(thumbnail, THUMBNAIL_IMAGE_DIRECTORY);
             }
@@ -103,13 +103,13 @@ public class SubCategoryService {
 
             // 1. 중복된 2차 카테고리 명 확인
             if (existsBySuperCategoryName(subCategoryName)) {
-                throw new CustomException(ErrorType.DUPLICATED_SUB_CATEGORY);
+                throw new CustomException(CommonErrorType.DUPLICATED_SUB_CATEGORY);
             }
 
             // 2. 썸네일 용량 확인 & 저장
             AttachFile attachFile = null;
             if (thumbnail.getSize() > THUMBNAIL_SIZE_LIMIT) {
-                throw new CustomException(ErrorType.INVALID_THUMBNAIL, "2차 카테고리 이미지 크기가 제한 사이즈보다 큽니다.");
+                throw new CustomException(CommonErrorType.INVALID_THUMBNAIL, "2차 카테고리 이미지 크기가 제한 사이즈보다 큽니다.");
             } else {
                 attachFile = attachFileService.uploadFileAndAddAttachFile(thumbnail, THUMBNAIL_IMAGE_DIRECTORY);
             }
@@ -133,7 +133,7 @@ public class SubCategoryService {
      */
     public SubCategory findBySubCategoryId(Long id) {
         return subCategoryRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SUB_CATEGORY));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY));
     }
 
 
@@ -164,7 +164,7 @@ public class SubCategoryService {
             List<SubCategory> subCategories = new ArrayList<>();
             for (Long subCategoryId : subCategoryIdList) {
                 if (productRepository.existsByCategoryId(subCategoryId)) {
-                    throw new CustomException(ErrorType.CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT);
+                    throw new CustomException(CommonErrorType.CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT);
                 }
 
                 SubCategory subCategory = findBySubCategoryId(subCategoryId);
@@ -192,7 +192,7 @@ public class SubCategoryService {
             List<SubCategory> subCategories = new ArrayList<>();
             for (Long superCategoryId : superCategoryIdList) {
                 if (productRepository.existsBySuperCategoryId(superCategoryId)) {
-                    throw new CustomException(ErrorType.CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT);
+                    throw new CustomException(CommonErrorType.CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT);
                 }
 
                 SuperCategory superCategory = superCategoryService.findBySuperCategoryId(superCategoryId);

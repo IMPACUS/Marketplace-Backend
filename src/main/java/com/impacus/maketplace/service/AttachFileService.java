@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
@@ -122,7 +122,7 @@ public class AttachFileService {
      */
     public AttachFile findAttachFileById(Long attachFileId) {
         return attachFileRepository.findById(attachFileId)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_ATTACH_FILE));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_ATTACH_FILE));
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.seller;
 
 import com.impacus.maketplace.common.enumType.MailType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -84,22 +84,22 @@ public class SellerService {
 
             // 1. 이메일 유효성 검사
             if (userService.existUserByEmail(email)) {
-                throw new CustomException(ErrorType.DUPLICATED_EMAIL);
+                throw new CustomException(CommonErrorType.DUPLICATED_EMAIL);
             }
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(ErrorType.INVALID_PASSWORD);
+                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
             }
 
             // 3. 상세 데이터 유효성 검사
             if (sellerRequest.getBusinessType() == BusinessType.SIMPLIFIED_TAXABLE_PERSON) {
                 if (mailOrderBusinessReportImage != null || sellerRequest.getMailOrderBusinessReportNumber() != null) {
-                    throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "간이 과세자인 경우, 통신판매업신고증관련 값이 null 이여야 합니다.");
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "간이 과세자인 경우, 통신판매업신고증관련 값이 null 이여야 합니다.");
                 }
             } else {
                 if (mailOrderBusinessReportImage == null || sellerRequest.getMailOrderBusinessReportNumber() == null) {
-                    throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "간이 과세자가 아닌 경우, 통신판매업신고증관련 값이 null 이면 안됩니다.");
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "간이 과세자가 아닌 경우, 통신판매업신고증관련 값이 null 이면 안됩니다.");
                 }
             }
             validateFileLimit(logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
@@ -144,19 +144,19 @@ public class SellerService {
                                    MultipartFile mailOrderBusinessReportImage,
                                    MultipartFile bankBookImage) {
         if (logoImage.getSize() > LOGO_IMAGE_LIMIT) {
-            new CustomException(ErrorType.INVALID_REQUEST_DATA, "로고 이미지 크기가 제한을 넘었습니다.");
+            new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "로고 이미지 크기가 제한을 넘었습니다.");
         }
 
         if (businessRegistrationImage.getSize() > FILE_LIMIT) {
-            new CustomException(ErrorType.INVALID_REQUEST_DATA, "사업자 등록증 사본의 이미지 크기가 제한을 넘었습니다.");
+            new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "사업자 등록증 사본의 이미지 크기가 제한을 넘었습니다.");
         }
 
         if (mailOrderBusinessReportImage != null && mailOrderBusinessReportImage.getSize() > FILE_LIMIT) {
-            new CustomException(ErrorType.INVALID_REQUEST_DATA, "통신판매업신고증 사본의 크기가 제한을 넘었습니다.");
+            new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "통신판매업신고증 사본의 크기가 제한을 넘었습니다.");
         }
 
         if (bankBookImage.getSize() > FILE_LIMIT) {
-            new CustomException(ErrorType.INVALID_REQUEST_DATA, "통장 사본의 이미지 크기가 제한을 넘었습니다.");
+            new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "통장 사본의 이미지 크기가 제한을 넘었습니다.");
         }
 
     }
@@ -244,14 +244,14 @@ public class SellerService {
             // 2. 데이터 유효성 검사
             if (entryStatus == EntryStatus.APPROVE) {
                 if (charge == null) {
-                    throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "charge는 null이 될 수 없습니다.");
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "charge는 null이 될 수 없습니다.");
                 }
             } else if (entryStatus == EntryStatus.REJECT) {
                 if (charge != null) {
-                    throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "charge는 null 이여야 합니다.");
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "charge는 null 이여야 합니다.");
                 }
             } else {
-                throw new CustomException(ErrorType.INVALID_REQUEST_DATA, "entryStatus 데이터가 올바르지 않습니다.");
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "entryStatus 데이터가 올바르지 않습니다.");
             }
 
             // 3. 입점 상태 및 판매자 수수료 저장
@@ -288,7 +288,7 @@ public class SellerService {
      */
     public Seller findSellerByUserId(Long userId) {
         return sellerRepository.findByUserId(userId)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_SELLER));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_SELLER));
     }
 
     /**

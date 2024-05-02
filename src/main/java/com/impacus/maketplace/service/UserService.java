@@ -2,7 +2,7 @@ package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -64,15 +64,15 @@ public class UserService {
             User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
             if (existedUser != null) {
                 if (existedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                    throw new CustomException(ErrorType.DUPLICATED_EMAIL);
+                    throw new CustomException(CommonErrorType.DUPLICATED_EMAIL);
                 } else {
-                    throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                    throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
                 }
             }
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(ErrorType.INVALID_PASSWORD);
+                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
             }
 
             // 3. User 데이터 생성 및 저장
@@ -126,7 +126,7 @@ public class UserService {
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(ErrorType.INVALID_PASSWORD);
+                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
             }
 
             // 3. 비밀번호 확인
@@ -136,7 +136,7 @@ public class UserService {
                 if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
                     changeUserStatus(user, UserStatus.BLOCKED);
                 }
-                throw new CustomException(ErrorType.WRONG_PASSWORD);
+                throw new CustomException(CommonErrorType.WRONG_PASSWORD);
             }
 
             // 4. JWT 토큰 생성
@@ -172,11 +172,11 @@ public class UserService {
 
                 yield checkedSeller;
             }
-            default -> throw new CustomException(HttpStatus.FORBIDDEN, ErrorType.ACCESS_DENIED_EMAIL);
+            default -> throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_EMAIL);
         };
 
         if (user.getStatus() == UserStatus.BLOCKED) {
-            throw new CustomException(ErrorType.BLOCKED_EMAIL);
+            throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
         }
 
         return user;
@@ -189,10 +189,10 @@ public class UserService {
      */
     private void validateCertifiedUser(User checkedUser) {
         if (checkedUser == null) {
-            throw new CustomException(ErrorType.NOT_EXISTED_EMAIL);
+            throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
         } else {
             if (!checkedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                throw new CustomException(ErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             }
         }
     }
@@ -204,7 +204,7 @@ public class UserService {
      */
     private void validateApprovedSeller(User checkedSeller) {
         if (checkedSeller.getType() != UserType.ROLE_APPROVED_SELLER) {
-            throw new CustomException(HttpStatus.FORBIDDEN, ErrorType.ACCESS_DENIED_EMAIL);
+            throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_EMAIL);
         }
     }
 
@@ -264,7 +264,7 @@ public class UserService {
 
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
     }
 
     public boolean existUserByEmail(String email) {
@@ -350,7 +350,7 @@ public class UserService {
      */
     public User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorType.NOT_EXISTED_EMAIL));
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
     }
 
     /**

@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.enumType.coupon.CouponBenefitType;
 import com.impacus.maketplace.common.enumType.coupon.CouponExpireTimeType;
 import com.impacus.maketplace.common.enumType.coupon.CouponStandardType;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
@@ -38,7 +38,7 @@ import static com.impacus.maketplace.common.utils.CouponUtils.fromCode;
 
 @Repository
 @RequiredArgsConstructor
-public class CouponCustomRepositoryImpl implements CouponCustomRepository{
+public class CouponCustomRepositoryImpl implements CouponCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -46,6 +46,76 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
     private final QUser userEntity = QUser.user;
     private final QCoupon couponEntity = QCoupon.coupon;
     private final QCouponUser couponUserEntity = QCouponUser.couponUser;
+
+    public static CouponUserListDto entityToDto(CouponUser couponUser) {
+        String price;   // ex) 20,000원
+        String name;    // ex) 환경을 위한 감사 쿠폰
+        String desc;    // ex) 13만원 이상의 제품 구매시 사용 가능
+        String expireDate;  //ex) 24.05.24 23:59까지
+        String buttonValue;
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
+
+        Coupon coupon = couponUser.getCoupon();
+        if (coupon.getBenefitType() == CouponBenefitType.AMOUNT) {
+            price = String.format("%,d", coupon.getBenefitValue()) + "원 할인";
+        } else if (coupon.getBenefitType() == CouponBenefitType.PERCENTAGE) {
+            price = coupon.getBenefitValue() + "% 할인";
+        } else {
+            throw new CustomException(CommonErrorType.INVALID_COUPON_FORMAT);
+        }
+
+        name = coupon.getName();
+        if (coupon.getUseStandardType() == CouponStandardType.LIMIT) {
+            desc = CouponStandardType.LIMIT.getValue().replaceAll("N", String.valueOf(coupon.getUseStandardValue()));
+        } else if (coupon.getUseStandardType() == CouponStandardType.UNLIMITED) {
+            desc = CouponStandardType.UNLIMITED.getValue();
+        } else {
+            throw new CustomException(CommonErrorType.INVALID_COUPON_FORMAT);
+        }
+        if (coupon.getExpireTimeType() == CouponExpireTimeType.LIMIT) {
+            expireDate = dtf.format(couponUser.getExpiredAt()) + "까지";
+        } else if (coupon.getExpireTimeType() == CouponExpireTimeType.UNLIMITED) {
+            expireDate = CouponExpireTimeType.UNLIMITED.getValue();
+        } else {
+            throw new CustomException(CommonErrorType.INVALID_COUPON_FORMAT);
+        }
+        /**
+         * 쿠폰에 락이 걸려 있고, availDownloadedAt이 null 이 아니라면, N일 뒤 쿠폰
+         */
+        String availableDownloadDate = null;
+        if (couponUser.getCouponLock() == true && couponUser.getAvailableDownloadAt() != null) {
+            dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            availableDownloadDate = dtf.format(couponUser.getAvailableDownloadAt());
+            buttonValue = "일 뒤 발급 가능";
+        } else if (couponUser.getCouponLock() == true && couponUser.getAvailableDownloadAt() == null) {
+            buttonValue = "ERROR";
+        } else if (couponUser.getIsUsed() == false) {
+            buttonValue = "쿠폰 다운 받기";
+        } else {
+            buttonValue = "쿠폰 다운 받기 완료";
+        }
+
+        return CouponUserListDto.builder()
+                .id(couponUser.getId())
+                .price(price)
+                .name(name)
+                .desc(desc)
+                .expireDate(expireDate)
+                .isDownloaded(couponUser.getIsDownloaded())
+                .availableDownloadAt(availableDownloadDate)
+                .couponLock(couponUser.getCouponLock())
+                .buttonValue(buttonValue)
+                .benefitType(coupon.getBenefitType())
+                .benefitValue(coupon.getBenefitValue())
+                .paymentTargetType(coupon.getPaymentTargetType())
+                .firstCount(coupon.getFirstCount())
+                .expireTimeType(coupon.getExpireTimeType())
+                .useStandardType(coupon.getUseStandardType())
+                .useStandardValue(coupon.getUseStandardValue())
+                .createAt(dtf.format(couponUser.getCreateAt()))
+                .type(coupon.getType())
+                .build();
+    }
 
     @Override
     public CouponUserInfoResponse findByAddCouponInfo(CouponUserInfoRequest request) {
@@ -82,35 +152,35 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
         }
 
         JPAQuery<CouponListDto> query = queryFactory.select(new QCouponListDto(
-                couponEntity.id,
-                couponEntity.code,
-                couponEntity.name,
-                couponEntity.description,
-                couponEntity.benefitType,
-                couponEntity.benefitValue,
-                couponEntity.productTargetType,
-                couponEntity.paymentTargetType,
-                couponEntity.firstCount,
-                couponEntity.issuedTimeType,
-                couponEntity.expireTimeType,
-                couponEntity.expireDays,
-                couponEntity.issueCoverageType,
-                couponEntity.useCoverageType,
-                couponEntity.useStandardType,
-                couponEntity.useStandardValue,
-                couponEntity.issueStandardType,
-                couponEntity.issueStandardValue,
-                couponEntity.periodType,
-                couponEntity.periodStartAt,
-                couponEntity.periodEndAt,
-                couponEntity.numberOfPeriod,
-                couponEntity.autoManualType,
-                couponEntity.loginAlert,
-                couponEntity.smsAlert,
-                couponEntity.emailAlert,
-                couponEntity.statusType,
-                couponEntity.modifyAt
-        ))
+                        couponEntity.id,
+                        couponEntity.code,
+                        couponEntity.name,
+                        couponEntity.description,
+                        couponEntity.benefitType,
+                        couponEntity.benefitValue,
+                        couponEntity.productTargetType,
+                        couponEntity.paymentTargetType,
+                        couponEntity.firstCount,
+                        couponEntity.issuedTimeType,
+                        couponEntity.expireTimeType,
+                        couponEntity.expireDays,
+                        couponEntity.issueCoverageType,
+                        couponEntity.useCoverageType,
+                        couponEntity.useStandardType,
+                        couponEntity.useStandardValue,
+                        couponEntity.issueStandardType,
+                        couponEntity.issueStandardValue,
+                        couponEntity.periodType,
+                        couponEntity.periodStartAt,
+                        couponEntity.periodEndAt,
+                        couponEntity.numberOfPeriod,
+                        couponEntity.autoManualType,
+                        couponEntity.loginAlert,
+                        couponEntity.smsAlert,
+                        couponEntity.emailAlert,
+                        couponEntity.statusType,
+                        couponEntity.modifyAt
+                ))
                 .from(couponEntity)
                 .where(builder).orderBy(couponEntity.name.asc());
 
@@ -163,76 +233,6 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository{
         Long count = getCouponUserCount(couponUserSearchDto);
 
         return new PageImpl<>(result, pageable, count);
-    }
-
-    public static CouponUserListDto entityToDto(CouponUser couponUser) {
-        String price;   // ex) 20,000원
-        String name;    // ex) 환경을 위한 감사 쿠폰
-        String desc;    // ex) 13만원 이상의 제품 구매시 사용 가능
-        String expireDate;  //ex) 24.05.24 23:59까지
-        String buttonValue;
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
-
-        Coupon coupon = couponUser.getCoupon();
-        if (coupon.getBenefitType() == CouponBenefitType.AMOUNT) {
-            price = String.format("%,d", coupon.getBenefitValue()) + "원 할인";
-        } else if (coupon.getBenefitType() == CouponBenefitType.PERCENTAGE) {
-            price = coupon.getBenefitValue() + "% 할인";
-        } else {
-            throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
-        }
-
-        name = coupon.getName();
-        if (coupon.getUseStandardType() == CouponStandardType.LIMIT) {
-            desc = CouponStandardType.LIMIT.getValue().replaceAll("N", String.valueOf(coupon.getUseStandardValue()));
-        } else if (coupon.getUseStandardType() == CouponStandardType.UNLIMITED) {
-            desc = CouponStandardType.UNLIMITED.getValue();
-        } else {
-            throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
-        }
-        if (coupon.getExpireTimeType() == CouponExpireTimeType.LIMIT) {
-            expireDate = dtf.format(couponUser.getExpiredAt())+"까지";
-        } else if (coupon.getExpireTimeType() == CouponExpireTimeType.UNLIMITED){
-            expireDate = CouponExpireTimeType.UNLIMITED.getValue();
-        } else {
-            throw new CustomException(ErrorType.INVALID_COUPON_FORMAT);
-        }
-        /**
-         * 쿠폰에 락이 걸려 있고, availDownloadedAt이 null 이 아니라면, N일 뒤 쿠폰
-         */
-        String availableDownloadDate = null;
-        if (couponUser.getCouponLock() == true && couponUser.getAvailableDownloadAt() != null) {
-            dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            availableDownloadDate = dtf.format(couponUser.getAvailableDownloadAt());
-            buttonValue = "일 뒤 발급 가능";
-        } else if (couponUser.getCouponLock() == true && couponUser.getAvailableDownloadAt() == null) {
-            buttonValue = "ERROR";
-        } else if (couponUser.getIsUsed() == false){
-            buttonValue = "쿠폰 다운 받기";
-        } else {
-            buttonValue = "쿠폰 다운 받기 완료";
-        }
-
-        return CouponUserListDto.builder()
-                .id(couponUser.getId())
-                .price(price)
-                .name(name)
-                .desc(desc)
-                .expireDate(expireDate)
-                .isDownloaded(couponUser.getIsDownloaded())
-                .availableDownloadAt(availableDownloadDate)
-                .couponLock(couponUser.getCouponLock())
-                .buttonValue(buttonValue)
-                .benefitType(coupon.getBenefitType())
-                .benefitValue(coupon.getBenefitValue())
-                .paymentTargetType(coupon.getPaymentTargetType())
-                .firstCount(coupon.getFirstCount())
-                .expireTimeType(coupon.getExpireTimeType())
-                .useStandardType(coupon.getUseStandardType())
-                .useStandardValue(coupon.getUseStandardValue())
-                .createAt(dtf.format(couponUser.getCreateAt()))
-                .type(coupon.getType())
-                .build();
     }
 
     private Long getCouponUserCount(CouponUserSearchDto couponUserSearchDto) {
