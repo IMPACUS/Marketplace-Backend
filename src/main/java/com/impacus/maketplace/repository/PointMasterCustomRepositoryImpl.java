@@ -47,13 +47,13 @@ public class PointMasterCustomRepositoryImpl implements PointMasterCustomReposit
                                         .from(pointHistoryEntity)
                                         .where(pointHistoryEntity.expiredAt.goe(currentDatetime)
                                                 .and(pointHistoryEntity.expiredAt.loe(oneMonthLaterDatetime))
-                                                .and(pointMasterEntity.userId.eq(userId)))
+                                                .and(pointMasterEntity.user.id.eq(userId)))
                                         .groupBy(pointHistoryEntity.pointMasterId)
                                 ,  "scheduledToDisappearPoint")
                 ))
                 .from(pointMasterEntity)
                 .innerJoin(pointHistoryEntity).on(pointHistoryEntity.pointMasterId.eq(pointMasterEntity.id))
-                .where(pointMasterEntity.userId.eq(userId))
+                .where(pointMasterEntity.user.id.eq(userId))
                 .groupBy(pointMasterEntity.id)
                 .fetchOne();
 

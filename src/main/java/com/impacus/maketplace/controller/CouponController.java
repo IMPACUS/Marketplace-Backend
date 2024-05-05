@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -131,25 +132,17 @@ public class CouponController {
                 .build();
     }
 
-
-    /** TODO : Admin Page 추가 쿠폰 발급
-     *  1. 오픈 기념 첫 회원 가입 20% 할인 쿠폰
-     *  2. 선택적 일정 (n월 회원가입 이벤트 20%할인 쿠폰 증젖ㅇ)
-     *  3. (_주 회원가입 이벤트 15% 할인 쿠폱 증정)
-     *  4. 친구 초대 이벤트 (ex 1주일간 친구초대 5명, 친구랑 10% 할인 크푼 증정) 보류 (가능한)
-     */
-
-
     /**
      * 유저의 보유중인 쿠폰 리스트 (검색)
      */
     @PostMapping("/user/list")
-    public ApiResponseEntity<Page<CouponUserListDto>> getCouponUserList(@Valid @RequestBody CouponUserSearchDto couponUserSearchDto,
+    public ApiResponseEntity<Slice<CouponUserListDto>> getCouponUserList(@Valid @RequestBody CouponUserSearchDto couponUserSearchDto,
                                                                         @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable,
                                                                         @AuthenticationPrincipal CustomUserDetails user) {
-        Page<CouponUserListDto> result = couponService.getCouponUserList(couponUserSearchDto, pageable);
+        couponUserSearchDto.setUserId(user.getId());
+        Slice<CouponUserListDto> result = couponService.getCouponUserList(couponUserSearchDto, pageable);
 
-        return ApiResponseEntity.<Page<CouponUserListDto>>builder()
+        return ApiResponseEntity.<Slice<CouponUserListDto>>builder()
                 .data(result)
                 .build();
     }
@@ -174,7 +167,7 @@ public class CouponController {
 
     @PostMapping("/user/download")
     public ApiResponseEntity<CouponUserListDto> couponDownload(Long couponUserId, @AuthenticationPrincipal CustomUserDetails user) {
-        CouponUserListDto data = couponService.couponDownload(couponUserId);
+        CouponUserListDto data = couponService.couponDownload(couponUserId, user.getId());
 
         return ApiResponseEntity.<CouponUserListDto>builder()
                 .result(data != null ? true : false)

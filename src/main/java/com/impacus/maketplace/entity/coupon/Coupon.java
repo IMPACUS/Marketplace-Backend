@@ -38,6 +38,7 @@ public class Coupon extends BaseEntity {
     @Column(name = "benefit_value")
     private int benefitValue;   // 혜택 금액 및 퍼센트
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "product_target")
     private CouponProductTargetType productTargetType;    //  ECO 상품 여부 [ECO할인,그린태그 , 일반 상품, 구분안함]
 

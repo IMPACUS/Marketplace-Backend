@@ -13,13 +13,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CouponUserSearchDto {
 
-    @NotNull
     private Long userId;
-
     @NotNull
     private String searchType;
-    @NotNull
     private String searchValue;
-
     private String sortType;
 }

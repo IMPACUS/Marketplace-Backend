@@ -34,7 +34,7 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
                 ))
                 .from(pointHistoryEntity)
                 .innerJoin(pointMasterEntity).on(pointMasterEntity.id.eq(pointHistoryEntity.pointMasterId))
-                .innerJoin(userEntity).on(userEntity.id.eq(pointMasterEntity.userId));
+                .innerJoin(userEntity).on(userEntity.id.eq(pointMasterEntity.user.id));
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(userEntity.id.eq(pointHistorySearchDto.getUserId()));

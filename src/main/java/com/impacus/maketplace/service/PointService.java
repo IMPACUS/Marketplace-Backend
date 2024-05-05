@@ -103,8 +103,10 @@ public class PointService {
             return true;
         }
 
+        User user = userRepository.findById(userDTO.id()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+
         PointMaster pointMaster = PointMaster.builder()
-                .userId(userDTO.id())
+                .user(user)
                 .availablePoint(CELEBRATION_POINT)
                 .userScore(CELEBRATION_POINT)
                 .isBronze(true)

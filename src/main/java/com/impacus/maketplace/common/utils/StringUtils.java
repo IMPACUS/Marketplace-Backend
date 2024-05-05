@@ -68,5 +68,15 @@ public class StringUtils {
         return decimalFormat.format(Integer.parseInt(number));
 
     }
+    public static boolean isNotBlank(String param) {
+
+        if (param != null) {
+            param = param.trim();
+            if (param.equals("") && param.length() != 0){
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

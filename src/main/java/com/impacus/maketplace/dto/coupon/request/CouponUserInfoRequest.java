@@ -13,7 +13,7 @@ public class CouponUserInfoRequest {
 
     private String provisionTarget;     // 지급 대상 [ 회원 검색 : TARGET_USER, 모든 회원 : TARGET_ALL ]
     private String userId;
-    private String userName;
+    private String userEmail;
 
 
 

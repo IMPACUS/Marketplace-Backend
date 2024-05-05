@@ -13,6 +13,8 @@ public interface CouponUserRepository extends JpaRepository<CouponUser, Long>, C
 
     CouponUser findByCouponAndUser(Coupon coupon, User user);
 
+    CouponUser findByIdAndUserId(Long id, Long userId);
+
     //TODO: 만료된 쿠폰, 사용한 쿠폰, 사용할 수 있는 쿠폰
 
     //TODO: 쿠폰 만료 3일전 알림 기능

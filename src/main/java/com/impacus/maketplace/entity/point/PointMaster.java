@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.point;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
+import com.impacus.maketplace.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -20,8 +21,9 @@ public class PointMaster extends BaseEntity {
     @Column(name = "point_master_id")
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "user_score")
     @ColumnDefault("0")

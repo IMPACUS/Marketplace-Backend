@@ -2,8 +2,13 @@ package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.CouponErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.PointErrorType;
+import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
@@ -11,10 +16,13 @@ import com.impacus.maketplace.dto.coupon.response.CouponListDto;
 import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponUser;
+import com.impacus.maketplace.entity.point.PointMaster;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.repository.PointMasterRepository;
 import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.CouponUserRepository;
+import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,9 +48,9 @@ public class CouponAdminService {
     private final UserRepository userRepository;
     private final CouponUserRepository couponUserRepository;
     private final CouponService couponService;
+    private final PointMasterRepository pointMasterRepository;
 
-
-//    public static final String COUPON_CODE = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
+    private final ObjectCopyHelper objectCopyHelper;
 
 
     /**
@@ -83,7 +92,7 @@ public class CouponAdminService {
         if (req.getCode() != null) {
             Optional<Coupon> findCode = couponRepository.findByCode(req.getCode());
             if (findCode.isPresent()) {
-                throw new CustomException(CommonErrorType.DUPLICATED_COUPON_CODE);
+                throw new CustomException(CouponErrorType.DUPLICATED_COUPON_CODE);
             } else {
                 coupon.setCode(req.getCode());
             }
@@ -98,12 +107,12 @@ public class CouponAdminService {
         coupon.setBenefitType(benefitType);
         // 퍼센트 할인일 때 100%가 넘어가는 경우 throw
         if (benefitType == CouponBenefitType.PERCENTAGE && req.getBenefitValue() > 100) {
-            throw new CustomException(CommonErrorType.INVALID_PERCENT);
+            throw new CustomException(CouponErrorType.INVALID_PERCENT);
         }
         if (req.getBenefitValue() > 0) {
             coupon.setBenefitValue(req.getBenefitValue());
         } else {
-            throw new CustomException(CommonErrorType.INVALID_VALUE);
+            throw new CustomException(CouponErrorType.INVALID_VALUE);
         }
 
         coupon.setProductTargetType(productTargetType);
@@ -113,7 +122,7 @@ public class CouponAdminService {
             if (req.getFirstCount() > 0) {
                 coupon.setFirstCount(req.getFirstCount());
             } else {
-                throw new CustomException(CommonErrorType.INVALID_FIRST_COUNT);
+                throw new CustomException(CouponErrorType.INVALID_FIRST_COUNT);
             }
         } else if (paymentTargetType == CouponPaymentTargetType.ALL) {
             coupon.setFirstCount(null);
@@ -138,7 +147,7 @@ public class CouponAdminService {
             if (req.getUseStandardValue() >= 0) {
                 coupon.setUseStandardValue(req.getUseStandardValue());
             } else {
-                throw new CustomException(CommonErrorType.INVALID_VALUE);
+                throw new CustomException(CouponErrorType.INVALID_VALUE);
             }
         } else {
             coupon.setUseStandardValue(null);
@@ -149,7 +158,7 @@ public class CouponAdminService {
             if (req.getIssueStandardValue() >= 0) {
                 coupon.setIssueStandardValue(req.getIssueStandardValue());
             } else {
-                throw new CustomException(CommonErrorType.INVALID_VALUE);
+                throw new CustomException(CouponErrorType.INVALID_VALUE);
             }
         } else {
             coupon.setIssueStandardValue(null);
@@ -165,7 +174,7 @@ public class CouponAdminService {
                 coupon.setPeriodEndAt(endAt);
                 coupon.setNumberOfPeriod(req.getNumberOfPeriod());
             } else {
-                throw new CustomException(CommonErrorType.INVALID_VALUE);
+                throw new CustomException(CouponErrorType.INVALID_VALUE);
             }
         } else {
             coupon.setPeriodStartAt(null);
@@ -192,7 +201,14 @@ public class CouponAdminService {
         if (!ProvisionTarget.USER.getCode().equals(req.getProvisionTarget())) {
             return null;
         } else {
-            return couponRepository.findByAddCouponInfo(req);
+            CouponUserInfoResponse userInfo = couponRepository.findByAddCouponInfo(req);
+            if (userInfo != null) {
+                userInfo.setUserLevel(UserLevel.fromScore(userInfo.getUserScore()).getLevel());
+            } else {
+                throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
+            }
+
+            return userInfo;
         }
     }
 
@@ -243,7 +259,7 @@ public class CouponAdminService {
     public CouponDetailDto getCouponDetail(CouponSearchDto couponSearchDto) {
         try {
             Coupon data = couponRepository.findById(couponSearchDto.getId())
-                    .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_COUPON_FORMAT));
+                    .orElseThrow(() -> new CustomException(CouponErrorType.INVALID_COUPON_FORMAT));
 
             return CouponDetailDto.entityToDto(data);
         } catch (CustomException e) {
@@ -284,13 +300,17 @@ public class CouponAdminService {
         ;
 
         Coupon coupon = couponRepository.findById(req.getId())
-                .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_COUPON_FORMAT));
+                .orElseThrow(() -> new CustomException(CouponErrorType.INVALID_COUPON_FORMAT));
+
+        if (coupon.getStatusType() == CouponStatusType.ISSUED) {
+            throw new CustomException(CouponErrorType.INVALID_COUPON_UPDATE);
+        }
 
         coupon.setBenefitType(benefitType);
         if (req.getBenefitValue() > 0) {
             coupon.setBenefitValue(req.getBenefitValue());
         } else {
-            throw new CustomException(CommonErrorType.INVALID_VALUE);
+            throw new CustomException(CouponErrorType.INVALID_VALUE);
         }
 
         coupon.setProductTargetType(productTargetType);
@@ -308,7 +328,7 @@ public class CouponAdminService {
         if (req.getExpireDays() > 0) {
             coupon.setExpireDays(req.getExpireDays());
         } else {
-            throw new CustomException(CommonErrorType.INVALID_VALUE);
+            throw new CustomException(CouponErrorType.INVALID_VALUE);
         }
 
         //TODO: Temp Fix
@@ -349,7 +369,7 @@ public class CouponAdminService {
         if (req.getCode() != null) {
             Optional<Coupon> findCode = couponRepository.findByCode(req.getCode());
             if (findCode.isPresent()) {
-                throw new CustomException(CommonErrorType.DUPLICATED_COUPON_CODE);
+                throw new CustomException(CouponErrorType.DUPLICATED_COUPON_CODE);
             } else {
                 coupon.setCode(req.getCode());
             }
@@ -373,11 +393,11 @@ public class CouponAdminService {
         LocalDateTime couponExpireAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
         if (couponUserIssuedDto.getCouponId() != null) {
             coupon = couponRepository.findById(couponUserIssuedDto.getCouponId())
-                    .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_COUPON, CommonErrorType.NOT_EXISTED_COUPON.getMsg()));
+                    .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON, CouponErrorType.NOT_EXISTED_COUPON.getMsg()));
         } else {
             return false;
         }
-
+        //  유저 단일 선택시
         if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.USER.getCode())) {
             User user = userRepository.findById(couponUserIssuedDto.getUserId())
                     .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
@@ -405,8 +425,25 @@ public class CouponAdminService {
                     .build();
 
             couponUserRepository.save(couponUser);
+            // 모든 유저 선택시, 등급 선택도 해야함
         } else if (couponUserIssuedDto.getCouponTarget().equals(ProvisionTarget.ALL.getCode())) {
-            List<User> userList = userRepository.findAll();
+            List<String> selectedUserLevelList;
+
+            if (CollectionUtils.isNotEmpty(couponUserIssuedDto.getUserLevelList())) {
+                selectedUserLevelList = couponUserIssuedDto.getUserLevelList();
+            } else {
+                throw new CustomException(PointErrorType.INVALID_SELECTED_LEVEL_TARGET);
+            }
+
+            List<PointMaster> pointMasterList = pointMasterRepository.findAll();
+
+            Iterator<PointMaster> pointMasterIterator = pointMasterList.iterator();
+            while (pointMasterIterator.hasNext()) {
+                PointMaster nextPointMaster = pointMasterIterator.next();
+                if (!selectedUserLevelList.contains(nextPointMaster.getUserLevel().getValue().toUpperCase())) {
+                    pointMasterIterator.remove();
+                }
+            }
 
             Long couponExpireDay = coupon.getExpireDays() + 1; // 23:59분 을 위해
             if (couponExpireDay < 0) {
@@ -424,25 +461,27 @@ public class CouponAdminService {
             }
             final boolean resultCouponLock = couponLock;
 
-            userList.parallelStream().forEach((user) -> {
+            pointMasterList.parallelStream().forEach((pointMaster) -> {
+
+
                 CouponUser couponUser = CouponUser.builder()
                         .coupon(coupon)
-                        .user(user)
+                        .user(pointMaster.getUser())
                         .expiredAt(resultCouponExpireAt)
                         .couponLock(resultCouponLock)
                         .build();
 
                 couponUserRepository.save(couponUser);
+
             });
         } else {
             return false;
         }
-        //TODO: 알림 서비스 (복수로도 가능하게끔 해야할까?)
-        couponAlarm(couponUserIssuedDto.getAlarmType());
+        couponAlarm(couponUserIssuedDto.getAlarmTypeList());
         return true;
     }
 
-    public void couponAlarm(String[] alarmTypeCode) {
+    public void couponAlarm(List<String> alarmTypeCode) {
         for (String alarmType : alarmTypeCode) {
             CouponProvideAlarmType couponProvideAlarmType = fromCode(CouponProvideAlarmType.class, alarmType);
             switch (couponProvideAlarmType) {
