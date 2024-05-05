@@ -26,8 +26,8 @@ public class SuperCategoryService {
     /**
      * 1차 카테고리 추가하는 함수
      *
-     * @param superCategoryRequest
-     * @return
+     * @param superCategoryRequest The request object containing the details of the super category to be added, including its name.
+     * @return A DTO representing the newly added super category, including its ID and name.
      */
     @Transactional
     public SuperCategoryDTO addSuperCategory(SuperCategoryRequest superCategoryRequest) {
@@ -71,18 +71,28 @@ public class SuperCategoryService {
     /**
      * 1차 카테고리 명 수정 함수
      *
-     * @param categoryId
      * @param categoryNameRequest
      * @return
      */
+    // TODO update query로 변경9
     @Transactional
-    public SuperCategoryDTO updateSuperCategory(Long categoryId, ChangeCategoryNameRequest categoryNameRequest) {
+    public Boolean updateSuperCategory(ChangeCategoryNameRequest categoryNameRequest) {
         try {
-            SuperCategory superCategory = findBySuperCategoryId(categoryId);
+            Long categoryId = categoryNameRequest.getCategoryId();
+            String superCategoryName = categoryNameRequest.getName();
 
-            superCategory.setName(categoryNameRequest.getName());
-            superCategoryRepository.save(superCategory);
-            return objectCopyHelper.copyObject(superCategory, SuperCategoryDTO.class);
+            // 1. 중복된 1차 카테고리 명 확인
+            if (existsBySuperCategoryName(superCategoryName)) {
+                throw new CustomException(CommonErrorType.DUPLICATED_SUPER_CATEGORY);
+            }
+
+            // 2. 업데이트
+            int rowCnt = superCategoryRepository.updateCategoryNameById(categoryId, superCategoryName);
+            if (rowCnt == 0) {
+                throw new CustomException(CommonErrorType.NOT_EXISTED_SUPER_CATEGORY);
+            }
+
+            return true;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

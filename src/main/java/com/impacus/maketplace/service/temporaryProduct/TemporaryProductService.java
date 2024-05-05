@@ -208,7 +208,7 @@ public class TemporaryProductService {
             Long temporaryProductId = temporaryProduct.getId();
 
             // 3. 대표 이미지 저장 및 AttachFileGroup과 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
+            attachFileService.deleteAttachFileByReferencedId(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
             productImageList.stream()
                     .forEach(productImage -> {
                         try {
@@ -228,7 +228,7 @@ public class TemporaryProductService {
             description.setDescription(productRequest.getDescription());
 
             // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFile(description.getId(), ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
+            attachFileService.deleteAttachFileByReferencedId(description.getId(), ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
             productDescriptionImageList.stream()
                     .map(productDescriptionImage -> {
                         try {
@@ -289,13 +289,13 @@ public class TemporaryProductService {
 
         // 3. TemporaryProductDescription 이미지 삭제
         TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
-        attachFileService.deleteAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+        attachFileService.deleteAttachFileByReferencedId(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
 
         // 4. TemporaryProductDescription 삭제
         temporaryProductDescriptionService.deleteTemporaryProductDescription(description);
 
         // 5. TemporaryProduct의 대표 이미지 삭제
-        attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.PRODUCT);
+        attachFileService.deleteAttachFileByReferencedId(temporaryProductId, ReferencedEntityType.PRODUCT);
 
         // 6. 삭제
         temporaryProductRepository.deleteById(temporaryProductId);

@@ -191,13 +191,13 @@ public class ProductService {
 
             // 3. ProductDescription 이미지 삭제
             ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(productId);
-            attachFileService.deleteAttachFile(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+            attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
 
             // 4. ProductDescription 삭제
             productDescriptionService.deleteProductDescription(productDescription);
 
             // 5. Product 대표 이미지 삭제
-            attachFileService.deleteAttachFile(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
+            attachFileService.deleteAttachFileByReferencedId(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
 
             // 2. 삭제
             productRepository.deleteById(productId);
@@ -229,7 +229,7 @@ public class ProductService {
             productRepository.save(product);
 
             // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFile(product.getId(), ReferencedEntityType.PRODUCT);
+            attachFileService.deleteAttachFileByReferencedId(product.getId(), ReferencedEntityType.PRODUCT);
             productImageList.stream()
                     .map(productImage -> {
                         try {
@@ -244,7 +244,7 @@ public class ProductService {
             productDescription.setDescription(productRequest.getDescription());
 
             // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFile(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+            attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
             productDescriptionImageList.stream()
                     .map(productDescriptionImage -> {
                         try {

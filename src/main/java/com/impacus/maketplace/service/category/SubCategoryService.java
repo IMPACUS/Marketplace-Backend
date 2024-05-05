@@ -91,14 +91,14 @@ public class SubCategoryService {
 
     /**
      * 2차 카테고리 명 수정 함수
-     *
-     * @param categoryId
+     * @param thumbnail
      * @param categoryNameRequest
      * @return
      */
     @Transactional
-    public SubCategoryDTO updateSubCategory(Long categoryId, MultipartFile thumbnail, ChangeCategoryNameRequest categoryNameRequest) {
+    public SubCategoryDTO updateSubCategory(MultipartFile thumbnail, ChangeCategoryNameRequest categoryNameRequest) {
         try {
+            Long categoryId = categoryNameRequest.getCategoryId();
             String subCategoryName = categoryNameRequest.getName();
 
             // 1. 중복된 2차 카테고리 명 확인
@@ -106,19 +106,18 @@ public class SubCategoryService {
                 throw new CustomException(CommonErrorType.DUPLICATED_SUB_CATEGORY);
             }
 
-            // 2. 썸네일 용량 확인 & 저장
-            AttachFile attachFile = null;
+            // 2. category 찾기
+            SubCategory subCategory = findBySubCategoryId(categoryId);
+
+            // 3. 썸네일 용량 확인 & 저장
             if (thumbnail.getSize() > THUMBNAIL_SIZE_LIMIT) {
                 throw new CustomException(CommonErrorType.INVALID_THUMBNAIL, "2차 카테고리 이미지 크기가 제한 사이즈보다 큽니다.");
             } else {
-                attachFile = attachFileService.uploadFileAndAddAttachFile(thumbnail, THUMBNAIL_IMAGE_DIRECTORY);
+                attachFileService.updateAttachFile(subCategory.getThumbnailId(), thumbnail, THUMBNAIL_IMAGE_DIRECTORY);
             }
 
-            SubCategory subCategory = findBySubCategoryId(categoryId);
-
-            subCategory.setName(categoryNameRequest.getName());
-            subCategory.setThumbnailId(attachFile.getId());
-            subCategoryRepository.save(subCategory);
+            // 4. 내용 업데이트
+            subCategoryRepository.updateCategoryName(categoryId, subCategoryName);
             return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
