@@ -1,13 +1,11 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.impacus.maketplace.common.enumType.coupon.CouponIssuedTimeType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.coupon.request.CouponRegisterDTO;
-import com.impacus.maketplace.dto.coupon.request.CouponUserSearchDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponUserListDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponUser;
