@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.coupon.CouponExpireTimeType;
 import com.impacus.maketplace.common.enumType.coupon.CouponStandardType;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.request.CouponSearchDTO;
 import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequestDTO;
@@ -18,6 +19,7 @@ import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.entity.user.User;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.micrometer.common.util.StringUtils;
@@ -27,7 +29,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,46 +51,37 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
 
 
     @Override
-    public CouponUserInfoResponseDTO findByAddCouponInfo(CouponUserInfoRequestDTO request) {
+    public CouponUserInfoResponseDTO findByAddCouponInfo(String provideTarget, String userEmail) {
+        CouponUserInfoResponseDTO result = queryFactory.select(new QCouponUserInfoResponseDTO(
+                        userEntity.id,
+                        userEntity.name,
+                        Expressions.enumPath(UserStatus.class, userEntity.status.toString()),
+                        pointMasterEntity.availablePoint,
+                        pointMasterEntity.userScore,
+                        Expressions.constant("010-0000-0000"),  //TODO: 휴대폰 번호 추가해야함
+                        Expressions.stringTemplate("TO_CHAR({0}, 'YYYY-MM-DD HH24:MI:SS')", userEntity.createAt),
+                        Expressions.constant("profile-path"),   //TODO: 프로필 경로 추가 예정
+                        userEntity.email
+                )).from(pointMasterEntity)
+                .innerJoin(userEntity).on(userEntity.id.eq(pointMasterEntity.user.id))
+                .where(userEntity.email.eq(userEmail))
+                .fetchOne();
 
-//        CouponUserInfoResponseDTO result = queryFactory.select(new QCouponUserInfoResponse(
-//                        userEntity.id,
-//                        userEntity.name,
-//                        Expressions.enumPath(UserStatus.class, userEntity.status.toString()),
-//                        pointMasterEntity.availablePoint,
-//                        pointMasterEntity.userScore,
-//                        Expressions.constant("010-000-0000"), //TODO: 휴대폰 번호 추가해야함
-//                        Expressions.stringTemplate("TO_CHAR({0}, 'YYYY-MM-DD HH24:MI:SS')", userEntity.createAt),
-//                        Expressions.constant("profile-path"),   //TODO: 프로필 경로 추가 예정
-//                        userEntity.email
-//                ))
-//                .from(pointMasterEntity)
-//                .innerJoin(userEntity).on(userEntity.id.eq(pointMasterEntity.user.id))
-//                .where(userEntity.email.eq(request.getUserEmail()))
-//                .fetchOne();
-//
-//        return result;
-        return null;
+        return result;
     }
 
     @Override
-    public Page<CouponListDTO> findAllCouponList(CouponSearchDTO couponSearchDto, Pageable pageable) {
-        BooleanBuilder builder = new BooleanBuilder();
+    public Page<CouponListDTO> findAllCouponList(String searchValue, String searchOrder, Pageable pageable) {
+        BooleanBuilder conditionBuilder = new BooleanBuilder();
 
-        if (couponSearchDto.getSearchCouponName() != null) {
-            builder.and(couponEntity.name.like("%" + couponSearchDto.getSearchCouponName() + "%"));
+        if (StringUtils.isNotBlank(searchValue)) {
+            conditionBuilder.and(couponEntity.name.like("%" + searchValue + "%"));
         }
-        if (StringUtils.isNotBlank(couponSearchDto.getOrderStatus())) {
-            builder.and(couponEntity.statusType.eq(fromCode(CouponStatusType.class, couponSearchDto.getOrderStatus().toUpperCase())));
-        } else {
-            builder.and(couponEntity.statusType.ne(CouponStatusType.STOP));
-        }
-        // 이미 유저에게 발급된 쿠폰은 수정 불가 하므로, 발급된 쿠폰은 제외
-        if (couponSearchDto.getSearchAvailableUpdate()) {
-            builder.and(couponEntity.statusType.ne(CouponStatusType.ISSUED));
+        if (StringUtils.isNotBlank(searchOrder)) {
+            conditionBuilder.and(couponEntity.statusType.eq(fromCode(CouponStatusType.class, searchOrder)));
         }
 
-        JPAQuery<CouponListDTO> query = queryFactory.select(new QCouponListDto(
+        JPAQuery<CouponListDTO> query = queryFactory.select(new QCouponListDTO(
                         couponEntity.id,
                         couponEntity.code,
                         couponEntity.name,
@@ -117,62 +112,98 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
                         couponEntity.modifyAt
                 ))
                 .from(couponEntity)
-                .where(builder).orderBy(couponEntity.name.asc());
+                .where(conditionBuilder).orderBy(couponEntity.name.asc());
 
-        if (couponSearchDto.getSearchCount() > 0) { // 쿠폰 등록 페이지에서는 LIMIT를 주지 않음
+        if (pageable.getPageSize() > 0) { // 쿠폰 등록 페이지에서는 LIMIT를 주지 않음
             query = query
-                    .offset(couponSearchDto.getPageIndex() * couponSearchDto.getSearchCount())
-                    .limit(couponSearchDto.getSearchCount());
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize());
         }
 
         List<CouponListDTO> result = query.fetch();
 
-        int count = result.size();
+        Long count = getCouponListDTOCount(searchValue, searchOrder);
 
         return new PageImpl<>(result, pageable, count);
     }
 
-    @Override
-    public Page<CouponUserListDTO> findAllCouponUserData(CouponUserSearchDTO couponUserSearchDto, Pageable pageable) {
-        BooleanBuilder builder = new BooleanBuilder();
+    private Long getCouponListDTOCount(String searchValue, String searchOrder) {
+        BooleanBuilder conditionBuilder = new BooleanBuilder();
 
-        User user = User.builder().id(couponUserSearchDto.getUserId()).build();
-        if (couponUserSearchDto.getSearchType().equals("ALL")) {
-            builder.and(couponUserEntity.isUsed.eq(false)).and(couponUserEntity.expiredAt.after(LocalDateTime.now()))
-                    .and(couponUserEntity.couponLock.eq(false))
-                    .and(couponUserEntity.user.eq(user))
-                    .or(couponUserEntity.availableDownloadAt.isNotNull());
-        } else {
-
+        if (StringUtils.isNotBlank(searchValue)) {
+            conditionBuilder.and(couponEntity.name.like("%" + searchValue + "%"));
         }
-        String searchValue = couponUserSearchDto.getSearchValue();
-        if (com.impacus.maketplace.common.utils.StringUtils.isNotBlank(searchValue)) {
-            builder.and(couponEntity.name.like("%" + couponUserSearchDto.getSearchValue() + "%"));
+        if (StringUtils.isNotBlank(searchOrder)) {
+            conditionBuilder.and(couponEntity.statusType.eq(fromCode(CouponStatusType.class, searchOrder)));
+        }
+        return queryFactory.select(couponEntity.count())
+                .where(conditionBuilder)
+                .fetchOne();
+    }
+
+    @Override
+    public Page<CouponUserListDTO> findAllCouponUserData(String searchValue, String searchOrder, Long userId, Pageable pageable) {
+        BooleanBuilder conditionBuilder = new BooleanBuilder();
+
+        User user = User.builder().id(userId).build();
+
+        conditionBuilder.and(couponUserEntity.isUsed.eq(false)).and(couponUserEntity.expiredAt.after(LocalDateTime.now()))
+                .and(couponUserEntity.couponLock.eq(false))
+                .and(couponUserEntity.user.eq(user))
+                .or(couponUserEntity.availableDownloadAt.isNotNull());
+
+        if (StringUtils.isNotBlank(searchValue)) {
+            conditionBuilder.and(couponEntity.name.like("%" + searchValue + "%"));
         }
 
         JPAQuery<CouponUser> query = queryFactory.selectFrom(couponUserEntity)
                 .innerJoin(couponEntity)
                 .on(couponEntity.id.eq(couponUserEntity.coupon.id))
-                .where(builder);
+                .where(conditionBuilder);
 
-        if (couponUserSearchDto.getSortType().equals("RECENT")) {
+        if (StringUtils.isNotBlank(searchOrder)) {
+            if (searchOrder.equals("RECENT")) {
+                query = query.orderBy(couponUserEntity.createAt.desc());
+            } else if (searchOrder.equals("PRICE")) {
+                query = query.orderBy(couponEntity.benefitType.desc(), couponEntity.benefitValue.desc(), couponUserEntity.createAt.desc());
+            }
+        } else {
             query = query.orderBy(couponUserEntity.createAt.desc());
-        } else if (couponUserSearchDto.getSortType().equals("PRICE")) {
-            query = query.orderBy(couponEntity.benefitType.desc(), couponEntity.benefitValue.desc(), couponUserEntity.createAt.desc());
         }
-
 
         List<CouponUser> data = query.limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
 
-        List<CouponUserListDTO> result = data.stream().map(entity -> entityToDto(entity)).collect(Collectors.toList());
-        Long count = getCouponUserCount(couponUserSearchDto);
+        List<CouponUserListDTO> result = data.stream().map(entity -> toDto(entity)).collect(Collectors.toList());
+        Long count = getCouponUserDataCount(searchValue, userId);
 
         return new PageImpl<>(result, pageable, count);
     }
+    private Long getCouponUserDataCount(String searchValue, Long userId) {
+        BooleanBuilder conditionBuilder = new BooleanBuilder();
 
-    public static CouponUserListDTO entityToDto(CouponUser couponUser) {
+        User user = User.builder().id(userId).build();
+
+        conditionBuilder.and(couponUserEntity.isUsed.eq(false)).and(couponUserEntity.expiredAt.after(LocalDateTime.now()))
+                .and(couponUserEntity.couponLock.eq(false))
+                .and(couponUserEntity.user.eq(user))
+                .or(couponUserEntity.availableDownloadAt.isNotNull());
+
+        if (StringUtils.isNotBlank(searchValue)) {
+            conditionBuilder.and(couponEntity.name.like("%" + searchValue + "%"));
+        }
+
+        return queryFactory.select(couponUserEntity.count())
+                .from(couponUserEntity)
+                .innerJoin(couponEntity)
+                .on(couponEntity.id.eq(couponUserEntity.coupon.id))
+                .where(conditionBuilder)
+                .fetchOne();
+
+    }
+
+    public static CouponUserListDTO toDto(CouponUser couponUser) {
         String price;   // ex) 20,000원
         String name;    // ex) 환경을 위한 감사 쿠폰
         String desc;    // ex) 13만원 이상의 제품 구매시 사용 가능
@@ -242,28 +273,5 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
                 .build();
     }
 
-    private Long getCouponUserCount(CouponUserSearchDTO couponUserSearchDto) {
-        BooleanBuilder builder = new BooleanBuilder();
-        User user = User.builder().id(couponUserSearchDto.getUserId()).build();
 
-        if (couponUserSearchDto.getSearchType().equals("ALL")) {
-            builder.and(couponUserEntity.isUsed.eq(false)).and(couponUserEntity.expiredAt.after(LocalDateTime.now()))
-                    .and(couponUserEntity.couponLock.eq(false))
-                    .and(couponUserEntity.user.eq(user))
-                    .or(couponUserEntity.availableDownloadAt.isNotNull());
-        } else {
-
-        }
-        String searchValue = couponUserSearchDto.getSearchValue();
-        if (com.impacus.maketplace.common.utils.StringUtils.isNotBlank(searchValue)) {
-            builder.and(couponEntity.name.like("%" + couponUserSearchDto.getSearchValue() + "%"));
-        }
-        return queryFactory.select(couponUserEntity.count())
-                .from(couponUserEntity)
-                .innerJoin(couponEntity)
-                .on(couponEntity.id.eq(couponUserEntity.coupon.id))
-                .where(builder)
-                .fetchOne();
-
-    }
 }

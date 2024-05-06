@@ -11,10 +11,10 @@ import org.springframework.data.domain.Pageable;
 
 public interface CouponCustomRepository {
 
-    CouponUserInfoResponseDTO findByAddCouponInfo(CouponUserInfoRequestDTO request);
+    CouponUserInfoResponseDTO findByAddCouponInfo(String provideTarget, String userEmail);
 
-    Page<CouponListDTO> findAllCouponList(CouponSearchDTO couponSearchDto, Pageable pageable);
+    Page<CouponListDTO> findAllCouponList(String searchValue, String searchOrder, Pageable pageable);
 
 
-    Page<CouponUserListDTO> findAllCouponUserData(CouponUserSearchDTO couponUserSearchDto, Pageable pageable);
+    Page<CouponUserListDTO> findAllCouponUserData(String searchValue, String searchOrder, Long userId, Pageable pageable);
 }

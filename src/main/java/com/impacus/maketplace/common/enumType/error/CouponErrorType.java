@@ -17,7 +17,10 @@ public enum CouponErrorType implements ErrorType{
     INVALID_COUPON_REQUEST("46_INVALID_COUPON_REQUEST", "유효하지 않는 쿠폰 요청입니다."),
     INVALID_FIRST_COUNT("047_INVALID_FIRST_COUNT", "유효하지 않는 선착순 수 입니다."),
     INVALID_VALUE("048_INVALID_VALUE", "유효하지 않는 수 입니다."),
-    DUPLICATED_COUPON_CODE("048_DUPLICATED_COUPON_CODE", "중복되는 쿠폰 코드입니다.");
+    DUPLICATED_COUPON_CODE("048_DUPLICATED_COUPON_CODE", "중복되는 쿠폰 코드입니다."),
+    INVALID_COUPON_LIST("INVALID_COUPON_LIST","유효하지 않은 쿠폰 리스트 입니다."),
+    INVALID_UPDATE_COUPON_LIST("INVALID_UPDATE_COUPON_LIST", "수정 불가능한 쿠폰이 선택 되었습니다.");
+
 
 
     private final String code;

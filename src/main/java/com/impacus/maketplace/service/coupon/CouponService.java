@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.coupon;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.impacus.maketplace.common.enumType.coupon.CouponIssuedTimeType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import security.CustomUserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,15 +38,18 @@ public class CouponService {
     private final CouponUserRepository couponUserRepository;
     private final ObjectCopyHelper objectCopyHelper;
 
-    public Page<CouponUserListDTO> getCouponUserList(CouponUserSearchDTO couponUserSearchDto, Pageable pageable) {
-        return couponUserRepository.findAllCouponUserData(couponUserSearchDto, pageable);
+    public Page<CouponUserListDTO> getCouponUserList(String searchValue, String searchOrder, Long userId, Pageable pageable) {
+        return couponUserRepository.findAllCouponUserData(searchValue, searchOrder, userId, pageable);
     }
 
     @Transactional
-    public boolean couponRegister(CouponRegisterDTO couponRegisterDto) {
+    public CouponUser couponRegister(CouponRegisterDTO couponRegisterDto) {
+        if (couponRegisterDto.getCouponCode().trim().length() == 10) {
+            throw new CustomException(CouponErrorType.INVALID_COUPON_FORMAT);
+        }
         Optional<Coupon> byCode = couponRepository.findByCode(couponRegisterDto.getCouponCode());
         if (!byCode.isPresent()) {
-            throw new CustomException(CouponErrorType.INVALID_COUPON_FORMAT);
+            throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
         } else {
             Coupon coupon = byCode.get();
             User user = userRepository.findById(couponRegisterDto.getUserId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
@@ -78,8 +83,7 @@ public class CouponService {
                     .couponLock(couponLock)
                     .build();
 
-            couponUserRepository.save(newCouponUser);
-            return true;
+            return couponUserRepository.save(newCouponUser);
         }
     }
 
@@ -102,6 +106,6 @@ public class CouponService {
         couponUser.setIsDownloaded(true);
         couponUserRepository.save(couponUser);
 
-        return CouponCustomRepositoryImpl.entityToDto(couponUser);
+        return CouponCustomRepositoryImpl.toDto(couponUser);
     }
 }

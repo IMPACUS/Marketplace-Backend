@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository;
 
 import com.impacus.maketplace.dto.point.response.CurrentPointInfoDTO;
-import com.impacus.maketplace.dto.point.response.QCurrentPointInfoDto;
+import com.impacus.maketplace.dto.point.response.QCurrentPointInfoDTO;
 import com.impacus.maketplace.entity.point.QPointHistory;
 import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
@@ -20,12 +20,6 @@ public class PointMasterCustomRepositoryImpl implements PointMasterCustomReposit
     private final JPAQueryFactory queryFactory;
     private final QPointMaster pointMasterEntity = QPointMaster.pointMaster;
     private final QPointHistory pointHistoryEntity = QPointHistory.pointHistory;
-    private final QUser userEntity = QUser.user;
-
-//    @Override
-//    public PointMasterDTO findByUserIdForMyInfo(Long userId) {
-//        return null;
-//    }
 
     @Override
     public CurrentPointInfoDTO findByUserIdForMyCurrentPointStatus(Long userId) {
@@ -33,7 +27,7 @@ public class PointMasterCustomRepositoryImpl implements PointMasterCustomReposit
         LocalDateTime currentDatetime = LocalDateTime.now();
         LocalDateTime oneMonthLaterDatetime = currentDatetime.plusMonths(1);
 
-        CurrentPointInfoDTO result = queryFactory.select(new QCurrentPointInfoDto(
+        CurrentPointInfoDTO result = queryFactory.select(new QCurrentPointInfoDTO(
                         pointMasterEntity.availablePoint,
                         ExpressionUtils.as(
                                 JPAExpressions.select(pointHistoryEntity.changePoint.sum())
