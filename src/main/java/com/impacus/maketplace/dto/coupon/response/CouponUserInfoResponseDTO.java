@@ -7,11 +7,12 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class CouponUserInfoResponse {
+public class CouponUserInfoResponseDTO {
 
+    private Long userId;
     private String userName;
     private UserStatus status;
-    private String userLevel;
+    private int userLevel;
     private Integer availablePoint;
     private Integer userScore;
     private String phoneNumber;
@@ -20,7 +21,8 @@ public class CouponUserInfoResponse {
     private String userEmail;
 
     @QueryProjection
-    public CouponUserInfoResponse(String userName, UserStatus status, Integer availablePoint, Integer userScore, String phoneNumber, String registerAt, String profilePath, String userEmail) {
+    public CouponUserInfoResponseDTO(Long userId, String userName, UserStatus status, Integer availablePoint, Integer userScore, String phoneNumber, String registerAt, String profilePath, String userEmail) {
+        this.userId = userId;
         this.userName = userName;
         this.status = status;
         this.availablePoint = availablePoint;

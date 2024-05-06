@@ -1,20 +1,17 @@
 package com.impacus.maketplace.repository.coupon;
 
-import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
-import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
-import com.impacus.maketplace.dto.coupon.request.CouponUserSearchDto;
-import com.impacus.maketplace.dto.coupon.response.CouponListDto;
-import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
-import com.impacus.maketplace.dto.coupon.response.CouponUserListDto;
+import com.impacus.maketplace.dto.coupon.response.CouponListDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponseDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponUserListDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CouponCustomRepository {
 
-    CouponUserInfoResponse findByAddCouponInfo(CouponUserInfoRequest request);
+    CouponUserInfoResponseDTO findByAddCouponInfo(String provideTarget, String userEmail);
 
-    Page<CouponListDto> findAllCouponList(CouponSearchDto couponSearchDto, Pageable pageable);
+    Page<CouponListDTO> findAllCouponList(String searchValue, String searchOrder, Pageable pageable);
 
 
-    Page<CouponUserListDto> findAllCouponUserData(CouponUserSearchDto couponUserSearchDto, Pageable pageable);
+    Page<CouponUserListDTO> findAllCouponUserData(String searchValue, String searchOrder, Long userId, Pageable pageable);
 }

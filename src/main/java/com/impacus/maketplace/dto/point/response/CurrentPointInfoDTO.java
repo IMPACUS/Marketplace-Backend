@@ -4,10 +4,10 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 
 @Builder
-public record CurrentPointInfoDto(Integer holdingPoint, Integer scheduledToDisappearPoint) {
+public record CurrentPointInfoDTO(Integer holdingPoint, Integer scheduledToDisappearPoint) {
 
     @QueryProjection
-    public CurrentPointInfoDto(Integer holdingPoint, Integer scheduledToDisappearPoint) {
+    public CurrentPointInfoDTO(Integer holdingPoint, Integer scheduledToDisappearPoint) {
         this.holdingPoint = holdingPoint;
         this.scheduledToDisappearPoint = scheduledToDisappearPoint;
     }

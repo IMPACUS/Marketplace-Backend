@@ -6,11 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CouponUpdateDto {
+public class CouponUpdateDTO {
 
     @NotNull
     private Long id;
@@ -83,6 +85,13 @@ public class CouponUpdateDto {
     @Builder.Default
     @NotNull
     private String emailAlert = "N";   // 쿠폰 발급 Email 발송
+
+    private Boolean updateStatus;   //  쿠폰의 상태 변경
+
+    private List<Long> couponList;  // 쿠폰의 상태를 변경하고자 하는 ID 리스트
+
+    private String updateStatusValue;   //  수정하고자 하는 쿠폰의 상태 값
+
 
 }
 

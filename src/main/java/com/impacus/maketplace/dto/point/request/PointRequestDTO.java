@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PointRequestDto {
+public class PointRequestDTO {
     private Long userId;
 
     private int savePoint;

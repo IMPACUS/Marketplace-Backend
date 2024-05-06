@@ -9,12 +9,12 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
-import com.impacus.maketplace.dto.point.request.PointManageDto;
-import com.impacus.maketplace.dto.point.request.PointRequestDto;
-import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
-import com.impacus.maketplace.dto.point.response.PointHistoryDto;
+import com.impacus.maketplace.dto.point.request.PointManageDTO;
+import com.impacus.maketplace.dto.point.request.PointRequestDTO;
+import com.impacus.maketplace.dto.point.response.CurrentPointInfoDTO;
+import com.impacus.maketplace.dto.point.response.PointHistoryDTO;
 import com.impacus.maketplace.dto.point.response.PointInfoDto;
-import com.impacus.maketplace.dto.point.response.PointMasterDto;
+import com.impacus.maketplace.dto.point.response.PointMasterDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.point.PointHistory;
 import com.impacus.maketplace.entity.point.PointMaster;
@@ -103,8 +103,10 @@ public class PointService {
             return true;
         }
 
+        User user = userRepository.findById(userDTO.id()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+
         PointMaster pointMaster = PointMaster.builder()
-                .userId(userDTO.id())
+                .user(user)
                 .availablePoint(CELEBRATION_POINT)
                 .userScore(CELEBRATION_POINT)
                 .isBronze(true)
@@ -125,7 +127,7 @@ public class PointService {
     }
 
     @Transactional
-    public PointMasterDto changePoint(PointRequestDto pointRequestDto) {
+    public PointMasterDTO changePoint(PointRequestDTO pointRequestDto) {
         PointMaster pointMaster = pointMasterRepository.findByUserId(pointRequestDto.getUserId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
         LocalDateTime settingExpiredAt = null;
         if (pointRequestDto.getPointTypeEnum() != PointType.USE &&
@@ -160,11 +162,11 @@ public class PointService {
 
         changeUpLevel(pointMaster, userScore, currentUserLevel);
 
-        PointMasterDto pointMasterDto = new PointMasterDto(pointMaster);
+        PointMasterDTO pointMasterDto = new PointMasterDTO(pointMaster);
         return pointMasterDto;
     }
 
-    public List<PointHistoryDto> findPointHistory(PointHistorySearchDto pointHistorySearchDto) {
+    public List<PointHistoryDTO> findPointHistory(PointHistorySearchDto pointHistorySearchDto) {
         return pointHistoryRepository.findAllPointHistory(pointHistorySearchDto);
     }
 
@@ -174,9 +176,9 @@ public class PointService {
         return pointInfoDto;
     }
 
-    public CurrentPointInfoDto findCurrentMyPointStatus(CustomUserDetails user) {
+    public CurrentPointInfoDTO findCurrentMyPointStatus(CustomUserDetails user) {
 
-        CurrentPointInfoDto data = pointMasterRepository.findByUserIdForMyCurrentPointStatus(user.getId());
+        CurrentPointInfoDTO data = pointMasterRepository.findByUserIdForMyCurrentPointStatus(user.getId());
         if (data == null) {
             throw new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER);
         }
@@ -384,7 +386,7 @@ public class PointService {
      * 2. 포인트 이력 저장
      */
     @Transactional
-    public boolean pointManage(PointManageDto pointManageDto) {
+    public boolean pointManage(PointManageDTO pointManageDto) {
         try {
             PointMaster pointMaster = pointMasterRepository.findByUserId(pointManageDto.getUserId())
                     .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));

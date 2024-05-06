@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PointManageDto {
+public class PointManageDTO {
 
     @NotNull
     private Long userId; // 지급, 수취하고자 하는 유저의 아이디

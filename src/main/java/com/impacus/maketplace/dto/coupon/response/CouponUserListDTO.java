@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CouponUserListDto {
+public class CouponUserListDTO {
 
     // 화면에 보여줄 문구
     private Long id;
@@ -37,7 +37,7 @@ public class CouponUserListDto {
 //    private CouponCoverage couponIssuanceCoverage;  // 발급 적용 범위 [ 모든상품/브랜드, 특정 브랜드]
 //    private CouponCoverage couponUseCoverage;   // 쿠폰 사용 범위 [ 모든상품/브랜드, 특정 브랜드]
     private CouponStandardType useStandardType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-    private int useStandardValue = 0; // N원 (N원 이상 주문시 사용 가능)
+    private Integer useStandardValue = 0; // N원 (N원 이상 주문시 사용 가능)
 
 
 

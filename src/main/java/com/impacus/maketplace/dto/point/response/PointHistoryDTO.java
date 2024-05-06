@@ -8,14 +8,14 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record PointHistoryDto(PointType pointType, Integer changePoint, Boolean isManual, LocalDateTime createAt, LocalDateTime expiredAt) {
+public record PointHistoryDTO(PointType pointType, Integer changePoint, Boolean isManual, LocalDateTime createAt, LocalDateTime expiredAt) {
 
-    public PointHistoryDto(PointHistory pointHistory) {
+    public PointHistoryDTO(PointHistory pointHistory) {
         this(pointHistory.getPointType(), pointHistory.getChangePoint(), pointHistory.getIsManual(), pointHistory.getCreateAt(), pointHistory.getExpiredAt());
     }
 
     @QueryProjection
-    public PointHistoryDto(PointType pointType, Integer changePoint, Boolean isManual, LocalDateTime createAt, LocalDateTime expiredAt) {
+    public PointHistoryDTO(PointType pointType, Integer changePoint, Boolean isManual, LocalDateTime createAt, LocalDateTime expiredAt) {
         this.pointType = pointType;
         this.changePoint = changePoint;
         this.isManual = isManual;

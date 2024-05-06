@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CouponDetailDto {
+public class CouponDetailDTO {
     private String code;
     private String name;
     private String description;
@@ -40,8 +40,8 @@ public class CouponDetailDto {
     private String statusType;
 
     //TODO: copyHelper 로 대체 가능할지 테스트 해보기
-    public static CouponDetailDto entityToDto(Coupon entity) {
-        return CouponDetailDto.builder()
+    public static CouponDetailDTO toDto(Coupon entity) {
+        return CouponDetailDTO.builder()
                 .code(entity.getCode())
                 .name(entity.getName())
                 .description(entity.getDescription())
