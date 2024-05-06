@@ -5,12 +5,10 @@ import com.impacus.maketplace.common.enumType.coupon.CouponExpireTimeType;
 import com.impacus.maketplace.common.enumType.coupon.CouponStandardType;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
-import com.impacus.maketplace.common.enumType.error.CouponErrorType;
-import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.coupon.request.CouponSearchDto;
-import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequest;
-import com.impacus.maketplace.dto.coupon.request.CouponUserSearchDto;
+import com.impacus.maketplace.dto.coupon.request.CouponSearchDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponUserInfoRequestDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponUserSearchDTO;
 import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponUser;
@@ -20,7 +18,6 @@ import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.entity.user.User;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.micrometer.common.util.StringUtils;
@@ -50,9 +47,9 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
 
 
     @Override
-    public CouponUserInfoResponse findByAddCouponInfo(CouponUserInfoRequest request) {
+    public CouponUserInfoResponseDTO findByAddCouponInfo(CouponUserInfoRequestDTO request) {
 
-//        CouponUserInfoResponse result = queryFactory.select(new QCouponUserInfoResponse(
+//        CouponUserInfoResponseDTO result = queryFactory.select(new QCouponUserInfoResponse(
 //                        userEntity.id,
 //                        userEntity.name,
 //                        Expressions.enumPath(UserStatus.class, userEntity.status.toString()),
@@ -73,7 +70,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
     }
 
     @Override
-    public Page<CouponListDto> findAllCouponList(CouponSearchDto couponSearchDto, Pageable pageable) {
+    public Page<CouponListDTO> findAllCouponList(CouponSearchDTO couponSearchDto, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (couponSearchDto.getSearchCouponName() != null) {
@@ -89,7 +86,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
             builder.and(couponEntity.statusType.ne(CouponStatusType.ISSUED));
         }
 
-        JPAQuery<CouponListDto> query = queryFactory.select(new QCouponListDto(
+        JPAQuery<CouponListDTO> query = queryFactory.select(new QCouponListDto(
                         couponEntity.id,
                         couponEntity.code,
                         couponEntity.name,
@@ -128,7 +125,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
                     .limit(couponSearchDto.getSearchCount());
         }
 
-        List<CouponListDto> result = query.fetch();
+        List<CouponListDTO> result = query.fetch();
 
         int count = result.size();
 
@@ -136,7 +133,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
     }
 
     @Override
-    public Page<CouponUserListDto> findAllCouponUserData(CouponUserSearchDto couponUserSearchDto, Pageable pageable) {
+    public Page<CouponUserListDTO> findAllCouponUserData(CouponUserSearchDTO couponUserSearchDto, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
         User user = User.builder().id(couponUserSearchDto.getUserId()).build();
@@ -169,13 +166,13 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
                 .offset(pageable.getOffset())
                 .fetch();
 
-        List<CouponUserListDto> result = data.stream().map(entity -> entityToDto(entity)).collect(Collectors.toList());
+        List<CouponUserListDTO> result = data.stream().map(entity -> entityToDto(entity)).collect(Collectors.toList());
         Long count = getCouponUserCount(couponUserSearchDto);
 
         return new PageImpl<>(result, pageable, count);
     }
 
-    public static CouponUserListDto entityToDto(CouponUser couponUser) {
+    public static CouponUserListDTO entityToDto(CouponUser couponUser) {
         String price;   // ex) 20,000원
         String name;    // ex) 환경을 위한 감사 쿠폰
         String desc;    // ex) 13만원 이상의 제품 구매시 사용 가능
@@ -223,7 +220,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
             buttonValue = "쿠폰 다운 받기 완료";
         }
 
-        return CouponUserListDto.builder()
+        return CouponUserListDTO.builder()
                 .id(couponUser.getId())
                 .price(price)
                 .name(name)
@@ -245,7 +242,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
                 .build();
     }
 
-    private Long getCouponUserCount(CouponUserSearchDto couponUserSearchDto) {
+    private Long getCouponUserCount(CouponUserSearchDTO couponUserSearchDto) {
         BooleanBuilder builder = new BooleanBuilder();
         User user = User.builder().id(couponUserSearchDto.getUserId()).build();
 

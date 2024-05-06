@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CouponUpdateDto {
+public class CouponUpdateDTO {
 
     @NotNull
     private Long id;

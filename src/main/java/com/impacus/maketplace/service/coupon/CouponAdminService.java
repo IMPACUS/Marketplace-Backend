@@ -3,7 +3,6 @@ package com.impacus.maketplace.service.coupon;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.error.PointErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -11,9 +10,9 @@ import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.coupon.request.*;
-import com.impacus.maketplace.dto.coupon.response.CouponDetailDto;
-import com.impacus.maketplace.dto.coupon.response.CouponListDto;
-import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponse;
+import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponListDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponUserInfoResponseDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponUser;
 import com.impacus.maketplace.entity.point.PointMaster;
@@ -57,7 +56,7 @@ public class CouponAdminService {
      * 관리자 페이지에서 쿠폰을 등록하는 함수
      */
     @Transactional
-    public Boolean addCoupon(CouponIssuedDto req) {
+    public Boolean addCoupon(CouponIssuedDTO req) {
 
         boolean result = true;
 
@@ -197,11 +196,11 @@ public class CouponAdminService {
      * ADMIN 쿠폰 페이지에서 회원 정보 조회 해오는 함수
      */
     @Transactional
-    public CouponUserInfoResponse getUserTargetInfo(CouponUserInfoRequest req) {
+    public CouponUserInfoResponseDTO getUserTargetInfo(CouponUserInfoRequestDTO req) {
         if (!ProvisionTarget.USER.getCode().equals(req.getProvisionTarget())) {
             return null;
         } else {
-            CouponUserInfoResponse userInfo = couponRepository.findByAddCouponInfo(req);
+            CouponUserInfoResponseDTO userInfo = couponRepository.findByAddCouponInfo(req);
             if (userInfo != null) {
                 userInfo.setUserLevel(UserLevel.fromScore(userInfo.getUserScore()).getLevel());
             } else {
@@ -216,10 +215,10 @@ public class CouponAdminService {
      * ADMIN 페이지에서 쿠폰 리스트 불로오는 함수
      */
 
-    public Page<CouponListDto> getCouponList(CouponSearchDto couponSearchDto, Pageable pageable) {
+    public Page<CouponListDTO> getCouponList(CouponSearchDTO couponSearchDto, Pageable pageable) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         try {
-            Page<CouponListDto> dataList = couponRepository.findAllCouponList(couponSearchDto, pageable);
+            Page<CouponListDTO> dataList = couponRepository.findAllCouponList(couponSearchDto, pageable);
             if (!couponSearchDto.getSearchNotStop()) {
                 dataList.forEach(data -> {
                     if (data.getIssueStandardType() == CouponStandardType.UNLIMITED) {
@@ -256,12 +255,12 @@ public class CouponAdminService {
         }
     }
 
-    public CouponDetailDto getCouponDetail(CouponSearchDto couponSearchDto) {
+    public CouponDetailDTO getCouponDetail(CouponSearchDTO couponSearchDto) {
         try {
             Coupon data = couponRepository.findById(couponSearchDto.getId())
                     .orElseThrow(() -> new CustomException(CouponErrorType.INVALID_COUPON_FORMAT));
 
-            return CouponDetailDto.entityToDto(data);
+            return CouponDetailDTO.entityToDto(data);
         } catch (CustomException e) {
             return null;
         }
@@ -272,7 +271,7 @@ public class CouponAdminService {
      */
 
     @Transactional
-    public boolean updateCouponDetail(CouponUpdateDto req) {
+    public boolean updateCouponDetail(CouponUpdateDTO req) {
         CouponBenefitType benefitType   // 혜택 구분 [ 원, % ]
                 = fromCode(CouponBenefitType.class, req.getBenefitType());
         CouponProductTargetType productTargetType   // 에코 할인 여부 [일반, 에코/그린, 상관없음]
@@ -388,7 +387,7 @@ public class CouponAdminService {
      * ADMIN 페이지에서 회원 검색 및 모든 유저에게 쿠폰을 지급 하는 함수
      */
     @Transactional
-    public boolean addCouponUser(CouponUserIssuedDto couponUserIssuedDto) {
+    public boolean addCouponUser(CouponUserIssuedDTO couponUserIssuedDto) {
         Coupon coupon;
         LocalDateTime couponExpireAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
         if (couponUserIssuedDto.getCouponId() != null) {
@@ -541,7 +540,7 @@ public class CouponAdminService {
         if (findEventCode.isPresent()) {
             Coupon coupon = findEventCode.get();
             if (coupon.getStatusType() == CouponStatusType.ISSUED) {
-                CouponRegisterDto couponRegisterDto = CouponRegisterDto.builder()
+                CouponRegisterDTO couponRegisterDto = CouponRegisterDTO.builder()
                         .userId(userId)
                         .couponCode(openEventCode)
                         .build();

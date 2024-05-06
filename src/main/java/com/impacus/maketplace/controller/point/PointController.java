@@ -1,13 +1,13 @@
-package com.impacus.maketplace.controller;
+package com.impacus.maketplace.controller.point;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
-import com.impacus.maketplace.dto.point.request.PointManageDto;
-import com.impacus.maketplace.dto.point.request.PointRequestDto;
-import com.impacus.maketplace.dto.point.response.CurrentPointInfoDto;
-import com.impacus.maketplace.dto.point.response.PointHistoryDto;
+import com.impacus.maketplace.dto.point.request.PointManageDTO;
+import com.impacus.maketplace.dto.point.request.PointRequestDTO;
+import com.impacus.maketplace.dto.point.response.CurrentPointInfoDTO;
+import com.impacus.maketplace.dto.point.response.PointHistoryDTO;
 import com.impacus.maketplace.dto.point.response.PointInfoDto;
-import com.impacus.maketplace.dto.point.response.PointMasterDto;
+import com.impacus.maketplace.dto.point.response.PointMasterDTO;
 import com.impacus.maketplace.service.PointService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +34,11 @@ public class PointController {
      * @return
      */
     @PostMapping("/master/new")
-    public ApiResponseEntity<PointMasterDto> addPoint(@AuthenticationPrincipal CustomUserDetails user, @RequestBody PointRequestDto pointRequestDto) {
+    public ApiResponseEntity<PointMasterDTO> addPoint(@AuthenticationPrincipal CustomUserDetails user, @RequestBody PointRequestDTO pointRequestDto) {
         pointRequestDto.setUserId(user.getId());
-        PointMasterDto pointMasterDto = pointService.changePoint(pointRequestDto);
+        PointMasterDTO pointMasterDto = pointService.changePoint(pointRequestDto);
 
-        return ApiResponseEntity.<PointMasterDto>builder()
+        return ApiResponseEntity.<PointMasterDTO>builder()
                 .data(pointMasterDto)
                 .code(pointMasterDto != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST)
                 .build();
@@ -51,12 +51,12 @@ public class PointController {
      * @return
      */
     @GetMapping("/history/list")
-    public ApiResponseEntity<List<PointHistoryDto>> getPointHistory(@AuthenticationPrincipal CustomUserDetails user) {
+    public ApiResponseEntity<List<PointHistoryDTO>> getPointHistory(@AuthenticationPrincipal CustomUserDetails user) {
         PointHistorySearchDto pointHistorySearchDto = new PointHistorySearchDto();
         pointHistorySearchDto.setUserId(user.getId());
 
-        List<PointHistoryDto> pointHistoryList = pointService.findPointHistory(pointHistorySearchDto);
-        return ApiResponseEntity.<List<PointHistoryDto>>builder()
+        List<PointHistoryDTO> pointHistoryList = pointService.findPointHistory(pointHistorySearchDto);
+        return ApiResponseEntity.<List<PointHistoryDTO>>builder()
                 .data(pointHistoryList)
                 .build();
 
@@ -78,10 +78,10 @@ public class PointController {
     }
 
     @GetMapping("/myPointStatus")
-    public ApiResponseEntity<CurrentPointInfoDto> getCurrentMyPointStatus(@AuthenticationPrincipal CustomUserDetails user) {
-        CurrentPointInfoDto data = pointService.findCurrentMyPointStatus(user);
+    public ApiResponseEntity<CurrentPointInfoDTO> getCurrentMyPointStatus(@AuthenticationPrincipal CustomUserDetails user) {
+        CurrentPointInfoDTO data = pointService.findCurrentMyPointStatus(user);
 
-        return ApiResponseEntity.<CurrentPointInfoDto>builder()
+        return ApiResponseEntity.<CurrentPointInfoDTO>builder()
                 .data(data)
                 .build();
     }
@@ -103,7 +103,7 @@ public class PointController {
      * ADMIN 포인트 지급 및 수취
      */
     @PostMapping("/manage")
-    public ApiResponseEntity<?> pointManageForAdmin(@Valid @RequestBody PointManageDto pointManageDto) {
+    public ApiResponseEntity<?> pointManageForAdmin(@Valid @RequestBody PointManageDTO pointManageDto) {
         boolean result = pointService.pointManage(pointManageDto);
 
         return ApiResponseEntity.<Object>builder().result(result).build();

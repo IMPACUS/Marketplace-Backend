@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-public class CouponListDto {
+public class CouponListDTO {
 
     private Long id;
 //    private List<CouponUser> couponUsers;
@@ -56,7 +56,7 @@ public class CouponListDto {
 
     @QueryProjection
 
-    public CouponListDto(Long id, String code, String name, String description, CouponBenefitType benefitType, int benefitValue, CouponProductTargetType productTargetType, CouponPaymentTargetType paymentTargetType, Long firstCount, CouponIssuedTimeType issuedTimeType, CouponExpireTimeType expireTimeType, Long expireDays, CouponCoverageType issueCoverageType, CouponCoverageType useCoverageType, CouponStandardType useStandardType, Integer useStandardValue, CouponStandardType issueStandardType, int issueStandardValue, CouponPeriodType periodType, LocalDate periodStartAt, LocalDate periodEndAt, Long numberOfPeriod, CouponAutoManualType autoManualType, String loginAlert, String smsAlert, String emailAlert, CouponStatusType statusType, LocalDateTime modifyAt) {
+    public CouponListDTO(Long id, String code, String name, String description, CouponBenefitType benefitType, int benefitValue, CouponProductTargetType productTargetType, CouponPaymentTargetType paymentTargetType, Long firstCount, CouponIssuedTimeType issuedTimeType, CouponExpireTimeType expireTimeType, Long expireDays, CouponCoverageType issueCoverageType, CouponCoverageType useCoverageType, CouponStandardType useStandardType, Integer useStandardValue, CouponStandardType issueStandardType, int issueStandardValue, CouponPeriodType periodType, LocalDate periodStartAt, LocalDate periodEndAt, Long numberOfPeriod, CouponAutoManualType autoManualType, String loginAlert, String smsAlert, String emailAlert, CouponStatusType statusType, LocalDateTime modifyAt) {
         this.id = id;
         this.code = code;
         this.name = name;

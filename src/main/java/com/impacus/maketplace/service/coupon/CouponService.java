@@ -5,9 +5,9 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.coupon.request.CouponRegisterDto;
-import com.impacus.maketplace.dto.coupon.request.CouponUserSearchDto;
-import com.impacus.maketplace.dto.coupon.response.CouponUserListDto;
+import com.impacus.maketplace.dto.coupon.request.CouponRegisterDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponUserSearchDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponUserListDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponUser;
 import com.impacus.maketplace.entity.user.User;
@@ -36,12 +36,12 @@ public class CouponService {
     private final CouponUserRepository couponUserRepository;
     private final ObjectCopyHelper objectCopyHelper;
 
-    public Page<CouponUserListDto> getCouponUserList(CouponUserSearchDto couponUserSearchDto, Pageable pageable) {
+    public Page<CouponUserListDTO> getCouponUserList(CouponUserSearchDTO couponUserSearchDto, Pageable pageable) {
         return couponUserRepository.findAllCouponUserData(couponUserSearchDto, pageable);
     }
 
     @Transactional
-    public boolean couponRegister(CouponRegisterDto couponRegisterDto) {
+    public boolean couponRegister(CouponRegisterDTO couponRegisterDto) {
         Optional<Coupon> byCode = couponRepository.findByCode(couponRegisterDto.getCouponCode());
         if (!byCode.isPresent()) {
             throw new CustomException(CouponErrorType.INVALID_COUPON_FORMAT);
@@ -84,7 +84,7 @@ public class CouponService {
     }
 
     @Transactional
-    public CouponUserListDto couponDownload(Long couponUserId, Long loginUserId) {
+    public CouponUserListDTO couponDownload(Long couponUserId, Long loginUserId) {
         CouponUser validateCoupon = couponUserRepository.findByIdAndUserId(couponUserId, loginUserId);
         if (validateCoupon == null) {
             throw new CustomException(CouponErrorType.INVALID_COUPON_FORMAT);

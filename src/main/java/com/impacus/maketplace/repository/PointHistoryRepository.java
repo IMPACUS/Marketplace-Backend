@@ -1,6 +1,5 @@
 package com.impacus.maketplace.repository;
 
-import com.impacus.maketplace.dto.point.response.PointHistoryDto;
 import com.impacus.maketplace.entity.point.PointHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 

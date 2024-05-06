@@ -1,6 +1,5 @@
 package com.impacus.maketplace.dto.coupon.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,10 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CouponRegisterDto {
+public class CouponUserInfoRequestDTO {
 
-    @NotNull
-    private Long userId;
-    @NotNull
-    private String couponCode;
+    private String provisionTarget;     // 지급 대상 [ 회원 검색 : TARGET_USER, 모든 회원 : TARGET_ALL ]
+    private String userId;
+    private String userEmail;
+
+
+
 }

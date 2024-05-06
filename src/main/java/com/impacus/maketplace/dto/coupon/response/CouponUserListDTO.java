@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CouponUserListDto {
+public class CouponUserListDTO {
 
     // 화면에 보여줄 문구
     private Long id;

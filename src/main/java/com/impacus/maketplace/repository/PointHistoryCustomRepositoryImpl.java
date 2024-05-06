@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository;
 
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
-import com.impacus.maketplace.dto.point.response.PointHistoryDto;
+import com.impacus.maketplace.dto.point.response.PointHistoryDTO;
 import com.impacus.maketplace.dto.point.response.QPointHistoryDto;
 import com.impacus.maketplace.entity.point.QPointHistory;
 import com.impacus.maketplace.entity.point.QPointMaster;
@@ -24,8 +24,8 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
     private final QUser userEntity = QUser.user;
 
     @Override
-    public List<PointHistoryDto> findAllPointHistory(PointHistorySearchDto pointHistorySearchDto) {
-        JPAQuery<PointHistoryDto> query = queryFactory.select(new QPointHistoryDto(
+    public List<PointHistoryDTO> findAllPointHistory(PointHistorySearchDto pointHistorySearchDto) {
+        JPAQuery<PointHistoryDTO> query = queryFactory.select(new QPointHistoryDto(
                         pointHistoryEntity.pointType,
                         pointHistoryEntity.changePoint,
                         pointHistoryEntity.isManual,
@@ -39,7 +39,7 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(userEntity.id.eq(pointHistorySearchDto.getUserId()));
 
-        List<PointHistoryDto> result = query.where(builder).orderBy(pointHistoryEntity.createAt.desc()).fetch();
+        List<PointHistoryDTO> result = query.where(builder).orderBy(pointHistoryEntity.createAt.desc()).fetch();
         return result;
     }
 

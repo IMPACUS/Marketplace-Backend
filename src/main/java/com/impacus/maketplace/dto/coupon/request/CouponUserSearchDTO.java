@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CouponUserSearchDto {
+public class CouponUserSearchDTO {
 
     private Long userId;
     @NotNull

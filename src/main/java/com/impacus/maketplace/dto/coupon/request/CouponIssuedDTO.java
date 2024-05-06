@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CouponIssuedDto {
+public class CouponIssuedDTO {
 
     private String code;
 

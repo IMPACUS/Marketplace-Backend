@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CouponSearchDto {
+public class CouponSearchDTO {
     private Long id;
 
     private String searchCouponName;    //  쿠폰이름검색

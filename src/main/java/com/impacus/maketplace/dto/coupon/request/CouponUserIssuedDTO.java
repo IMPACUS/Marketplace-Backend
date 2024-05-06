@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CouponUserIssuedDto {
+public class CouponUserIssuedDTO {
 
     @NotBlank
     private String couponTarget;                  //    지급 대상 CouponTargetType[회원검색, 모든회원]
