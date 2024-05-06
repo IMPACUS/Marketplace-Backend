@@ -137,6 +137,8 @@ public class UserService {
                     changeUserStatus(user, UserStatus.BLOCKED);
                 }
                 throw new CustomException(CommonErrorType.WRONG_PASSWORD);
+            } else {
+                loginFailAttemptService.resetLoginFailAttempt(user);
             }
 
             // 4. JWT 토큰 생성

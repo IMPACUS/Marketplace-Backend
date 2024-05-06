@@ -26,6 +26,10 @@ public class LoginFailAttempt {
         this.failAttemptCnt += 1;
     }
 
+    public void resetFailAttemptCnt() {
+        this.failAttemptCnt = 0;
+    }
+
     public LoginFailAttempt(String email) {
         this.email = email;
     }
