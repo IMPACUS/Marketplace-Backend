@@ -1,12 +1,16 @@
 package com.impacus.maketplace.service.admin;
 
 
+import com.impacus.maketplace.dto.admin.AdminLoginActivityDTO;
 import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
 import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
+import com.impacus.maketplace.repository.admin.AdminActivityLogRepository;
 import com.impacus.maketplace.repository.admin.AdminInfoRepository;
 import com.impacus.maketplace.repository.admin.AdminLoginLogRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +19,15 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 //@Transactional(readOnly = true)
 public class AdminService {
     private final AdminInfoRepository adminInfoRepository;
     private final AdminLoginLogRepository adminLoginLogRepository;
+    private final AdminActivityLogRepository adminActivityLogRepository;
+
 
     /**
      * (1) [리스트] 관리자 회원 조회 - 쿼리문 결과 값 추출
@@ -59,4 +66,23 @@ public class AdminService {
         return adminLoginLogRepository.findAdminLoginHistoryAll(userId);
     }
 
+
+    /**
+     * (4) 로그인 후 활동 내역 조회
+     * @param adminLoginActivityDTO : 로그인 활동 로그 필요로 하는 파라미터 등록
+     * @return : 활동 로그 등록
+     */
+    public AdminActivityLog registerActivityHistory(AdminLoginActivityDTO adminLoginActivityDTO) {
+        log.info(adminLoginActivityDTO);
+        ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        AdminActivityLog adminActivityLog
+                = AdminActivityLog
+                .builder()
+                .userId(adminLoginActivityDTO.getUserId())
+                .activityDetail(adminLoginActivityDTO.getActivityDetail())
+                .crtDate(zonedDateTime)
+                .build();
+        return adminActivityLogRepository.save(adminActivityLog);
+    }
 }

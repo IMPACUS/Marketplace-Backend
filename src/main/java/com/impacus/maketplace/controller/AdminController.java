@@ -1,8 +1,10 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.admin.AdminLoginActivityDTO;
 import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
 import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
 import com.impacus.maketplace.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +35,6 @@ public class AdminController {
      * 5) /api/v1/admin/update/type : Post
      *  - 사용 목적 : 계정 유형 변경
      *
-     *
-     * 6) /api/v1/admin/create/activity/log : Post
-     *   - 활동 내역 로그 추가
      *
      *
      */
@@ -75,7 +74,8 @@ public class AdminController {
 
     /**
      * 3) /api/v1/admin/login/history: Get
-     *  - 로그인 내역
+     * - 로그인 내역
+     *
      * @param userId
      * @return
      */
@@ -87,5 +87,24 @@ public class AdminController {
                 .data(adminLoginHistoryDTO)
                 .build();
     }
+
+
+    /**
+     * 4) /api/v1/admin/create/activity/log : Post
+     *  - 활동 내역 로그 추가
+     * @param adminLoginActivityDTO : 필요 데이터 삽입
+     * @return : 추가된 데이터 반환
+     */
+    @PostMapping("register/activity/history")
+    public ApiResponseEntity<?> registerActivityHistory(@RequestBody AdminLoginActivityDTO adminLoginActivityDTO) {
+        AdminActivityLog adminActivityLog = adminService.registerActivityHistory(adminLoginActivityDTO);
+        return ApiResponseEntity
+                .builder()
+                .data(adminActivityLog)
+                .build();
+    }
+
+
+
 
 }
