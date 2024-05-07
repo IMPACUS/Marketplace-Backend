@@ -1,14 +1,9 @@
 package com.impacus.maketplace.entity.order;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.enumType.OrderStatus;
-import com.impacus.maketplace.common.enumType.PaymentMethod;
-import com.impacus.maketplace.common.utils.TimestampConverter;
+import com.impacus.maketplace.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -19,33 +14,27 @@ import java.time.LocalDate;
 public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orders_id")
+    @Column(name = "order_id")
     private Long id; // 주문 아이디
 
-    @Column(nullable = false)
-    private Long userId; // 사용자 아이디
+    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user; // 사용자
 
-    @Column(nullable = false)
-    private Long shoppingBasketId; // 장바구니 아이디
+    @Column(name = "total_production_cost")
+    private Integer totalProductCost; // 상품 총 가격
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus; // 주문 상태
+    @Column(name = "delivery_fee")
+    private Integer deliveryFee; // 배송비
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod; // 결제 방식
+    @Column(name = "received_point")
+    private Integer receivedPoint;
 
-    @Convert(converter = TimestampConverter.class)
-    private LocalDate orderCancelDate; // 주문 취소 날짜
+    @Column(name = "discount_amount")
+    private Integer discountAmount; // 할인 금액 => 쿠폰 할인 ex) 정액 할인, 정률 할인
 
-    @Convert(converter = TimestampConverter.class)
-    private LocalDate orderCompleteDate; // 주문 완료 날짜
+    @Column(name = "used_point")
+    private Integer usedPoint; // 사용한 포인트
 
-    @ColumnDefault("'false'")
-    @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted; // 삭제 여부
-
-    private String orderCancelReason; // 주문 취소 사유
 
 }
