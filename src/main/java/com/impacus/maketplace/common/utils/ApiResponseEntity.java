@@ -32,4 +32,12 @@ public class ApiResponseEntity<T> {
                 .code(t != null ? HttpStatus.OK : failHttpStatus)
                 .build();
     }
+
+    public static ApiResponseEntity<Boolean> simpleResult(HttpStatus httpStatus) {
+        return ApiResponseEntity.<Boolean>builder()
+                .result(true)
+                .data(true)
+                .code(httpStatus)
+                .build();
+    }
 }

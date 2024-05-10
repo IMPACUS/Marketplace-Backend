@@ -41,5 +41,4 @@ public class MyDeliveryAddress extends Address {
                 .memo(this.getMemo())
                 .build();
     }
-
 }
