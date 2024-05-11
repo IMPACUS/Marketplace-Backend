@@ -1,10 +1,12 @@
 package com.impacus.maketplace.service.admin;
 
 
+import com.impacus.maketplace.dto.admin.AdminInfoDTO;
 import com.impacus.maketplace.dto.admin.AdminLoginActivityDTO;
 import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
 import com.impacus.maketplace.dto.admin.AdminUserDTO;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
+import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
 import com.impacus.maketplace.repository.admin.AdminActivityLogRepository;
 import com.impacus.maketplace.repository.admin.AdminInfoRepository;
@@ -18,6 +20,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Log4j2
 @Service
@@ -72,6 +75,7 @@ public class AdminService {
      * @param adminLoginActivityDTO : 로그인 활동 로그 필요로 하는 파라미터 등록
      * @return : 활동 로그 등록
      */
+    @Transactional(readOnly = true)
     public AdminActivityLog registerActivityHistory(AdminLoginActivityDTO adminLoginActivityDTO) {
         log.info(adminLoginActivityDTO);
         ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
@@ -84,5 +88,19 @@ public class AdminService {
                 .crtDate(zonedDateTime)
                 .build();
         return adminActivityLogRepository.save(adminActivityLog);
+    }
+
+
+    /**
+     * (5) 권한(accountType) 을 지정한다.
+     * @param adminInfoDTO : entity 클래스 adminInfo 의 값을 그래도 받고 queryDSL에서 실행 하기 위한 용도
+     * @return : adminInfo 형으로 기존 DB를 불려와 권한만 변경하여 Update 한다.
+     */
+    @Transactional(readOnly = false)
+    public AdminInfo reWriteAdminType(AdminInfoDTO adminInfoDTO) {
+        AdminInfo adminInfo = adminInfoRepository.findAdminInfoWhereUserId(adminInfoDTO.getUserId());
+        adminInfo.setAccountType(adminInfoDTO.getAccountType());
+        return adminInfoRepository.save(adminInfo);
+
     }
 }

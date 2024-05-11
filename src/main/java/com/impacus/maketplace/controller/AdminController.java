@@ -1,10 +1,12 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.admin.AdminInfoDTO;
 import com.impacus.maketplace.dto.admin.AdminLoginActivityDTO;
 import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
 import com.impacus.maketplace.dto.admin.AdminUserDTO;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
+import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
 import com.impacus.maketplace.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +34,7 @@ public class AdminController {
      *  - 사용 목적 : 활동 내역
      *
      *
-     * 5) /api/v1/admin/update/type : Post
-     *  - 사용 목적 : 계정 유형 변경
-     *
+
      *
      *
      */
@@ -105,6 +105,20 @@ public class AdminController {
     }
 
 
+    /**
+     *  5) /api/v1/admin/type : Patch
+     * @param adminInfoDTO : userId, accountType 만 불려와 담는다.
+     * @return : userId 가 업데이트 된 정보를 반환한다.
+     */
+    @PatchMapping("type")
+    public ApiResponseEntity<?> reWriteAdminType(@RequestBody AdminInfoDTO adminInfoDTO) {
+        log.info("controller.reWriteAdminType");
+        AdminInfo adminInfo = adminService.reWriteAdminType(adminInfoDTO);
+        return ApiResponseEntity
+                .builder()
+                .data(adminInfo)
+                .build();
+    }
 
 
 }
