@@ -30,13 +30,7 @@ public class AdminController {
      *  - 사용 목적 : 어드민 등록
      *
      *
-     * 4) /api/v1/admin/activity/log : Get 할지 Post 할지 고민중
-     *  - 사용 목적 : 활동 내역
-     *
-     *
 
-     *
-     *
      */
 
     /**
@@ -117,6 +111,21 @@ public class AdminController {
         return ApiResponseEntity
                 .builder()
                 .data(adminInfo)
+                .build();
+    }
+
+    /**
+     * * 6) /api/v1/admin/activity/history : Get 할지 Post 할지 고민중
+     *      *  - 사용 목적 : 활동 내역
+     *      *
+     */
+    @GetMapping("activity/history")
+    public ApiResponseEntity<?> displayViewActivityHistory(@RequestParam("userId") Long userId) {
+        log.info("controller.displayViewActivityHistory");
+        List<AdminLoginActivityDTO> adminLoginActivityDTOS = adminService.displayViewActivityHistory(userId);
+        return ApiResponseEntity
+                .builder()
+                .data(adminLoginActivityDTOS)
                 .build();
     }
 
