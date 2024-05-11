@@ -11,6 +11,7 @@ import com.impacus.maketplace.entity.admin.AdminLoginLog;
 import com.impacus.maketplace.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +46,8 @@ public class AdminController {
 
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 계정 전체 조회 성공")
                 .data(adminUserDto)
                 .build();
     }
@@ -62,6 +65,8 @@ public class AdminController {
         AdminLoginLog adminLoginLog = adminService.createAdminLoginHistory(adminLoginHistoryDTO);
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("로그인 히스토리 등록 성공")
                 .data(adminLoginLog)
                 .build();
     }
@@ -78,6 +83,8 @@ public class AdminController {
         List<AdminLoginHistoryDTO> adminLoginHistoryDTO = adminService.displayAdminsHistory(userId);
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("로그인 내역 조회 성공")
                 .data(adminLoginHistoryDTO)
                 .build();
     }
@@ -94,6 +101,8 @@ public class AdminController {
         AdminActivityLog adminActivityLog = adminService.registerActivityHistory(adminLoginActivityDTO);
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 활동 등록 조회 성공")
                 .data(adminActivityLog)
                 .build();
     }
@@ -110,6 +119,8 @@ public class AdminController {
         AdminInfo adminInfo = adminService.reWriteAdminType(adminInfoDTO);
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 타입 변경 성공")
                 .data(adminInfo)
                 .build();
     }
@@ -125,6 +136,8 @@ public class AdminController {
         List<AdminLoginActivityDTO> adminLoginActivityDTOS = adminService.displayViewActivityHistory(userId);
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 활동 내역 조회 성공")
                 .data(adminLoginActivityDTOS)
                 .build();
     }
