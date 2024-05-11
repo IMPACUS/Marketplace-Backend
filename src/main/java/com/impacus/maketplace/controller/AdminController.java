@@ -1,12 +1,17 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.admin.AdminInfoDTO;
+import com.impacus.maketplace.dto.admin.AdminLoginActivityDTO;
 import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
 import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.entity.admin.AdminActivityLog;
+import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
 import com.impacus.maketplace.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,18 +31,7 @@ public class AdminController {
      *  - 사용 목적 : 어드민 등록
      *
      *
-     * 4) /api/v1/admin/activity/log : Get 할지 Post 할지 고민중
-     *  - 사용 목적 : 활동 내역
-     *
-     *
-     * 5) /api/v1/admin/update/type : Post
-     *  - 사용 목적 : 계정 유형 변경
-     *
-     *
-     * 6) /api/v1/admin/create/activity/log : Post
-     *   - 활동 내역 로그 추가
-     *
-     *
+
      */
 
     /**
@@ -52,6 +46,8 @@ public class AdminController {
 
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 계정 전체 조회 성공")
                 .data(adminUserDto)
                 .build();
     }
@@ -69,13 +65,16 @@ public class AdminController {
         AdminLoginLog adminLoginLog = adminService.createAdminLoginHistory(adminLoginHistoryDTO);
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("로그인 히스토리 등록 성공")
                 .data(adminLoginLog)
                 .build();
     }
 
     /**
      * 3) /api/v1/admin/login/history: Get
-     *  - 로그인 내역
+     * - 로그인 내역
+     *
      * @param userId
      * @return
      */
@@ -84,8 +83,64 @@ public class AdminController {
         List<AdminLoginHistoryDTO> adminLoginHistoryDTO = adminService.displayAdminsHistory(userId);
         return ApiResponseEntity
                 .builder()
+                .code(HttpStatus.OK)
+                .message("로그인 내역 조회 성공")
                 .data(adminLoginHistoryDTO)
                 .build();
     }
+
+
+    /**
+     * 4) /api/v1/admin/create/activity/log : Post
+     *  - 활동 내역 로그 추가
+     * @param adminLoginActivityDTO : 필요 데이터 삽입
+     * @return : 추가된 데이터 반환
+     */
+    @PostMapping("register/activity/history")
+    public ApiResponseEntity<?> registerActivityHistory(@RequestBody AdminLoginActivityDTO adminLoginActivityDTO) {
+        AdminActivityLog adminActivityLog = adminService.registerActivityHistory(adminLoginActivityDTO);
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 활동 등록 조회 성공")
+                .data(adminActivityLog)
+                .build();
+    }
+
+
+    /**
+     *  5) /api/v1/admin/type : Patch
+     * @param adminInfoDTO : userId, accountType 만 불려와 담는다.
+     * @return : userId 가 업데이트 된 정보를 반환한다.
+     */
+    @PatchMapping("type")
+    public ApiResponseEntity<?> reWriteAdminType(@RequestBody AdminInfoDTO adminInfoDTO) {
+        log.info("controller.reWriteAdminType");
+        AdminInfo adminInfo = adminService.reWriteAdminType(adminInfoDTO);
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 타입 변경 성공")
+                .data(adminInfo)
+                .build();
+    }
+
+    /**
+     * * 6) /api/v1/admin/activity/history : Get 할지 Post 할지 고민중
+     *      *  - 사용 목적 : 활동 내역
+     *      *
+     */
+    @GetMapping("activity/history")
+    public ApiResponseEntity<?> displayViewActivityHistory(@RequestParam("userId") Long userId) {
+        log.info("controller.displayViewActivityHistory");
+        List<AdminLoginActivityDTO> adminLoginActivityDTOS = adminService.displayViewActivityHistory(userId);
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 활동 내역 조회 성공")
+                .data(adminLoginActivityDTOS)
+                .build();
+    }
+
 
 }

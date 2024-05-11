@@ -8,26 +8,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AdminUserDTO {
+public class AdminInfoDTO {
     private Long id;
     private Long userId;
-    private String email;
-    private String password;
-//    private String crtDate;
     private String accountType;
-//    private String tel;
     private String activityDetail;
 
 
     @QueryProjection
-    public AdminUserDTO(Long id, Long userId, String email, String password, String accountType, String activityDetail) {
+    public AdminInfoDTO(Long id, Long userId, String accountType, String activityDetail) {
         this.id = id;
         this.userId = userId;
-        this.email = email;
-        this.password = password;
         this.accountType = accountType;
         this.activityDetail = activityDetail;
     }
-
-
 }

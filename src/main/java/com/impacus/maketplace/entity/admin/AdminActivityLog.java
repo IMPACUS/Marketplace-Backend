@@ -9,7 +9,9 @@ import java.time.ZonedDateTime;
 @Entity
 @Getter
 @Table(name = "admin_activity_log")
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class AdminActivityLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
