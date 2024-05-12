@@ -9,7 +9,7 @@ import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
-import com.impacus.maketplace.dto.user.request.LoginRequest;
+import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.seller.SellerService;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -37,6 +38,7 @@ public class SellerController {
      *
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("entry-status")
     public ApiResponseEntity<SellerEntryStatusDTO> getEntryStatusStatistics() {
         SellerEntryStatusDTO sellerEntryStatusDTO = sellerService.getEntryStatusStatistics();
@@ -54,15 +56,16 @@ public class SellerController {
      * @param pageable
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/entry/sellers")
-    private ApiResponseEntity<Page<SimpleSellerEntryDTO>> getSellerEntryList(
+    public ApiResponseEntity<Object> getSellerEntryList(
             @RequestParam(value = "start-at") LocalDate startAt,
             @RequestParam(value = "end-at") LocalDate endAt,
-            @RequestParam(value = "entry-status", required = false) @Valid @ValidEnum(enumClass = EntryStatus.class) EntryStatus[] entryStatus,
+            @Valid @ValidEnum(enumClass = EntryStatus.class) @RequestParam(value = "entry-status", required = false) EntryStatus[] entryStatus,
             @PageableDefault(size = 6, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<SimpleSellerEntryDTO> entryDTOList = sellerService.getSellerEntryList(startAt, endAt, entryStatus, pageable);
-        return ApiResponseEntity.<Page<SimpleSellerEntryDTO>>builder()
+        return ApiResponseEntity.builder()
                 .data(entryDTOList)
                 .build();
     }
@@ -73,8 +76,9 @@ public class SellerController {
      * @param userId
      * @return
      */
-    @GetMapping("/entry/sellers/{userId}")
-    public ApiResponseEntity<DetailedSellerEntryDTO> getDetailedSellerEntry(@PathVariable(value = "userId") Long userId) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/entry")
+    public ApiResponseEntity<DetailedSellerEntryDTO> getDetailedSellerEntry(@RequestParam(value = "user-id") Long userId) {
         DetailedSellerEntryDTO detailedSellerEntry = sellerService.getDetailedSellerEntry(userId);
         return ApiResponseEntity.<DetailedSellerEntryDTO>builder()
                 .data(detailedSellerEntry)
@@ -85,23 +89,28 @@ public class SellerController {
     /**
      * 판매자 입점 요청 상태 변경 API
      *
-     * @param userId
      * @param request
      * @return
      */
-    @PatchMapping("/entry/sellers/{userId}/entry-status")
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PatchMapping("/entry/sellers/entry-status")
     public ApiResponseEntity<SimpleSellerDTO> changeEntryStatus(
-            @PathVariable(value = "userId") Long userId,
             @Valid @RequestBody ChangeSellerEntryStatusDTO request) {
-        SimpleSellerDTO sellerEntryStatusDTO = sellerService.changeEntryStatus(userId, request);
+        SimpleSellerDTO sellerEntryStatusDTO = sellerService.changeEntryStatus(request);
         return ApiResponseEntity.<SimpleSellerDTO>builder()
                 .data(sellerEntryStatusDTO)
                 .build();
     }
 
+    /**
+     * 판매자 로그인 API
+     *
+     * @param loginDTO
+     * @return
+     */
     @PostMapping("auth/login")
-    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
-        UserDTO userDTO = userService.login(loginRequest, UserType.ROLE_APPROVED_SELLER);
+    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
+        UserDTO userDTO = userService.login(loginDTO, UserType.ROLE_APPROVED_SELLER);
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
                 .build();

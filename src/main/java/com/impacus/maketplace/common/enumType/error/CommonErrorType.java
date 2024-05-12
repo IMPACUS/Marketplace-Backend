@@ -45,7 +45,7 @@ public enum CommonErrorType implements ErrorType {
     EXPIRED_TOKEN("102_EXPIRED_TOKEN", "만료된 토큰입니다."),
 
     // 403
-    ACCESS_DENIED_EMAIL("301_ACCESS_DENIED_EMAIL", "접근 권한이 없는 사용자 요청입니다.");
+    ACCESS_DENIED_ACCOUNT("301_ACCESS_DENIED_ACCOUNT", "접근 권한이 없는 요청입니다.");
 
     private final String code;
     private final String msg;

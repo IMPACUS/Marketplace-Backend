@@ -6,9 +6,9 @@ import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
-import com.impacus.maketplace.dto.user.request.LoginRequest;
-import com.impacus.maketplace.dto.user.request.SignUpRequest;
-import com.impacus.maketplace.dto.user.request.TokenRequest;
+import com.impacus.maketplace.dto.user.request.LoginDTO;
+import com.impacus.maketplace.dto.user.request.RefreshTokenDTO;
+import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.PointService;
 import com.impacus.maketplace.service.UserService;
@@ -37,7 +37,7 @@ public class AuthController {
     private final CouponAdminService couponAdminService;
 
     @PostMapping("sign-up")
-    public ApiResponseEntity<UserDTO> addUser(@RequestBody SignUpRequest signUpRequest) {
+    public ApiResponseEntity<UserDTO> addUser(@RequestBody SignUpDTO signUpRequest) {
         UserDTO userDTO = this.userService.addUser(signUpRequest);
         boolean existPointMaster = pointService.initPointMaster(userDTO);
         // 회원 가입 축하 이벤트
@@ -55,7 +55,7 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginDTO loginRequest) {
         UserDTO userDTO = userService.login(loginRequest, UserType.ROLE_CERTIFIED_USER);
 
         return ApiResponseEntity.<UserDTO>builder()
@@ -66,7 +66,7 @@ public class AuthController {
     @PostMapping("reissue")
     public ApiResponseEntity<UserDTO> reissueToken(
             @RequestHeader(value = AUTHORIZATION_HEADER) String accessToken,
-            @RequestBody TokenRequest tokenRequest) {
+            @RequestBody RefreshTokenDTO tokenRequest) {
         UserDTO userDTO = authService.reissueToken(accessToken, tokenRequest.getRefreshToken());
 
         return ApiResponseEntity.<UserDTO>builder()

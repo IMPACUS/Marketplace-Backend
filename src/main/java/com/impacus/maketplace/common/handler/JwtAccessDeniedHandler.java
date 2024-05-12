@@ -25,7 +25,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
-        CommonErrorType errorType = CommonErrorType.ACCESS_DENIED_EMAIL;
+        CommonErrorType errorType = CommonErrorType.ACCESS_DENIED_ACCOUNT;
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

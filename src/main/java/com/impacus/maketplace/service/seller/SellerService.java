@@ -227,15 +227,15 @@ public class SellerService {
     /**
      * 판매자 입점 상태를 변경하는 함수
      *
-     * @param userId
-     * @param entryStatusRequest
+     * @param sellerDTO
      * @return
      */
     @Transactional
-    public SimpleSellerDTO changeEntryStatus(Long userId, ChangeSellerEntryStatusDTO entryStatusRequest) {
+    public SimpleSellerDTO changeEntryStatus(ChangeSellerEntryStatusDTO sellerDTO) {
         try {
-            EntryStatus entryStatus = entryStatusRequest.getEntryStatus();
-            Integer charge = entryStatusRequest.getCharge();
+            Long userId = sellerDTO.getUserId();
+            EntryStatus entryStatus = sellerDTO.getEntryStatus();
+            Integer charge = sellerDTO.getCharge();
 
             // 1. 판매자 유효성 검사
             User user = userService.findUserById(userId);
