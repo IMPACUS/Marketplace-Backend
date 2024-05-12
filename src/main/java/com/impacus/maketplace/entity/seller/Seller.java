@@ -65,12 +65,4 @@ public class Seller extends BaseEntity {
         this.isDeleted = false;
         this.chargePercent = 0;
     }
-
-    public void setEntryStatus(EntryStatus entryStatus) {
-        this.entryStatus = entryStatus;
-    }
-
-    public void setChargePercent(int chargePercent) {
-        this.chargePercent = chargePercent;
-    }
 }
