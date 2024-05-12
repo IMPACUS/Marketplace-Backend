@@ -1,6 +1,7 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
@@ -179,7 +180,7 @@ public class TemporaryProductService {
         }
 
         if (!subCategoryService.existsBySubCategoryId(subCategoryId)) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY);
+            throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
         }
     }
 

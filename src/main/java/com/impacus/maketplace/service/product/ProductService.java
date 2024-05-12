@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
@@ -145,7 +146,7 @@ public class ProductService {
 
         // 4. 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY);
+            throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
         }
     }
 
@@ -278,7 +279,7 @@ public class ProductService {
     public Slice<ProductDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
         try {
             if (subCategoryId != null && !subCategoryService.existsBySubCategoryId(subCategoryId)) {
-                throw new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY);
+                throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
             }
 
             return findProductByCategoryId(subCategoryId, pageable).map(ProductDTO::toDTO);

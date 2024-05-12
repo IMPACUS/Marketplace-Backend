@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.category;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
@@ -36,7 +36,7 @@ public class SuperCategoryService {
 
             // 1. 중복된 1차 카테고리 명 확인
             if (existsBySuperCategoryName(superCategoryName)) {
-                throw new CustomException(CommonErrorType.DUPLICATED_SUPER_CATEGORY);
+                throw new CustomException(CategoryEnum.DUPLICATED_SUPER_CATEGORY);
             }
 
             // 2. 1차 카테고리 저장
@@ -83,13 +83,13 @@ public class SuperCategoryService {
 
             // 1. 중복된 1차 카테고리 명 확인
             if (existsBySuperCategoryName(superCategoryName)) {
-                throw new CustomException(CommonErrorType.DUPLICATED_SUPER_CATEGORY);
+                throw new CustomException(CategoryEnum.DUPLICATED_SUPER_CATEGORY);
             }
 
             // 2. 업데이트
             int rowCnt = superCategoryRepository.updateCategoryNameById(categoryId, superCategoryName);
             if (rowCnt == 0) {
-                throw new CustomException(CommonErrorType.NOT_EXISTED_SUPER_CATEGORY);
+                throw new CustomException(CategoryEnum.NOT_EXISTED_SUPER_CATEGORY);
             }
 
             return true;
@@ -106,7 +106,7 @@ public class SuperCategoryService {
      */
     public SuperCategory findBySuperCategoryId(Long id) {
         return superCategoryRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_SUPER_CATEGORY));
+                .orElseThrow(() -> new CustomException(CategoryEnum.NOT_EXISTED_SUPER_CATEGORY));
     }
 
     /**
