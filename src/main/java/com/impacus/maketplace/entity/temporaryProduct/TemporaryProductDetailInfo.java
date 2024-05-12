@@ -1,7 +1,7 @@
 package com.impacus.maketplace.entity.temporaryProduct;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.dto.product.request.ProductDetailInfoDTO;
+import com.impacus.maketplace.dto.product.request.ProductDetailInfoRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -56,7 +56,7 @@ public class TemporaryProductDetailInfo extends BaseEntity {
     @Column
     private String contactNumber; // 전화번호
 
-    public TemporaryProductDetailInfo(Long productId, ProductDetailInfoDTO productDetailInfoRequest) {
+    public TemporaryProductDetailInfo(Long productId, ProductDetailInfoRequest productDetailInfoRequest) {
         this.temporaryProductId = productId;
         this.productType = productDetailInfoRequest.getProductType();
         this.productMaterial = productDetailInfoRequest.getProductMaterial();
@@ -72,7 +72,7 @@ public class TemporaryProductDetailInfo extends BaseEntity {
         this.contactNumber = productDetailInfoRequest.getContactNumber();
     }
 
-    public void setTemporaryProductDetailInfo(ProductDetailInfoDTO productDetailInfoRequest) {
+    public void setTemporaryProductDetailInfo(ProductDetailInfoRequest productDetailInfoRequest) {
         this.productType = productDetailInfoRequest.getProductType();
         this.productMaterial = productDetailInfoRequest.getProductMaterial();
         this.productColor = productDetailInfoRequest.getProductColor();

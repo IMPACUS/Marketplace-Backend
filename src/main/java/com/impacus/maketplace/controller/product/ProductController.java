@@ -1,8 +1,9 @@
 package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.product.request.ProductDTO;
+import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.service.common.EnumService;
@@ -47,8 +48,8 @@ public class ProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") ProductDTO productRequest) {
-        com.impacus.maketplace.dto.product.response.ProductDTO productDTO = productService.addProduct(
+            @Valid @RequestPart(value = "product") ProductRequest productRequest) {
+        ProductDTO productDTO = productService.addProduct(
                 user.getId(),
                 productImageList,
                 productRequest,
@@ -86,8 +87,8 @@ public class ProductController {
             @PathVariable(name = "productId") Long productId,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") ProductDTO productRequest) {
-        com.impacus.maketplace.dto.product.response.ProductDTO productDTO = productService.updateProduct(
+            @Valid @RequestPart(value = "product") ProductRequest productRequest) {
+        ProductDTO productDTO = productService.updateProduct(
                 productId,
                 productImageList,
                 productRequest,
@@ -110,7 +111,7 @@ public class ProductController {
     public ApiResponseEntity<Object> getAllProductForApp(
             @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<com.impacus.maketplace.dto.product.response.ProductDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
+        Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
         return ApiResponseEntity
                 .builder()
                 .data(productDTOList)

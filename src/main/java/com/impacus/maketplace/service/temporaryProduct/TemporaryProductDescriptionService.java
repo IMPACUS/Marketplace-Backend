@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
-import com.impacus.maketplace.dto.product.request.ProductDTO;
+import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductDescriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class TemporaryProductDescriptionService {
      * @param productRequest
      */
     @Transactional
-    public TemporaryProductDescription addTemporaryProductDescription(Long temporaryProductId, ProductDTO productRequest) {
+    public TemporaryProductDescription addTemporaryProductDescription(Long temporaryProductId, ProductRequest productRequest) {
         TemporaryProductDescription newDescription = productRequest.toTemporaryEntity(temporaryProductId);
 
         return temporaryProductDescriptionRepository.save(newDescription);

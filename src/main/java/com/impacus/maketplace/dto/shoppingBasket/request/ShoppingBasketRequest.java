@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShoppingBasketDTO {
+public class ShoppingBasketRequest {
     @NotNull
     private Long productOptionId;
     @NotNull

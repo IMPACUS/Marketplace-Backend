@@ -2,7 +2,7 @@ package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.product.request.ProductOptionDTO;
+import com.impacus.maketplace.dto.product.request.ProductOptionRequest;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class ProductOptionService {
      * @return
      */
     @Transactional
-    public void addProductOption(Long productId, List<ProductOptionDTO> productOptionRequestList) {
+    public void addProductOption(Long productId, List<ProductOptionRequest> productOptionRequestList) {
         List<ProductOption> newProductOptions = productOptionRequestList.stream()
                 .map(productOptionRequest -> productOptionRequest.toEntity(productId))
                 .collect(Collectors.toList());
@@ -100,12 +100,12 @@ public class ProductOptionService {
      * @param productOptionRequestList
      */
     @Transactional
-    public void updateProductOptionList(Long productId, List<ProductOptionDTO> productOptionRequestList) {
+    public void updateProductOptionList(Long productId, List<ProductOptionRequest> productOptionRequestList) {
         List<ProductOption> productOptionList = findProductOptionByProductId(productId);
 
         // 1. 전달 받은 데이터 중 생성&수정할 데이터 취합
         List<ProductOption> updatedProductOptionList = new ArrayList<>();
-        for (ProductOptionDTO productOptionRequest : productOptionRequestList) {
+        for (ProductOptionRequest productOptionRequest : productOptionRequestList) {
             if (productOptionRequest.getProductOptionId() == null) {
                 ProductOption productOption = productOptionRequest.toEntity(productId);
                 updatedProductOptionList.add(productOption);

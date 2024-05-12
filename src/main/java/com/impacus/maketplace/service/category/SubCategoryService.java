@@ -4,8 +4,9 @@ import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
-import com.impacus.maketplace.dto.category.request.SubCategoryDTO;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
+import com.impacus.maketplace.dto.category.request.SubCategoryRequest;
+import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.entity.category.SubCategory;
 import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.entity.common.AttachFile;
@@ -41,7 +42,7 @@ public class SubCategoryService {
      * @return
      */
     @Transactional
-    public com.impacus.maketplace.dto.category.response.SubCategoryDTO addSubCategory(MultipartFile thumbnail, SubCategoryDTO subCategoryRequest) {
+    public SubCategoryDTO addSubCategory(MultipartFile thumbnail, SubCategoryRequest subCategoryRequest) {
         try {
             String subCategoryName = subCategoryRequest.getName();
             Long superCategoryId = subCategoryRequest.getSuperCategoryId();
@@ -73,7 +74,7 @@ public class SubCategoryService {
                     new SubCategory(superCategoryId, attachFile.getId(), subCategoryName)
             );
 
-            return objectCopyHelper.copyObject(subCategory, com.impacus.maketplace.dto.category.response.SubCategoryDTO.class);
+            return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -96,7 +97,7 @@ public class SubCategoryService {
      * @return
      */
     @Transactional
-    public com.impacus.maketplace.dto.category.response.SubCategoryDTO updateSubCategory(MultipartFile thumbnail, ChangeCategoryNameDTO categoryNameRequest) {
+    public SubCategoryDTO updateSubCategory(MultipartFile thumbnail, ChangeCategoryNameRequest categoryNameRequest) {
         try {
             Long categoryId = categoryNameRequest.getCategoryId();
             String subCategoryName = categoryNameRequest.getName();
@@ -118,7 +119,7 @@ public class SubCategoryService {
 
             // 4. 내용 업데이트
             subCategoryRepository.updateCategoryName(categoryId, subCategoryName);
-            return objectCopyHelper.copyObject(subCategory, com.impacus.maketplace.dto.category.response.SubCategoryDTO.class);
+            return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

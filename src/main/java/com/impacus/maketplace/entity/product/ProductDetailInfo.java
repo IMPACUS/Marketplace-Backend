@@ -1,7 +1,7 @@
 package com.impacus.maketplace.entity.product;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.dto.product.request.ProductDetailInfoDTO;
+import com.impacus.maketplace.dto.product.request.ProductDetailInfoRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -65,8 +65,7 @@ public class ProductDetailInfo extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
-    public ProductDetailInfo(Long productId, ProductDetailInfoDTO productDetailInfoRequest) {
-        this.productId = productId;
+    public void setProductDetailInfo(ProductDetailInfoRequest productDetailInfoRequest) {
         this.productType = productDetailInfoRequest.getProductType();
         this.productMaterial = productDetailInfoRequest.getProductMaterial();
         this.productColor = productDetailInfoRequest.getProductColor();
@@ -81,7 +80,8 @@ public class ProductDetailInfo extends BaseEntity {
         this.contactNumber = productDetailInfoRequest.getContactNumber();
     }
 
-    public void setProductDetailInfo(ProductDetailInfoDTO productDetailInfoRequest) {
+    public ProductDetailInfo(Long productId, ProductDetailInfoRequest productDetailInfoRequest) {
+        this.productId = productId;
         this.productType = productDetailInfoRequest.getProductType();
         this.productMaterial = productDetailInfoRequest.getProductMaterial();
         this.productColor = productDetailInfoRequest.getProductColor();

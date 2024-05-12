@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.ProductStatus;
-import com.impacus.maketplace.dto.product.request.ProductDTO;
+import com.impacus.maketplace.dto.product.request.ProductRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -62,7 +62,7 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountStatus discountStatus; // 할인 상태
 
-    public TemporaryProduct(ProductDTO productRequest) {
+    public TemporaryProduct(ProductRequest productRequest) {
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();
@@ -76,7 +76,7 @@ public class TemporaryProduct extends BaseEntity {
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
     }
 
-    public void setProduct(ProductDTO productRequest) {
+    public void setProduct(ProductRequest productRequest) {
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();

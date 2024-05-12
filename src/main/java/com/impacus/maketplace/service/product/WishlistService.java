@@ -4,7 +4,8 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.wishlist.request.WishlistDTO;
+import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
+import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
 import com.impacus.maketplace.entity.product.Wishlist;
 import com.impacus.maketplace.repository.product.WishlistRepository;
@@ -32,7 +33,7 @@ public class WishlistService {
      * @return
      */
     @Transactional
-    public com.impacus.maketplace.dto.wishlist.response.WishlistDTO addWishlist(Long userId, WishlistDTO wishlistRequest) {
+    public WishlistDTO addWishlist(Long userId, WishlistRequest wishlistRequest) {
         // 1. 요청 데이터 유효성 확인
         validateWishList(userId, wishlistRequest);
 
@@ -41,10 +42,10 @@ public class WishlistService {
         wishlistRepository.save(newWishlist);
 
         // 3. WishlistDTO로 반환
-        return com.impacus.maketplace.dto.wishlist.response.WishlistDTO.toDTO(newWishlist);
+        return WishlistDTO.toDTO(newWishlist);
     }
 
-    public boolean validateWishList(Long userId, WishlistDTO wishlistRequest) {
+    public boolean validateWishList(Long userId, WishlistRequest wishlistRequest) {
         Long productId = wishlistRequest.getProductId();
 
         // 1. productId가 존재하는지 확인

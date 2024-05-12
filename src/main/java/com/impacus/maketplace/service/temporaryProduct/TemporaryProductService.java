@@ -6,7 +6,7 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.request.ProductDTO;
+import com.impacus.maketplace.dto.product.request.ProductRequest;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
@@ -69,7 +69,7 @@ public class TemporaryProductService {
     public SimpleTemporaryProductDTO addOrModifyTemporaryProduct(
             Long userId,
             List<MultipartFile> productImageList,
-            ProductDTO productRequest,
+            ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. 임시 저장 상품이 존재하는지 확인
@@ -98,7 +98,7 @@ public class TemporaryProductService {
     @Transactional
     public SimpleTemporaryProductDTO addTemporaryProduct(
             List<MultipartFile> productImageList,
-            ProductDTO productRequest,
+            ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList
     ) {
         // 1. productRequest 데이터 유효성 검사
@@ -156,7 +156,7 @@ public class TemporaryProductService {
      */
     public void validateProductRequest(
             List<MultipartFile> productImageList,
-            ProductDTO productRequest,
+            ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
 
         Long subCategoryId = productRequest.getCategoryId();
@@ -197,7 +197,7 @@ public class TemporaryProductService {
     public SimpleTemporaryProductDTO updateTemporaryProduct(
             TemporaryProduct temporaryProduct,
             List<MultipartFile> productImageList,
-            ProductDTO productRequest,
+            ProductRequest productRequest,
             List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. productRequest 데이터 유효성 검사
