@@ -1,5 +1,7 @@
 package com.impacus.maketplace.entity.admin;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,7 +9,10 @@ import lombok.*;
 @Entity
 @Getter
 @Table(name = "admin_info")
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AdminInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +27,5 @@ public class AdminInfo {
 
     @Column(name = "activity_detail")
     private String activityDetail;
+
 }

@@ -1,12 +1,14 @@
 package com.impacus.maketplace.repository;
 
+import com.impacus.maketplace.common.enumType.PointType;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
-import com.impacus.maketplace.dto.point.response.PointHistoryDto;
-import com.impacus.maketplace.dto.point.response.QPointHistoryDto;
+import com.impacus.maketplace.dto.point.response.PointHistoryDTO;
+import com.impacus.maketplace.dto.point.response.QPointHistoryDTO;
 import com.impacus.maketplace.entity.point.QPointHistory;
 import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +26,8 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
     private final QUser userEntity = QUser.user;
 
     @Override
-    public List<PointHistoryDto> findAllPointHistory(PointHistorySearchDto pointHistorySearchDto) {
-        JPAQuery<PointHistoryDto> query = queryFactory.select(new QPointHistoryDto(
+    public List<PointHistoryDTO> findAllPointHistory(PointHistorySearchDto pointHistorySearchDto) {
+        JPAQuery<PointHistoryDTO> query = queryFactory.select(new QPointHistoryDTO(
                         pointHistoryEntity.pointType,
                         pointHistoryEntity.changePoint,
                         pointHistoryEntity.isManual,
@@ -34,12 +36,12 @@ public class PointHistoryCustomRepositoryImpl implements PointHistoryCustomRepos
                 ))
                 .from(pointHistoryEntity)
                 .innerJoin(pointMasterEntity).on(pointMasterEntity.id.eq(pointHistoryEntity.pointMasterId))
-                .innerJoin(userEntity).on(userEntity.id.eq(pointMasterEntity.userId));
+                .innerJoin(userEntity).on(userEntity.id.eq(pointMasterEntity.user.id));
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(userEntity.id.eq(pointHistorySearchDto.getUserId()));
 
-        List<PointHistoryDto> result = query.where(builder).orderBy(pointHistoryEntity.createAt.desc()).fetch();
+        List<PointHistoryDTO> result = query.where(builder).orderBy(pointHistoryEntity.createAt.desc()).fetch();
         return result;
     }
 

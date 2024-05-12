@@ -62,11 +62,21 @@ public class StringUtils {
      * @return 4,000
      */
 
-    public static String updateNumberFormat(String number) {
+    public static String convertNumberFormat(String number) {
         DecimalFormat decimalFormat = new DecimalFormat("#,###");
         // 문자열을 숫자로 파싱하여 형식 지정 적용 후 다시 문자열로 변환
         return decimalFormat.format(Integer.parseInt(number));
 
+    }
+    public static boolean isNotBlank(String param) {
+
+        if (param != null) {
+            param = param.trim();
+            if (param.equals("") && param.length() != 0){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

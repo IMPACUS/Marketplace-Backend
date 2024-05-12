@@ -1,5 +1,8 @@
 package com.impacus.maketplace.common.enumType.user;
 
+import com.impacus.maketplace.common.enumType.error.ErrorType;
+import com.impacus.maketplace.common.enumType.error.PointErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,19 +13,23 @@ import java.util.Comparator;
 @RequiredArgsConstructor
 public enum UserLevel {
 
-    BRONZE(1,0,100000, 0, 1.0),
-    ROOKIE(2,100001,300000, 10000, 1.5),
-    SILVER(3,300001,500000, 30000, 2.0),
-    GOLD(4,500001,900000, 90000, 2.5),
-    ECO_VIP(5,900001,999999999, 50000, 3.5),
-    UNKNOWN(0,0,0,0,0);
+    BRONZE("BRONZE", 1,0,100000, 0, 1.0),
+    ROOKIE("ROOKIE", 2,100001,300000, 10000, 1.5),
+    SILVER("SILVER", 3,300001,500000, 30000, 2.0),
+    GOLD("GOLD", 4,500001,900000, 90000, 2.5),
+    ECO_VIP("ECO_VIP", 5,900001,999999999, 50000, 3.5),
+    UNKNOWN("", 0,0,0,0,0);
 
-
+    private final String value;
     private final int level;
     private final int minScore;
     private final int maxScore;
     private final int celebrationPoint;
     private final double reserveRate;
+
+    public static UserLevel fromValue(String value) {
+        return  Arrays.stream(UserLevel.values()).filter(i -> i.getValue().equals(value.toUpperCase())).findFirst().orElseThrow(() -> new CustomException(PointErrorType.INVALID_USER_LEVEL));
+    }
 
     public static UserLevel fromLevel(int level) {
         if (level >= 1 && level <= 100) {

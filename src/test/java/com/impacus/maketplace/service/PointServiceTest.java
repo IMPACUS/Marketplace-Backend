@@ -2,8 +2,8 @@ package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.point.request.PointHistorySearchDto;
-import com.impacus.maketplace.dto.point.request.PointRequestDto;
-import com.impacus.maketplace.dto.point.response.PointHistoryDto;
+import com.impacus.maketplace.dto.point.request.PointRequestDTO;
+import com.impacus.maketplace.dto.point.response.PointHistoryDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.repository.PointHistoryRepository;
 import com.impacus.maketplace.repository.PointMasterRepository;
@@ -49,7 +49,7 @@ public class PointServiceTest {
 
     @Test
     void test4() {
-        PointRequestDto requestDto = PointRequestDto.builder()
+        PointRequestDTO requestDto = PointRequestDTO.builder()
                 .pointCode("10") // SAVE
                 .userId(22L)
                 .savePoint(100000)
@@ -61,7 +61,7 @@ public class PointServiceTest {
     void test5() {
         PointHistorySearchDto pointHistorySearchDto = new PointHistorySearchDto();
         pointHistorySearchDto.setUserId(9L);
-        List<PointHistoryDto> pointHistory = pointService.findPointHistory(pointHistorySearchDto);
+        List<PointHistoryDTO> pointHistory = pointService.findPointHistory(pointHistorySearchDto);
         System.out.println(pointHistory);
         pointHistory.forEach(i -> System.out.println("\n" + i));
     }

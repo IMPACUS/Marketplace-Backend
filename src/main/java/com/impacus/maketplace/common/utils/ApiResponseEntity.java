@@ -24,4 +24,20 @@ public class ApiResponseEntity<T> {
     private String message;
 
     private T data;
+
+    public static ApiResponseEntity<Boolean> simpleResult(Object t, HttpStatus failHttpStatus) {
+        return ApiResponseEntity.<Boolean>builder()
+                .result(t != null ? true : false)
+                .data(t != null ? true : false)
+                .code(t != null ? HttpStatus.OK : failHttpStatus)
+                .build();
+    }
+
+    public static ApiResponseEntity<Boolean> simpleResult(HttpStatus httpStatus) {
+        return ApiResponseEntity.<Boolean>builder()
+                .result(true)
+                .data(true)
+                .code(httpStatus)
+                .build();
+    }
 }
