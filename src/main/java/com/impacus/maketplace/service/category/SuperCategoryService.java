@@ -3,10 +3,9 @@ package com.impacus.maketplace.service.category;
 import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
-import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
+import com.impacus.maketplace.dto.category.request.SuperCategoryDTO;
 import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
-import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class SuperCategoryService {
      * @return A DTO representing the newly added super category, including its ID and name.
      */
     @Transactional
-    public SuperCategoryDTO addSuperCategory(SuperCategoryRequest superCategoryRequest) {
+    public com.impacus.maketplace.dto.category.response.SuperCategoryDTO addSuperCategory(SuperCategoryDTO superCategoryRequest) {
         try {
             String superCategoryName = superCategoryRequest.getName();
 
@@ -42,7 +41,7 @@ public class SuperCategoryService {
             // 2. 1차 카테고리 저장
             SuperCategory superCategory = superCategoryRepository.save(new SuperCategory(superCategoryName));
 
-            return objectCopyHelper.copyObject(superCategory, SuperCategoryDTO.class);
+            return objectCopyHelper.copyObject(superCategory, com.impacus.maketplace.dto.category.response.SuperCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -76,7 +75,7 @@ public class SuperCategoryService {
      */
     // TODO update query로 변경9
     @Transactional
-    public Boolean updateSuperCategory(ChangeCategoryNameRequest categoryNameRequest) {
+    public Boolean updateSuperCategory(ChangeCategoryNameDTO categoryNameRequest) {
         try {
             Long categoryId = categoryNameRequest.getCategoryId();
             String superCategoryName = categoryNameRequest.getName();

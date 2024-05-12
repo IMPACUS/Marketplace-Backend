@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.ProductDTO;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.repository.product.ProductDescriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class ProductDescriptionService {
      * @param productRequest
      */
     @Transactional
-    public ProductDescription addProductDescription(Long productId, ProductRequest productRequest) {
+    public ProductDescription addProductDescription(Long productId, ProductDTO productRequest) {
         ProductDescription newProductDescription = productRequest.toEntity(productId);
 
         return productDescriptionRepository.save(newProductDescription);

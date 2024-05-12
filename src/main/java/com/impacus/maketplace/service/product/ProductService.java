@@ -8,7 +8,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.ProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
@@ -58,10 +58,10 @@ public class ProductService {
      * @return
      */
     @Transactional
-    public ProductDTO addProduct(
+    public com.impacus.maketplace.dto.product.response.ProductDTO addProduct(
             Long userId,
             List<MultipartFile> productImageList,
-            ProductRequest productRequest,
+            ProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
         try {
             Seller seller = sellerService.findSellerByUserId(userId);
@@ -110,7 +110,7 @@ public class ProductService {
                 temporaryProductService.deleteTemporaryProduct(userId);
             }
 
-            return ProductDTO.toDTO(newProduct);
+            return com.impacus.maketplace.dto.product.response.ProductDTO.toDTO(newProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -122,7 +122,7 @@ public class ProductService {
      * @param productRequest
      * @return
      */
-    public void validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+    public void validateProductRequest(List<MultipartFile> productImageList, ProductDTO productRequest, List<MultipartFile> productDescriptionImageList) {
         DeliveryType deliveryType = productRequest.getDeliveryType();
         Long categoryId = productRequest.getCategoryId();
 
@@ -217,7 +217,7 @@ public class ProductService {
      * @return
      */
     @Transactional
-    public ProductDTO updateProduct(Long productId, List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+    public com.impacus.maketplace.dto.product.response.ProductDTO updateProduct(Long productId, List<MultipartFile> productImageList, ProductDTO productRequest, List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. Product 찾기
             Product product = findProductById(productId);
@@ -262,7 +262,7 @@ public class ProductService {
             ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
             productDetailInfo.setProductDetailInfo(productRequest.getProductDetail());
 
-            return ProductDTO.toDTO(product);
+            return com.impacus.maketplace.dto.product.response.ProductDTO.toDTO(product);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -276,13 +276,13 @@ public class ProductService {
      * @param pageable
      * @return
      */
-    public Slice<ProductDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
+    public Slice<com.impacus.maketplace.dto.product.response.ProductDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
         try {
             if (subCategoryId != null && !subCategoryService.existsBySubCategoryId(subCategoryId)) {
                 throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
             }
 
-            return findProductByCategoryId(subCategoryId, pageable).map(ProductDTO::toDTO);
+            return findProductByCategoryId(subCategoryId, pageable).map(com.impacus.maketplace.dto.product.response.ProductDTO::toDTO);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

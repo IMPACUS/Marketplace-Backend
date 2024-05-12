@@ -3,7 +3,7 @@ package com.impacus.maketplace.acceptance;
 import com.impacus.maketplace.common.enumType.OrderStatus;
 import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.dto.order.request.CreateOrderRequest;
-import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketRequest;
+import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketDTO;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.assertj.core.api.Assertions;
@@ -25,7 +25,7 @@ public class OrderAcceptanceTest extends AcceptanceTest {
 	public void setUp() {
 		super.setUp();
 
-		ShoppingBasketRequest shoppingBasketRequest = shoppingBasketRequest(상품옵션, 80L);
+		ShoppingBasketDTO shoppingBasketRequest = shoppingBasketRequest(상품옵션, 80L);
 
 		ExtractableResponse<Response> response = 장바구니_추가_요청(관리자, shoppingBasketRequest);
 		쇼핑바구니 = response.jsonPath().getLong("data.id");

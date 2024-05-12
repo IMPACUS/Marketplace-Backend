@@ -4,12 +4,11 @@ import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.seller.request.SellerEntryStatusRequest;
+import com.impacus.maketplace.dto.seller.request.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
-import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
-import com.impacus.maketplace.dto.user.request.LoginRequest;
+import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.seller.SellerService;
@@ -38,9 +37,9 @@ public class SellerController {
      * @return
      */
     @GetMapping("entry-status")
-    public ApiResponseEntity<SellerEntryStatusDTO> getEntryStatusStatistics() {
-        SellerEntryStatusDTO sellerEntryStatusDTO = sellerService.getEntryStatusStatistics();
-        return ApiResponseEntity.<SellerEntryStatusDTO>builder()
+    public ApiResponseEntity<com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO> getEntryStatusStatistics() {
+        com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO sellerEntryStatusDTO = sellerService.getEntryStatusStatistics();
+        return ApiResponseEntity.<com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO>builder()
                 .data(sellerEntryStatusDTO)
                 .build();
     }
@@ -92,7 +91,7 @@ public class SellerController {
     @PatchMapping("/entry/sellers/{userId}/entry-status")
     public ApiResponseEntity<SimpleSellerDTO> changeEntryStatus(
             @PathVariable(value = "userId") Long userId,
-            @Valid @RequestBody SellerEntryStatusRequest request) {
+            @Valid @RequestBody SellerEntryStatusDTO request) {
         SimpleSellerDTO sellerEntryStatusDTO = sellerService.changeEntryStatus(userId, request);
         return ApiResponseEntity.<SimpleSellerDTO>builder()
                 .data(sellerEntryStatusDTO)
@@ -100,7 +99,7 @@ public class SellerController {
     }
 
     @PostMapping("auth/login")
-    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginDTO loginRequest) {
         UserDTO userDTO = userService.login(loginRequest, UserType.ROLE_APPROVED_SELLER);
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)

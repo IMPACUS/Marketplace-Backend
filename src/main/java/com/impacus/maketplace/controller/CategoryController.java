@@ -1,12 +1,10 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
-import com.impacus.maketplace.dto.category.request.SubCategoryRequest;
-import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
+import com.impacus.maketplace.dto.category.request.SubCategoryDTO;
+import com.impacus.maketplace.dto.category.request.SuperCategoryDTO;
 import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
-import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
-import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.category.SuperCategoryService;
 import jakarta.validation.Valid;
@@ -35,8 +33,8 @@ public class CategoryController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/super-category")
     public ApiResponseEntity<Object> addSuperCategory(
-            @Valid @RequestBody SuperCategoryRequest superCategoryRequest) {
-        SuperCategoryDTO superCategoryDTO = superCategoryService.addSuperCategory(superCategoryRequest);
+            @Valid @RequestBody SuperCategoryDTO superCategoryRequest) {
+        com.impacus.maketplace.dto.category.response.SuperCategoryDTO superCategoryDTO = superCategoryService.addSuperCategory(superCategoryRequest);
         return ApiResponseEntity
                 .builder()
                 .data(superCategoryDTO)
@@ -54,8 +52,8 @@ public class CategoryController {
     @PostMapping("sub-category")
     public ApiResponseEntity<Object> addSubCategory(
             @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
-            @Valid @RequestPart(value = "subCategory") SubCategoryRequest subCategoryRequest) {
-        SubCategoryDTO subCategoryDTO = subCategoryService.addSubCategory(thumbnail, subCategoryRequest);
+            @Valid @RequestPart(value = "subCategory") SubCategoryDTO subCategoryRequest) {
+        com.impacus.maketplace.dto.category.response.SubCategoryDTO subCategoryDTO = subCategoryService.addSubCategory(thumbnail, subCategoryRequest);
         return ApiResponseEntity
                 .builder()
                 .data(subCategoryDTO)
@@ -71,7 +69,7 @@ public class CategoryController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("super-category")
     public ApiResponseEntity<Boolean> updateSuperCategory(
-            @Valid @RequestBody ChangeCategoryNameRequest categoryNameRequest) {
+            @Valid @RequestBody ChangeCategoryNameDTO categoryNameRequest) {
         Boolean result = superCategoryService.updateSuperCategory(categoryNameRequest);
         return ApiResponseEntity.<Boolean>builder()
                 .data(result)
@@ -88,8 +86,8 @@ public class CategoryController {
     @PutMapping("sub-category/{categoryId}")
     public ApiResponseEntity<Object> updateSubCategory(
             @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
-            @Valid @RequestPart(value = "subCategory") ChangeCategoryNameRequest subCategoryRequest) {
-        SubCategoryDTO subCategoryDTO = subCategoryService.updateSubCategory(thumbnail, subCategoryRequest);
+            @Valid @RequestPart(value = "subCategory") ChangeCategoryNameDTO subCategoryRequest) {
+        com.impacus.maketplace.dto.category.response.SubCategoryDTO subCategoryDTO = subCategoryService.updateSubCategory(thumbnail, subCategoryRequest);
         return ApiResponseEntity
                 .builder()
                 .data(subCategoryDTO)

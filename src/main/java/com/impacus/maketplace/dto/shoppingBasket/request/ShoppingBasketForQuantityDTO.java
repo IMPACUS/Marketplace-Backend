@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShoppingBasketForQuantityRequest {
+public class ShoppingBasketForQuantityDTO {
     @NotNull
     private Long quantity;
 

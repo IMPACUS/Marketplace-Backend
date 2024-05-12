@@ -5,7 +5,7 @@ import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.ProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -81,7 +81,7 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductType type; // 상품 타입
 
-    public Product(String productNumber, Long sellerId, ProductRequest productRequest) {
+    public Product(String productNumber, Long sellerId, ProductDTO productRequest) {
         this.sellerId = sellerId;
         this.name = productRequest.getName();
         this.productNumber = productNumber;
@@ -98,7 +98,7 @@ public class Product extends BaseEntity {
         this.type = productRequest.getType();
     }
 
-    public void setProduct(ProductRequest productRequest) {
+    public void setProduct(ProductDTO productRequest) {
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();

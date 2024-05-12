@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SellerEntryStatusRequest {
+public class SellerEntryStatusDTO {
     @ValidEnum(enumClass = EntryStatus.class)
     private EntryStatus entryStatus;
 

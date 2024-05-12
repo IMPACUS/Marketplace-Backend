@@ -14,5 +14,5 @@ public interface SuperCategoryRepository extends JpaRepository<SuperCategory, Lo
 
     @Modifying
     @Query("UPDATE SuperCategory sc SET sc.name = :name WHERE sc.id = :id")
-    int updateCategoryName(@Param("id") Long id, @Param("name") String name);
+    int updateCategoryNameById(@Param("id") Long id, @Param("name") String name);
 }

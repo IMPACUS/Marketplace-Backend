@@ -8,10 +8,9 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.EmailDto;
-import com.impacus.maketplace.dto.seller.request.SellerEntryStatusRequest;
-import com.impacus.maketplace.dto.seller.request.SellerRequest;
+import com.impacus.maketplace.dto.seller.request.SellerDTO;
+import com.impacus.maketplace.dto.seller.request.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
-import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
@@ -73,7 +72,7 @@ public class SellerService {
      * @return
      */
     @Transactional
-    public SimpleSellerDTO addSeller(SellerRequest sellerRequest,
+    public SimpleSellerDTO addSeller(SellerDTO sellerRequest,
                                      MultipartFile logoImage,
                                      MultipartFile businessRegistrationImage,
                                      MultipartFile mailOrderBusinessReportImage,
@@ -166,9 +165,9 @@ public class SellerService {
      *
      * @return
      */
-    public SellerEntryStatusDTO getEntryStatusStatistics() {
+    public com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO getEntryStatusStatistics() {
         try {
-            return SellerEntryStatusDTO.builder()
+            return com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO.builder()
                     .todayEntryCnt(getTodayCreatedSellerCnt())
                     .thisWeekEntryCnt(getThisWeekCreatedSellerCnt())
                     .approveEntryCnt(getApprovedSellerCnt())
@@ -232,7 +231,7 @@ public class SellerService {
      * @return
      */
     @Transactional
-    public SimpleSellerDTO changeEntryStatus(Long userId, SellerEntryStatusRequest entryStatusRequest) {
+    public SimpleSellerDTO changeEntryStatus(Long userId, SellerEntryStatusDTO entryStatusRequest) {
         try {
             EntryStatus entryStatus = entryStatusRequest.getEntryStatus();
             Integer charge = entryStatusRequest.getCharge();

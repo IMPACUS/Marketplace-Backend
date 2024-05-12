@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubCategoryRequest {
+public class SubCategoryDTO {
     @NotNull
     private Long superCategoryId;
 

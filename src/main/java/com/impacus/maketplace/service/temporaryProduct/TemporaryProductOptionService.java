@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
-import com.impacus.maketplace.dto.product.request.ProductOptionRequest;
+import com.impacus.maketplace.dto.product.request.ProductOptionDTO;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductOption;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductOptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class TemporaryProductOptionService {
      * @return
      */
     @Transactional
-    public void addTemporaryProductOption(Long temporaryProductId, List<ProductOptionRequest> productOptionRequestList) {
+    public void addTemporaryProductOption(Long temporaryProductId, List<ProductOptionDTO> productOptionRequestList) {
         productOptionRequestList.stream()
                 .map(productOptionRequest -> productOptionRequest.toTemporaryEntity(temporaryProductId))
                 .forEach(this::saveTemporaryProductOption);

@@ -10,8 +10,8 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
-import com.impacus.maketplace.dto.user.request.LoginRequest;
-import com.impacus.maketplace.dto.user.request.SignUpRequest;
+import com.impacus.maketplace.dto.user.request.LoginDTO;
+import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.redis.entity.EmailVerificationCode;
@@ -55,7 +55,7 @@ public class UserService {
 
 
     @Transactional
-    public UserDTO addUser(SignUpRequest signUpRequest) {
+    public UserDTO addUser(SignUpDTO signUpRequest) {
         String email = signUpRequest.getEmail();
         String password = signUpRequest.getPassword();
 
@@ -116,7 +116,7 @@ public class UserService {
     }
 
     @Transactional(noRollbackFor = CustomException.class)
-    public UserDTO login(LoginRequest loginRequest, UserType userType) {
+    public UserDTO login(LoginDTO loginRequest, UserType userType) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 

@@ -1,8 +1,8 @@
 package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketForQuantityRequest;
-import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketRequest;
+import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketDTO;
+import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketForQuantityDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.SimpleShoppingBasketDTO;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
@@ -33,7 +33,7 @@ public class ShoppingBasketController {
     @PostMapping("/user")
     public ApiResponseEntity<Object> addShoppingBasket(
             @AuthenticationPrincipal CustomUserDetails user,
-            @Valid @RequestBody ShoppingBasketRequest shoppingBasketRequest) {
+            @Valid @RequestBody ShoppingBasketDTO shoppingBasketRequest) {
         SimpleShoppingBasketDTO dto = shoppingBasketService.addShoppingBasket(user.getId(), shoppingBasketRequest);
         return ApiResponseEntity
                 .builder()
@@ -64,7 +64,7 @@ public class ShoppingBasketController {
     @PutMapping("/user/{shoppingBasketId}")
     public ApiResponseEntity<Object> updateShoppingBasket(
             @PathVariable(name = "shoppingBasketId") Long shoppingBasketId,
-            @Valid @RequestBody ShoppingBasketForQuantityRequest shoppingBasketRequest) {
+            @Valid @RequestBody ShoppingBasketForQuantityDTO shoppingBasketRequest) {
         SimpleShoppingBasketDTO dto = shoppingBasketService.updateShoppingBasket(shoppingBasketId, shoppingBasketRequest);
         return ApiResponseEntity
                 .builder()

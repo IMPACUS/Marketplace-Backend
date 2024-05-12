@@ -20,7 +20,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductRequest {
+public class ProductDTO {
     @NotNull
     private boolean doesUseTemporaryProduct;
 
@@ -54,10 +54,10 @@ public class ProductRequest {
     private int weight;
 
     @NotNull
-    private ProductDetailInfoRequest productDetail;
+    private ProductDetailInfoDTO productDetail;
 
     @NotNull
-    private List<ProductOptionRequest> productOptions;
+    private List<ProductOptionDTO> productOptions;
 
     @ValidEnum(enumClass = ProductStatus.class)
     private ProductStatus productStatus;

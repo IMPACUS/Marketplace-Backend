@@ -1,6 +1,6 @@
 package com.impacus.maketplace.acceptance;
 
-import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketRequest;
+import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketDTO;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ProductSteps {
-	public static ExtractableResponse<Response> 장바구니_추가_요청(String accessToken, ShoppingBasketRequest shoppingBasketRequest) {
+	public static ExtractableResponse<Response> 장바구니_추가_요청(String accessToken, ShoppingBasketDTO shoppingBasketRequest) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("productOptionId", shoppingBasketRequest.getProductOptionId());
 		params.put("quantity", shoppingBasketRequest.getQuantity());
@@ -24,8 +24,8 @@ public class ProductSteps {
 				.then().log().all().extract();
 	}
 
-	public static ShoppingBasketRequest shoppingBasketRequest(Long productOptionId, Long quantity) {
-		ShoppingBasketRequest shoppingBasketRequest = new ShoppingBasketRequest();
+	public static ShoppingBasketDTO shoppingBasketRequest(Long productOptionId, Long quantity) {
+		ShoppingBasketDTO shoppingBasketRequest = new ShoppingBasketDTO();
 		shoppingBasketRequest.setProductOptionId(productOptionId);
 		shoppingBasketRequest.setQuantity(quantity);
 
