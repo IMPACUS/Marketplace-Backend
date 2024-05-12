@@ -7,7 +7,6 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
-import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
@@ -92,13 +91,13 @@ public class SellerController {
      * @param request
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    // @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/entry/sellers/entry-status")
-    public ApiResponseEntity<SimpleSellerDTO> changeEntryStatus(
+    public ApiResponseEntity<Boolean> changeEntryStatus(
             @Valid @RequestBody ChangeSellerEntryStatusDTO request) {
-        SimpleSellerDTO sellerEntryStatusDTO = sellerService.changeEntryStatus(request);
-        return ApiResponseEntity.<SimpleSellerDTO>builder()
-                .data(sellerEntryStatusDTO)
+        Boolean result = sellerService.changeEntryStatus(request);
+        return ApiResponseEntity.<Boolean>builder()
+                .data(result)
                 .build();
     }
 

@@ -358,13 +358,12 @@ public class UserService {
     /**
      * userType을 업데이트하는 합수
      *
-     * @param user
+     * @param userId
      * @param userType
      */
     @Transactional
-    public void updateUserType(User user, UserType userType) {
-        user.setType(userType);
-        userRepository.save(user);
+    public void updateUserType(Long userId, UserType userType) {
+        userRepository.updateUserType(userId, userType);
     }
 
 }
