@@ -4,8 +4,8 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketForQuantityRequest;
-import com.impacus.maketplace.dto.shoppingBasket.request.ShoppingBasketRequest;
+import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
+import com.impacus.maketplace.dto.shoppingBasket.request.CreateShoppingBasketDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.SimpleShoppingBasketDTO;
 import com.impacus.maketplace.entity.product.ShoppingBasket;
@@ -36,7 +36,7 @@ public class ShoppingBasketService {
      * @return
      */
     @Transactional
-    public SimpleShoppingBasketDTO addShoppingBasket(Long userId, ShoppingBasketRequest shoppingBasketRequest) {
+    public SimpleShoppingBasketDTO addShoppingBasket(Long userId, CreateShoppingBasketDTO shoppingBasketRequest) {
         try {
             Optional<ShoppingBasket> optional = shoppingBasketRepository.findByProductOptionIdAndUserId(
                     shoppingBasketRequest.getProductOptionId(),
@@ -81,7 +81,7 @@ public class ShoppingBasketService {
     @Transactional
     public SimpleShoppingBasketDTO updateShoppingBasket(
             Long shoppingBasketId,
-            ShoppingBasketForQuantityRequest shoppingBasketRequest) {
+            ChangeShoppingBasketQuantityDTO shoppingBasketRequest) {
         try {
             ShoppingBasket shoppingBasket = findShoppingBasketById(shoppingBasketId);
             shoppingBasket.setQuantity(shoppingBasketRequest.getQuantity());

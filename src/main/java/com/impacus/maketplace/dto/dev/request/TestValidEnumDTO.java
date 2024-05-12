@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestValidEnumRequest {
+public class TestValidEnumDTO {
     @ValidEnum(enumClass = ProductStatus.class)
     private ProductStatus productStatus;
 }

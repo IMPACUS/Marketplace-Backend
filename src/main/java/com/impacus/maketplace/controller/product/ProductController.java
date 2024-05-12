@@ -1,7 +1,7 @@
 package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
@@ -48,7 +48,7 @@ public class ProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") ProductRequest productRequest) {
+            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
         ProductDTO productDTO = productService.addProduct(
                 user.getId(),
                 productImageList,
@@ -87,7 +87,7 @@ public class ProductController {
             @PathVariable(name = "productId") Long productId,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") ProductRequest productRequest) {
+            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
         ProductDTO productDTO = productService.updateProduct(
                 productId,
                 productImageList,

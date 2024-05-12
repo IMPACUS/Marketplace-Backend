@@ -1,7 +1,7 @@
 package com.impacus.maketplace.controller.temporaryProduct;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.SimpleTemporaryProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
@@ -52,7 +52,7 @@ public class TemporaryProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") ProductRequest productRequest) {
+            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
         SimpleTemporaryProductDTO simpleTemporaryProductDTO = temporaryProductService.addOrModifyTemporaryProduct(user.getId(), productImageList, productRequest, productDescriptionImageList);
         return ApiResponseEntity
                 .builder()

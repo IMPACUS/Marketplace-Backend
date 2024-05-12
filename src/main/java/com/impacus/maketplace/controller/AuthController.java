@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
-import com.impacus.maketplace.dto.seller.request.SellerRequest;
+import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.user.request.LoginRequest;
 import com.impacus.maketplace.dto.user.request.SignUpRequest;
@@ -86,7 +86,7 @@ public class AuthController {
      */
     @PostMapping("seller-entry")
     public ApiResponseEntity<SimpleSellerDTO> addSeller(
-            @RequestPart(value = "seller") @Valid SellerRequest sellerRequest,
+            @RequestPart(value = "seller") @Valid CreateSellerDTO sellerRequest,
             @RequestPart(value = "logo-image", required = false) MultipartFile logoImage,
             @RequestPart(value = "business-registration-image", required = false) MultipartFile businessRegistrationImage,
             @RequestPart(value = "mail-order-business-report-image", required = false) MultipartFile mailOrderBusinessReportImage,

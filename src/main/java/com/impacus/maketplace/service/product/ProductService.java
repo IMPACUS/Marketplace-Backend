@@ -8,7 +8,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
@@ -61,7 +61,7 @@ public class ProductService {
     public ProductDTO addProduct(
             Long userId,
             List<MultipartFile> productImageList,
-            ProductRequest productRequest,
+            CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
         try {
             Seller seller = sellerService.findSellerByUserId(userId);
@@ -122,7 +122,7 @@ public class ProductService {
      * @param productRequest
      * @return
      */
-    public void validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+    public void validateProductRequest(List<MultipartFile> productImageList, CreateProductDTO productRequest, List<MultipartFile> productDescriptionImageList) {
         DeliveryType deliveryType = productRequest.getDeliveryType();
         Long categoryId = productRequest.getCategoryId();
 
@@ -217,7 +217,7 @@ public class ProductService {
      * @return
      */
     @Transactional
-    public ProductDTO updateProduct(Long productId, List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+    public ProductDTO updateProduct(Long productId, List<MultipartFile> productImageList, CreateProductDTO productRequest, List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. Product 찾기
             Product product = findProductById(productId);

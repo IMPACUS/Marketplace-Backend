@@ -8,8 +8,8 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.EmailDto;
-import com.impacus.maketplace.dto.seller.request.SellerEntryStatusRequest;
-import com.impacus.maketplace.dto.seller.request.SellerRequest;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
+import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
@@ -73,7 +73,7 @@ public class SellerService {
      * @return
      */
     @Transactional
-    public SimpleSellerDTO addSeller(SellerRequest sellerRequest,
+    public SimpleSellerDTO addSeller(CreateSellerDTO sellerRequest,
                                      MultipartFile logoImage,
                                      MultipartFile businessRegistrationImage,
                                      MultipartFile mailOrderBusinessReportImage,
@@ -232,7 +232,7 @@ public class SellerService {
      * @return
      */
     @Transactional
-    public SimpleSellerDTO changeEntryStatus(Long userId, SellerEntryStatusRequest entryStatusRequest) {
+    public SimpleSellerDTO changeEntryStatus(Long userId, ChangeSellerEntryStatusDTO entryStatusRequest) {
         try {
             EntryStatus entryStatus = entryStatusRequest.getEntryStatus();
             Integer charge = entryStatusRequest.getCharge();

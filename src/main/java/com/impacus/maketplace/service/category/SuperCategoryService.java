@@ -3,8 +3,8 @@ package com.impacus.maketplace.service.category;
 import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
-import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
+import com.impacus.maketplace.dto.category.request.CreateSuperCategoryDTO;
 import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
@@ -30,7 +30,7 @@ public class SuperCategoryService {
      * @return A DTO representing the newly added super category, including its ID and name.
      */
     @Transactional
-    public SuperCategoryDTO addSuperCategory(SuperCategoryRequest superCategoryRequest) {
+    public SuperCategoryDTO addSuperCategory(CreateSuperCategoryDTO superCategoryRequest) {
         try {
             String superCategoryName = superCategoryRequest.getName();
 
@@ -76,7 +76,7 @@ public class SuperCategoryService {
      */
     // TODO update query로 변경9
     @Transactional
-    public Boolean updateSuperCategory(ChangeCategoryNameRequest categoryNameRequest) {
+    public Boolean updateSuperCategory(ChangeCategoryNameDTO categoryNameRequest) {
         try {
             Long categoryId = categoryNameRequest.getCategoryId();
             String superCategoryName = categoryNameRequest.getName();

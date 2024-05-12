@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.seller.request.SellerEntryStatusRequest;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
@@ -92,7 +92,7 @@ public class SellerController {
     @PatchMapping("/entry/sellers/{userId}/entry-status")
     public ApiResponseEntity<SimpleSellerDTO> changeEntryStatus(
             @PathVariable(value = "userId") Long userId,
-            @Valid @RequestBody SellerEntryStatusRequest request) {
+            @Valid @RequestBody ChangeSellerEntryStatusDTO request) {
         SimpleSellerDTO sellerEntryStatusDTO = sellerService.changeEntryStatus(userId, request);
         return ApiResponseEntity.<SimpleSellerDTO>builder()
                 .data(sellerEntryStatusDTO)

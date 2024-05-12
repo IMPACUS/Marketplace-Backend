@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubCategoryRequest {
+public class ChangeCategoryNameDTO {
     @NotNull
-    private Long superCategoryId;
+    private Long categoryId;
 
     @NotBlank
     @Size(max = 10)
