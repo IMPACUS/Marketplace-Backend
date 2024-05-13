@@ -4,7 +4,6 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.CreateShoppingBasketDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
-import com.impacus.maketplace.dto.shoppingBasket.response.SimpleShoppingBasketDTO;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +36,13 @@ public class ShoppingBasketController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("")
-    public ApiResponseEntity<SimpleShoppingBasketDTO> addShoppingBasket(
+    public ApiResponseEntity<Boolean> addShoppingBasket(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CreateShoppingBasketDTO shoppingBasketRequest) {
-        SimpleShoppingBasketDTO dto = shoppingBasketService.addShoppingBasket(user.getId(), shoppingBasketRequest);
+        Boolean result = shoppingBasketService.addShoppingBasket(user.getId(), shoppingBasketRequest);
         return ApiResponseEntity
-                .<SimpleShoppingBasketDTO>builder()
-                .data(dto)
+                .<Boolean>builder()
+                .data(result)
                 .build();
     }
 
@@ -71,12 +70,12 @@ public class ShoppingBasketController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PutMapping("")
-    public ApiResponseEntity<SimpleShoppingBasketDTO> updateShoppingBasket(
+    public ApiResponseEntity<Boolean> updateShoppingBasket(
             @Valid @RequestBody ChangeShoppingBasketQuantityDTO shoppingBasketRequest) {
-        SimpleShoppingBasketDTO dto = shoppingBasketService.updateShoppingBasket(shoppingBasketRequest);
+        Boolean result = shoppingBasketService.updateShoppingBasket(shoppingBasketRequest);
         return ApiResponseEntity
-                .<SimpleShoppingBasketDTO>builder()
-                .data(dto)
+                .<Boolean>builder()
+                .data(result)
                 .build();
     }
 

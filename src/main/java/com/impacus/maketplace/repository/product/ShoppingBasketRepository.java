@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +21,9 @@ public interface ShoppingBasketRepository extends JpaRepository<ShoppingBasket, 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM ShoppingBasket s WHERE s.productOptionId IN :productOptions")
     void deleteByProductOptionId(List<Long> productOptions);
+
+    @Transactional
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE ShoppingBasket ab SET ab.quantity = :quantity WHERE ab.id = :id")
+    int updateQuantity(@Param("id") Long id, @Param("quantity") Long quantity);
 }

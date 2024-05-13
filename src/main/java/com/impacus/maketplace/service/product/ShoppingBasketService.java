@@ -5,7 +5,6 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.CreateShoppingBasketDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
-import com.impacus.maketplace.dto.shoppingBasket.response.SimpleShoppingBasketDTO;
 import com.impacus.maketplace.entity.product.ShoppingBasket;
 import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,29 +29,28 @@ public class ShoppingBasketService {
      * - 존재: quantity 값 더하기
      * - 존재X: 새로 생성
      *
-     * @param shoppingBasketRequest
+     * @param dto
      * @return
      */
     @Transactional
-    public SimpleShoppingBasketDTO addShoppingBasket(Long userId, CreateShoppingBasketDTO shoppingBasketRequest) {
+    public Boolean addShoppingBasket(Long userId, CreateShoppingBasketDTO dto) {
         try {
             Optional<ShoppingBasket> optional = shoppingBasketRepository.findByProductOptionIdAndUserId(
-                    shoppingBasketRequest.getProductOptionId(),
+                    dto.getProductOptionId(),
                     userId
             );
             if (optional.isPresent()) {
                 ShoppingBasket shoppingBasket = optional.get();
-                shoppingBasket.setQuantity(shoppingBasket.getQuantity() + shoppingBasketRequest.getQuantity());
-                shoppingBasketRepository.save(shoppingBasket);
-
-                return SimpleShoppingBasketDTO.toDTO(shoppingBasket);
-
+                shoppingBasketRepository.updateQuantity(
+                        shoppingBasket.getId(),
+                        shoppingBasket.getQuantity() + dto.getQuantity()
+                );
             } else {
-                ShoppingBasket shoppingBasket = shoppingBasketRequest.toEntity(userId);
+                ShoppingBasket shoppingBasket = dto.toEntity(userId);
                 shoppingBasketRepository.save(shoppingBasket);
-
-                return SimpleShoppingBasketDTO.toDTO(shoppingBasket);
             }
+
+            return true;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -76,16 +74,12 @@ public class ShoppingBasketService {
      * @return
      */
     @Transactional
-    public SimpleShoppingBasketDTO updateShoppingBasket(
+    public Boolean updateShoppingBasket(
             ChangeShoppingBasketQuantityDTO dto) {
         try {
             Long shoppingBasketId = dto.getShoppingBasketId();
-
-            ShoppingBasket shoppingBasket = findShoppingBasketById(shoppingBasketId);
-            shoppingBasket.setQuantity(dto.getQuantity());
-            shoppingBasketRepository.save(shoppingBasket);
-
-            return SimpleShoppingBasketDTO.toDTO(shoppingBasket);
+            shoppingBasketRepository.updateQuantity(shoppingBasketId, dto.getQuantity());
+            return true;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
