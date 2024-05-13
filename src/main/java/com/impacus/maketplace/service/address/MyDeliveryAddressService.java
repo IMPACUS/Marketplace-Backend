@@ -40,7 +40,7 @@ public class MyDeliveryAddressService {
     public AddressResponse updateAddress(Long id, Long addressId, AddressAddOrUpdateRequest addressAddOrUpdateRequest) {
         MyDeliveryAddress address = myDeliveryAddressRepository.findByIdAndUser(addressId, getProxyUser(id))
             .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_ID)); // 검증
-        myDeliveryAddressRepository.save(addressAddOrUpdateRequest.toEntity(getProxyUser(id), addressId)); // 수정
+        address.update(addressAddOrUpdateRequest);
         return AddressResponse.of(address);
     }
 
