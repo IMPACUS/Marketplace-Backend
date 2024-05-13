@@ -43,7 +43,7 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
         List<WishlistDetailDTO> content = queryFactory
                 .selectFrom(wishlist)
                 .innerJoin(product).on(productBuilder)
-                .leftJoin(seller).on(seller.userId.eq(userId))
+                .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .where(wishlist.registerId.eq(userId.toString()))

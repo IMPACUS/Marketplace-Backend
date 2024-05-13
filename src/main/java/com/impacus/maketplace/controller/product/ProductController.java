@@ -44,7 +44,7 @@ public class ProductController {
      * @return
      */
     @PostMapping("")
-    public ApiResponseEntity<Object> addProduct(
+    public ApiResponseEntity<ProductDTO> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
@@ -55,7 +55,7 @@ public class ProductController {
                 productRequest,
                 productDescriptionImageList);
         return ApiResponseEntity
-                .builder()
+                .<ProductDTO>builder()
                 .data(productDTO)
                 .build();
     }
@@ -67,10 +67,11 @@ public class ProductController {
      * @return
      */
     @DeleteMapping("")
-    public ApiResponseEntity<Object> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
+    public ApiResponseEntity<Boolean> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
         productService.deleteAllProduct(productIdList);
         return ApiResponseEntity
-                .builder()
+                .<Boolean>builder()
+                .data(true)
                 .build();
     }
 
@@ -83,7 +84,7 @@ public class ProductController {
      * @return
      */
     @PutMapping("/{productId}")
-    public ApiResponseEntity<Object> updateProduct(
+    public ApiResponseEntity<ProductDTO> updateProduct(
             @PathVariable(name = "productId") Long productId,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
@@ -95,7 +96,7 @@ public class ProductController {
                 productDescriptionImageList
         );
         return ApiResponseEntity
-                .builder()
+                .<ProductDTO>builder()
                 .data(productDTO)
                 .build();
     }
@@ -108,12 +109,12 @@ public class ProductController {
      * @return
      */
     @GetMapping("")
-    public ApiResponseEntity<Object> getAllProductForApp(
+    public ApiResponseEntity<Slice<ProductDTO>> getAllProductForApp(
             @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
         return ApiResponseEntity
-                .builder()
+                .<Slice<ProductDTO>>builder()
                 .data(productDTOList)
                 .build();
     }
@@ -128,14 +129,14 @@ public class ProductController {
      * @return
      */
     @GetMapping("/seller")
-    public ApiResponseEntity<Object> getAllProductForWeb(
+    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(size = 12, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(user.getId(), startAt, endAt, pageable);
         return ApiResponseEntity
-                .builder()
+                .<Page<ProductForWebDTO>>builder()
                 .data(productDTOList)
                 .build();
     }
@@ -147,10 +148,10 @@ public class ProductController {
      * @return
      */
     @GetMapping("{productId}")
-    public ApiResponseEntity<Object> getProductForApp(@PathVariable(name = "productId") Long productId) {
+    public ApiResponseEntity<DetailedProductDTO> getProductForApp(@PathVariable(name = "productId") Long productId) {
         DetailedProductDTO detailedProductDTO = productService.findDetailedProduct(productId);
         return ApiResponseEntity
-                .builder()
+                .<DetailedProductDTO>builder()
                 .data(detailedProductDTO)
                 .build();
     }
@@ -159,10 +160,10 @@ public class ProductController {
      * 판매자용 단일 상품 조회 API
      */
     @GetMapping("seller/{productId}")
-    public ApiResponseEntity<Object> getProductForWeb(@AuthenticationPrincipal CustomUserDetails user, @PathVariable(name = "productId") Long productId) {
+    public ApiResponseEntity<ProductDetailForWebDTO> getProductForWeb(@AuthenticationPrincipal CustomUserDetails user, @PathVariable(name = "productId") Long productId) {
         ProductDetailForWebDTO productDetailDTO = productService.findProductDetailForWeb(user.getId(), productId);
         return ApiResponseEntity
-                .builder()
+                .<ProductDetailForWebDTO>builder()
                 .data(productDetailDTO)
                 .build();
     }

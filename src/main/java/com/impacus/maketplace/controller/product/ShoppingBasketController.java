@@ -9,6 +9,11 @@ import com.impacus.maketplace.service.product.ShoppingBasketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import security.CustomUserDetails;
@@ -30,13 +35,14 @@ public class ShoppingBasketController {
      * @param shoppingBasketRequest
      * @return
      */
-    @PostMapping("/user")
-    public ApiResponseEntity<Object> addShoppingBasket(
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("")
+    public ApiResponseEntity<SimpleShoppingBasketDTO> addShoppingBasket(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CreateShoppingBasketDTO shoppingBasketRequest) {
         SimpleShoppingBasketDTO dto = shoppingBasketService.addShoppingBasket(user.getId(), shoppingBasketRequest);
         return ApiResponseEntity
-                .builder()
+                .<SimpleShoppingBasketDTO>builder()
                 .data(dto)
                 .build();
     }
@@ -47,11 +53,13 @@ public class ShoppingBasketController {
      * @param shoppingBasketList
      * @return
      */
-    @DeleteMapping("/user")
-    public ApiResponseEntity<Object> deleteShoppingBasket(@RequestParam(name = "shopping-basket-id") List<Long> shoppingBasketList) {
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @DeleteMapping("")
+    public ApiResponseEntity<Boolean> deleteShoppingBasket(@RequestParam(name = "shopping-basket-id") List<Long> shoppingBasketList) {
         shoppingBasketService.deleteAllShoppingBasket(shoppingBasketList);
         return ApiResponseEntity
-                .builder()
+                .<Boolean>builder()
+                .data(true)
                 .build();
     }
 
@@ -61,13 +69,13 @@ public class ShoppingBasketController {
      * @param shoppingBasketRequest
      * @return
      */
-    @PutMapping("/user/{shoppingBasketId}")
-    public ApiResponseEntity<Object> updateShoppingBasket(
-            @PathVariable(name = "shoppingBasketId") Long shoppingBasketId,
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PutMapping("")
+    public ApiResponseEntity<SimpleShoppingBasketDTO> updateShoppingBasket(
             @Valid @RequestBody ChangeShoppingBasketQuantityDTO shoppingBasketRequest) {
-        SimpleShoppingBasketDTO dto = shoppingBasketService.updateShoppingBasket(shoppingBasketId, shoppingBasketRequest);
+        SimpleShoppingBasketDTO dto = shoppingBasketService.updateShoppingBasket(shoppingBasketRequest);
         return ApiResponseEntity
-                .builder()
+                .<SimpleShoppingBasketDTO>builder()
                 .data(dto)
                 .build();
     }
@@ -78,12 +86,16 @@ public class ShoppingBasketController {
      * @param user
      * @return
      */
-    @GetMapping("/user")
-    public ApiResponseEntity<Object> getShoppingBasket(@AuthenticationPrincipal CustomUserDetails user) {
-        List<ShoppingBasketDetailDTO> shoppingBasketDetailDTOS = shoppingBasketService.getAllShoppingBasket(user.getId());
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("")
+    public ApiResponseEntity<Slice<ShoppingBasketDetailDTO>> getShoppingBasket(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Slice<ShoppingBasketDetailDTO> dto = shoppingBasketService.getAllShoppingBasket(user.getId(), pageable);
         return ApiResponseEntity
-                .builder()
-                .data(shoppingBasketDetailDTOS)
+                .<Slice<ShoppingBasketDetailDTO>>builder()
+                .data(dto)
                 .build();
     }
 }

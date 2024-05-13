@@ -35,12 +35,12 @@ public class WishlistController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("")
-    public ApiResponseEntity<Object> addWishlist(
+    public ApiResponseEntity<WishlistDTO> addWishlist(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CreateWishlistDTO wishlistRequest) {
         WishlistDTO wishlistDTO = wishlistService.addWishlist(user.getId(), wishlistRequest);
         return ApiResponseEntity
-                .builder()
+                .<WishlistDTO>builder()
                 .data(wishlistDTO)
                 .build();
     }
@@ -53,10 +53,11 @@ public class WishlistController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @DeleteMapping("")
-    public ApiResponseEntity<Object> deleteWishlist(@RequestParam(name = "wishlist-id") List<Long> wishlistIdList) {
+    public ApiResponseEntity<Boolean> deleteWishlist(@RequestParam(name = "wishlist-id") List<Long> wishlistIdList) {
         wishlistService.deleteAllWishlist(wishlistIdList);
         return ApiResponseEntity
-                .builder()
+                .<Boolean>builder()
+                .data(true)
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository.product;
 
 import com.impacus.maketplace.entity.product.ShoppingBasket;
+import com.impacus.maketplace.repository.product.querydsl.ShoppingBasketCustomRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

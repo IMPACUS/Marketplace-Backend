@@ -1,17 +1,16 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.CreateShoppingBasketDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.SimpleShoppingBasketDTO;
 import com.impacus.maketplace.entity.product.ShoppingBasket;
 import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
-import com.impacus.maketplace.service.AttachFileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ShoppingBasketService {
     private final ShoppingBasketRepository shoppingBasketRepository;
-    private final AttachFileService attachFileService;
 
     /**
      * 장바구니에 상품을 추가하는 함수
@@ -74,17 +72,17 @@ public class ShoppingBasketService {
     /**
      * 장바구니에 상품의 수량을 수정하는 함수
      *
-     * @param shoppingBasketId
-     * @param shoppingBasketRequest
+     * @param dto
      * @return
      */
     @Transactional
     public SimpleShoppingBasketDTO updateShoppingBasket(
-            Long shoppingBasketId,
-            ChangeShoppingBasketQuantityDTO shoppingBasketRequest) {
+            ChangeShoppingBasketQuantityDTO dto) {
         try {
+            Long shoppingBasketId = dto.getShoppingBasketId();
+
             ShoppingBasket shoppingBasket = findShoppingBasketById(shoppingBasketId);
-            shoppingBasket.setQuantity(shoppingBasketRequest.getQuantity());
+            shoppingBasket.setQuantity(dto.getQuantity());
             shoppingBasketRepository.save(shoppingBasket);
 
             return SimpleShoppingBasketDTO.toDTO(shoppingBasket);
@@ -117,21 +115,12 @@ public class ShoppingBasketService {
      * 장바구니 데이터 조회하는 함수
      *
      * @param userId
+     * @param pageable
      * @return
      */
-    public List<ShoppingBasketDetailDTO> getAllShoppingBasket(Long userId) {
+    public Slice<ShoppingBasketDetailDTO> getAllShoppingBasket(Long userId, Pageable pageable) {
         try {
-            return shoppingBasketRepository.findAllShoppingBasketByUserId(userId)
-                    .stream()
-                    .map(w -> {
-
-                        // 2. Product 대표 이미지 리스트 가져오기
-                        List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(w.getProduct().getProductId(), ReferencedEntityType.PRODUCT);
-                        w.setProductImageList(attachFileDTOS);
-
-                        return w;
-                    })
-                    .collect(Collectors.toList());
+            return shoppingBasketRepository.findAllShoppingBasketByUserId(userId, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
