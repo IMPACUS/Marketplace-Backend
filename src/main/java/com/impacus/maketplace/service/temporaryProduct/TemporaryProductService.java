@@ -13,7 +13,6 @@ import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescriptio
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
-import com.impacus.maketplace.service.BrandService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,7 +34,6 @@ public class TemporaryProductService {
     private static final String TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "temporaryProductDescriptionImage";
     private final TemporaryProductRepository temporaryProductRepository;
     private final AttachFileService attachFileService;
-    private final BrandService brandService;
     private final TemporaryProductDescriptionService temporaryProductDescriptionService;
     private final TemporaryProductOptionService temporaryProductOptionService;
     private final TemporaryProductDetailInfoService temporaryProductDetailInfoService;
@@ -45,12 +43,12 @@ public class TemporaryProductService {
     /**
      * TemporaryProduct 데이터가 사용자에게 등록되어 있는지 확인하는 함수
      *
-     * @param userId
+     * @param sellerId
      * @return
      */
-    public IsExistedTemporaryProductDTO checkIsExistedTemporaryProduct(Long userId) {
+    public IsExistedTemporaryProductDTO checkIsExistedTemporaryProduct(Long sellerId) {
         try {
-            boolean isExisted = temporaryProductRepository.existsByRegisterId(userId.toString());
+            boolean isExisted = temporaryProductRepository.existsByRegisterId(sellerId.toString());
             return new IsExistedTemporaryProductDTO(isExisted);
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -71,7 +69,7 @@ public class TemporaryProductService {
             List<MultipartFile> productImageList,
             CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
-//        try {
+        try {
             // 1. 임시 저장 상품이 존재하는지 확인
         Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(sellerId.toString());
             if (optionalData.isPresent()) {
@@ -82,9 +80,9 @@ public class TemporaryProductService {
                 // 임시 저장 상품 저장
                 return addTemporaryProduct(sellerId, productImageList, productRequest, productDescriptionImageList);
             }
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
@@ -127,10 +125,10 @@ public class TemporaryProductService {
         TemporaryProductDescription temporaryProductDescription = temporaryProductDescriptionService.addTemporaryProductDescription(temporaryProductId, productRequest);
 
         // 5. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-        productDescriptionImageList.stream()
-                .map(productDescriptionImage -> {
+        productDescriptionImageList
+                .forEach(productDescriptionImage -> {
                     try {
-                        return attachFileService.uploadFileAndAddAttachFile(
+                        attachFileService.uploadFileAndAddAttachFile(
                                 productDescriptionImage,
                                 TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY,
                                 temporaryProductDescription.getId(),
@@ -138,7 +136,7 @@ public class TemporaryProductService {
                     } catch (IOException e) {
                         throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                     }
-                }).collect(Collectors.toList());
+                });
 
         // 6. Product option 저장
         temporaryProductOptionService.addTemporaryProductOption(temporaryProductId, productRequest.getProductOptions());
@@ -159,7 +157,6 @@ public class TemporaryProductService {
             List<MultipartFile> productImageList,
             CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
-
         Long subCategoryId = productRequest.getCategoryId();
 
         // 2. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
@@ -211,7 +208,7 @@ public class TemporaryProductService {
 
             // 3. 대표 이미지 저장 및 AttachFileGroup과 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
-            productImageList.stream()
+            productImageList
                     .forEach(productImage -> {
                         try {
                             attachFileService.uploadFileAndAddAttachFile(
@@ -246,8 +243,7 @@ public class TemporaryProductService {
                     }).collect(Collectors.toList());
 
             //8. Product option 수정
-            temporaryProductOptionService.deleteAllTemporaryProductionOptionByTemporaryProductId(temporaryProductId);
-            temporaryProductOptionService.addTemporaryProductOption(temporaryProductId, productRequest.getProductOptions());
+            temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, productRequest.getProductOptions());
 
             // 9. Product detail 수정
             TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);

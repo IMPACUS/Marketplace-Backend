@@ -6,7 +6,6 @@ import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryPr
 import com.impacus.maketplace.dto.temporaryProduct.response.SimpleTemporaryProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -55,7 +54,7 @@ public class TemporaryProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
+            @RequestPart(value = "product") CreateProductDTO productRequest) {
         SimpleTemporaryProductDTO simpleTemporaryProductDTO = temporaryProductService.addOrModifyTemporaryProduct(user.getId(), productImageList, productRequest, productDescriptionImageList);
         return ApiResponseEntity
                 .builder()

@@ -107,10 +107,15 @@ public class AttachFileService {
                 .map(attachFileGroup -> findAttachFileById(attachFileGroup.getAttachFileId()))
                 .collect(Collectors.toList());
 
-        // 3. AttachFileGroup 삭제
+        // 3. S3에 파일 삭제
+        for (AttachFile file : attachFileList) {
+            s3Service.deleteFileInS3(file.getAttachFileName());
+        }
+
+        // 4. AttachFileGroup 삭제
         attachFileGroupService.deleteAllAttachFileGroup(attachFileGroupList);
 
-        // 4. AttachFile 삭제
+        // 5. AttachFile 삭제
         attachFileRepository.deleteAllInBatch(attachFileList);
     }
 

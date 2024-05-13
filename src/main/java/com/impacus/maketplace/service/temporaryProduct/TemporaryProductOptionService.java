@@ -60,10 +60,21 @@ public class TemporaryProductOptionService {
      */
     @Transactional
     public void deleteAllTemporaryProductionOptionByTemporaryProductId(Long temporaryProductId) {
-        List<TemporaryProductOption> productOptions = findTemporaryProductOptionByProductId(temporaryProductId);
-
-        temporaryProductOptionRepository.deleteAllInBatch(productOptions);
+        temporaryProductOptionRepository.deleteByTemporaryProductId(temporaryProductId);
     }
 
+    /**
+     * temporaryProductId에 연결된 모든 TemporaryProductOption을 삭제하고 다시 등록하는 함수
+     *
+     * @param temporaryProductId
+     * @param productOptionRequestList
+     */
+    @Transactional
+    public void initializeTemporaryProductionOption(Long temporaryProductId, List<CreateProductOptionDTO> productOptionRequestList) {
+        // 1. 생성되어 있는 TemporaryProductOption을 모두 삭제
+        deleteAllTemporaryProductionOptionByTemporaryProductId(temporaryProductId);
 
+        // 2. 생성
+        addTemporaryProductOption(temporaryProductId, productOptionRequestList);
+    }
 }

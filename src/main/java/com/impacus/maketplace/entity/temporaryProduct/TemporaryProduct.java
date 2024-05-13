@@ -63,8 +63,6 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountStatus discountStatus; // 할인 상태
 
-    @ColumnDefault("'GENERAL'")
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ProductType type; // 상품 타입
 
