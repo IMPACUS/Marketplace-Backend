@@ -43,6 +43,7 @@ public enum CommonErrorType implements ErrorType {
     FAIL_TO_SEND_EMAIL("32_FAIL_TO_SEND_EMAIL", "이메일 전송에 실패하였습니다."),
     NOT_EXISTED_SELLER("33_NOT_EXISTED_SELLER", "존재하지 않는 사용자 입니다."),
     INVALID_ALARM("043_INVALID_ALARM", "유효하지 않는 알림 타입입니다."),
+    INVALID_ID("044_INVALID_ID", "유효하지 않은 ID 입니다."),
 
 
 
