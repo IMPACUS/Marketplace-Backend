@@ -15,6 +15,8 @@ import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
+import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
+import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.seller.SellerService;
@@ -50,6 +52,8 @@ public class ProductService {
     private final TemporaryProductService temporaryProductService;
     private final ObjectCopyHelper objectCopyHelper;
     private final SubCategoryService subCategoryService;
+    private final WishlistRepository wishlistRepository;
+    private final ShoppingBasketRepository shoppingBasketRepository;
 
     /**
      * 새로운 Product 생성 함수
@@ -210,6 +214,9 @@ public class ProductService {
 
             // 5. Product 대표 이미지 삭제
             attachFileService.deleteAttachFileByReferencedId(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
+
+            // 6. 찜 데이터 삭제
+            wishlistRepository.deleteByProductId(productId);
 
             // 2. 삭제
             productRepository.deleteById(productId);
