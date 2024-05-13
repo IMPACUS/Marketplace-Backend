@@ -24,7 +24,7 @@ public class TemporaryProductDescriptionService {
      */
     @Transactional
     public TemporaryProductDescription addTemporaryProductDescription(Long temporaryProductId, CreateProductDTO productRequest) {
-        TemporaryProductDescription newDescription = productRequest.toTemporaryEntity(temporaryProductId);
+        TemporaryProductDescription newDescription = productRequest.toTemporaryDescriptionEntity(temporaryProductId);
 
         return temporaryProductDescriptionRepository.save(newDescription);
     }

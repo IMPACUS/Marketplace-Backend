@@ -76,11 +76,11 @@ public class CreateProductDTO {
                 .build();
     }
 
-    public TemporaryProduct toTemporaryEntity() {
-        return new TemporaryProduct(this);
+    public TemporaryProduct toTemporaryEntity(Long sellerId) {
+        return new TemporaryProduct(sellerId, this);
     }
 
-    public TemporaryProductDescription toTemporaryEntity(Long temporaryProductId) {
+    public TemporaryProductDescription toTemporaryDescriptionEntity(Long temporaryProductId) {
         return TemporaryProductDescription.builder()
                 .temporaryProductId(temporaryProductId)
                 .description(this.description)

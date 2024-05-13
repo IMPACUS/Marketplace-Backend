@@ -67,24 +67,24 @@ public class TemporaryProductService {
      */
     @Transactional
     public SimpleTemporaryProductDTO addOrModifyTemporaryProduct(
-            Long userId,
+            Long sellerId,
             List<MultipartFile> productImageList,
             CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
-        try {
+//        try {
             // 1. 임시 저장 상품이 존재하는지 확인
-            Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(userId.toString());
+        Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(sellerId.toString());
             if (optionalData.isPresent()) {
                 // 임시 저장 상품 수정
                 TemporaryProduct temporaryProduct = optionalData.get();
                 return updateTemporaryProduct(temporaryProduct, productImageList, productRequest, productDescriptionImageList);
             } else {
                 // 임시 저장 상품 저장
-                return addTemporaryProduct(productImageList, productRequest, productDescriptionImageList);
+                return addTemporaryProduct(sellerId, productImageList, productRequest, productDescriptionImageList);
             }
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 
     /**
@@ -97,6 +97,7 @@ public class TemporaryProductService {
      */
     @Transactional
     public SimpleTemporaryProductDTO addTemporaryProduct(
+            Long sellerId,
             List<MultipartFile> productImageList,
             CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList
@@ -105,7 +106,7 @@ public class TemporaryProductService {
         validateProductRequest(productImageList, productRequest, productDescriptionImageList);
 
         // 2. Product 저장
-        TemporaryProduct newTemporaryProduct = temporaryProductRepository.save(productRequest.toTemporaryEntity());
+        TemporaryProduct newTemporaryProduct = temporaryProductRepository.save(productRequest.toTemporaryEntity(sellerId));
         Long temporaryProductId = newTemporaryProduct.getId();
 
         // 3. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성

@@ -9,6 +9,7 @@ import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +31,7 @@ public class TemporaryProductController {
      * @param user
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("/exist")
     public ApiResponseEntity<Object> checkIsExistedTemporaryProduct(@AuthenticationPrincipal CustomUserDetails user) {
         IsExistedTemporaryProductDTO dto = temporaryProductService.checkIsExistedTemporaryProduct(user.getId());
@@ -47,7 +49,8 @@ public class TemporaryProductController {
      * @param productRequest
      * @return
      */
-    @PutMapping("/seller")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PutMapping("")
     public ApiResponseEntity<Object> addOrModifyTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
@@ -60,7 +63,8 @@ public class TemporaryProductController {
                 .build();
     }
 
-    @GetMapping("/seller")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @GetMapping("")
     public ApiResponseEntity<Object> getTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user) {
         TemporaryProductDTO temporaryProductDTO = temporaryProductService.findTemporaryProduct(user.getId());

@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,7 +23,7 @@ public class TemporaryProduct extends BaseEntity {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private Long userId;
+    private Long sellerId; // 판매자 id
 
     @Column(length = 50)
     private String name; // 상품명
@@ -62,7 +63,13 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountStatus discountStatus; // 할인 상태
 
-    public TemporaryProduct(CreateProductDTO productRequest) {
+    @ColumnDefault("'GENERAL'")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductType type; // 상품 타입
+
+    public TemporaryProduct(Long sellerId, CreateProductDTO productRequest) {
+        this.sellerId = sellerId;
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();
@@ -74,6 +81,7 @@ public class TemporaryProduct extends BaseEntity {
         this.weight = productRequest.getWeight();
         this.productStatus = productRequest.getProductStatus();
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
+        this.type = productRequest.getType();
     }
 
     public void setProduct(CreateProductDTO productRequest) {
@@ -87,5 +95,6 @@ public class TemporaryProduct extends BaseEntity {
         this.discountPrice = productRequest.getDiscountPrice();
         this.weight = productRequest.getWeight();
         this.productStatus = productRequest.getProductStatus();
+        this.type = productRequest.getType();
     }
 }
