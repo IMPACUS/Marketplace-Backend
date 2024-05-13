@@ -1,9 +1,7 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.wishlist.request.CreateWishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
@@ -11,6 +9,8 @@ import com.impacus.maketplace.entity.product.Wishlist;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +49,7 @@ public class WishlistService {
         Long productId = wishlistRequest.getProductId();
 
         // 1. productId가 존재하는지 확인
-        productService.findProductById(productId);
+        productService.findProductByIdAndIsDeletedFalse(productId);
 
         // 2. 요청한 유저의 Wishlist에 상품이 존재하는지 확인
         if (!findWishlistByProductIdAndUserId(productId, userId).isEmpty()) {
@@ -105,22 +105,12 @@ public class WishlistService {
      * 찜 데이터를 조회하는 함수
      *
      * @param userId
+     * @param pageable
      * @return
      */
-    public List<WishlistDetailDTO> getAllWishlist(Long userId) {
+    public Slice<WishlistDetailDTO> getAllWishlist(Long userId, Pageable pageable) {
         try {
-            // 1. 찜 세부 데이터 가져오기
-            return wishlistRepository.findAllWishListByUserId(userId)
-                    .stream()
-                    .map(w -> {
-
-                        // 2. Product 대표 이미지 리스트 가져오기
-                        List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(w.getProduct().getProductId(), ReferencedEntityType.PRODUCT);
-                        w.setProductImageList(attachFileDTOS);
-
-                        return w;
-                    })
-                    .collect(Collectors.toList());
+            return wishlistRepository.findAllWishListByUserId(userId, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

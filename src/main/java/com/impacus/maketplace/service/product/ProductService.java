@@ -161,6 +161,17 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_PRODUCT));
     }
 
+    /**
+     * productId로 삭제되지 않은 Product를 찾는 함수
+     *
+     * @param productId
+     * @return
+     */
+    public Product findProductByIdAndIsDeletedFalse(Long productId) {
+        return productRepository.findByIsDeletedFalseAndId(productId)
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_PRODUCT));
+    }
+
     @Transactional
     public void deleteAllProduct(List<Long> productIdList) {
         try {

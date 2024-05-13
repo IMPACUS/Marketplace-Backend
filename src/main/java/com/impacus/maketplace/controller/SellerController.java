@@ -91,7 +91,7 @@ public class SellerController {
      * @param request
      * @return
      */
-    // @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/entry/sellers/entry-status")
     public ApiResponseEntity<Boolean> changeEntryStatus(
             @Valid @RequestBody ChangeSellerEntryStatusDTO request) {

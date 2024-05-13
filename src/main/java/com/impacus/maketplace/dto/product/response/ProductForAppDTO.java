@@ -29,7 +29,8 @@ public class ProductForAppDTO {
             String brandName,
             int appSalePrice,
             DeliveryType deliveryType,
-            int discountPrice
+            int discountPrice,
+            List<AttachFileDTO> productImageList
     ) {
         this.productId = productId;
         this.name = name;
@@ -37,6 +38,7 @@ public class ProductForAppDTO {
         this.appSalePrice = appSalePrice;
         this.deliveryType = deliveryType;
         this.discountPrice = discountPrice;
+        this.productImageList = productImageList;
     }
 
     public void setProductImageList(List<AttachFileDTO> productImageList) {

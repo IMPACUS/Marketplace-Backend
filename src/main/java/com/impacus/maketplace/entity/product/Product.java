@@ -27,6 +27,7 @@ public class Product extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
+    @ColumnDefault("1")
     private Long sellerId;
 
     @Column(nullable = false, length = 50)
