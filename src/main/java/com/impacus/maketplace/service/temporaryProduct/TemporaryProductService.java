@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.temporaryProduct;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
@@ -161,19 +162,19 @@ public class TemporaryProductService {
 
         // 2. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
-            throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
+            throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
 
         for (MultipartFile productImage : productImageList) {
             if (productImage.getSize() > PRODUCT_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 3. 상품 설명 이미지 크기 확인
         for (MultipartFile productImage : productDescriptionImageList) {
             if (productImage.getSize() > PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
@@ -263,7 +264,7 @@ public class TemporaryProductService {
      */
     public TemporaryProduct findTemporaryProductByUserId(Long userId) {
         return temporaryProductRepository.findByRegisterId(userId.toString())
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_TEMPORARY_PRODUCT));
+                .orElseThrow(() -> new CustomException(ProductEnum.NOT_EXISTED_TEMPORARY_PRODUCT));
     }
 
     /**

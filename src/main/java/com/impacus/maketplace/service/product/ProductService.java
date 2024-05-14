@@ -135,19 +135,19 @@ public class ProductService {
     ) {
         // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
-            throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
+            throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
 
         for (MultipartFile productImage : productImageList) {
             if (productImage.getSize() > PRODUCT_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 2. 상품 설명 이미지 크기 확인
         for (MultipartFile productImage : productDescriptionImageList) {
             if (productImage.getSize() > PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
@@ -165,7 +165,7 @@ public class ProductService {
      */
     public Product findProductById(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_PRODUCT));
+                .orElseThrow(() -> new CustomException(ProductEnum.NOT_EXISTED_PRODUCT));
     }
 
     /**
@@ -176,7 +176,7 @@ public class ProductService {
      */
     public Product findProductByIdAndIsDeletedFalse(Long productId) {
         return productRepository.findByIsDeletedFalseAndId(productId)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_PRODUCT));
+                .orElseThrow(() -> new CustomException(ProductEnum.NOT_EXISTED_PRODUCT));
     }
 
     @Transactional
