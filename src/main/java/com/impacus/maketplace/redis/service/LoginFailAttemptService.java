@@ -37,6 +37,23 @@ public class LoginFailAttemptService {
         return loginFailAttempt;
     }
 
+    /**
+     * 로그인에 성공하는 경우, 로그인 실패 횟수를 초기화 시키는 함수
+     *
+     * @param user
+     */
+    @Transactional
+    public void resetLoginFailAttempt(User user) {
+        String email = user.getEmail();
+
+        // 1. 이전 로그인 실패 횟수 찾기
+        LoginFailAttempt loginFailAttempt = findLoginFailAttemptByEmail(email);
+        if (loginFailAttempt != null) {
+            loginFailAttempt.resetFailAttemptCnt();
+            loginFailAttemptRepository.save(loginFailAttempt);
+        }
+    }
+
     public LoginFailAttempt findLoginFailAttemptByEmail(String email) {
         return loginFailAttemptRepository.findByEmail(email)
             .orElse(null);

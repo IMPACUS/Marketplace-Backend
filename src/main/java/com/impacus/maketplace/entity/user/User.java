@@ -211,8 +211,4 @@ public class User extends BaseEntity {
         this.recentLoginAt = LocalDateTime.now();
     }
 
-    public void setType(UserType userType) {
-        this.type = userType;
-    }
-
 }

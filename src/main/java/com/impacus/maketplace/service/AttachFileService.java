@@ -98,7 +98,7 @@ public class AttachFileService {
      * @param referencedId
      * @param referencedEntityType
      */
-    public void deleteAttachFile(Long referencedId, ReferencedEntityType referencedEntityType) {
+    public void deleteAttachFileByReferencedId(Long referencedId, ReferencedEntityType referencedEntityType) {
         // 1. AttachFileGroup 찾기
         List<AttachFileGroup> attachFileGroupList = attachFileGroupService.findAttachFileGroupByReferencedIdAndReferencedEntityType(referencedId, referencedEntityType);
 
@@ -107,11 +107,28 @@ public class AttachFileService {
                 .map(attachFileGroup -> findAttachFileById(attachFileGroup.getAttachFileId()))
                 .collect(Collectors.toList());
 
-        // 3. AttachFileGroup 삭제
+        // 3. S3에 파일 삭제
+        for (AttachFile file : attachFileList) {
+            s3Service.deleteFileInS3(file.getAttachFileName());
+        }
+
+        // 4. AttachFileGroup 삭제
         attachFileGroupService.deleteAllAttachFileGroup(attachFileGroupList);
 
-        // 4. AttachFile 삭제
+        // 5. AttachFile 삭제
         attachFileRepository.deleteAllInBatch(attachFileList);
+    }
+
+    /**
+     * AttachFile 삭제
+     *
+     * @param attachFileId
+     */
+    public void deleteAttachFile(Long attachFileId) {
+        AttachFile file = findAttachFileById(attachFileId);
+
+        s3Service.deleteFileInS3(file.getAttachFileName());
+        attachFileRepository.delete(file);
     }
 
     /**
@@ -134,5 +151,31 @@ public class AttachFileService {
      */
     public List<AttachFileDTO> findAllAttachFileByReferencedId(Long referencedId, ReferencedEntityType referencedEntityType) {
         return attachFileRepository.findAllAttachFileByReferencedId(referencedId, referencedEntityType);
+    }
+
+    /**
+     * AttachFile의 업로드 파일을 변경하는 함수
+     *
+     * @param attachFileId
+     * @param changedFile
+     * @param directoryPath
+     */
+    public void updateAttachFile(Long attachFileId, MultipartFile changedFile, String directoryPath) throws IOException {
+        AttachFile file = findAttachFileById(attachFileId);
+
+        // 1. 업로드된 파일 삭제
+        s3Service.deleteFileInS3(file.getAttachFileName());
+
+        // 2. s3 업로드
+        String fileName = s3Service.uploadFileInS3(changedFile, directoryPath);
+
+        // 3. 업데이트
+        attachFileRepository.updateFileInfo(
+                file.getId(),
+                fileName,
+                changedFile.getSize(),
+                changedFile.getOriginalFilename(),
+                StringUtils.getFileExtension(changedFile.getOriginalFilename()).orElse(null)
+        );
     }
 }

@@ -4,7 +4,9 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.ProductStatus;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.dto.product.request.CreateProductDTO;
+import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -26,7 +28,8 @@ public class Product extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long brandId;
+    @ColumnDefault("1")
+    private Long sellerId;
 
     @Column(nullable = false, length = 50)
     private String name; // 상품명
@@ -75,8 +78,13 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountStatus discountStatus; // 할인 상태
 
-    public Product(String productNumber, ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
+    @ColumnDefault("'GENERAL'")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductType type; // 상품 타입
+
+    public Product(String productNumber, Long sellerId, CreateProductDTO productRequest) {
+        this.sellerId = sellerId;
         this.name = productRequest.getName();
         this.productNumber = productNumber;
         this.deliveryType = productRequest.getDeliveryType();
@@ -89,19 +97,20 @@ public class Product extends BaseEntity {
         this.weight = productRequest.getWeight();
         this.productStatus = productRequest.getProductStatus();
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
+        this.type = productRequest.getType();
     }
 
-    public void setProduct(ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
-        this.name = productRequest.getName();
-        this.deliveryType = productRequest.getDeliveryType();
-        this.categoryId = productRequest.getCategoryId();
-        this.deliveryFee = productRequest.getDeliveryFee();
-        this.refundFee = productRequest.getRefundFee();
-        this.marketPrice = productRequest.getMarketPrice();
-        this.appSalesPrice = productRequest.getAppSalesPrice();
-        this.discountPrice = productRequest.getDiscountPrice();
-        this.weight = productRequest.getWeight();
-        this.productStatus = productRequest.getProductStatus();
+    public void setProduct(UpdateProductDTO dto) {
+        this.name = dto.getName();
+        this.deliveryType = dto.getDeliveryType();
+        this.categoryId = dto.getCategoryId();
+        this.deliveryFee = dto.getDeliveryFee();
+        this.refundFee = dto.getRefundFee();
+        this.marketPrice = dto.getMarketPrice();
+        this.appSalesPrice = dto.getAppSalesPrice();
+        this.discountPrice = dto.getDiscountPrice();
+        this.weight = dto.getWeight();
+        this.productStatus = dto.getProductStatus();
+        this.type = dto.getType();
     }
 }

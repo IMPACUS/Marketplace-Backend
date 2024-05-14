@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository;
 
 import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -28,8 +29,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
     @Query("UPDATE User u SET u.status = :status, u.statusReason = :statusReason WHERE u.id = :id")
-    int updateUserStatus(@Param("id") Long id, @Param("status") UserStatus status,
-                         @Param("statusReason") String statusReason);
+    int updateUserStatus(
+            @Param("id") Long id,
+            @Param("status") UserStatus status,
+            @Param("statusReason") String statusReason
+    );
+
+    @Modifying
+    @Query("UPDATE User u SET u.type = :type WHERE u.id = :id")
+    int updateUserType(@Param("id") Long id, @Param("type") UserType type);
 
 
 }

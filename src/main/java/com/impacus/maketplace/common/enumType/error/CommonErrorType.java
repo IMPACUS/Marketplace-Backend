@@ -18,34 +18,22 @@ public enum CommonErrorType implements ErrorType {
     WRONG_PASSWORD("008_WRONG_PASSWORD", "틀린 비밀번호 입니다."),
     NOT_ALLOW_EMAIL("009_NOT_ALLOW_EMAIL", "이메일 사용이 허용이 되지 않은 사용자입니다."),
     FAIL_TO_CONVERT_FILE("010_FAIL_TO_CONVERT_FILE", "첨부된 파일을 File 타입으로 변환하는데 실패했습니다."),
-    INVALID_PRODUCT("011_INVALID_PRODUCT", "유효하지 않은 상품 데이터입니다."),
     NOT_EXISTED_BRAND("012_NOT_EXISTED_BRAND", "존재하지 않는 브랜드입니다"),
     FAIL_TO_UPLOAD_FILE("013_FAIL_TO_UPLOAD_FILE", "S3로 파일을 첨부하는데 실패했습니다."),
-    NOT_EXISTED_PRODUCT("014_NOT_EXISTED_PRODUCT", "존재하지 않는 상품입니다."),
     REGISTERED_WISHLIST("015_REGISTERED_WISHLIST", "이미 존재하는 찜 데이터 추가 요청입니다."),
     NOT_EXISTED_WISHLIST("016_NOT_EXISTED_WISHLIST", "존재하지 않는 찜 데이터입니다."),
     NOT_EXISTED_ATTACH_FILE("017_NOT_EXISTED_ATTACH_FILE", "존재하지 않는 첨부 파일입니다."),
     INVALID_REQUEST_DATA("018_INVALID_REQUEST_DATA", "유효하지 않은 데이터에 대한 요청입니다."),
-    NOT_EXISTED_TEMPORARY_PRODUCT("019_NOT_EXISTED_TEMPORARY_PRODUCT", "임시 저장 데이터가 존재하지 않습니다."),
     NOT_EXISTED_SHOPPING_CART("019_NOT_EXISTED_SHOPPING_CART", "장바구니 데이터가 존재하지 않습니다."),
     FAIL_TO_APPLE_LOGIN("020_FAIL_TO_APPLE_LOGIN", "apple 로그인에 실패하셨습니다."),
-    NOT_EXISTED_PRODUCT_OPTION("021_NOT_EXISTED_PRODUCT_OPTION", "존재하지 않는 상품 옵션입니다"),
-    DUPLICATED_SUPER_CATEGORY("022_DUPLICATED_SUPER_CATEGORY", "중복된 1차 카테고리 명이 존재합나디."),
-    NOT_EXISTED_SUPER_CATEGORY("023_NOT_EXISTED_SUPER_CATEGORY", "존재하지 않는 1차 카테고리 옵션입니다."),
     INVALID_THUMBNAIL("024_INVALID_THUMBNAIL", "유효하지 않은 데이터에 대한 요청입니다."),
-    NOT_EXISTED_SUB_CATEGORY("205_NOT_EXISTED_SUB_CATEGORY", "존재하지 않는 2차 카테고리 옵션입니다."),
     NOT_ACTIVE_EMAIL("026_NOT_ACTIVE_EMAIL", "휴면 회원 입니다."),
-    EXCEED_MAX_SUB_CATEGORY("027_EXCEED_MAX_SUB_CATEGORY", "생성할 수 있는 최대 2차 카테고리 수를 초과하였습니다."),
-    CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT("028_CANNOT_DELETE_SUB_CATEGORY_WITH_PRODUCT", "상품이 존재하는 2차 카테고리는 삭제할 수 없습니다."),
-    CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT("029_CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT", "상품이 존재하는 1차 카테고리는 삭제할 수 없습니다."),
     NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),
     INVALID_POINT_MANAGE("031_INVALID_POINT_MANAGE", "유효하지 않은 포인트 입니다."),
     FAIL_TO_SEND_EMAIL("32_FAIL_TO_SEND_EMAIL", "이메일 전송에 실패하였습니다."),
     NOT_EXISTED_SELLER("33_NOT_EXISTED_SELLER", "존재하지 않는 사용자 입니다."),
     INVALID_ALARM("043_INVALID_ALARM", "유효하지 않는 알림 타입입니다."),
     INVALID_ID("044_INVALID_ID", "유효하지 않은 ID 입니다."),
-
-
 
     DUPLICATED_SUB_CATEGORY("050_DUPLICATED_SUB_CATEGORY", "중복된 2차 카테고리 명이 존재합나디."),
 
@@ -54,7 +42,7 @@ public enum CommonErrorType implements ErrorType {
     EXPIRED_TOKEN("102_EXPIRED_TOKEN", "만료된 토큰입니다."),
 
     // 403
-    ACCESS_DENIED_EMAIL("301_ACCESS_DENIED_EMAIL", "접근 권한이 없는 사용자 요청입니다.");
+    ACCESS_DENIED_ACCOUNT("301_ACCESS_DENIED_ACCOUNT", "접근 권한이 없는 요청입니다.");
 
     private final String code;
     private final String msg;

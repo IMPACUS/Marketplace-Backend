@@ -21,7 +21,8 @@ public class WishlistDetailDTO {
             String brandName,
             int appSalePrice,
             DeliveryType deliveryType,
-            int discountPrice
+            int discountPrice,
+            List<AttachFileDTO> productImageList
     ) {
         this.wishlistId = wishlistId;
         this.product = new ProductForAppDTO(
@@ -30,11 +31,8 @@ public class WishlistDetailDTO {
                 brandName,
                 appSalePrice,
                 deliveryType,
-                discountPrice
+                discountPrice,
+                productImageList
         );
-    }
-
-    public void setProductImageList(List<AttachFileDTO> productImageList) {
-        this.product.setProductImageList(productImageList);
     }
 }

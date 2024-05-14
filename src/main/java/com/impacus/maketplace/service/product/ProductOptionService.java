@@ -1,10 +1,11 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductEnum;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.product.request.ProductOptionRequest;
+import com.impacus.maketplace.dto.product.request.CreateProductOptionDTO;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
+import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class ProductOptionService {
 
     private final ProductOptionRepository productOptionRepository;
+    private final ShoppingBasketRepository shoppingBasketRepository;
 
 
     /**
@@ -30,7 +32,7 @@ public class ProductOptionService {
      * @return
      */
     @Transactional
-    public void addProductOption(Long productId, List<ProductOptionRequest> productOptionRequestList) {
+    public void addProductOption(Long productId, List<CreateProductOptionDTO> productOptionRequestList) {
         List<ProductOption> newProductOptions = productOptionRequestList.stream()
                 .map(productOptionRequest -> productOptionRequest.toEntity(productId))
                 .collect(Collectors.toList());
@@ -70,7 +72,7 @@ public class ProductOptionService {
     }
 
     /**
-     * productId와 연결된 모든 ProductOption을 삭제하는 함수
+     * productId와 연결된 모든 ProductOption 을 삭제하는 함수
      *
      * @param productId
      */
@@ -82,11 +84,13 @@ public class ProductOptionService {
     }
 
     /**
-     * productOption 데이터를 모두 삭제하는 함수
+     * productOption 데이터와 연결된 Shopping cart 데이터를 모두 삭제하는 함수
      *
      * @param productOptions
      */
     public void deleteAllProductOption(List<ProductOption> productOptions) {
+        List<Long> productOptionIds = productOptions.stream().map(ProductOption::getId).toList();
+        shoppingBasketRepository.deleteByProductOptionId(productOptionIds);
         productOptionRepository.deleteAllInBatch(productOptions);
     }
 
@@ -100,12 +104,12 @@ public class ProductOptionService {
      * @param productOptionRequestList
      */
     @Transactional
-    public void updateProductOptionList(Long productId, List<ProductOptionRequest> productOptionRequestList) {
+    public void updateProductOptionList(Long productId, List<CreateProductOptionDTO> productOptionRequestList) {
         List<ProductOption> productOptionList = findProductOptionByProductId(productId);
 
         // 1. 전달 받은 데이터 중 생성&수정할 데이터 취합
         List<ProductOption> updatedProductOptionList = new ArrayList<>();
-        for (ProductOptionRequest productOptionRequest : productOptionRequestList) {
+        for (CreateProductOptionDTO productOptionRequest : productOptionRequestList) {
             if (productOptionRequest.getProductOptionId() == null) {
                 ProductOption productOption = productOptionRequest.toEntity(productId);
                 updatedProductOptionList.add(productOption);
@@ -117,7 +121,7 @@ public class ProductOptionService {
 
                 if (modifiedData == null) {
                     // 생성
-                    throw new CustomException(CommonErrorType.NOT_EXISTED_PRODUCT_OPTION);
+                    throw new CustomException(ProductEnum.NOT_EXISTED_PRODUCT_OPTION);
                 } else {
                     // 수정
                     modifiedData.setColor(productOptionRequest.getColor());
