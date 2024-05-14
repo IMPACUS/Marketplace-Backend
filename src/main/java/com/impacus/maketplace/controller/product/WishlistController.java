@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.wishlist.request.WishlistRequest;
+import com.impacus.maketplace.dto.wishlist.request.CreateWishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
 import com.impacus.maketplace.service.product.WishlistService;
@@ -40,7 +40,7 @@ public class WishlistController {
     @PostMapping("/user")
     public ApiResponseEntity<Object> addWishlist(
             @AuthenticationPrincipal CustomUserDetails user,
-            @Valid @RequestBody WishlistRequest wishlistRequest) {
+            @Valid @RequestBody CreateWishlistDTO wishlistRequest) {
         WishlistDTO wishlistDTO = wishlistService.addWishlist(user.getId(), wishlistRequest);
         return ApiResponseEntity
                 .builder()

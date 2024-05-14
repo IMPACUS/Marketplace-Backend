@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
-import com.impacus.maketplace.dto.product.request.ProductDetailInfoRequest;
+import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductDetailInfoRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class TemporaryProductDetailInfoService {
      * @param productDetail
      */
     @Transactional
-    public void addTemporaryProductDetailInfo(Long temporaryProductId, ProductDetailInfoRequest productDetail) {
+    public void addTemporaryProductDetailInfo(Long temporaryProductId, CreateProductDetailInfoDTO productDetail) {
         TemporaryProductDetailInfo newTemporaryProductDetailInfo = productDetail.toTemporaryEntity(temporaryProductId);
         temporaryProductDetailInfoRepository.save(newTemporaryProductDetailInfo);
 

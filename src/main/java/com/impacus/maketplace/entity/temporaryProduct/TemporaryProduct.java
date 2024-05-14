@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.ProductStatus;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -21,8 +21,8 @@ public class TemporaryProduct extends BaseEntity {
     @Column(name = "temporary_product_info_id")
     private Long id;
 
-    @Column(nullable = false)
-    private Long brandId;
+    @Column(nullable = false, unique = true)
+    private Long userId;
 
     @Column(length = 50)
     private String name; // 상품명
@@ -62,8 +62,7 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DiscountStatus discountStatus; // 할인 상태
 
-    public TemporaryProduct(ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
+    public TemporaryProduct(CreateProductDTO productRequest) {
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();
@@ -77,8 +76,7 @@ public class TemporaryProduct extends BaseEntity {
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
     }
 
-    public void setProduct(ProductRequest productRequest) {
-        this.brandId = productRequest.getBrandId();
+    public void setProduct(CreateProductDTO productRequest) {
         this.name = productRequest.getName();
         this.deliveryType = productRequest.getDeliveryType();
         this.categoryId = productRequest.getCategoryId();

@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangeCategoryNameRequest {
+public class CreateSuperCategoryDTO {
+
     @NotBlank
     @Size(max = 10)
     private String name;

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDetailInfoRequest {
+public class CreateProductDetailInfoDTO {
     @NotBlank
     private String productType; // 상품 종류
     @NotBlank

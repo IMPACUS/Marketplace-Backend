@@ -1,7 +1,7 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.dev.request.TestValidEnumRequest;
+import com.impacus.maketplace.dto.dev.request.TestValidEnumDTO;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +17,7 @@ public class DevController {
     }
 
     @RequestMapping("/test-valid-enum")
-    public ApiResponseEntity<Object> testValidEnum(@Valid @RequestBody TestValidEnumRequest validEnumDTO) {
+    public ApiResponseEntity<Object> testValidEnum(@Valid @RequestBody TestValidEnumDTO validEnumDTO) {
         return ApiResponseEntity
                 .builder()
                 .data(validEnumDTO)

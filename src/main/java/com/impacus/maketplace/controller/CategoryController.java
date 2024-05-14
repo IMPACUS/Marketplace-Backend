@@ -1,32 +1,22 @@
 package com.impacus.maketplace.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
-import com.impacus.maketplace.dto.category.request.SubCategoryRequest;
-import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
+import com.impacus.maketplace.dto.category.request.CreateSubCategoryDTO;
+import com.impacus.maketplace.dto.category.request.CreateSuperCategoryDTO;
 import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.category.SuperCategoryService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -42,9 +32,10 @@ public class CategoryController {
      * @param superCategoryRequest
      * @return
      */
-    @PostMapping("admin/super-category")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/super-category")
     public ApiResponseEntity<Object> addSuperCategory(
-            @Valid @RequestBody SuperCategoryRequest superCategoryRequest) {
+            @Valid @RequestBody CreateSuperCategoryDTO superCategoryRequest) {
         SuperCategoryDTO superCategoryDTO = superCategoryService.addSuperCategory(superCategoryRequest);
         return ApiResponseEntity
                 .builder()
@@ -59,10 +50,11 @@ public class CategoryController {
      * @param subCategoryRequest
      * @return
      */
-    @PostMapping("admin/sub-category")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("sub-category")
     public ApiResponseEntity<Object> addSubCategory(
-            @RequestPart(value = "sub-category-thumbnail", required = false) MultipartFile thumbnail,
-            @Valid @RequestPart(value = "sub-category") SubCategoryRequest subCategoryRequest) {
+            @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
+            @Valid @RequestPart(value = "subCategory") CreateSubCategoryDTO subCategoryRequest) {
         SubCategoryDTO subCategoryDTO = subCategoryService.addSubCategory(thumbnail, subCategoryRequest);
         return ApiResponseEntity
                 .builder()
@@ -73,34 +65,31 @@ public class CategoryController {
     /**
      * 1차 카테고리명 수정 API
      *
-     * @param categoryId
      * @param categoryNameRequest
      * @return
      */
-    @PutMapping("admin/super-category/{categoryId}")
-    public ApiResponseEntity<Object> updateSuperCategory(
-            @PathVariable(name = "categoryId") Long categoryId,
-            @Valid @RequestBody ChangeCategoryNameRequest categoryNameRequest) {
-        SuperCategoryDTO superCategoryDTO = superCategoryService.updateSuperCategory(categoryId, categoryNameRequest);
-        return ApiResponseEntity
-                .builder()
-                .data(superCategoryDTO)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("super-category")
+    public ApiResponseEntity<Boolean> updateSuperCategory(
+            @Valid @RequestBody ChangeCategoryNameDTO categoryNameRequest) {
+        Boolean result = superCategoryService.updateSuperCategory(categoryNameRequest);
+        return ApiResponseEntity.<Boolean>builder()
+                .data(result)
                 .build();
     }
 
     /**
      * 2차 카테고리명 수정 API
-     *
-     * @param categoryId
-     * @param categoryNameRequest
+     * @param thumbnail
+     * @param subCategoryRequest
      * @return
      */
-    @PutMapping("admin/sub-category/{categoryId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("sub-category/{categoryId}")
     public ApiResponseEntity<Object> updateSubCategory(
-            @PathVariable(name = "categoryId") Long categoryId,
-            @RequestPart(value = "sub-category-thumbnail", required = false) MultipartFile thumbnail,
-            @Valid @RequestPart(value = "sub-category") ChangeCategoryNameRequest subCategoryRequest) {
-        SubCategoryDTO subCategoryDTO = subCategoryService.updateSubCategory(categoryId, thumbnail, subCategoryRequest);
+            @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
+            @Valid @RequestPart(value = "subCategory") ChangeCategoryNameDTO subCategoryRequest) {
+        SubCategoryDTO subCategoryDTO = subCategoryService.updateSubCategory(thumbnail, subCategoryRequest);
         return ApiResponseEntity
                 .builder()
                 .data(subCategoryDTO)
@@ -121,7 +110,8 @@ public class CategoryController {
      *
      * @return
      */
-    @DeleteMapping("admin/sub-category")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("sub-category")
     public ApiResponseEntity<Object> deleteSubCategory(
             @RequestParam(name = "sub-category-id") List<Long> subCategoryIdList) {
         subCategoryService.deleteSubCategory(subCategoryIdList);
@@ -135,7 +125,8 @@ public class CategoryController {
      *
      * @return
      */
-    @DeleteMapping("admin/super-category")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("super-category")
     public ApiResponseEntity<Object> deleteSuperCategory(
             @RequestParam(name = "super-category-id") List<Long> superCategoryIdList) {
         subCategoryService.deleteSuperCategory(superCategoryIdList);

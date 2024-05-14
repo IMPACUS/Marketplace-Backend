@@ -1,12 +1,12 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
-import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
@@ -69,7 +69,7 @@ public class TemporaryProductService {
     public SimpleTemporaryProductDTO addOrModifyTemporaryProduct(
             Long userId,
             List<MultipartFile> productImageList,
-            ProductRequest productRequest,
+            CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. 임시 저장 상품이 존재하는지 확인
@@ -98,7 +98,7 @@ public class TemporaryProductService {
     @Transactional
     public SimpleTemporaryProductDTO addTemporaryProduct(
             List<MultipartFile> productImageList,
-            ProductRequest productRequest,
+            CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList
     ) {
         // 1. productRequest 데이터 유효성 검사
@@ -156,15 +156,10 @@ public class TemporaryProductService {
      */
     public void validateProductRequest(
             List<MultipartFile> productImageList,
-            ProductRequest productRequest,
+            CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
 
-        Long brandId = productRequest.getBrandId();
-        DeliveryType deliveryType = productRequest.getDeliveryType();
         Long subCategoryId = productRequest.getCategoryId();
-
-        // 1. brand 가 존재하는지 확인
-        brandService.findBrandById(brandId);
 
         // 2. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
@@ -184,12 +179,8 @@ public class TemporaryProductService {
             }
         }
 
-        // 4. 상품 내부 데이터 확인
-        if (deliveryType == DeliveryType.NONE) {
-            throw new CustomException(CommonErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
-        }
         if (!subCategoryService.existsBySubCategoryId(subCategoryId)) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY);
+            throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
         }
     }
 
@@ -206,7 +197,7 @@ public class TemporaryProductService {
     public SimpleTemporaryProductDTO updateTemporaryProduct(
             TemporaryProduct temporaryProduct,
             List<MultipartFile> productImageList,
-            ProductRequest productRequest,
+            CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. productRequest 데이터 유효성 검사
@@ -218,7 +209,7 @@ public class TemporaryProductService {
             Long temporaryProductId = temporaryProduct.getId();
 
             // 3. 대표 이미지 저장 및 AttachFileGroup과 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
+            attachFileService.deleteAttachFileByReferencedId(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
             productImageList.stream()
                     .forEach(productImage -> {
                         try {
@@ -238,7 +229,7 @@ public class TemporaryProductService {
             description.setDescription(productRequest.getDescription());
 
             // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFile(description.getId(), ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
+            attachFileService.deleteAttachFileByReferencedId(description.getId(), ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
             productDescriptionImageList.stream()
                     .map(productDescriptionImage -> {
                         try {
@@ -299,13 +290,13 @@ public class TemporaryProductService {
 
         // 3. TemporaryProductDescription 이미지 삭제
         TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
-        attachFileService.deleteAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+        attachFileService.deleteAttachFileByReferencedId(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
 
         // 4. TemporaryProductDescription 삭제
         temporaryProductDescriptionService.deleteTemporaryProductDescription(description);
 
         // 5. TemporaryProduct의 대표 이미지 삭제
-        attachFileService.deleteAttachFile(temporaryProductId, ReferencedEntityType.PRODUCT);
+        attachFileService.deleteAttachFileByReferencedId(temporaryProductId, ReferencedEntityType.PRODUCT);
 
         // 6. 삭제
         temporaryProductRepository.deleteById(temporaryProductId);

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductOptionRequest {
+public class CreateProductOptionDTO {
     private Long productOptionId;
     private String color;
     private String size;

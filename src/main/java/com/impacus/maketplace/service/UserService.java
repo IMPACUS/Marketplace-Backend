@@ -10,8 +10,8 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
-import com.impacus.maketplace.dto.user.request.LoginRequest;
-import com.impacus.maketplace.dto.user.request.SignUpRequest;
+import com.impacus.maketplace.dto.user.request.LoginDTO;
+import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.redis.entity.EmailVerificationCode;
@@ -55,7 +55,7 @@ public class UserService {
 
 
     @Transactional
-    public UserDTO addUser(SignUpRequest signUpRequest) {
+    public UserDTO addUser(SignUpDTO signUpRequest) {
         String email = signUpRequest.getEmail();
         String password = signUpRequest.getPassword();
 
@@ -116,7 +116,7 @@ public class UserService {
     }
 
     @Transactional(noRollbackFor = CustomException.class)
-    public UserDTO login(LoginRequest loginRequest, UserType userType) {
+    public UserDTO login(LoginDTO loginRequest, UserType userType) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
@@ -137,6 +137,8 @@ public class UserService {
                     changeUserStatus(user, UserStatus.BLOCKED);
                 }
                 throw new CustomException(CommonErrorType.WRONG_PASSWORD);
+            } else {
+                loginFailAttemptService.resetLoginFailAttempt(user);
             }
 
             // 4. JWT 토큰 생성
@@ -172,7 +174,7 @@ public class UserService {
 
                 yield checkedSeller;
             }
-            default -> throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_EMAIL);
+            default -> throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_ACCOUNT);
         };
 
         if (user.getStatus() == UserStatus.BLOCKED) {
@@ -204,7 +206,7 @@ public class UserService {
      */
     private void validateApprovedSeller(User checkedSeller) {
         if (checkedSeller.getType() != UserType.ROLE_APPROVED_SELLER) {
-            throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_EMAIL);
+            throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_ACCOUNT);
         }
     }
 
@@ -356,13 +358,12 @@ public class UserService {
     /**
      * userType을 업데이트하는 합수
      *
-     * @param user
+     * @param userId
      * @param userType
      */
     @Transactional
-    public void updateUserType(User user, UserType userType) {
-        user.setType(userType);
-        userRepository.save(user);
+    public void updateUserType(Long userId, UserType userType) {
+        userRepository.updateUserType(userId, userType);
     }
 
 }

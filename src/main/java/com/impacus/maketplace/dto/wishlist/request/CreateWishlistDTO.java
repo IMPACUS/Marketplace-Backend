@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WishlistRequest {
+public class CreateWishlistDTO {
     @NotNull
     private Long productId;
 

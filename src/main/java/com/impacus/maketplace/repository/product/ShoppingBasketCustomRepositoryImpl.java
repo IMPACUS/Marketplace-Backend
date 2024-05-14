@@ -3,10 +3,10 @@ package com.impacus.maketplace.repository.product;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
-import com.impacus.maketplace.entity.QBrand;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
+import com.impacus.maketplace.entity.seller.QSeller;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
     private final QShoppingBasket shoppingBasket = QShoppingBasket.shoppingBasket;
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
-    private final QBrand brand = QBrand.brand;
+    private final QSeller seller = QSeller.seller;
 
     @Override
     public List<ShoppingBasketDetailDTO> findAllShoppingBasketByUserId(Long userId) {
@@ -35,7 +35,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                                         ProductForAppDTO.class,
                                         product.id,
                                         product.name,
-                                        brand.name,
+                                        seller.marketName,
                                         product.appSalesPrice,
                                         product.deliveryType,
                                         product.discountPrice
@@ -51,7 +51,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                 .from(shoppingBasket)
                 .leftJoin(productOption).on(shoppingBasket.productOptionId.eq(productOption.id))
                 .leftJoin(product).on(product.id.eq(productOption.productId))
-                .leftJoin(brand).on(brand.id.eq(product.brandId))
+                .leftJoin(seller).on(seller.userId.eq(userId))
                 .where(shoppingBasket.userId.eq(userId))
                 .fetch();
     }

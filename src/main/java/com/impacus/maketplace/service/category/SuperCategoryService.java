@@ -1,10 +1,10 @@
 package com.impacus.maketplace.service.category;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.category.request.ChangeCategoryNameRequest;
-import com.impacus.maketplace.dto.category.request.SuperCategoryRequest;
+import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
+import com.impacus.maketplace.dto.category.request.CreateSuperCategoryDTO;
 import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
@@ -26,17 +26,17 @@ public class SuperCategoryService {
     /**
      * 1차 카테고리 추가하는 함수
      *
-     * @param superCategoryRequest
-     * @return
+     * @param superCategoryRequest The request object containing the details of the super category to be added, including its name.
+     * @return A DTO representing the newly added super category, including its ID and name.
      */
     @Transactional
-    public SuperCategoryDTO addSuperCategory(SuperCategoryRequest superCategoryRequest) {
+    public SuperCategoryDTO addSuperCategory(CreateSuperCategoryDTO superCategoryRequest) {
         try {
             String superCategoryName = superCategoryRequest.getName();
 
             // 1. 중복된 1차 카테고리 명 확인
             if (existsBySuperCategoryName(superCategoryName)) {
-                throw new CustomException(CommonErrorType.DUPLICATED_SUPER_CATEGORY);
+                throw new CustomException(CategoryEnum.DUPLICATED_SUPER_CATEGORY);
             }
 
             // 2. 1차 카테고리 저장
@@ -71,18 +71,28 @@ public class SuperCategoryService {
     /**
      * 1차 카테고리 명 수정 함수
      *
-     * @param categoryId
      * @param categoryNameRequest
      * @return
      */
+    // TODO update query로 변경9
     @Transactional
-    public SuperCategoryDTO updateSuperCategory(Long categoryId, ChangeCategoryNameRequest categoryNameRequest) {
+    public Boolean updateSuperCategory(ChangeCategoryNameDTO categoryNameRequest) {
         try {
-            SuperCategory superCategory = findBySuperCategoryId(categoryId);
+            Long categoryId = categoryNameRequest.getCategoryId();
+            String superCategoryName = categoryNameRequest.getName();
 
-            superCategory.setName(categoryNameRequest.getName());
-            superCategoryRepository.save(superCategory);
-            return objectCopyHelper.copyObject(superCategory, SuperCategoryDTO.class);
+            // 1. 중복된 1차 카테고리 명 확인
+            if (existsBySuperCategoryName(superCategoryName)) {
+                throw new CustomException(CategoryEnum.DUPLICATED_SUPER_CATEGORY);
+            }
+
+            // 2. 업데이트
+            int rowCnt = superCategoryRepository.updateCategoryNameById(categoryId, superCategoryName);
+            if (rowCnt == 0) {
+                throw new CustomException(CategoryEnum.NOT_EXISTED_SUPER_CATEGORY);
+            }
+
+            return true;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -96,7 +106,7 @@ public class SuperCategoryService {
      */
     public SuperCategory findBySuperCategoryId(Long id) {
         return superCategoryRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_SUPER_CATEGORY));
+                .orElseThrow(() -> new CustomException(CategoryEnum.NOT_EXISTED_SUPER_CATEGORY));
     }
 
     /**

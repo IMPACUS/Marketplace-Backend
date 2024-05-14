@@ -2,20 +2,22 @@ package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.request.ProductRequest;
+import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
+import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
-import com.impacus.maketplace.service.BrandService;
 import com.impacus.maketplace.service.category.SubCategoryService;
+import com.impacus.maketplace.service.seller.SellerService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,7 +44,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductOptionService productOptionService;
     private final ProductDetailInfoService productDetailInfoService;
-    private final BrandService brandService;
+    private final SellerService sellerService;
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
@@ -50,7 +52,7 @@ public class ProductService {
     private final SubCategoryService subCategoryService;
 
     /**
-     * 새로운 Product를 저장하는 함수
+     * 새로운 Product 생성 함수
      *
      * @param productRequest
      * @return
@@ -59,43 +61,43 @@ public class ProductService {
     public ProductDTO addProduct(
             Long userId,
             List<MultipartFile> productImageList,
-            ProductRequest productRequest,
+            CreateProductDTO productRequest,
             List<MultipartFile> productDescriptionImageList) {
         try {
+            Seller seller = sellerService.findSellerByUserId(userId);
+
             // 1. productRequest 데이터 유효성 검사
-            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-                throw new CustomException(CommonErrorType.INVALID_PRODUCT);
-            }
+            validateProductRequest(productImageList, productRequest, productDescriptionImageList);
 
             // 2. 상풍 번호 생성
             String productNumber = StringUtils.getProductNumber();
 
             // 3. Product 저장
-            Product newProduct = productRepository.save(productRequest.toEntity(productNumber));
+            Product newProduct = productRepository.save(productRequest.toEntity(productNumber, seller.getId()));
             Long productId = newProduct.getId();
 
-            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-            productImageList.stream()
-                    .map(productImage -> {
+            // 4. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            productImageList
+                    .forEach(productImage -> {
                         try {
-                            return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                            attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
-                    }).collect(Collectors.toList());
+                    });
 
             // 5. Product description 저장
             ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest);
 
             // 6. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            productDescriptionImageList.stream()
-                    .map(productDescriptionImage -> {
+            productDescriptionImageList
+                    .forEach(productDescriptionImage -> {
                         try {
-                            return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
-                    }).collect(Collectors.toList());
+                    });
 
             //7. Product option 저장
             productOptionService.addProductOption(productId, productRequest.getProductOptions());
@@ -120,13 +122,9 @@ public class ProductService {
      * @param productRequest
      * @return
      */
-    public boolean validateProductRequest(List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
-        Long brandId = productRequest.getBrandId();
+    public void validateProductRequest(List<MultipartFile> productImageList, CreateProductDTO productRequest, List<MultipartFile> productDescriptionImageList) {
         DeliveryType deliveryType = productRequest.getDeliveryType();
         Long categoryId = productRequest.getCategoryId();
-
-        // 1. brand 가 존재하는지 확인
-        brandService.findBrandById(brandId);
 
         // 2. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
@@ -147,15 +145,9 @@ public class ProductService {
         }
 
         // 4. 상품 내부 데이터 확인
-        if (deliveryType == DeliveryType.NONE) {
-            throw new CustomException(CommonErrorType.INVALID_PRODUCT, "알 수 없는 배송타입 입니다.");
-        }
-
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY);
+            throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
         }
-
-        return true;
     }
 
     /**
@@ -200,13 +192,13 @@ public class ProductService {
 
             // 3. ProductDescription 이미지 삭제
             ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(productId);
-            attachFileService.deleteAttachFile(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+            attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
 
             // 4. ProductDescription 삭제
             productDescriptionService.deleteProductDescription(productDescription);
 
-            // 5. Product의 대표 이미지 삭제
-            attachFileService.deleteAttachFile(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
+            // 5. Product 대표 이미지 삭제
+            attachFileService.deleteAttachFileByReferencedId(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
 
             // 2. 삭제
             productRepository.deleteById(productId);
@@ -225,22 +217,20 @@ public class ProductService {
      * @return
      */
     @Transactional
-    public ProductDTO updateProduct(Long productId, List<MultipartFile> productImageList, ProductRequest productRequest, List<MultipartFile> productDescriptionImageList) {
+    public ProductDTO updateProduct(Long productId, List<MultipartFile> productImageList, CreateProductDTO productRequest, List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. Product 찾기
             Product product = findProductById(productId);
 
             // 2. productRequest 데이터 유효성 검사
-            if (!validateProductRequest(productImageList, productRequest, productDescriptionImageList)) {
-                throw new CustomException(CommonErrorType.INVALID_PRODUCT);
-            }
+            validateProductRequest(productImageList, productRequest, productDescriptionImageList);
 
             // 3. Product 수정
             product.setProduct(productRequest);
             productRepository.save(product);
 
             // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFile(product.getId(), ReferencedEntityType.PRODUCT);
+            attachFileService.deleteAttachFileByReferencedId(product.getId(), ReferencedEntityType.PRODUCT);
             productImageList.stream()
                     .map(productImage -> {
                         try {
@@ -255,7 +245,7 @@ public class ProductService {
             productDescription.setDescription(productRequest.getDescription());
 
             // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFile(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+            attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
             productDescriptionImageList.stream()
                     .map(productDescriptionImage -> {
                         try {
@@ -289,7 +279,7 @@ public class ProductService {
     public Slice<ProductDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
         try {
             if (subCategoryId != null && !subCategoryService.existsBySubCategoryId(subCategoryId)) {
-                throw new CustomException(CommonErrorType.NOT_EXISTED_SUB_CATEGORY);
+                throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
             }
 
             return findProductByCategoryId(subCategoryId, pageable).map(ProductDTO::toDTO);
@@ -319,11 +309,11 @@ public class ProductService {
     /**
      * 카테고리와 페이지네이션으로 전체 상품을 조회하는 함수
      *
-     * @param category
+     * @param subCategoryId
      * @param pageable
      * @return
      */
-    public Page<Product> findProductByCategoryId(Long subCategoryId, Pageable pageable) {
+    public Slice<Product> findProductByCategoryId(Long subCategoryId, Pageable pageable) {
         if (subCategoryId == null) {
             return productRepository.findAll(pageable);
         } else {
@@ -337,19 +327,19 @@ public class ProductService {
      * @param productId
      * @return
      */
-    public ProductDetailDTO findProductDetail(Long productId) {
+    public DetailedProductDTO findDetailedProduct(Long productId) {
         try {
             // 1. productId 존재확인
             findProductById(productId);
 
             // 2. Product 세부 데이터 가져오기
-            ProductDetailDTO productDetailDTO = productRepository.findProductByProductId(productId);
+            DetailedProductDTO detailedProductDTO = productRepository.findProductByProductId(productId);
 
             // 3. Product 대표 이미지 리스트 가져오기
             List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
-            productDetailDTO.setProductImageList(attachFileDTOS);
+            detailedProductDTO.setProductImageList(attachFileDTOS);
 
-            return productDetailDTO;
+            return detailedProductDTO;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -384,7 +374,7 @@ public class ProductService {
 
             // 4. TemporaryProductDescription 값 가져오기
             ProductDetailInfo detailInfo = productDetailInfoService.findProductDetailInfoByProductId(productId);
-            dto.setProductDetail(objectCopyHelper.copyObject(detailInfo, ProductDetailDTO.class));
+            dto.setProductDetail(objectCopyHelper.copyObject(detailInfo, ProductDetailInfoDTO.class));
 
             // 5. 대표이미지 데이터 가져오기
             List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)

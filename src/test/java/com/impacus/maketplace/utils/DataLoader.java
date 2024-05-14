@@ -12,10 +12,11 @@ import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
-//@Component
+@Component
 public class DataLoader {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;

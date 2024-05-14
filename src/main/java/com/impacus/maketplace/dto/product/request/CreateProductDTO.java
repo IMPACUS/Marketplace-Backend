@@ -3,6 +3,7 @@ package com.impacus.maketplace.dto.product.request;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
@@ -19,10 +20,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductRequest {
-    @NotNull
-    private Long brandId; // TODO 판매자 설계된 이후에 요청한 판매자와 연결된 Brand를 가져오는 것으로 변경
-
+public class CreateProductDTO {
     @NotNull
     private boolean doesUseTemporaryProduct;
 
@@ -56,16 +54,19 @@ public class ProductRequest {
     private int weight;
 
     @NotNull
-    private ProductDetailInfoRequest productDetail;
+    private CreateProductDetailInfoDTO productDetail;
 
     @NotNull
-    private List<ProductOptionRequest> productOptions;
+    private List<CreateProductOptionDTO> productOptions;
 
     @ValidEnum(enumClass = ProductStatus.class)
     private ProductStatus productStatus;
 
-    public Product toEntity(String productNumber) {
-        return new Product(productNumber, this);
+    @ValidEnum(enumClass = ProductType.class)
+    private ProductType type;
+
+    public Product toEntity(String productNumber, Long sellerId) {
+        return new Product(productNumber, sellerId, this);
     }
 
     public ProductDescription toEntity(Long productId) {

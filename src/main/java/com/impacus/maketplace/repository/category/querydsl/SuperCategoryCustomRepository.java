@@ -1,4 +1,4 @@
-package com.impacus.maketplace.repository.category;
+package com.impacus.maketplace.repository.category.querydsl;
 
 import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 
