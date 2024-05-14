@@ -32,15 +32,15 @@ public class MyDeliveryAddressService {
     @Transactional
     public void deleteAddress(Long id, Long addressId) {
         MyDeliveryAddress address = myDeliveryAddressRepository.findByIdAndUser(addressId, getProxyUser(id))
-            .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_THUMBNAIL));
+            .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_ID));
         myDeliveryAddressRepository.delete(address);
     }
 
     @Transactional
     public AddressResponse updateAddress(Long id, Long addressId, AddressAddOrUpdateRequest addressAddOrUpdateRequest) {
         MyDeliveryAddress address = myDeliveryAddressRepository.findByIdAndUser(addressId, getProxyUser(id))
-            .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_THUMBNAIL)); // 검증
-        myDeliveryAddressRepository.save(addressAddOrUpdateRequest.toEntity(getProxyUser(id), addressId)); // 수정
+            .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_ID)); // 검증
+        address.update(addressAddOrUpdateRequest);
         return AddressResponse.of(address);
     }
 
@@ -50,7 +50,7 @@ public class MyDeliveryAddressService {
 
     public AddressResponse getAddress(Long id, Long addressId) {
         MyDeliveryAddress address = myDeliveryAddressRepository.findByIdAndUser(addressId, getProxyUser(id))
-            .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_THUMBNAIL));
+            .orElseThrow(() -> new CustomException(CommonErrorType.INVALID_ID));
         return AddressResponse.of(address);
     }
 

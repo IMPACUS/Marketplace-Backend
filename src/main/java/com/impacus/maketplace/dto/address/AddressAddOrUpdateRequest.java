@@ -47,11 +47,4 @@ public class AddressAddOrUpdateRequest {
                 .build();
     }
 
-    public MyDeliveryAddress toEntity(User user, Long id) {
-        return toEntity()
-                .id(id)
-                .user(user)
-                .build();
-    }
-
 }
