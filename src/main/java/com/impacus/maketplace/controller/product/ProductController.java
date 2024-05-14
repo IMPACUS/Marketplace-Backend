@@ -2,6 +2,7 @@ package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
+import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,13 +38,14 @@ public class ProductController {
 
 
     /**
-     * 새로운 상품을 등록하는 API (ROLE: seller)
+     * 새로운 상품을 등록하는 API
      *
      * @param productImageList
      * @param productDescriptionImageList
      * @param productRequest
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PostMapping("")
     public ApiResponseEntity<ProductDTO> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -66,6 +69,7 @@ public class ProductController {
      * @param productIdList
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @DeleteMapping("")
     public ApiResponseEntity<Boolean> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
         productService.deleteAllProduct(productIdList);
@@ -80,19 +84,18 @@ public class ProductController {
      *
      * @param productImageList
      * @param productDescriptionImageList
-     * @param productRequest
+     * @param dto
      * @return
      */
-    @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PutMapping("")
     public ApiResponseEntity<ProductDTO> updateProduct(
-            @PathVariable(name = "productId") Long productId,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
+            @Valid @RequestPart(value = "product") UpdateProductDTO dto) {
         ProductDTO productDTO = productService.updateProduct(
-                productId,
                 productImageList,
-                productRequest,
+                dto,
                 productDescriptionImageList
         );
         return ApiResponseEntity
@@ -108,6 +111,7 @@ public class ProductController {
      * @param pageable
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("")
     public ApiResponseEntity<Slice<ProductDTO>> getAllProductForApp(
             @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
@@ -128,6 +132,7 @@ public class ProductController {
      * @param pageable
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("/seller")
     public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -147,8 +152,9 @@ public class ProductController {
      * @param productId
      * @return
      */
-    @GetMapping("{productId}")
-    public ApiResponseEntity<DetailedProductDTO> getProductForApp(@PathVariable(name = "productId") Long productId) {
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("/product-info")
+    public ApiResponseEntity<DetailedProductDTO> getProductForApp(@RequestParam(name = "product-id") Long productId) {
         DetailedProductDTO detailedProductDTO = productService.findDetailedProduct(productId);
         return ApiResponseEntity
                 .<DetailedProductDTO>builder()
@@ -159,8 +165,12 @@ public class ProductController {
     /**
      * 판매자용 단일 상품 조회 API
      */
-    @GetMapping("seller/{productId}")
-    public ApiResponseEntity<ProductDetailForWebDTO> getProductForWeb(@AuthenticationPrincipal CustomUserDetails user, @PathVariable(name = "productId") Long productId) {
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @GetMapping("/product-details")
+    public ApiResponseEntity<ProductDetailForWebDTO> getProductForWeb(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "product-id") Long productId
+    ) {
         ProductDetailForWebDTO productDetailDTO = productService.findProductDetailForWeb(user.getId(), productId);
         return ApiResponseEntity
                 .<ProductDetailForWebDTO>builder()

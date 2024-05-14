@@ -1,14 +1,15 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
+import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
@@ -32,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +71,9 @@ public class ProductService {
             Seller seller = sellerService.findSellerByUserId(userId);
 
             // 1. productRequest 데이터 유효성 검사
-            validateProductRequest(productImageList, productRequest, productDescriptionImageList);
+            validateProductRequest(
+                    productImageList, productRequest.getCategoryId(), productDescriptionImageList
+            );
 
             // 2. 상풍 번호 생성
             String productNumber = StringUtils.getProductNumber();
@@ -122,15 +124,16 @@ public class ProductService {
 
     /**
      * 전달받은 ProductRequest 의 유효성 검사를 하는 함수
-     *
-     * @param productRequest
-     * @return
+     * @param productImageList
+     * @param categoryId
+     * @param productDescriptionImageList
      */
-    public void validateProductRequest(List<MultipartFile> productImageList, CreateProductDTO productRequest, List<MultipartFile> productDescriptionImageList) {
-        DeliveryType deliveryType = productRequest.getDeliveryType();
-        Long categoryId = productRequest.getCategoryId();
-
-        // 2. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
+    public void validateProductRequest(
+            List<MultipartFile> productImageList,
+            Long categoryId,
+            List<MultipartFile> productDescriptionImageList
+    ) {
+        // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
             throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
@@ -141,14 +144,14 @@ public class ProductService {
             }
         }
 
-        // 3. 상품 설명 이미지 크기 확인
+        // 2. 상품 설명 이미지 크기 확인
         for (MultipartFile productImage : productDescriptionImageList) {
             if (productImage.getSize() > PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
                 throw new CustomException(CommonErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
-        // 4. 상품 내부 데이터 확인
+        // 3. 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
             throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
         }
@@ -179,7 +182,7 @@ public class ProductService {
     @Transactional
     public void deleteAllProduct(List<Long> productIdList) {
         try {
-            productIdList.stream()
+            productIdList
                     .forEach(this::deleteProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -228,57 +231,62 @@ public class ProductService {
     /**
      * 등록된 상품 정보를 수정하는 API
      *
-     * @param productId
      * @param productImageList
-     * @param productRequest
      * @param productDescriptionImageList
      * @return
      */
     @Transactional
-    public ProductDTO updateProduct(Long productId, List<MultipartFile> productImageList, CreateProductDTO productRequest, List<MultipartFile> productDescriptionImageList) {
+    public ProductDTO updateProduct(
+            List<MultipartFile> productImageList,
+            UpdateProductDTO dto,
+            List<MultipartFile> productDescriptionImageList) {
         try {
+            Long productId = dto.getProductId();
+
             // 1. Product 찾기
             Product product = findProductById(productId);
 
             // 2. productRequest 데이터 유효성 검사
-            validateProductRequest(productImageList, productRequest, productDescriptionImageList);
+            validateProductRequest(
+                    productImageList, dto.getCategoryId(), productDescriptionImageList
+            );
 
             // 3. Product 수정
-            product.setProduct(productRequest);
+            product.setProduct(dto);
             productRepository.save(product);
 
             // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(product.getId(), ReferencedEntityType.PRODUCT);
-            productImageList.stream()
-                    .map(productImage -> {
+            productImageList
+                    .forEach(productImage -> {
                         try {
-                            return attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                            attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
-                    }).collect(Collectors.toList());
+                    });
 
             // 5. Product description 수정
             ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(product.getId());
-            productDescription.setDescription(productRequest.getDescription());
+            productDescription.setDescription(dto.getDescription());
 
             // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-            productDescriptionImageList.stream()
-                    .map(productDescriptionImage -> {
+            productDescriptionImageList
+                    .forEach(productDescriptionImage -> {
                         try {
-                            return attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
-                    }).collect(Collectors.toList());
+                    });
 
             //8. Product option 수정
-            productOptionService.updateProductOptionList(productId, productRequest.getProductOptions());
+            productOptionService.updateProductOptionList(productId, dto.getProductOptions());
 
             // 9. Product detail 수정
             ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
-            productDetailInfo.setProductDetailInfo(productRequest.getProductDetail());
+            productDetailInfo.setProductDetailInfo(dto.getProductDetail());
 
             return ProductDTO.toDTO(product);
         } catch (Exception ex) {
@@ -300,7 +308,7 @@ public class ProductService {
                 throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
             }
 
-            return findProductByCategoryId(subCategoryId, pageable).map(ProductDTO::toDTO);
+            return productRepository.findAllProductBySubCategoryId(subCategoryId, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -317,25 +325,10 @@ public class ProductService {
      */
     public Page<ProductForWebDTO> findProductForWeb(Long userId, LocalDate startAt, LocalDate endAt, Pageable pageable) {
         try {
-            // TODO 판매자 생성 부분 구현 후, 판매자일 경우 판매자 등록 상품만 조회할 수 있는 로직 추가
-            return productRepository.findAllProduct(startAt, endAt, pageable);
+            Seller seller = sellerService.findSellerByUserId(userId);
+            return productRepository.findAllProduct(seller.getId(), startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
-        }
-    }
-
-    /**
-     * 카테고리와 페이지네이션으로 전체 상품을 조회하는 함수
-     *
-     * @param subCategoryId
-     * @param pageable
-     * @return
-     */
-    public Slice<Product> findProductByCategoryId(Long subCategoryId, Pageable pageable) {
-        if (subCategoryId == null) {
-            return productRepository.findAll(pageable);
-        } else {
-            return productRepository.findByCategoryId(subCategoryId, pageable);
         }
     }
 
@@ -371,13 +364,16 @@ public class ProductService {
      * @return
      */
     public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
-
         try {
+            Seller seller = sellerService.findSellerByUserId(userId);
 
             Product product = findProductById(productId);
             ProductDetailForWebDTO dto = objectCopyHelper.copyObject(product, ProductDetailForWebDTO.class);
 
-            // TODO 1. 요청한 판매자의 상품인지 확인
+            // 1. 판매자의 상품인지 확인
+            if (!product.getSellerId().equals(seller.getId())) {
+                throw new CustomException(ProductEnum.PRODUCT_ACCESS_DENIED);
+            }
 
             // 2. TemporaryProductDescription 값 가져오기
             ProductDescription description = productDescriptionService.findProductDescriptionByProductId(productId);

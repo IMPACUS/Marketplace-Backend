@@ -1,18 +1,18 @@
-package com.impacus.maketplace.repository.product;
+package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -30,25 +30,36 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QSubCategory subCategory = QSubCategory.subCategory;
 
     @Override
-    public Page<ProductForWebDTO> findAllProduct(LocalDate startAt, LocalDate endAt, Pageable pageable) {
-        List<ProductForWebDTO> content = getProductDTO(startAt, endAt, pageable);
-        Long count = getProductDTOCount(startAt, endAt);
+    public Page<ProductForWebDTO> findAllProduct(
+            Long sellerId,
+            LocalDate startAt,
+            LocalDate endAt,
+            Pageable pageable
+    ) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .and(product.sellerId.eq(sellerId));
+
+        List<ProductForWebDTO> content = getProductDTO(builder, pageable);
+        Long count = getProductDTOCount(builder);
         return new PageImpl<>(content, pageable, count);
     }
 
-    private Long getProductDTOCount(LocalDate startAt, LocalDate endAt) {
+    private Long getProductDTOCount(BooleanBuilder builder) {
         return queryFactory.select(product.count())
                 .from(product)
-                .where(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .where(builder)
                 .fetchOne();
     }
 
 
-    private List<ProductForWebDTO> getProductDTO(LocalDate startAt, LocalDate endAt, Pageable pageable) {
+    private List<ProductForWebDTO> getProductDTO(BooleanBuilder builder, Pageable pageable) {
         return queryFactory.selectFrom(product)
                 .leftJoin(productOption).on(product.id.eq(productOption.productId))
-                .where(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .where(builder)
                 .groupBy(product.id, productOption.id)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
                                         ProductForWebDTO.class,
@@ -113,5 +124,40 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .fetchFirst();
 
         return productCnt > 0;
+    }
+
+    @Override
+    public Slice<ProductDTO> findAllProductBySubCategoryId(Long subCategoryId, Pageable pageable) {
+        BooleanBuilder productBuilder = new BooleanBuilder();
+        productBuilder
+                .and(product.categoryId.eq(subCategoryId))
+                .and(product.isDeleted.eq(false));
+
+        List<ProductDTO> content = queryFactory
+                .selectFrom(product)
+                .where(productBuilder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .transform(
+                        GroupBy.groupBy(product.id).list(Projections.constructor(
+                                        ProductDTO.class,
+                                        product.id,
+                                        product.name,
+                                        product.appSalesPrice,
+                                        product.productNumber,
+                                        product.deliveryType,
+                                        product.type,
+                                        product.createAt
+                                )
+                        )
+                );
+
+        boolean hasNext = false;
+        if (content.size() > pageable.getPageSize()) {
+            hasNext = true;
+            content.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
     }
 }

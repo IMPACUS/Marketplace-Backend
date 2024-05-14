@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
+import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -99,17 +100,17 @@ public class Product extends BaseEntity {
         this.type = productRequest.getType();
     }
 
-    public void setProduct(CreateProductDTO productRequest) {
-        this.name = productRequest.getName();
-        this.deliveryType = productRequest.getDeliveryType();
-        this.categoryId = productRequest.getCategoryId();
-        this.deliveryFee = productRequest.getDeliveryFee();
-        this.refundFee = productRequest.getRefundFee();
-        this.marketPrice = productRequest.getMarketPrice();
-        this.appSalesPrice = productRequest.getAppSalesPrice();
-        this.discountPrice = productRequest.getDiscountPrice();
-        this.weight = productRequest.getWeight();
-        this.productStatus = productRequest.getProductStatus();
-        this.type = productRequest.getType();
+    public void setProduct(UpdateProductDTO dto) {
+        this.name = dto.getName();
+        this.deliveryType = dto.getDeliveryType();
+        this.categoryId = dto.getCategoryId();
+        this.deliveryFee = dto.getDeliveryFee();
+        this.refundFee = dto.getRefundFee();
+        this.marketPrice = dto.getMarketPrice();
+        this.appSalesPrice = dto.getAppSalesPrice();
+        this.discountPrice = dto.getDiscountPrice();
+        this.weight = dto.getWeight();
+        this.productStatus = dto.getProductStatus();
+        this.type = dto.getType();
     }
 }
