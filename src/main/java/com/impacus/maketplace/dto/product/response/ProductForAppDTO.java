@@ -2,6 +2,7 @@ package com.impacus.maketplace.dto.product.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.querydsl.core.annotations.QueryProjection;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -30,6 +32,9 @@ public class ProductForAppDTO {
     @JsonProperty("isFreeShipping")
     private boolean isFreeShipping; // 무료 배송 여부
 
+    ProductType type;
+    LocalDateTime createAt;
+
 
     @QueryProjection
     public ProductForAppDTO(
@@ -40,8 +45,10 @@ public class ProductForAppDTO {
             DeliveryType deliveryType,
             int discountPrice,
             List<AttachFileDTO> productImageList,
-            boolean isExistedWishlist,
-            int deliveryFee
+            Long wishlistId,
+            int deliveryFee,
+            ProductType type,
+            LocalDateTime createAt
     ) {
         this.productId = productId;
         this.name = name;
@@ -50,8 +57,10 @@ public class ProductForAppDTO {
         this.deliveryType = deliveryType;
         this.discountPrice = discountPrice;
         this.productImageList = productImageList;
-        this.isExistedWishlist = isExistedWishlist;
+        this.isExistedWishlist = wishlistId != null;
         this.isFreeShipping = deliveryFee == 0;
         this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
+        this.type = type;
+        this.createAt = createAt;
     }
 }

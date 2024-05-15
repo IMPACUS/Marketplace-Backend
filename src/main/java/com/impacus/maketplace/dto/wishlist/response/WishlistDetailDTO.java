@@ -1,11 +1,13 @@
 package com.impacus.maketplace.dto.wishlist.response;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,6 +25,8 @@ public class WishlistDetailDTO {
             DeliveryType deliveryType,
             int discountPrice,
             int deliveryFee,
+            ProductType type,
+            LocalDateTime createAt,
             List<AttachFileDTO> productImageList
     ) {
         this.wishlistId = wishlistId;
@@ -34,8 +38,10 @@ public class WishlistDetailDTO {
                 deliveryType,
                 discountPrice,
                 productImageList,
-                true,
-                deliveryFee
+                wishlistId,
+                deliveryFee,
+                type,
+                createAt
         );
     }
 }
