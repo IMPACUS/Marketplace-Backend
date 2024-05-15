@@ -60,6 +60,8 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
                                 product.deliveryType,
                                 product.discountPrice,
                                 product.deliveryFee,
+                                product.type,
+                                product.createAt,
                                 GroupBy.list(Projections.list(Projections.constructor(
                                                         AttachFileDTO.class,
                                                         attachFile.id,

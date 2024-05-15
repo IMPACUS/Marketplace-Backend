@@ -302,13 +302,17 @@ public class ProductService {
      * @param pageable
      * @return
      */
-    public Slice<ProductForAppDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
+    public Slice<ProductForAppDTO> findProductByCategoryForApp(
+            Long userId,
+            Long subCategoryId,
+            Pageable pageable
+    ) {
         try {
             if (subCategoryId != null && !subCategoryService.existsBySubCategoryId(subCategoryId)) {
                 throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
             }
 
-            return productRepository.findAllProductBySubCategoryId(subCategoryId, pageable);
+            return productRepository.findAllProductBySubCategoryId(userId, subCategoryId, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

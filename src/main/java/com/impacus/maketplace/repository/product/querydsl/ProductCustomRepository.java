@@ -16,5 +16,5 @@ public interface ProductCustomRepository {
 
     boolean existsBySuperCategoryId(Long superCategoryId);
 
-    Slice<ProductForAppDTO> findAllProductBySubCategoryId(Long subCategoryId, Pageable pageable);
+    Slice<ProductForAppDTO> findAllProductBySubCategoryId(Long userId, Long subCategoryId, Pageable pageable);
 }

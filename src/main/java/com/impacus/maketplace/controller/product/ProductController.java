@@ -111,9 +111,10 @@ public class ProductController {
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("")
     public ApiResponseEntity<Slice<ProductForAppDTO>> getAllProductForApp(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<ProductForAppDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
+        Slice<ProductForAppDTO> productDTOList = productService.findProductByCategoryForApp(user.getId(), subCategoryId, pageable);
         return ApiResponseEntity
                 .<Slice<ProductForAppDTO>>builder()
                 .data(productDTOList)

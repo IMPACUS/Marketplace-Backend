@@ -1,12 +1,18 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
+import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.entity.category.QSubCategory;
+import com.impacus.maketplace.entity.common.QAttachFile;
+import com.impacus.maketplace.entity.common.QAttachFileGroup;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
+import com.impacus.maketplace.entity.product.QWishlist;
+import com.impacus.maketplace.entity.seller.QSeller;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
@@ -28,6 +34,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
     private final QSubCategory subCategory = QSubCategory.subCategory;
+    private final QSeller seller = QSeller.seller;
+    private final QAttachFile attachFile = QAttachFile.attachFile;
+    private final QAttachFileGroup attachFileGroup = QAttachFileGroup.attachFileGroup;
+    private final QWishlist wishlist = QWishlist.wishlist;
 
     @Override
     public Page<ProductForWebDTO> findAllProduct(
@@ -127,14 +137,30 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findAllProductBySubCategoryId(Long subCategoryId, Pageable pageable) {
+    public Slice<ProductForAppDTO> findAllProductBySubCategoryId(
+            Long userId,
+            Long subCategoryId,
+            Pageable pageable
+    ) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder
                 .and(product.categoryId.eq(subCategoryId))
                 .and(product.isDeleted.eq(false));
 
+        BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
+        attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
+                .and(attachFileGroup.referencedId.eq(product.id));
+
+        BooleanBuilder wishlistBuilder = new BooleanBuilder();
+        wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
+                .and(wishlist.productId.eq(product.id));
+
         List<ProductForAppDTO> content = queryFactory
                 .selectFrom(product)
+                .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
+                .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
+                .leftJoin(wishlist).on(wishlistBuilder)
                 .where(productBuilder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -143,11 +169,22 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 ProductForAppDTO.class,
                                         product.id,
                                         product.name,
+                                        seller.marketName,
                                         product.appSalesPrice,
-                                        product.productNumber,
                                         product.deliveryType,
+                                        product.discountPrice,
+                                        GroupBy.list(Projections.list(Projections.constructor(
+                                                                AttachFileDTO.class,
+                                                                attachFile.id,
+                                                                attachFile.attachFileName
+                                                        )
+                                                )
+                                        ),
+                                        wishlist.id,
+                                        product.deliveryFee,
                                         product.type,
                                         product.createAt
+
                                 )
                         )
                 );
