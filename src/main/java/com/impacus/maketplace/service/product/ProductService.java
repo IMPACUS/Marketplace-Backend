@@ -302,7 +302,7 @@ public class ProductService {
      * @param pageable
      * @return
      */
-    public Slice<ProductDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
+    public Slice<ProductForAppDTO> findProductByCategoryForApp(Long subCategoryId, Pageable pageable) {
         try {
             if (subCategoryId != null && !subCategoryService.existsBySubCategoryId(subCategoryId)) {
                 throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);

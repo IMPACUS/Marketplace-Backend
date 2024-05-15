@@ -1,6 +1,8 @@
 package com.impacus.maketplace.dto.product.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,13 @@ public class ProductForAppDTO {
     private int discountPrice; // 할인가
     private double discountRate; // 할인률
 
+    @JsonProperty("isExistedWishlist")
+    private boolean isExistedWishlist; //  찜 여부
+
+    @JsonProperty("isFreeShipping")
+    private boolean isFreeShipping; // 무료 배송 여부
+
+
     @QueryProjection
     public ProductForAppDTO(
             Long productId,
@@ -30,7 +39,9 @@ public class ProductForAppDTO {
             int appSalePrice,
             DeliveryType deliveryType,
             int discountPrice,
-            List<AttachFileDTO> productImageList
+            List<AttachFileDTO> productImageList,
+            boolean isExistedWishlist,
+            int deliveryFee
     ) {
         this.productId = productId;
         this.name = name;
@@ -39,9 +50,8 @@ public class ProductForAppDTO {
         this.deliveryType = deliveryType;
         this.discountPrice = discountPrice;
         this.productImageList = productImageList;
-    }
-
-    public void setProductImageList(List<AttachFileDTO> productImageList) {
-        this.productImageList = productImageList;
+        this.isExistedWishlist = isExistedWishlist;
+        this.isFreeShipping = deliveryFee == 0;
+        this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
     }
 }

@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,5 +16,5 @@ public interface ProductCustomRepository {
 
     boolean existsBySuperCategoryId(Long superCategoryId);
 
-    Slice<ProductDTO> findAllProductBySubCategoryId(Long subCategoryId, Pageable pageable);
+    Slice<ProductForAppDTO> findAllProductBySubCategoryId(Long subCategoryId, Pageable pageable);
 }

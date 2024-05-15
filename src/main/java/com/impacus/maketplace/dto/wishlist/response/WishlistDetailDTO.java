@@ -22,6 +22,7 @@ public class WishlistDetailDTO {
             int appSalePrice,
             DeliveryType deliveryType,
             int discountPrice,
+            int deliveryFee,
             List<AttachFileDTO> productImageList
     ) {
         this.wishlistId = wishlistId;
@@ -32,7 +33,9 @@ public class WishlistDetailDTO {
                 appSalePrice,
                 deliveryType,
                 discountPrice,
-                productImageList
+                productImageList,
+                true,
+                deliveryFee
         );
     }
 }
