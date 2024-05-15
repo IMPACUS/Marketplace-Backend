@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.entity.category.QSubCategory;
@@ -127,20 +127,20 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public Slice<ProductDTO> findAllProductBySubCategoryId(Long subCategoryId, Pageable pageable) {
+    public Slice<ProductForAppDTO> findAllProductBySubCategoryId(Long subCategoryId, Pageable pageable) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder
                 .and(product.categoryId.eq(subCategoryId))
                 .and(product.isDeleted.eq(false));
 
-        List<ProductDTO> content = queryFactory
+        List<ProductForAppDTO> content = queryFactory
                 .selectFrom(product)
                 .where(productBuilder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
-                                        ProductDTO.class,
+                                ProductForAppDTO.class,
                                         product.id,
                                         product.name,
                                         product.appSalesPrice,

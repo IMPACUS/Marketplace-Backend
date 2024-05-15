@@ -3,10 +3,7 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
-import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.service.common.EnumService;
 import com.impacus.maketplace.service.product.ProductService;
 import jakarta.validation.Valid;
@@ -113,12 +110,12 @@ public class ProductController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("")
-    public ApiResponseEntity<Slice<ProductDTO>> getAllProductForApp(
+    public ApiResponseEntity<Slice<ProductForAppDTO>> getAllProductForApp(
             @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
+        Slice<ProductForAppDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
         return ApiResponseEntity
-                .<Slice<ProductDTO>>builder()
+                .<Slice<ProductForAppDTO>>builder()
                 .data(productDTOList)
                 .build();
     }
