@@ -3,7 +3,7 @@ package com.impacus.maketplace.service.product;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
-import com.impacus.maketplace.common.enumType.error.ProductEnum;
+import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
@@ -135,19 +135,19 @@ public class ProductService {
     ) {
         // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
-            throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
+            throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
 
         for (MultipartFile productImage : productImageList) {
             if (productImage.getSize() > PRODUCT_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 2. 상품 설명 이미지 크기 확인
         for (MultipartFile productImage : productDescriptionImageList) {
             if (productImage.getSize() > PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ProductEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
@@ -165,7 +165,7 @@ public class ProductService {
      */
     public Product findProductById(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ProductEnum.NOT_EXISTED_PRODUCT));
+                .orElseThrow(() -> new CustomException(ProductErrorEnum.NOT_EXISTED_PRODUCT));
     }
 
     /**
@@ -176,7 +176,7 @@ public class ProductService {
      */
     public Product findProductByIdAndIsDeletedFalse(Long productId) {
         return productRepository.findByIsDeletedFalseAndId(productId)
-                .orElseThrow(() -> new CustomException(ProductEnum.NOT_EXISTED_PRODUCT));
+                .orElseThrow(() -> new CustomException(ProductErrorEnum.NOT_EXISTED_PRODUCT));
     }
 
     @Transactional
@@ -342,13 +342,13 @@ public class ProductService {
      * @param productId
      * @return
      */
-    public DetailedProductDTO findDetailedProduct(Long productId) {
+    public DetailedProductDTO findDetailedProduct(Long userId, Long productId) {
         try {
             // 1. productId 존재확인
             findProductById(productId);
 
             // 2. Product 세부 데이터 가져오기
-            DetailedProductDTO detailedProductDTO = productRepository.findProductByProductId(productId);
+            DetailedProductDTO detailedProductDTO = productRepository.findProductByProductId(userId, productId);
 
             // 3. Product 대표 이미지 리스트 가져오기
             List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
@@ -376,7 +376,7 @@ public class ProductService {
 
             // 1. 판매자의 상품인지 확인
             if (!product.getSellerId().equals(seller.getId())) {
-                throw new CustomException(ProductEnum.PRODUCT_ACCESS_DENIED);
+                throw new CustomException(ProductErrorEnum.PRODUCT_ACCESS_DENIED);
             }
 
             // 2. TemporaryProductDescription 값 가져오기

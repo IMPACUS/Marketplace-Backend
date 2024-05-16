@@ -1,6 +1,8 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
@@ -96,10 +98,16 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public DetailedProductDTO findProductByProductId(Long productId) {
+    public DetailedProductDTO findProductByProductId(Long userId, Long productId) {
+        BooleanBuilder wishlistBuilder = new BooleanBuilder();
+        wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
+                .and(wishlist.productId.eq(product.id));
+
         List<DetailedProductDTO> result = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(wishlist).on(wishlistBuilder)
+                .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
@@ -109,19 +117,28 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         product.appSalesPrice,
                                         product.discountPrice,
                                         product.type,
-                                        GroupBy.list(
-                                                Projections.list(Projections.constructor(
-                                                                ProductOptionDTO.class,
-                                                                productOption.id,
-                                                                productOption.color,
-                                                                productOption.size
-                                                        )
-                                                )
-                                        )
+                                        GroupBy.list(productOption),
+                                        wishlist.id,
+                                        product.deliveryFee,
+                                        seller.marketName
                                 )
                         )
                 );
-        return result.isEmpty() ? null : result.get(0);
+
+        if (result.isEmpty()) {
+            throw new CustomException(ProductErrorEnum.NOT_EXISTED_PRODUCT);
+        }
+
+        DetailedProductDTO productDTO = result.get(0);
+
+        Long wishlistCnt = queryFactory.select(count(wishlist))
+                .from(wishlist)
+                .where(wishlist.productId.eq(productId))
+                .fetchOne();
+
+        productDTO.setWishlistCnt(wishlistCnt != null ? wishlistCnt : 0L);
+
+        return productDTO;
     }
 
     @Override

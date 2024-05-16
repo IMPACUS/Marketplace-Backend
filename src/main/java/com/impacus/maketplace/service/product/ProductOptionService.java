@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.error.ProductEnum;
+import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.product.request.CreateProductOptionDTO;
 import com.impacus.maketplace.entity.product.ProductOption;
@@ -121,7 +121,7 @@ public class ProductOptionService {
 
                 if (modifiedData == null) {
                     // 생성
-                    throw new CustomException(ProductEnum.NOT_EXISTED_PRODUCT_OPTION);
+                    throw new CustomException(ProductErrorEnum.NOT_EXISTED_PRODUCT_OPTION);
                 } else {
                     // 수정
                     modifiedData.setColor(productOptionRequest.getColor());
