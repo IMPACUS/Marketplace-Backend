@@ -12,6 +12,7 @@ import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.common.QAttachFileGroup;
 import com.impacus.maketplace.entity.product.QProduct;
+import com.impacus.maketplace.entity.product.QProductDescription;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QWishlist;
 import com.impacus.maketplace.entity.seller.QSeller;
@@ -35,6 +36,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
+    private final QProductDescription description = QProductDescription.productDescription;
     private final QSubCategory subCategory = QSubCategory.subCategory;
     private final QSeller seller = QSeller.seller;
     private final QAttachFile attachFile = QAttachFile.attachFile;
@@ -106,6 +108,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         List<DetailedProductDTO> result = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(description).on(description.productId.eq(product.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .where(product.id.eq(productId))
@@ -120,7 +123,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         GroupBy.list(productOption),
                                         wishlist.id,
                                         product.deliveryFee,
-                                        seller.marketName
+                                        seller.marketName,
+                                        description.description
                                 )
                         )
                 );
