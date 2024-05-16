@@ -152,8 +152,10 @@ public class ProductController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/product-info")
-    public ApiResponseEntity<DetailedProductDTO> getProductForApp(@RequestParam(name = "product-id") Long productId) {
-        DetailedProductDTO detailedProductDTO = productService.findDetailedProduct(productId);
+    public ApiResponseEntity<DetailedProductDTO> getProductForApp(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "product-id") Long productId) {
+        DetailedProductDTO detailedProductDTO = productService.findDetailedProduct(user.getId(), productId);
         return ApiResponseEntity
                 .<DetailedProductDTO>builder()
                 .data(detailedProductDTO)

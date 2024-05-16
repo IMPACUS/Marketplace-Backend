@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public interface ProductCustomRepository {
     Page<ProductForWebDTO> findAllProduct(Long sellerId, LocalDate startAt, LocalDate endAt, Pageable pageable);
 
-    DetailedProductDTO findProductByProductId(Long productId);
+    DetailedProductDTO findProductByProductId(Long userId, Long productId);
 
     boolean existsBySuperCategoryId(Long superCategoryId);
 
