@@ -22,20 +22,19 @@ public class DetailedProductDTO {
     private double discountRate; // 할인률
     private ProductType type;
     private List<ProductOptionDetailDTO> options;
-
     @JsonProperty("isExistedWishlist")
     private boolean isExistedWishlist; //  찜 여부
     @JsonProperty("isFreeShipping")
     private boolean isFreeShipping; // 무료 배송 여부
     private int deliveryFee; // 배송비
     private String brandName;
-
+    private String description;
     @JsonProperty("isOutOfStock")
     private boolean isOutOfStock;
+
     private int deliveryDays;
     private float averageRating; // 평균 평점
     private Long reviewCnt;
-
     private Long wishlistCnt;
     private int maxEarnablePoints; // 최대 적림 포인트
 
@@ -49,7 +48,8 @@ public class DetailedProductDTO {
                               List<ProductOption> options,
                               Long wishlistId,
                               int deliveryFee,
-                              String brandName
+                              String brandName,
+                              String description
     ) {
         this.id = id;
         this.name = name;
@@ -61,6 +61,7 @@ public class DetailedProductDTO {
         this.isFreeShipping = deliveryFee == 0;
         this.deliveryFee = deliveryFee;
         this.brandName = brandName;
+        this.description = description;
         setOptionData(options);
 
         this.averageRating = 5.0f;
