@@ -7,7 +7,6 @@ import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
 import com.impacus.maketplace.entity.product.Wishlist;
 import com.impacus.maketplace.repository.product.WishlistRepository;
-import com.impacus.maketplace.service.AttachFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -24,7 +23,6 @@ public class WishlistService {
 
     private final WishlistRepository wishlistRepository;
     private final ProductService productService;
-    private final AttachFileService attachFileService;
 
     /**
      * Wishlist를 저장하는 함수

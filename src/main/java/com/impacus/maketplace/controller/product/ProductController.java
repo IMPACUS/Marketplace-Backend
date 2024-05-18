@@ -4,7 +4,6 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
-import com.impacus.maketplace.service.common.EnumService;
 import com.impacus.maketplace.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final EnumService enumService;
 
 
     /**

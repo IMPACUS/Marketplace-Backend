@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
+import com.impacus.maketplace.common.constants.DirectoryConstants;
+import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
@@ -29,10 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TemporaryProductService {
-    private static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)
-    private static final int PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT = 341172; // (1000 * 8000 * 3 = 24MB)
-    private static final String TEMPORARY_PRODUCT_IMAGE_DIRECTORY = "temporaryProductImage";
-    private static final String TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "temporaryProductDescriptionImage";
+
     private final TemporaryProductRepository temporaryProductRepository;
     private final AttachFileService attachFileService;
     private final TemporaryProductDescriptionService temporaryProductDescriptionService;
@@ -114,7 +113,7 @@ public class TemporaryProductService {
                     try {
                         attachFileService.uploadFileAndAddAttachFile(
                                 productImage,
-                                TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
+                                DirectoryConstants.TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
                                 temporaryProductId,
                                 ReferencedEntityType.TEMPORARY_PRODUCT);
                     } catch (IOException e) {
@@ -131,7 +130,7 @@ public class TemporaryProductService {
                     try {
                         attachFileService.uploadFileAndAddAttachFile(
                                 productDescriptionImage,
-                                TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY,
+                                DirectoryConstants.TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY,
                                 temporaryProductDescription.getId(),
                                 ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
                     } catch (IOException e) {
@@ -166,14 +165,14 @@ public class TemporaryProductService {
         }
 
         for (MultipartFile productImage : productImageList) {
-            if (productImage.getSize() > PRODUCT_IMAGE_SIZE_LIMIT) {
+            if (productImage.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
                 throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 3. 상품 설명 이미지 크기 확인
         for (MultipartFile productImage : productDescriptionImageList) {
-            if (productImage.getSize() > PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
+            if (productImage.getSize() > FileSizeConstants.PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
                 throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
@@ -214,7 +213,7 @@ public class TemporaryProductService {
                         try {
                             attachFileService.uploadFileAndAddAttachFile(
                                     productImage,
-                                    TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
+                                    DirectoryConstants.TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
                                     temporaryProductId,
                                     ReferencedEntityType.TEMPORARY_PRODUCT
                             );
@@ -234,7 +233,7 @@ public class TemporaryProductService {
                         try {
                             return attachFileService.uploadFileAndAddAttachFile(
                                     productDescriptionImage,
-                                    TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY,
+                                    DirectoryConstants.TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY,
                                     description.getId(),
                                     ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION
                             );
