@@ -67,10 +67,6 @@ public class User extends BaseEntity {
 
     private LocalDateTime certPhoneDateTime; // 핸드폰 인증 시간
 
-    @ColumnDefault("false")
-    @Column(nullable = false)
-    private Boolean isCertBank; // 계좌 인증 여부 -> TODO 삭제 필요
-
     @Column(nullable = false)
     private Boolean doesAgreeServicePolicy; // 서비스 보안 동의 여부
 
@@ -79,9 +75,6 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean doesAgreeService; // 서비스 이용 여부
-
-    @Column(nullable = false)
-    private Boolean isWithdrawn; // 철회 여부 -> TODO 삭제 필요
 
     @ColumnDefault("false")
     @Column(nullable = false)
@@ -159,11 +152,9 @@ public class User extends BaseEntity {
         this.isAdmin = false;
         this.isCertEmail = false;
         this.isCertPhone = false;
-        this.isCertBank = false;
         this.doesAgreeServicePolicy = false;
         this.doesAgreePersonalPolicy = false;
         this.doesAgreeService = false;
-        this.isWithdrawn = false;
         this.firstDormancy = false;
         this.secondDormancy = false;
         this.dormancyMonths = 0;
@@ -191,11 +182,9 @@ public class User extends BaseEntity {
         this.isAdmin = false;
         this.isCertEmail = false;
         this.isCertPhone = false;
-        this.isCertBank = false;
         this.doesAgreeServicePolicy = false;
         this.doesAgreePersonalPolicy = false;
         this.doesAgreeService = false;
-        this.isWithdrawn = false;
         this.firstDormancy = false;
         this.secondDormancy = false;
         this.dormancyMonths = 0;
