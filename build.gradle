@@ -76,6 +76,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.rest-assured:rest-assured:5.2.0")
 
+    // liquibase
+    implementation 'org.liquibase:liquibase-core:4.27.0'
+
     // Redisson
 //    implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
 }

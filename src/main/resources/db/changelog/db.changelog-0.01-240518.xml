@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.01.01-240518" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="is_cert_bank"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="is_cert_bank"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.01.02-240518" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="is_withdrawn"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="is_withdrawn"/>
+    </changeSet>
+
+</databaseChangeLog>
