@@ -37,7 +37,7 @@ public class AuthController {
     private final CouponAdminService couponAdminService;
 
     @PostMapping("sign-up")
-    public ApiResponseEntity<UserDTO> addUser(@RequestBody SignUpDTO signUpRequest) {
+    public ApiResponseEntity<UserDTO> addUser(@Valid @RequestBody SignUpDTO signUpRequest) {
         UserDTO userDTO = this.userService.addUser(signUpRequest);
         boolean existPointMaster = pointService.initPointMaster(userDTO);
         // 회원 가입 축하 이벤트

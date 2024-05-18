@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service.seller;
 
+import com.impacus.maketplace.common.constants.DirectoryConstants;
+import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
@@ -39,11 +41,6 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SellerService {
-    private static final int FILE_LIMIT = 5242880;
-    private static final int LOGO_IMAGE_LIMIT = 187500;
-    private static final String LOGO_IMAGE_DIRECTORY = "logoImage";
-    private static final String COPY_FILE_DIRECTORY = "copyFile";
-
     private final SellerRepository sellerRepository;
     private final SellerBusinessInfoService sellerBusinessInfoService;
     private final SellerAdjustmentInfoService sellerAdjustmentInfoService;
@@ -91,10 +88,10 @@ public class SellerService {
                     bankBookImage);
 
             // 2. 로고 이미지, 사업자 등록증 사본, 통신판매업신고증사본, 통장 사본 저장
-            AttachFile logoImageFile = attachFileService.uploadFileAndAddAttachFile(logoImage, LOGO_IMAGE_DIRECTORY);
-            AttachFile businessRegistrationFile = attachFileService.uploadFileAndAddAttachFile(businessRegistrationImage, COPY_FILE_DIRECTORY);
-            AttachFile mailOrderBusinessReportFile = mailOrderBusinessReportImage == null ? null : attachFileService.uploadFileAndAddAttachFile(mailOrderBusinessReportImage, COPY_FILE_DIRECTORY);
-            AttachFile bankBookFile = attachFileService.uploadFileAndAddAttachFile(bankBookImage, COPY_FILE_DIRECTORY);
+            AttachFile logoImageFile = attachFileService.uploadFileAndAddAttachFile(logoImage, DirectoryConstants.LOGO_IMAGE_DIRECTORY);
+            AttachFile businessRegistrationFile = attachFileService.uploadFileAndAddAttachFile(businessRegistrationImage, DirectoryConstants.COPY_FILE_DIRECTORY);
+            AttachFile mailOrderBusinessReportFile = mailOrderBusinessReportImage == null ? null : attachFileService.uploadFileAndAddAttachFile(mailOrderBusinessReportImage, DirectoryConstants.COPY_FILE_DIRECTORY);
+            AttachFile bankBookFile = attachFileService.uploadFileAndAddAttachFile(bankBookImage, DirectoryConstants.COPY_FILE_DIRECTORY);
 
             // 3. User 저장
             User user = new User(
@@ -181,19 +178,19 @@ public class SellerService {
                                    MultipartFile businessRegistrationImage,
                                    MultipartFile mailOrderBusinessReportImage,
                                    MultipartFile bankBookImage) {
-        if (logoImage.getSize() > LOGO_IMAGE_LIMIT) {
+        if (logoImage.getSize() > FileSizeConstants.LOGO_IMAGE_LIMIT) {
             new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "로고 이미지 크기가 제한을 넘었습니다.");
         }
 
-        if (businessRegistrationImage.getSize() > FILE_LIMIT) {
+        if (businessRegistrationImage.getSize() > FileSizeConstants.SELLER_FILE_LIMIT) {
             new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "사업자 등록증 사본의 이미지 크기가 제한을 넘었습니다.");
         }
 
-        if (mailOrderBusinessReportImage != null && mailOrderBusinessReportImage.getSize() > FILE_LIMIT) {
+        if (mailOrderBusinessReportImage != null && mailOrderBusinessReportImage.getSize() > FileSizeConstants.SELLER_FILE_LIMIT) {
             new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "통신판매업신고증 사본의 크기가 제한을 넘었습니다.");
         }
 
-        if (bankBookImage.getSize() > FILE_LIMIT) {
+        if (bankBookImage.getSize() > FileSizeConstants.SELLER_FILE_LIMIT) {
             new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "통장 사본의 이미지 크기가 제한을 넘었습니다.");
         }
 

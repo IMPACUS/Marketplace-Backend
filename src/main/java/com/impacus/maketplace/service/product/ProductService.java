@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service.product;
 
+import com.impacus.maketplace.common.constants.DirectoryConstants;
+import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
@@ -16,7 +18,6 @@ import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
-import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
@@ -38,11 +39,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductService {
-
-    private static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)
-    private static final int PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT = 341172; // (1000 * 8000 * 3 = 24MB)
-    private static final String PRODUCT_IMAGE_DIRECTORY = "productImage";
-    private static final String PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "productDescriptionImage";
     private final ProductRepository productRepository;
     private final ProductOptionService productOptionService;
     private final ProductDetailInfoService productDetailInfoService;
@@ -53,7 +49,6 @@ public class ProductService {
     private final ObjectCopyHelper objectCopyHelper;
     private final SubCategoryService subCategoryService;
     private final WishlistRepository wishlistRepository;
-    private final ShoppingBasketRepository shoppingBasketRepository;
 
     /**
      * 새로운 Product 생성 함수
@@ -86,7 +81,7 @@ public class ProductService {
             productImageList
                     .forEach(productImage -> {
                         try {
-                            attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                            attachFileService.uploadFileAndAddAttachFile(productImage, DirectoryConstants.PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
@@ -99,7 +94,7 @@ public class ProductService {
             productDescriptionImageList
                     .forEach(productDescriptionImage -> {
                         try {
-                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, DirectoryConstants.PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
@@ -139,14 +134,14 @@ public class ProductService {
         }
 
         for (MultipartFile productImage : productImageList) {
-            if (productImage.getSize() > PRODUCT_IMAGE_SIZE_LIMIT) {
+            if (productImage.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
                 throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 2. 상품 설명 이미지 크기 확인
         for (MultipartFile productImage : productDescriptionImageList) {
-            if (productImage.getSize() > PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
+            if (productImage.getSize() > FileSizeConstants.PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
                 throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
@@ -260,7 +255,7 @@ public class ProductService {
             productImageList
                     .forEach(productImage -> {
                         try {
-                            attachFileService.uploadFileAndAddAttachFile(productImage, PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                            attachFileService.uploadFileAndAddAttachFile(productImage, DirectoryConstants.PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
@@ -275,7 +270,7 @@ public class ProductService {
             productDescriptionImageList
                     .forEach(productDescriptionImage -> {
                         try {
-                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
+                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, DirectoryConstants.PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
