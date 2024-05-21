@@ -73,7 +73,10 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                                                                 attachFile.attachFileName
                                                         )
                                                 )
-                                        )
+                                        ),
+                                        product.deliveryFee,
+                                        product.type,
+                                        product.createAt
                                 ),
                                 Projections.constructor(
                                         ProductOptionDTO.class,
