@@ -9,6 +9,7 @@ import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.service.user.UserDetailService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final HttpSession httpSession;
     private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
     private String oauthToken = "";
+    private final UserDetailService userDetailService;
 
     public static Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
         Map<String, Object> jwtClaims = new HashMap<>();
@@ -109,20 +111,32 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         User user = null;
         if (!userList.isEmpty()) {
             user = userList.get(0);
-            if (!user.getEmail().contains(oauthProviderType.name())) {
-                throw new CustomOAuth2AuthenticationException("SERVER_ERROR",
-                        CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
-            }
+            validateOauthProvider(user, oauthProviderType);
+
+            userRepository.save(user);
         } else {
-            user = attributes.toEntity();
+            user = addUser(attributes);
         }
 
         updateRecentLoginAt(user);
-        return userRepository.save(user);
+        return user;
     }
 
     public void updateRecentLoginAt(User user) {
         user.setRecentLoginAt();
         userRepository.save(user);
+    }
+
+    private void validateOauthProvider(User user, OauthProviderType oauthProviderType) throws CustomOAuth2AuthenticationException {
+        if (!user.getEmail().contains(oauthProviderType.name())) {
+            throw new CustomOAuth2AuthenticationException("SERVER_ERROR", CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+        }
+    }
+
+    private User addUser(OAuthAttributes attributes) {
+        User newUser = attributes.toEntity();
+        userRepository.save(newUser);
+        userDetailService.addUserDetail(newUser.getId());
+        return newUser;
     }
 }
