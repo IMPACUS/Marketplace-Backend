@@ -120,7 +120,7 @@ public class User extends BaseEntity {
         this.password = password;
         this.name = name;
         this.status = UserStatus.ACTIVE;
-        this.type = UserType.ROLE_UNCERTIFIED_USER;
+        this.type = UserType.ROLE_CERTIFIED_USER;
         this.isAdmin = false;
         this.doesAgreeServicePolicy = false;
         this.doesAgreePersonalPolicy = false;
