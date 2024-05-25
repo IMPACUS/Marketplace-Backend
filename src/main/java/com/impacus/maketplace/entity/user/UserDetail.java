@@ -53,12 +53,4 @@ public class UserDetail extends BaseEntity {
     @ColumnDefault("0")
     @Column(nullable = false)
     private Long greenLabelPoint; // 그린 라벨 포인트
-
-    public UserDetail(Long userId) {
-        this.isDeleted = false;
-        this.userId = userId;
-        this.isCertEmail = false;
-        this.isCertPhone = false;
-        this.greenLabelPoint = 0L;
-    }
 }

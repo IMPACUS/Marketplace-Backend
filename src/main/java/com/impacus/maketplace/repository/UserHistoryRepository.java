@@ -1,4 +1,4 @@
-package com.impacus.maketplace.repository.user;
+package com.impacus.maketplace.repository;
 
 import com.impacus.maketplace.entity.user.UserHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
