@@ -12,6 +12,7 @@ import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDeliveryTime;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
@@ -39,6 +40,7 @@ public class TemporaryProductService {
     private final TemporaryProductDetailInfoService temporaryProductDetailInfoService;
     private final ObjectCopyHelper objectCopyHelper;
     private final SubCategoryService subCategoryService;
+    private final TemporaryProductDeliveryTimeService deliveryTimeService;
 
     /**
      * TemporaryProduct 데이터가 사용자에게 등록되어 있는지 확인하는 함수
@@ -71,7 +73,7 @@ public class TemporaryProductService {
             List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. 임시 저장 상품이 존재하는지 확인
-        Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(sellerId.toString());
+            Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(sellerId.toString());
             if (optionalData.isPresent()) {
                 // 임시 저장 상품 수정
                 TemporaryProduct temporaryProduct = optionalData.get();
@@ -86,7 +88,7 @@ public class TemporaryProductService {
     }
 
     /**
-     * 새로운 임시 저장 상품 데이터를 저장하는 함수
+     * 새로운 임시 저장 상품 데이터 저장 함수
      *
      * @param productImageList
      * @param productRequest
@@ -107,7 +109,7 @@ public class TemporaryProductService {
         TemporaryProduct newTemporaryProduct = temporaryProductRepository.save(productRequest.toTemporaryEntity(sellerId));
         Long temporaryProductId = newTemporaryProduct.getId();
 
-        // 3. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+        // 3. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
         productImageList
                 .forEach(productImage -> {
                     try {
@@ -143,6 +145,9 @@ public class TemporaryProductService {
 
         // 7. Product detail 저장
         temporaryProductDetailInfoService.addTemporaryProductDetailInfo(temporaryProductId, productRequest.getProductDetail());
+
+        // 8. 배송 지연 시간 저장
+        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, productRequest.getDeliverTime());
 
         return SimpleTemporaryProductDTO.toDTO(newTemporaryProduct);
     }
@@ -187,7 +192,7 @@ public class TemporaryProductService {
      *
      * @param temporaryProduct
      * @param productImageList
-     * @param productRequest
+     * @param dto
      * @param productDescriptionImageList
      * @return
      */
@@ -195,14 +200,14 @@ public class TemporaryProductService {
     public SimpleTemporaryProductDTO updateTemporaryProduct(
             TemporaryProduct temporaryProduct,
             List<MultipartFile> productImageList,
-            CreateProductDTO productRequest,
+            CreateProductDTO dto,
             List<MultipartFile> productDescriptionImageList) {
         try {
             // 1. productRequest 데이터 유효성 검사
-            validateProductRequest(productImageList, productRequest, productDescriptionImageList);
+            validateProductRequest(productImageList, dto, productDescriptionImageList);
 
             // 2. Product 수정
-            temporaryProduct.setProduct(productRequest);
+            temporaryProduct.setProduct(dto);
             temporaryProductRepository.save(temporaryProduct);
             Long temporaryProductId = temporaryProduct.getId();
 
@@ -224,7 +229,7 @@ public class TemporaryProductService {
 
             // 4. Product description 수정
             TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
-            description.setDescription(productRequest.getDescription());
+            description.setDescription(dto.getDescription());
 
             // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(description.getId(), ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
@@ -243,11 +248,14 @@ public class TemporaryProductService {
                     }).collect(Collectors.toList());
 
             //8. Product option 수정
-            temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, productRequest.getProductOptions());
+            temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, dto.getProductOptions());
 
-            // 9. Product detail 수정
+            // 9.TemporaryProductDetailInfo 수정
             TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
-            detailInfo.setTemporaryProductDetailInfo(productRequest.getProductDetail());
+            detailInfo.setTemporaryProductDetailInfo(dto.getProductDetail());
+
+            // 10. DeliveryTime 수정
+            deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliverTime());
 
             return SimpleTemporaryProductDTO.toDTO(temporaryProduct);
         } catch (Exception ex) {
@@ -325,6 +333,10 @@ public class TemporaryProductService {
             // TemporaryProductDescription 값 가져오기
             TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
             dto.setTemporaryDetailInfoDTO(objectCopyHelper.copyObject(detailInfo, TemporaryDetailInfoDTO.class));
+
+            // TemporaryProductDeliveryTime
+            TemporaryProductDeliveryTime deliveryTime = deliveryTimeService.findTemporaryProductDeliveryTimeByTemporaryProductId(temporaryProductId);
+            dto.setDeliveryTime(TemporaryProductDeliveryTimeDTO.toDTO(deliveryTime));
 
             // 대표이미지 데이터 가져오기
             List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
