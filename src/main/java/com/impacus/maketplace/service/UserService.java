@@ -19,6 +19,7 @@ import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.service.user.UserDetailService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,7 @@ public class UserService {
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
     private final EmailVerificationCodeService emailVerificationCodeService;
+    private final UserDetailService userDetailService;
 
 
     @Transactional
@@ -75,11 +77,12 @@ public class UserService {
                 throw new CustomException(CommonErrorType.INVALID_PASSWORD);
             }
 
-            // 3. User 데이터 생성 및 저장
+            // 3. User&UserDetail 생성 및 저장
             User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
                     encodePassword(password),
                     signUpRequest.getName());
             userRepository.save(user);
+            userDetailService.addUserDetail(user.getId());
 
 
             // 5. UserDTO 반환
