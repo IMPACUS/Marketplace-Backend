@@ -2,7 +2,6 @@ package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
-import com.impacus.maketplace.common.enumType.PaymentMethod;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.TimestampConverter;
@@ -48,24 +47,8 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserType type; // 사용자 타입
 
-    @ColumnDefault("0")
-    @Column(nullable = false)
-    private Long greenLabelPoint; // 그린 라벨 포인트
-
     @Column(nullable = false)
     private Boolean isAdmin; // 관리자 계정 여부
-
-    @ColumnDefault("false")
-    @Column(nullable = false)
-    private Boolean isCertEmail; // 이메일 인증 여부
-
-    private LocalDateTime certEmailDateTime; // 이메일 인증 시간
-
-    @ColumnDefault("false")
-    @Column(nullable = false)
-    private Boolean isCertPhone; // 핸드폰 인증 여부
-
-    private LocalDateTime certPhoneDateTime; // 핸드폰 인증 시간
 
     @Column(nullable = false)
     private Boolean doesAgreeServicePolicy; // 서비스 보안 동의 여부
@@ -93,10 +76,6 @@ public class User extends BaseEntity {
     @Setter
     private LocalDate updateDormancyAt; // 휴면 계정 포인트 감소할 날짜
 
-    @ColumnDefault("'NONE'")
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod selectedPaymentMethod; // 선택된 결제 수단
-
     private Long profileImageId; // 프로필 이미지 아이디
 
     @Convert(converter = AES256ToStringConverter.class)
@@ -104,12 +83,6 @@ public class User extends BaseEntity {
 
     @Convert(converter = AES256ToStringConverter.class)
     private String userJumin1; //주민 번호 앞자리
-
-    @Convert(converter = AES256ToStringConverter.class)
-    private String userJumin2; //주민 번호 뒷자리
-
-    @Convert(converter = AES256ToStringConverter.class)
-    private String pccc; // 개인 통관 고유 번호
 
     @Convert(converter = TimestampConverter.class)
     private LocalDateTime recentLoginAt;
@@ -148,10 +121,7 @@ public class User extends BaseEntity {
         this.name = name;
         this.status = UserStatus.ACTIVE;
         this.type = UserType.ROLE_UNCERTIFIED_USER;
-        this.greenLabelPoint = 0L;
         this.isAdmin = false;
-        this.isCertEmail = false;
-        this.isCertPhone = false;
         this.doesAgreeServicePolicy = false;
         this.doesAgreePersonalPolicy = false;
         this.doesAgreeService = false;
@@ -178,10 +148,7 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
         this.status = UserStatus.ACTIVE;
         this.type = userType;
-        this.greenLabelPoint = 0L;
         this.isAdmin = false;
-        this.isCertEmail = false;
-        this.isCertPhone = false;
         this.doesAgreeServicePolicy = false;
         this.doesAgreePersonalPolicy = false;
         this.doesAgreeService = false;
