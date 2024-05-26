@@ -147,7 +147,7 @@ public class TemporaryProductService {
         temporaryProductDetailInfoService.addTemporaryProductDetailInfo(temporaryProductId, productRequest.getProductDetail());
 
         // 8. 배송 지연 시간 저장
-        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, productRequest.getDeliverTime());
+        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, productRequest.getDeliveryTime());
 
         return SimpleTemporaryProductDTO.toDTO(newTemporaryProduct);
     }
@@ -255,7 +255,7 @@ public class TemporaryProductService {
             detailInfo.setTemporaryProductDetailInfo(dto.getProductDetail());
 
             // 10. DeliveryTime 수정
-            deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliverTime());
+            deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
 
             return SimpleTemporaryProductDTO.toDTO(temporaryProduct);
         } catch (Exception ex) {

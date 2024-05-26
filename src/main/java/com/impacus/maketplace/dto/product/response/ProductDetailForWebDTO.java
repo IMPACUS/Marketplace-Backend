@@ -25,6 +25,7 @@ public class ProductDetailForWebDTO {
     private List<ProductOptionDTO> productOptions;
     private ProductStatus productStatus;
     private List<AttachFileDTO> productImageList;
+    private ProductDeliveryTimeDTO deliveryTime;
 
     public void setDescription(String description) {
         this.description = description;
@@ -34,11 +35,11 @@ public class ProductDetailForWebDTO {
         this.productOptions = productOptions;
     }
 
-    public void setDetailInfoDTO(ProductDetailInfoDTO productDetail) {
-        this.productDetail = productDetail;
-    }
-
     public void setProductImageList(List<AttachFileDTO> productImageList) {
         this.productImageList = productImageList;
+    }
+
+    public void setDeliveryTime(ProductDeliveryTimeDTO deliveryTime) {
+        this.deliveryTime = deliveryTime;
     }
 }

@@ -4,17 +4,11 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
-import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.common.QAttachFileGroup;
-import com.impacus.maketplace.entity.product.QProduct;
-import com.impacus.maketplace.entity.product.QProductDescription;
-import com.impacus.maketplace.entity.product.QProductOption;
-import com.impacus.maketplace.entity.product.QWishlist;
+import com.impacus.maketplace.entity.product.*;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
@@ -42,6 +36,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QAttachFile attachFile = QAttachFile.attachFile;
     private final QAttachFileGroup attachFileGroup = QAttachFileGroup.attachFileGroup;
     private final QWishlist wishlist = QWishlist.wishlist;
+    private final QProductDeliveryTime productDeliveryTime = QProductDeliveryTime.productDeliveryTime;
 
     @Override
     public Page<ProductForWebDTO> findAllProduct(
@@ -111,6 +106,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(description).on(description.productId.eq(product.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
@@ -124,7 +120,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         wishlist.id,
                                         product.deliveryFee,
                                         seller.marketName,
-                                        description.description
+                                        description.description,
+                                        Projections.constructor(
+                                                ProductDeliveryTimeDTO.class,
+                                                productDeliveryTime.minDays,
+                                                productDeliveryTime.maxDays
+                                        )
                                 )
                         )
                 );

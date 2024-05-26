@@ -60,7 +60,7 @@ public class CreateProductDTO {
     private List<CreateProductOptionDTO> productOptions;
 
     @NotNull
-    private CreateProductDeliveryTimeDTO deliverTime;
+    private CreateProductDeliveryTimeDTO deliveryTime;
 
     @ValidEnum(enumClass = ProductStatus.class)
     private ProductStatus productStatus;

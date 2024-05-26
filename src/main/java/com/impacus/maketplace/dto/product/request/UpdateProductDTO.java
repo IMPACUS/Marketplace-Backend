@@ -60,4 +60,7 @@ public class UpdateProductDTO {
 
     @ValidEnum(enumClass = ProductType.class)
     private ProductType type;
+
+    @NotNull
+    private CreateProductDeliveryTimeDTO deliveryTime;
 }

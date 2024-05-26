@@ -31,8 +31,8 @@ public class DetailedProductDTO {
     private String description;
     @JsonProperty("isOutOfStock")
     private boolean isOutOfStock;
+    private ProductDeliveryTimeDTO deliveryTime;
 
-    private int deliveryDays;
     private float averageRating; // 평균 평점
     private Long reviewCnt;
     private Long wishlistCnt;
@@ -49,7 +49,8 @@ public class DetailedProductDTO {
                               Long wishlistId,
                               int deliveryFee,
                               String brandName,
-                              String description
+                              String description,
+                              ProductDeliveryTimeDTO deliveryTime
     ) {
         this.id = id;
         this.name = name;
@@ -62,11 +63,11 @@ public class DetailedProductDTO {
         this.deliveryFee = deliveryFee;
         this.brandName = brandName;
         this.description = description;
+        this.deliveryTime = deliveryTime;
         setOptionData(options);
 
         this.averageRating = 5.0f;
         this.reviewCnt = 123L;
-        this.deliveryDays = 3;
         this.maxEarnablePoints = 100;
     }
 
