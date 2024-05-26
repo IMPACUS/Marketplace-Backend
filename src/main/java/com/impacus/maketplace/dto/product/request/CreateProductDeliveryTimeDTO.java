@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.product.request;
 
+import com.impacus.maketplace.entity.product.ProductDeliveryTime;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDeliveryTime;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,14 @@ public class CreateProductDeliveryTimeDTO {
     private Integer minDays;
     @NotNull
     private Integer maxDays;
+
+    public ProductDeliveryTime toEntity(Long productId) {
+        return new ProductDeliveryTime(
+                productId,
+                this.minDays,
+                this.maxDays
+        );
+    }
 
     public TemporaryProductDeliveryTime toTemporaryEntity(Long temporaryProductId) {
         return new TemporaryProductDeliveryTime(

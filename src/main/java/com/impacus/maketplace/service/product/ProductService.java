@@ -14,6 +14,7 @@ import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
+import com.impacus.maketplace.entity.product.ProductDeliveryTime;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.seller.Seller;
@@ -49,32 +50,33 @@ public class ProductService {
     private final ObjectCopyHelper objectCopyHelper;
     private final SubCategoryService subCategoryService;
     private final WishlistRepository wishlistRepository;
+    private final ProductDeliveryTimeService deliveryTimeService;
 
     /**
      * 새로운 Product 생성 함수
      *
-     * @param productRequest
+     * @param dto
      * @return
      */
     @Transactional
     public ProductDTO addProduct(
             Long userId,
             List<MultipartFile> productImageList,
-            CreateProductDTO productRequest,
+            CreateProductDTO dto,
             List<MultipartFile> productDescriptionImageList) {
         try {
             Seller seller = sellerService.findSellerByUserId(userId);
 
             // 1. productRequest 데이터 유효성 검사
             validateProductRequest(
-                    productImageList, productRequest.getCategoryId(), productDescriptionImageList
+                    productImageList, dto.getCategoryId(), productDescriptionImageList
             );
 
             // 2. 상풍 번호 생성
             String productNumber = StringUtils.getProductNumber();
 
             // 3. Product 저장
-            Product newProduct = productRepository.save(productRequest.toEntity(productNumber, seller.getId()));
+            Product newProduct = productRepository.save(dto.toEntity(productNumber, seller.getId()));
             Long productId = newProduct.getId();
 
             // 4. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
@@ -88,7 +90,7 @@ public class ProductService {
                     });
 
             // 5. Product description 저장
-            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, productRequest);
+            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, dto);
 
             // 6. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             productDescriptionImageList
@@ -101,13 +103,16 @@ public class ProductService {
                     });
 
             //7. Product option 저장
-            productOptionService.addProductOption(productId, productRequest.getProductOptions());
+            productOptionService.addProductOption(productId, dto.getProductOptions());
 
             // 8. Product detail 저장
-            productDetailInfoService.addProductDetailInfo(productId, productRequest.getProductDetail());
+            productDetailInfoService.addProductDetailInfo(productId, dto.getProductDetail());
 
-            // 9. TemporaryProduct 삭제
-            if (productRequest.isDoesUseTemporaryProduct()) {
+            // 9. ProductDeliveryTime 저장
+            deliveryTimeService.addProductDeliveryTime(productId, dto.getDeliveryTime());
+
+            // 10. TemporaryProduct 삭제
+            if (dto.isDoesUseTemporaryProduct()) {
                 temporaryProductService.deleteTemporaryProduct(userId);
             }
 
@@ -283,6 +288,9 @@ public class ProductService {
             ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
             productDetailInfo.setProductDetailInfo(dto.getProductDetail());
 
+            // 10. Product delivery time 수정
+            deliveryTimeService.updateProductDeliveryTime(productId, dto.getDeliveryTime());
+
             return ProductDTO.toDTO(product);
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -374,20 +382,24 @@ public class ProductService {
                 throw new CustomException(ProductErrorEnum.PRODUCT_ACCESS_DENIED);
             }
 
-            // 2. TemporaryProductDescription 값 가져오기
+            // 2. ProductDescription 값 가져오기
             ProductDescription description = productDescriptionService.findProductDescriptionByProductId(productId);
             dto.setDescription(description.getDescription());
 
-            // 3. TemporaryProductOption 값 가져오기
+            // 3. ProductOption 값 가져오기
             List<ProductOptionDTO> options = productOptionService.findProductOptionByProductId(productId)
                     .stream()
                     .map(option -> new ProductOptionDTO(option.getId(), option.getColor(), option.getSize()))
                     .toList();
             dto.setProductOptionDTO(options);
 
-            // 4. TemporaryProductDescription 값 가져오기
+            // 4. ProductDescription 값 가져오기
             ProductDetailInfo detailInfo = productDetailInfoService.findProductDetailInfoByProductId(productId);
             dto.setProductDetail(objectCopyHelper.copyObject(detailInfo, ProductDetailInfoDTO.class));
+
+            // 5. ProductDeliveryTime 값 가져오기
+            ProductDeliveryTime deliveryTime = deliveryTimeService.findProductDeliveryTimeByProductId(productId);
+            dto.setDeliveryTime(ProductDeliveryTimeDTO.toDTO(deliveryTime));
 
             // 5. 대표이미지 데이터 가져오기
             List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)

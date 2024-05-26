@@ -37,7 +37,7 @@ public class ProductController {
      *
      * @param productImageList
      * @param productDescriptionImageList
-     * @param productRequest
+     * @param dto
      * @return
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
@@ -46,11 +46,11 @@ public class ProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
+            @Valid @RequestPart(value = "product") CreateProductDTO dto) {
         ProductDTO productDTO = productService.addProduct(
                 user.getId(),
                 productImageList,
-                productRequest,
+                dto,
                 productDescriptionImageList);
         return ApiResponseEntity
                 .<ProductDTO>builder()
