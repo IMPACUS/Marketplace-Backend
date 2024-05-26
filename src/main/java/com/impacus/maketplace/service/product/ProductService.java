@@ -18,6 +18,7 @@ import com.impacus.maketplace.entity.product.ProductDeliveryTime;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.seller.Seller;
+import com.impacus.maketplace.redis.service.RecentProductViewsService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -51,6 +52,7 @@ public class ProductService {
     private final SubCategoryService subCategoryService;
     private final WishlistRepository wishlistRepository;
     private final ProductDeliveryTimeService deliveryTimeService;
+    private final RecentProductViewsService recentProductViewsService;
 
     /**
      * 새로운 Product 생성 함수
@@ -322,6 +324,26 @@ public class ProductService {
     }
 
     /**
+     * 최근 본 상품 목록 조회 함수
+     *
+     * @param pageable
+     * @return
+     */
+    public Slice<ProductForAppDTO> findProductForRecentViews(
+            Long userId,
+            Pageable pageable
+    ) {
+        try {
+            List<Long> productIds = recentProductViewsService.findProductIdsByUserId(userId, pageable);
+            Slice<ProductForAppDTO> products = productRepository.findAllProductByProductIds(userId, productIds, pageable);
+
+            return products;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
      * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
      *
      * @param userId
@@ -356,6 +378,9 @@ public class ProductService {
             // 3. Product 대표 이미지 리스트 가져오기
             List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
             detailedProductDTO.setProductImageList(attachFileDTOS);
+
+            // 4. 최근 본 상품 저장
+            recentProductViewsService.addRecentProductView(userId, productId);
 
             return detailedProductDTO;
         } catch (Exception ex) {
