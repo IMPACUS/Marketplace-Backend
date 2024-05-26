@@ -13,6 +13,7 @@ import com.impacus.maketplace.entity.seller.QSeller;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -20,7 +21,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.querydsl.core.types.ExpressionUtils.count;
 
@@ -159,6 +164,37 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
+    public Slice<ProductForAppDTO> findAllProductByProductIds(
+            Long userId,
+            List<Long> productIds,
+            Pageable pageable
+    ) {
+        BooleanBuilder productBuilder = new BooleanBuilder();
+        productBuilder
+                .and(product.id.in(productIds))
+                .and(product.isDeleted.eq(false));
+
+        Map<Long, Integer> productIdIndexMap = new HashMap<>();
+        for (int i = 0; i < productIds.size(); i++) {
+            productIdIndexMap.put(productIds.get(i), i);
+        }
+
+        List<ProductForAppDTO> products = findAllProduct(productBuilder, userId, pageable);
+
+        List<ProductForAppDTO> sortedProducts = products.stream()
+                .sorted(Comparator.comparingInt(product -> productIdIndexMap.get(product.getProductId())))
+                .collect(Collectors.toList());
+
+        boolean hasNext = false;
+        if (sortedProducts.size() > pageable.getPageSize()) {
+            hasNext = true;
+            sortedProducts.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(sortedProducts, pageable, hasNext);
+    }
+
+    @Override
     public Slice<ProductForAppDTO> findAllProductBySubCategoryId(
             Long userId,
             Long subCategoryId,
@@ -169,6 +205,22 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .and(product.categoryId.eq(subCategoryId))
                 .and(product.isDeleted.eq(false));
 
+        List<ProductForAppDTO> content = findAllProduct(productBuilder, userId, pageable);
+
+        boolean hasNext = false;
+        if (content.size() > pageable.getPageSize()) {
+            hasNext = true;
+            content.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    public List<ProductForAppDTO> findAllProduct(
+            BooleanBuilder productBuilder,
+            Long userId,
+            Pageable pageable
+    ) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
@@ -177,7 +229,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
-        List<ProductForAppDTO> content = queryFactory
+        JPAQuery<Product> query = queryFactory
                 .selectFrom(product)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
@@ -185,7 +237,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .where(productBuilder)
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize());
+
+        return query
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
                                 ProductForAppDTO.class,
@@ -210,13 +264,5 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         )
                 );
-
-        boolean hasNext = false;
-        if (content.size() > pageable.getPageSize()) {
-            hasNext = true;
-            content.remove(pageable.getPageSize());
-        }
-
-        return new SliceImpl<>(content, pageable, hasNext);
     }
 }

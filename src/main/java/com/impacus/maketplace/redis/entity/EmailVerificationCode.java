@@ -1,17 +1,14 @@
 package com.impacus.maketplace.redis.entity;
 
+import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-@RedisHash(value = "emailVerificationCode", timeToLive = 180L)
+@RedisHash(value = "emailVerificationCode", timeToLive = 180L) // 3분
 public class EmailVerificationCode {
     @Id
     private String id;

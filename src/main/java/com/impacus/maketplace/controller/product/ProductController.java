@@ -176,4 +176,22 @@ public class ProductController {
                 .build();
     }
 
+    /**
+     * 최근 본 상품 목록 조회 API
+     *
+     * @param pageable
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("/recent-views")
+    public ApiResponseEntity<Slice<ProductForAppDTO>> getProductForRecentViews(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PageableDefault(size = 15, direction = Sort.Direction.ASC, sort = "createAt") Pageable pageable) {
+        Slice<ProductForAppDTO> productDTOList = productService.findProductForRecentViews(user.getId(), pageable);
+        return ApiResponseEntity
+                .<Slice<ProductForAppDTO>>builder()
+                .data(productDTOList)
+                .build();
+    }
+
 }
