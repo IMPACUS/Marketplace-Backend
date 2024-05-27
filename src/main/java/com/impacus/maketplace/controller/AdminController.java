@@ -1,18 +1,18 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.admin.AdminInfoDTO;
-import com.impacus.maketplace.dto.admin.AdminLoginActivityDTO;
-import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
-import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
 import com.impacus.maketplace.service.admin.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -142,5 +142,47 @@ public class AdminController {
                 .build();
     }
 
+    /**
+     * (7) /api/v1/admin/form-view : 관리자 등록에 필요한 양식 출력
+     * @param userId : 해당 사용자 번호
+     * @return : 결과 값 반환
+     */
+    @GetMapping("/form-view")
+    public ApiResponseEntity<?> displayViewUserInfo(@RequestParam("userId") Long userId) {
+        log.info("controller.displayViewUserInfo");
+        AdminFormDTO adminFormDTO = adminService.displayViewUserInfo(userId);
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 등록용 폼 조회 성공")
+                .data(adminFormDTO)
+                .build();
+    }
 
+    /**
+     * (8) 관리자 등록 폼 - 일단 등록이라 POST로 지정, 실제는 isAdmin = true로만 변경
+     *       사실상 isAdmin만 true 하면 되지만 확장성을 고려해 그냥 데이터 다 받는 것으로만 지정
+     * @param profileImage : 프로필 이미지
+     * @param adminFormDTO : 프로필을 제외한 나머지만 adminFormDTO로 지정
+     * @return
+     */
+    @PostMapping("register-admin")
+    public ApiResponseEntity<?> registerAdmin(
+            @RequestPart(value = "profileImage", required = false) @Valid MultipartFile profileImage,
+            @RequestPart(value = "adminFormDTO", required = false) AdminFormDTO adminFormDTO
+            ) {
+        // 프로필은 그냥 수정만 진행, 현재 의미가 없어서 일단 주석으로만 설명
+
+        // 유효성 체크가 필요하면 향후 적용 예정
+
+        // 실제로는 isAdmin 값만 true 하면 됨
+        AdminFormDTO updateAdminFormDTO = adminService.registerAdmin(adminFormDTO);
+
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .message("관리자 등록 성공")
+                .data(updateAdminFormDTO)
+                .build();
+    }
 }

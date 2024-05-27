@@ -1,8 +1,12 @@
 package com.impacus.maketplace.repository.admin;
 
 import com.impacus.maketplace.dto.admin.*;
-import com.impacus.maketplace.entity.admin.*;
+import com.impacus.maketplace.entity.admin.AdminInfo;
+import com.impacus.maketplace.entity.admin.QAdminActivityLog;
+import com.impacus.maketplace.entity.admin.QAdminInfo;
+import com.impacus.maketplace.entity.admin.QAdminLoginLog;
 import com.impacus.maketplace.entity.user.QUser;
+import com.impacus.maketplace.entity.user.User;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +54,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
 
     /**
      * 로그인 내역 조회
+     *
      * @param userId : 해당 유저 번호
      * @return : 로그인 히스토리 전체 조회
      */
@@ -70,6 +75,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
 
     /**
      * 관리자 타입 수정을 위한 로직
+     *
      * @param userId : 관리자 타입을 변경하기 위한 유저번호
      * @return : 관리자 타입 변경된 해당 유저 정보 조회
      */
@@ -96,6 +102,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
 
     /**
      * 관리자 활동 정보를 전체 리스트 출력
+     *
      * @param userId : 해당 관리자 번호 검색 조건 출력
      * @return : 활동정보 전체 출력
      */
@@ -109,5 +116,40 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
         ).from(adminActivityLog).where(adminActivityLog.userId.eq(userId)).fetch();
     }
 
+    @Override
+    public AdminFormDTO findAllWhereId(Long userId) {
+        return queryFactory.select(
+                new QAdminFormDTO(
+                        userEntity.id,
+                        userEntity.name,
+                        userEntity.phoneNumber,
+                        userEntity.email,
+                        userEntity.profileImageId
+                )
+        ).from(userEntity).where(userEntity.id.eq(userId)).fetchOne();
+    }
+
+    /**
+     * (8) 관리자 등록 서비스 단
+     * - 현재는 isAdmin = True, userJumin1 = 주소
+     * - 사실 Form 부분은 출력만 해주고 나머지는 등록해야함
+     * @param adminFormDTO
+     * @return
+     */
+    @Override
+    public Long changeUserEntityAdminForm(AdminFormDTO adminFormDTO) {
+        return queryFactory.update(userEntity)
+                .set(userEntity.isAdmin, true)
+                .set(userEntity.userJumin1, adminFormDTO.getUserJumin1())
+                .where(userEntity.id.eq(adminFormDTO.getUserId())).execute();
+    }
+
+    @Override
+    public Long changeAdminInfoAdminForm(AdminFormDTO adminFormDTO) {
+        return queryFactory.update(adminInfo)
+                .set(adminInfo.accountType, adminFormDTO.getAccountType())
+                .set(adminInfo.addr, adminFormDTO.getAddr())
+                .where(adminInfo.userId.eq(adminFormDTO.getUserId())).execute();
+    }
 
 }

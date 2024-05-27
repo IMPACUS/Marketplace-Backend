@@ -22,6 +22,9 @@ public class AdminInfo {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "addr")
+    private String addr;
+
     @Column(name = "account_type")
     private String accountType;
 
