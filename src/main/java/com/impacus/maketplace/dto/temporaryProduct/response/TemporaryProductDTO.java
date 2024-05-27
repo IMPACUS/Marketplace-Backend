@@ -23,6 +23,7 @@ public class TemporaryProductDTO {
     private List<TemporaryProductOptionDTO> productOptions;
     private ProductStatus productStatus;
     private List<AttachFileDTO> productImageList;
+    private TemporaryProductDeliveryTimeDTO deliveryTime;
 
     public void setDescription(String description) {
         this.description = description;
@@ -38,5 +39,9 @@ public class TemporaryProductDTO {
 
     public void setProductImageList(List<AttachFileDTO> productImageList) {
         this.productImageList = productImageList;
+    }
+
+    public void setDeliveryTime(TemporaryProductDeliveryTimeDTO deliveryTime) {
+        this.deliveryTime = deliveryTime;
     }
 }

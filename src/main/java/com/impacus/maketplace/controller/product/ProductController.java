@@ -37,7 +37,7 @@ public class ProductController {
      *
      * @param productImageList
      * @param productDescriptionImageList
-     * @param productRequest
+     * @param dto
      * @return
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
@@ -46,11 +46,11 @@ public class ProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
+            @Valid @RequestPart(value = "product") CreateProductDTO dto) {
         ProductDTO productDTO = productService.addProduct(
                 user.getId(),
                 productImageList,
-                productRequest,
+                dto,
                 productDescriptionImageList);
         return ApiResponseEntity
                 .<ProductDTO>builder()
@@ -173,6 +173,24 @@ public class ProductController {
         return ApiResponseEntity
                 .<ProductDetailForWebDTO>builder()
                 .data(productDetailDTO)
+                .build();
+    }
+
+    /**
+     * 최근 본 상품 목록 조회 API
+     *
+     * @param pageable
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("/recent-views")
+    public ApiResponseEntity<Slice<ProductForAppDTO>> getProductForRecentViews(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PageableDefault(size = 15, direction = Sort.Direction.ASC, sort = "createAt") Pageable pageable) {
+        Slice<ProductForAppDTO> productDTOList = productService.findProductForRecentViews(user.getId(), pageable);
+        return ApiResponseEntity
+                .<Slice<ProductForAppDTO>>builder()
+                .data(productDTOList)
                 .build();
     }
 
