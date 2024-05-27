@@ -144,6 +144,13 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
                 .where(userEntity.id.eq(adminFormDTO.getUserId())).execute();
     }
 
+    /**
+     * (9) 관리자 등록 서비스 단
+     * - 현재는 주소 등록, 관리자 타입 설정
+     * - 필요 부분만 적용
+     * @param adminFormDTO
+     * @return
+     */
     @Override
     public Long changeAdminInfoAdminForm(AdminFormDTO adminFormDTO) {
         return queryFactory.update(adminInfo)
