@@ -129,7 +129,7 @@ public class AdminService {
     }
 
     @Transactional(readOnly = false)
-    public AdminFormDTO registerAdmin(AdminFormDTO adminFormDTO) {
+    public AdminFormDTO registerAdminForm(AdminFormDTO adminFormDTO) {
         Long result = adminInfoRepository.changeUserEntityAdminForm(adminFormDTO);
         log.info("유저 등록 결과 " + result);
         result = adminInfoRepository.changeAdminInfoAdminForm(adminFormDTO);
