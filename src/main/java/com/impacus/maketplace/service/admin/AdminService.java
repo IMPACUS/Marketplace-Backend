@@ -110,7 +110,7 @@ public class AdminService {
     }
 
     /**
-     * 로그 출력, 활동 내역 출력
+     * (6) 로그 출력, 활동 내역 출력
      * @return : 관리자 활동 내역 리스트 형태로 출력
      */
     @Transactional(readOnly = true)
@@ -120,7 +120,7 @@ public class AdminService {
     }
 
     /**
-     * 관리자 등록에 필요한 필요한 폼의 대한 사용자 정보 출력
+     * (7) 관리자 등록에 필요한 필요한 폼의 대한 사용자 정보 출력
      * @param userId
      * @return
      */
@@ -130,6 +130,11 @@ public class AdminService {
         return adminInfoRepository.findAllWhereId(userId);
     }
 
+    /**
+     * (8) 유저 등록 관련 API - 각각 필요한 쿼리별 수행
+     * @param adminFormDTO
+     * @return
+     */
     @Transactional(readOnly = false)
     public AdminFormDTO registerAdminForm(AdminFormDTO adminFormDTO) {
         Long result = adminInfoRepository.changeUserEntityAdminForm(adminFormDTO);
