@@ -28,7 +28,7 @@ public class AdminInfo {
     @Column(name = "account_type")
     private String accountType;
 
-    @Column(name = "activity_detail")
-    private String activityDetail;
+    @Column(name = "recent_activity_date")
+    private String recentActivityDate;
 
 }

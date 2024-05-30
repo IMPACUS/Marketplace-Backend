@@ -6,8 +6,7 @@ import com.impacus.maketplace.entity.admin.QAdminActivityLog;
 import com.impacus.maketplace.entity.admin.QAdminInfo;
 import com.impacus.maketplace.entity.admin.QAdminLoginLog;
 import com.impacus.maketplace.entity.user.QUser;
-import com.impacus.maketplace.entity.user.User;
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -33,22 +32,53 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
      */
     @Override
     public List<AdminUserDTO> findAdminAll() {
-        JPAQuery<AdminUserDTO> query = queryFactory.select(
-                        new QAdminUserDTO(
+//        select
+//        aaa.id,
+//                aaa.user_id,
+//                aaa.email,
+//                aaa.account_type,
+//                aaa.phone_number,
+//                aaa.recent_activity_date,
+//                bbb.activity_detail
+//        from ( select
+//                a.id,
+//                u.user_id,
+//                u.email,
+//                a.account_type,
+//                u.phone_number,
+//                a.recent_activity_date,
+//                u.is_admin
+//                from
+//                user_info u inner join admin_info a
+//                on u.user_id = a.user_id ) aaa
+//        inner join (select aal.user_id, aal.activity_detail
+//        from (select user_id, activity_detail, row_number() over (PARTITION BY user_id order by crt_date desc) as rn from
+//                admin_activity_log ) aal
+//        where rn = 1
+//                ) bbb
+//        on bbb.user_id = aaa.user_id
+//        where aaa.is_admin = true
+//        ;
+        return queryFactory.select(Projections.fields(
+                                AdminUserDTO.class,
                                 adminInfo.id,
-                                userEntity.id,
+                                adminInfo.userId,
                                 userEntity.email,
-                                userEntity.password,
                                 adminInfo.accountType,
-                                adminInfo.activityDetail
+                                userEntity.phoneNumber,
+                                adminInfo.recentActivityDate,
+                                adminActivityLog.activityDetail
                         )
-                )
-                .from(userEntity)
-                .innerJoin(adminInfo)
-                .on(userEntity.id.eq(adminInfo.userId))
-                .where(userEntity.isAdmin)
-                .fetchJoin();
-        return query.fetch();
+                ).from(adminInfo)
+                .innerJoin(userEntity).on(userEntity.id.eq(adminInfo.userId))
+                .innerJoin(adminActivityLog).on(adminActivityLog.userId.eq(userEntity.id))
+                .where(userEntity.isAdmin.isTrue())
+                .where(adminActivityLog.crtDate.eq(
+                        queryFactory.select(adminActivityLog.crtDate.max())
+                                .from(adminActivityLog)
+                                .where(adminActivityLog.userId.eq(userEntity.id))
+                ))
+                .fetch();
     }
 
 
@@ -86,7 +116,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
                         adminInfo.id,
                         adminInfo.userId,
                         adminInfo.accountType,
-                        adminInfo.activityDetail
+                        adminInfo.recentActivityDate
                 )
         ).from(adminInfo).where(adminInfo.userId.eq(userId)).fetchOne();
 
@@ -95,7 +125,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
                 .id(adminInfoDTO.getId())
                 .userId(adminInfoDTO.getUserId())
                 .accountType(adminInfoDTO.getAccountType())
-                .activityDetail(adminInfoDTO.getActivityDetail())
+                .recentActivityDate(adminInfoDTO.getRecentActivityDate())
                 .build();
     }
 
@@ -133,6 +163,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
      * (8) 관리자 등록 서비스 단
      * - 현재는 isAdmin = True, userJumin1 = 주소
      * - 사실 Form 부분은 출력만 해주고 나머지는 등록해야함
+     *
      * @param adminFormDTO
      * @return
      */
@@ -148,6 +179,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
      * (9) 관리자 등록 서비스 단
      * - 현재는 주소 등록, 관리자 타입 설정
      * - 필요 부분만 적용
+     *
      * @param adminFormDTO
      * @return
      */

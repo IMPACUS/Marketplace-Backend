@@ -12,20 +12,20 @@ public class AdminUserDTO {
     private Long id;
     private Long userId;
     private String email;
-    private String password;
-//    private String crtDate;
     private String accountType;
-//    private String tel;
+    private String phoneNumber;
+    private String recentActivityDate;
     private String activityDetail;
 
 
     @QueryProjection
-    public AdminUserDTO(Long id, Long userId, String email, String password, String accountType, String activityDetail) {
+    public AdminUserDTO(Long id, Long userId, String email, String accountType, String phoneNumber, String recentActivityDate, String activityDetail) {
         this.id = id;
         this.userId = userId;
         this.email = email;
-        this.password = password;
         this.accountType = accountType;
+        this.phoneNumber = phoneNumber;
+        this.recentActivityDate = recentActivityDate;
         this.activityDetail = activityDetail;
     }
 

@@ -37,6 +37,8 @@ public class AdminService {
      */
     @Transactional(readOnly = true)
     public List<AdminUserDTO> displayAdmins() {
+        log.info("service.displayAdmins()");
+        log.info(adminInfoRepository.findAdminAll());
         return adminInfoRepository.findAdminAll();
     }
 
