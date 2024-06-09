@@ -12,14 +12,14 @@ public class AdminInfoDTO {
     private Long id;
     private Long userId;
     private String accountType;
-    private String activityDetail;
+    private String recentActivityDate;
 
 
     @QueryProjection
-    public AdminInfoDTO(Long id, Long userId, String accountType, String activityDetail) {
+    public AdminInfoDTO(Long id, Long userId, String accountType, String recentActivityDate) {
         this.id = id;
         this.userId = userId;
         this.accountType = accountType;
-        this.activityDetail = activityDetail;
+        this.recentActivityDate = recentActivityDate;
     }
 }

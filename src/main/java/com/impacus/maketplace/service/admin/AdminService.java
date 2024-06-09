@@ -1,13 +1,12 @@
 package com.impacus.maketplace.service.admin;
 
 
-import com.impacus.maketplace.dto.admin.AdminInfoDTO;
-import com.impacus.maketplace.dto.admin.AdminLoginActivityDTO;
-import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
-import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
+import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.admin.AdminActivityLogRepository;
 import com.impacus.maketplace.repository.admin.AdminInfoRepository;
 import com.impacus.maketplace.repository.admin.AdminLoginLogRepository;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -37,6 +37,8 @@ public class AdminService {
      */
     @Transactional(readOnly = true)
     public List<AdminUserDTO> displayAdmins() {
+        log.info("service.displayAdmins()");
+        log.info(adminInfoRepository.findAdminAll());
         return adminInfoRepository.findAdminAll();
     }
 
@@ -108,7 +110,7 @@ public class AdminService {
     }
 
     /**
-     *
+     * (6) 로그 출력, 활동 내역 출력
      * @return : 관리자 활동 내역 리스트 형태로 출력
      */
     @Transactional(readOnly = true)
@@ -116,4 +118,30 @@ public class AdminService {
         List<AdminLoginActivityDTO> adminLoginActivityDTOS = adminActivityLogRepository.findAdminActivityLogAll(userId);
         return adminLoginActivityDTOS;
     }
+
+    /**
+     * (7) 관리자 등록에 필요한 필요한 폼의 대한 사용자 정보 출력
+     * @param userId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public AdminFormDTO displayViewUserInfo(Long userId) {
+        log.info("service.displayViewUserInfo");
+        return adminInfoRepository.findAllWhereId(userId);
+    }
+
+    /**
+     * (8) 유저 등록 관련 API - 각각 필요한 쿼리별 수행
+     * @param adminFormDTO
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public AdminFormDTO registerAdminForm(AdminFormDTO adminFormDTO) {
+        Long result = adminInfoRepository.changeUserEntityAdminForm(adminFormDTO);
+        log.info("유저 등록 결과 " + result);
+        result = adminInfoRepository.changeAdminInfoAdminForm(adminFormDTO);
+        log.info("관리자 등록 결과" + result);
+        return adminFormDTO;
+    }
+
 }
