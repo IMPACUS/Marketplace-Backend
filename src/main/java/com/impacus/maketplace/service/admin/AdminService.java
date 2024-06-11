@@ -115,9 +115,9 @@ public class AdminService {
      * @return : 관리자 활동 내역 리스트 형태로 출력
      */
     @Transactional(readOnly = true)
-    public List<AdminLoginActivityDTO> displayViewActivityHistory(Long userId) {
-        List<AdminLoginActivityDTO> adminLoginActivityDTOS = adminActivityLogRepository.findAdminActivityLogAll(userId);
-        return adminLoginActivityDTOS;
+    public Slice<AdminLoginActivityDTO> displayViewActivityHistory(Long userId, Pageable pageable) {
+        log.info("AdminService.displayViewActivityHistory()");
+        return adminActivityLogRepository.findAdminActivityLogAll(userId, pageable);
     }
 
     /**

@@ -212,13 +212,25 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
      * @return : 활동정보 전체 출력
      */
     @Override
-    public List<AdminLoginActivityDTO> findAdminActivityLogAll(Long userId) {
-        return queryFactory.select(
-                new QAdminLoginActivityDTO(
-                        adminActivityLog.crtDate,
-                        adminActivityLog.activityDetail
+    public Slice<AdminLoginActivityDTO> findAdminActivityLogAll(Long userId, Pageable pageable) {
+        List<AdminLoginActivityDTO> results = queryFactory.select(
+                        new QAdminLoginActivityDTO(
+                                adminActivityLog.crtDate,
+                                adminActivityLog.activityDetail
+                        )
                 )
-        ).from(adminActivityLog).where(adminActivityLog.userId.eq(userId)).fetch();
+                .from(adminActivityLog)
+                .where(adminActivityLog.userId.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.remove(results.size() - 1);
+        }
+
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
     @Override

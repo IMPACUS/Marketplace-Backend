@@ -129,15 +129,18 @@ public class AdminController {
      *      *  - 사용 목적 : 활동 내역
      *      *
      */
-    @GetMapping("activity-history")
-    public ApiResponseEntity<?> displayViewActivityHistory(@RequestParam("userId") Long userId) {
+    @GetMapping("/activity-history")
+    public ApiResponseEntity<?> displayViewActivityHistory(
+            @RequestParam("userId") Long userId,
+            @PageableDefault(size = 5) Pageable pageable) {
         log.info("controller.displayViewActivityHistory");
-        List<AdminLoginActivityDTO> adminLoginActivityDTOS = adminService.displayViewActivityHistory(userId);
+        Slice<AdminLoginActivityDTO> adminLoginActivitySlice = adminService.displayViewActivityHistory(userId, pageable);
+
         return ApiResponseEntity
                 .builder()
                 .code(HttpStatus.OK)
                 .message("관리자 활동 내역 조회 성공")
-                .data(adminLoginActivityDTOS)
+                .data(adminLoginActivitySlice)
                 .build();
     }
 

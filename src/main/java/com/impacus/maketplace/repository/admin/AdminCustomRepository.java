@@ -21,7 +21,7 @@ public interface AdminCustomRepository {
     AdminInfo findAdminInfoWhereUserId(Long userId);
 
     // 활동 내역 출력
-    List<AdminLoginActivityDTO> findAdminActivityLogAll(Long userId);
+    Slice<AdminLoginActivityDTO> findAdminActivityLogAll(Long userId, Pageable pageable);
 
     AdminFormDTO findAllWhereId(Long userId);
 
