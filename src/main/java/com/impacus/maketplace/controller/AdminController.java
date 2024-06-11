@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller;
 
+import com.amazonaws.services.apigatewayv2.model.Api;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
@@ -185,6 +186,21 @@ public class AdminController {
                 .code(HttpStatus.OK)
                 .message("관리자 등록 성공")
                 .data(updateAdminFormDTO)
+                .build();
+    }
+
+    /**
+     * (9) group by 지정 - ADMIN, OWNER 별로 권한 갯수 지정
+     * @return : 권한 부여
+     */
+    @GetMapping("group-counter")
+    public ApiResponseEntity<?> displayGroupCounter() {
+        List<AdminGroupCountDTO> result = adminService.displayGroupCounter();
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .message("조회 성공")
+                .data(result)
                 .build();
     }
 }

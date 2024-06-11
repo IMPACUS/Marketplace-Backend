@@ -145,4 +145,9 @@ public class AdminService {
         return adminFormDTO;
     }
 
+    @Transactional(readOnly = true)
+    public List<AdminGroupCountDTO> displayGroupCounter() {
+        return adminInfoRepository.displayGroupCounter();
+    }
+
 }

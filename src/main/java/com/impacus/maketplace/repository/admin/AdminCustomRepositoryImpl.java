@@ -278,6 +278,20 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
                 .where(adminInfo.userId.eq(adminFormDTO.getUserId())).execute();
     }
 
+    @Override
+    public List<AdminGroupCountDTO> displayGroupCounter() {
+        return queryFactory
+                .select(
+                        new QAdminGroupCountDTO(
+                                adminInfo.accountType,
+                                adminInfo.count()
+                        )
+                )
+                .from(adminInfo)
+                .groupBy(adminInfo.accountType)
+                .fetch();
+    }
+
 
     /**
      * 공통 함수 : 검색조건 설정하는 함수, 이름, 전화번호 등 하나라도 포함되어 있으면!!

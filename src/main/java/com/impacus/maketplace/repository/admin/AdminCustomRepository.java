@@ -1,9 +1,6 @@
 package com.impacus.maketplace.repository.admin;
 
-import com.impacus.maketplace.dto.admin.AdminFormDTO;
-import com.impacus.maketplace.dto.admin.AdminLoginActivityDTO;
-import com.impacus.maketplace.dto.admin.AdminLoginHistoryDTO;
-import com.impacus.maketplace.dto.admin.AdminUserDTO;
+import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -30,4 +27,6 @@ public interface AdminCustomRepository {
 
     // 어드민 등록 2 (유저 타입, 주소 등록)
     Long changeAdminInfoAdminForm(AdminFormDTO adminFormDTO);
+
+    List<AdminGroupCountDTO> displayGroupCounter();
 }
