@@ -103,7 +103,7 @@ public class AdminService {
      * @return : adminInfo 형으로 기존 DB를 불려와 권한만 변경하여 Update 한다.
      */
     @Transactional(readOnly = false)
-    public AdminInfo reWriteAdminType(AdminInfoDTO adminInfoDTO) {
+    public AdminInfo reWriteAdminInfoChanged(AdminInfoDTO adminInfoDTO) {
         AdminInfo adminInfo = adminInfoRepository.findAdminInfoWhereUserId(adminInfoDTO.getUserId());
         adminInfo.setAccountType(adminInfoDTO.getAccountType());
         return adminInfoRepository.save(adminInfo);

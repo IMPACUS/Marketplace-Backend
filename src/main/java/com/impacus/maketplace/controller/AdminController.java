@@ -113,10 +113,10 @@ public class AdminController {
      * @param adminInfoDTO : userId, accountType 만 불려와 담는다.
      * @return : userId 가 업데이트 된 정보를 반환한다.
      */
-    @PatchMapping("type")
-    public ApiResponseEntity<?> reWriteAdminType(@RequestBody AdminInfoDTO adminInfoDTO) {
+    @PatchMapping("info-changed")
+    public ApiResponseEntity<?> reWriteAdminInfoChanged(@RequestBody AdminInfoDTO adminInfoDTO) {
         log.info("controller.reWriteAdminType");
-        AdminInfo adminInfo = adminService.reWriteAdminType(adminInfoDTO);
+        AdminInfo adminInfo = adminService.reWriteAdminInfoChanged(adminInfoDTO);
         return ApiResponseEntity
                 .builder()
                 .code(HttpStatus.OK)
