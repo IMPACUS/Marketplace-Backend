@@ -22,11 +22,12 @@ public class AdminFormDTO {
     private Long profileImageId;
 
     @QueryProjection
-    public AdminFormDTO(Long userId, String name, String phoneNumber, String email, Long profileImageId) {
+    public AdminFormDTO(Long userId, String name, String phoneNumber, String email, String addr, Long profileImageId) {
         this.userId = userId;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
+        this.addr = addr;
         this.profileImageId = profileImageId;
     }
 }

@@ -241,9 +241,10 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
                         userEntity.name,
                         userEntity.phoneNumber,
                         userEntity.email,
+                        adminInfo.addr,
                         userEntity.profileImageId
                 )
-        ).from(userEntity).where(userEntity.id.eq(userId)).fetchOne();
+        ).from(userEntity).innerJoin(adminInfo).on(adminInfo.userId.eq(userEntity.id)).where(userEntity.id.eq(userId)).fetchOne();
     }
 
     /**
