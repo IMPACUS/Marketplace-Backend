@@ -75,13 +75,16 @@ public class AdminController {
      * @return
      */
     @GetMapping("login-history")
-    public ApiResponseEntity<?> displayAdminsHistory(@RequestParam("userId") Long userId) {
-        List<AdminLoginHistoryDTO> adminLoginHistoryDTO = adminService.displayAdminsHistory(userId);
+    public ApiResponseEntity<?> displayAdminsHistory(
+            @RequestParam("userId") Long userId,
+            @PageableDefault(size = 5) Pageable pageable) {
+        Slice<AdminLoginHistoryDTO> adminLoginHistorySlice = adminService.displayAdminsHistory(userId, pageable);
+
         return ApiResponseEntity
                 .builder()
                 .code(HttpStatus.OK)
                 .message("로그인 내역 조회 성공")
-                .data(adminLoginHistoryDTO)
+                .data(adminLoginHistorySlice)
                 .build();
     }
 

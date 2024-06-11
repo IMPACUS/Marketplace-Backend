@@ -155,8 +155,8 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
      * @return : 로그인 히스토리 전체 조회
      */
     @Override
-    public List<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long userId) {
-        return queryFactory.select(
+    public Slice<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long userId, Pageable pageable) {
+        List<AdminLoginHistoryDTO> results = queryFactory.select(
                         new QAdminLoginHistoryDTO(
                                 adminLoginLog.id,
                                 adminLoginLog.crtDate,
@@ -165,7 +165,16 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
                 )
                 .from(adminLoginLog)
                 .where(adminLoginLog.userId.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
+
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.remove(results.size() - 1);
+        }
+
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
 

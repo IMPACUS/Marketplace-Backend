@@ -15,7 +15,7 @@ public interface AdminCustomRepository {
     Slice<AdminUserDTO> findAdminAll(Pageable pageable, String search);
 
     // 로그인 이력 조회 (커스텀마이징)
-    List<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long userId);
+    Slice<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long userId, Pageable pageable);
 
     // 해당 관리자 표시 (admin_info 테이블에서 user_id 조건문)
     AdminInfo findAdminInfoWhereUserId(Long userId);
