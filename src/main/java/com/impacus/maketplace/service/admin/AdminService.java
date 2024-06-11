@@ -12,6 +12,8 @@ import com.impacus.maketplace.repository.admin.AdminInfoRepository;
 import com.impacus.maketplace.repository.admin.AdminLoginLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +38,9 @@ public class AdminService {
      * @return : 쿼리문 결과 값 조회 (리스트 - 관리자)
      */
     @Transactional(readOnly = true)
-    public List<AdminUserDTO> displayAdmins() {
+    public Slice<AdminUserDTO> displayAdmins(Pageable pageable, String search) {
         log.info("service.displayAdmins()");
-        log.info(adminInfoRepository.findAdminAll());
-        return adminInfoRepository.findAdminAll();
+        return adminInfoRepository.findAdminAll(pageable, search);
     }
 
     /**

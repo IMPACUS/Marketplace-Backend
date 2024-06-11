@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,9 +33,12 @@ public class AdminController {
      * @return : 관리자 회원 리스트 출력
      */
     @GetMapping()
-    public ApiResponseEntity<?> displayAdminList() {
+    public ApiResponseEntity<?> displayAdminList(
+            @PageableDefault(size=6) Pageable pageable,
+            @RequestParam(required = false) String search
+    ) {
         // 하드코딩으로 연동 먼저 테스트 진행
-        List<AdminUserDTO> adminUserDto = adminService.displayAdmins();
+        Slice<AdminUserDTO> adminUserDto = adminService.displayAdmins(pageable, search);
 
         return ApiResponseEntity
                 .builder()
