@@ -304,10 +304,10 @@ public class UserService {
      *
      * @param email 인증 요청 이메일
      */
-    public void sendVerificationCodeToEmail(String email) {
+    public void sendVerificationCodeToEmail(String email, UserType role) {
         try {
             // 1. 이메일 전송
-            String code = emailService.sendEmailVerificationMail(email);
+            String code = emailService.sendEmailVerificationMail(email, role);
 
             // 2. 이메일 인증 코드 저장
             emailVerificationCodeService.saveEmailVerificationCode(email, code);
