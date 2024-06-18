@@ -4,21 +4,16 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
-import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.common.QAttachFileGroup;
-import com.impacus.maketplace.entity.product.QProduct;
-import com.impacus.maketplace.entity.product.QProductDescription;
-import com.impacus.maketplace.entity.product.QProductOption;
-import com.impacus.maketplace.entity.product.QWishlist;
+import com.impacus.maketplace.entity.product.*;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -26,7 +21,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.querydsl.core.types.ExpressionUtils.count;
 
@@ -42,6 +41,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QAttachFile attachFile = QAttachFile.attachFile;
     private final QAttachFileGroup attachFileGroup = QAttachFileGroup.attachFileGroup;
     private final QWishlist wishlist = QWishlist.wishlist;
+    private final QProductDeliveryTime productDeliveryTime = QProductDeliveryTime.productDeliveryTime;
 
     @Override
     public Page<ProductForWebDTO> findAllProduct(
@@ -111,6 +111,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(description).on(description.productId.eq(product.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
@@ -124,7 +125,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         wishlist.id,
                                         product.deliveryFee,
                                         seller.marketName,
-                                        description.description
+                                        description.description,
+                                        Projections.constructor(
+                                                ProductDeliveryTimeDTO.class,
+                                                productDeliveryTime.minDays,
+                                                productDeliveryTime.maxDays
+                                        )
                                 )
                         )
                 );
@@ -158,6 +164,37 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
+    public Slice<ProductForAppDTO> findAllProductByProductIds(
+            Long userId,
+            List<Long> productIds,
+            Pageable pageable
+    ) {
+        BooleanBuilder productBuilder = new BooleanBuilder();
+        productBuilder
+                .and(product.id.in(productIds))
+                .and(product.isDeleted.eq(false));
+
+        Map<Long, Integer> productIdIndexMap = new HashMap<>();
+        for (int i = 0; i < productIds.size(); i++) {
+            productIdIndexMap.put(productIds.get(i), i);
+        }
+
+        List<ProductForAppDTO> products = findAllProduct(productBuilder, userId, pageable);
+
+        List<ProductForAppDTO> sortedProducts = products.stream()
+                .sorted(Comparator.comparingInt(product -> productIdIndexMap.get(product.getProductId())))
+                .collect(Collectors.toList());
+
+        boolean hasNext = false;
+        if (sortedProducts.size() > pageable.getPageSize()) {
+            hasNext = true;
+            sortedProducts.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(sortedProducts, pageable, hasNext);
+    }
+
+    @Override
     public Slice<ProductForAppDTO> findAllProductBySubCategoryId(
             Long userId,
             Long subCategoryId,
@@ -168,6 +205,22 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .and(product.categoryId.eq(subCategoryId))
                 .and(product.isDeleted.eq(false));
 
+        List<ProductForAppDTO> content = findAllProduct(productBuilder, userId, pageable);
+
+        boolean hasNext = false;
+        if (content.size() > pageable.getPageSize()) {
+            hasNext = true;
+            content.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    public List<ProductForAppDTO> findAllProduct(
+            BooleanBuilder productBuilder,
+            Long userId,
+            Pageable pageable
+    ) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
@@ -176,7 +229,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
-        List<ProductForAppDTO> content = queryFactory
+        JPAQuery<Product> query = queryFactory
                 .selectFrom(product)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
@@ -184,7 +237,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .where(productBuilder)
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize());
+
+        return query
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
                                 ProductForAppDTO.class,
@@ -209,13 +264,5 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         )
                 );
-
-        boolean hasNext = false;
-        if (content.size() > pageable.getPageSize()) {
-            hasNext = true;
-            content.remove(pageable.getPageSize());
-        }
-
-        return new SliceImpl<>(content, pageable, hasNext);
     }
 }

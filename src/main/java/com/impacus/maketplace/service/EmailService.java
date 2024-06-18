@@ -2,6 +2,7 @@ package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.EmailDto;
@@ -112,8 +113,12 @@ public class EmailService {
      * @param receiver
      * @return
      */
-    public String sendEmailVerificationMail(String receiver) {
-        MailType mailType = MailType.AUTH;
+    public String sendEmailVerificationMail(String receiver, UserType role) {
+        MailType mailType = switch (role) {
+            case ROLE_CERTIFIED_USER -> MailType.EMAIL_VERIFICATION;
+            case ROLE_APPROVED_SELLER -> MailType.SELLER_EMAIL_VERIFICATION;
+            default -> MailType.AUTH;
+        };
         String authNumber = createCode();
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -129,6 +134,4 @@ public class EmailService {
             throw new CustomException(CommonErrorType.FAIL_TO_SEND_EMAIL);
         }
     }
-
-
 }

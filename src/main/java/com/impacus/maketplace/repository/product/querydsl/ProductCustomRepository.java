@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface ProductCustomRepository {
     Page<ProductForWebDTO> findAllProduct(Long sellerId, LocalDate startAt, LocalDate endAt, Pageable pageable);
@@ -17,4 +18,7 @@ public interface ProductCustomRepository {
     boolean existsBySuperCategoryId(Long superCategoryId);
 
     Slice<ProductForAppDTO> findAllProductBySubCategoryId(Long userId, Long subCategoryId, Pageable pageable);
+
+    Slice<ProductForAppDTO> findAllProductByProductIds(Long userId, List<Long> productIds, Pageable pageable);
+
 }

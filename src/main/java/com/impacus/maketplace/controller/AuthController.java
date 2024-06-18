@@ -1,9 +1,8 @@
 package com.impacus.maketplace.controller;
 
+import com.impacus.maketplace.common.constants.HeaderConstants;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.auth.request.EmailRequest;
-import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
@@ -99,32 +98,11 @@ public class AuthController {
                 .build();
     }
 
-    /**
-     * 이메일 인증 코드 요청 API
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("/email/verification-request")
-    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailRequest request) {
-        userService.sendVerificationCodeToEmail(request.getEmail());
-        return ApiResponseEntity
-                .builder()
-                .build();
-    }
-
-    /**
-     * 이메일 인증 API
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("/email/confirm")
-    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationRequest request) {
-        boolean result = userService.confirmEmail(request);
-        return ApiResponseEntity
-                .builder()
-                .data(result)
-                .build();
+    @PostMapping("/logout")
+    public ApiResponseEntity<Boolean> logout(
+            @RequestHeader(value = HeaderConstants.AUTHORIZATION_HEADER) String accessToken
+    ) {
+        authService.logout(accessToken);
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 }
