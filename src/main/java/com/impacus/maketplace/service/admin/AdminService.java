@@ -80,7 +80,7 @@ public class AdminService {
      * @param adminLoginActivityDTO : 로그인 활동 로그 필요로 하는 파라미터 등록
      * @return : 활동 로그 등록
      */
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public AdminActivityLog registerActivityHistory(AdminLoginActivityDTO adminLoginActivityDTO) {
         log.info(adminLoginActivityDTO);
         ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
