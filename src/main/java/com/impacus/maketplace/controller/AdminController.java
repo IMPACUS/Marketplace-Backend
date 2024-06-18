@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller;
 
+import com.amazonaws.services.apigatewayv2.model.Api;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
@@ -10,6 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,9 +34,12 @@ public class AdminController {
      * @return : 관리자 회원 리스트 출력
      */
     @GetMapping()
-    public ApiResponseEntity<?> displayAdminList() {
+    public ApiResponseEntity<?> displayAdminList(
+            @PageableDefault(size=6) Pageable pageable,
+            @RequestParam(required = false) String search
+    ) {
         // 하드코딩으로 연동 먼저 테스트 진행
-        List<AdminUserDTO> adminUserDto = adminService.displayAdmins();
+        Slice<AdminUserDTO> adminUserDto = adminService.displayAdmins(pageable, search);
 
         return ApiResponseEntity
                 .builder()
@@ -69,13 +76,16 @@ public class AdminController {
      * @return
      */
     @GetMapping("login-history")
-    public ApiResponseEntity<?> displayAdminsHistory(@RequestParam("userId") Long userId) {
-        List<AdminLoginHistoryDTO> adminLoginHistoryDTO = adminService.displayAdminsHistory(userId);
+    public ApiResponseEntity<?> displayAdminsHistory(
+            @RequestParam("userId") Long userId,
+            @PageableDefault(size = 5) Pageable pageable) {
+        Slice<AdminLoginHistoryDTO> adminLoginHistorySlice = adminService.displayAdminsHistory(userId, pageable);
+
         return ApiResponseEntity
                 .builder()
                 .code(HttpStatus.OK)
                 .message("로그인 내역 조회 성공")
-                .data(adminLoginHistoryDTO)
+                .data(adminLoginHistorySlice)
                 .build();
     }
 
@@ -103,10 +113,10 @@ public class AdminController {
      * @param adminInfoDTO : userId, accountType 만 불려와 담는다.
      * @return : userId 가 업데이트 된 정보를 반환한다.
      */
-    @PatchMapping("type")
-    public ApiResponseEntity<?> reWriteAdminType(@RequestBody AdminInfoDTO adminInfoDTO) {
+    @PatchMapping("info-changed")
+    public ApiResponseEntity<?> reWriteAdminInfoChanged(@RequestBody AdminInfoDTO adminInfoDTO) {
         log.info("controller.reWriteAdminType");
-        AdminInfo adminInfo = adminService.reWriteAdminType(adminInfoDTO);
+        AdminInfo adminInfo = adminService.reWriteAdminInfoChanged(adminInfoDTO);
         return ApiResponseEntity
                 .builder()
                 .code(HttpStatus.OK)
@@ -120,15 +130,18 @@ public class AdminController {
      *      *  - 사용 목적 : 활동 내역
      *      *
      */
-    @GetMapping("activity-history")
-    public ApiResponseEntity<?> displayViewActivityHistory(@RequestParam("userId") Long userId) {
+    @GetMapping("/activity-history")
+    public ApiResponseEntity<?> displayViewActivityHistory(
+            @RequestParam("userId") Long userId,
+            @PageableDefault(size = 5) Pageable pageable) {
         log.info("controller.displayViewActivityHistory");
-        List<AdminLoginActivityDTO> adminLoginActivityDTOS = adminService.displayViewActivityHistory(userId);
+        Slice<AdminLoginActivityDTO> adminLoginActivitySlice = adminService.displayViewActivityHistory(userId, pageable);
+
         return ApiResponseEntity
                 .builder()
                 .code(HttpStatus.OK)
                 .message("관리자 활동 내역 조회 성공")
-                .data(adminLoginActivityDTOS)
+                .data(adminLoginActivitySlice)
                 .build();
     }
 
@@ -173,6 +186,21 @@ public class AdminController {
                 .code(HttpStatus.OK)
                 .message("관리자 등록 성공")
                 .data(updateAdminFormDTO)
+                .build();
+    }
+
+    /**
+     * (9) group by 지정 - ADMIN, OWNER 별로 권한 갯수 지정
+     * @return : 권한 부여
+     */
+    @GetMapping("group-counter")
+    public ApiResponseEntity<?> displayGroupCounter() {
+        List<AdminGroupCountDTO> result = adminService.displayGroupCounter();
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .message("조회 성공")
+                .data(result)
                 .build();
     }
 }

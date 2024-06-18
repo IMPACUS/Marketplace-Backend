@@ -12,6 +12,8 @@ import com.impacus.maketplace.repository.admin.AdminInfoRepository;
 import com.impacus.maketplace.repository.admin.AdminLoginLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +38,9 @@ public class AdminService {
      * @return : 쿼리문 결과 값 조회 (리스트 - 관리자)
      */
     @Transactional(readOnly = true)
-    public List<AdminUserDTO> displayAdmins() {
+    public Slice<AdminUserDTO> displayAdmins(Pageable pageable, String search) {
         log.info("service.displayAdmins()");
-        log.info(adminInfoRepository.findAdminAll());
-        return adminInfoRepository.findAdminAll();
+        return adminInfoRepository.findAdminAll(pageable, search);
     }
 
     /**
@@ -68,8 +69,8 @@ public class AdminService {
      * @return : 로그인, 로그아웃 등 히스토리 내역 리스트 형태로 출력
      */
     @Transactional(readOnly = true)
-    public List<AdminLoginHistoryDTO> displayAdminsHistory(Long userId) {
-        return adminLoginLogRepository.findAdminLoginHistoryAll(userId);
+    public Slice<AdminLoginHistoryDTO> displayAdminsHistory(Long userId, Pageable pageable) {
+        return adminLoginLogRepository.findAdminLoginHistoryAll(userId, pageable);
     }
 
 
@@ -102,7 +103,7 @@ public class AdminService {
      * @return : adminInfo 형으로 기존 DB를 불려와 권한만 변경하여 Update 한다.
      */
     @Transactional(readOnly = false)
-    public AdminInfo reWriteAdminType(AdminInfoDTO adminInfoDTO) {
+    public AdminInfo reWriteAdminInfoChanged(AdminInfoDTO adminInfoDTO) {
         AdminInfo adminInfo = adminInfoRepository.findAdminInfoWhereUserId(adminInfoDTO.getUserId());
         adminInfo.setAccountType(adminInfoDTO.getAccountType());
         return adminInfoRepository.save(adminInfo);
@@ -114,9 +115,9 @@ public class AdminService {
      * @return : 관리자 활동 내역 리스트 형태로 출력
      */
     @Transactional(readOnly = true)
-    public List<AdminLoginActivityDTO> displayViewActivityHistory(Long userId) {
-        List<AdminLoginActivityDTO> adminLoginActivityDTOS = adminActivityLogRepository.findAdminActivityLogAll(userId);
-        return adminLoginActivityDTOS;
+    public Slice<AdminLoginActivityDTO> displayViewActivityHistory(Long userId, Pageable pageable) {
+        log.info("AdminService.displayViewActivityHistory()");
+        return adminActivityLogRepository.findAdminActivityLogAll(userId, pageable);
     }
 
     /**
@@ -142,6 +143,11 @@ public class AdminService {
         result = adminInfoRepository.changeAdminInfoAdminForm(adminFormDTO);
         log.info("관리자 등록 결과" + result);
         return adminFormDTO;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminGroupCountDTO> displayGroupCounter() {
+        return adminInfoRepository.displayGroupCounter();
     }
 
 }
