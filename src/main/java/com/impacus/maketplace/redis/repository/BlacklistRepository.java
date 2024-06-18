@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BlacklistRepository extends JpaRepository<Blacklist, String> {
+    boolean existsByAccessToken(String accessToken);
 }

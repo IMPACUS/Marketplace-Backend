@@ -150,4 +150,24 @@ public class JwtTokenProvider implements InitializingBean {
             return TokenErrorType.INVALID_TOKEN;
         }
     }
+
+    /**
+     * 토큰 유효시간 반환하는 함수
+     *
+     * @param accessToken
+     * @return 남은 유효 시간 (ms)
+     */
+    public Long getExpiration(String accessToken) {
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(jwtKey).build()
+                .parseClaimsJws(accessToken).getBody()
+                .getExpiration();
+        
+        if (expiration == null) {
+            return 0L;
+        }
+
+        Long now = new Date().getTime();
+        return (expiration.getTime() - now);
+    }
 }

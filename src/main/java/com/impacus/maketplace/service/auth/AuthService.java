@@ -6,12 +6,14 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.redis.service.BlacklistService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
 @Service
@@ -20,6 +22,7 @@ public class AuthService {
 
     private final JwtTokenProvider tokenProvider;
     private final UserService userService;
+    private final BlacklistService blacklistService;
 
     private final static String AUTHENTICATION_HEADER_TYPE = "Bearer";
 
@@ -52,5 +55,21 @@ public class AuthService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * 로그아웃 함수
+     *
+     * @param accessToken
+     */
+    @Transactional
+    public void logout(String accessToken) {
+        accessToken = StringUtils.parseGrantTypeInToken(AUTHENTICATION_HEADER_TYPE, accessToken);
+        Long expiration = tokenProvider.getExpiration(accessToken);
+        if (expiration == null || expiration == 0L) {
+            return;
+        }
+
+        blacklistService.saveBlacklist(accessToken, expiration);
     }
 }
