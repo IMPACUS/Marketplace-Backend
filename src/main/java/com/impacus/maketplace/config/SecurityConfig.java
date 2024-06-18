@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.common.handler.OAuth2AuthenticationSuccessHandler;
 import com.impacus.maketplace.config.endpoint.JwtAuthenticationEntryPoint;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.redis.service.BlacklistService;
 import com.impacus.maketplace.service.auth.CustomOauth2UserService;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class SecurityConfig {
     private final CustomOauth2UserService customOauth2UserService;
     private final OAuth2AuthenticationSuccessHandler authenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
+    private final BlacklistService blacklistService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -76,7 +78,7 @@ public class SecurityConfig {
                 .and()
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler);
-        http.apply(new JwtSecurityConfig(jwtTokenProvider));
+        http.apply(new JwtSecurityConfig(jwtTokenProvider, blacklistService));
         return http.build();
     }
 

@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller;
 
+import com.impacus.maketplace.common.constants.HeaderConstants;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
@@ -95,5 +96,13 @@ public class AuthController {
         return ApiResponseEntity.<SimpleSellerDTO>builder()
                 .data(sellerDTO)
                 .build();
+    }
+
+    @PostMapping("/logout")
+    public ApiResponseEntity<Boolean> logout(
+            @RequestHeader(value = HeaderConstants.AUTHORIZATION_HEADER) String accessToken
+    ) {
+        authService.logout(accessToken);
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 }

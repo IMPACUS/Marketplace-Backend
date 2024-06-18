@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     /**
      * 이메일 인증 코드 요청 API
