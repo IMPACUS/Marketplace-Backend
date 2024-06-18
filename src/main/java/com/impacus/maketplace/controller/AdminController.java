@@ -109,7 +109,7 @@ public class AdminController {
 
 
     /**
-     *  5) /api/v1/admin/type : Patch
+     *  5) /api/v1/admin/info-changed : Patch
      * @param adminInfoDTO : userId, accountType 만 불려와 담는다.
      * @return : userId 가 업데이트 된 정보를 반환한다.
      */
