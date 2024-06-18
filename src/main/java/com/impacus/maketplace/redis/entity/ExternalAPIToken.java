@@ -8,11 +8,14 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
+
+import java.util.concurrent.TimeUnit;
 
 @Getter
 @NoArgsConstructor
-@RedisHash(value = "externalAPIToken", timeToLive = 86400L) // 1일
+@RedisHash(value = "externalAPIToken")
 public class ExternalAPIToken extends BaseEntity {
     @Id
     private String id;
@@ -20,6 +23,9 @@ public class ExternalAPIToken extends BaseEntity {
     private String accessToken;
 
     private String refreshToken;
+
+    @TimeToLive(unit = TimeUnit.MILLISECONDS)
+    private Long ttl;
 
     @Indexed
     @Enumerated(EnumType.STRING)
