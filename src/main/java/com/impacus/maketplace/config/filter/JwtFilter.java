@@ -3,6 +3,7 @@ package com.impacus.maketplace.config.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.impacus.maketplace.common.constants.HeaderConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
@@ -42,12 +43,10 @@ public class JwtFilter extends GenericFilterBean {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
         String jwtAccessToken = parseBearerToken(httpServletRequest);
-        TokenErrorType tokenErrorType = tokenProvider.validateToken(jwtAccessToken);
-        boolean isLogout = checkIsLogout(jwtAccessToken);
 
         try {
-            if (StringUtils.hasText(jwtAccessToken) && tokenErrorType == TokenErrorType.NONE) {
-                if (!isLogout) {
+            if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateToken(jwtAccessToken) == TokenErrorType.NONE) {
+                if (!checkIsLogout(jwtAccessToken)) {
                     Authentication authentication = tokenProvider.getAuthentication(jwtAccessToken);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } else {
@@ -56,28 +55,23 @@ public class JwtFilter extends GenericFilterBean {
             }
 
             filterChain.doFilter(servletRequest, servletResponse);
+        } catch (CustomException e) {
+            setErrorResponse(httpServletResponse, e.getErrorType());
         } catch (Exception e) {
-            CommonErrorType errorType = determineErrorType(tokenErrorType, isLogout);
+            TokenErrorType tokenErrorType = tokenProvider.validateToken(jwtAccessToken);
+            CommonErrorType errorType = tokenErrorType == TokenErrorType.EXPIRED_TOKEN
+                    ? CommonErrorType.EXPIRED_TOKEN
+                    : CommonErrorType.INVALID_TOKEN;
             setErrorResponse(httpServletResponse, errorType);
         }
     }
 
-    private CommonErrorType determineErrorType(TokenErrorType tokenErrorType, boolean isLogout) {
-        if (isLogout) {
-            return CommonErrorType.LOGGED_OUT_TOKEN;
-        }
-        return tokenErrorType == TokenErrorType.EXPIRED_TOKEN ? CommonErrorType.EXPIRED_TOKEN : CommonErrorType.INVALID_TOKEN;
-    }
-
-    private void setErrorResponse(HttpServletResponse response, CommonErrorType errorType) throws IOException {
+    private void setErrorResponse(HttpServletResponse response, ErrorType errorType) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        ErrorDTO errorDTO = ErrorDTO.builder()
-                .code(errorType.getCode())
-                .msg(errorType.getMsg())
-                .build();
+        ErrorDTO errorDTO = ErrorDTO.toDTO(errorType);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String errorJson = objectMapper.writeValueAsString(errorDTO);
