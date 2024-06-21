@@ -34,7 +34,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String errorDetail = getErrorDetail(authentication);
 
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
