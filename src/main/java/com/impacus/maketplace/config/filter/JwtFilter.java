@@ -46,15 +46,24 @@ public class JwtFilter extends GenericFilterBean {
         String jwtAccessToken = parseBearerToken(httpServletRequest);
 
         try {
-            if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateToken(jwtAccessToken) == TokenErrorType.NONE) {
-                if (!checkIsLogout(jwtAccessToken)) {
-                    Authentication authentication = tokenProvider.getAuthentication(jwtAccessToken);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                } else {
-                    throw new CustomException(CommonErrorType.LOGGED_OUT_TOKEN);
+            if (StringUtils.hasText(jwtAccessToken)) {
+                TokenErrorType tokenError = tokenProvider.validateToken(jwtAccessToken);
+
+                switch (tokenError) {
+                    case NONE:
+                        if (!checkIsLogout(jwtAccessToken)) {
+                            Authentication authentication = tokenProvider.getAuthentication(jwtAccessToken);
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        } else {
+                            throw new CustomException(CommonErrorType.LOGGED_OUT_TOKEN);
+                        }
+                        break;
+                    case EXPIRED_TOKEN:
+                        throw new CustomException(CommonErrorType.EXPIRED_TOKEN);
+                    default:
+                        throw new CustomException(CommonErrorType.EXPIRED_TOKEN);
                 }
             }
-
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (CustomException e) {
             setErrorResponse(httpServletResponse, e.getErrorType());
