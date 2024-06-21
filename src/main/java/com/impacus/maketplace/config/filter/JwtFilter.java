@@ -10,6 +10,7 @@ import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.error.response.ErrorDTO;
 import com.impacus.maketplace.redis.service.BlacklistService;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +40,7 @@ public class JwtFilter extends GenericFilterBean {
             ServletRequest servletRequest,
             ServletResponse servletResponse,
             FilterChain filterChain
-    ) throws IOException, CustomException {
+    ) throws IOException, CustomException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
         String jwtAccessToken = parseBearerToken(httpServletRequest);
@@ -57,12 +58,6 @@ public class JwtFilter extends GenericFilterBean {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (CustomException e) {
             setErrorResponse(httpServletResponse, e.getErrorType());
-        } catch (Exception e) {
-            TokenErrorType tokenErrorType = tokenProvider.validateToken(jwtAccessToken);
-            CommonErrorType errorType = tokenErrorType == TokenErrorType.EXPIRED_TOKEN
-                    ? CommonErrorType.EXPIRED_TOKEN
-                    : CommonErrorType.INVALID_TOKEN;
-            setErrorResponse(httpServletResponse, errorType);
         }
     }
 
