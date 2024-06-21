@@ -40,6 +40,8 @@ public enum CommonErrorType implements ErrorType {
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN("102_EXPIRED_TOKEN", "만료된 토큰입니다."),
+    LOGGED_OUT_TOKEN("103_LOGGED_OUT_TOKEN", "로그아웃된 토큰입니다."),
+
 
     // 403
     ACCESS_DENIED_ACCOUNT("301_ACCESS_DENIED_ACCOUNT", "접근 권한이 없는 요청입니다.");
