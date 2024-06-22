@@ -353,12 +353,12 @@ public class ProductService {
      * @return
      */
     public Page<ProductForWebDTO> findProductForWeb(Long userId, LocalDate startAt, LocalDate endAt, Pageable pageable) {
-        try {
+//        try {
             Seller seller = sellerService.findSellerByUserId(userId);
             return productRepository.findAllProduct(seller.getId(), startAt, endAt, pageable);
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 
     /***
