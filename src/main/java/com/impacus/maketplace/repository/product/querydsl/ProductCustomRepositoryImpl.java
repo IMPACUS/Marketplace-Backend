@@ -68,10 +68,16 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
 
     private List<ProductForWebDTO> getProductDTO(BooleanBuilder builder, Pageable pageable) {
+        BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
+        attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
+                .and(attachFileGroup.referencedId.eq(product.id));
+
         return queryFactory.selectFrom(product)
                 .leftJoin(productOption).on(product.id.eq(productOption.productId))
+                .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
+                .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .where(builder)
-                .groupBy(product.id, productOption.id)
+                .groupBy(product.id, productOption.id, attachFile.id)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .transform(
@@ -93,6 +99,14 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                                 productOption.size
                                                         )
                                                 )
+                                        ),
+                                GroupBy.list(
+                                        Projections.list(Projections.constructor(
+                                                        AttachFileDTO.class,
+                                                        attachFile.id,
+                                                        attachFile.attachFileName
+                                                )
+                                        )
                                         )
                                 )
                         )
