@@ -3,6 +3,7 @@ package com.impacus.maketplace.repository.product.querydsl;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
@@ -16,21 +17,20 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.querydsl.core.types.ExpressionUtils.count;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QProduct product = QProduct.product;
@@ -46,42 +46,84 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     @Override
     public Page<ProductForWebDTO> findAllProduct(
             Long sellerId,
+            String keyword,
             LocalDate startAt,
             LocalDate endAt,
             Pageable pageable
     ) {
+        // 전체 데이터 조회.(+ 검색어: 상품 옵션 제외), 상풉 옵션을 기준으로 필터링 -> page로 변경하는 것으로 로직 변경
+
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
-                .and(product.sellerId.eq(sellerId));
+                .and(product.sellerId.eq(sellerId))
+                .and(product.isDeleted.eq(false));
 
-        List<ProductForWebDTO> content = getProductDTO(builder, pageable);
-        Long count = getProductDTOCount(builder);
-        return new PageImpl<>(content, pageable, count);
+        // 1. 전체 데이터 조회
+        List<ProductForWebDTO> products = getProductDTO(builder, pageable);
+
+        // 2. 검색어 조회
+        if (keyword != null && !keyword.isBlank()) {
+            products = filterProductForWebDTOByKeyword(keyword, products);
+        }
+
+        // 3. 페이징 처리
+        long count = products.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), products.size());
+        List<ProductForWebDTO> paginatedProducts = count < start ? new ArrayList<>() : products.subList(start, end);
+
+        return new PageImpl<>(paginatedProducts, pageable, count);
     }
 
-    private Long getProductDTOCount(BooleanBuilder builder) {
-        return queryFactory.select(product.count())
-                .from(product)
-                .where(builder)
-                .fetchOne();
+    private List<ProductForWebDTO> filterProductForWebDTOByKeyword(String keyword, List<ProductForWebDTO> products) {
+        List<ProductForWebDTO> content = new ArrayList<>();
+        for (ProductForWebDTO dto : products) {
+            if (StringUtils.containsKeywordIgnoreCase(dto.getName(), keyword)) { // 검색 옵션: 상품명
+                content.add(dto);
+            } else if (StringUtils.containsKeywordIgnoreCase(dto.getProductNumber(), keyword)) { // 검색 옵션: 상품 번호
+                content.add(dto);
+            } else if (StringUtils.containsKeywordIgnoreCase(dto.getDeliveryType().getValue(), keyword)) { // 검색 옵션: 배송 상태
+                content.add(dto);
+            } else if (StringUtils.containsKeywordIgnoreCase(dto.getProductStatus().getValue(), keyword)) { // 검색 옵션: 상품 상태
+                content.add(dto);
+            } else if (StringUtils.containsKeywordIgnoreCase(Integer.toString(dto.getPrice()), keyword)) { // 검색 옵션: 할인가
+                content.add(dto);
+            } else if (StringUtils.containsKeywordIgnoreCase(Long.toString(dto.getStock()), keyword)) { // 검색 옵션: 재고
+                content.add(dto);
+            } else {
+                for (ProductOptionDTO productOptionDTO : dto.getOptions()) { // 검색 옵션: 상품 옵션
+                    if (StringUtils.containsKeywordIgnoreCase(productOptionDTO.getColor(), keyword)
+                            || StringUtils.containsKeywordIgnoreCase(productOptionDTO.getSize(), keyword)) {
+                        content.add(dto);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return content;
     }
 
 
     private List<ProductForWebDTO> getProductDTO(BooleanBuilder builder, Pageable pageable) {
+        log.info("{} {}", pageable.getOffset(), pageable.getPageSize());
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
 
-        return queryFactory.selectFrom(product)
-                .leftJoin(productOption).on(product.id.eq(productOption.productId))
+
+        JPAQuery<Product> query = queryFactory
+                .selectFrom(product)
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
-                .where(builder)
-                .groupBy(product.id, productOption.id, attachFile.id)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .groupBy(product.id, attachFile.id, productOption.id)
+                .where(builder);
+
+        return query
                 .transform(
-                        GroupBy.groupBy(product.id).list(Projections.constructor(
+                        GroupBy.groupBy(product.id).list(
+                                Projections.constructor(
                                         ProductForWebDTO.class,
                                         product.id,
                                         product.name,
@@ -91,22 +133,21 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         product.productStatus,
                                         productOption.stock.sum(),
                                         product.createAt,
-                                        GroupBy.list(
-                                                Projections.list(Projections.fields(
-                                                                ProductOptionDTO.class,
-                                                                productOption.id,
-                                                                productOption.color,
-                                                                productOption.size
-                                                        )
+                                        GroupBy.set(
+                                                Projections.constructor(
+                                                        ProductOptionDTO.class,
+                                                        productOption.id,
+                                                        productOption.color,
+                                                        productOption.size
                                                 )
+
                                         ),
-                                GroupBy.list(
-                                        Projections.list(Projections.constructor(
+                                        GroupBy.set(
+                                                Projections.constructor(
                                                         AttachFileDTO.class,
                                                         attachFile.id,
                                                         attachFile.attachFileName
                                                 )
-                                        )
                                         )
                                 )
                         )

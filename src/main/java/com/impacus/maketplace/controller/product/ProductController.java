@@ -132,10 +132,11 @@ public class ProductController {
     @GetMapping("/seller")
     public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
-            @PageableDefault(size = 12, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(user.getId(), startAt, endAt, pageable);
+            @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(user.getId(), keyword, startAt, endAt, pageable);
         return ApiResponseEntity
                 .<Page<ProductForWebDTO>>builder()
                 .data(productDTOList)

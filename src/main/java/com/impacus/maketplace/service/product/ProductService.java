@@ -347,15 +347,22 @@ public class ProductService {
      * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
      *
      * @param userId
+     * @param keyword 검색어 (null/공백: 전체 반환, not null: keyword가 존재하는 데이터 반환)
      * @param startAt
      * @param endAt
      * @param pageable
      * @return
      */
-    public Page<ProductForWebDTO> findProductForWeb(Long userId, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+    public Page<ProductForWebDTO> findProductForWeb(
+            Long userId,
+            String keyword,
+            LocalDate startAt,
+            LocalDate endAt,
+            Pageable pageable
+    ) {
 //        try {
             Seller seller = sellerService.findSellerByUserId(userId);
-            return productRepository.findAllProduct(seller.getId(), startAt, endAt, pageable);
+        return productRepository.findAllProduct(seller.getId(), keyword, startAt, endAt, pageable);
 //        } catch (Exception ex) {
 //            throw new CustomException(ex);
 //        }
