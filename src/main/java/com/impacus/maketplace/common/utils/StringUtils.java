@@ -1,5 +1,6 @@
 package com.impacus.maketplace.common.utils;
 
+import com.impacus.maketplace.common.constants.RegExpPatternConstants;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +13,8 @@ import java.util.Random;
 @Component
 public class StringUtils {
 
-    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\\d~!@#$%^&*()+|=]{8,16}$";
-
     public static Boolean checkPasswordValidation(String password) {
-        return password.matches(PASSWORD_PATTERN);
+        return password.matches(RegExpPatternConstants.PASSWORD_PATTERN);
     }
 
     public static String createStrEmail(String email, OauthProviderType oauthProviderType) {
