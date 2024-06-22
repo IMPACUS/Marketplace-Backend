@@ -79,4 +79,15 @@ public class StringUtils {
         return false;
     }
 
+    /**
+     * 대소문자 상관없이 keyword가 존재하는지 확인하는 함수
+     *
+     * @param str     keyword가 존재하는지 확인하려는 문자열
+     * @param keyword
+     * @return
+     */
+    public static boolean containsKeywordIgnoreCase(String str, String keyword) {
+        return str.toLowerCase().contains(keyword.toLowerCase());
+    }
+
 }

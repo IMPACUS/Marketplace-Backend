@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ProductCustomRepository {
-    Page<ProductForWebDTO> findAllProduct(Long sellerId, LocalDate startAt, LocalDate endAt, Pageable pageable);
+    Page<ProductForWebDTO> findAllProduct(Long sellerId, String keyword, LocalDate startAt, LocalDate endAt, Pageable pageable);
 
     DetailedProductDTO findProductByProductId(Long userId, Long productId);
 
