@@ -20,14 +20,14 @@ public class CreatePaymentMethodDTO {
     private String cardOwner;
 
     @NotBlank
-    @Pattern(regexp = RegExpPatternConstants.CARD_NUMBER_PATTEN, message = "카드 번호의 형식이 유효하지 않습니다.")
+    @Pattern(regexp = RegExpPatternConstants.CARD_NUMBER_PATTERN, message = "카드 번호의 형식이 유효하지 않습니다.")
     private String cardNumber;
 
     @NotBlank
-    @Pattern(regexp = RegExpPatternConstants.CVC_PATTEN, message = "cvc의 형식이 유효하지 않습니다.")
+    @Pattern(regexp = RegExpPatternConstants.CVC_PATTERN, message = "cvc의 형식이 유효하지 않습니다.")
     private String cvc;
 
     @NotBlank
-    @Pattern(regexp = RegExpPatternConstants.CARD_EXPIRED_DATE_PATTEN, message = "만효일의 형식이 유효하지 않습니다.")
+    @Pattern(regexp = RegExpPatternConstants.CARD_EXPIRED_DATE_PATTERN, message = "만효일의 형식이 유효하지 않습니다.")
     private String expirationDate;
 }
