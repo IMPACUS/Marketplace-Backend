@@ -335,9 +335,7 @@ public class ProductService {
     ) {
         try {
             List<Long> productIds = recentProductViewsService.findProductIdsByUserId(userId, pageable);
-            Slice<ProductForAppDTO> products = productRepository.findAllProductByProductIds(userId, productIds, pageable);
-
-            return products;
+            return productRepository.findAllProductByProductIds(userId, productIds, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -360,12 +358,12 @@ public class ProductService {
             LocalDate endAt,
             Pageable pageable
     ) {
-//        try {
+        try {
             Seller seller = sellerService.findSellerByUserId(userId);
         return productRepository.findAllProduct(seller.getId(), keyword, startAt, endAt, pageable);
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /***
