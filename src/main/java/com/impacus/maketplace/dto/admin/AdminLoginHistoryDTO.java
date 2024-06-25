@@ -12,13 +12,13 @@ import java.time.ZonedDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AdminLoginHistoryDTO {
     private Long id;
-    private Long userId;
+    private Long adminId;
     private ZonedDateTime crtDate;
     private String status;
 
     @QueryProjection
-    public AdminLoginHistoryDTO(Long userId, String status) {
-        this.userId = userId;
+    public AdminLoginHistoryDTO(Long adminId, String status) {
+        this.adminId= adminId;
         this.status = status;
     }
 

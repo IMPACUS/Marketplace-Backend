@@ -5,8 +5,6 @@ import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
-import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.admin.AdminActivityLogRepository;
 import com.impacus.maketplace.repository.admin.AdminInfoRepository;
 import com.impacus.maketplace.repository.admin.AdminLoginLogRepository;
@@ -55,7 +53,7 @@ public class AdminService {
         AdminLoginLog adminLoginLog
                 = AdminLoginLog
                 .builder()
-                .userId(adminLoginHistoryDTO.getUserId())
+                .adminId(adminLoginHistoryDTO.getAdminId())
                 .status(adminLoginHistoryDTO.getStatus())
                 .crtDate(zonedDateTime)
                 .build();
@@ -88,7 +86,7 @@ public class AdminService {
         AdminActivityLog adminActivityLog
                 = AdminActivityLog
                 .builder()
-                .userId(adminLoginActivityDTO.getUserId())
+                .adminId(adminLoginActivityDTO.getAdminId())
                 .activityDetail(adminLoginActivityDTO.getActivityDetail())
                 .crtDate(zonedDateTime)
                 .build();
@@ -99,15 +97,20 @@ public class AdminService {
     /**
      * (5) 권한(accountType) 을 지정한다.
      *
-     * @param adminInfoDTO : entity 클래스 adminInfo 의 값을 그래도 받고 queryDSL에서 실행 하기 위한 용도
+     * @param adminChangeDTO : entity 클래스 adminInfo 의 값을 그래도 받고 queryDSL에서 실행 하기 위한 용도
      * @return : adminInfo 형으로 기존 DB를 불려와 권한만 변경하여 Update 한다.
      */
-    @Transactional(readOnly = false)
-    public AdminInfo reWriteAdminInfoChanged(AdminInfoDTO adminInfoDTO) {
-        AdminInfo adminInfo = adminInfoRepository.findAdminInfoWhereUserId(adminInfoDTO.getUserId());
-        adminInfo.setAccountType(adminInfoDTO.getAccountType());
-        return adminInfoRepository.save(adminInfo);
+    public AdminInfo reWriteAdminInfoChanged(AdminChangeDTO adminChangeDTO) {
+        Optional<AdminInfo> optionalAdminInfo = adminInfoRepository.findById(adminChangeDTO.getAdminId());
 
+        if (optionalAdminInfo.isEmpty()) {
+            throw new RuntimeException("AdminInfo with ID " + adminChangeDTO.getAdminId() + " not found");
+        }
+
+        AdminInfo adminInfo = optionalAdminInfo.get();
+        adminInfo.setAccountType(adminChangeDTO.getAccountType());
+
+        return adminInfoRepository.save(adminInfo);
     }
 
     /**
@@ -121,33 +124,59 @@ public class AdminService {
     }
 
     /**
-     * (7) 관리자 등록에 필요한 필요한 폼의 대한 사용자 정보 출력
-     * @param userId
-     * @return
-     */
-    @Transactional(readOnly = true)
-    public AdminFormDTO displayViewUserInfo(Long userId) {
-        log.info("service.displayViewUserInfo");
-        return adminInfoRepository.findAllWhereId(userId);
-    }
-
-    /**
-     * (8) 유저 등록 관련 API - 각각 필요한 쿼리별 수행
+     * (7) 유저 등록 관련 API - 각각 필요한 쿼리별 수행
      * @param adminFormDTO
      * @return
      */
     @Transactional(readOnly = false)
-    public AdminFormDTO registerAdminForm(AdminFormDTO adminFormDTO) {
-        Long result = adminInfoRepository.changeUserEntityAdminForm(adminFormDTO);
-        log.info("유저 등록 결과 " + result);
-        result = adminInfoRepository.changeAdminInfoAdminForm(adminFormDTO);
-        log.info("관리자 등록 결과" + result);
-        return adminFormDTO;
+    public AdminInfo registerAdminForm(AdminFormDTO adminFormDTO) {
+        // 먼저 AdminFormDTO에서 받은 정보를 AdminInfo 에 등록하고 해당 폼 삽입
+        AdminInfo adminInfo
+                = AdminInfo
+                .builder()
+                .imgSrc(adminFormDTO.getImgSrc())
+                .name(adminFormDTO.getName())
+                .phoneNumber(adminFormDTO.getPhoneNumber())
+                .email(adminFormDTO.getEmail())
+                .addr(adminFormDTO.getAddr())
+                .juminNo(adminFormDTO.getJuminNo())
+                .accountType(adminFormDTO.getAccountType())
+                .adminIdName(adminFormDTO.getAdminIdName())
+                .password(adminFormDTO.getPassword())
+                .build();
+        AdminInfo result = adminInfoRepository.save(adminInfo);
+
+        // 다음으로는 관리자 등록을 했으니 로그를 추가한다.
+        AdminActivityLog activityLog = AdminActivityLog
+                .builder()
+                .adminId(result.getId())
+                .crtDate(result.getRecentActivityDate())
+                .activityDetail("어드민 계정 등록")
+                .build();
+        adminActivityLogRepository.save(activityLog);
+        return result;
     }
 
+    /**
+     * (8) 그룹별 카운트
+     * @return
+     */
     @Transactional(readOnly = true)
     public List<AdminGroupCountDTO> displayGroupCounter() {
         return adminInfoRepository.displayGroupCounter();
     }
 
+    /**
+     * (9) 중복 체크 로직
+     * @param adminIdName 아이디 중복 체크 다생 선택
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Boolean doCheckingUserId(String adminIdName) {
+//        String s = adminInfoRepository.findByAdminIdName(adminIdName);
+//        log.info(s);
+        boolean b = adminInfoRepository.existsByAdminIdName(adminIdName);
+        log.info(b);
+        return b;
+    }
 }
