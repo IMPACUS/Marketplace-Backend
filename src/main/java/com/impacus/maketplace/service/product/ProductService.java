@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryEnum;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.StringUtils;
@@ -14,7 +15,6 @@ import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.entity.product.ProductDeliveryTime;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.seller.Seller;
@@ -22,6 +22,7 @@ import com.impacus.maketplace.redis.service.RecentProductViewsService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.seller.SellerService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
@@ -53,6 +54,7 @@ public class ProductService {
     private final WishlistRepository wishlistRepository;
     private final ProductDeliveryTimeService deliveryTimeService;
     private final RecentProductViewsService recentProductViewsService;
+    private final UserService userService;
 
     /**
      * 새로운 Product 생성 함수
@@ -342,7 +344,9 @@ public class ProductService {
     }
 
     /**
-     * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
+     * 상품 조회 함수
+     * - 판매자인 경우, 판매자의 브랜드 등록 상품 조회
+     * - 관리자인 경우, 등록되어 있는 모든 상품 조회 가능
      *
      * @param userId
      * @param keyword 검색어 (null/공백: 전체 반환, not null: keyword가 존재하는 데이터 반환)
@@ -353,16 +357,37 @@ public class ProductService {
      */
     public Page<ProductForWebDTO> findProductForWeb(
             Long userId,
+            UserType userType,
             String keyword,
             LocalDate startAt,
             LocalDate endAt,
             Pageable pageable
     ) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
-        return productRepository.findAllProduct(seller.getId(), keyword, startAt, endAt, pageable);
+            // 1. seller id 조회 (관리자인 경우 null)
+            Long sellerId = getSellerId(userId, userType);
+
+            // 2. 상품 조회
+            return productRepository.findAllProduct(sellerId, keyword, startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 판매자 아이디 조회 함수
+     * user가 판매자인 경우, sellerId를 관리자인 경우 null을 반환하는 함수
+     *
+     * @param userId
+     * @param userType
+     * @return
+     */
+    private Long getSellerId(Long userId, UserType userType) {
+        if (userType == UserType.ROLE_APPROVED_SELLER) {
+            Seller seller = sellerService.findSellerByUserId(userId);
+            return seller.getId();
+        } else {
+            return null;
         }
     }
 
@@ -394,7 +419,9 @@ public class ProductService {
     }
 
     /**
-     * 판매자용 웹에서 상품 전체 정보를 조회하는 함수
+     * 웹에서 상품 전체 정보를 조회하는 함수
+     * - 판매자: 판매자의 브랜드가 등록한 상품만 조회 가능
+     * - 관리자: 모든 상품 조회 가능
      *
      * @param userId
      * @param productId
@@ -402,40 +429,16 @@ public class ProductService {
      */
     public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            UserType userType = userService.findUserById(userId).getType();
+            Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? sellerService.findSellerByUserId(userId).getId() : null;
 
-            Product product = findProductById(productId);
-            ProductDetailForWebDTO dto = objectCopyHelper.copyObject(product, ProductDetailForWebDTO.class);
+            // 1. 데이터 조회
+            ProductDetailForWebDTO dto = productRepository.findProductDetailByProductId(sellerId, userType, productId);
 
-            // 1. 판매자의 상품인지 확인
-            if (!product.getSellerId().equals(seller.getId())) {
+            // 2. 판매자의 상품인지 확인
+            if (dto == null) {
                 throw new CustomException(ProductErrorEnum.PRODUCT_ACCESS_DENIED);
             }
-
-            // 2. ProductDescription 값 가져오기
-            ProductDescription description = productDescriptionService.findProductDescriptionByProductId(productId);
-            dto.setDescription(description.getDescription());
-
-            // 3. ProductOption 값 가져오기
-            List<ProductOptionDTO> options = productOptionService.findProductOptionByProductId(productId)
-                    .stream()
-                    .map(option -> new ProductOptionDTO(option.getId(), option.getColor(), option.getSize()))
-                    .toList();
-            dto.setProductOptionDTO(options);
-
-            // 4. ProductDescription 값 가져오기
-            ProductDetailInfo detailInfo = productDetailInfoService.findProductDetailInfoByProductId(productId);
-            dto.setProductDetail(objectCopyHelper.copyObject(detailInfo, ProductDetailInfoDTO.class));
-
-            // 5. ProductDeliveryTime 값 가져오기
-            ProductDeliveryTime deliveryTime = deliveryTimeService.findProductDeliveryTimeByProductId(productId);
-            dto.setDeliveryTime(ProductDeliveryTimeDTO.toDTO(deliveryTime));
-
-            // 5. 대표이미지 데이터 가져오기
-            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
-                    .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
-                    .toList();
-            dto.setProductImageList(attachFileDTOS);
 
             return dto;
         } catch (Exception ex) {

@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller.product;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
@@ -120,8 +121,8 @@ public class ProductController {
     }
 
     /**
-     * 웹용 판매자/관리자 상품 전체 조회 API
-     *
+     * 웹용 판매자 상품 전체 조회 API
+     * - 판매자의 브랜드가 등록한 상품들만 조회 가능
      * @param user
      * @param startAt
      * @param endAt
@@ -130,13 +131,42 @@ public class ProductController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("/seller")
+    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductBySellerIdForWeb(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+            @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+            @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+                user.getId(), UserType.ROLE_APPROVED_SELLER, keyword, startAt, endAt, pageable
+        );
+        return ApiResponseEntity
+                .<Page<ProductForWebDTO>>builder()
+                .data(productDTOList)
+                .build();
+    }
+
+    /**
+     * 웹용 판매자 상품 전체 조회 API
+     * - 판매자의 브랜드가 등록한 상품들만 조회 가능
+     *
+     * @param user
+     * @param startAt
+     * @param endAt
+     * @param pageable
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin")
     public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(user.getId(), keyword, startAt, endAt, pageable);
+        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+                user.getId(), UserType.ROLE_ADMIN, keyword, startAt, endAt, pageable
+        );
         return ApiResponseEntity
                 .<Page<ProductForWebDTO>>builder()
                 .data(productDTOList)
@@ -164,7 +194,7 @@ public class ProductController {
     /**
      * 판매자용 단일 상품 조회 API
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') or hasRole('ROLE_ADMIN')")
     @GetMapping("/product-details")
     public ApiResponseEntity<ProductDetailForWebDTO> getProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,

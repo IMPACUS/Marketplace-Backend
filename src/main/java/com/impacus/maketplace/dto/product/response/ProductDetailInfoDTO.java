@@ -1,8 +1,11 @@
 package com.impacus.maketplace.dto.product.response;
 
+import com.impacus.maketplace.entity.product.ProductDetailInfo;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class ProductDetailInfoDTO {
 
     private String productType; // 상품 종류
@@ -29,5 +32,18 @@ public class ProductDetailInfoDTO {
 
     private String contactNumber; // 전화번호
 
-    private boolean isDeleted; // 삭제 여부
+    public ProductDetailInfoDTO(ProductDetailInfo productDetailInfo) {
+        this.productType = productDetailInfo.getProductType();
+        this.productMaterial = productDetailInfo.getProductMaterial();
+        this.productColor = productDetailInfo.getProductColor();
+        this.productSize = productDetailInfo.getProductSize();
+        this.dateOfManufacture = productDetailInfo.getDateOfManufacture();
+        this.washingPrecautions = productDetailInfo.getWashingPrecautions();
+        this.countryOfManufacture = productDetailInfo.getCountryOfManufacture();
+        this.manufacturer = productDetailInfo.getManufacturer();
+        this.importer = productDetailInfo.getImporter();
+        this.qualityAssuranceStandards = productDetailInfo.getQualityAssuranceStandards();
+        this.asManager = productDetailInfo.getAsManager();
+        this.contactNumber = productDetailInfo.getContactNumber();
+    }
 }
