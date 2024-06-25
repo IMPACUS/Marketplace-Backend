@@ -1,15 +1,17 @@
 package com.impacus.maketplace.controller;
 
-import com.amazonaws.services.apigatewayv2.model.Api;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.admin.*;
+import com.impacus.maketplace.dto.user.request.LoginDTO;
+import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
+import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.admin.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -27,6 +29,7 @@ import java.util.List;
 @RequestMapping("/api/v1/admin")
 public class AdminController {
     private final AdminService adminService;
+    private final UserService userService;
 
     /**
      * 1) 사용 목적 : 어드민 계정 목록 표시
@@ -201,6 +204,20 @@ public class AdminController {
                 .code(HttpStatus.OK)
                 .message("조회 성공")
                 .data(result)
+                .build();
+    }
+
+    /**
+     * 관리자 로그인 API
+     *
+     * @param loginDTO
+     * @return
+     */
+    @PostMapping("auth/login")
+    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
+        UserDTO userDTO = userService.login(loginDTO, UserType.ROLE_ADMIN);
+        return ApiResponseEntity.<UserDTO>builder()
+                .data(userDTO)
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.impacus.maketplace.repository.admin;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.QAdminActivityLog;
@@ -260,6 +261,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
         return queryFactory.update(userEntity)
                 .set(userEntity.isAdmin, true)
                 .set(userEntity.userJumin1, adminFormDTO.getUserJumin1())
+                .set(userEntity.type, UserType.ROLE_ADMIN)
                 .where(userEntity.id.eq(adminFormDTO.getUserId())).execute();
     }
 
