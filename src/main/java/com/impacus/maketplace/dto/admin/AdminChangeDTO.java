@@ -5,20 +5,20 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
+
 @Data
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AdminInfoDTO {
-    private Long id;
-    private Long userId;
+public class AdminChangeDTO {
+    private Long adminId;
     private String accountType;
-    private String recentActivityDate;
+    private ZonedDateTime recentActivityDate;
 
 
     @QueryProjection
-    public AdminInfoDTO(Long id, Long userId, String accountType, String recentActivityDate) {
-        this.id = id;
-        this.userId = userId;
+    public AdminChangeDTO(Long adminId, String accountType, ZonedDateTime recentActivityDate) {
+        this.adminId = adminId;
         this.accountType = accountType;
         this.recentActivityDate = recentActivityDate;
     }
