@@ -18,8 +18,8 @@ public class AdminActivityLog {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "admin_id")
+    private Long adminId;
 
     @Column(name = "crtDate")
     private ZonedDateTime crtDate;
