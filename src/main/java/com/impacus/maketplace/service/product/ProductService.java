@@ -325,6 +325,9 @@ public class ProductService {
             // 10. Product delivery time 수정
             deliveryTimeService.updateProductDeliveryTime(productId, dto.getDeliveryTime());
 
+            // 11. 상품 클레임 정보 수정
+            productClaimService.updateProductClaimInfo(productId, dto.getClaim());
+
             return ProductDTO.toDTO(product);
         } catch (Exception ex) {
             throw new CustomException(ex);
