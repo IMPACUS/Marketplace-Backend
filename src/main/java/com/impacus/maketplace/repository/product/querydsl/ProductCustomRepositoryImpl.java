@@ -325,6 +325,22 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
+    public boolean checkIsSellerProductIds(Long userId, List<Long> productIds) {
+        // 1. productIds에 존재하는 userId가 등록한 판매자 id 조회
+        List<Long> sellerProductIds = queryFactory
+                .select(product.id)
+                .from(product)
+                .leftJoin(seller).on(seller.userId.eq(userId))
+                .where(product.sellerId.eq(seller.id))
+                .where(product.id.in(productIds))
+                .fetch();
+
+        // 2. 판매자가 등록한 상품들인지 확인
+        // sellerProductIds.size()와 productIds.size()가 다르면 판매자가 등록하지 않는 상품이 존재하는 것으로 판단
+        return sellerProductIds.size() == productIds.size();
+    }
+
+    @Override
     public Slice<ProductForAppDTO> findAllProductBySubCategoryId(
             Long userId,
             Long subCategoryId,

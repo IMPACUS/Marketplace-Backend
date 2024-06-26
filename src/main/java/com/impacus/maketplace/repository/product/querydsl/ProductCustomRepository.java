@@ -24,4 +24,13 @@ public interface ProductCustomRepository {
     Slice<ProductForAppDTO> findAllProductByProductIds(Long userId, List<Long> productIds, Pageable pageable);
 
     ProductDetailForWebDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId);
+
+    /**
+     * productIds의 상품들이 userId가 등록한 상품이 맞는지 확인하는 함수
+     *
+     * @param userId
+     * @param productIds
+     * @return
+     */
+    boolean checkIsSellerProductIds(Long userId, List<Long> productIds);
 }

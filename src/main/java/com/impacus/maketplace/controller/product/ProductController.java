@@ -15,6 +15,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -65,14 +66,17 @@ public class ProductController {
      * @param productIdList
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @DeleteMapping("")
-    public ApiResponseEntity<Boolean> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
-        productService.deleteAllProduct(productIdList);
-        return ApiResponseEntity
-                .<Boolean>builder()
-                .data(true)
-                .build();
+    public ApiResponseEntity<Boolean> deleteAllProduct(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "product-id") List<Long> productIdList
+    ) {
+        productService.deleteAllProduct(user.getId(), productIdList);
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 
     /**

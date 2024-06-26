@@ -184,14 +184,43 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT));
     }
 
+    /**
+     * 판매자 다중 삭제 함수
+     * - 판매자인 경우, 판매자가 등록한 상품만 삭제 가능
+     * - 관리자인 경우, 모든 상품 삭제 가능
+     *
+     * @param productIdList
+     */
     @Transactional
-    public void deleteAllProduct(List<Long> productIdList) {
+    public void deleteAllProduct(Long userId, List<Long> productIdList) {
         try {
+            // 1. 권한 확인
+            UserType role = SecurityUtils.getCurrentUserType();
+
+            // 1-1. 판매자인 경우, 판매자 등록 상품인지 확인
+            if (role == UserType.ROLE_APPROVED_SELLER && !verifySellerProductIds(userId, productIdList)) {
+                throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
+            }
+
+            // 2. 상품 삭제
             productIdList
                     .forEach(this::deleteProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * productIdList에 존재하는 모든 상품들이 userId인 판매자의 상품인지 확인하는 경우
+     * - true: 모두 판매자의 상품인 경우
+     * - false: 판매자가 등록하지 않은 상품이 존재하는 경우
+     *
+     * @param userId
+     * @param productIdList
+     * @return
+     */
+    private boolean verifySellerProductIds(Long userId, List<Long> productIdList) {
+        return productRepository.checkIsSellerProductIds(userId, productIdList);
     }
 
     /**
