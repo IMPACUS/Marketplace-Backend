@@ -8,7 +8,7 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
@@ -23,6 +23,7 @@ import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.auth.CustomUserDetailsService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.seller.SellerService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
@@ -49,12 +50,12 @@ public class ProductService {
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
-    private final ObjectCopyHelper objectCopyHelper;
     private final SubCategoryService subCategoryService;
     private final WishlistRepository wishlistRepository;
     private final ProductDeliveryTimeService deliveryTimeService;
     private final RecentProductViewsService recentProductViewsService;
     private final UserService userService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     /**
      * 새로운 Product 생성 함수
@@ -429,7 +430,7 @@ public class ProductService {
      */
     public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
         try {
-            UserType userType = userService.findUserById(userId).getType();
+            UserType userType = SecurityUtils.getCurrentUserType();
             Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? sellerService.findSellerByUserId(userId).getId() : null;
 
             // 1. 데이터 조회
