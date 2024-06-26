@@ -9,16 +9,19 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
+import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.redis.entity.EmailVerificationCode;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.user.UserDetailService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +57,7 @@ public class UserService {
     private final EmailService emailService;
     private final EmailVerificationCodeService emailVerificationCodeService;
     private final UserDetailService userDetailService;
+    private final AdminService adminService;
 
 
     @Transactional
@@ -118,6 +122,13 @@ public class UserService {
         return (!findUserList.isEmpty()) ? findUserList.get(0) : null;
     }
 
+    /**
+     * (소비자, 판매자) 로그인 함수
+     *
+     * @param loginRequest
+     * @param userType
+     * @return
+     */
     @Transactional(noRollbackFor = CustomException.class)
     public UserDTO login(LoginDTO loginRequest, UserType userType) {
         String email = loginRequest.getEmail();
@@ -159,6 +170,51 @@ public class UserService {
     }
 
     /**
+     * (관리자) 로그인 함수
+     *
+     * @param dto
+     * @return
+     */
+    @Transactional(noRollbackFor = CustomException.class)
+    public UserDTO login(AdminLoginDTO dto) {
+        String adminIdName = dto.getAdminIdName();
+        String password = dto.getPassword();
+
+//        try {
+        // 1. 이메일 유효성 검사
+        AdminInfo admin = validateAndFindAdmin(adminIdName);
+
+        // 2. 비밃번호 유효성 검사
+        if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
+            throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+        }
+
+        // TODO User 설계 마무리된 후 수정할 예정
+//
+//            // 3. 비밀번호 확인
+//            // 3-1. 틀린 경우: 틀린 횟수 추가
+//            // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
+//            if (!passwordEncoder.matches(password, admin.getPassword())) {
+//                LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(admin);
+//
+//                if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
+//                    changeUserStatus(user, UserStatus.BLOCKED);
+//                }
+//                throw new CustomException(CommonErrorType.WRONG_PASSWORD);
+//            } else {
+//                loginFailAttemptService.resetLoginFailAttempt(user);
+//            }
+
+        // 4. JWT 토큰 생성
+        TokenInfoVO tokenInfoVO = getJwtTokenInfo(admin.getAdminIdName(), password);
+
+        return new UserDTO(admin, tokenInfoVO);
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
+    }
+
+    /**
      * 이메일 유효성 검사를 한 후, 유효성 검사에 통과한 경우, User를 반환하는 함수
      *
      * @param email
@@ -178,11 +234,6 @@ public class UserService {
                 validateApprovedSeller(checkedSeller);
 
                 yield checkedSeller;
-            }
-            case ROLE_ADMIN -> {
-                User checkedAdmin = findUserByEmail(email);
-
-                yield checkedAdmin;
             }
             default -> throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_ACCOUNT);
         };
@@ -218,6 +269,23 @@ public class UserService {
         if (checkedSeller.getType() != UserType.ROLE_APPROVED_SELLER) {
             throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_ACCOUNT);
         }
+    }
+
+    /**
+     * 이메일 유효성 검사를 한 후, 유효성 검사에 통과한 경우, User를 반환하는 함수
+     *
+     * @param adminIdName
+     * @return
+     */
+    private AdminInfo validateAndFindAdmin(String adminIdName) {
+        AdminInfo admin = adminService.findAdminInfoBYAdminIdName(adminIdName);
+
+        // TODO User 관련 설계 마무리 후 수정 예정
+//        if (user.getStatus() == UserStatus.BLOCKED) {
+//            throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
+//        }
+
+        return admin;
     }
 
     /**

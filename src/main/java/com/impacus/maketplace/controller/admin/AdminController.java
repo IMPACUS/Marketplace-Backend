@@ -1,9 +1,8 @@
 package com.impacus.maketplace.controller.admin;
 
-import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.admin.*;
-import com.impacus.maketplace.dto.user.request.LoginDTO;
+import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminInfo;
@@ -189,7 +188,8 @@ public class AdminController {
                 .data(result)
                 .build();
     }
-/*
+
+    /*
      * (9) 기존 아이디 들어있는지 ID 검사
      * @param adminIdName 대상 아이디 값 조회
      * @return
@@ -218,8 +218,8 @@ public class AdminController {
      * @return
      */
     @PostMapping("auth/login")
-    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
-        UserDTO userDTO = userService.login(loginDTO, UserType.ROLE_ADMIN);
+    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody AdminLoginDTO loginDTO) {
+        UserDTO userDTO = userService.login(loginDTO);
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
                 .build();
