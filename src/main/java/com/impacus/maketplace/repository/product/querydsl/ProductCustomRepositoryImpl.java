@@ -45,6 +45,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProductDeliveryTime productDeliveryTime = QProductDeliveryTime.productDeliveryTime;
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
     private final QProductDescription productDescription = QProductDescription.productDescription;
+    private final QProductClaimInfo productClaimInfo = QProductClaimInfo.productClaimInfo;
 
     @Override
     public Page<ProductForWebDTO> findAllProduct(
@@ -277,6 +278,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                         .leftJoin(productOption).on(productOption.productId.eq(product.id))
                         .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                         .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
+                        .leftJoin(productClaimInfo).on(productClaimInfo.productId.eq(product.id))
                         .where(productBuilder)
                         .transform(GroupBy.groupBy(product.id).list(Projections.fields(
                                                 ProductDetailForWebDTO.class,
@@ -316,7 +318,14 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                                 attachFile.id,
                                                                 attachFile.attachFileName
                                                         )
-                                                ).as("productImageList")
+                                                ).as("productImageList"),
+                                        Projections.constructor(
+                                                ProductClaimInfoDTO.class,
+                                                productClaimInfo.recallInfo,
+                                                productClaimInfo.claimCost,
+                                                productClaimInfo.claimPolicyGuild,
+                                                productClaimInfo.claimContactInfo
+                                        ).as("claim")
                                         )
                                 )
                         );

@@ -26,4 +26,5 @@ public class ProductDetailForWebDTO {
     private ProductDeliveryTimeDTO deliveryTime;
     private Set<ProductOptionDTO> productOptions;
     private Set<AttachFileDTO> productImageList;
+    private ProductClaimInfoDTO claim;
 }
