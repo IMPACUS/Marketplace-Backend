@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProductErrorEnum implements ErrorType {
+public enum ProductErrorType implements ErrorType {
     PRODUCT_ACCESS_DENIED("001_PRODUCT_ACCESS_DENIED", "판매자가 등록한 상품이 아닙니다. 접근할 수 있는 권한이 없습니다."),
     INVALID_PRODUCT("011_INVALID_PRODUCT", "유효하지 않은 상품 데이터입니다."),
     NOT_EXISTED_PRODUCT("014_NOT_EXISTED_PRODUCT", "존재하지 않는 상품입니다."),
