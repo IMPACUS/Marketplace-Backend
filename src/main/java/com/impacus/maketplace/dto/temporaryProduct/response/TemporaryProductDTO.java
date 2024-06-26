@@ -3,6 +3,7 @@ package com.impacus.maketplace.dto.temporaryProduct.response;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ProductStatus;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
+import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class TemporaryProductDTO {
     private ProductStatus productStatus;
     private List<AttachFileDTO> productImageList;
     private TemporaryProductDeliveryTimeDTO deliveryTime;
+    private ProductClaimInfoDTO claim;
 
     public void setDescription(String description) {
         this.description = description;
@@ -43,5 +45,9 @@ public class TemporaryProductDTO {
 
     public void setDeliveryTime(TemporaryProductDeliveryTimeDTO deliveryTime) {
         this.deliveryTime = deliveryTime;
+    }
+
+    public void setClaim(ProductClaimInfoDTO claim) {
+        this.claim = claim;
     }
 }

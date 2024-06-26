@@ -39,4 +39,14 @@ public class TemporaryProductClaimService {
                 dto.getClaimContactInfo()
         );
     }
+
+    /**
+     * temporaryProductId로 TemporaryProductClaim 를 조회하는 함수
+     *
+     * @param temporaryProductId
+     * @return
+     */
+    public TemporaryProductClaimInfo findTemporaryProductClaimByTemporaryProductId(Long temporaryProductId) {
+        return temporaryProductClaimRepository.findByTemporaryProductId(temporaryProductId).get(0);
+    }
 }

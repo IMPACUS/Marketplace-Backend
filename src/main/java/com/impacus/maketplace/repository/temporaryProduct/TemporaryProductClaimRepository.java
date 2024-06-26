@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface TemporaryProductClaimRepository extends JpaRepository<TemporaryProductClaimInfo, Long> {
     @Transactional
@@ -22,5 +24,7 @@ public interface TemporaryProductClaimRepository extends JpaRepository<Temporary
             @Param("claimPolicyGuild") String claimPolicyGuild,
             @Param("claimContactInfo") String claimContactInfo
     );
+
+    List<TemporaryProductClaimInfo> findByTemporaryProductId(Long temporaryProductId);
 
 }

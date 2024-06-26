@@ -10,11 +10,9 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDeliveryTime;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
+import com.impacus.maketplace.entity.temporaryProduct.*;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
@@ -341,7 +339,7 @@ public class TemporaryProductService {
             TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
             dto.setTemporaryDetailInfoDTO(objectCopyHelper.copyObject(detailInfo, TemporaryDetailInfoDTO.class));
 
-            // TemporaryProductDeliveryTime
+            // TemporaryProductDeliveryTime 값 가져오기
             TemporaryProductDeliveryTime deliveryTime = deliveryTimeService.findTemporaryProductDeliveryTimeByTemporaryProductId(temporaryProductId);
             dto.setDeliveryTime(TemporaryProductDeliveryTimeDTO.toDTO(deliveryTime));
 
@@ -350,6 +348,10 @@ public class TemporaryProductService {
                     .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
                     .toList();
             dto.setProductImageList(attachFileDTOS);
+
+            // TemporaryClaimInfo 값 가져오기
+            TemporaryProductClaimInfo claimInfo = temporaryProductClaimService.findTemporaryProductClaimByTemporaryProductId(temporaryProductId);
+            dto.setClaim(objectCopyHelper.copyObject(claimInfo, ProductClaimInfoDTO.class));
 
             return dto;
         } catch (Exception ex) {
