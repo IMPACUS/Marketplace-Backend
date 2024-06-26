@@ -1,6 +1,8 @@
 package com.impacus.maketplace.service.admin;
 
 
+import com.impacus.maketplace.common.enumType.error.AdminErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminInfo;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class AdminService {
     private final AdminInfoRepository adminInfoRepository;
     private final AdminLoginLogRepository adminLoginLogRepository;
     private final AdminActivityLogRepository adminActivityLogRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     /**
@@ -142,7 +146,7 @@ public class AdminService {
                 .juminNo(adminFormDTO.getJuminNo())
                 .accountType(adminFormDTO.getAccountType())
                 .adminIdName(adminFormDTO.getAdminIdName())
-                .password(adminFormDTO.getPassword())
+                .password(passwordEncoder.encode((adminFormDTO.getPassword())))
                 .build();
         AdminInfo result = adminInfoRepository.save(adminInfo);
 
@@ -178,5 +182,17 @@ public class AdminService {
         boolean b = adminInfoRepository.existsByAdminIdName(adminIdName);
         log.info(b);
         return b;
+    }
+
+    /**
+     * adminIdName로 관리자를 조회하는 함수
+     *
+     * @param adminIdName
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public AdminInfo findAdminInfoBYAdminIdName(String adminIdName) {
+        return adminInfoRepository.findByAdminIdName(adminIdName)
+                .orElseThrow(() -> new CustomException(AdminErrorType.NOT_EXISTED_ADMIN_ID_NAME));
     }
 }

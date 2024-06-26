@@ -2,9 +2,12 @@ package com.impacus.maketplace.controller.admin;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.admin.*;
+import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
+import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminActivityLog;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.AdminLoginLog;
+import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.admin.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/admin")
 public class AdminController {
     private final AdminService adminService;
+    private final UserService userService;
 
     /**
      * 1) 사용 목적 : 어드민 계정 목록 표시
@@ -185,7 +189,7 @@ public class AdminController {
                 .build();
     }
 
-    /**
+    /*
      * (9) 기존 아이디 들어있는지 ID 검사
      * @param adminIdName 대상 아이디 값 조회
      * @return
@@ -206,4 +210,18 @@ public class AdminController {
                 .data(result)
                 .build();
     }
+
+        /**
+     * 관리자 로그인 API
+     *
+     * @param loginDTO
+     * @return
+     */
+    @PostMapping("auth/login")
+    public ApiResponseEntity<UserDTO> login(@Valid @RequestBody AdminLoginDTO loginDTO) {
+        UserDTO userDTO = userService.login(loginDTO);
+        return ApiResponseEntity.<UserDTO>builder()
+                .data(userDTO)
+                .build();
+        }
 }

@@ -1,5 +1,6 @@
 package com.impacus.maketplace.repository.admin;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.QAdminActivityLog;
