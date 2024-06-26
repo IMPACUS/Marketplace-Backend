@@ -156,7 +156,7 @@ public class ProductController {
      * @param pageable
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("/admin")
     public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -194,7 +194,10 @@ public class ProductController {
     /**
      * 판매자용 단일 상품 조회 API
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @GetMapping("/product-details")
     public ApiResponseEntity<ProductDetailForWebDTO> getProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
