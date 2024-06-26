@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
@@ -197,7 +197,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 );
 
         if (result.isEmpty()) {
-            throw new CustomException(ProductErrorEnum.NOT_EXISTED_PRODUCT);
+            throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
         }
 
         DetailedProductDTO productDTO = result.get(0);

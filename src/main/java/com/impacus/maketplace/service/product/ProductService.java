@@ -3,9 +3,9 @@ package com.impacus.maketplace.service.product;
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.error.CategoryEnum;
+import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
-import com.impacus.maketplace.common.enumType.error.ProductErrorEnum;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
@@ -139,25 +139,25 @@ public class ProductService {
     ) {
         // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
-            throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
+            throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
 
         for (MultipartFile productImage : productImageList) {
             if (productImage.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 2. 상품 설명 이미지 크기 확인
         for (MultipartFile productImage : productDescriptionImageList) {
             if (productImage.getSize() > FileSizeConstants.PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ProductErrorEnum.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
             }
         }
 
         // 3. 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
-            throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
+            throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
         }
     }
 
@@ -169,7 +169,7 @@ public class ProductService {
      */
     public Product findProductById(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ProductErrorEnum.NOT_EXISTED_PRODUCT));
+                .orElseThrow(() -> new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT));
     }
 
     /**
@@ -180,7 +180,7 @@ public class ProductService {
      */
     public Product findProductByIdAndIsDeletedFalse(Long productId) {
         return productRepository.findByIsDeletedFalseAndId(productId)
-                .orElseThrow(() -> new CustomException(ProductErrorEnum.NOT_EXISTED_PRODUCT));
+                .orElseThrow(() -> new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT));
     }
 
     @Transactional
@@ -316,7 +316,7 @@ public class ProductService {
     ) {
         try {
             if (subCategoryId != null && !subCategoryService.existsBySubCategoryId(subCategoryId)) {
-                throw new CustomException(CategoryEnum.NOT_EXISTED_SUB_CATEGORY);
+                throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
             }
 
             return productRepository.findAllProductBySubCategoryId(userId, subCategoryId, pageable);
@@ -437,7 +437,7 @@ public class ProductService {
 
             // 2. 판매자의 상품인지 확인
             if (dto == null) {
-                throw new CustomException(ProductErrorEnum.PRODUCT_ACCESS_DENIED);
+                throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
             }
 
             return dto;

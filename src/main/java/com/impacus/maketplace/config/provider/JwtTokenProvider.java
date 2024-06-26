@@ -50,9 +50,9 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     /**
-     * JWT token 정보를 생성하는 함수
-     *
-     * @return access token과 refresh token이 담긴 jwt 토큰 객체
+     * JWT token 정보를 생성하는 함수.
+     * access_token: userId, email, role을 가지고 있음
+     * @return access token 과 refresh token이 담긴 jwt 토큰 객체
      */
     public TokenInfoVO createToken(Authentication authentication) {
         // 1. 권한 가져오기

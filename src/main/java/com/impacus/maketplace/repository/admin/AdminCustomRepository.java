@@ -12,21 +12,15 @@ public interface AdminCustomRepository {
     Slice<AdminUserDTO> findAdminAll(Pageable pageable, String search);
 
     // 로그인 이력 조회 (커스텀마이징)
-    Slice<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long userId, Pageable pageable);
+    Slice<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long adminId, Pageable pageable);
 
-    // 해당 관리자 표시 (admin_info 테이블에서 user_id 조건문)
-    AdminInfo findAdminInfoWhereUserId(Long userId);
 
     // 활동 내역 출력
-    Slice<AdminLoginActivityDTO> findAdminActivityLogAll(Long userId, Pageable pageable);
+    Slice<AdminLoginActivityDTO> findAdminActivityLogAll(Long adminId, Pageable pageable);
 
-    AdminFormDTO findAllWhereId(Long userId);
-
-    // 어드민 등록 1 (user 정보를  isAdmin=true, 주소 등록 설정)
-    Long changeUserEntityAdminForm(AdminFormDTO adminFormDTO);
-
-    // 어드민 등록 2 (유저 타입, 주소 등록)
-    Long changeAdminInfoAdminForm(AdminFormDTO adminFormDTO);
-
+    // 그룹별 조회
     List<AdminGroupCountDTO> displayGroupCounter();
+
+    // 아이디 중복 체크
+    Boolean existsByAdminIdName(String adminIdName);
 }

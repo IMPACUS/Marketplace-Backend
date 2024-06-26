@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CategoryEnum implements ErrorType {
+public enum CategoryErrorType implements ErrorType {
     DUPLICATED_SUPER_CATEGORY("022_DUPLICATED_SUPER_CATEGORY", "중복된 1차 카테고리 명이 존재합나디."),
     NOT_EXISTED_SUPER_CATEGORY("023_NOT_EXISTED_SUPER_CATEGORY", "존재하지 않는 1차 카테고리 옵션입니다."),
     NOT_EXISTED_SUB_CATEGORY("205_NOT_EXISTED_SUB_CATEGORY", "존재하지 않는 2차 카테고리 옵션입니다."),

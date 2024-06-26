@@ -11,14 +11,14 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AdminLoginActivityDTO {
-    private Long userId;
+    private Long adminId;
     private ZonedDateTime crtDate;
     private String activityDetail;
 
 
     @QueryProjection
-    public AdminLoginActivityDTO(Long userId, ZonedDateTime crtDate, String activityDetail) {
-        this.userId = userId;
+    public AdminLoginActivityDTO(Long adminId, ZonedDateTime crtDate, String activityDetail) {
+        this.adminId = adminId;
         this.crtDate = crtDate;
         this.activityDetail = activityDetail;
     }
