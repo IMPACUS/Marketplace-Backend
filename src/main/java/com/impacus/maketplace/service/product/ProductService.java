@@ -22,8 +22,6 @@ import com.impacus.maketplace.redis.service.RecentProductViewsService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
-import com.impacus.maketplace.service.UserService;
-import com.impacus.maketplace.service.auth.CustomUserDetailsService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.seller.SellerService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
@@ -54,8 +52,7 @@ public class ProductService {
     private final WishlistRepository wishlistRepository;
     private final ProductDeliveryTimeService deliveryTimeService;
     private final RecentProductViewsService recentProductViewsService;
-    private final UserService userService;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final ProductClaimService productClaimService;
 
     /**
      * 새로운 Product 생성 함수
@@ -116,7 +113,10 @@ public class ProductService {
             // 9. ProductDeliveryTime 저장
             deliveryTimeService.addProductDeliveryTime(productId, dto.getDeliveryTime());
 
-            // 10. TemporaryProduct 삭제
+            // 10. 상품 클레임 정보 저장
+            productClaimService.addProductClaimInfo(productId, dto.getClaim());
+
+            // 11. TemporaryProduct 삭제
             if (dto.isDoesUseTemporaryProduct()) {
                 temporaryProductService.deleteTemporaryProduct(userId);
             }
