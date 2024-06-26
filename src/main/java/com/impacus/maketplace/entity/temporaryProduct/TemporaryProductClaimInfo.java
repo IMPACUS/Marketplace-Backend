@@ -18,4 +18,15 @@ public class TemporaryProductClaimInfo extends ClaimInfo {
 
     @Column(nullable = false)
     private Long temporaryProductId;
+
+    public TemporaryProductClaimInfo(
+            Long temporaryProductId,
+            String recallInfo,
+            String claimCost,
+            String claimPolicyGuild,
+            String claimContactInfo
+    ) {
+        super(recallInfo, claimCost, claimPolicyGuild, claimContactInfo);
+        this.temporaryProductId = temporaryProductId;
+    }
 }

@@ -41,6 +41,7 @@ public class TemporaryProductService {
     private final ObjectCopyHelper objectCopyHelper;
     private final SubCategoryService subCategoryService;
     private final TemporaryProductDeliveryTimeService deliveryTimeService;
+    private final TemporaryProductClaimService temporaryProductClaimService;
 
     /**
      * TemporaryProduct 데이터가 사용자에게 등록되어 있는지 확인하는 함수
@@ -149,6 +150,9 @@ public class TemporaryProductService {
         // 8. 배송 지연 시간 저장
         deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, productRequest.getDeliveryTime());
 
+        // 9. 상품 클레임 정보 저장
+        temporaryProductClaimService.addTemporaryProductClaim(temporaryProductId, productRequest.getClaim());
+
         return SimpleTemporaryProductDTO.toDTO(newTemporaryProduct);
     }
 
@@ -254,8 +258,11 @@ public class TemporaryProductService {
             TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
             detailInfo.setTemporaryProductDetailInfo(dto.getProductDetail());
 
-            // 10. DeliveryTime 수정
+            // 10. TemporaryProductDeliveryTime 수정
             deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
+
+            // 11. TemporaryProductClaimInfo 수정
+            temporaryProductClaimService.updateTemporaryProductClaim(temporaryProductId, dto.getClaim());
 
             return SimpleTemporaryProductDTO.toDTO(temporaryProduct);
         } catch (Exception ex) {

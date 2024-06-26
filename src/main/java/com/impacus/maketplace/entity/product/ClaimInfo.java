@@ -17,15 +17,15 @@ public abstract class ClaimInfo extends BaseEntity {
     @Comment("상품 회수 목록")
     private String recallInfo;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     @Comment("클레임 비용")
     private String claimCost;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     @Comment("클레임 정책 안내")
     private String claimPolicyGuild;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     @Comment("클레임 문의처")
     private String claimContactInfo;
 }
