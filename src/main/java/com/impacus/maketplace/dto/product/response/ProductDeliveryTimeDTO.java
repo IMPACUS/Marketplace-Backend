@@ -14,6 +14,9 @@ public class ProductDeliveryTimeDTO {
     }
 
     public static ProductDeliveryTimeDTO toDTO(ProductDeliveryTime deliveryTime) {
+        if (deliveryTime == null) {
+            return null;
+        }
         return new ProductDeliveryTimeDTO(deliveryTime.getMinDays(), deliveryTime.getMaxDays());
     }
 }

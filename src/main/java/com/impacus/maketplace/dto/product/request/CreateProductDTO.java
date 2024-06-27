@@ -21,6 +21,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductDTO {
+    private Long sellerId;
+
     @NotNull
     private boolean doesUseTemporaryProduct;
 
@@ -61,6 +63,9 @@ public class CreateProductDTO {
 
     @NotNull
     private CreateProductDeliveryTimeDTO deliveryTime;
+
+    @NotNull
+    private CreateClaimInfoDTO claim;
 
     @ValidEnum(enumClass = ProductStatus.class)
     private ProductStatus productStatus;

@@ -39,7 +39,7 @@ public class SellerController {
      *
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("entry-status")
     public ApiResponseEntity<SellerEntryStatusDTO> getEntryStatusStatistics() {
         SellerEntryStatusDTO sellerEntryStatusDTO = sellerService.getEntryStatusStatistics();
@@ -57,7 +57,7 @@ public class SellerController {
      * @param pageable
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("/entry/sellers")
     public ApiResponseEntity<Object> getSellerEntryList(
             @RequestParam(value = "start-at") LocalDate startAt,
@@ -77,7 +77,7 @@ public class SellerController {
      * @param userId
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("/entry")
     public ApiResponseEntity<DetailedSellerEntryDTO> getDetailedSellerEntry(@RequestParam(value = "user-id") Long userId) {
         DetailedSellerEntryDTO detailedSellerEntry = sellerService.getDetailedSellerEntry(userId);
@@ -93,7 +93,7 @@ public class SellerController {
      * @param request
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PatchMapping("/entry/sellers/entry-status")
     public ApiResponseEntity<Boolean> changeEntryStatus(
             @Valid @RequestBody ChangeSellerEntryStatusDTO request) {

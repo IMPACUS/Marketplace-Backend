@@ -6,15 +6,15 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.entity.product.ProductDeliveryTime;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.seller.Seller;
@@ -48,14 +48,16 @@ public class ProductService {
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
-    private final ObjectCopyHelper objectCopyHelper;
     private final SubCategoryService subCategoryService;
     private final WishlistRepository wishlistRepository;
     private final ProductDeliveryTimeService deliveryTimeService;
     private final RecentProductViewsService recentProductViewsService;
+    private final ProductClaimService productClaimService;
 
     /**
      * 새로운 Product 생성 함수
+     * - 판매자인 경우, 요청한 판매자의 브랜드로 상품 등록
+     * - 관리자인 경우, request body 의 sellerId의 브랜드로 상품 등록
      *
      * @param dto
      * @return
@@ -67,7 +69,20 @@ public class ProductService {
             CreateProductDTO dto,
             List<MultipartFile> productDescriptionImageList) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            // 0. 판매자 id 유효성 검사
+            // 판매자: API 요청 시, 사용한 인증 정보의 userId를 통해 sellerId 반환
+            // 관리자: dto 에 sellerId 존재하는지 확인 후, 존재하는 sellerId 인지 확인
+            UserType userType = SecurityUtils.getCurrentUserType();
+            Long sellerId = null;
+            if (userType == UserType.ROLE_APPROVED_SELLER) {
+                Seller seller = sellerService.findSellerByUserId(userId);
+                sellerId = seller.getId();
+            } else {
+                sellerId = dto.getSellerId();
+                if (sellerId == null || !sellerService.existsSellerBySellerId(sellerId)) {
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "sellerId 정보가 잘 못 되었습니다. 존재하지 않는 판매자 입니다.");
+                }
+            }
 
             // 1. productRequest 데이터 유효성 검사
             validateProductRequest(
@@ -78,7 +93,7 @@ public class ProductService {
             String productNumber = StringUtils.getProductNumber();
 
             // 3. Product 저장
-            Product newProduct = productRepository.save(dto.toEntity(productNumber, seller.getId()));
+            Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
             Long productId = newProduct.getId();
 
             // 4. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
@@ -113,7 +128,10 @@ public class ProductService {
             // 9. ProductDeliveryTime 저장
             deliveryTimeService.addProductDeliveryTime(productId, dto.getDeliveryTime());
 
-            // 10. TemporaryProduct 삭제
+            // 10. 상품 클레임 정보 저장
+            productClaimService.addProductClaimInfo(productId, dto.getClaim());
+
+            // 11. TemporaryProduct 삭제
             if (dto.isDoesUseTemporaryProduct()) {
                 temporaryProductService.deleteTemporaryProduct(userId);
             }
@@ -181,14 +199,43 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT));
     }
 
+    /**
+     * 판매자 다중 삭제 함수
+     * - 판매자인 경우, 판매자가 등록한 상품만 삭제 가능
+     * - 관리자인 경우, 모든 상품 삭제 가능
+     *
+     * @param productIdList
+     */
     @Transactional
-    public void deleteAllProduct(List<Long> productIdList) {
+    public void deleteAllProduct(Long userId, List<Long> productIdList) {
         try {
+            // 1. 권한 확인
+            UserType role = SecurityUtils.getCurrentUserType();
+
+            // 1-1. 판매자인 경우, 판매자 등록 상품인지 확인
+            if (role == UserType.ROLE_APPROVED_SELLER && !verifySellerProductIds(userId, productIdList)) {
+                throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
+            }
+
+            // 2. 상품 삭제
             productIdList
                     .forEach(this::deleteProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * productIdList에 존재하는 모든 상품들이 userId인 판매자의 상품인지 확인하는 경우
+     * - true: 모두 판매자의 상품인 경우
+     * - false: 판매자가 등록하지 않은 상품이 존재하는 경우
+     *
+     * @param userId
+     * @param productIdList
+     * @return
+     */
+    private boolean verifySellerProductIds(Long userId, List<Long> productIdList) {
+        return productRepository.checkIsSellerProductIds(userId, productIdList);
     }
 
     /**
@@ -231,7 +278,9 @@ public class ProductService {
     }
 
     /**
-     * 등록된 상품 정보를 수정하는 API
+     * 등록된 상품 정보 수정 함수
+     * - 판매자: 판매자의 브랜드인 상품만 수정가능
+     * - 관리자: 모든 상품 수정 가능
      *
      * @param productImageList
      * @param productDescriptionImageList
@@ -239,6 +288,7 @@ public class ProductService {
      */
     @Transactional
     public ProductDTO updateProduct(
+            Long userId,
             List<MultipartFile> productImageList,
             UpdateProductDTO dto,
             List<MultipartFile> productDescriptionImageList) {
@@ -248,16 +298,26 @@ public class ProductService {
             // 1. Product 찾기
             Product product = findProductById(productId);
 
-            // 2. productRequest 데이터 유효성 검사
+            // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
+            // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
+            UserType userType = SecurityUtils.getCurrentUserType();
+            if (userType == UserType.ROLE_APPROVED_SELLER) {
+                Seller seller = sellerService.findSellerByUserId(userId);
+                if (!seller.getId().equals(product.getSellerId())) {
+                    throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
+                }
+            }
+
+            // 3. productRequest 데이터 유효성 검사
             validateProductRequest(
                     productImageList, dto.getCategoryId(), productDescriptionImageList
             );
 
-            // 3. Product 수정
+            // 4. Product 수정
             product.setProduct(dto);
             productRepository.save(product);
 
-            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+            // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(product.getId(), ReferencedEntityType.PRODUCT);
             productImageList
                     .forEach(productImage -> {
@@ -268,11 +328,11 @@ public class ProductService {
                         }
                     });
 
-            // 5. Product description 수정
+            // 6. Product description 수정
             ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(product.getId());
             productDescription.setDescription(dto.getDescription());
 
-            // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            // 7. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
             productDescriptionImageList
                     .forEach(productDescriptionImage -> {
@@ -292,6 +352,9 @@ public class ProductService {
 
             // 10. Product delivery time 수정
             deliveryTimeService.updateProductDeliveryTime(productId, dto.getDeliveryTime());
+
+            // 11. 상품 클레임 정보 수정
+            productClaimService.updateProductClaimInfo(productId, dto.getClaim());
 
             return ProductDTO.toDTO(product);
         } catch (Exception ex) {
@@ -335,16 +398,16 @@ public class ProductService {
     ) {
         try {
             List<Long> productIds = recentProductViewsService.findProductIdsByUserId(userId, pageable);
-            Slice<ProductForAppDTO> products = productRepository.findAllProductByProductIds(userId, productIds, pageable);
-
-            return products;
+            return productRepository.findAllProductByProductIds(userId, productIds, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
     /**
-     * 판매자인 경우, 판매자 등록 상품만 관리자인 경우 전체 상품 조회하는 함수
+     * 상품 조회 함수
+     * - 판매자인 경우, 판매자의 브랜드 등록 상품 조회
+     * - 관리자인 경우, 등록되어 있는 모든 상품 조회 가능
      *
      * @param userId
      * @param keyword 검색어 (null/공백: 전체 반환, not null: keyword가 존재하는 데이터 반환)
@@ -355,17 +418,38 @@ public class ProductService {
      */
     public Page<ProductForWebDTO> findProductForWeb(
             Long userId,
+            UserType userType,
             String keyword,
             LocalDate startAt,
             LocalDate endAt,
             Pageable pageable
     ) {
-//        try {
+        try {
+            // 1. seller id 조회 (관리자인 경우 null)
+            Long sellerId = getSellerId(userId, userType);
+
+            // 2. 상품 조회
+            return productRepository.findAllProduct(sellerId, keyword, startAt, endAt, pageable);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 판매자 아이디 조회 함수
+     * user가 판매자인 경우, sellerId를 관리자인 경우 null을 반환하는 함수
+     *
+     * @param userId
+     * @param userType
+     * @return
+     */
+    private Long getSellerId(Long userId, UserType userType) {
+        if (userType == UserType.ROLE_APPROVED_SELLER) {
             Seller seller = sellerService.findSellerByUserId(userId);
-        return productRepository.findAllProduct(seller.getId(), keyword, startAt, endAt, pageable);
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+            return seller.getId();
+        } else {
+            return null;
+        }
     }
 
     /***
@@ -396,7 +480,9 @@ public class ProductService {
     }
 
     /**
-     * 판매자용 웹에서 상품 전체 정보를 조회하는 함수
+     * 웹에서 상품 전체 정보를 조회하는 함수
+     * - 판매자: 판매자의 브랜드가 등록한 상품만 조회 가능
+     * - 관리자: 모든 상품 조회 가능
      *
      * @param userId
      * @param productId
@@ -404,40 +490,16 @@ public class ProductService {
      */
     public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            UserType userType = SecurityUtils.getCurrentUserType();
+            Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? sellerService.findSellerByUserId(userId).getId() : null;
 
-            Product product = findProductById(productId);
-            ProductDetailForWebDTO dto = objectCopyHelper.copyObject(product, ProductDetailForWebDTO.class);
+            // 1. 데이터 조회
+            ProductDetailForWebDTO dto = productRepository.findProductDetailByProductId(sellerId, userType, productId);
 
-            // 1. 판매자의 상품인지 확인
-            if (!product.getSellerId().equals(seller.getId())) {
+            // 2. 판매자의 상품인지 확인
+            if (dto == null) {
                 throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
             }
-
-            // 2. ProductDescription 값 가져오기
-            ProductDescription description = productDescriptionService.findProductDescriptionByProductId(productId);
-            dto.setDescription(description.getDescription());
-
-            // 3. ProductOption 값 가져오기
-            List<ProductOptionDTO> options = productOptionService.findProductOptionByProductId(productId)
-                    .stream()
-                    .map(option -> new ProductOptionDTO(option.getId(), option.getColor(), option.getSize()))
-                    .toList();
-            dto.setProductOptionDTO(options);
-
-            // 4. ProductDescription 값 가져오기
-            ProductDetailInfo detailInfo = productDetailInfoService.findProductDetailInfoByProductId(productId);
-            dto.setProductDetail(objectCopyHelper.copyObject(detailInfo, ProductDetailInfoDTO.class));
-
-            // 5. ProductDeliveryTime 값 가져오기
-            ProductDeliveryTime deliveryTime = deliveryTimeService.findProductDeliveryTimeByProductId(productId);
-            dto.setDeliveryTime(ProductDeliveryTimeDTO.toDTO(deliveryTime));
-
-            // 5. 대표이미지 데이터 가져오기
-            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
-                    .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
-                    .toList();
-            dto.setProductImageList(attachFileDTOS);
 
             return dto;
         } catch (Exception ex) {

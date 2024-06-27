@@ -2,6 +2,7 @@ package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
@@ -42,6 +43,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QAttachFileGroup attachFileGroup = QAttachFileGroup.attachFileGroup;
     private final QWishlist wishlist = QWishlist.wishlist;
     private final QProductDeliveryTime productDeliveryTime = QProductDeliveryTime.productDeliveryTime;
+    private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
+    private final QProductDescription productDescription = QProductDescription.productDescription;
+    private final QProductClaimInfo productClaimInfo = QProductClaimInfo.productClaimInfo;
 
     @Override
     public Page<ProductForWebDTO> findAllProduct(
@@ -51,22 +55,26 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             LocalDate endAt,
             Pageable pageable
     ) {
-        // 전체 데이터 조회.(+ 검색어: 상품 옵션 제외), 상풉 옵션을 기준으로 필터링 -> page로 변경하는 것으로 로직 변경
-
+        // 1. builder 생성
+        // - seller 값이 존재하는 경우에만 판매자 비교
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
-                .and(product.sellerId.eq(sellerId))
+
                 .and(product.isDeleted.eq(false));
 
-        // 1. 전체 데이터 조회
+        if (sellerId != null) {
+            builder.and(product.sellerId.eq(sellerId));
+        }
+
+        // 2. 전체 데이터 조회
         List<ProductForWebDTO> products = getProductDTO(builder, pageable);
 
-        // 2. 검색어 조회
+        // 3. 검색어 조회
         if (keyword != null && !keyword.isBlank()) {
             products = filterProductForWebDTOByKeyword(keyword, products);
         }
 
-        // 3. 페이징 처리
+        // 4. 페이징 처리
         long count = products.size();
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), products.size());
@@ -106,7 +114,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
 
     private List<ProductForWebDTO> getProductDTO(BooleanBuilder builder, Pageable pageable) {
-        log.info("{} {}", pageable.getOffset(), pageable.getPageSize());
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
@@ -247,6 +254,99 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         }
 
         return new SliceImpl<>(sortedProducts, pageable, hasNext);
+    }
+
+    @Override
+    public ProductDetailForWebDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId) {
+        BooleanBuilder productBuilder = new BooleanBuilder();
+        productBuilder.and(product.id.eq(productId))
+                .and(product.isDeleted.eq(false));
+        if (userType == UserType.ROLE_APPROVED_SELLER) {
+            productBuilder.and(product.sellerId.eq(sellerId));
+        }
+
+        BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
+        attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
+                .and(attachFileGroup.referencedId.eq(product.id));
+
+        List<ProductDetailForWebDTO> dtos =
+                queryFactory
+                        .selectFrom(product)
+                        .leftJoin(productDetailInfo).on(productDetailInfo.productId.eq(product.id))
+                        .leftJoin(productDescription).on(productDescription.productId.eq(product.id))
+                        .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
+                        .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                        .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
+                        .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
+                        .leftJoin(productClaimInfo).on(productClaimInfo.productId.eq(product.id))
+                        .where(productBuilder)
+                        .transform(GroupBy.groupBy(product.id).list(Projections.fields(
+                                                ProductDetailForWebDTO.class,
+                                                product.name,
+                                                product.categoryId,
+                                                product.deliveryType,
+                                                product.deliveryFee,
+                                                product.refundFee,
+                                                product.marketPrice,
+                                                product.appSalesPrice,
+                                                product.discountPrice,
+                                                product.weight,
+                                                product.type,
+                                                product.productStatus,
+                                                productDescription.description.as("description"),
+                                                Projections.constructor(
+                                                        ProductDetailInfoDTO.class,
+                                                        productDetailInfo
+                                                ).as("productDetail"),
+                                                Projections.constructor(
+                                                        ProductDeliveryTimeDTO.class,
+                                                        productDeliveryTime.minDays,
+                                                        productDeliveryTime.maxDays
+                                                ).as("deliveryTime"),
+                                                GroupBy.set(
+                                                        Projections.constructor(
+                                                                ProductOptionDTO.class,
+                                                                productOption.id,
+                                                                productOption.color,
+                                                                productOption.size
+                                                        )
+
+                                                ).as("productOptions"),
+                                                GroupBy.set(
+                                                        Projections.constructor(
+                                                                AttachFileDTO.class,
+                                                                attachFile.id,
+                                                                attachFile.attachFileName
+                                                        )
+                                                ).as("productImageList"),
+                                        Projections.constructor(
+                                                ProductClaimInfoDTO.class,
+                                                productClaimInfo.recallInfo,
+                                                productClaimInfo.claimCost,
+                                                productClaimInfo.claimPolicyGuild,
+                                                productClaimInfo.claimContactInfo
+                                        ).as("claim")
+                                        )
+                                )
+                        );
+
+        return dtos.isEmpty() ? null : dtos.get(0);
+    }
+
+    @Override
+    public boolean checkIsSellerProductIds(Long userId, List<Long> productIds) {
+        // 1. productIds에 존재하는 userId가 등록한 판매자 id 조회
+        List<Long> sellerProductIds = queryFactory
+                .select(product.id)
+                .from(product)
+                .leftJoin(seller).on(seller.userId.eq(userId))
+                .where(product.sellerId.eq(seller.id))
+                .where(product.id.in(productIds))
+                .fetch();
+
+        // 2. 판매자가 등록한 상품들인지 확인
+        // sellerProductIds.size()와 productIds.size()가 다르면 판매자가 등록하지 않는 상품이 존재하는 것으로 판단
+        return sellerProductIds.size() == productIds.size();
     }
 
     @Override

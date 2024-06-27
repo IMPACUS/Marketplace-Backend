@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller.product;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +42,10 @@ public class ProductController {
      * @param dto
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @PostMapping("")
     public ApiResponseEntity<ProductDTO> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -64,14 +69,17 @@ public class ProductController {
      * @param productIdList
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @DeleteMapping("")
-    public ApiResponseEntity<Boolean> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
-        productService.deleteAllProduct(productIdList);
-        return ApiResponseEntity
-                .<Boolean>builder()
-                .data(true)
-                .build();
+    public ApiResponseEntity<Boolean> deleteAllProduct(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "product-id") List<Long> productIdList
+    ) {
+        productService.deleteAllProduct(user.getId(), productIdList);
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 
     /**
@@ -82,13 +90,18 @@ public class ProductController {
      * @param dto
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @PutMapping("")
     public ApiResponseEntity<ProductDTO> updateProduct(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") UpdateProductDTO dto) {
         ProductDTO productDTO = productService.updateProduct(
+                user.getId(),
                 productImageList,
                 dto,
                 productDescriptionImageList
@@ -120,8 +133,8 @@ public class ProductController {
     }
 
     /**
-     * 웹용 판매자/관리자 상품 전체 조회 API
-     *
+     * 웹용 판매자 상품 전체 조회 API
+     * - 판매자의 브랜드가 등록한 상품들만 조회 가능
      * @param user
      * @param startAt
      * @param endAt
@@ -130,13 +143,44 @@ public class ProductController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("/seller")
+    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductBySellerIdForWeb(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+            @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+            @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+                user.getId(), UserType.ROLE_APPROVED_SELLER, keyword, startAt, endAt, pageable
+        );
+        return ApiResponseEntity
+                .<Page<ProductForWebDTO>>builder()
+                .data(productDTOList)
+                .build();
+    }
+
+    /**
+     * 웹용 판매자 상품 전체 조회 API
+     * - 판매자의 브랜드가 등록한 상품들만 조회 가능
+     *
+     * @param user
+     * @param startAt
+     * @param endAt
+     * @param pageable
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
+            "or hasRole('ROLE_OWNER')")
+    @GetMapping("/admin")
     public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(user.getId(), keyword, startAt, endAt, pageable);
+        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+                user.getId(), UserType.ROLE_ADMIN, keyword, startAt, endAt, pageable
+        );
         return ApiResponseEntity
                 .<Page<ProductForWebDTO>>builder()
                 .data(productDTOList)
@@ -164,7 +208,10 @@ public class ProductController {
     /**
      * 판매자용 단일 상품 조회 API
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @GetMapping("/product-details")
     public ApiResponseEntity<ProductDetailForWebDTO> getProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,

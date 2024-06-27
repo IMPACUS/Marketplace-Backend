@@ -30,7 +30,10 @@ public class TemporaryProductController {
      * @param user
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @GetMapping("/exist")
     public ApiResponseEntity<Object> checkIsExistedTemporaryProduct(@AuthenticationPrincipal CustomUserDetails user) {
         IsExistedTemporaryProductDTO dto = temporaryProductService.checkIsExistedTemporaryProduct(user.getId());

@@ -17,7 +17,7 @@ public class ProductForWebDTO {
     private String productNumber;
     private DeliveryType deliveryType;
     private ProductStatus productStatus;
-    private Long stock;
+    private long stock;
     private LocalDateTime createAt;
     private Set<ProductOptionDTO> options;
     private Set<AttachFileDTO> productImageList;
@@ -30,7 +30,7 @@ public class ProductForWebDTO {
             String productNumber,
             DeliveryType deliveryType,
             ProductStatus productStatus,
-            Long stock,
+            long stock,
             LocalDateTime createAt,
             Set<ProductOptionDTO> productOptionList,
             Set<AttachFileDTO> productImageList

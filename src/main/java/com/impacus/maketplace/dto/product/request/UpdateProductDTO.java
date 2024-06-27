@@ -63,4 +63,7 @@ public class UpdateProductDTO {
 
     @NotNull
     private CreateProductDeliveryTimeDTO deliveryTime;
+
+    @NotNull
+    private CreateClaimInfoDTO claim;
 }
