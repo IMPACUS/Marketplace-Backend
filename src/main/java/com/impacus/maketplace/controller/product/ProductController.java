@@ -90,13 +90,18 @@ public class ProductController {
      * @param dto
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @PutMapping("")
     public ApiResponseEntity<ProductDTO> updateProduct(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") UpdateProductDTO dto) {
         ProductDTO productDTO = productService.updateProduct(
+                user.getId(),
                 productImageList,
                 dto,
                 productDescriptionImageList

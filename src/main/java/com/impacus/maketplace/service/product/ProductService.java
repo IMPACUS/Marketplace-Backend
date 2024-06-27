@@ -278,7 +278,9 @@ public class ProductService {
     }
 
     /**
-     * 등록된 상품 정보를 수정하는 API
+     * 등록된 상품 정보 수정 함수
+     * - 판매자: 판매자의 브랜드인 상품만 수정가능
+     * - 관리자: 모든 상품 수정 가능
      *
      * @param productImageList
      * @param productDescriptionImageList
@@ -286,6 +288,7 @@ public class ProductService {
      */
     @Transactional
     public ProductDTO updateProduct(
+            Long userId,
             List<MultipartFile> productImageList,
             UpdateProductDTO dto,
             List<MultipartFile> productDescriptionImageList) {
@@ -295,16 +298,26 @@ public class ProductService {
             // 1. Product 찾기
             Product product = findProductById(productId);
 
-            // 2. productRequest 데이터 유효성 검사
+            // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
+            // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
+            UserType userType = SecurityUtils.getCurrentUserType();
+            if (userType == UserType.ROLE_APPROVED_SELLER) {
+                Seller seller = sellerService.findSellerByUserId(userId);
+                if (!seller.getId().equals(product.getSellerId())) {
+                    throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
+                }
+            }
+
+            // 3. productRequest 데이터 유효성 검사
             validateProductRequest(
                     productImageList, dto.getCategoryId(), productDescriptionImageList
             );
 
-            // 3. Product 수정
+            // 4. Product 수정
             product.setProduct(dto);
             productRepository.save(product);
 
-            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+            // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(product.getId(), ReferencedEntityType.PRODUCT);
             productImageList
                     .forEach(productImage -> {
@@ -315,11 +328,11 @@ public class ProductService {
                         }
                     });
 
-            // 5. Product description 수정
+            // 6. Product description 수정
             ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(product.getId());
             productDescription.setDescription(dto.getDescription());
 
-            // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            // 7. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
             productDescriptionImageList
                     .forEach(productDescriptionImage -> {
