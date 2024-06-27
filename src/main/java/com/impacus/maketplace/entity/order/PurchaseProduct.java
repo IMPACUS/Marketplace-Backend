@@ -1,6 +1,9 @@
 package com.impacus.maketplace.entity.order;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.enumType.order.DeliveryStatus;
+import com.impacus.maketplace.common.enumType.order.ExchangeStatus;
+import com.impacus.maketplace.common.enumType.order.ReturnStatus;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,13 +36,13 @@ public class PurchaseProduct extends BaseEntity {
     private Integer quantity; // 수량
 
     @Column(name = "delivery_status")
-    private String deliveryStatus; // 배송 상태
+    private DeliveryStatus deliveryStatus; // 배송 상태
 
     @Column(name = "return_status")
-    private String returnStatus; // 반품 상태
+    private ReturnStatus returnStatus; // 반품 상태
 
     @Column(name = "exchange_status")
-    private String exchangeStatus; // 교환 상태
+    private ExchangeStatus exchangeStatus; // 교환 상태
 
     @Column(name = "total_price")
     private Integer totalPrice; // 총 가격

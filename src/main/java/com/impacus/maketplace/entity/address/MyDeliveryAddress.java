@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.address;
 
+import com.impacus.maketplace.entity.order.DeliveryAddress;
 import com.impacus.maketplace.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
