@@ -373,4 +373,14 @@ public class SellerService {
             throw new CustomException(ex);
         }
     }
+
+    /**
+     * 존재하는 sellerId인지 확인하는 함수
+     *
+     * @param sellerId
+     * @return
+     */
+    public boolean existsSellerBySellerId(Long sellerId) {
+        return sellerRepository.existsById(sellerId);
+    }
 }

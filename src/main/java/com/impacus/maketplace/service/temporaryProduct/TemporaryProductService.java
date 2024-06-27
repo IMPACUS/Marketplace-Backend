@@ -44,12 +44,12 @@ public class TemporaryProductService {
     /**
      * TemporaryProduct 데이터가 사용자에게 등록되어 있는지 확인하는 함수
      *
-     * @param sellerId
+     * @param userId
      * @return
      */
-    public IsExistedTemporaryProductDTO checkIsExistedTemporaryProduct(Long sellerId) {
+    public IsExistedTemporaryProductDTO checkIsExistedTemporaryProduct(Long userId) {
         try {
-            boolean isExisted = temporaryProductRepository.existsByRegisterId(sellerId.toString());
+            boolean isExisted = temporaryProductRepository.existsByRegisterId(userId.toString());
             return new IsExistedTemporaryProductDTO(isExisted);
         } catch (Exception ex) {
             throw new CustomException(ex);

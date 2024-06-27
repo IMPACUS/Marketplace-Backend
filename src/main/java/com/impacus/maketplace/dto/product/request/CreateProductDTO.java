@@ -21,6 +21,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductDTO {
+    private Long sellerId;
+
     @NotNull
     private boolean doesUseTemporaryProduct;
 

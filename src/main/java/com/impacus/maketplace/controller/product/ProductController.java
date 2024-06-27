@@ -42,7 +42,10 @@ public class ProductController {
      * @param dto
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @PostMapping("")
     public ApiResponseEntity<ProductDTO> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,

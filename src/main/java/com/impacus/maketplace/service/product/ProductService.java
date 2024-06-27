@@ -56,6 +56,8 @@ public class ProductService {
 
     /**
      * 새로운 Product 생성 함수
+     * - 판매자인 경우, 요청한 판매자의 브랜드로 상품 등록
+     * - 관리자인 경우, request body 의 sellerId의 브랜드로 상품 등록
      *
      * @param dto
      * @return
@@ -67,7 +69,20 @@ public class ProductService {
             CreateProductDTO dto,
             List<MultipartFile> productDescriptionImageList) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            // 0. 판매자 id 유효성 검사
+            // 판매자: API 요청 시, 사용한 인증 정보의 userId를 통해 sellerId 반환
+            // 관리자: dto 에 sellerId 존재하는지 확인 후, 존재하는 sellerId 인지 확인
+            UserType userType = SecurityUtils.getCurrentUserType();
+            Long sellerId = null;
+            if (userType == UserType.ROLE_APPROVED_SELLER) {
+                Seller seller = sellerService.findSellerByUserId(userId);
+                sellerId = seller.getId();
+            } else {
+                sellerId = dto.getSellerId();
+                if (sellerId == null || !sellerService.existsSellerBySellerId(sellerId)) {
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "sellerId 정보가 잘 못 되었습니다. 존재하지 않는 판매자 입니다.");
+                }
+            }
 
             // 1. productRequest 데이터 유효성 검사
             validateProductRequest(
@@ -78,7 +93,7 @@ public class ProductService {
             String productNumber = StringUtils.getProductNumber();
 
             // 3. Product 저장
-            Product newProduct = productRepository.save(dto.toEntity(productNumber, seller.getId()));
+            Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
             Long productId = newProduct.getId();
 
             // 4. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
