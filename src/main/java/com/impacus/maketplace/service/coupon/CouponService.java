@@ -10,16 +10,15 @@ import com.impacus.maketplace.dto.coupon.response.CouponUserListDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponUser;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.UserRepository;
 import com.impacus.maketplace.repository.coupon.CouponCustomRepositoryImpl;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.CouponUserRepository;
+import com.impacus.maketplace.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import security.CustomUserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

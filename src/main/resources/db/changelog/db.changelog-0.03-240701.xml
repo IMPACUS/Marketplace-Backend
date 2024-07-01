@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- user_detail, user history 테이블 삭제 -->
+    <changeSet id="changelog-0.03.01-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="user_detail"/>
+        </preConditions>
+        <dropTable tableName="user_detail"/>
+    </changeSet>
+    <changeSet id="changelog-0.03.02-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="user_history"/>
+        </preConditions>
+        <dropTable tableName="user_history"/>
+    </changeSet>
+
+    <!-- user_info 컬럼 삭제 -->
+    <changeSet id="changelog-0.03.03-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="auth_ci"/>
+            <columnExists tableName="user_info" columnName="auth_di"/>
+            <columnExists tableName="user_info" columnName="bank_account_number"/>
+            <columnExists tableName="user_info" columnName="bank_code"/>
+            <columnExists tableName="user_info" columnName="cert_bank_date_time"/>
+            <columnExists tableName="user_info" columnName="does_agree_personal_policy"/>
+            <columnExists tableName="user_info" columnName="does_agree_service"/>
+            <columnExists tableName="user_info" columnName="does_agree_service_policy"/>
+            <columnExists tableName="user_info" columnName="is_admin"/>
+            <columnExists tableName="user_info" columnName="status"/>
+            <columnExists tableName="user_info" columnName="status_reason"/>
+            <columnExists tableName="user_info" columnName="withdrawn_date_time"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="auth_ci"/>
+        <dropColumn tableName="user_info" columnName="auth_di"/>
+        <dropColumn tableName="user_info" columnName="bank_account_number"/>
+        <dropColumn tableName="user_info" columnName="bank_code"/>
+        <dropColumn tableName="user_info" columnName="cert_bank_date_time"/>
+        <dropColumn tableName="user_info" columnName="does_agree_personal_policy"/>
+        <dropColumn tableName="user_info" columnName="does_agree_service"/>
+        <dropColumn tableName="user_info" columnName="does_agree_service_policy"/>
+        <dropColumn tableName="user_info" columnName="is_admin"/>
+        <dropColumn tableName="user_info" columnName="status"/>
+        <dropColumn tableName="user_info" columnName="status_reason"/>
+        <dropColumn tableName="user_info" columnName="withdrawn_date_time"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.03.04-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="brand_shop_alarm"/>
+            <columnExists tableName="user_info" columnName="order_delivery_alarm"/>
+            <columnExists tableName="user_info" columnName="restock_alarm"/>
+            <columnExists tableName="user_info" columnName="review_alarm"/>
+            <columnExists tableName="user_info" columnName="service_center_alarm"/>
+            <columnExists tableName="user_info" columnName="shopping_benefits_alarm"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="brand_shop_alarm"/>
+        <dropColumn tableName="user_info" columnName="order_delivery_alarm"/>
+        <dropColumn tableName="user_info" columnName="restock_alarm"/>
+        <dropColumn tableName="user_info" columnName="review_alarm"/>
+        <dropColumn tableName="user_info" columnName="service_center_alarm"/>
+        <dropColumn tableName="user_info" columnName="shopping_benefits_alarm"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.03.05-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="dormancy_months"/>
+            <columnExists tableName="user_info" columnName="first_dormancy"/>
+            <columnExists tableName="user_info" columnName="second_dormancy"/>
+            <columnExists tableName="user_info" columnName="update_dormancy_at"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="dormancy_months"/>
+        <dropColumn tableName="user_info" columnName="first_dormancy"/>
+        <dropColumn tableName="user_info" columnName="second_dormancy"/>
+        <dropColumn tableName="user_info" columnName="update_dormancy_at"/>
+    </changeSet>
+
+    <!-- user_info 컬럼 user_jumin1 이름 변경 -->
+    <changeSet id="changelog-0.03.06-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="user_jumin1"/>
+            <columnExists tableName="user_info" columnName="jumin1"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="jumin1"/>
+        <renameColumn tableName="user_info" oldColumnName="user_jumin1" newColumnName="jumin1"
+                      columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.03.07-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="user_jumin1"/>
+            <not>
+                <columnExists tableName="user_info" columnName="jumin1"/>
+            </not>
+
+        </preConditions>
+        <renameColumn tableName="user_info" oldColumnName="user_jumin1" newColumnName="jumin1"
+                      columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <!-- user_status_info 테이블 생성 -->
+    <changeSet id="changelog-0.03.11-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="user_status_info"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_status_info">
+            <column name="user_status_info_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_reason" type="TEXT"/>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="user_status_info" columnName="user_id" remarks="user_info FK"/>
+        <setColumnRemarks tableName="user_status_info" columnName="status_reason" remarks="사용자 계정 상태 이유"/>
+    </changeSet>
+
+    <!-- user_role 테이블 생성 -->
+    <changeSet id="changelog-0.03.12-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="user_role"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_role">
+            <column name="user_role_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="role" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="user_role" columnName="user_id" remarks="user_info의 FK"/>
+    </changeSet>
+
+    <!-- user_consent 테이블 생성 -->
+    <changeSet id="changelog-0.03.13-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="user_consent"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_consent">
+            <column name="user_consent_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="does_agree_service_policy" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="does_agree_personal_policy" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service_policy_consent_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="personal_policy_consent_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="user_consent" columnName="user_id" remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="user_consent" columnName="does_agree_service_policy" remarks="이용 약관 동의 여부"/>
+        <setColumnRemarks tableName="user_consent" columnName="does_agree_personal_policy" remarks="개인 정보 동의 여부"/>
+        <setColumnRemarks tableName="user_consent" columnName="service_policy_consent_at" remarks="이용 약관 동의 날짜"/>
+        <setColumnRemarks tableName="user_consent" columnName="personal_policy_consent_at" remarks="개인 정보 동의 날짜"/>
+    </changeSet>
+
+    <!-- green_label_point 테이블 생성 -->
+    <changeSet id="changelog-0.03.14-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="green_label_point"/>
+            </not>
+        </preConditions>
+        <createTable tableName="green_label_point">
+            <column name="green_label_point_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="green_label_point" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="green_label_point" columnName="user_id" remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="green_label_point" columnName="green_label_point" remarks="그린 라벨 포인트"/>
+    </changeSet>
+
+    <!-- user_info 테이블의 데이터에 대해서 user_status_info 생성 -->
+    <changeSet id="changelog-0.01.15-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="user_info"/>
+            <tableExists tableName="user_status_info"/>
+        </preConditions>
+        <sql>
+            INSERT INTO user_status_info (user_id, status, status_reason, create_at, modify_at, register_id, modify_id)
+            SELECT user_id, 'ACTIVE', '사용자 신규 생성', NOW(), NOW(), 'system', 'system'
+            FROM user_info
+            WHERE NOT EXISTS (SELECT 1
+                              FROM user_status_info
+                              WHERE user_status_info.user_id = user_info.user_id);
+        </sql>
+    </changeSet>
+
+    <!-- user_info 테이블의 데이터에 대해서 user_consent 생성 -->
+    <changeSet id="changelog-0.01.16-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="user_info"/>
+            <tableExists tableName="user_consent"/>
+        </preConditions>
+        <sql>
+            INSERT INTO user_consent (user_id, does_agree_service_policy, does_agree_personal_policy,
+                                      service_policy_consent_at, personal_policy_consent_at, create_at, modify_at,
+                                      register_id, modify_id)
+            SELECT user_id,
+                   true,
+                   true,
+                   NOW(),
+                   NOW(),
+                   NOW(),
+                   NOW(),
+                   'system',
+                   'system'
+            FROM user_info
+            WHERE NOT EXISTS (SELECT 1
+                              FROM user_consent
+                              WHERE user_consent.user_id = user_info.user_id);
+        </sql>
+    </changeSet>
+
+    <!-- user_info 테이블의 데이터에 대해서 green_label_point 생성 -->
+    <changeSet id="changelog-0.01.17-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="user_info"/>
+            <tableExists tableName="green_label_point"/>
+        </preConditions>
+        <sql>
+            INSERT INTO green_label_point (user_id, green_label_point, create_at, modify_at, register_id, modify_id)
+            SELECT user_id, 0, NOW(), NOW(), 'system', 'system'
+            FROM user_info
+            WHERE NOT EXISTS (SELECT 1
+                              FROM green_label_point
+                              WHERE green_label_point.user_id = user_info.user_id);
+        </sql>
+    </changeSet>
+
+
+</databaseChangeLog>

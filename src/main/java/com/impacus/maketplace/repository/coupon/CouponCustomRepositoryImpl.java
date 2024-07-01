@@ -14,6 +14,7 @@ import com.impacus.maketplace.entity.coupon.QCoupon;
 import com.impacus.maketplace.entity.coupon.QCouponUser;
 import com.impacus.maketplace.entity.point.QPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
+import com.impacus.maketplace.entity.user.QUserStatusInfo;
 import com.impacus.maketplace.entity.user.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -26,9 +27,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,6 +44,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
     private final QUser userEntity = QUser.user;
     private final QCoupon couponEntity = QCoupon.coupon;
     private final QCouponUser couponUserEntity = QCouponUser.couponUser;
+    private final QUserStatusInfo userStatusInfo = QUserStatusInfo.userStatusInfo;
 
 
     @Override
@@ -52,7 +52,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
         CouponUserInfoResponseDTO result = queryFactory.select(new QCouponUserInfoResponseDTO(
                         userEntity.id,
                         userEntity.name,
-                        Expressions.enumPath(UserStatus.class, userEntity.status.toString()),
+                        Expressions.enumPath(UserStatus.class, userStatusInfo.status.toString()),
                         pointMasterEntity.availablePoint,
                         pointMasterEntity.userScore,
                         Expressions.constant("010-0000-0000"),  //TODO: 휴대폰 번호 추가해야함
@@ -61,6 +61,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepository {
                         userEntity.email
                 )).from(pointMasterEntity)
                 .innerJoin(userEntity).on(userEntity.id.eq(pointMasterEntity.user.id))
+                .leftJoin(userStatusInfo).on(userStatusInfo.userId.eq(userEntity.id))
                 .where(userEntity.email.eq(userEmail))
                 .fetchOne();
 

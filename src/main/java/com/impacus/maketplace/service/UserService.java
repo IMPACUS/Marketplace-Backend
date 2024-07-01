@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
@@ -8,7 +7,6 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
-import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
@@ -16,13 +14,14 @@ import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.entity.user.UserStatusInfo;
 import com.impacus.maketplace.redis.entity.EmailVerificationCode;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
-import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
-import com.impacus.maketplace.service.user.UserDetailService;
+import com.impacus.maketplace.service.user.UserStatusInfoService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,8 +52,8 @@ public class UserService {
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
     private final EmailVerificationCodeService emailVerificationCodeService;
-    private final UserDetailService userDetailService;
     private final AdminService adminService;
+    private final UserStatusInfoService userStatusInfoService;
 
 
     @Transactional
@@ -81,13 +77,12 @@ public class UserService {
                 throw new CustomException(CommonErrorType.INVALID_PASSWORD);
             }
 
-            // 3. User&UserDetail 생성 및 저장
+            // 3. User&UserStatus 생성 및 저장
             User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
                     encodePassword(password),
                     signUpRequest.getName());
             userRepository.save(user);
-            userDetailService.addUserDetail(user.getId());
-
+            userStatusInfoService.addUserStatusInfo(user.getId());
 
             // 5. UserDTO 반환
             return new UserDTO(user);
@@ -184,7 +179,7 @@ public class UserService {
         // 1. 이메일 유효성 검사
         AdminInfo admin = validateAndFindAdmin(adminIdName);
 
-        // 2. 비밃번호 유효성 검사
+        // 2. 비밀번호 유효성 검사
         if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
             throw new CustomException(CommonErrorType.INVALID_PASSWORD);
         }
@@ -238,7 +233,8 @@ public class UserService {
             default -> throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_ACCOUNT);
         };
 
-        if (user.getStatus() == UserStatus.BLOCKED) {
+        UserStatusInfo userStatusInfo = userStatusInfoService.findUserStatusInfoByUserId(user.getId());
+        if (userStatusInfo.getStatus() == UserStatus.BLOCKED) {
             throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
         }
 
@@ -303,8 +299,7 @@ public class UserService {
     public void changeUserStatus(User user, UserStatus userStatus) {
         switch (userStatus) {
             case BLOCKED: {
-                userRepository.updateUserStatus(user.getId(), UserStatus.BLOCKED,
-                        "로그인 시도 가능 횟수 초과");
+                userStatusInfoService.updateUserStatus(user.getId(), UserStatus.BLOCKED, "로그인 시도 가능 횟수 초과");
             }
             break;
         }
@@ -354,24 +349,25 @@ public class UserService {
 
     @Transactional
     public void findFistDormancyUser() {
-        LocalDateTime fiveMonthAgo = LocalDateTime.now().minusMonths(5).plusDays(1).truncatedTo(ChronoUnit.DAYS);
-        List<User> firstDormancyUser = userRepository.findByRecentLoginAtBeforeAndFirstDormancyIsFalse(fiveMonthAgo);
-        LocalDate updateDormancyAt = LocalDateTime.now().plusMonths(1).toLocalDate();
-
-        for (User user : firstDormancyUser) {
-            user.setDormancyMonths(5);
-            user.setFirstDormancy(true);
-            user.setUpdateDormancyAt(updateDormancyAt);
-
-            int underscoreIndex = user.getEmail().indexOf("_") + 1;
-            String realUserEmail = user.getEmail().substring(underscoreIndex);
-
-            EmailDto emailDto = EmailDto.builder()
-                    .subject(MailType.POINT_REDUCTION.getSubject())
-                    .receiveEmail(realUserEmail)
-                    .build();
-            emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
-        }
+        // TODO user entity 정리하면서 관련 column 삭제
+//        LocalDateTime fiveMonthAgo = LocalDateTime.now().minusMonths(5).plusDays(1).truncatedTo(ChronoUnit.DAYS);
+//        List<User> firstDormancyUser = userRepository.findByRecentLoginAtBeforeAndFirstDormancyIsFalse(fiveMonthAgo);
+//        LocalDate updateDormancyAt = LocalDateTime.now().plusMonths(1).toLocalDate();
+//
+//        for (User user : firstDormancyUser) {
+//            user.setDormancyMonths(5);
+//            user.setFirstDormancy(true);
+//            user.setUpdateDormancyAt(updateDormancyAt);
+//
+//            int underscoreIndex = user.getEmail().indexOf("_") + 1;
+//            String realUserEmail = user.getEmail().substring(underscoreIndex);
+//
+//            EmailDto emailDto = EmailDto.builder()
+//                    .subject(MailType.POINT_REDUCTION.getSubject())
+//                    .receiveEmail(realUserEmail)
+//                    .build();
+//            emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
+//        }
     }
 
     /**
