@@ -254,7 +254,7 @@
     </changeSet>
 
     <!-- user_info 테이블의 데이터에 대해서 user_status_info 생성 -->
-    <changeSet id="changelog-0.01.15-240525" author="lchy0413">
+    <changeSet id="changelog-0.03.15-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <tableExists tableName="user_info"/>
             <tableExists tableName="user_status_info"/>
@@ -270,7 +270,7 @@
     </changeSet>
 
     <!-- user_info 테이블의 데이터에 대해서 user_consent 생성 -->
-    <changeSet id="changelog-0.01.16-240525" author="lchy0413">
+    <changeSet id="changelog-0.03.16-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <tableExists tableName="user_info"/>
             <tableExists tableName="user_consent"/>
@@ -296,7 +296,7 @@
     </changeSet>
 
     <!-- user_info 테이블의 데이터에 대해서 green_label_point 생성 -->
-    <changeSet id="changelog-0.01.17-240525" author="lchy0413">
+    <changeSet id="changelog-0.03.17-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <tableExists tableName="user_info"/>
             <tableExists tableName="green_label_point"/>
@@ -311,5 +311,267 @@
         </sql>
     </changeSet>
 
+    <!-- brand_shop_alarm 생성 -->
+    <changeSet id="changelog-0.03.18-240525" author="lchy0413">
+        <createTable tableName="brand_shop_alarm">
+            <column name="brand_shop_alarm_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_alarm" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sns" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
 
+        <setColumnRemarks tableName="brand_shop_alarm" columnName="user_id" remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="brand_shop_alarm" columnName="is_alarm" remarks="전체 알람 설정 여부"/>
+        <setColumnRemarks tableName="brand_shop_alarm" columnName="kakao" remarks="카카오 알람 여부"/>
+        <setColumnRemarks tableName="brand_shop_alarm" columnName="email" remarks="이메일 알람 여부"/>
+        <setColumnRemarks tableName="brand_shop_alarm" columnName="sns" remarks="SNS 알람 여부"/>
+        <setColumnRemarks tableName="brand_shop_alarm" columnName="time" remarks="알람 시간 여부"/>
+    </changeSet>
+
+    <!-- order_delivery_alarm 생성 -->
+    <changeSet id="changelog-0.03.19-240525" author="lchy0413">
+        <createTable tableName="order_delivery_alarm">
+            <column name="order_delivery_alarm_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_alarm" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sns" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="order_delivery_alarm" columnName="user_id" remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="order_delivery_alarm" columnName="is_alarm" remarks="전체 알람 설정 여부"/>
+        <setColumnRemarks tableName="order_delivery_alarm" columnName="kakao" remarks="카카오 알람 여부"/>
+        <setColumnRemarks tableName="order_delivery_alarm" columnName="email" remarks="이메일 알람 여부"/>
+        <setColumnRemarks tableName="order_delivery_alarm" columnName="sns" remarks="SNS 알람 여부"/>
+        <setColumnRemarks tableName="order_delivery_alarm" columnName="time" remarks="알람 시간 여부"/>
+    </changeSet>
+
+    <!-- restock_alarm 생성 -->
+    <changeSet id="changelog-0.03.20-240525" author="lchy0413">
+        <createTable tableName="restock_alarm">
+            <column name="restock_alarm_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_alarm" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sns" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="restock_alarm" columnName="user_id" remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="restock_alarm" columnName="is_alarm" remarks="전체 알람 설정 여부"/>
+        <setColumnRemarks tableName="restock_alarm" columnName="kakao" remarks="카카오 알람 여부"/>
+        <setColumnRemarks tableName="restock_alarm" columnName="email" remarks="이메일 알람 여부"/>
+        <setColumnRemarks tableName="restock_alarm" columnName="sns" remarks="SNS 알람 여부"/>
+        <setColumnRemarks tableName="restock_alarm" columnName="time" remarks="알람 시간 여부"/>
+    </changeSet>
+
+    <!-- review_alarm 생성 -->
+    <changeSet id="changelog-0.03.21-240525" author="lchy0413">
+        <createTable tableName="review_alarm">
+            <column name="review_alarm_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_alarm" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sns" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="review_alarm" columnName="user_id" remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="review_alarm" columnName="is_alarm" remarks="전체 알람 설정 여부"/>
+        <setColumnRemarks tableName="review_alarm" columnName="kakao" remarks="카카오 알람 여부"/>
+        <setColumnRemarks tableName="review_alarm" columnName="email" remarks="이메일 알람 여부"/>
+        <setColumnRemarks tableName="review_alarm" columnName="sns" remarks="SNS 알람 여부"/>
+        <setColumnRemarks tableName="review_alarm" columnName="time" remarks="알람 시간 여부"/>
+    </changeSet>
+
+    <!-- service_center_alarm 생성 -->
+    <changeSet id="changelog-0.03.22-240525" author="lchy0413">
+        <createTable tableName="service_center_alarm">
+            <column name="service_center_alarm_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_alarm" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sns" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="service_center_alarm" columnName="user_id" remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="service_center_alarm" columnName="is_alarm" remarks="전체 알람 설정 여부"/>
+        <setColumnRemarks tableName="service_center_alarm" columnName="kakao" remarks="카카오 알람 여부"/>
+        <setColumnRemarks tableName="service_center_alarm" columnName="email" remarks="이메일 알람 여부"/>
+        <setColumnRemarks tableName="service_center_alarm" columnName="sns" remarks="SNS 알람 여부"/>
+        <setColumnRemarks tableName="service_center_alarm" columnName="time" remarks="알람 시간 여부"/>
+    </changeSet>
+
+    <!-- shopping_benefits_alarm 생성 -->
+    <changeSet id="changelog-0.03.23-240525" author="lchy0413">
+        <createTable tableName="shopping_benefits_alarm">
+            <column name="shopping_benefits_alarm_id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_alarm" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sns" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="shopping_benefits_alarm" columnName="user_id" remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="shopping_benefits_alarm" columnName="is_alarm" remarks="전체 알람 설정 여부"/>
+        <setColumnRemarks tableName="shopping_benefits_alarm" columnName="kakao" remarks="카카오 알람 여부"/>
+        <setColumnRemarks tableName="shopping_benefits_alarm" columnName="email" remarks="이메일 알람 여부"/>
+        <setColumnRemarks tableName="shopping_benefits_alarm" columnName="sns" remarks="SNS 알람 여부"/>
+        <setColumnRemarks tableName="shopping_benefits_alarm" columnName="time" remarks="알람 시간 여부"/>
+    </changeSet>
 </databaseChangeLog>
