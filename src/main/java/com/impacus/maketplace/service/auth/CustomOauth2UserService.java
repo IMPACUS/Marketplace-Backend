@@ -8,8 +8,8 @@ import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationExcepti
 import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.UserRepository;
-import com.impacus.maketplace.service.user.UserDetailService;
+import com.impacus.maketplace.repository.user.UserRepository;
+import com.impacus.maketplace.service.user.UserStatusInfoService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +37,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
     private final HttpSession httpSession;
     private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
+    private final UserStatusInfoService userStatusInfoService;
     private String oauthToken = "";
-    private final UserDetailService userDetailService;
 
     public static Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
         Map<String, Object> jwtClaims = new HashMap<>();
@@ -112,8 +112,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         if (!userList.isEmpty()) {
             user = userList.get(0);
             validateOauthProvider(user, oauthProviderType);
-
-            userRepository.save(user);
+            user = userRepository.save(user);
+            userStatusInfoService.addUserStatusInfo(user.getId());
         } else {
             user = addUser(attributes);
         }
@@ -136,7 +136,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private User addUser(OAuthAttributes attributes) {
         User newUser = attributes.toEntity();
         userRepository.save(newUser);
-        userDetailService.addUserDetail(newUser.getId());
         return newUser;
     }
 }

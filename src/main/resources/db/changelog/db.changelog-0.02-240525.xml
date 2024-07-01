@@ -4,107 +4,57 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="changelog-0.01.01-240525" author="lchy0413">
+    <changeSet id="changelog-0.02.01-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_info" columnName="is_cert_email"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="is_cert_email"/>
     </changeSet>
 
-    <changeSet id="changelog-0.01.02-240525" author="lchy0413">
+    <changeSet id="changelog-0.02.02-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_info" columnName="cert_email_date_time"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="cert_email_date_time"/>
     </changeSet>
 
-    <changeSet id="changelog-0.01.03-240525" author="lchy0413">
+    <changeSet id="changelog-0.02.03-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_info" columnName="is_cert_phone"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="is_cert_phone"/>
     </changeSet>
 
-    <changeSet id="changelog-0.01.04-240525" author="lchy0413">
+    <changeSet id="changelog-0.02.04-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_info" columnName="cert_phone_date_time"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="cert_phone_date_time"/>
     </changeSet>
 
-    <changeSet id="changelog-0.01.05-240525" author="lchy0413">
+    <changeSet id="changelog-0.02.05-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_info" columnName="selected_payment_method"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="selected_payment_method"/>
     </changeSet>
 
-    <changeSet id="changelog-0.01.06-240525" author="lchy0413">
+    <changeSet id="changelog-0.02.06-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_info" columnName="user_jumin2"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="user_jumin2"/>
     </changeSet>
 
-    <changeSet id="changelog-0.01.07-240525" author="lchy0413">
+    <changeSet id="changelog-0.02.07-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_info" columnName="pccc"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="pccc"/>
     </changeSet>
 
-    <!-- user_detail 테이블이 없으면 생성 -->
-    <changeSet id="changelog-0.01.08-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
-            <not>
-                <tableExists tableName="user_detail"/>
-            </not>
-        </preConditions>
-        <createTable tableName="user_detail">
-            <column name="user_detail_id" type="bigint" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="user_id" type="bigint">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="green_label_point" type="int" defaultValueNumeric="0"/>
-        </createTable>
-    </changeSet>
-
-    <!-- user_info 테이블의 type이 user인 데이터에 대해 user_detail 테이블에 레코드 생성 -->
-    <changeSet id="changelog-0.01.09-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
-            <tableExists tableName="user_info"/>
-            <tableExists tableName="user_detail"/>
-        </preConditions>
-        <sql>
-            INSERT INTO user_detail (user_id, green_label_point)
-            SELECT user_id, 0
-            FROM user_info
-            WHERE type IN ('ROLE_CERTIFIED_USER', 'ROLE_UNCERTIFIED_USER')
-              AND NOT EXISTS (SELECT 1
-                              FROM user_detail
-                              WHERE user_detail.user_id = user_info.user_id);
-        </sql>
-    </changeSet>
-
-    <!-- user_info 테이블에서 user_detail 테이블로 green_label_point 데이터를 복사 -->
-    <changeSet id="changelog-0.01.10-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
-            <tableExists tableName="user_info"/>
-            <tableExists tableName="user_detail"/>
-            <columnExists tableName="user_info" columnName="green_label_point"/>
-            <columnExists tableName="user_detail" columnName="user_id"/>
-        </preConditions>
-        <sql>
-            UPDATE user_detail
-            SET green_label_point = user_info.green_label_point FROM user_info
-            WHERE user_detail.user_id = user_info.user_id;
-        </sql>
-    </changeSet>
-
     <!-- user_info 테이블에서 green_label_point 컬럼 삭제 -->
-    <changeSet id="changelog-0.01.11-240525" author="lchy0413">
+    <changeSet id="changelog-0.02.08-240525" author="lchy0413">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_info" columnName="green_label_point"/>
         </preConditions>
