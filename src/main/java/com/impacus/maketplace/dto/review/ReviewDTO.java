@@ -18,6 +18,7 @@ public class ReviewDTO {
     private Long id; // 리뷰 인덱스 번호
     private Long orderId; // 주문 인덱스 번호
     private Long sellerId; // 판매자 인덱스 번호
+    private Long buyerId; // 구매자 인덱스 번호
     private Integer score; // 점수
     private String buyerContents; // 구매자 리뷰 내용
     private Long buyerUploadImgId; // 구매자 업로드 이미지 번호

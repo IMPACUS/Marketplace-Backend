@@ -26,6 +26,9 @@ public class Review {
     @Column(name = "seller_Id")
     private Long sellerId;
 
+    @Column(name = "buyer_Id")
+    private Long buyerId;
+
     @Column(name = "score")
     private Integer score;
 
