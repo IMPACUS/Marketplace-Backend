@@ -49,8 +49,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
          *     }
          */
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(review.orderId.eq(order.id));
-        builder.and(userEntity.id.eq(userEntity.id)); // 추가된 조건
+        builder.and(review.orderId.eq(orderId));
+        builder.and(review.buyerId.eq(userId)); // 추가된 조건
 
         List<ReviewBuyerDTO> reviewBuyerDTO = queryFactory.select(
                         new QReviewBuyerDTO(
