@@ -5,7 +5,7 @@ import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.BankCode;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -28,17 +28,16 @@ public class SellerAdjustmentInfo extends BaseEntity {
 
     @Convert(converter = AES256ToStringConverter.class)
     @Column(nullable = false)
+    @Comment("계좌 명")
     private String accountName;
 
     @Convert(converter = AES256ToStringConverter.class)
     @Column(nullable = false)
+    @Comment("계좌 번호")
     private String accountNumber;
 
     @Column(nullable = false)
-    private Long copyBankBookId; // 통장 사본 이미지 id
-
-    @ColumnDefault("'false'")
-    @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted; // 삭제 여부
+    @Comment("통장 사본 이미지 id")
+    private Long copyBankBookId;
 }
 
