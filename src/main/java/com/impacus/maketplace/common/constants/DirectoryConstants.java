@@ -14,4 +14,8 @@ public class DirectoryConstants {
 
     public static final String TEMPORARY_PRODUCT_IMAGE_DIRECTORY = "temporaryProductImage";
     public static final String TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY = "temporaryProductDescriptionImage";
+
+    // 구매자/판매자 리뷰 사진 추가/수정 시 사용
+    public static final String REVIEW_PRODUCT_IMAGE_DIRECTORY = "reviewProduct";
+
 }

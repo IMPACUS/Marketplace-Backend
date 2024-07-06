@@ -11,4 +11,8 @@ public class FileSizeConstants {
 
     public static final int SELLER_FILE_LIMIT = 5242880;
     public static final int LOGO_IMAGE_LIMIT = 187500;
+
+
+    // 리뷰 사용
+    public static final int REVIEW_PRODUCT_FILE_LIMIT = 5242880;
 }
