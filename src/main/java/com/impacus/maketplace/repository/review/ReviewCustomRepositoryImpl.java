@@ -35,7 +35,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
      * @return
      */
     @Override
-    public List<ReviewBuyerDTO> displayViewBuyerReview(Long userId, Long orderId) {
+    public List<ReviewBuyerDTO> displayViewBuyerReview(Long userId) {
         /**
          *     @QueryProjection
          *     public ReviewBuyerDTO(Long id, Long orderId, Integer score, String buyerContents,
@@ -49,7 +49,6 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
          *     }
          */
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(review.orderId.eq(orderId));
         builder.and(review.buyerId.eq(userId)); // 추가된 조건
 
         List<ReviewBuyerDTO> reviewBuyerDTO = queryFactory.select(
@@ -64,6 +63,27 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 ).from(review)
                 .where(builder)
                 .fetch();
+        return reviewBuyerDTO;
+    }
+
+    @Override
+    public ReviewBuyerDTO displayViewBuyerReviewOne(Long userId, Long orderId) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(review.orderId.eq(orderId));
+        builder.and(review.buyerId.eq(userId)); // 추가된 조건
+
+        ReviewBuyerDTO reviewBuyerDTO = queryFactory.select(
+                        new QReviewBuyerDTO(
+                                review.id,
+                                review.orderId,
+                                review.score,
+                                review.buyerContents,
+                                review.buyerUploadImgId,
+                                review.sellerComment
+                        )
+                ).from(review)
+                .where(builder)
+                .fetchOne();
         return reviewBuyerDTO;
     }
 }

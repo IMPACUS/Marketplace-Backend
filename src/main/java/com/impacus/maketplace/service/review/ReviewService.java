@@ -24,9 +24,14 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final AttachFileService attachFileService;
 
+    /**
+     * 구매자 관점 - 리스트 조회
+     * @param userId
+     * @return
+     */
     @Transactional(readOnly = true)
-    public List<ReviewBuyerDTO> displayBuyersReviewList(Long userId, Long orderId) {
-        return reviewRepository.displayViewBuyerReview(userId, orderId);
+    public List<ReviewBuyerDTO> displayBuyersReviewList(Long userId) {
+        return reviewRepository.displayViewBuyerReview(userId);
     }
 
     @Transactional
@@ -55,5 +60,16 @@ public class ReviewService {
         } catch (Exception e) {
             throw new CustomException(e);
         }
+    }
+
+    /**
+     * 리뷰 한개만 조회
+     * @param userId
+     * @param orderId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public ReviewBuyerDTO displayBuyersReviewOne(Long userId, Long orderId) {
+        return reviewRepository.displayViewBuyerReviewOne(userId, orderId);
     }
 }
