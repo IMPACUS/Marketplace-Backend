@@ -3,12 +3,17 @@ package com.impacus.maketplace.controller.review;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.review.ReviewBuyerDTO;
 import com.impacus.maketplace.dto.review.ReviewDTO;
+import com.impacus.maketplace.dto.review.ReviewSellerDTO;
 import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.service.review.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,10 +28,11 @@ public class ReviewController {
 
     /**
      * (1) 구매자 관점 조회 리스트
+     *
      * @param userId 구매자 번호
      * @return
      */
-    //    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("buyers-review-list")
     public ApiResponseEntity<?> displayBuyersReviewList(
             @RequestParam(value = "userId") Long userId
@@ -44,9 +50,10 @@ public class ReviewController {
      * (2) 구매자 관점 - 리뷰 등록
      *
      * @param productImage 이미지 파일
-     * @param form 리뷰 폼
+     * @param form         리뷰 폼
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("buyer-review")
     public ApiResponseEntity<Review> doWriteReview(
             @RequestPart("product-image") @Valid MultipartFile productImage,
@@ -63,11 +70,12 @@ public class ReviewController {
 
     /**
      * (3) 구매자 관점 상세 리뷰
-     * @param userId 구매자 번호
+     *
+     * @param userId  구매자 번호
      * @param orderId 주문 인덱스 번호 (생략 가능) - 판매자
      * @return
      */
-    //    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("buyers-review")
     public ApiResponseEntity<?> displayBuyersReviewOne(
             @RequestParam(value = "userId") Long userId,
@@ -81,5 +89,21 @@ public class ReviewController {
                 .data(reviewBuyerDTO)
                 .build();
     }
+
+//    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @GetMapping("seller-review-list")
+    public ApiResponseEntity<?> displayBuyersReviewList(
+            @PageableDefault(size=6) Pageable pageable,
+            @RequestParam(value = "userId") Long userId
+    ) {
+        Slice<ReviewSellerDTO> reviewSellerDTOS = reviewService.displaySellerReviewList(pageable, userId);
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .message("리뷰 리스트 조회 성공")
+                .data(reviewSellerDTOS)
+                .build();
+    }
+
 }
 
