@@ -80,10 +80,28 @@ public class ReviewService {
      * 판매자용 리뷰 리스트 작성
      * @param pageable
      * @param userId
+     * @Param search
      * @return
      */
     @Transactional(readOnly = true)
-    public Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId) {
-        return reviewRepository.displaySellerReviewList(pageable, userId);
+    public Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId, String search) {
+        return reviewRepository.displaySellerReviewList(pageable, userId, search);
+    }
+
+    /**
+     * 판미자용 리뷰 상세 중 답글 달기
+     * @param review
+     * @return
+     */
+    @Transactional
+    public Review writeSellerComment(Review review) {
+        Long id = review.getId();
+        String comment = review.getSellerComment();
+
+        Review newReview = reviewRepository.findById(id).orElse(null);
+        newReview.setSellerComment(comment);
+        newReview.setIsComment(true);
+        // 여기서 review 객체를 수정할 수 있습니다.
+        return reviewRepository.save(review);
     }
 }

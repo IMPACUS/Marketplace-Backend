@@ -18,5 +18,5 @@ public interface ReviewCustomRepository {
     ReviewBuyerDTO displayViewBuyerReviewOne(Long userId, Long orderId);
 
     // 판매자용 리스트 조회
-    Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId);
+    Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId, String search);
 }
