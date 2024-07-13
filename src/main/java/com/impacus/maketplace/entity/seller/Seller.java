@@ -6,10 +6,11 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
-@Table(name = "seller_info")
+@Table(name = "seller")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Seller extends BaseEntity {
@@ -23,10 +24,12 @@ public class Seller extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private EntryStatus entryStatus; // 입점 상태
+    @Comment("입점 상태")
+    private EntryStatus entryStatus;
 
     @Column(nullable = false)
-    private String contactName; // 판매 담당자 이름
+    @Comment("판매 담당자 이름")
+    private String contactName;
 
     @Column(nullable = false)
     private String marketName;
@@ -34,19 +37,23 @@ public class Seller extends BaseEntity {
     @Column(nullable = false)
     private Long logoImageId;
 
-    private String customerServiceNumber; // 고객센터 전화 번호
+    @Comment("고객센터 전화 번호")
+    private String customerServiceNumber;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private BusinessType businessType; // 사업자 구분
+    @Comment("사업자 구분")
+    private BusinessType businessType;
 
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted; // 삭제 여부
+    @Comment("삭제 여부")
+    private boolean isDeleted; //
 
     @ColumnDefault("0")
     @Column(nullable = false, name = "charge_percent")
-    private int chargePercent; // 수수료 비율
+    @Comment("수수료 비율")
+    private int chargePercent;
 
     @Builder
     public Seller(Long userId,
