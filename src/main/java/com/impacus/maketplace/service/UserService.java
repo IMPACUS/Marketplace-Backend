@@ -11,6 +11,7 @@ import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
+import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
@@ -440,4 +441,8 @@ public class UserService {
         userRepository.updateUserType(userId, userType);
     }
 
+    public CheckExistedEmailDTO checkExistedEmailForSeller(String email) {
+        boolean isExited = existUserByEmail(email);
+        return CheckExistedEmailDTO.toDTO(isExited);
+    }
 }
