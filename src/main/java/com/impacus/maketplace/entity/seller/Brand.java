@@ -1,18 +1,11 @@
 package com.impacus.maketplace.entity.seller;
 
 import com.impacus.maketplace.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.time.LocalTime;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.Comment;
+
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -48,4 +41,21 @@ public class Brand extends BaseEntity {
   @Column(nullable = false)
   @Comment("점심 시간")
   private String breakingTime;
+
+  @Builder
+  public Brand(
+          Long sellerId,
+          String introduction,
+          LocalTime openingTime,
+          LocalTime closingTime,
+          String businessDay,
+          String breakingTime
+  ) {
+    this.sellerId = sellerId;
+    this.introduction = introduction;
+    this.openingTime = openingTime;
+    this.closingTime = closingTime;
+    this.businessDay = businessDay;
+    this.breakingTime = breakingTime;
+  }
 }
