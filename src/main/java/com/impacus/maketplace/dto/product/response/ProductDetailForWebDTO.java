@@ -10,6 +10,7 @@ import java.util.Set;
 
 @Data
 public class ProductDetailForWebDTO {
+    private Long id;
     private String name;
     private DeliveryType deliveryType;
     private Long categoryId;

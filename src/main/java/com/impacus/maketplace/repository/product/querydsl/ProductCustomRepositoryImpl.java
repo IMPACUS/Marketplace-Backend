@@ -25,6 +25,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.querydsl.core.types.ExpressionUtils.count;
@@ -67,20 +68,39 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         }
 
         // 2. 전체 데이터 조회
-        List<ProductForWebDTO> products = getProductDTO(builder, pageable);
+        List<ProductForWebDTO> duplicatedProducts = getProductDTO(builder);
 
-        // 3. 검색어 조회
+        // 3. 데이터 중복 제거 (set 사용하는 경우 중복 제거 필요)
+        List<ProductForWebDTO> products = removeDuplicatedProductsForWeb(duplicatedProducts);
+
+        // 4. 검색어 조회
         if (keyword != null && !keyword.isBlank()) {
             products = filterProductForWebDTOByKeyword(keyword, products);
         }
 
-        // 4. 페이징 처리
+        // 5. 페이징 처리
         long count = products.size();
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), products.size());
         List<ProductForWebDTO> paginatedProducts = count < start ? new ArrayList<>() : products.subList(start, end);
 
         return new PageImpl<>(paginatedProducts, pageable, count);
+    }
+
+    private List<ProductForWebDTO> removeDuplicatedProductsForWeb(List<ProductForWebDTO> products) {
+        // Using Stream API to remove duplicates
+        Map<Long, ProductForWebDTO> productMap = products.stream()
+                .collect(Collectors.toMap(
+                        ProductForWebDTO::getId,
+                        Function.identity(),
+                        (existing, replacement) -> {
+                            existing.getOptions().addAll(replacement.getOptions());
+                            existing.getProductImageList().addAll(replacement.getProductImageList());
+                            return existing;
+                        }
+                ));
+
+        return new ArrayList<>(productMap.values());
     }
 
     private List<ProductForWebDTO> filterProductForWebDTOByKeyword(String keyword, List<ProductForWebDTO> products) {
@@ -113,7 +133,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
 
-    private List<ProductForWebDTO> getProductDTO(BooleanBuilder builder, Pageable pageable) {
+    private List<ProductForWebDTO> getProductDTO(BooleanBuilder builder) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
@@ -269,7 +289,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
 
-        List<ProductDetailForWebDTO> dtos =
+        List<ProductDetailForWebDTO> duplicatedProducts =
                 queryFactory
                         .selectFrom(product)
                         .leftJoin(productDetailInfo).on(productDetailInfo.productId.eq(product.id))
@@ -282,6 +302,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                         .where(productBuilder)
                         .transform(GroupBy.groupBy(product.id).list(Projections.fields(
                                                 ProductDetailForWebDTO.class,
+                                        product.id,
                                                 product.name,
                                                 product.categoryId,
                                                 product.deliveryType,
@@ -310,7 +331,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                                 productOption.color,
                                                                 productOption.size
                                                         )
-
                                                 ).as("productOptions"),
                                                 GroupBy.set(
                                                         Projections.constructor(
@@ -330,7 +350,25 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         );
 
-        return dtos.isEmpty() ? null : dtos.get(0);
+        List<ProductDetailForWebDTO> products = removeDuplicatedProductDetailsForWeb(duplicatedProducts);
+
+        return products.isEmpty() ? null : products.get(0);
+    }
+
+    private List<ProductDetailForWebDTO> removeDuplicatedProductDetailsForWeb(List<ProductDetailForWebDTO> products) {
+        // Using Stream API to remove duplicates
+        Map<Long, ProductDetailForWebDTO> productMap = products.stream()
+                .collect(Collectors.toMap(
+                        ProductDetailForWebDTO::getId,
+                        Function.identity(),
+                        (existing, replacement) -> {
+                            existing.getProductOptions().addAll(replacement.getProductOptions());
+                            existing.getProductImageList().addAll(replacement.getProductImageList());
+                            return existing;
+                        }
+                ));
+
+        return new ArrayList<>(productMap.values());
     }
 
     @Override
