@@ -121,7 +121,7 @@
   </changeSet>
 
   <!-- selected_seller_delivery_address 생성 -->
-  <changeSet author="lchy0413" id="changelog-0.05.02-240713">
+  <changeSet author="lchy0413" id="changelog-0.05.03-240713">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="selected_seller_delivery_address"/>
@@ -154,7 +154,7 @@
   </changeSet>
 
   <!-- seller_delivery_company 생성 -->
-  <changeSet author="lchy0413" id="changelog-0.05.03-240713">
+  <changeSet author="lchy0413" id="changelog-0.05.04-240713">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="seller_delivery_company"/>
@@ -201,9 +201,8 @@
   </changeSet>
 
   <!-- selected_seller_delivery_company 생성 -->
-  <changeSet author="lchy0413" id="changelog-0.05.04-240713">
+  <changeSet author="lchy0413" id="changelog-0.05.05-240713">
 
-    <createTable tableName="selected_seller_delivery_address">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="selected_seller_delivery_company"/>
