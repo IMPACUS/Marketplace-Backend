@@ -145,4 +145,82 @@ public class SellerController {
                 .data(result)
                 .build();
     }
+
+    /**
+     * 판매자 스토어 정보 변경
+     * @param request
+     * @return
+     */
+    @PatchMapping("/brand")
+    public ApiResponseEntity<?> updateBrandInformation(@Valid @RequestBody EmailVerificationRequest request) {
+        return ApiResponseEntity
+            .builder()
+            .data(true)
+            .build();
+    }
+
+    /**
+     * 판매자 담당자 정보 변경
+     * @param request
+     * @return
+     */
+    @PatchMapping("/manager")
+    public ApiResponseEntity<?> updateManagerInformation(@Valid @RequestBody EmailVerificationRequest request) {
+        return ApiResponseEntity
+            .builder()
+            .data(true)
+            .build();
+    }
+
+    /**
+     * 판매자 정산 정보 변경
+     * @param request
+     * @return
+     */
+    @PatchMapping("/adjustment")
+    public ApiResponseEntity<?> updateAdjustmentInformation(@Valid @RequestBody EmailVerificationRequest request) {
+        return ApiResponseEntity
+            .builder()
+            .data(true)
+            .build();
+    }
+
+    /**
+     * 판매자 로그인 정보 변경
+     * @param request
+     * @return
+     */
+    @PatchMapping("/login")
+    public ApiResponseEntity<?> updateLoginInformation(@Valid @RequestBody EmailVerificationRequest request) {
+        return ApiResponseEntity
+            .builder()
+            .data(true)
+            .build();
+    }
+
+    /**
+     * 판매자 택배사 정보 변경
+     * @param request
+     * @return
+     */
+    @PatchMapping("/delivery-company")
+    public ApiResponseEntity<?> updateDeliveryCompanyInformation(@Valid @RequestBody EmailVerificationRequest request) {
+        return ApiResponseEntity
+            .builder()
+            .data(true)
+            .build();
+    }
+
+    /**
+     * 판매자 배송지 정보 변경
+     * @param request
+     * @return
+     */
+    @PatchMapping("/delivery-address")
+    public ApiResponseEntity<?> updateDeliveryAddressInformation(@Valid @RequestBody EmailVerificationRequest request) {
+        return ApiResponseEntity
+            .builder()
+            .data(true)
+            .build();
+    }
 }
