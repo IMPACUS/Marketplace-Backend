@@ -313,6 +313,11 @@
 
     <!-- brand_shop_alarm 생성 -->
     <changeSet id="changelog-0.03.18-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="brand_shop_alarm"/>
+            </not>
+        </preConditions>
         <createTable tableName="brand_shop_alarm">
             <column name="brand_shop_alarm_id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
@@ -357,6 +362,11 @@
 
     <!-- order_delivery_alarm 생성 -->
     <changeSet id="changelog-0.03.19-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="order_delivery_alarm"/>
+            </not>
+        </preConditions>
         <createTable tableName="order_delivery_alarm">
             <column name="order_delivery_alarm_id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
@@ -401,6 +411,11 @@
 
     <!-- restock_alarm 생성 -->
     <changeSet id="changelog-0.03.20-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="restock_alarm"/>
+            </not>
+        </preConditions>
         <createTable tableName="restock_alarm">
             <column name="restock_alarm_id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
@@ -445,6 +460,11 @@
 
     <!-- review_alarm 생성 -->
     <changeSet id="changelog-0.03.21-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="review_alarm"/>
+            </not>
+        </preConditions>
         <createTable tableName="review_alarm">
             <column name="review_alarm_id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
@@ -489,6 +509,11 @@
 
     <!-- service_center_alarm 생성 -->
     <changeSet id="changelog-0.03.22-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="service_center_alarm"/>
+            </not>
+        </preConditions>
         <createTable tableName="service_center_alarm">
             <column name="service_center_alarm_id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
@@ -533,6 +558,11 @@
 
     <!-- shopping_benefits_alarm 생성 -->
     <changeSet id="changelog-0.03.23-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="shopping_benefits_alarm"/>
+            </not>
+        </preConditions>
         <createTable tableName="shopping_benefits_alarm">
             <column name="shopping_benefits_alarm_id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
