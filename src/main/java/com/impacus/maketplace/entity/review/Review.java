@@ -49,4 +49,7 @@ public class Review {
 
     @Column(name = "archive_at")
     private ZonedDateTime archiveAt;
+
+    @Column(name = "is_comment")
+    private Boolean isComment;
 }

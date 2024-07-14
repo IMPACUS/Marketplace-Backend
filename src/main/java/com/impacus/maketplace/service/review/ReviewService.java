@@ -7,11 +7,14 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.review.ReviewBuyerDTO;
 import com.impacus.maketplace.dto.review.ReviewDTO;
+import com.impacus.maketplace.dto.review.ReviewSellerDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.repository.review.ReviewRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,5 +74,16 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public ReviewBuyerDTO displayBuyersReviewOne(Long userId, Long orderId) {
         return reviewRepository.displayViewBuyerReviewOne(userId, orderId);
+    }
+
+    /**
+     * 판매자용 리뷰 리스트 작성
+     * @param pageable
+     * @param userId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId) {
+        return reviewRepository.displaySellerReviewList(pageable, userId);
     }
 }
