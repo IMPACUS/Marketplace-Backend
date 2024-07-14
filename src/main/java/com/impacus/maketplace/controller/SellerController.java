@@ -26,8 +26,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import security.CustomUserDetails;
 
 import java.time.LocalDate;
 
@@ -153,23 +155,6 @@ public class SellerController {
     }
 
     /**
-     * 판매자 스토어 정보 변경
-     * @param dto
-     * @return
-     */
-    @PatchMapping("/brand")
-    public ApiResponseEntity<Boolean> updateBrandInformation(
-            @Valid @RequestPart(value = "seller") ChangeBrandInfoDTO dto,
-            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage
-    ) {
-        sellerWriteService.updateBrandInformation(dto, logoImage);
-        return ApiResponseEntity.<Boolean>builder()
-                .message("판매자 스토어 정보 변경 성공")
-            .data(true)
-            .build();
-    }
-
-    /**
      * 판매자 등록 이메일 중 요청한 이메일이 중복인지 확인
      *
      * @param email
@@ -186,10 +171,30 @@ public class SellerController {
     }
 
     /**
+     * 판매자 스토어 정보 변경
+     * @param dto
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PatchMapping("/brand")
+    public ApiResponseEntity<Boolean> updateBrandInformation(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestPart(value = "seller") ChangeBrandInfoDTO dto,
+            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage
+    ) {
+        sellerWriteService.updateBrandInformation(user.getId(), dto, logoImage);
+        return ApiResponseEntity.<Boolean>builder()
+                .message("판매자 스토어 정보 변경 성공")
+            .data(true)
+            .build();
+    }
+
+    /**
      * 판매자 담당자 정보 변경
      * @param dto
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/manager")
     public ApiResponseEntity<?> updateManagerInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
@@ -203,6 +208,7 @@ public class SellerController {
      * @param dto
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/adjustment")
     public ApiResponseEntity<?> updateAdjustmentInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
@@ -216,6 +222,7 @@ public class SellerController {
      * @param dto
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/login")
     public ApiResponseEntity<?> updateLoginInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
@@ -229,6 +236,7 @@ public class SellerController {
      * @param dto
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/delivery-company")
     public ApiResponseEntity<?> updateDeliveryCompanyInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
@@ -242,6 +250,7 @@ public class SellerController {
      * @param dto
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/delivery-address")
     public ApiResponseEntity<?> updateDeliveryAddressInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
