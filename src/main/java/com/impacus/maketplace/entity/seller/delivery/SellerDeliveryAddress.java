@@ -2,12 +2,7 @@ package com.impacus.maketplace.entity.seller.delivery;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.BankCode;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -53,7 +48,7 @@ public class SellerDeliveryAddress extends BaseEntity {
   private String refundBusinessName;
 
   @Column(nullable = false)
-  @Comment("반품 배송비 계쫘")
+  @Comment("반품 배송비 계좌")
   private String refundAccountNumber;
 
   @Column(nullable = false)

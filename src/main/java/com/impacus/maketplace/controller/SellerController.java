@@ -6,15 +6,19 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
+import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.seller.SellerService;
+import com.impacus.maketplace.service.seller.SellerWriteService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -33,6 +38,7 @@ import java.time.LocalDate;
 public class SellerController {
     private final SellerService sellerService;
     private final UserService userService;
+    private final SellerWriteService sellerWriteService;
 
     /**
      * 판매자 입점 현황 데이터를 조회하는 API
@@ -148,24 +154,44 @@ public class SellerController {
 
     /**
      * 판매자 스토어 정보 변경
-     * @param request
+     * @param dto
      * @return
      */
     @PatchMapping("/brand")
-    public ApiResponseEntity<?> updateBrandInformation(@Valid @RequestBody EmailVerificationRequest request) {
-        return ApiResponseEntity
-            .builder()
+    public ApiResponseEntity<Boolean> updateBrandInformation(
+            @Valid @RequestPart(value = "seller") ChangeBrandInfoDTO dto,
+            @RequestPart(value = "logoImage", required = false) MultipartFile logoImage
+    ) {
+        sellerWriteService.updateBrandInformation(dto, logoImage);
+        return ApiResponseEntity.<Boolean>builder()
+                .message("판매자 스토어 정보 변경 성공")
             .data(true)
             .build();
     }
 
     /**
+     * 판매자 등록 이메일 중 요청한 이메일이 중복인지 확인
+     *
+     * @param email
+     * @return
+     */
+    @GetMapping("/email")
+    public ApiResponseEntity<CheckExistedEmailDTO> checkDuplicatedEmail(
+            @Valid @Email @RequestParam(value = "email") String email
+    ) {
+        CheckExistedEmailDTO dto = userService.checkExistedEmailForSeller(email);
+        return ApiResponseEntity.<CheckExistedEmailDTO>builder()
+                .data(dto)
+                .build();
+    }
+
+    /**
      * 판매자 담당자 정보 변경
-     * @param request
+     * @param dto
      * @return
      */
     @PatchMapping("/manager")
-    public ApiResponseEntity<?> updateManagerInformation(@Valid @RequestBody EmailVerificationRequest request) {
+    public ApiResponseEntity<?> updateManagerInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
             .builder()
             .data(true)
@@ -174,11 +200,11 @@ public class SellerController {
 
     /**
      * 판매자 정산 정보 변경
-     * @param request
+     * @param dto
      * @return
      */
     @PatchMapping("/adjustment")
-    public ApiResponseEntity<?> updateAdjustmentInformation(@Valid @RequestBody EmailVerificationRequest request) {
+    public ApiResponseEntity<?> updateAdjustmentInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
             .builder()
             .data(true)
@@ -187,11 +213,11 @@ public class SellerController {
 
     /**
      * 판매자 로그인 정보 변경
-     * @param request
+     * @param dto
      * @return
      */
     @PatchMapping("/login")
-    public ApiResponseEntity<?> updateLoginInformation(@Valid @RequestBody EmailVerificationRequest request) {
+    public ApiResponseEntity<?> updateLoginInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
             .builder()
             .data(true)
@@ -200,11 +226,11 @@ public class SellerController {
 
     /**
      * 판매자 택배사 정보 변경
-     * @param request
+     * @param dto
      * @return
      */
     @PatchMapping("/delivery-company")
-    public ApiResponseEntity<?> updateDeliveryCompanyInformation(@Valid @RequestBody EmailVerificationRequest request) {
+    public ApiResponseEntity<?> updateDeliveryCompanyInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
             .builder()
             .data(true)
@@ -213,11 +239,11 @@ public class SellerController {
 
     /**
      * 판매자 배송지 정보 변경
-     * @param request
+     * @param dto
      * @return
      */
     @PatchMapping("/delivery-address")
-    public ApiResponseEntity<?> updateDeliveryAddressInformation(@Valid @RequestBody EmailVerificationRequest request) {
+    public ApiResponseEntity<?> updateDeliveryAddressInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
             .builder()
             .data(true)

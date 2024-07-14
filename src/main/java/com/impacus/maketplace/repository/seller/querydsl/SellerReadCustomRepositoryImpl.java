@@ -26,7 +26,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class SellerCustomRepositoryImpl implements SellerCustomRepository {
+public class SellerReadCustomRepositoryImpl implements SellerReadCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QSeller seller = QSeller.seller;
     private final QUser user = QUser.user;
