@@ -2,11 +2,13 @@ package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerLoginInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.entity.seller.QBrand;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.seller.QSellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.QSellerBusinessInfo;
+import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -24,6 +26,7 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
     private final QSellerBusinessInfo sellerBusinessInfo = QSellerBusinessInfo.sellerBusinessInfo;
     private final QBrand brand = QBrand.brand;
     private final QSellerAdjustmentInfo sellerAdjustmentInfo = QSellerAdjustmentInfo.sellerAdjustmentInfo;
+    private final QUser user = QUser.user;
 
     @Override
     public void updateBrandInformationByUserId(
@@ -70,7 +73,7 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
     }
 
     @Override
-    public void updateManagerInformationByUserId(Long sellerId, ChangeSellerManagerInfoDTO dto) {
+    public void updateManagerInformationBySellerId(Long sellerId, ChangeSellerManagerInfoDTO dto) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
         // seller_business_info 데이터 업데이트
@@ -87,7 +90,7 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
     }
 
     @Override
-    public void updateAdjustmentInformationByUserId(Long sellerId, ChangeSellerAdjustmentInfoDTO dto) {
+    public void updateAdjustmentInformationBySellerId(Long sellerId, ChangeSellerAdjustmentInfoDTO dto) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
         // seller_adjustment_info 데이터 업데이트
@@ -99,6 +102,22 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
                 .set(sellerAdjustmentInfo.modifyAt, LocalDateTime.now())
                 .set(sellerAdjustmentInfo.modifyId, currentAuditor)
                 .where(sellerAdjustmentInfo.sellerId.eq(sellerId))
+                .execute();
+    }
+
+    @Override
+    public void updateLoginInformationByUserId(Long userId, ChangeSellerLoginInfoDTO dto, String encodedPassword) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        // 로그인 정보 변경
+        queryFactory
+                .update(user)
+                .set(user.email, dto.getEmail())
+                .set(user.password, encodedPassword)
+                .set(user.phoneNumber, dto.getPhoneNumber())
+                .set(user.modifyAt, LocalDateTime.now())
+                .set(user.modifyId, currentAuditor)
+                .where(user.id.eq(userId))
                 .execute();
     }
 }

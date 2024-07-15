@@ -4,8 +4,10 @@ import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerLoginInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -13,6 +15,7 @@ import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
 import com.impacus.maketplace.repository.seller.BrandRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,7 @@ public class SellerWriteService {
     private final BrandService brandService;
     private final SellerBusinessInfoService sellerBusinessInfoService;
     private final SellerAdjustmentInfoService sellerAdjustmentInfoService;
+    private final UserService userService;
 
     /**
      * 판매자 스토어 정보 변경 함수
@@ -91,7 +95,7 @@ public class SellerWriteService {
             );
 
             // 2. 담당자 정보 변경
-            sellerRepository.updateManagerInformationByUserId(sellerId, dto);
+            sellerRepository.updateManagerInformationBySellerId(sellerId, dto);
 
             // 3. 사업자 등록 번호 사본 변경
             Long copyBusinessRegistrationCertificateId = sellerBusinessInfo.getCopyBusinessRegistrationCertificateId();
@@ -154,7 +158,7 @@ public class SellerWriteService {
             SellerAdjustmentInfo adjustmentInfo = sellerAdjustmentInfoService.findSellerAdjustmentInfoBySellerId(sellerId);
 
             // 2. 정산 정보 변경
-            sellerRepository.updateAdjustmentInformationByUserId(sellerId, dto);
+            sellerRepository.updateAdjustmentInformationBySellerId(sellerId, dto);
 
             // 3. 통장 사본 이미지 변경
             Long copyBankBookId = adjustmentInfo.getCopyBankBookId();
@@ -174,9 +178,16 @@ public class SellerWriteService {
      * @param dto
      */
     @Transactional
-    public void updateLoginInformation(ChangeBrandInfoDTO dto, MultipartFile logoImage) {
+    public void updateLoginInformation(Long userId, ChangeSellerLoginInfoDTO dto) {
         try {
+            // 1. 유효성 검사
+            if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(dto.getNewPassword()))) {
+                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+            }
 
+            // 2. 판매자 로그인 정보 변경
+            String encodedPassword = userService.encodePassword(dto.getNewPassword());
+            sellerRepository.updateLoginInformationByUserId(userId, dto, encodedPassword);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
