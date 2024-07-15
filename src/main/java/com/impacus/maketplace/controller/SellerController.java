@@ -8,10 +8,7 @@ import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
+import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
@@ -247,9 +244,14 @@ public class SellerController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/login")
-    public ApiResponseEntity<?> updateLoginInformation(@Valid @RequestBody EmailVerificationRequest dto) {
+    public ApiResponseEntity<Boolean> updateLoginInformation(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody ChangeSellerLoginInfoDTO dto
+    ) {
+        sellerWriteService.updateLoginInformation(user.getId(), dto);
         return ApiResponseEntity
                 .<Boolean>builder()
+                .message("판매자 로그인 정보 변경 성공")
                 .data(true)
                 .build();
     }
