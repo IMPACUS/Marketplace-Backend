@@ -101,6 +101,9 @@ public class User extends BaseEntity {
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.type = userType;
+        this.certEmailAt = LocalDateTime.now();
+        this.certPhoneAt = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     public void setRecentLoginAt() {
