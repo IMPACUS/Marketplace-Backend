@@ -35,17 +35,14 @@
       <column name="breaking_time" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
+
       <column name="create_at" type="TIMESTAMP">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_at" type="TIMESTAMP">
-        <constraints nullable="true"/>
       </column>
       <column name="register_id" type="VARCHAR(255)">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_id" type="VARCHAR(255)">
-        <constraints nullable="true"/>
       </column>
     </createTable>
 
@@ -98,17 +95,14 @@
       <column name="refund_bank_code" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
+
       <column name="create_at" type="TIMESTAMP">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_at" type="TIMESTAMP">
-        <constraints nullable="true"/>
       </column>
       <column name="register_id" type="VARCHAR(255)">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_id" type="VARCHAR(255)">
-        <constraints nullable="true"/>
       </column>
     </createTable>
 
@@ -141,17 +135,14 @@
       <column name="seller_delivery_address_id" type="BIGINT">
         <constraints nullable="false"/>
       </column>
+
       <column name="create_at" type="TIMESTAMP">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_at" type="TIMESTAMP">
-        <constraints nullable="true"/>
       </column>
       <column name="register_id" type="VARCHAR(255)">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_id" type="VARCHAR(255)">
-        <constraints nullable="true"/>
       </column>
     </createTable>
   </changeSet>
@@ -183,17 +174,14 @@
       <column name="refund_special_delivery_fee" type="INT">
         <constraints nullable="false"/>
       </column>
+      
       <column name="create_at" type="TIMESTAMP">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_at" type="TIMESTAMP">
-        <constraints nullable="true"/>
       </column>
       <column name="register_id" type="VARCHAR(255)">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_id" type="VARCHAR(255)">
-        <constraints nullable="true"/>
       </column>
     </createTable>
 

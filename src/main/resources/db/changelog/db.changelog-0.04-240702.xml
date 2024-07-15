@@ -50,16 +50,12 @@
             </column>
 
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="true"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
         </createTable>
 
@@ -99,16 +95,12 @@
             </column>
 
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="true"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
         </createTable>
 
