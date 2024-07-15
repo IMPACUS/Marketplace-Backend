@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.entity.seller.QBrand;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.seller.QSellerBusinessInfo;
@@ -53,5 +54,18 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
                     .where(brand.sellerId.eq(sellerId))
                     .execute();
         }
+    }
+
+    @Override
+    public void updateManagerInformationByUserId(Long sellerId, ChangeSellerManagerInfoDTO dto) {
+        // seller_business_info 데이터 업데이트
+        queryFactory
+                .update(sellerBusinessInfo)
+                .set(sellerBusinessInfo.representativeName, dto.getRepresentativeName())
+                .set(sellerBusinessInfo.businessAddress, dto.getAddress())
+                .set(sellerBusinessInfo.businessRegistrationNumber, dto.getBusinessRegistrationNumber())
+                .set(sellerBusinessInfo.mailOrderBusinessReportNumber, dto.getMailOrderBusinessReportNumber())
+                .where(sellerBusinessInfo.sellerId.eq(sellerId))
+                .execute();
     }
 }
