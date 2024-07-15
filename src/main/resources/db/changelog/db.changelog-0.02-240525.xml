@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.02.01-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="is_cert_email"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="is_cert_email"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.02.02-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="cert_email_date_time"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="cert_email_date_time"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.02.03-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="is_cert_phone"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="is_cert_phone"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.02.04-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="cert_phone_date_time"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="cert_phone_date_time"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.02.05-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="selected_payment_method"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="selected_payment_method"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.02.06-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="user_jumin2"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="user_jumin2"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.02.07-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="pccc"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="pccc"/>
+    </changeSet>
+
+    <!-- user_info 테이블에서 green_label_point 컬럼 삭제 -->
+    <changeSet id="changelog-0.02.08-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_info" columnName="green_label_point"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="green_label_point"/>
+    </changeSet>
+
+</databaseChangeLog>

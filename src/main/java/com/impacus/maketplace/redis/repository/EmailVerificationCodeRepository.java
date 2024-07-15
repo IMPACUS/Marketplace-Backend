@@ -1,11 +1,12 @@
 package com.impacus.maketplace.redis.repository;
 
+import com.impacus.maketplace.redis.entity.EmailVerificationCode;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import com.impacus.maketplace.redis.entity.EmailVerificationCode;
-
+@Repository
 public interface EmailVerificationCodeRepository extends JpaRepository<EmailVerificationCode, String> {
     Optional<EmailVerificationCode> findByEmail(String email);
 

@@ -1,26 +1,23 @@
 package com.impacus.maketplace.controller.product;
 
-import java.util.List;
-
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.wishlist.request.CreateWishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
 import com.impacus.maketplace.service.product.WishlistService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import security.CustomUserDetails;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -29,7 +26,6 @@ import security.CustomUserDetails;
 public class WishlistController {
     private final WishlistService wishlistService;
 
-
     /**
      * 새로운 찜 데이터를 추가하는 API
      *
@@ -37,13 +33,14 @@ public class WishlistController {
      * @param wishlistRequest
      * @return
      */
-    @PostMapping("/user")
-    public ApiResponseEntity<Object> addWishlist(
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("")
+    public ApiResponseEntity<WishlistDTO> addWishlist(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CreateWishlistDTO wishlistRequest) {
         WishlistDTO wishlistDTO = wishlistService.addWishlist(user.getId(), wishlistRequest);
         return ApiResponseEntity
-                .builder()
+                .<WishlistDTO>builder()
                 .data(wishlistDTO)
                 .build();
     }
@@ -54,11 +51,13 @@ public class WishlistController {
      * @param wishlistIdList
      * @return
      */
-    @DeleteMapping("/user")
-    public ApiResponseEntity<Object> deleteWishlist(@RequestParam(name = "wishlist-id") List<Long> wishlistIdList) {
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @DeleteMapping("")
+    public ApiResponseEntity<Boolean> deleteWishlist(@RequestParam(name = "wishlist-id") List<Long> wishlistIdList) {
         wishlistService.deleteAllWishlist(wishlistIdList);
         return ApiResponseEntity
-                .builder()
+                .<Boolean>builder()
+                .data(true)
                 .build();
     }
 
@@ -68,11 +67,14 @@ public class WishlistController {
      * @param user
      * @return
      */
-    @GetMapping("/user")
-    public ApiResponseEntity<Object> getWishlist(@AuthenticationPrincipal CustomUserDetails user) {
-        List<WishlistDetailDTO> wishlistDetailDTOS = wishlistService.getAllWishlist(user.getId());
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("")
+    public ApiResponseEntity<Slice<WishlistDetailDTO>> getWishlist(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Slice<WishlistDetailDTO> wishlistDetailDTOS = wishlistService.getAllWishlist(user.getId(), pageable);
         return ApiResponseEntity
-                .builder()
+                .<Slice<WishlistDetailDTO>>builder()
                 .data(wishlistDetailDTOS)
                 .build();
     }

@@ -1,10 +1,11 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.product.request.CreateProductOptionDTO;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
+import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class ProductOptionService {
 
     private final ProductOptionRepository productOptionRepository;
+    private final ShoppingBasketRepository shoppingBasketRepository;
 
 
     /**
@@ -70,7 +72,7 @@ public class ProductOptionService {
     }
 
     /**
-     * productId와 연결된 모든 ProductOption을 삭제하는 함수
+     * productId와 연결된 모든 ProductOption 을 삭제하는 함수
      *
      * @param productId
      */
@@ -82,11 +84,13 @@ public class ProductOptionService {
     }
 
     /**
-     * productOption 데이터를 모두 삭제하는 함수
+     * productOption 데이터와 연결된 Shopping cart 데이터를 모두 삭제하는 함수
      *
      * @param productOptions
      */
     public void deleteAllProductOption(List<ProductOption> productOptions) {
+        List<Long> productOptionIds = productOptions.stream().map(ProductOption::getId).toList();
+        shoppingBasketRepository.deleteByProductOptionId(productOptionIds);
         productOptionRepository.deleteAllInBatch(productOptions);
     }
 
@@ -117,7 +121,7 @@ public class ProductOptionService {
 
                 if (modifiedData == null) {
                     // 생성
-                    throw new CustomException(CommonErrorType.NOT_EXISTED_PRODUCT_OPTION);
+                    throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT_OPTION);
                 } else {
                     // 수정
                     modifiedData.setColor(productOptionRequest.getColor());

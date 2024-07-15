@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.seller.querydsl.SellerCustomRepository;
 import io.lettuce.core.dynamic.annotation.Param;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +24,7 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, SellerCus
 
     boolean existsByUserId(Long userId);
 
+    @Transactional
     @Modifying
     @Query("UPDATE Seller s SET s.entryStatus = :entryStatus, s.chargePercent = :chargePercent WHERE s.id = :id")
     int updateSellerEntryStatusAndChargePercent(

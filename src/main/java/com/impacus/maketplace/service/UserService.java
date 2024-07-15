@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
@@ -8,17 +7,21 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
-import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
+import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.entity.user.UserStatusInfo;
 import com.impacus.maketplace.redis.entity.EmailVerificationCode;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
-import com.impacus.maketplace.repository.UserRepository;
+import com.impacus.maketplace.repository.user.UserRepository;
+import com.impacus.maketplace.service.admin.AdminService;
+import com.impacus.maketplace.service.user.UserStatusInfoService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +52,8 @@ public class UserService {
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
     private final EmailVerificationCodeService emailVerificationCodeService;
+    private final AdminService adminService;
+    private final UserStatusInfoService userStatusInfoService;
 
 
     @Transactional
@@ -75,12 +77,12 @@ public class UserService {
                 throw new CustomException(CommonErrorType.INVALID_PASSWORD);
             }
 
-            // 3. User 데이터 생성 및 저장
+            // 3. User&UserStatus 생성 및 저장
             User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
                     encodePassword(password),
                     signUpRequest.getName());
             userRepository.save(user);
-
+            userStatusInfoService.addUserStatusInfo(user.getId());
 
             // 5. UserDTO 반환
             return new UserDTO(user);
@@ -115,6 +117,13 @@ public class UserService {
         return (!findUserList.isEmpty()) ? findUserList.get(0) : null;
     }
 
+    /**
+     * (소비자, 판매자) 로그인 함수
+     *
+     * @param loginRequest
+     * @param userType
+     * @return
+     */
     @Transactional(noRollbackFor = CustomException.class)
     public UserDTO login(LoginDTO loginRequest, UserType userType) {
         String email = loginRequest.getEmail();
@@ -130,6 +139,8 @@ public class UserService {
             }
 
             // 3. 비밀번호 확인
+            // 3-1. 틀린 경우: 틀린 횟수 추가
+            // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
 
@@ -151,6 +162,51 @@ public class UserService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * (관리자) 로그인 함수
+     *
+     * @param dto
+     * @return
+     */
+    @Transactional(noRollbackFor = CustomException.class)
+    public UserDTO login(AdminLoginDTO dto) {
+        String adminIdName = dto.getAdminIdName();
+        String password = dto.getPassword();
+
+//        try {
+        // 1. 이메일 유효성 검사
+        AdminInfo admin = validateAndFindAdmin(adminIdName);
+
+        // 2. 비밀번호 유효성 검사
+        if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
+            throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+        }
+
+        // TODO User 설계 마무리된 후 수정할 예정
+//
+//            // 3. 비밀번호 확인
+//            // 3-1. 틀린 경우: 틀린 횟수 추가
+//            // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
+//            if (!passwordEncoder.matches(password, admin.getPassword())) {
+//                LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(admin);
+//
+//                if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
+//                    changeUserStatus(user, UserStatus.BLOCKED);
+//                }
+//                throw new CustomException(CommonErrorType.WRONG_PASSWORD);
+//            } else {
+//                loginFailAttemptService.resetLoginFailAttempt(user);
+//            }
+
+        // 4. JWT 토큰 생성
+        TokenInfoVO tokenInfoVO = getJwtTokenInfo(admin.getAdminIdName(), password);
+
+        return new UserDTO(admin, tokenInfoVO);
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 
     /**
@@ -177,7 +233,8 @@ public class UserService {
             default -> throw new CustomException(HttpStatus.FORBIDDEN, CommonErrorType.ACCESS_DENIED_ACCOUNT);
         };
 
-        if (user.getStatus() == UserStatus.BLOCKED) {
+        UserStatusInfo userStatusInfo = userStatusInfoService.findUserStatusInfoByUserId(user.getId());
+        if (userStatusInfo.getStatus() == UserStatus.BLOCKED) {
             throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
         }
 
@@ -211,6 +268,23 @@ public class UserService {
     }
 
     /**
+     * 이메일 유효성 검사를 한 후, 유효성 검사에 통과한 경우, User를 반환하는 함수
+     *
+     * @param adminIdName
+     * @return
+     */
+    private AdminInfo validateAndFindAdmin(String adminIdName) {
+        AdminInfo admin = adminService.findAdminInfoBYAdminIdName(adminIdName);
+
+        // TODO User 관련 설계 마무리 후 수정 예정
+//        if (user.getStatus() == UserStatus.BLOCKED) {
+//            throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
+//        }
+
+        return admin;
+    }
+
+    /**
      * 최근 로그인한 시간을 업데이트하는 함수
      *
      * @param user
@@ -225,8 +299,7 @@ public class UserService {
     public void changeUserStatus(User user, UserStatus userStatus) {
         switch (userStatus) {
             case BLOCKED: {
-                userRepository.updateUserStatus(user.getId(), UserStatus.BLOCKED,
-                        "로그인 시도 가능 횟수 초과");
+                userStatusInfoService.updateUserStatus(user.getId(), UserStatus.BLOCKED, "로그인 시도 가능 횟수 초과");
             }
             break;
         }
@@ -276,24 +349,25 @@ public class UserService {
 
     @Transactional
     public void findFistDormancyUser() {
-        LocalDateTime fiveMonthAgo = LocalDateTime.now().minusMonths(5).plusDays(1).truncatedTo(ChronoUnit.DAYS);
-        List<User> firstDormancyUser = userRepository.findByRecentLoginAtBeforeAndFirstDormancyIsFalse(fiveMonthAgo);
-        LocalDate updateDormancyAt = LocalDateTime.now().plusMonths(1).toLocalDate();
-
-        for (User user : firstDormancyUser) {
-            user.setDormancyMonths(5);
-            user.setFirstDormancy(true);
-            user.setUpdateDormancyAt(updateDormancyAt);
-
-            int underscoreIndex = user.getEmail().indexOf("_") + 1;
-            String realUserEmail = user.getEmail().substring(underscoreIndex);
-
-            EmailDto emailDto = EmailDto.builder()
-                    .subject(MailType.POINT_REDUCTION.getSubject())
-                    .receiveEmail(realUserEmail)
-                    .build();
-            emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
-        }
+        // TODO user entity 정리하면서 관련 column 삭제
+//        LocalDateTime fiveMonthAgo = LocalDateTime.now().minusMonths(5).plusDays(1).truncatedTo(ChronoUnit.DAYS);
+//        List<User> firstDormancyUser = userRepository.findByRecentLoginAtBeforeAndFirstDormancyIsFalse(fiveMonthAgo);
+//        LocalDate updateDormancyAt = LocalDateTime.now().plusMonths(1).toLocalDate();
+//
+//        for (User user : firstDormancyUser) {
+//            user.setDormancyMonths(5);
+//            user.setFirstDormancy(true);
+//            user.setUpdateDormancyAt(updateDormancyAt);
+//
+//            int underscoreIndex = user.getEmail().indexOf("_") + 1;
+//            String realUserEmail = user.getEmail().substring(underscoreIndex);
+//
+//            EmailDto emailDto = EmailDto.builder()
+//                    .subject(MailType.POINT_REDUCTION.getSubject())
+//                    .receiveEmail(realUserEmail)
+//                    .build();
+//            emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
+//        }
     }
 
     /**
@@ -301,10 +375,10 @@ public class UserService {
      *
      * @param email 인증 요청 이메일
      */
-    public void sendVerificationCodeToEmail(String email) {
+    public void sendVerificationCodeToEmail(String email, UserType role) {
         try {
             // 1. 이메일 전송
-            String code = emailService.sendEmailVerificationMail(email);
+            String code = emailService.sendEmailVerificationMail(email, role);
 
             // 2. 이메일 인증 코드 저장
             emailVerificationCodeService.saveEmailVerificationCode(email, code);

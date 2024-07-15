@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChangeShoppingBasketQuantityDTO {
     @NotNull
+    private Long shoppingBasketId;
+
+    @NotNull
     private Long quantity;
 
 }

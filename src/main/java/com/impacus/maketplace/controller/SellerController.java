@@ -4,6 +4,8 @@ import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.auth.request.EmailRequest;
+import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
@@ -37,7 +39,7 @@ public class SellerController {
      *
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("entry-status")
     public ApiResponseEntity<SellerEntryStatusDTO> getEntryStatusStatistics() {
         SellerEntryStatusDTO sellerEntryStatusDTO = sellerService.getEntryStatusStatistics();
@@ -55,7 +57,7 @@ public class SellerController {
      * @param pageable
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("/entry/sellers")
     public ApiResponseEntity<Object> getSellerEntryList(
             @RequestParam(value = "start-at") LocalDate startAt,
@@ -75,7 +77,7 @@ public class SellerController {
      * @param userId
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("/entry")
     public ApiResponseEntity<DetailedSellerEntryDTO> getDetailedSellerEntry(@RequestParam(value = "user-id") Long userId) {
         DetailedSellerEntryDTO detailedSellerEntry = sellerService.getDetailedSellerEntry(userId);
@@ -91,7 +93,7 @@ public class SellerController {
      * @param request
      * @return
      */
-    // @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PatchMapping("/entry/sellers/entry-status")
     public ApiResponseEntity<Boolean> changeEntryStatus(
             @Valid @RequestBody ChangeSellerEntryStatusDTO request) {
@@ -112,6 +114,35 @@ public class SellerController {
         UserDTO userDTO = userService.login(loginDTO, UserType.ROLE_APPROVED_SELLER);
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
+                .build();
+    }
+
+    /**
+     * 이메일 인증 코드 요청 API
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/email/verification-request")
+    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailRequest request) {
+        userService.sendVerificationCodeToEmail(request.getEmail(), UserType.ROLE_APPROVED_SELLER);
+        return ApiResponseEntity
+                .builder()
+                .build();
+    }
+
+    /**
+     * 이메일 인증 API
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/email/confirm")
+    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationRequest request) {
+        boolean result = userService.confirmEmail(request);
+        return ApiResponseEntity
+                .builder()
+                .data(result)
                 .build();
     }
 }

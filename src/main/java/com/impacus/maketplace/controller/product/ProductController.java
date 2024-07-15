@@ -1,12 +1,10 @@
 package com.impacus.maketplace.controller.product;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
-import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
-import com.impacus.maketplace.service.common.EnumService;
+import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
+import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.service.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +15,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,30 +32,33 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final EnumService enumService;
 
 
     /**
-     * 새로운 상품을 등록하는 API (ROLE: seller)
+     * 새로운 상품을 등록하는 API
      *
      * @param productImageList
      * @param productDescriptionImageList
-     * @param productRequest
+     * @param dto
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @PostMapping("")
-    public ApiResponseEntity<Object> addProduct(
+    public ApiResponseEntity<ProductDTO> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
+            @Valid @RequestPart(value = "product") CreateProductDTO dto) {
         ProductDTO productDTO = productService.addProduct(
                 user.getId(),
                 productImageList,
-                productRequest,
+                dto,
                 productDescriptionImageList);
         return ApiResponseEntity
-                .builder()
+                .<ProductDTO>builder()
                 .data(productDTO)
                 .build();
     }
@@ -66,12 +69,17 @@ public class ProductController {
      * @param productIdList
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @DeleteMapping("")
-    public ApiResponseEntity<Object> deleteAllProduct(@RequestParam(name = "product-id") List<Long> productIdList) {
-        productService.deleteAllProduct(productIdList);
-        return ApiResponseEntity
-                .builder()
-                .build();
+    public ApiResponseEntity<Boolean> deleteAllProduct(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "product-id") List<Long> productIdList
+    ) {
+        productService.deleteAllProduct(user.getId(), productIdList);
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 
     /**
@@ -79,23 +87,27 @@ public class ProductController {
      *
      * @param productImageList
      * @param productDescriptionImageList
-     * @param productRequest
+     * @param dto
      * @return
      */
-    @PutMapping("/{productId}")
-    public ApiResponseEntity<Object> updateProduct(
-            @PathVariable(name = "productId") Long productId,
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @PutMapping("")
+    public ApiResponseEntity<ProductDTO> updateProduct(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
+            @Valid @RequestPart(value = "product") UpdateProductDTO dto) {
         ProductDTO productDTO = productService.updateProduct(
-                productId,
+                user.getId(),
                 productImageList,
-                productRequest,
+                dto,
                 productDescriptionImageList
         );
         return ApiResponseEntity
-                .builder()
+                .<ProductDTO>builder()
                 .data(productDTO)
                 .build();
     }
@@ -107,19 +119,48 @@ public class ProductController {
      * @param pageable
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("")
-    public ApiResponseEntity<Object> getAllProductForApp(
+    public ApiResponseEntity<Slice<ProductForAppDTO>> getAllProductForApp(
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<ProductDTO> productDTOList = productService.findProductByCategoryForApp(subCategoryId, pageable);
+        Slice<ProductForAppDTO> productDTOList = productService.findProductByCategoryForApp(user.getId(), subCategoryId, pageable);
         return ApiResponseEntity
-                .builder()
+                .<Slice<ProductForAppDTO>>builder()
                 .data(productDTOList)
                 .build();
     }
 
     /**
-     * 웹용 판매자/관리자 상품 전체 조회 API
+     * 웹용 판매자 상품 전체 조회 API
+     * - 판매자의 브랜드가 등록한 상품들만 조회 가능
+     * @param user
+     * @param startAt
+     * @param endAt
+     * @param pageable
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @GetMapping("/seller")
+    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductBySellerIdForWeb(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+            @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+            @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+                user.getId(), UserType.ROLE_APPROVED_SELLER, keyword, startAt, endAt, pageable
+        );
+        return ApiResponseEntity
+                .<Page<ProductForWebDTO>>builder()
+                .data(productDTOList)
+                .build();
+    }
+
+    /**
+     * 웹용 판매자 상품 전체 조회 API
+     * - 판매자의 브랜드가 등록한 상품들만 조회 가능
      *
      * @param user
      * @param startAt
@@ -127,15 +168,21 @@ public class ProductController {
      * @param pageable
      * @return
      */
-    @GetMapping("/seller")
-    public ApiResponseEntity<Object> getAllProductForWeb(
+    @PreAuthorize("hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
+            "or hasRole('ROLE_OWNER')")
+    @GetMapping("/admin")
+    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
-            @PageableDefault(size = 12, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(user.getId(), startAt, endAt, pageable);
+            @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+                user.getId(), UserType.ROLE_ADMIN, keyword, startAt, endAt, pageable
+        );
         return ApiResponseEntity
-                .builder()
+                .<Page<ProductForWebDTO>>builder()
                 .data(productDTOList)
                 .build();
     }
@@ -146,11 +193,14 @@ public class ProductController {
      * @param productId
      * @return
      */
-    @GetMapping("{productId}")
-    public ApiResponseEntity<Object> getProductForApp(@PathVariable(name = "productId") Long productId) {
-        DetailedProductDTO detailedProductDTO = productService.findDetailedProduct(productId);
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("/product-info")
+    public ApiResponseEntity<DetailedProductDTO> getProductForApp(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "product-id") Long productId) {
+        DetailedProductDTO detailedProductDTO = productService.findDetailedProduct(user.getId(), productId);
         return ApiResponseEntity
-                .builder()
+                .<DetailedProductDTO>builder()
                 .data(detailedProductDTO)
                 .build();
     }
@@ -158,12 +208,37 @@ public class ProductController {
     /**
      * 판매자용 단일 상품 조회 API
      */
-    @GetMapping("seller/{productId}")
-    public ApiResponseEntity<Object> getProductForWeb(@AuthenticationPrincipal CustomUserDetails user, @PathVariable(name = "productId") Long productId) {
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @GetMapping("/product-details")
+    public ApiResponseEntity<ProductDetailForWebDTO> getProductForWeb(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "product-id") Long productId
+    ) {
         ProductDetailForWebDTO productDetailDTO = productService.findProductDetailForWeb(user.getId(), productId);
         return ApiResponseEntity
-                .builder()
+                .<ProductDetailForWebDTO>builder()
                 .data(productDetailDTO)
+                .build();
+    }
+
+    /**
+     * 최근 본 상품 목록 조회 API
+     *
+     * @param pageable
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("/recent-views")
+    public ApiResponseEntity<Slice<ProductForAppDTO>> getProductForRecentViews(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PageableDefault(size = 15, direction = Sort.Direction.ASC, sort = "createAt") Pageable pageable) {
+        Slice<ProductForAppDTO> productDTOList = productService.findProductForRecentViews(user.getId(), pageable);
+        return ApiResponseEntity
+                .<Slice<ProductForAppDTO>>builder()
+                .data(productDTOList)
                 .build();
     }
 

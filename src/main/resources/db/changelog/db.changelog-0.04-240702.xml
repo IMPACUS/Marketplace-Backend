@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.04.00-240709" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <primaryKeyExists tableName="seller_info" primaryKeyName="seller_info_pkey"/>
+        </preConditions>
+        <dropPrimaryKey tableName="seller_info" constraintName="seller_info_pkey"/>
+    </changeSet>
+
+    <!-- seller_info 생성 -->
+    <changeSet id="changelog-0.04.01-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="seller_info"/>
+            </not>
+        </preConditions>
+        <createTable tableName="seller_info">
+            <column name="seller_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entry_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contact_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="market_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="logo_image_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_service_number" type="VARCHAR(255)">
+            </column>
+            <column name="business_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="charge_percent" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="seller_info" columnName="entry_status" remarks="입점 상태"/>
+        <setColumnRemarks tableName="seller_info" columnName="contact_name" remarks="판매 담당자 이름"/>
+        <setColumnRemarks tableName="seller_info" columnName="customer_service_number" remarks="고객센터 전화 번호"/>
+        <setColumnRemarks tableName="seller_info" columnName="business_type" remarks="사업자 구분"/>
+        <setColumnRemarks tableName="seller_info" columnName="is_deleted" remarks="삭제 여부"/>
+        <setColumnRemarks tableName="seller_info" columnName="charge_percent" remarks="수수료 비율"/>
+    </changeSet>
+
+    <!-- seller_adjustment_info 생성 -->
+    <changeSet id="changelog-0.04.02-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="seller_adjustment_info"/>
+            </not>
+        </preConditions>
+        <createTable tableName="seller_adjustment_info">
+            <column name="seller_business_info_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="seller_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="bank_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="copy_bank_book_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="seller_adjustment_info" columnName="account_name" remarks="계좌 명"/>
+        <setColumnRemarks tableName="seller_adjustment_info" columnName="account_number" remarks="계좌 번호"/>
+        <setColumnRemarks tableName="seller_adjustment_info" columnName="copy_bank_book_id" remarks="통장 사본 이미지 id"/>
+    </changeSet>
+
+    <!-- seller_business_info 생성 -->
+    <changeSet id="changelog-0.04.03-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="seller_business_info"/>
+            </not>
+        </preConditions>
+        <createTable tableName="seller_business_info">
+            <column name="seller_adjustment_info" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="seller_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="representative_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="representative_contact" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_registration_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_condition" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="copy_business_registration_certificate_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="copy_main_order_business_report_card_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="mail_order_business_report_number" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="seller_business_info" columnName="seller_id" remarks="판매자 ID"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="representative_name" remarks="대표자 이름"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="representative_contact" remarks="대표자 연락처"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="business_name" remarks="상호명"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="business_registration_number"
+                          remarks="사업자 등록증 번호"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="business_condition" remarks="업태"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="business_address" remarks="사업자 등록 주소"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="business_email" remarks="이메일 (fax 확인용)"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="copy_business_registration_certificate_id"
+                          remarks="사업자 등록증 사본 이미지 id"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="copy_main_order_business_report_card_id"
+                          remarks="통신 판매업 신고증 id"/>
+        <setColumnRemarks tableName="seller_business_info" columnName="mail_order_business_report_number"
+                          remarks="통신 판매업 번호"/>
+
+    </changeSet>
+
+    <!-- seller_info 에서 seller 로 테이블 변경 -->
+    <changeSet id="changelog-0.04.04-240525" author="lchy0413">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="seller_info"/>
+            <not>
+                <tableExists tableName="seller"/>
+            </not>
+        </preConditions>
+
+        <renameTable oldTableName="seller_info" newTableName="seller"/>
+    </changeSet>
+
+</databaseChangeLog>

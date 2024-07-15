@@ -2,11 +2,12 @@ package com.impacus.maketplace.dto.product.response;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class ProductForWebDTO {
@@ -16,9 +17,10 @@ public class ProductForWebDTO {
     private String productNumber;
     private DeliveryType deliveryType;
     private ProductStatus productStatus;
-    private Long stock;
+    private long stock;
     private LocalDateTime createAt;
-    private List<ProductOptionDTO> options;
+    private Set<ProductOptionDTO> options;
+    private Set<AttachFileDTO> productImageList;
 
     @QueryProjection
     public ProductForWebDTO(
@@ -28,9 +30,10 @@ public class ProductForWebDTO {
             String productNumber,
             DeliveryType deliveryType,
             ProductStatus productStatus,
-            Long stock,
+            long stock,
             LocalDateTime createAt,
-            List<ProductOptionDTO> productOptionList
+            Set<ProductOptionDTO> productOptionList,
+            Set<AttachFileDTO> productImageList
     ) {
         this.id = id;
         this.name = name;
@@ -41,5 +44,6 @@ public class ProductForWebDTO {
         this.stock = stock;
         this.createAt = createAt;
         this.options = productOptionList;
+        this.productImageList = productImageList;
     }
 }

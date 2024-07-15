@@ -6,9 +6,9 @@ import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryPr
 import com.impacus.maketplace.dto.temporaryProduct.response.SimpleTemporaryProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +30,10 @@ public class TemporaryProductController {
      * @param user
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @GetMapping("/exist")
     public ApiResponseEntity<Object> checkIsExistedTemporaryProduct(@AuthenticationPrincipal CustomUserDetails user) {
         IsExistedTemporaryProductDTO dto = temporaryProductService.checkIsExistedTemporaryProduct(user.getId());
@@ -47,12 +51,13 @@ public class TemporaryProductController {
      * @param productRequest
      * @return
      */
-    @PutMapping("/seller")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PutMapping("")
     public ApiResponseEntity<Object> addOrModifyTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO productRequest) {
+            @RequestPart(value = "product") CreateProductDTO productRequest) {
         SimpleTemporaryProductDTO simpleTemporaryProductDTO = temporaryProductService.addOrModifyTemporaryProduct(user.getId(), productImageList, productRequest, productDescriptionImageList);
         return ApiResponseEntity
                 .builder()
@@ -60,7 +65,8 @@ public class TemporaryProductController {
                 .build();
     }
 
-    @GetMapping("/seller")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @GetMapping("")
     public ApiResponseEntity<Object> getTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user) {
         TemporaryProductDTO temporaryProductDTO = temporaryProductService.findTemporaryProduct(user.getId());

@@ -6,12 +6,12 @@ import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class ProductDetailForWebDTO {
+    private Long id;
     private String name;
-    private String description;
     private DeliveryType deliveryType;
     private Long categoryId;
     private int deliveryFee;
@@ -21,24 +21,11 @@ public class ProductDetailForWebDTO {
     private int discountPrice;
     private int weight;
     private ProductType type;
-    private ProductDetailInfoDTO productDetail;
-    private List<ProductOptionDTO> productOptions;
     private ProductStatus productStatus;
-    private List<AttachFileDTO> productImageList;
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setProductOptionDTO(List<ProductOptionDTO> productOptions) {
-        this.productOptions = productOptions;
-    }
-
-    public void setDetailInfoDTO(ProductDetailInfoDTO productDetail) {
-        this.productDetail = productDetail;
-    }
-
-    public void setProductImageList(List<AttachFileDTO> productImageList) {
-        this.productImageList = productImageList;
-    }
+    private String description;
+    private ProductDetailInfoDTO productDetail;
+    private ProductDeliveryTimeDTO deliveryTime;
+    private Set<ProductOptionDTO> productOptions;
+    private Set<AttachFileDTO> productImageList;
+    private ProductClaimInfoDTO claim;
 }

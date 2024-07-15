@@ -32,13 +32,14 @@ public class CategoryController {
      * @param superCategoryRequest
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PostMapping("/super-category")
-    public ApiResponseEntity<Object> addSuperCategory(
+    public ApiResponseEntity<SuperCategoryDTO> addSuperCategory(
             @Valid @RequestBody CreateSuperCategoryDTO superCategoryRequest) {
+
         SuperCategoryDTO superCategoryDTO = superCategoryService.addSuperCategory(superCategoryRequest);
         return ApiResponseEntity
-                .builder()
+                .<SuperCategoryDTO>builder()
                 .data(superCategoryDTO)
                 .build();
     }
@@ -50,14 +51,14 @@ public class CategoryController {
      * @param subCategoryRequest
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PostMapping("sub-category")
-    public ApiResponseEntity<Object> addSubCategory(
+    public ApiResponseEntity<SubCategoryDTO> addSubCategory(
             @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
             @Valid @RequestPart(value = "subCategory") CreateSubCategoryDTO subCategoryRequest) {
         SubCategoryDTO subCategoryDTO = subCategoryService.addSubCategory(thumbnail, subCategoryRequest);
         return ApiResponseEntity
-                .builder()
+                .<SubCategoryDTO>builder()
                 .data(subCategoryDTO)
                 .build();
     }
@@ -68,7 +69,7 @@ public class CategoryController {
      * @param categoryNameRequest
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PutMapping("super-category")
     public ApiResponseEntity<Boolean> updateSuperCategory(
             @Valid @RequestBody ChangeCategoryNameDTO categoryNameRequest) {
@@ -84,23 +85,23 @@ public class CategoryController {
      * @param subCategoryRequest
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PutMapping("sub-category/{categoryId}")
-    public ApiResponseEntity<Object> updateSubCategory(
+    public ApiResponseEntity<SubCategoryDTO> updateSubCategory(
             @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
             @Valid @RequestPart(value = "subCategory") ChangeCategoryNameDTO subCategoryRequest) {
         SubCategoryDTO subCategoryDTO = subCategoryService.updateSubCategory(thumbnail, subCategoryRequest);
         return ApiResponseEntity
-                .builder()
+                .<SubCategoryDTO>builder()
                 .data(subCategoryDTO)
                 .build();
     }
 
     @GetMapping("")
-    public ApiResponseEntity<Object> getAllCategory() {
+    public ApiResponseEntity<List<CategoryDetailDTO>> getAllCategory() {
         List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory();
         return ApiResponseEntity
-                .builder()
+                .<List<CategoryDetailDTO>>builder()
                 .data(categoryDTOs)
                 .build();
     }
@@ -110,13 +111,14 @@ public class CategoryController {
      *
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @DeleteMapping("sub-category")
-    public ApiResponseEntity<Object> deleteSubCategory(
+    public ApiResponseEntity<Boolean> deleteSubCategory(
             @RequestParam(name = "sub-category-id") List<Long> subCategoryIdList) {
         subCategoryService.deleteSubCategory(subCategoryIdList);
         return ApiResponseEntity
-                .builder()
+                .<Boolean>builder()
+                .data(true)
                 .build();
     }
 
@@ -125,13 +127,14 @@ public class CategoryController {
      *
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @DeleteMapping("super-category")
-    public ApiResponseEntity<Object> deleteSuperCategory(
+    public ApiResponseEntity<Boolean> deleteSuperCategory(
             @RequestParam(name = "super-category-id") List<Long> superCategoryIdList) {
         subCategoryService.deleteSuperCategory(superCategoryIdList);
         return ApiResponseEntity
-                .builder()
+                .<Boolean>builder()
+                .data(true)
                 .build();
     }
 }

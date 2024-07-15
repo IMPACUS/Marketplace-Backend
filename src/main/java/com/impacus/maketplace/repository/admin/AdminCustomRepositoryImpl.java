@@ -1,11 +1,18 @@
 package com.impacus.maketplace.repository.admin;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.dto.admin.*;
-import com.impacus.maketplace.entity.admin.*;
+import com.impacus.maketplace.entity.admin.AdminInfo;
+import com.impacus.maketplace.entity.admin.QAdminActivityLog;
+import com.impacus.maketplace.entity.admin.QAdminInfo;
+import com.impacus.maketplace.entity.admin.QAdminLoginLog;
 import com.impacus.maketplace.entity.user.QUser;
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,34 +35,128 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
      * @return : [리스트] 관리자 회원 조회
      */
     @Override
-    public List<AdminUserDTO> findAdminAll() {
-        JPAQuery<AdminUserDTO> query = queryFactory.select(
+    public Slice<AdminUserDTO> findAdminAll(Pageable pageable, String search) {
+        BooleanExpression filterCondition = createFilterCondition(search);
+//    public List<AdminUserDTO> findAdminAll(int page, int size) {
+//        select
+//        aaa.id,
+//                aaa.user_id,
+//                aaa.email,
+//                aaa.account_type,
+//                aaa.phone_number,
+//                aaa.recent_activity_date,
+//                bbb.activity_detail
+//        from ( select
+//                a.id,
+//                u.user_id,
+//                u.email,    @Override
+//    public List<AdminUserDTO> findAdminAll(int page, int size) {
+////        select
+////        aaa.id,
+////                aaa.user_id,
+////                aaa.email,
+////                aaa.account_type,
+////                aaa.phone_number,
+////                aaa.recent_activity_date,
+////                bbb.activity_detail
+////        from ( select
+////                a.id,
+////                u.user_id,
+////                u.email,
+////                a.account_type,
+////                u.phone_number,
+////                a.recent_activity_date,
+////                u.is_admin
+////                from
+////                user_info u inner join admin_info a
+////                on u.user_id = a.user_id ) aaa
+////        inner join (select aal.user_id, aal.activity_detail
+////        from (select user_id, activity_detail, row_number() over (PARTITION BY user_id order by crt_date desc) as rn from
+////                admin_activity_log ) aal
+////        where rn = 1
+////                ) bbb
+////        on bbb.user_id = aaa.user_id
+////        where aaa.is_admin = true
+////        ;
+//        return queryFactory.select(Projections.fields(
+//                                AdminUserDTO.class,
+//                                adminInfo.id,
+//                                adminInfo.userId,
+//                                userEntity.email,
+//                                adminInfo.accountType,
+//                                userEntity.phoneNumber,
+//                                adminInfo.recentActivityDate,
+//                                adminActivityLog.activityDetail
+//                        )
+//                ).from(adminInfo)
+//                .innerJoin(userEntity).on(userEntity.id.eq(adminInfo.userId))
+//                .innerJoin(adminActivityLog).on(adminActivityLog.userId.eq(userEntity.id))
+//                .where(userEntity.isAdmin.isTrue())
+//                .where(adminActivityLog.crtDate.eq(
+//                        queryFactory.select(adminActivityLog.crtDate.max())
+//                                .from(adminActivityLog)
+//                                .where(adminActivityLog.userId.eq(userEntity.id))
+//                ))
+//                .offset(page * size).limit(size)
+//                .fetch();
+//
+//                a.account_type,
+//                u.phone_number,
+//                a.recent_activity_date,
+//                u.is_admin
+//                from
+//                user_info u inner join admin_info a
+//                on u.user_id = a.user_id ) aaa
+//        inner join (select aal.user_id, aal.activity_detail
+//        from (select user_id, activity_detail, row_number() over (PARTITION BY user_id order by crt_date desc) as rn from
+//                admin_activity_log ) aal
+//        where rn = 1
+//                ) bbb
+//        on bbb.user_id = aaa.user_id
+//        where aaa.is_admin = true
+//        ;
+//        List<AdminUserDTO> results =  queryFactory.select(Projections.fields(
+//                AdminUserDTO.class,
+        List<AdminUserDTO> results = queryFactory.select(
                         new QAdminUserDTO(
                                 adminInfo.id,
-                                userEntity.id,
-                                userEntity.email,
-                                userEntity.password,
+                                adminInfo.name,
+                                adminInfo.email,
                                 adminInfo.accountType,
-                                adminInfo.activityDetail
+                                adminInfo.phoneNumber,
+                                adminInfo.recentActivityDate,
+                                adminActivityLog.activityDetail
                         )
-                )
-                .from(userEntity)
-                .innerJoin(adminInfo)
-                .on(userEntity.id.eq(adminInfo.userId))
-                .where(userEntity.isAdmin)
-                .fetchJoin();
-        return query.fetch();
+                ).from(adminInfo)
+                .innerJoin(adminActivityLog).on(adminActivityLog.adminId.eq(adminInfo.id))
+                .where(adminActivityLog.crtDate.eq(
+                        queryFactory.select(adminActivityLog.crtDate.max())
+                                .from(adminActivityLog)
+                                .where(adminActivityLog.adminId.eq(adminInfo.id))
+                ))
+                .where(filterCondition)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.remove(results.size() - 1);
+        }
+
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
 
     /**
      * 로그인 내역 조회
-     * @param userId : 해당 유저 번호
+     *
+     * @param adminId : 해당 유저 번호
      * @return : 로그인 히스토리 전체 조회
      */
     @Override
-    public List<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long userId) {
-        return queryFactory.select(
+    public Slice<AdminLoginHistoryDTO> findAdminLoginHistoryAll(Long adminId, Pageable pageable) {
+        List<AdminLoginHistoryDTO> results = queryFactory.select(
                         new QAdminLoginHistoryDTO(
                                 adminLoginLog.id,
                                 adminLoginLog.crtDate,
@@ -63,51 +164,86 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
                         )
                 )
                 .from(adminLoginLog)
-                .where(adminLoginLog.userId.eq(userId))
+                .where(adminLoginLog.adminId.eq(adminId))
+                .orderBy(adminLoginLog.crtDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
-    }
 
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.remove(results.size() - 1);
+        }
 
-    /**
-     * 관리자 타입 수정을 위한 로직
-     * @param userId : 관리자 타입을 변경하기 위한 유저번호
-     * @return : 관리자 타입 변경된 해당 유저 정보 조회
-     */
-    @Override
-    public AdminInfo findAdminInfoWhereUserId(Long userId) {
-        AdminInfoDTO adminInfoDTO = queryFactory.select(
-                new QAdminInfoDTO(
-                        adminInfo.id,
-                        adminInfo.userId,
-                        adminInfo.accountType,
-                        adminInfo.activityDetail
-                )
-        ).from(adminInfo).where(adminInfo.userId.eq(userId)).fetchOne();
-
-        return AdminInfo
-                .builder()
-                .id(adminInfoDTO.getId())
-                .userId(adminInfoDTO.getUserId())
-                .accountType(adminInfoDTO.getAccountType())
-                .activityDetail(adminInfoDTO.getActivityDetail())
-                .build();
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
 
     /**
      * 관리자 활동 정보를 전체 리스트 출력
-     * @param userId : 해당 관리자 번호 검색 조건 출력
+     *
+     * @param adminId : 해당 관리자 번호 검색 조건 출력
      * @return : 활동정보 전체 출력
      */
     @Override
-    public List<AdminLoginActivityDTO> findAdminActivityLogAll(Long userId) {
-        return queryFactory.select(
-                new QAdminLoginActivityDTO(
-                        adminActivityLog.crtDate,
-                        adminActivityLog.activityDetail
+    public Slice<AdminLoginActivityDTO> findAdminActivityLogAll(Long adminId, Pageable pageable) {
+        List<AdminLoginActivityDTO> results = queryFactory.select(
+                        new QAdminLoginActivityDTO(
+                                adminActivityLog.crtDate,
+                                adminActivityLog.activityDetail
+                        )
                 )
-        ).from(adminActivityLog).where(adminActivityLog.userId.eq(userId)).fetch();
+                .from(adminActivityLog)
+                .where(adminActivityLog.adminId.eq(adminId))
+                .offset(pageable.getOffset())
+                .orderBy(adminActivityLog.crtDate.desc())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.remove(results.size() - 1);
+        }
+
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
+    @Override
+    public List<AdminGroupCountDTO> displayGroupCounter() {
+        return queryFactory
+                .select(
+                        new QAdminGroupCountDTO(
+                                adminInfo.accountType,
+                                adminInfo.count()
+                        )
+                )
+                .from(adminInfo)
+                .groupBy(adminInfo.accountType)
+                .fetch();
+    }
+
+    @Override
+    public Boolean existsByAdminIdName(String adminIdName) {
+        return queryFactory.selectOne()
+                .from(adminInfo)
+                .where(adminInfo.adminIdName.eq(adminIdName))
+                .fetchFirst() != null;
+    }
+
+
+    /**
+     * 공통 함수 : 검색조건 설정하는 함수, 이름, 전화번호 등 하나라도 포함되어 있으면!!
+     *
+     * @param search 단어 검색
+     * @return true or false
+     */
+    private BooleanExpression createFilterCondition(String search) {
+        if (search == null || search.isEmpty()) {
+            return null;
+        }
+        return userEntity.email.containsIgnoreCase(search)
+                .or(userEntity.phoneNumber.containsIgnoreCase(search))
+                .or(userEntity.name.containsIgnoreCase(search));
+    }
 
 }

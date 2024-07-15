@@ -21,6 +21,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductDTO {
+    private Long sellerId;
+
     @NotNull
     private boolean doesUseTemporaryProduct;
 
@@ -59,6 +61,12 @@ public class CreateProductDTO {
     @NotNull
     private List<CreateProductOptionDTO> productOptions;
 
+    @NotNull
+    private CreateProductDeliveryTimeDTO deliveryTime;
+
+    @NotNull
+    private CreateClaimInfoDTO claim;
+
     @ValidEnum(enumClass = ProductStatus.class)
     private ProductStatus productStatus;
 
@@ -76,11 +84,11 @@ public class CreateProductDTO {
                 .build();
     }
 
-    public TemporaryProduct toTemporaryEntity() {
-        return new TemporaryProduct(this);
+    public TemporaryProduct toTemporaryEntity(Long sellerId) {
+        return new TemporaryProduct(sellerId, this);
     }
 
-    public TemporaryProductDescription toTemporaryEntity(Long temporaryProductId) {
+    public TemporaryProductDescription toTemporaryDescriptionEntity(Long temporaryProductId) {
         return TemporaryProductDescription.builder()
                 .temporaryProductId(temporaryProductId)
                 .description(this.description)
