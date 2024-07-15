@@ -8,6 +8,7 @@ import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
@@ -196,11 +197,18 @@ public class SellerController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/manager")
-    public ApiResponseEntity<?> updateManagerInformation(@Valid @RequestBody EmailVerificationRequest dto) {
+    public ApiResponseEntity<Boolean> updateManagerInformation(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestPart(value = "manager") ChangeSellerManagerInfoDTO dto,
+            @RequestPart(value = "businessRegistrationImage", required = false) MultipartFile businessRegistrationImage,
+            @RequestPart(value = "mailOrderBusinessReportImage", required = false) MultipartFile mailOrderBusinessReportImage
+    ) {
+        sellerWriteService.updateManagerInformation(user.getId(), dto, businessRegistrationImage, mailOrderBusinessReportImage);
         return ApiResponseEntity
-            .builder()
-            .data(true)
-            .build();
+                .<Boolean>builder()
+                .message("판매자 담당자 정보 변경 성공")
+                .data(true)
+                .build();
     }
 
     /**
