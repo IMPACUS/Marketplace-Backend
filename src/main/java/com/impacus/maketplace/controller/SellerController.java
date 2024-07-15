@@ -6,7 +6,10 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.auth.request.PasswordDTO;
+import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
@@ -203,7 +206,9 @@ public class SellerController {
             @RequestPart(value = "businessRegistrationImage", required = false) MultipartFile businessRegistrationImage,
             @RequestPart(value = "mailOrderBusinessReportImage", required = false) MultipartFile mailOrderBusinessReportImage
     ) {
-        sellerWriteService.updateManagerInformation(user.getId(), dto, businessRegistrationImage, mailOrderBusinessReportImage);
+        sellerWriteService.updateManagerInformation(
+                user.getId(), dto, businessRegistrationImage, mailOrderBusinessReportImage
+        );
         return ApiResponseEntity
                 .<Boolean>builder()
                 .message("판매자 담당자 정보 변경 성공")
@@ -218,11 +223,19 @@ public class SellerController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/adjustment")
-    public ApiResponseEntity<?> updateAdjustmentInformation(@Valid @RequestBody EmailVerificationRequest dto) {
+    public ApiResponseEntity<Boolean> updateAdjustmentInformation(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestPart(value = "adjustment") ChangeSellerAdjustmentInfoDTO dto,
+            @RequestPart(value = "bankBookImage", required = false) MultipartFile bankBookImage
+    ) {
+        sellerWriteService.updateAdjustmentInformation(
+                user.getId(), dto, bankBookImage
+        );
         return ApiResponseEntity
-            .builder()
-            .data(true)
-            .build();
+                .<Boolean>builder()
+                .message("판매자 정산 정보 변경 성공")
+                .data(true)
+                .build();
     }
 
     /**
@@ -234,9 +247,9 @@ public class SellerController {
     @PatchMapping("/login")
     public ApiResponseEntity<?> updateLoginInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
-            .builder()
-            .data(true)
-            .build();
+                .<Boolean>builder()
+                .data(true)
+                .build();
     }
 
     /**
@@ -246,11 +259,12 @@ public class SellerController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/delivery-company")
-    public ApiResponseEntity<?> updateDeliveryCompanyInformation(@Valid @RequestBody EmailVerificationRequest dto) {
+    public ApiResponseEntity<?> updateDeliveryCompanyInformation(@Valid @RequestBody PasswordDTO dto) {
+
         return ApiResponseEntity
-            .builder()
-            .data(true)
-            .build();
+                .<Boolean>builder()
+                .data(true)
+                .build();
     }
 
     /**
@@ -262,8 +276,24 @@ public class SellerController {
     @PatchMapping("/delivery-address")
     public ApiResponseEntity<?> updateDeliveryAddressInformation(@Valid @RequestBody EmailVerificationRequest dto) {
         return ApiResponseEntity
-            .builder()
-            .data(true)
-            .build();
+                .<Boolean>builder()
+                .data(true)
+                .build();
+    }
+
+    /**
+     * 비밀번호 일치여부를 확인하는 API
+     *
+     * @param dto
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PatchMapping("/password")
+    public ApiResponseEntity<CheckMatchedPasswordDTO> checkIsMatchPassword(@Valid @RequestBody EmailVerificationRequest dto) {
+        return ApiResponseEntity
+                .<CheckMatchedPasswordDTO>builder()
+                .message("기존 비밀번호 일치 여부 확인 성공")
+                .data(true)
+                .build();
     }
 }
