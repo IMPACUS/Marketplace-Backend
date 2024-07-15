@@ -293,10 +293,11 @@ public class SellerWriteService {
                 sellerDeliveryAddressService.saveSellerDeliveryAddress(sellerDeliveryAddress);
             } else {
                 // 2. deliveryAddressId가 존재하는 경우
+                Long columnCnt = sellerRepository.updateDeliveryAddressInformationBySellerIdAndId(sellerId, dto);
 
-                // seller가 등록한 것이 맞는지 확인 -> 유효성 검사
-                // update 로그의 output이 1인지 확인 1이 아니면 존재하지 않는 id
-
+                if (columnCnt <= 0L) {
+                    throw new CustomException(CommonErrorType.NOT_EXISTED_SELLER);
+                }
             }
 
         } catch (Exception ex) {
