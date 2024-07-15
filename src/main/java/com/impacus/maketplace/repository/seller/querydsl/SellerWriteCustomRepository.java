@@ -12,4 +12,6 @@ public interface SellerWriteCustomRepository {
     void updateLoginInformationByUserId(Long userId, ChangeSellerLoginInfoDTO dto, String encodedPassword);
 
     void updateDeliveryCompanyInformationBySellerId(Long sellerId, ChangeSellerDeliveryCompanyInfoDTO dto);
+
+    Long updateDeliveryAddressInformationBySellerIdAndId(Long sellerId, ChangeSellerDeliveryAddressInfoDTO dto);
 }

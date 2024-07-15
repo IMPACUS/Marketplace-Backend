@@ -5,8 +5,10 @@ import com.impacus.maketplace.entity.seller.QBrand;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.seller.QSellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.QSellerBusinessInfo;
+import com.impacus.maketplace.entity.seller.delivery.QSellerDeliveryAddress;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.impacus.maketplace.entity.user.QUser;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -26,6 +28,7 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
     private final QSellerAdjustmentInfo sellerAdjustmentInfo = QSellerAdjustmentInfo.sellerAdjustmentInfo;
     private final QUser user = QUser.user;
     private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
+    private final QSellerDeliveryAddress sellerDeliveryAddress = QSellerDeliveryAddress.sellerDeliveryAddress;
 
     @Override
     public void updateBrandInformationByUserId(
@@ -134,6 +137,33 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
                 .set(sellerDeliveryCompany.modifyAt, LocalDateTime.now())
                 .set(sellerDeliveryCompany.modifyId, currentAuditor)
                 .where(sellerDeliveryCompany.sellerId.eq(sellerId))
+                .execute();
+    }
+
+    @Override
+    public Long updateDeliveryAddressInformationBySellerIdAndId(Long sellerId, ChangeSellerDeliveryAddressInfoDTO dto) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(sellerDeliveryAddress.sellerId.eq(sellerId))
+                .and(sellerDeliveryAddress.id.eq(dto.getDeliveryAddressId()));
+
+        // 배송지 정보 변경
+        return queryFactory
+                .update(sellerDeliveryAddress)
+                .set(sellerDeliveryAddress.generalAddress, dto.getGeneralAddress())
+                .set(sellerDeliveryAddress.generalDetailAddress, dto.getGeneralDetailAddress())
+                .set(sellerDeliveryAddress.generalBusinessName, dto.getGeneralBusinessName())
+                .set(sellerDeliveryAddress.refundAddress, dto.getRefundAddress())
+                .set(sellerDeliveryAddress.refundDetailAddress, dto.getRefundDetailAddress())
+                .set(sellerDeliveryAddress.refundBusinessName, dto.getRefundBusinessName())
+                .set(sellerDeliveryAddress.refundAccountNumber, dto.getRefundAccountNumber())
+                .set(sellerDeliveryAddress.refundAccountName, dto.getRefundAccountName())
+                .set(sellerDeliveryAddress.refundBankCode, dto.getRefundBankCode())
+
+
+                .set(sellerDeliveryAddress.modifyAt, LocalDateTime.now())
+                .set(sellerDeliveryAddress.modifyId, currentAuditor)
+                .where(builder)
                 .execute();
     }
 }
