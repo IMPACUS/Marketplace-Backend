@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.seller.request;
 
+import com.impacus.maketplace.common.annotation.ValidAccountNumber;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
@@ -83,6 +84,7 @@ public class CreateSellerDTO {
 
     @Size(max = 25)
     @NotBlank
+    @ValidAccountNumber
     private String accountNumber;
 
 

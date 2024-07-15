@@ -3,10 +3,7 @@ package com.impacus.maketplace.entity.seller.delivery;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.BankCode;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -58,4 +55,29 @@ public class SellerDeliveryAddress extends BaseEntity {
   @Column(nullable = false)
   @Comment("반품 계좌 은행")
   private BankCode refundBankCode;
+
+  @Builder
+  public SellerDeliveryAddress(
+          Long sellerId,
+          String generalAddress,
+          String generalDetailAddress,
+          String generalBusinessName,
+          String refundAddress,
+          String refundDetailAddress,
+          String refundBusinessName,
+          String refundAccountNumber,
+          String refundAccountName,
+          BankCode refundBankCode
+  ) {
+    this.sellerId = sellerId;
+    this.generalAddress = generalAddress;
+    this.generalDetailAddress = generalDetailAddress;
+    this.generalBusinessName = generalBusinessName;
+    this.refundAddress = refundAddress;
+    this.refundDetailAddress = refundDetailAddress;
+    this.refundBusinessName = refundBusinessName;
+    this.refundAccountNumber = refundAccountNumber;
+    this.refundAccountName = refundAccountName;
+    this.refundBankCode = refundBankCode;
+  }
 }

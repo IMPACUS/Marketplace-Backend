@@ -10,6 +10,7 @@ import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
+import com.impacus.maketplace.entity.seller.delivery.SellerDeliveryAddress;
 import com.impacus.maketplace.entity.seller.deliveryCompany.SelectedSellerDeliveryCompany;
 import com.impacus.maketplace.entity.seller.deliveryCompany.SellerDeliveryCompany;
 import com.impacus.maketplace.repository.seller.BrandRepository;
@@ -17,6 +18,7 @@ import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.repository.seller.deliveryCompany.SellerDeliveryCompanyRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.seller.delivery.SellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SelectedSellerDeliveryCompanyService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SellerDeliveryCompanyService;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ public class SellerWriteService {
     private final UserService userService;
     private final SelectedSellerDeliveryCompanyService selectedSellerDeliveryCompanyService;
     private final SellerDeliveryCompanyService sellerDeliveryCompanyService;
+    private final SellerDeliveryAddressService sellerDeliveryAddressService;
 
     /**
      * 판매자 스토어 정보 변경 함수
@@ -271,12 +274,30 @@ public class SellerWriteService {
 
     /**
      * 판매자 배송지 정보 변경 함수
-     *
+     * - deliveryAddressId 존재하지 않는 경우: 배송지 {count+1} 로 설정
+     * - deliveryAddressId가 존재하는 경우: 배송지 데이터 수정
      * @param dto
      */
     @Transactional
-    public void updateDeliveryAddressInformation(ChangeBrandInfoDTO dto, MultipartFile logoImage) {
+    public void updateDeliveryAddressInformation(
+            Long userId,
+            ChangeSellerDeliveryAddressInfoDTO dto
+    ) {
         try {
+            Seller seller = sellerService.findSellerByUserId(userId);
+            Long sellerId = seller.getId();
+
+            if (dto.getDeliveryAddressId() == null) {
+                // 1. deliveryAddressId 존재하지 않는 경우
+                SellerDeliveryAddress sellerDeliveryAddress = dto.toEntity(sellerId);
+                sellerDeliveryAddressService.saveSellerDeliveryAddress(sellerDeliveryAddress);
+            } else {
+                // 2. deliveryAddressId가 존재하는 경우
+
+                // seller가 등록한 것이 맞는지 확인 -> 유효성 검사
+                // update 로그의 output이 1인지 확인 1이 아니면 존재하지 않는 id
+
+            }
 
         } catch (Exception ex) {
             throw new CustomException(ex);
