@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.seller.request;
 
+import com.impacus.maketplace.common.annotation.ValidAccountNumber;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.BankCode;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +17,7 @@ public class ChangeSellerAdjustmentInfoDTO {
     private String accountName;
 
     @NotBlank
+    @ValidAccountNumber
     @Size(max = 25)
     private String accountNumber;
 }

@@ -282,7 +282,11 @@ public class SellerController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/delivery-address")
-    public ApiResponseEntity<?> updateDeliveryAddressInformation(@Valid @RequestBody EmailVerificationRequest dto) {
+    public ApiResponseEntity<Boolean> updateDeliveryAddressInformation(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody ChangeSellerDeliveryAddressInfoDTO dto
+    ) {
+        sellerWriteService.updateDeliveryAddressInformation(user.getId(), dto);
         return ApiResponseEntity
                 .<Boolean>builder()
                 .data(true)
