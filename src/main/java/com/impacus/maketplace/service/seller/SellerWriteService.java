@@ -5,8 +5,10 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.entity.seller.Seller;
+import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
 import com.impacus.maketplace.repository.seller.BrandRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
@@ -26,6 +28,7 @@ public class SellerWriteService {
     private final BrandRepository brandRepository;
     private final BrandService brandService;
     private final SellerBusinessInfoService sellerBusinessInfoService;
+    private final SellerAdjustmentInfoService sellerAdjustmentInfoService;
 
     /**
      * 판매자 스토어 정보 변경 함수
@@ -140,9 +143,26 @@ public class SellerWriteService {
      * @param dto
      */
     @Transactional
-    public void updateAdjustmentInformation(ChangeBrandInfoDTO dto, MultipartFile logoImage) {
+    public void updateAdjustmentInformation(
+            Long userId,
+            ChangeSellerAdjustmentInfoDTO dto,
+            MultipartFile bankBookImage
+    ) {
         try {
+            Seller seller = sellerService.findSellerByUserId(userId);
+            Long sellerId = seller.getId();
+            SellerAdjustmentInfo adjustmentInfo = sellerAdjustmentInfoService.findSellerAdjustmentInfoBySellerId(sellerId);
 
+            // 2. 정산 정보 변경
+            sellerRepository.updateAdjustmentInformationByUserId(sellerId, dto);
+
+            // 3. 통장 사본 이미지 변경
+            Long copyBankBookId = adjustmentInfo.getCopyBankBookId();
+            attachFileService.updateAttachFile(
+                    copyBankBookId,
+                    bankBookImage,
+                    DirectoryConstants.COPY_FILE_DIRECTORY
+            );
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

@@ -1,23 +1,29 @@
 package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.entity.seller.QBrand;
 import com.impacus.maketplace.entity.seller.QSeller;
+import com.impacus.maketplace.entity.seller.QSellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.QSellerBusinessInfo;
-import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 
 @Repository
 @RequiredArgsConstructor
 public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomRepository {
     private final JPAQueryFactory queryFactory;
+    private final AuditorAware<String> auditorProvider;
+
     private final QSeller seller = QSeller.seller;
-    private final QUser user = QUser.user;
     private final QSellerBusinessInfo sellerBusinessInfo = QSellerBusinessInfo.sellerBusinessInfo;
     private final QBrand brand = QBrand.brand;
+    private final QSellerAdjustmentInfo sellerAdjustmentInfo = QSellerAdjustmentInfo.sellerAdjustmentInfo;
 
     @Override
     public void updateBrandInformationByUserId(
@@ -26,12 +32,15 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
             ChangeBrandInfoDTO dto,
             boolean isExistedBrand
     ) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
         // seller 데이터 업데이트
         queryFactory
                 .update(seller)
                 .set(seller.marketName, dto.getBrandName())
                 .set(seller.customerServiceNumber, dto.getCustomerServiceNumber())
+                .set(seller.modifyAt, LocalDateTime.now())
+                .set(seller.modifyId, currentAuditor)
                 .where(seller.userId.eq(userId))
                 .execute();
 
@@ -39,6 +48,8 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
         queryFactory
                 .update(sellerBusinessInfo)
                 .set(sellerBusinessInfo.businessEmail, dto.getRepresentativeName())
+                .set(sellerBusinessInfo.modifyAt, LocalDateTime.now())
+                .set(sellerBusinessInfo.modifyId, currentAuditor)
                 .where(sellerBusinessInfo.sellerId.eq(sellerId))
                 .execute();
 
@@ -51,6 +62,8 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
                     .set(brand.closingTime, dto.getClosingTime())
                     .set(brand.businessDay, dto.getBusinessDay())
                     .set(brand.breakingTime, dto.getBreakingTime())
+                    .set(brand.modifyAt, LocalDateTime.now())
+                    .set(brand.modifyId, currentAuditor)
                     .where(brand.sellerId.eq(sellerId))
                     .execute();
         }
@@ -58,6 +71,8 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
 
     @Override
     public void updateManagerInformationByUserId(Long sellerId, ChangeSellerManagerInfoDTO dto) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
         // seller_business_info 데이터 업데이트
         queryFactory
                 .update(sellerBusinessInfo)
@@ -65,7 +80,25 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
                 .set(sellerBusinessInfo.businessAddress, dto.getAddress())
                 .set(sellerBusinessInfo.businessRegistrationNumber, dto.getBusinessRegistrationNumber())
                 .set(sellerBusinessInfo.mailOrderBusinessReportNumber, dto.getMailOrderBusinessReportNumber())
+                .set(sellerBusinessInfo.modifyAt, LocalDateTime.now())
+                .set(sellerBusinessInfo.modifyId, currentAuditor)
                 .where(sellerBusinessInfo.sellerId.eq(sellerId))
+                .execute();
+    }
+
+    @Override
+    public void updateAdjustmentInformationByUserId(Long sellerId, ChangeSellerAdjustmentInfoDTO dto) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        // seller_adjustment_info 데이터 업데이트
+        queryFactory
+                .update(sellerAdjustmentInfo)
+                .set(sellerAdjustmentInfo.bankCode, dto.getBankCode())
+                .set(sellerAdjustmentInfo.accountName, dto.getAccountName())
+                .set(sellerAdjustmentInfo.accountNumber, dto.getAccountNumber())
+                .set(sellerAdjustmentInfo.modifyAt, LocalDateTime.now())
+                .set(sellerAdjustmentInfo.modifyId, currentAuditor)
+                .where(sellerAdjustmentInfo.sellerId.eq(sellerId))
                 .execute();
     }
 }
