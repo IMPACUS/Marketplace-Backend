@@ -19,6 +19,7 @@ import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.seller.SellerService;
 import com.impacus.maketplace.service.seller.SellerWriteService;
 import jakarta.validation.Valid;
@@ -45,6 +46,7 @@ public class SellerController {
     private final SellerService sellerService;
     private final UserService userService;
     private final SellerWriteService sellerWriteService;
+    private final AuthService authService;
 
     /**
      * 판매자 입점 현황 데이터를 조회하는 API
@@ -288,12 +290,13 @@ public class SellerController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
-    @PatchMapping("/password")
-    public ApiResponseEntity<CheckMatchedPasswordDTO> checkIsMatchPassword(@Valid @RequestBody EmailVerificationRequest dto) {
+    @PostMapping("/password")
+    public ApiResponseEntity<CheckMatchedPasswordDTO> checkIsMatchPassword(@AuthenticationPrincipal CustomUserDetails user, @Valid @RequestBody PasswordDTO dto) {
+        CheckMatchedPasswordDTO result = authService.checkIsPasswordMatch(user.getId(), UserType.ROLE_APPROVED_SELLER, dto.getPassword());
         return ApiResponseEntity
                 .<CheckMatchedPasswordDTO>builder()
                 .message("기존 비밀번호 일치 여부 확인 성공")
-                .data(true)
+                .data(result)
                 .build();
     }
 }
