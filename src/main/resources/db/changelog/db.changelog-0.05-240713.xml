@@ -174,7 +174,7 @@
       <column name="refund_special_delivery_fee" type="INT">
         <constraints nullable="false"/>
       </column>
-      
+
       <column name="create_at" type="TIMESTAMP">
       </column>
       <column name="modify_at" type="TIMESTAMP">
@@ -213,17 +213,14 @@
       <column name="order" type="INT">
         <constraints nullable="false"/>
       </column>
+
       <column name="create_at" type="TIMESTAMP">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_at" type="TIMESTAMP">
-        <constraints nullable="true"/>
       </column>
       <column name="register_id" type="VARCHAR(255)">
-        <constraints nullable="false"/>
       </column>
       <column name="modify_id" type="VARCHAR(255)">
-        <constraints nullable="true"/>
       </column>
     </createTable>
 
