@@ -1,6 +1,6 @@
 package com.impacus.maketplace.common.annotation;
 
-import com.impacus.maketplace.common.validator.BirthDateValidator;
+import com.impacus.maketplace.common.validator.AccountNumberValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -9,7 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = BirthDateValidator.class)
+@Constraint(validatedBy = AccountNumberValidator.class)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidAccountNumber {

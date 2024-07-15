@@ -289,6 +289,7 @@ public class SellerController {
         sellerWriteService.updateDeliveryAddressInformation(user.getId(), dto);
         return ApiResponseEntity
                 .<Boolean>builder()
+                .message("판매자 배송지 정보 수정 성공")
                 .data(true)
                 .build();
     }

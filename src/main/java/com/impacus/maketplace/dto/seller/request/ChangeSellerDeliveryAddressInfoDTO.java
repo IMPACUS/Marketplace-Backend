@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.entity.seller.delivery.SellerDeliveryAddress;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
@@ -44,16 +45,16 @@ public class ChangeSellerDeliveryAddressInfoDTO {
     // 반품 배송비 계좌번호
     @NotBlank(message = "반품 배송비 계좌번호는 필수입니다")
     @Size(max = 25)
+    @ValidAccountNumber
     private String refundAccountNumber;
 
     // 반품 배송비 예금주명
     @NotBlank(message = "반품 배송비 예금주명은 필수입니다")
-    @ValidAccountNumber
     @Size(max = 25)
     private String refundAccountName;
 
     // 반품 은행 코드
-    @NotBlank(message = "반품 은행 코드는 필수입니다")
+    @NotNull(message = "반품 은행 코드는 필수입니다")
     @ValidEnum(enumClass = BankCode.class)
     private BankCode refundBankCode;
 
