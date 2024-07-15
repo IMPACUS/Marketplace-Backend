@@ -1,25 +1,33 @@
 package com.impacus.maketplace.service.seller;
 
 import com.impacus.maketplace.common.constants.DirectoryConstants;
+import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerLoginInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
+import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
+import com.impacus.maketplace.entity.seller.deliveryCompany.SelectedSellerDeliveryCompany;
+import com.impacus.maketplace.entity.seller.deliveryCompany.SellerDeliveryCompany;
 import com.impacus.maketplace.repository.seller.BrandRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
+import com.impacus.maketplace.repository.seller.deliveryCompany.SellerDeliveryCompanyRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.seller.deliveryCompany.SelectedSellerDeliveryCompanyService;
+import com.impacus.maketplace.service.seller.deliveryCompany.SellerDeliveryCompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +40,10 @@ public class SellerWriteService {
     private final BrandService brandService;
     private final SellerBusinessInfoService sellerBusinessInfoService;
     private final SellerAdjustmentInfoService sellerAdjustmentInfoService;
+    private final SellerDeliveryCompanyRepository sellerDeliveryCompanyRepository;
     private final UserService userService;
+    private final SelectedSellerDeliveryCompanyService selectedSellerDeliveryCompanyService;
+    private final SellerDeliveryCompanyService sellerDeliveryCompanyService;
 
     /**
      * 판매자 스토어 정보 변경 함수
@@ -199,12 +210,63 @@ public class SellerWriteService {
      * @param dto
      */
     @Transactional
-    public void updateDeliveryCompanyInformation(ChangeBrandInfoDTO dto, MultipartFile logoImage) {
+    public void updateDeliveryCompanyInformation(Long userId, ChangeSellerDeliveryCompanyInfoDTO dto) {
         try {
+            Seller seller = sellerService.findSellerByUserId(userId);
+            Long sellerId = seller.getId();
+            Optional<SellerDeliveryCompany> optionalSellerDeliveryCompany = sellerDeliveryCompanyRepository.findBySellerId(sellerId);
+            List<DeliveryCompany> deliveryCompanies = dto.getDeliveryCompanies();
 
+            // 유효성 검사
+            if (deliveryCompanies.contains(DeliveryCompany.NONE)) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "deliveryCompany에 유효하지 않는 데이터 존재합니다.");
+            }
+            if (hasDuplicatedDeliveryCompany(deliveryCompanies)) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "deliveryCompany에 중복된 데이터가 존재합니다.");
+        }
+
+            // 택배사 정보 업데이트
+            if (optionalSellerDeliveryCompany.isPresent()) {
+                // 1-1. SellerDeliveryCompany 업데이트
+                sellerRepository.updateDeliveryCompanyInformationBySellerId(sellerId, dto);
+
+                // 1-2. SelectedSellerDeliveryCompany 업데이트
+                selectedSellerDeliveryCompanyService.updateAllSelectedSellerDeliveryCompany(
+                        optionalSellerDeliveryCompany.get().getId(),
+                        deliveryCompanies
+                );
+
+
+            } else {
+                // 2-1. SellerDeliveryCompany 저장
+                SellerDeliveryCompany company = dto.toEntity(sellerId);
+                sellerDeliveryCompanyService.saveSellerDeliveryCompany(company);
+
+                // 2-2. SelectedSellerDeliveryCompany 저장
+                List<SelectedSellerDeliveryCompany> companies = dto.toSelectedEntity(company.getId());
+                selectedSellerDeliveryCompanyService.saveAllSelectedSellerDeliveryCompany(companies);
+            }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * DeliveryCompany 리스트에서 중복된 정보가 있는지 확인합니다.
+     *
+     * @param deliveryCompanies 중복을 확인할 DeliveryCompany 리스트
+     * @return 중복이 있으면 true, 없으면 false
+     */
+    private boolean hasDuplicatedDeliveryCompany(List<DeliveryCompany> deliveryCompanies) {
+        Set<String> nameSet = new HashSet<>();
+
+        for (DeliveryCompany company : deliveryCompanies) {
+            if (!nameSet.add(company.name())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

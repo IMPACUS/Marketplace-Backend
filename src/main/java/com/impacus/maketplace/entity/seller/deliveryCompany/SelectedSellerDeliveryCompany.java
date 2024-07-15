@@ -2,14 +2,7 @@ package com.impacus.maketplace.entity.seller.deliveryCompany;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,5 +30,15 @@ public class SelectedSellerDeliveryCompany extends BaseEntity {
 
   @Column(nullable = false)
   @Comment("순서")
-  private int order;
+  private int displayOrder;
+
+  public SelectedSellerDeliveryCompany(
+          Long sellerDeliveryCompanyId,
+          DeliveryCompany deliveryCompany,
+          int displayOrder
+  ) {
+    this.sellerDeliveryCompanyId = sellerDeliveryCompanyId;
+    this.deliveryCompany = deliveryCompany;
+    this.displayOrder = displayOrder;
+  }
 }
