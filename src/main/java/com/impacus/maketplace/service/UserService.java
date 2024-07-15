@@ -411,12 +411,17 @@ public class UserService {
     }
 
     /**
-     * User 저장하는 함수
+     * User 저장하는 함수 (판매자)
      *
      * @param user
      */
+    @Transactional
     public void saveUser(User user) {
-        userRepository.save(user);
+        // 1. User 생성
+        User newUser = userRepository.save(user);
+
+        // 2. UserStatus 생성
+        userStatusInfoService.addUserStatusInfo(newUser.getId());
     }
 
     /**
