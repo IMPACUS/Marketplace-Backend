@@ -1,13 +1,11 @@
 package com.impacus.maketplace.repository.seller.querydsl;
 
-import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerLoginInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
+import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.entity.seller.QBrand;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.seller.QSellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.QSellerBusinessInfo;
+import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +25,7 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
     private final QBrand brand = QBrand.brand;
     private final QSellerAdjustmentInfo sellerAdjustmentInfo = QSellerAdjustmentInfo.sellerAdjustmentInfo;
     private final QUser user = QUser.user;
+    private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
 
     @Override
     public void updateBrandInformationByUserId(
@@ -118,6 +117,23 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
                 .set(user.modifyAt, LocalDateTime.now())
                 .set(user.modifyId, currentAuditor)
                 .where(user.id.eq(userId))
+                .execute();
+    }
+
+    @Override
+    public void updateDeliveryCompanyInformationBySellerId(Long sellerId, ChangeSellerDeliveryCompanyInfoDTO dto) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        // 택배사 정보 변경
+        queryFactory
+                .update(sellerDeliveryCompany)
+                .set(sellerDeliveryCompany.generalDeliveryFee, dto.getGeneralDeliveryFee())
+                .set(sellerDeliveryCompany.generalSpecialDeliveryFee, dto.getGeneralSpecialDeliveryFee())
+                .set(sellerDeliveryCompany.refundDeliveryFee, dto.getRefundDeliveryFee())
+                .set(sellerDeliveryCompany.refundSpecialDeliveryFee, dto.getGeneralSpecialDeliveryFee())
+                .set(sellerDeliveryCompany.modifyAt, LocalDateTime.now())
+                .set(sellerDeliveryCompany.modifyId, currentAuditor)
+                .where(sellerDeliveryCompany.sellerId.eq(sellerId))
                 .execute();
     }
 }

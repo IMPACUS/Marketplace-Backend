@@ -263,10 +263,14 @@ public class SellerController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PatchMapping("/delivery-company")
-    public ApiResponseEntity<?> updateDeliveryCompanyInformation(@Valid @RequestBody PasswordDTO dto) {
-
+    public ApiResponseEntity<Boolean> updateDeliveryCompanyInformation(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody ChangeSellerDeliveryCompanyInfoDTO dto
+    ) {
+        sellerWriteService.updateDeliveryCompanyInformation(user.getId(), dto);
         return ApiResponseEntity
                 .<Boolean>builder()
+                .message("판매자 택배사 정보 수정 성공")
                 .data(true)
                 .build();
     }

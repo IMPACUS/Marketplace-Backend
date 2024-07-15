@@ -1,9 +1,6 @@
 package com.impacus.maketplace.repository.seller.querydsl;
 
-import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerLoginInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
+import com.impacus.maketplace.dto.seller.request.*;
 
 public interface SellerWriteCustomRepository {
     void updateBrandInformationByUserId(Long userId, Long sellerId, ChangeBrandInfoDTO dto, boolean isExistedBrand);
@@ -13,4 +10,6 @@ public interface SellerWriteCustomRepository {
     void updateAdjustmentInformationBySellerId(Long sellerId, ChangeSellerAdjustmentInfoDTO dto);
 
     void updateLoginInformationByUserId(Long userId, ChangeSellerLoginInfoDTO dto, String encodedPassword);
+
+    void updateDeliveryCompanyInformationBySellerId(Long sellerId, ChangeSellerDeliveryCompanyInfoDTO dto);
 }

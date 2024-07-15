@@ -210,7 +210,7 @@
       <column name="delivery_company" type="VARCHAR(255)">
         <constraints nullable="false"/>
       </column>
-      <column name="order" type="INT">
+      <column name="display_order" type="INT">
         <constraints nullable="false"/>
       </column>
 
@@ -225,7 +225,7 @@
     </createTable>
 
     <setColumnRemarks tableName="selected_seller_delivery_company" columnName="delivery_company" remarks="택배사"/>
-    <setColumnRemarks tableName="selected_seller_delivery_company" columnName="order" remarks="순서"/>
+    <setColumnRemarks tableName="selected_seller_delivery_company" columnName="display_order" remarks="순서"/>
   </changeSet>
 
 </databaseChangeLog>

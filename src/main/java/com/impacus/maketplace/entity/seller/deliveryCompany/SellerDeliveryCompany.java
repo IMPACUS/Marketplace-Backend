@@ -1,16 +1,8 @@
 package com.impacus.maketplace.entity.seller.deliveryCompany;
 
 import com.impacus.maketplace.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -42,4 +34,19 @@ public class SellerDeliveryCompany extends BaseEntity {
   @Column(nullable = false)
   @Comment("반품 특수 배송비")
   private int refundSpecialDeliveryFee;
+
+  @Builder
+  public SellerDeliveryCompany(
+          Long sellerId,
+          int generalDeliveryFee,
+          int generalSpecialDeliveryFee,
+          int refundDeliveryFee,
+          int refundSpecialDeliveryFee
+  ) {
+    this.sellerId = sellerId;
+    this.generalDeliveryFee = generalDeliveryFee;
+    this.generalSpecialDeliveryFee = generalSpecialDeliveryFee;
+    this.refundDeliveryFee = refundDeliveryFee;
+    this.refundSpecialDeliveryFee = refundSpecialDeliveryFee;
+  }
 }
