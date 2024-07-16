@@ -1,10 +1,12 @@
 package com.impacus.maketplace.service.seller.delivery;
 
-import com.impacus.maketplace.entity.seller.delivery.SellerDeliveryAddress;
-import com.impacus.maketplace.repository.seller.delivery.SellerDeliveryAddressRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.impacus.maketplace.entity.seller.delivery.SellerDeliveryAddress;
+import com.impacus.maketplace.repository.seller.delivery.SellerDeliveryAddressRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +22,15 @@ public class SellerDeliveryAddressService {
      */
     public SellerDeliveryAddress saveSellerDeliveryAddress(SellerDeliveryAddress sellerDeliveryAddress) {
         return sellerDeliveryAddressRepository.save(sellerDeliveryAddress);
+    }
+
+    /**
+     * id가 sellerDeliveryAddressId인, sellerId가 등록한 SellerDeliveryAddress가 존재하는지 확인하는 함수
+     * @param sellerId
+     * @param sellerDeliveryAddressId
+     * @return
+     */
+    public boolean existsSellerDeliveryAddressBySellerIdAndId(Long sellerId, Long sellerDeliveryAddressId) {
+        return sellerDeliveryAddressRepository.existsBySellerIdAndId(sellerId, sellerDeliveryAddressId);
     }
 }

@@ -1,35 +1,46 @@
 package com.impacus.maketplace.service.seller;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.SellerErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.seller.request.*;
+import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerDeliveryAddressInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerDeliveryCompanyInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerLoginInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
+import com.impacus.maketplace.entity.seller.delivery.SelectedSellerDeliveryAddress;
 import com.impacus.maketplace.entity.seller.delivery.SellerDeliveryAddress;
 import com.impacus.maketplace.entity.seller.deliveryCompany.SelectedSellerDeliveryCompany;
 import com.impacus.maketplace.entity.seller.deliveryCompany.SellerDeliveryCompany;
 import com.impacus.maketplace.repository.seller.BrandRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
+import com.impacus.maketplace.repository.seller.delivery.SelectedSellerDeliveryAddressRepository;
 import com.impacus.maketplace.repository.seller.deliveryCompany.SellerDeliveryCompanyRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.seller.delivery.SelectedSellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.delivery.SellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SelectedSellerDeliveryCompanyService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SellerDeliveryCompanyService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +58,9 @@ public class SellerWriteService {
     private final SelectedSellerDeliveryCompanyService selectedSellerDeliveryCompanyService;
     private final SellerDeliveryCompanyService sellerDeliveryCompanyService;
     private final SellerDeliveryAddressService sellerDeliveryAddressService;
+    private final SelectedSellerDeliveryAddressService selectedSellerDeliveryAddressService;
+    private final SelectedSellerDeliveryAddressRepository selectedSellerDeliveryAddressRepository;
+
 
     /**
      * 판매자 스토어 정보 변경 함수
@@ -301,5 +315,41 @@ public class SellerWriteService {
             }
 
 
+    }
+
+    /**
+     * 메인 판매자 배송지를 변경하는 함수
+     * 
+     * @param id
+     * @param sellerDeliveryAddressId
+     */
+    public void updateMainDeliveryAddress(Long userId, Long sellerDeliveryAddressId) {
+        try {
+            Seller seller = sellerService.findSellerByUserId(userId);
+            Long sellerId = seller.getId();
+            Optional<SelectedSellerDeliveryAddress> optionalAddress = selectedSellerDeliveryAddressRepository
+                    .findBySellerId(sellerId);
+
+            // 1. 유효성 검사
+            if (!sellerDeliveryAddressService.existsSellerDeliveryAddressBySellerIdAndId(sellerId,
+                    sellerDeliveryAddressId)) {
+                throw new CustomException(SellerErrorType.NOT_EXISTED_SELLER_DELIVERY_ADDRESS_ID);
+            }
+
+            // 2. 업데이트
+            if (optionalAddress.isPresent()) {
+                // 2-1. 생성된 SelectedSellerDeliveryAddress가 존재하는 경우, 데이터 업데이트
+                SelectedSellerDeliveryAddress address = optionalAddress.get();
+                selectedSellerDeliveryAddressRepository.updateSellerDeliveryAddressIdById(address.getId(),
+                        sellerDeliveryAddressId);
+            } else {
+                // 2-2 생성된 SelectedSellerDeliveryAddress가 존재하지 않는 경우, 생성
+                SelectedSellerDeliveryAddress newAddress = SelectedSellerDeliveryAddress.toEntity(sellerId,
+                        sellerDeliveryAddressId);
+                selectedSellerDeliveryAddressService.saveSelectedSellerDeliveryAddress(newAddress);
+            }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }
