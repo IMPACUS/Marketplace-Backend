@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -24,17 +25,21 @@ public class ProductOption extends BaseEntity {
     private Long productId;
 
     @Column(nullable = false)
-    private String color; // 색
+    @Comment("색")
+    private String color;
 
     @Column(nullable = false)
-    private String size; // 크기
+    @Comment("크기")
+    private String size;
 
     @Column(nullable = false)
-    private Long stock; // 재고
+    @Comment("재고")
+    private Long stock;
 
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted; // 삭제 여부
+    @Comment("삭제 여부")
+    private boolean isDeleted;
 
     public void setColor(String color) {
         this.color = color;

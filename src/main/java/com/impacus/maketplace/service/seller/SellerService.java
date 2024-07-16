@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.SellerErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -328,7 +329,7 @@ public class SellerService {
      */
     public Seller findSellerByUserId(Long userId) {
         return sellerRepository.findByUserId(userId)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_SELLER));
+                .orElseThrow(() -> new CustomException(SellerErrorType.NOT_EXISTED_SELLER));
     }
 
     /**
@@ -361,7 +362,7 @@ public class SellerService {
         try {
             // 1. 판매자 유효성 검사
             if (!sellerRepository.existsByUserId(userId)) {
-                throw new CustomException(CommonErrorType.NOT_EXISTED_SELLER);
+                throw new CustomException(SellerErrorType.NOT_EXISTED_SELLER);
             }
 
             // 2. 데이터 조회

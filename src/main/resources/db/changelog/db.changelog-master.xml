@@ -9,6 +9,7 @@
     <include file="/db/changelog/db.changelog-0.03-240701.xml"/>
     <include file="/db/changelog/db.changelog-0.04-240702.xml"/>
     <include file="/db/changelog/db.changelog-0.05-240713.xml"/>
+    <include file="/db/changelog/db.changelog-0.06-240716.xml"/>
 
 </databaseChangeLog>
 

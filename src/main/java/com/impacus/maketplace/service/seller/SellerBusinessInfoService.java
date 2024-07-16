@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.seller;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.SellerErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
 import com.impacus.maketplace.repository.seller.SellerBusinessInfoRepository;
@@ -32,6 +32,6 @@ public class SellerBusinessInfoService {
      */
     public SellerBusinessInfo findSellerBusinessInfoBySellerId(Long sellerId) {
         return sellerBusinessInfoRepository.findBySellerId(sellerId)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_SELLER));
+                .orElseThrow(() -> new CustomException(SellerErrorType.NOT_EXISTED_SELLER));
     }
 }
