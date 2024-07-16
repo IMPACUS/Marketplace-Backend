@@ -1,5 +1,23 @@
 package com.impacus.maketplace.controller;
 
+import java.time.LocalDate;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -8,7 +26,13 @@ import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
-import com.impacus.maketplace.dto.seller.request.*;
+import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerDeliveryAddressInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerDeliveryCompanyInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerLoginInfoDTO;
+import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
@@ -19,21 +43,12 @@ import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.seller.SellerService;
 import com.impacus.maketplace.service.seller.SellerWriteService;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
-
-import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -302,12 +317,33 @@ public class SellerController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PostMapping("/password")
-    public ApiResponseEntity<CheckMatchedPasswordDTO> checkIsMatchPassword(@AuthenticationPrincipal CustomUserDetails user, @Valid @RequestBody PasswordDTO dto) {
-        CheckMatchedPasswordDTO result = authService.checkIsPasswordMatch(user.getId(), UserType.ROLE_APPROVED_SELLER, dto.getPassword());
+    public ApiResponseEntity<CheckMatchedPasswordDTO> checkIsMatchPassword(
+                    @AuthenticationPrincipal CustomUserDetails user, @Valid @RequestBody PasswordDTO dto) {
+            CheckMatchedPasswordDTO result = authService.checkIsPasswordMatch(user.getId(),
+                            UserType.ROLE_APPROVED_SELLER, dto.getPassword());
+            return ApiResponseEntity
+                            .<CheckMatchedPasswordDTO>builder()
+                            .message("기존 비밀번호 일치 여부 확인 성공")
+                            .data(result)
+                            .build();
+    }
+    
+   /**
+     * 메인 판매자 배송지 정보 변경
+     * @param dto
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PatchMapping("/main-delivery-address")
+    public ApiResponseEntity<Boolean> updateMainDeliveryAddress(
+            @AuthenticationPrincipal CustomUserDetails user,
+                            @RequestParam Long sellerDeliveryAddressId
+    ) {
+        sellerWriteService.updateMainDeliveryAddress(user.getId(), sellerDeliveryAddressId);
         return ApiResponseEntity
-                .<CheckMatchedPasswordDTO>builder()
-                .message("기존 비밀번호 일치 여부 확인 성공")
-                .data(result)
+                .<Boolean>builder()
+                .message("판매자 배송지 정보 수정 성공")
+                .data(true)
                 .build();
     }
 }
