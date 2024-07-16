@@ -1,14 +1,16 @@
 package com.impacus.maketplace.service.seller.deliveryCompany;
 
-import com.impacus.maketplace.common.enumType.DeliveryCompany;
-import com.impacus.maketplace.entity.seller.deliveryCompany.SelectedSellerDeliveryCompany;
-import com.impacus.maketplace.repository.seller.deliveryCompany.SelectedSellerDeliveryCompanyRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.impacus.maketplace.common.enumType.DeliveryCompany;
+import com.impacus.maketplace.entity.seller.deliveryCompany.SelectedSellerDeliveryCompany;
+import com.impacus.maketplace.repository.seller.deliveryCompany.SelectedSellerDeliveryCompanyRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +30,9 @@ public class SelectedSellerDeliveryCompanyService {
 
     /**
      * SelectedSellerDeliveryCompany의 저장된 순서를 수정하는 함수
-     * TODO 상세 정책은 comment 답변받은 후 수정 예정
      * - 저장된 택배사의 수가 같은 경우: 순서대로 변경된 택배사 정보로 수정
      * - 저장된 택배사의 수가 적은 경우: 순서대로 변경된 택배사 정보로 수정하고 택배사 추가
-     * - 저장된 택배사의 수가 많은 경우: 순서대로 변경된 택배사 정보 수정하고 나머지는 삭제
+     * - 저장된 택배사의 수가 많은 경우: 순서대로 변경된 택배사 정보 수정하고 나머지는 삭제 후 연결되어 있는 택배사를 [사용 안함] 으로 변경 TODO
      *
      * @param sellerDeliveryCompanyId
      * @param deliveryCompanies
@@ -65,6 +66,8 @@ public class SelectedSellerDeliveryCompanyService {
             // 3-2 삭제필요 데이터 삭제
             List<SelectedSellerDeliveryCompany> deleteCompanies = savedCompanies.subList(deliveryCompanies.size(), savedCompanies.size());
             selectedSellerDeliveryCompanyRepository.deleteAll(deleteCompanies);
+
+            // 3-2 TODO 기존에 연결되어 있던 택배사 [사용안함]으로 변경
         }
     }
 
