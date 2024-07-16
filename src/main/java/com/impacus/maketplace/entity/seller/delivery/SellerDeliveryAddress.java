@@ -17,7 +17,7 @@ public class SellerDeliveryAddress extends BaseEntity {
   @Column(name = "seller_delivery_address_id")
   private Long id;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private Long sellerId;
 
   @Column(nullable = false)

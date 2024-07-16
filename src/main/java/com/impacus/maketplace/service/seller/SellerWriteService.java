@@ -297,8 +297,8 @@ public class SellerWriteService {
             Long userId,
             ChangeSellerDeliveryAddressInfoDTO dto
     ) {
-        try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+
+        Seller seller = sellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
 
             if (dto.getDeliveryAddressId() == null) {
@@ -314,9 +314,7 @@ public class SellerWriteService {
                 }
             }
 
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+
     }
 
     /**
