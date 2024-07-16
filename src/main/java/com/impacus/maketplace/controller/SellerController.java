@@ -9,6 +9,7 @@ import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
 import com.impacus.maketplace.dto.seller.request.*;
+import com.impacus.maketplace.dto.seller.response.DetailedSellerDTO;
 import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
 import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
@@ -329,6 +330,23 @@ public class SellerController {
                 .<Boolean>builder()
                 .message("판매자 배송지 정보 수정 성공")
                 .data(true)
+                .build();
+    }
+
+    /**
+     * 판매자 정보 관리 데이터 조회
+     *
+     * @param user
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @GetMapping("details")
+    public ApiResponseEntity<DetailedSellerDTO> findSellerDetailInformation(@AuthenticationPrincipal CustomUserDetails user) {
+        DetailedSellerDTO dto = sellerService.findSellerDetailInformation(user.getId());
+        return ApiResponseEntity
+                .<DetailedSellerDTO>builder()
+                .message("판매자 배송지 정보 수정 성공")
+                .data(dto)
                 .build();
     }
 }

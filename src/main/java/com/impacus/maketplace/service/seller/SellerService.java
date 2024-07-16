@@ -12,10 +12,7 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.seller.request.ChangeSellerEntryStatusDTO;
 import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
-import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
-import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
-import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
-import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
+import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -382,5 +379,19 @@ public class SellerService {
      */
     public boolean existsSellerBySellerId(Long sellerId) {
         return sellerRepository.existsById(sellerId);
+    }
+
+    /**
+     * 판매자 정보 관리 데이터 조회 함수
+     *
+     * @param userId
+     * @return
+     */
+    public DetailedSellerDTO findSellerDetailInformation(Long userId) {
+        try {
+            return sellerRepository.findDetailedSellerInformationByUserId(userId);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }
