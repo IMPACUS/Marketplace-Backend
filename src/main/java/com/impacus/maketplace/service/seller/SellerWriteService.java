@@ -1,14 +1,5 @@
 package com.impacus.maketplace.service.seller;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
@@ -16,12 +7,7 @@ import com.impacus.maketplace.common.enumType.error.SellerErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.seller.request.ChangeBrandInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerAdjustmentInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerDeliveryAddressInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerDeliveryCompanyInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerLoginInfoDTO;
-import com.impacus.maketplace.dto.seller.request.ChangeSellerManagerInfoDTO;
+import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
@@ -39,8 +25,15 @@ import com.impacus.maketplace.service.seller.delivery.SelectedSellerDeliveryAddr
 import com.impacus.maketplace.service.seller.delivery.SellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SelectedSellerDeliveryCompanyService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SellerDeliveryCompanyService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -298,7 +291,8 @@ public class SellerWriteService {
             ChangeSellerDeliveryAddressInfoDTO dto
     ) {
 
-        Seller seller = sellerService.findSellerByUserId(userId);
+        try {
+            Seller seller = sellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
 
             if (dto.getDeliveryAddressId() == null) {
@@ -314,17 +308,20 @@ public class SellerWriteService {
                 }
             }
 
-
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
      * 메인 판매자 배송지를 변경하는 함수
-     * 
-     * @param id
+     *
+     * @param userId
      * @param sellerDeliveryAddressId
      */
+    @Transactional
     public void updateMainDeliveryAddress(Long userId, Long sellerDeliveryAddressId) {
-        try {
+//        try {
             Seller seller = sellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
             Optional<SelectedSellerDeliveryAddress> optionalAddress = selectedSellerDeliveryAddressRepository
@@ -348,8 +345,8 @@ public class SellerWriteService {
                         sellerDeliveryAddressId);
                 selectedSellerDeliveryAddressService.saveSelectedSellerDeliveryAddress(newAddress);
             }
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 }
