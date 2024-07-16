@@ -304,7 +304,7 @@ public class SellerWriteService {
                 Long columnCnt = sellerRepository.updateDeliveryAddressInformationBySellerIdAndId(sellerId, dto);
 
                 if (columnCnt <= 0L) {
-                    throw new CustomException(CommonErrorType.NOT_EXISTED_SELLER);
+                    throw new CustomException(SellerErrorType.NOT_EXISTED_SELLER);
                 }
             }
 

@@ -3,6 +3,7 @@ package com.impacus.maketplace.entity.product;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -23,7 +24,8 @@ public class ProductDescription {
     private Long productId;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String description; // 상품 설명
+    @Comment("상품 설명")
+    private String description;
 
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
