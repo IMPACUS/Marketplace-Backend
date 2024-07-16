@@ -321,7 +321,7 @@ public class SellerWriteService {
      */
     @Transactional
     public void updateMainDeliveryAddress(Long userId, Long sellerDeliveryAddressId) {
-//        try {
+        try {
             Seller seller = sellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
             Optional<SelectedSellerDeliveryAddress> optionalAddress = selectedSellerDeliveryAddressRepository
@@ -345,8 +345,8 @@ public class SellerWriteService {
                         sellerDeliveryAddressId);
                 selectedSellerDeliveryAddressService.saveSelectedSellerDeliveryAddress(newAddress);
             }
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }
