@@ -20,7 +20,7 @@ public class ProductOptionHistory extends BaseEntity {
     @Column(name = "product_option_history_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Long productOptionId;
 
     @Column(nullable = false)
