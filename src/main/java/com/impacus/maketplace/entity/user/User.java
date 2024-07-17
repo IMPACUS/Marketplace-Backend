@@ -61,12 +61,12 @@ public class User extends BaseEntity {
 
     @Comment("이메일 동의 여부")
     @ColumnDefault("true")
-    @Column(nullable = false)
+    @Column(nullable = false, name = "is_cert_email")
     private boolean isCertEmail;
 
     @Comment("휴대전화 동의 여부")
     @ColumnDefault("true")
-    @Column(nullable = false)
+    @Column(nullable = false, name = "is_cert_phone")
     private boolean isCertPhone;
 
     @Comment("이메일 동의 날짜")
@@ -89,6 +89,12 @@ public class User extends BaseEntity {
         this.password = password;
         this.type = UserType.ROLE_CERTIFIED_USER;
         this.phoneNumber = "010-0000-0000";
+
+        this.isCertEmail = false;
+        this.isCertPhone = false;
+        this.certEmailAt = LocalDateTime.now();
+        this.certPhoneAt = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     public User(String email,
@@ -101,6 +107,12 @@ public class User extends BaseEntity {
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.type = userType;
+
+        this.isCertEmail = true;
+        this.isCertPhone = true;
+        this.certEmailAt = LocalDateTime.now();
+        this.certPhoneAt = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     public void setRecentLoginAt() {

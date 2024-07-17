@@ -11,6 +11,7 @@ import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
+import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
@@ -410,12 +411,17 @@ public class UserService {
     }
 
     /**
-     * User 저장하는 함수
+     * User 저장하는 함수 (판매자)
      *
      * @param user
      */
+    @Transactional
     public void saveUser(User user) {
-        userRepository.save(user);
+        // 1. User 생성
+        User newUser = userRepository.save(user);
+
+        // 2. UserStatus 생성
+        userStatusInfoService.addUserStatusInfo(newUser.getId());
     }
 
     /**
@@ -440,4 +446,8 @@ public class UserService {
         userRepository.updateUserType(userId, userType);
     }
 
+    public CheckExistedEmailDTO checkExistedEmailForSeller(String email) {
+        boolean isExited = existUserByEmail(email);
+        return CheckExistedEmailDTO.toDTO(isExited);
+    }
 }

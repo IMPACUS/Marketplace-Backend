@@ -146,7 +146,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
                 .groupBy(product.id, attachFile.id, productOption.id)
                 .where(builder);
-
         return query
                 .transform(
                         GroupBy.groupBy(product.id).list(

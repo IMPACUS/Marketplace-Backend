@@ -13,7 +13,7 @@
 
     <!-- seller_info 생성 -->
     <changeSet id="changelog-0.04.01-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="seller_info"/>
             </not>
@@ -50,16 +50,12 @@
             </column>
 
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="true"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
         </createTable>
 
@@ -73,7 +69,7 @@
 
     <!-- seller_adjustment_info 생성 -->
     <changeSet id="changelog-0.04.02-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="seller_adjustment_info"/>
             </not>
@@ -99,16 +95,12 @@
             </column>
 
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="true"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
         </createTable>
 
@@ -119,7 +111,7 @@
 
     <!-- seller_business_info 생성 -->
     <changeSet id="changelog-0.04.03-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="seller_business_info"/>
             </not>
@@ -163,16 +155,12 @@
             </column>
 
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="true"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
         </createTable>
 

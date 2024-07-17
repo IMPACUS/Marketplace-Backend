@@ -6,13 +6,13 @@
 
     <!-- user_detail, user history 테이블 삭제 -->
     <changeSet id="changelog-0.03.01-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="user_detail"/>
         </preConditions>
         <dropTable tableName="user_detail"/>
     </changeSet>
     <changeSet id="changelog-0.03.02-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="user_history"/>
         </preConditions>
         <dropTable tableName="user_history"/>
@@ -20,7 +20,7 @@
 
     <!-- user_info 컬럼 삭제 -->
     <changeSet id="changelog-0.03.03-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="auth_ci"/>
             <columnExists tableName="user_info" columnName="auth_di"/>
             <columnExists tableName="user_info" columnName="bank_account_number"/>
@@ -49,7 +49,7 @@
     </changeSet>
 
     <changeSet id="changelog-0.03.04-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="brand_shop_alarm"/>
             <columnExists tableName="user_info" columnName="order_delivery_alarm"/>
             <columnExists tableName="user_info" columnName="restock_alarm"/>
@@ -66,7 +66,7 @@
     </changeSet>
 
     <changeSet id="changelog-0.03.05-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="dormancy_months"/>
             <columnExists tableName="user_info" columnName="first_dormancy"/>
             <columnExists tableName="user_info" columnName="second_dormancy"/>
@@ -80,7 +80,7 @@
 
     <!-- user_info 컬럼 user_jumin1 이름 변경 -->
     <changeSet id="changelog-0.03.06-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="user_jumin1"/>
             <columnExists tableName="user_info" columnName="jumin1"/>
         </preConditions>
@@ -90,7 +90,7 @@
     </changeSet>
 
     <changeSet id="changelog-0.03.07-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="user_jumin1"/>
             <not>
                 <columnExists tableName="user_info" columnName="jumin1"/>
@@ -103,7 +103,7 @@
 
     <!-- user_status_info 테이블 생성 -->
     <changeSet id="changelog-0.03.11-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_status_info"/>
             </not>
@@ -120,16 +120,12 @@
             </column>
             <column name="status_reason" type="TEXT"/>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -139,7 +135,7 @@
 
     <!-- user_role 테이블 생성 -->
     <changeSet id="changelog-0.03.12-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_role"/>
             </not>
@@ -155,16 +151,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -173,7 +165,7 @@
 
     <!-- user_consent 테이블 생성 -->
     <changeSet id="changelog-0.03.13-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_consent"/>
             </not>
@@ -198,16 +190,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -220,7 +208,7 @@
 
     <!-- green_label_point 테이블 생성 -->
     <changeSet id="changelog-0.03.14-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="green_label_point"/>
             </not>
@@ -236,16 +224,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -313,7 +297,7 @@
 
     <!-- brand_shop_alarm 생성 -->
     <changeSet id="changelog-0.03.18-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="brand_shop_alarm"/>
             </not>
@@ -339,16 +323,12 @@
             </column>
             <column name="time" type="TIMESTAMP"/>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -362,7 +342,7 @@
 
     <!-- order_delivery_alarm 생성 -->
     <changeSet id="changelog-0.03.19-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="order_delivery_alarm"/>
             </not>
@@ -388,16 +368,12 @@
             </column>
             <column name="time" type="TIMESTAMP"/>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -411,7 +387,7 @@
 
     <!-- restock_alarm 생성 -->
     <changeSet id="changelog-0.03.20-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="restock_alarm"/>
             </not>
@@ -437,16 +413,12 @@
             </column>
             <column name="time" type="TIMESTAMP"/>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -460,7 +432,7 @@
 
     <!-- review_alarm 생성 -->
     <changeSet id="changelog-0.03.21-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="review_alarm"/>
             </not>
@@ -486,16 +458,12 @@
             </column>
             <column name="time" type="TIMESTAMP"/>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -509,7 +477,7 @@
 
     <!-- service_center_alarm 생성 -->
     <changeSet id="changelog-0.03.22-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="service_center_alarm"/>
             </not>
@@ -535,16 +503,12 @@
             </column>
             <column name="time" type="TIMESTAMP"/>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -558,7 +522,7 @@
 
     <!-- shopping_benefits_alarm 생성 -->
     <changeSet id="changelog-0.03.23-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="shopping_benefits_alarm"/>
             </not>
@@ -584,16 +548,12 @@
             </column>
             <column name="time" type="TIMESTAMP"/>
             <column name="create_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
             </column>
             <column name="register_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
             <column name="modify_id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
 
