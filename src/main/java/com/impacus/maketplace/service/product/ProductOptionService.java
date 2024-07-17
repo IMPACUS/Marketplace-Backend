@@ -32,12 +32,14 @@ public class ProductOptionService {
      * @return
      */
     @Transactional
-    public void addProductOption(Long productId, List<CreateProductOptionDTO> productOptionRequestList) {
+    public List<ProductOption> addProductOption(Long productId, List<CreateProductOptionDTO> productOptionRequestList) {
         List<ProductOption> newProductOptions = productOptionRequestList.stream()
                 .map(productOptionRequest -> productOptionRequest.toEntity(productId))
                 .collect(Collectors.toList());
 
         saveAllProductOptions(newProductOptions);
+
+        return newProductOptions;
     }
 
     /**
