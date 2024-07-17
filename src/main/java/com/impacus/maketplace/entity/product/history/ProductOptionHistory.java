@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.product.history;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.entity.product.ProductOption;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -29,4 +30,18 @@ public class ProductOptionHistory extends BaseEntity {
     @Column(nullable = false)
     @Comment("크기")
     private String size; // 크기
+
+    public ProductOptionHistory(
+            Long productOptionId,
+            String color,
+            String size
+    ) {
+        this.productOptionId = productOptionId;
+        this.color = color;
+        this.size = size;
+    }
+
+    public static ProductOptionHistory toEntity(ProductOption productOption) {
+        return new ProductOptionHistory(productOption.getId(), productOption.getColor(), productOption.getSize());
+    }
 }
