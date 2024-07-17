@@ -24,7 +24,7 @@ public class ProductHistory extends BaseEntity {
     @Column(name = "product_history_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Long productId;
 
     @Column(nullable = false, length = 50)
@@ -47,11 +47,21 @@ public class ProductHistory extends BaseEntity {
     }
 
     public static ProductHistory toEntity(Product product, List<AttachFile> productImages) {
+        Map<Long, String> productImagesMap = getProductImages(productImages);
+        return new ProductHistory(product.getId(), product.getName(), productImagesMap);
+    }
+
+    public static ProductHistory toEntity(Long productId, String productName, List<AttachFile> productImages) {
+        Map<Long, String> productImagesMap = getProductImages(productImages);
+        return new ProductHistory(productId, productName, productImagesMap);
+    }
+
+    private static Map<Long, String> getProductImages(List<AttachFile> productImages) {
         Map<Long, String> productImagesMap = new HashMap<>();
         for (AttachFile attachFile : productImages) {
             productImagesMap.put(attachFile.getId(), attachFile.getAttachFileName());
         }
 
-        return new ProductHistory(product.getId(), product.getName(), productImagesMap);
+        return productImagesMap;
     }
 }

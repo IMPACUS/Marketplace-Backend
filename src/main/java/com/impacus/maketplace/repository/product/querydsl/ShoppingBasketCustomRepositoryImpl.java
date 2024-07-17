@@ -44,9 +44,13 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
         productBuilder.and(product.id.eq(productOption.productId))
                 .and(product.isDeleted.eq(false));
 
+        BooleanBuilder productOptionBuilder = new BooleanBuilder();
+        productOptionBuilder.and(shoppingBasket.productOptionId.eq(productOption.id))
+                .and(productOption.isDeleted.eq(false));
+
         List<ShoppingBasketDetailDTO> content = queryFactory
                 .selectFrom(shoppingBasket)
-                .leftJoin(productOption).on(shoppingBasket.productOptionId.eq(productOption.id))
+                .leftJoin(productOption).on(productOptionBuilder)
                 .innerJoin(product).on(productBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)

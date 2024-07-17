@@ -138,12 +138,15 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
 
+        BooleanBuilder productOptionBuilder = new BooleanBuilder();
+        productOptionBuilder.and(productOption.productId.eq(product.id))
+                .and(productOption.isDeleted.eq(false));
 
         JPAQuery<Product> query = queryFactory
                 .selectFrom(product)
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
-                .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(productOption).on(productOptionBuilder)
                 .groupBy(product.id, attachFile.id, productOption.id)
                 .where(builder);
         return query
@@ -186,10 +189,14 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
+        BooleanBuilder productOptionBuilder = new BooleanBuilder();
+        productOptionBuilder.and(description.productId.eq(product.id))
+                .and(productOption.isDeleted.eq(false));
+
         List<DetailedProductDTO> result = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
-                .leftJoin(description).on(description.productId.eq(product.id))
+                .leftJoin(description).on(productOptionBuilder)
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
@@ -288,13 +295,17 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
 
+        BooleanBuilder productOptionBuilder = new BooleanBuilder();
+        productOptionBuilder.and(productOption.productId.eq(product.id))
+                .and(productOption.isDeleted.eq(false));
+
         List<ProductDetailForWebDTO> duplicatedProducts =
                 queryFactory
                         .selectFrom(product)
                         .leftJoin(productDetailInfo).on(productDetailInfo.productId.eq(product.id))
                         .leftJoin(productDescription).on(productDescription.productId.eq(product.id))
                         .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
-                        .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                        .leftJoin(productOption).on(productOptionBuilder)
                         .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                         .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                         .leftJoin(productClaimInfo).on(productClaimInfo.productId.eq(product.id))

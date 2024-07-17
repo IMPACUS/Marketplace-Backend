@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
@@ -13,7 +12,6 @@ import org.hibernate.annotations.Where;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE product_option SET is_deleted = true WHERE product_option_id = ?")
 @Where(clause = "is_deleted = false")
 public class ProductOption extends BaseEntity {
     @Id
@@ -40,6 +38,18 @@ public class ProductOption extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     @Comment("삭제 여부")
     private boolean isDeleted;
+
+    // PostLoad 를 위해서 관리되는 데이터
+    @Transient
+    private String previousColor;
+    @Transient
+    private String previousSize;
+
+    @PostLoad
+    public void storePreviousState() {
+        this.previousColor = this.color;
+        this.previousSize = this.size;
+    }
 
     public void setColor(String color) {
         this.color = color;

@@ -19,6 +19,7 @@ import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.product.ProductOption;
+import com.impacus.maketplace.entity.product.history.ProductHistory;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.redis.service.RecentProductViewsService;
 import com.impacus.maketplace.repository.product.ProductRepository;
@@ -26,7 +27,6 @@ import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
-import com.impacus.maketplace.service.product.history.ProductOptionHistoryService;
 import com.impacus.maketplace.service.seller.SellerService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +58,6 @@ public class ProductService {
     private final RecentProductViewsService recentProductViewsService;
     private final ProductClaimService productClaimService;
     private final ProductHistoryService productHistoryService;
-    private final ProductOptionHistoryService productOptionHistoryService;
 
     /**
      * 새로운 Product 생성 함수
@@ -143,7 +142,7 @@ public class ProductService {
             }
 
             // 12. 상품 관련 이력 생성
-            addHistoryAboutProduct(newProduct, productImages, newProductOptions);
+            addProductHistoryInCreateMode(newProduct, productImages);
 
             return ProductDTO.toDTO(newProduct);
         } catch (Exception ex) {
@@ -152,19 +151,19 @@ public class ProductService {
     }
 
     /**
-     * 상품 관련 이력 생성 (상품 이력, 상품 옵션 이력)
+     * 상품 관련 이력 생성 (상품 이력)
      *
      * @param product
      * @param productImages
-     * @param productOptions
      */
     @Transactional
-    public void addHistoryAboutProduct(Product product, List<AttachFile> productImages, List<ProductOption> productOptions) {
+    public void addProductHistoryInCreateMode(
+            Product product,
+            List<AttachFile> productImages
+    ) {
         // 1. 상품 이력 생성
-        productHistoryService.saveProductHistory(product, productImages);
-
-        // 2. 상품 옵션 이력 생성
-        productOptionHistoryService.saveAllProductOptionHistory(productOptions);
+        ProductHistory productHistory = ProductHistory.toEntity(product, productImages);
+        productHistoryService.saveProductHistory(productHistory);
     }
 
     /**
@@ -338,26 +337,29 @@ public class ProductService {
                     productImageList, dto.getCategoryId(), productDescriptionImageList
             );
 
-            // 4. Product 수정
-            product.setProduct(dto);
-            productRepository.save(product);
-
-            // 5. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
+            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(product.getId(), ReferencedEntityType.PRODUCT);
-            productImageList
-                    .forEach(productImage -> {
+            List<AttachFile> productImages = productImageList
+                    .stream().map(productImage -> {
                         try {
-                            attachFileService.uploadFileAndAddAttachFile(productImage, DirectoryConstants.PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
+                            return attachFileService.uploadFileAndAddAttachFile(productImage, DirectoryConstants.PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
-                    });
+                    }).toList();
 
-            // 6. Product description 수정
+            // 5. 상품 이력 저장 (조건에 부핪하는 경우)
+            addProductHistoryInUpdateMode(product, dto, productImages);
+
+            // 6. Product 수정
+            product.setProduct(dto);
+            productRepository.save(product);
+
+            // 7. Product description 수정
             ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(product.getId());
             productDescription.setDescription(dto.getDescription());
 
-            // 7. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            // 8. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
             productDescriptionImageList
                     .forEach(productDescriptionImage -> {
@@ -368,17 +370,17 @@ public class ProductService {
                         }
                     });
 
-            //8. Product option 수정
+            // 9. Product option 수정
             productOptionService.updateProductOptionList(productId, dto.getProductOptions());
 
-            // 9. Product detail 수정
+            // 10. Product detail 수정
             ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
             productDetailInfo.setProductDetailInfo(dto.getProductDetail());
 
-            // 10. Product delivery time 수정
+            // 11. Product delivery time 수정
             deliveryTimeService.updateProductDeliveryTime(productId, dto.getDeliveryTime());
 
-            // 11. 상품 클레임 정보 수정
+            // 12. 상품 클레임 정보 수정
             productClaimService.updateProductClaimInfo(productId, dto.getClaim());
 
             return ProductDTO.toDTO(product);
@@ -387,6 +389,25 @@ public class ProductService {
         }
     }
 
+    /**
+     * 상품 이력 생성
+     *
+     * @param nowProduct    현재 DB에 저장된 상품
+     * @param newProduct    변경 예정 상품 정보
+     * @param productImages 변경된 상품 이미지
+     * @prarm newProduct
+     */
+    public void addProductHistoryInUpdateMode(
+            Product nowProduct,
+            UpdateProductDTO newProduct,
+            List<AttachFile> productImages
+    ) {
+        // (상품 이미지가 변경된 경우) 상품 이력 저장
+        if (!newProduct.getName().equals(nowProduct.getName())) {
+            ProductHistory productHistory = ProductHistory.toEntity(nowProduct.getId(), newProduct.getName(), productImages);
+            productHistoryService.saveProductHistory(productHistory);
+        }
+    }
 
     /**
      * 전체 상품 조회하는 함수
