@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- 쿠폰_유저 테이블 DROP -->
+    <changeSet id="changelog-0.05-240713-03" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="coupon_user"/>
+        </preConditions>
+        <dropTable tableName="coupon_user"/>
+    </changeSet>
+
+
+    <!-- 이전 쿠폰 테이블 DROP -->
+    <changeSet id="changelog-0.05-240713-01" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="coupon" columnName="modify_id"/>
+            <columnExists tableName="coupon" columnName="coupon_desc"/>
+            <columnExists tableName="coupon" columnName="product_target"/>
+            <columnExists tableName="coupon" columnName="payment_type"/>
+            <columnExists tableName="coupon" columnName="login_alert"/>
+        </preConditions>
+        <dropTable tableName="coupon"/>
+    </changeSet>
+
+    <!-- 새로운 쿠폰 테이블 생성 및 MOCK 쿠폰 추가 -->
+    <changeSet id="changelog-0.05-240713-02" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="coupon"/>
+            </not>
+        </preConditions>
+        <createTable tableName="coupon">
+            <column name="coupon_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="benefit_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="benefit_value" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_target" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_count" type="INT"/>
+            <column name="quantity_issued" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_time_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coupon_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expire_time_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expire_time_days" type="INT" defaultValueNumeric="0"/>
+            <column name="issue_coverage_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issue_coverage_super_category_id" type="BIGINT"/>
+            <column name="issue_coverage_sub_category_id" type="BIGINT"/>
+            <column name="use_coverage_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="use_coverage_super_category_id" type="BIGINT"/>
+            <column name="use_coverage_sub_category_id" type="BIGINT"/>
+            <column name="use_standard_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="use_standard_value" type="BIGINT" defaultValueNumeric="0"/>
+            <column name="issue_standard_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issue_standard_value" type="BIGINT" defaultValueNumeric="0"/>
+            <column name="period_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="period_start_at" type="TIMESTAMP"/>
+            <column name="period_end_at" type="TIMESTAMP"/>
+            <column name="number_of_period" type="INT"/>
+            <column name="auto_manual_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="login_alarm" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sms_alarm" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email_alram" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao_alarm" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_type" type="VARCHAR(255)" defaultValue="ISSUING">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="changelog-0.05-240713-04" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="issued_coupon"/>
+            </not>
+        </preConditions>
+        <createTable tableName="issued_coupon">
+            <column name="issued_coupon_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lock" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="available_download_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_download" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="download_at" type="TIMESTMAP"/>
+            <column name="is_used" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="used_at" type="TIMESTMAP"/>
+            <column name="expired_at" type="TIMESTMAP"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-0.05-240713-05" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="issued_coupon_history"/>
+            </not>
+        </preConditions>
+        <createTable tableName="issued_coupon_history">
+            <column name="issued_coupon_history_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="issued_coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-0.05-240713-06" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="issued_coupon_triggers"/>
+            </not>
+        </preConditions>
+        <createTable tableName="issued_coupon_triggers">
+            <column name="issued_coupon_triggers_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="issued_coupon_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-0.05-240713-07" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="orders_product_coupons"/>
+            </not>
+        </preConditions>
+        <createTable tableName="orders_product_coupons">
+            <column name="orders_product_coupons_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="orders_product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

@@ -6,14 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponBenefitType  implements CouponUtils.CommonFieldInterface {
-
-    AMOUNT("AMOUNT", "원"),
-    PERCENTAGE("PERCENT" , "%"),
-    UNKNOWN("", "");
-
+public enum IssuedTimeType implements CouponUtils.CommonFieldInterface{
+    WEEK("WEEK", "구매 후 1 주일 뒤"),
+    IMMEDIATE("IMMEDIATE", "즉시 발급");
 
     private final String code;
     private final String value;
-
 }

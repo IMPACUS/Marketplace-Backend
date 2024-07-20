@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProvisionTarget implements CouponUtils.CommonFieldInterface{
+public enum BenefitType implements CouponUtils.CommonFieldInterface {
 
-    USER("USER", "TARGET_USER"),
-    ALL("ALL", "TARGET_ALL");
+    AMOUNT("AMOUNT", "원"),
+    PERCENTAGE("PERCENT" , "%");
 
     private final String code;
     private final String value;
