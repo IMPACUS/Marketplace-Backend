@@ -21,8 +21,6 @@ public enum CouponErrorType implements ErrorType{
     INVALID_COUPON_LIST("INVALID_COUPON_LIST","유효하지 않은 쿠폰 리스트 입니다."),
     INVALID_UPDATE_COUPON_LIST("INVALID_UPDATE_COUPON_LIST", "수정 불가능한 쿠폰이 선택 되었습니다.");
 
-
-
     private final String code;
     private final String msg;
 

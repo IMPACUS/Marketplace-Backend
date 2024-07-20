@@ -6,13 +6,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponTargetType implements CouponUtils.CommonFieldInterface{
+public enum StandardType implements CouponUtils.CommonFieldInterface{
 
-    USER("USER", "회원 검색"),
-    ALL("ALL", "모든 회원"),
-    UNKNOWN("", "");
+    UNLIMITED("UNLIMITED", "가격 제한 없음"),
+    LIMIT("LIMIT", "N원 이상 구매시");
 
     private final String code;
     private final String value;
-
 }

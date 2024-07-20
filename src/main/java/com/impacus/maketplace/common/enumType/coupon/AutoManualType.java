@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponCoverageType implements CouponUtils.CommonFieldInterface{
+public enum AutoManualType implements CouponUtils.CommonFieldInterface{
 
-    ALL("ALL", "모든 상품 / 브랜드"),
-    BRAND("BRAND", "특정 브랜드");
+    AUTO("AUTO", "자동 발급"),
+    MANUAL("MANUAL", "수동 발급");
 
     private final String code;
     private final String value;

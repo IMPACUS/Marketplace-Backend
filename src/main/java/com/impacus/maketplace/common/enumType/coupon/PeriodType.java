@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponIssuedTimeType implements CouponUtils.CommonFieldInterface {
+public enum PeriodType implements CouponUtils.CommonFieldInterface {
+    SET("SET", "지정 기간 설정"),
+    UNSET("UNSET", "지정 기간 없음 (지속적인 기준)");
 
-    WEEK("WEEK", "구매 후 1 주일 뒤"),
-    IMMEDIATE("IMMEDIATE", "즉시 발급");
 
     private final String code;
     private final String value;

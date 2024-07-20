@@ -6,14 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CouponProvideAlarmType implements CouponUtils.CommonFieldInterface{
-
-    EMAIL_ALARM("email", "이메일 알림"),
-    KAKAO_ALARM("kakaoTalk", "카카오톡 알림"),
-    SMS_ALARM("sms", "문자 알림"),
-    UNKNOWN("", "");
+public enum PaymentTarget implements CouponUtils.CommonFieldInterface{
+    ALL("ALL", "모든 회원"),
+    FIRST("FIRST", "선착순");
 
     private final String code;
     private final String value;
-
 }
