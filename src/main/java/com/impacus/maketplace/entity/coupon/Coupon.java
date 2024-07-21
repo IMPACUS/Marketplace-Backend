@@ -3,6 +3,8 @@ package com.impacus.maketplace.entity.coupon;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -33,7 +35,7 @@ public class Coupon extends BaseEntity {
     private BenefitType benefitType;  // 혜택 구분 [ 원, % ]
 
     @Column(nullable = false)
-    private Integer benefitValue;   // 혜택 금액 및 퍼센트
+    private Long benefitValue;   // 혜택 금액 및 퍼센트
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -41,7 +43,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentTarget paymentType;   // 지급 대상 [ 모든 회원, 선착순 ]
+    private PaymentTarget paymentTarget;   // 지급 대상 [ 모든 회원, 선착순 ]
 
     private Integer firstCount;  // 선착순 발급 수
 
@@ -55,34 +57,31 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private CouponIssueType couponIssueType;    // 쿠폰 발급 횟수 [ 1회성, 지속성 ]
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private CouponType couponType;  // 쿠폰 형식 [ 이벤트 , 지급형 ]
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExpireTimeType expireTimeType;  // 사용기간 타입 [ 발급일로 부터 N일, 무제한 ]
 
-    @ColumnDefault("0")
     private Integer expireTimeDays; // 사용기간(일)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CoverageType issueCoverageType; // 발급 적용 범위 [ 모든 상품/특정 브랜드 및 카테고리 ]
 
-    @Column(name = "issue_coverage_super_category_id")
-    private Long issueCoverageSuperCategoryId;   // 발급 적용 범위 1차 카테고리 id
-
-    @Column(name = "issue_coverage_sub_category_id")
-    private Long issueCoverageSubCategoryId;    // 발급 적용 범위 2차 카테고리 id
+    @Column(name = "issue_coverage_sub_category_name")
+    private String issueCoverageSubCategoryName;    // 발급 적용 범위 2차 카테고리 이름(현재는 브랜드명)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CoverageType useCoverageType;   // 쿠폰 사용 범위 [ 모든 상품/특정 브랜드 및 카테고리 ]
 
-    @Column(name = "use_coverage_super_category_id")
-    private Long useCoverageSuperCategoryId;    // 쿠폰 사용 범위 1차 카테고리 id
-
-    @Column(name = "use_coverage_sub_category_id")
-    private Long useCoverageSubCategoryId;  // 쿠폰 사용 범위 2차 카테고리 id
+    @Column(name = "use_coverage_sub_category_name")
+    private String useCoverageSubCategoryName;  // 쿠폰 사용 범위 2차 카테고리 이름(현재는 브랜드명)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

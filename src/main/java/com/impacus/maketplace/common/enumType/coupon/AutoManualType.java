@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum AutoManualType implements CouponUtils.CommonFieldInterface{
+public enum AutoManualType implements CouponUtils.CommonFieldInterface {
 
     AUTO("AUTO", "자동 발급"),
     MANUAL("MANUAL", "수동 발급");

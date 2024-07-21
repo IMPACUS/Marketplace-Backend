@@ -5,7 +5,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- 쿠폰_유저 테이블 DROP -->
-    <changeSet id="changelog-0.05-240713-03" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <tableExists tableName="coupon_user"/>
         </preConditions>
@@ -14,19 +14,20 @@
 
 
     <!-- 이전 쿠폰 테이블 DROP -->
-    <changeSet id="changelog-0.05-240713-01" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-2" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="coupon" columnName="modify_id"/>
             <columnExists tableName="coupon" columnName="coupon_desc"/>
             <columnExists tableName="coupon" columnName="product_target"/>
             <columnExists tableName="coupon" columnName="payment_type"/>
             <columnExists tableName="coupon" columnName="login_alert"/>
+            <columnExists tableName="coupon" columnName="coupon_status_type"/>
         </preConditions>
         <dropTable tableName="coupon"/>
     </changeSet>
 
     <!-- 새로운 쿠폰 테이블 생성 및 MOCK 쿠폰 추가 -->
-    <changeSet id="changelog-0.05-240713-02" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-3" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <not>
                 <tableExists tableName="coupon"/>
@@ -43,7 +44,7 @@
             <column name="benefit_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="benefit_value" type="INT">
+            <column name="benefit_value" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="product_type" type="VARCHAR(255)">
@@ -62,20 +63,21 @@
             <column name="coupon_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="coupon_issue_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="expire_time_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="expire_time_days" type="INT" defaultValueNumeric="0"/>
+            <column name="expire_time_days" type="INT"/>
             <column name="issue_coverage_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="issue_coverage_super_category_id" type="BIGINT"/>
-            <column name="issue_coverage_sub_category_id" type="BIGINT"/>
+            <column name="issue_coverage_sub_category_name" type="VARCHAR(255)"/>
             <column name="use_coverage_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="use_coverage_super_category_id" type="BIGINT"/>
-            <column name="use_coverage_sub_category_id" type="BIGINT"/>
+            <column name="use_coverage_sub_category_name" type="VARCHAR(255)"/>
             <column name="use_standard_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -99,7 +101,7 @@
             <column name="sms_alarm" type="BOOLEAN" defaultValueBoolean="false">
                 <constraints nullable="false"/>
             </column>
-            <column name="email_alram" type="BOOLEAN" defaultValueBoolean="false">
+            <column name="email_alarm" type="BOOLEAN" defaultValueBoolean="false">
                 <constraints nullable="false"/>
             </column>
             <column name="kakao_alarm" type="BOOLEAN" defaultValueBoolean="false">
@@ -108,11 +110,19 @@
             <column name="status_type" type="VARCHAR(255)" defaultValue="ISSUING">
                 <constraints nullable="false"/>
             </column>
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
         </createTable>
     </changeSet>
 
 
-    <changeSet id="changelog-0.05-240713-04" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-4" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <not>
                 <tableExists tableName="issued_coupon"/>
@@ -143,10 +153,18 @@
             </column>
             <column name="used_at" type="TIMESTMAP"/>
             <column name="expired_at" type="TIMESTMAP"/>
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-0.05-240713-05" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-5" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <not>
                 <tableExists tableName="issued_coupon_history"/>
@@ -165,10 +183,18 @@
             <column name="issued_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-0.05-240713-06" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-6" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <not>
                 <tableExists tableName="issued_coupon_triggers"/>
@@ -187,7 +213,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-0.05-240713-07" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-7" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <not>
                 <tableExists tableName="orders_product_coupons"/>

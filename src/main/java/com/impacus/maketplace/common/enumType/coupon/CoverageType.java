@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CoverageType implements CouponUtils.CommonFieldInterface{
 
-    ALL("ALL", "모든 상품 / 브랜드"),
+    ALL("ALL", "모든 상품 / 모든 브랜드"),
     BRAND("BRAND", "특정 브랜드");
 
     private final String code;
