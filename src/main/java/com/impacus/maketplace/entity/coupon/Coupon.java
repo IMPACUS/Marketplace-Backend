@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.coupon;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.coupon.*;
+import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -131,4 +132,37 @@ public class Coupon extends BaseEntity {
     @Column(nullable = false)
     @ColumnDefault("'ISSUING'")
     private CouponStatusType statusType; // 발급 상태 [ 발급 중, 발급 대기, 발급 중지 ]
+
+    public void update(String code, CouponUpdateDTO couponUpdateDTO) {
+        this.code = code;
+        this.name = couponUpdateDTO.getName();
+        this.description = couponUpdateDTO.getDescription();
+        this.benefitType = couponUpdateDTO.getBenefitType();
+        this.benefitValue = couponUpdateDTO.getBenefitValue();
+        this.productType = couponUpdateDTO.getProductType();
+        this.paymentTarget = couponUpdateDTO.getPaymentTarget();
+        this.firstCount = couponUpdateDTO.getFirstCount();
+        this.issuedTimeType = couponUpdateDTO.getIssuedTimeType();
+        this.couponType = couponUpdateDTO.getCouponType();
+        this.couponIssueType = couponUpdateDTO.getCouponIssueType();
+        this.expireTimeType = couponUpdateDTO.getExpireTimeType();
+        this.expireTimeDays = couponUpdateDTO.getExpireTimeDays();
+        this.issueCoverageType = couponUpdateDTO.getIssueCoverageType();
+        this.issueCoverageSubCategoryName = couponUpdateDTO.getIssueCoverageSubCategoryName();
+        this.useCoverageType = couponUpdateDTO.getUseCoverageType();
+        this.useCoverageSubCategoryName = couponUpdateDTO.getUseCoverageSubCategoryName();
+        this.useStandardType = couponUpdateDTO.getUseStandardType();
+        this.useStandardValue = couponUpdateDTO.getUseStandardValue();
+        this.issueStandardType = couponUpdateDTO.getIssueStandardType();
+        this.issueStandardValue = couponUpdateDTO.getIssueStandardValue();
+        this.periodType = couponUpdateDTO.getPeriodType();
+        this.periodStartAt = couponUpdateDTO.getPeriodStartAt();
+        this.periodEndAt = couponUpdateDTO.getPeriodEndAt();
+        this.numberOfPeriod = couponUpdateDTO.getNumberOfPeriod();
+        this.autoManualType = couponUpdateDTO.getAutoManualType();
+        this.loginAlarm = couponUpdateDTO.getLoginAlarm();
+        this.smsAlarm = couponUpdateDTO.getSmsAlarm();
+        this.emailAlarm = couponUpdateDTO.getEmailAlarm();
+        this.kakaoAlarm = couponUpdateDTO.getKakaoAlarm();
+    }
 }

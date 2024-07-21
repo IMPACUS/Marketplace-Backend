@@ -29,8 +29,6 @@ public class CouponDetailDTO {
 
     private Integer firstCount;
 
-    private Long quantityIssued;
-
     private IssuedTimeType issuedTimeType;
 
     private CouponType couponType;
@@ -77,8 +75,6 @@ public class CouponDetailDTO {
 
     private Boolean kakaoAlarm;
 
-    private CouponStatusType statusType;
-
     public static CouponDetailDTO fromEntity(Coupon coupon) {
         return CouponDetailDTO.builder()
                 .id(coupon.getId())
@@ -90,7 +86,6 @@ public class CouponDetailDTO {
                 .productType(coupon.getProductType())
                 .paymentTarget(coupon.getPaymentTarget())
                 .firstCount(coupon.getFirstCount())
-                .quantityIssued(coupon.getQuantityIssued())
                 .issuedTimeType(coupon.getIssuedTimeType())
                 .couponIssueType(coupon.getCouponIssueType())
                 .couponType(coupon.getCouponType())
@@ -112,7 +107,6 @@ public class CouponDetailDTO {
                 .loginAlarm(coupon.getLoginAlarm())
                 .smsAlarm(coupon.getSmsAlarm())
                 .kakaoAlarm(coupon.getKakaoAlarm())
-                .statusType(coupon.getStatusType())
                 .build();
     }
 }

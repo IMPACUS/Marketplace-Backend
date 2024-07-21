@@ -57,23 +57,30 @@ public class CouponAdminService {
      */
     @Transactional
     public Coupon updateCoupon(CouponUpdateDTO couponUpdateDTO) {
-        // 1. 해당 id를 가진 쿠폰이 있는지 검증
-        if (!couponRepository.existsById(couponUpdateDTO.getId())) {
-            log.error("CouponAdminService.updateCoupon error: id값이 존재하지 않습니다\n" +
+
+        // 1. 해당 id를 가진 쿠폰의 발급 수량 가져오기(Lock)
+        Coupon coupon = couponRepository.findWriteLockById(couponUpdateDTO.getId()).orElseThrow(() -> {
+            log.error("CouponAdminService.updateCoupon error: id값이 존재하지 않습니다. " +
                     "id: {}",couponUpdateDTO.getId());
-            throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
+            return new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
+        });
+
+        // 2. 발급한 횟수 확인
+        if (coupon.getQuantityIssued() > 0) {
+            log.error("CouponAdminService.updateCoupon error: 사용자에게 발급한 이력이 있습니다. QuantityIssued: {}", coupon.getQuantityIssued());
+            throw new CustomException(CouponErrorType.INVALID_COUPON_UPDATE);
         }
 
-        // 2. 입력 값 검증
+        // 3. 입력 값 검증
         couponInputValidation(couponUpdateDTO);
 
-        // 3. 쿠폰 코드 처리
+        // 4. 쿠폰 코드 처리
         String code = getCode(couponUpdateDTO.getAutoManualType(), couponUpdateDTO);
 
-        // 4. 쿠폰 업데이트 (merge)
-        Coupon coupon = couponUpdateDTO.toEntity(code);
+        // 5. 쿠폰 업데이트
+        coupon.update(code, couponUpdateDTO);
 
-        return couponRepository.save(coupon);
+        return coupon;
     }
 
     /**

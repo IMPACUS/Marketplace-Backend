@@ -100,41 +100,4 @@ public class CouponUpdateDTO implements CouponDTO {
 
     @NotNull
     private Boolean kakaoAlarm;
-
-    public Coupon toEntity(String code) {
-        return Coupon.builder()
-                .id(this.id)
-                .code(code)
-                .name(this.name)
-                .description(this.description)
-                .benefitType(this.benefitType)
-                .benefitValue(this.benefitValue)
-                .productType(this.productType)
-                .paymentTarget(this.paymentTarget)
-                .firstCount(this.firstCount)
-                .quantityIssued(0L) // 현재는 발급한 쿠폰의 경우 수정하지 못하므로, 발급이 되지 않은 상태라고 가정
-                .issuedTimeType(this.issuedTimeType)
-                .couponIssueType(this.couponIssueType)
-                .couponType(this.couponType)
-                .expireTimeType(this.expireTimeType)
-                .expireTimeDays(this.expireTimeDays)
-                .issueCoverageType(this.issueCoverageType)
-                .issueCoverageSubCategoryName(this.issueCoverageSubCategoryName)
-                .useCoverageType(this.useCoverageType)
-                .useCoverageSubCategoryName(this.useCoverageSubCategoryName)
-                .useStandardType(this.useStandardType)
-                .useStandardValue(this.useStandardValue)
-                .issueStandardType(this.issueStandardType)
-                .issueStandardValue(this.issueStandardValue)
-                .periodType(this.periodType)
-                .periodStartAt(this.periodStartAt)
-                .periodEndAt(this.periodEndAt)
-                .numberOfPeriod(this.numberOfPeriod)
-                .autoManualType(this.autoManualType)
-                .loginAlarm(this.loginAlarm)
-                .smsAlarm(this.smsAlarm)
-                .kakaoAlarm(this.kakaoAlarm)
-                .statusType(CouponStatusType.ISSUING)
-                .build();
-    }
 }

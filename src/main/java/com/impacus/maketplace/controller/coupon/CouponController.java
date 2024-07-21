@@ -43,7 +43,7 @@ public class CouponController {
     @PostMapping("/admin")
     public ApiResponseEntity<Boolean> registerCounponForAdmin(@Valid @RequestBody CouponIssueDTO couponIssuedDto,
                                                               @AuthenticationPrincipal CustomUserDetails user) {
-        Coupon coupon = couponAdminService.addCoupon(couponIssuedDto);
+        Coupon savedCoupon = couponAdminService.addCoupon(couponIssuedDto);
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
@@ -75,10 +75,10 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PutMapping("/admin")
-    private ApiResponseEntity<Boolean> updateCoupon(@Valid @RequestBody CouponUpdateDTO couponUpdateDTO,
+    @PatchMapping("/admin")
+    public ApiResponseEntity<Boolean> updateCoupon(@Valid @RequestBody CouponUpdateDTO couponUpdateDTO,
                                                     @AuthenticationPrincipal CustomUserDetails user) {
-        Coupon coupon = couponAdminService.updateCoupon(couponUpdateDTO);
+        Coupon updateCoupon = couponAdminService.updateCoupon(couponUpdateDTO);
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
@@ -90,7 +90,7 @@ public class CouponController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
     @GetMapping("/admin")
-    private ApiResponseEntity<CouponDetailDTO> getCouponDetail(@RequestParam(value = "coupon-id") Long id) {
+    public ApiResponseEntity<CouponDetailDTO> getCouponDetail(@RequestParam(value = "coupon-id") Long id) {
 
         CouponDetailDTO couponDetailDTO = couponAdminService.getCoupon(id);
 
@@ -107,7 +107,7 @@ public class CouponController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
     @GetMapping("/admin/list")
-    private ApiResponseEntity<List<CouponDetailDTO>> getCouponDetailList(@RequestParam(value = "search-value") String serchValue,
+    public ApiResponseEntity<List<CouponDetailDTO>> getCouponDetailList(@RequestParam(value = "search-value") String serchValue,
                                                                          @RequestParam(value = "search-order") String searchOrder,
                                                                          @PageableDefault(size = 10, sort = { "name" }) Pageable pageable) {
 
