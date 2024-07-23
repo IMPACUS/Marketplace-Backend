@@ -19,4 +19,8 @@ public interface ReviewCustomRepository {
 
     // 판매자용 리스트 조회
     Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId, String search);
+
+    // 판매자용 리뷰 상세 조회 (댓글 달기 포함)
+    ReviewSellerDTO displaySellerReviewDetail(Long userId, Long reviewId, String sellerComment);
+
 }

@@ -5,6 +5,7 @@ import com.impacus.maketplace.dto.review.ReviewBuyerDTO;
 import com.impacus.maketplace.dto.review.ReviewSellerDTO;
 import com.impacus.maketplace.entity.order.QOrder;
 import com.impacus.maketplace.entity.order.QPurchaseProduct;
+import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductDetailInfo;
 import com.impacus.maketplace.entity.review.QReview;
 import com.impacus.maketplace.entity.seller.QSeller;
@@ -30,6 +31,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     private final QSeller seller = QSeller.seller;
     private final QPurchaseProduct purchaseProduct = QPurchaseProduct.purchaseProduct;
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
+    private final QProduct product = QProduct.product;
 
 
     /**
@@ -98,6 +100,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
         return reviewBuyerDTO;
     }
 
+
+
     @Override
     public Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId, String search) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
@@ -137,5 +141,49 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
             results.remove(results.size() - 1);
         }
         return new SliceImpl<>(results, pageable, hasNext);
+    }
+
+    /**
+     * 판매자 리뷰 상세 보기 - 리뷰 답글 달기용
+     * @param userId
+     * @param reviewId
+     * @param sellerComment
+     * @return
+     */
+    @Override
+    public ReviewSellerDTO displaySellerReviewDetail(Long userId, Long reviewId, String sellerComment) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(review.id.eq(reviewId));
+        builder.and(review.sellerId.eq(userId)); // 판매자 ID 조건 추가
+
+        return queryFactory.select(
+                        Projections.fields(
+                                ReviewSellerDTO.class,
+                                review.id,
+                                review.orderId,
+                                review.sellerId,
+                                review.buyerId,
+                                review.score,
+                                review.buyerContents,
+                                review.buyerUploadImgId,
+                                review.sellerComment,
+                                review.createAt,
+                                review.isArchive,
+                                review.archiveAt,
+                                userEntity.name.as("buyerName"),
+                                userEntity.userIdName.as("idName"),
+                                productDetailInfo.productColor,
+                                product.id.as("productId"),
+                                productDetailInfo.productMaterial,
+                                productDetailInfo.productSize,
+                                productDetailInfo.productType
+                        )
+                ).from(review)
+                .join(userEntity).on(review.buyerId.eq(userEntity.id))
+                .join(order).on(review.orderId.eq(order.id))
+                .join(product).on(order.id.eq(product.id))
+                .join(productDetailInfo).on(product.id.eq(productDetailInfo.productId))
+                .where(builder)
+                .fetchOne();
     }
 }
