@@ -90,13 +90,21 @@ public class ReviewController {
                 .build();
     }
 
-//    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    /**
+     * (4) 판매자용 리뷰 리스트 조회
+     *
+     * @param pageable
+     * @param userId
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("seller-review-list")
     public ApiResponseEntity<?> displayBuyersReviewList(
-            @PageableDefault(size=6) Pageable pageable,
-            @RequestParam(value = "userId") Long userId
+            @PageableDefault(size = 6) Pageable pageable,
+            @RequestParam(value = "userId") Long userId,
+            @RequestParam(value = "search") String search
     ) {
-        Slice<ReviewSellerDTO> reviewSellerDTOS = reviewService.displaySellerReviewList(pageable, userId);
+        Slice<ReviewSellerDTO> reviewSellerDTOS = reviewService.displaySellerReviewList(pageable, userId, search);
         return ApiResponseEntity
                 .builder()
                 .code(HttpStatus.OK)
@@ -105,5 +113,23 @@ public class ReviewController {
                 .build();
     }
 
+
+    /**
+     * (5) 판매자용 리뷰 코멘트 남기기
+     * @param review
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PostMapping("seller-review-comment")
+    public ApiResponseEntity<?> writeSellerComment(
+            @RequestBody Review review) {
+        Review result = reviewService.writeSellerComment(review);
+        return ApiResponseEntity
+                .builder()
+                .code(HttpStatus.OK)
+                .data(result)
+                .message("리뷰 코멘트 답글 달기 성")
+                .build();
+    }
 }
 
