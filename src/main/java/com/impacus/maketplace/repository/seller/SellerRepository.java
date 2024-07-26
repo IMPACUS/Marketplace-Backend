@@ -36,6 +36,7 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSelle
             @Param("chargePercent") int chargePercent
     );
 
-    @Query("SELECT s.id, s.marketName FROM Seller s WHERE s.isDeleted = false ORDER BY s.marketName")
+    @Query("SELECT s.id AS id, s.marketName AS marketName" +
+            " FROM Seller s WHERE s.isDeleted = false")
     List<SellerMarketNameViewsMapping> findMarketNames();
 }
