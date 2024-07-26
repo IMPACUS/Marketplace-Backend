@@ -7,6 +7,7 @@ import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.seller.SellerRepository;
+import com.impacus.maketplace.repository.seller.mapping.SellerMarketNameViewsMapping;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -167,5 +168,21 @@ public class ReadSellerService {
      */
     public List<SubCategoryDetailDTO> findAllBrandName() {
         return sellerRepository.findAllBrandName();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public List<SellerMarketNamesDTO> findSellerNames() {
+        try {
+            List<SellerMarketNameViewsMapping> mappings = sellerRepository.findMarketNames();
+
+            return mappings.stream()
+                    .map(SellerMarketNamesDTO::from)
+                    .toList();
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }
