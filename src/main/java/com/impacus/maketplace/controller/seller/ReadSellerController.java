@@ -6,11 +6,9 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
-import com.impacus.maketplace.dto.seller.response.DetailedSellerDTO;
-import com.impacus.maketplace.dto.seller.response.DetailedSellerEntryDTO;
-import com.impacus.maketplace.dto.seller.response.SellerEntryStatusDTO;
-import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
+import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
+import com.impacus.maketplace.repository.seller.mapping.SellerMarketNameViewsMapping;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
@@ -28,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import security.CustomUserDetails;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -139,6 +138,23 @@ public class ReadSellerController {
                 .<DetailedSellerDTO>builder()
                 .message("판매자 배송지 정보 수정 성공")
                 .data(dto)
+                .build();
+    }
+
+    /**
+     * 모든 판매자의 마켓명을 반환하는 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @GetMapping("market")
+    public ApiResponseEntity<List<SellerMarketNamesDTO>> findAllMarketName() {
+        List<SellerMarketNamesDTO> dtos = readSellerService.findSellerNames();
+
+        return ApiResponseEntity
+                .<List<SellerMarketNamesDTO>>builder()
+                .message("판매자 마켓명 반환 성공")
+                .data(dtos)
                 .build();
     }
 }
