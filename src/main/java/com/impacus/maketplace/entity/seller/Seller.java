@@ -67,7 +67,8 @@ public class Seller extends BaseEntity {
                   String marketName,
                   Long logoImageId,
                   String customerServiceNumber,
-                  BusinessType businessType
+                  BusinessType businessType,
+                  SellerType sellerType
     ) {
         this.userId = userId;
         this.contactName = contactName;
@@ -78,5 +79,6 @@ public class Seller extends BaseEntity {
         this.entryStatus = EntryStatus.REQUEST;
         this.isDeleted = false;
         this.chargePercent = 0;
+        this.sellerType = sellerType;
     }
 }
