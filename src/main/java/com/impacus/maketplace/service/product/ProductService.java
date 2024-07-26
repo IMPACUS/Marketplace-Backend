@@ -27,7 +27,7 @@ import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
-import com.impacus.maketplace.service.seller.SellerService;
+import com.impacus.maketplace.service.seller.ReadSellerService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -48,7 +48,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductOptionService productOptionService;
     private final ProductDetailInfoService productDetailInfoService;
-    private final SellerService sellerService;
+    private final ReadSellerService readSellerService;
     private final AttachFileService attachFileService;
     private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
@@ -80,11 +80,11 @@ public class ProductService {
             UserType userType = SecurityUtils.getCurrentUserType();
             Long sellerId = null;
             if (userType == UserType.ROLE_APPROVED_SELLER) {
-                Seller seller = sellerService.findSellerByUserId(userId);
+                Seller seller = readSellerService.findSellerByUserId(userId);
                 sellerId = seller.getId();
             } else {
                 sellerId = dto.getSellerId();
-                if (sellerId == null || !sellerService.existsSellerBySellerId(sellerId)) {
+                if (sellerId == null || !readSellerService.existsSellerBySellerId(sellerId)) {
                     throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "sellerId 정보가 잘 못 되었습니다. 존재하지 않는 판매자 입니다.");
                 }
             }
@@ -326,7 +326,7 @@ public class ProductService {
             // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
             UserType userType = SecurityUtils.getCurrentUserType();
             if (userType == UserType.ROLE_APPROVED_SELLER) {
-                Seller seller = sellerService.findSellerByUserId(userId);
+                Seller seller = readSellerService.findSellerByUserId(userId);
                 if (!seller.getId().equals(product.getSellerId())) {
                     throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
                 }
@@ -491,7 +491,7 @@ public class ProductService {
      */
     private Long getSellerId(Long userId, UserType userType) {
         if (userType == UserType.ROLE_APPROVED_SELLER) {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            Seller seller = readSellerService.findSellerByUserId(userId);
             return seller.getId();
         } else {
             return null;
@@ -537,7 +537,7 @@ public class ProductService {
     public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
         try {
             UserType userType = SecurityUtils.getCurrentUserType();
-            Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? sellerService.findSellerByUserId(userId).getId() : null;
+            Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? readSellerService.findSellerByUserId(userId).getId() : null;
 
             // 1. 데이터 조회
             ProductDetailForWebDTO dto = productRepository.findProductDetailByProductId(sellerId, userType, productId);

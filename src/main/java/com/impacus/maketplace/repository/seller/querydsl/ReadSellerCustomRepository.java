@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 
-public interface SellerReadCustomRepository {
+public interface ReadSellerCustomRepository {
     Page<SimpleSellerEntryDTO> findAllSellerWithEntry(LocalDate startAt, LocalDate endAt, Pageable pageable, EntryStatus[] entryStatus);
 
     DetailedSellerEntryDTO findDetailedSellerEntry(Long userId);

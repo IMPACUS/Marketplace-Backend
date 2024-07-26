@@ -3,8 +3,8 @@ package com.impacus.maketplace.repository.seller;
 
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.entity.seller.Seller;
-import com.impacus.maketplace.repository.seller.querydsl.SellerReadCustomRepository;
-import com.impacus.maketplace.repository.seller.querydsl.SellerWriteCustomRepository;
+import com.impacus.maketplace.repository.seller.querydsl.ReadSellerCustomRepository;
+import com.impacus.maketplace.repository.seller.querydsl.UpdateSellerCustomRepository;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface SellerRepository extends JpaRepository<Seller, Long>, SellerReadCustomRepository, SellerWriteCustomRepository {
+public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSellerCustomRepository, UpdateSellerCustomRepository {
     Long countByCreateAtBetweenAndIsDeletedIsFalse(LocalDateTime start, LocalDateTime end);
 
     Long countByEntryStatusAndIsDeletedIsFalse(EntryStatus entryStatus);

@@ -2,7 +2,7 @@ package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.dto.seller.request.*;
 
-public interface SellerWriteCustomRepository {
+public interface UpdateSellerCustomRepository {
     void updateBrandInformationByUserId(Long userId, Long sellerId, ChangeBrandInfoDTO dto, boolean isExistedBrand);
 
     void updateManagerInformationBySellerId(Long sellerId, ChangeSellerManagerInfoDTO dto);
