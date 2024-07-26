@@ -38,7 +38,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class SellerWriteService {
+public class UpdateSellerService {
     private final SellerRepository sellerRepository;
     private final AttachFileService attachFileService;
     private final SellerService sellerService;
