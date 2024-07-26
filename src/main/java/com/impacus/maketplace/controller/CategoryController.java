@@ -103,7 +103,7 @@ public class CategoryController {
      */
     @GetMapping("")
     public ApiResponseEntity<List<CategoryDetailDTO>> getAllCategory() {
-        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(true);
+        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(false);
         return ApiResponseEntity
                 .<List<CategoryDetailDTO>>builder()
                 .data(categoryDTOs)
@@ -114,9 +114,9 @@ public class CategoryController {
      * 상품 등록/수정용 전체 카테고리 조회 API (상품 등록/수정용인 경우 브랜드 데이터가 제외됨)
      * @return
      */
-    @GetMapping("")
+    @GetMapping("/no-brand")
     public ApiResponseEntity<List<CategoryDetailDTO>> getAllCategoryForProduct() {
-        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(false);
+        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(true);
         return ApiResponseEntity
                 .<List<CategoryDetailDTO>>builder()
                 .data(categoryDTOs)
