@@ -3,6 +3,7 @@ package com.impacus.maketplace.entity.seller;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.seller.SellerType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -55,13 +56,19 @@ public class Seller extends BaseEntity {
     @Comment("수수료 비율")
     private int chargePercent;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @ColumnDefault("UNOFFICIAL_AGENT")
+    private SellerType sellerType;
+
     @Builder
     public Seller(Long userId,
                   String contactName,
                   String marketName,
                   Long logoImageId,
                   String customerServiceNumber,
-                  BusinessType businessType) {
+                  BusinessType businessType
+    ) {
         this.userId = userId;
         this.contactName = contactName;
         this.marketName = marketName;

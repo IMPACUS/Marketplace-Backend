@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- seller_type 생성 -->
+    <changeSet id="changelog-0.07.01-240726" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="seller" />
+            <not>
+                <columnExists tableName="seller" columnName="seller_type"/>
+            </not>
+        </preConditions>
+        
+        <addColumn tableName="seller">
+            <column name="seller_type" type="VARCHAR(255)" defaultValue="UNOFFICIAL_AGENT">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
