@@ -13,7 +13,7 @@ import com.impacus.maketplace.service.PointService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
-import com.impacus.maketplace.service.seller.SellerService;
+import com.impacus.maketplace.service.seller.CreateSellerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
     private final PointService pointService;
-    private final SellerService sellerService;
+    private final CreateSellerService createSellerService;
 
     private final CouponAdminService couponAdminService;
 
@@ -92,7 +92,7 @@ public class AuthController {
             @RequestPart(value = "bank-book-image", required = false) MultipartFile bankBookImage
 
     ) {
-        SimpleSellerDTO sellerDTO = sellerService.addSeller(sellerRequest, logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
+        SimpleSellerDTO sellerDTO = createSellerService.addSeller(sellerRequest, logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
         return ApiResponseEntity.<SimpleSellerDTO>builder()
                 .data(sellerDTO)
                 .build();

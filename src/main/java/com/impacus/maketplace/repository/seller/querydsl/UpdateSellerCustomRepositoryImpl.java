@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 
 @Repository
 @RequiredArgsConstructor
-public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomRepository {
+public class UpdateSellerCustomRepositoryImpl implements UpdateSellerCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final AuditorAware<String> auditorProvider;
 

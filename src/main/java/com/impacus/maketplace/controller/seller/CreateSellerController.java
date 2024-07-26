@@ -8,7 +8,7 @@ import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
-import com.impacus.maketplace.service.seller.SellerService;
+import com.impacus.maketplace.service.seller.ReadSellerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequestMapping("/api/v1/seller")
 public class CreateSellerController {
-    private final SellerService sellerService;
+    private final ReadSellerService readSellerService;
     private final UserService userService;
     private final AuthService authService;
 

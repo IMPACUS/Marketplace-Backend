@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class SellerReadCustomRepositoryImpl implements SellerReadCustomRepository {
+public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QSeller seller = QSeller.seller;
     private final QUser user = QUser.user;

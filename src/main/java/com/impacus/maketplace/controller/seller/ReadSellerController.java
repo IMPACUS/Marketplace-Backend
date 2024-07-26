@@ -13,7 +13,7 @@ import com.impacus.maketplace.dto.seller.response.SimpleSellerEntryDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
-import com.impacus.maketplace.service.seller.SellerService;
+import com.impacus.maketplace.service.seller.ReadSellerService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ import java.time.LocalDate;
 @Slf4j
 @RequestMapping("/api/v1/seller")
 public class ReadSellerController {
-    private final SellerService sellerService;
+    private final ReadSellerService readSellerService;
     private final UserService userService;
     private final AuthService authService;
 
@@ -46,7 +46,7 @@ public class ReadSellerController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("entry-status")
     public ApiResponseEntity<SellerEntryStatusDTO> getEntryStatusStatistics() {
-        SellerEntryStatusDTO sellerEntryStatusDTO = sellerService.getEntryStatusStatistics();
+        SellerEntryStatusDTO sellerEntryStatusDTO = readSellerService.getEntryStatusStatistics();
         return ApiResponseEntity.<SellerEntryStatusDTO>builder()
                 .data(sellerEntryStatusDTO)
                 .build();
@@ -69,7 +69,7 @@ public class ReadSellerController {
             @Valid @ValidEnum(enumClass = EntryStatus.class) @RequestParam(value = "entry-status", required = false) EntryStatus[] entryStatus,
             @PageableDefault(size = 6, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<SimpleSellerEntryDTO> entryDTOList = sellerService.getSellerEntryList(startAt, endAt, entryStatus, pageable);
+        Page<SimpleSellerEntryDTO> entryDTOList = readSellerService.getSellerEntryList(startAt, endAt, entryStatus, pageable);
         return ApiResponseEntity.builder()
                 .data(entryDTOList)
                 .build();
@@ -84,7 +84,7 @@ public class ReadSellerController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("/entry")
     public ApiResponseEntity<DetailedSellerEntryDTO> getDetailedSellerEntry(@RequestParam(value = "user-id") Long userId) {
-        DetailedSellerEntryDTO detailedSellerEntry = sellerService.getDetailedSellerEntry(userId);
+        DetailedSellerEntryDTO detailedSellerEntry = readSellerService.getDetailedSellerEntry(userId);
         return ApiResponseEntity.<DetailedSellerEntryDTO>builder()
                 .data(detailedSellerEntry)
                 .build();
@@ -134,7 +134,7 @@ public class ReadSellerController {
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("details")
     public ApiResponseEntity<DetailedSellerDTO> findSellerDetailInformation(@AuthenticationPrincipal CustomUserDetails user) {
-        DetailedSellerDTO dto = sellerService.findSellerDetailInformation(user.getId());
+        DetailedSellerDTO dto = readSellerService.findSellerDetailInformation(user.getId());
         return ApiResponseEntity
                 .<DetailedSellerDTO>builder()
                 .message("판매자 배송지 정보 수정 성공")
