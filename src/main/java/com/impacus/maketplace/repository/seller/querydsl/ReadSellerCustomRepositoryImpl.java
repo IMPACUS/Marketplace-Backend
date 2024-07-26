@@ -1,6 +1,9 @@
 package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.seller.SellerType;
+import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
+import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.common.QAttachFile;
@@ -15,7 +18,9 @@ import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompa
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -251,6 +256,33 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
             return dto;
         }
+    }
+
+    @Override
+    public List<SubCategoryDetailDTO> findAllBrandName() {
+        BooleanBuilder sellerBuilder = new BooleanBuilder();
+        sellerBuilder.and(seller.sellerType(SellerType.BRAND))
+                .and(seller.isDeleted.eq(false));
+
+        return queryFactory.selectFrom(seller)
+                .where(sellerBuilder)
+                .transform(
+                        GroupBy.groupBy(seller.id).list(
+                                Projections.constructor(
+                                        SubCategoryDetailDTO.class,
+                                        seller.id,
+                                        seller.marketName,
+                                        ExpressionUtils.as(
+                                                JPAExpressions.select(attachFile.attachFileName)
+                                                        .from(attachFile)
+                                                        .where(attachFile.id.eq(seller.logoImageId))
+                                                , "thumbnailUrl"
+                                        )
+                                )
+
+
+                        )
+                );
     }
 
     /**

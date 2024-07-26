@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.seller;
 import com.impacus.maketplace.common.enumType.error.SellerErrorType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.seller.SellerRepository;
@@ -16,6 +17,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -158,5 +160,12 @@ public class ReadSellerService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * 판매자에 등록된 전체 브랜드명을 반환하는 함수
+     */
+    public List<SubCategoryDetailDTO> findAllBrandName() {
+        return sellerRepository.findAllBrandName();
     }
 }
