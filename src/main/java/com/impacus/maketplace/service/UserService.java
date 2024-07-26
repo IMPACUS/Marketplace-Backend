@@ -176,7 +176,7 @@ public class UserService {
         String adminIdName = dto.getAdminIdName();
         String password = dto.getPassword();
 
-//        try {
+        try {
         // 1. 이메일 유효성 검사
         AdminInfo admin = validateAndFindAdmin(adminIdName);
 
@@ -205,9 +205,9 @@ public class UserService {
         TokenInfoVO tokenInfoVO = getJwtTokenInfo(admin.getAdminIdName(), password);
 
         return new UserDTO(admin, tokenInfoVO);
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
