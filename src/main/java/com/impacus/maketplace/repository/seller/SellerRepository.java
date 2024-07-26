@@ -1,23 +1,21 @@
 package com.impacus.maketplace.repository.seller;
 
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
-
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.seller.mapping.SellerMarketNameViewsMapping;
 import com.impacus.maketplace.repository.seller.querydsl.ReadSellerCustomRepository;
 import com.impacus.maketplace.repository.seller.querydsl.UpdateSellerCustomRepository;
-
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSellerCustomRepository, UpdateSellerCustomRepository {
@@ -38,6 +36,6 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSelle
             @Param("chargePercent") int chargePercent
     );
 
-    @Query("SELECT s.id, s.marketName FROM Seller s WHERE s.idDelete = false ORDER BY s.marketName")
+    @Query("SELECT s.id, s.marketName FROM Seller s WHERE s.isDeleted = false ORDER BY s.marketName")
     List<SellerMarketNameViewsMapping> findMarketNames();
 }

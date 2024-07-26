@@ -2,7 +2,6 @@ package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.seller.SellerType;
-import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
@@ -261,7 +260,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     @Override
     public List<SubCategoryDetailDTO> findAllBrandName() {
         BooleanBuilder sellerBuilder = new BooleanBuilder();
-        sellerBuilder.and(seller.sellerType(SellerType.BRAND))
+        sellerBuilder.and(seller.sellerType.eq(SellerType.BRAND))
                 .and(seller.isDeleted.eq(false));
 
         return queryFactory.selectFrom(seller)
