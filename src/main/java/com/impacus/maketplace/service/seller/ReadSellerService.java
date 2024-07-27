@@ -213,4 +213,18 @@ public class ReadSellerService {
             throw new CustomException(exception);
         }
     }
+
+    /**
+     * 판매자 정보 조회 함수 ([관리자] 판매자 관리 페이지)
+     *
+     * @param sellerId 조회할 판매자 아이디
+     * @return
+     */
+    public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
+        try {
+            return sellerRepository.getSellerInformation(sellerId);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
 }

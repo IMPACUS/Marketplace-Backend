@@ -388,4 +388,63 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
         return filteredDTOs;
     }
+
+    @Override
+    public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
+        SimpleSellerFromAdminDTO dto = queryFactory
+                .select(
+                        Projections.fields(
+                                SimpleSellerFromAdminDTO.class,
+                                seller.id,
+                                seller.marketName,
+                                seller.contactName,
+                                user.email,
+                                user.phoneNumber,
+                                seller.entryApprovedAt,
+                                sellerBusinessInfo.representativeContact,
+                                sellerBusinessInfo.businessAddress,
+                                sellerBusinessInfo.businessRegistrationNumber,
+                                sellerBusinessInfo.mailOrderBusinessReportNumber,
+                                sellerAdjustmentInfo.bankCode,
+                                sellerAdjustmentInfo.accountName,
+                                sellerAdjustmentInfo.accountNumber,
+                                seller.chargePercent,
+                                userStatusInfo.status.as("userStatus")
+                        )
+                )
+                .from(seller)
+                .innerJoin(user).on(user.id.eq(seller.userId))
+                .leftJoin(userStatusInfo).on(userStatusInfo.userId.eq(seller.userId))
+                .leftJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .leftJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
+                .where(seller.isDeleted.eq(false))
+                .fetchFirst();
+
+
+        // 사본 데이터 추가
+        AttachFile businessRegistration = queryFactory.selectFrom(attachFile)
+                .innerJoin(seller).on(seller.id.eq(sellerId))
+                .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .where(attachFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
+                .fetchOne();
+
+        AttachFile mailOrderBusinessReport = queryFactory.selectFrom(attachFile)
+                .innerJoin(seller).on(seller.id.eq(sellerId))
+                .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .where(attachFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
+                .fetchOne();
+
+        dto.setBusinessRegistrationUrl(businessRegistration == null ? null : businessRegistration.getAttachFileName());
+        dto.setMailOrderBusinessReportUrl(mailOrderBusinessReport == null ? null : mailOrderBusinessReport.getAttachFileName());
+
+        AttachFile bankBookUrl = queryFactory.selectFrom(attachFile)
+                .innerJoin(seller).on(seller.id.eq(sellerId))
+                .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
+                .where(attachFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
+                .fetchOne();
+        dto.setBankBookUrl(bankBookUrl == null ? null : bankBookUrl.getAttachFileName());
+
+        return dto;
+    }
+
 }

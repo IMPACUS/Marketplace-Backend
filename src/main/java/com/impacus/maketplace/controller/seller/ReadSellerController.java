@@ -191,12 +191,13 @@ public class ReadSellerController {
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("{sellerId}")
-    public ApiResponseEntity<?> getSellerInformation(@PathVariable Long sellerId) {
+    public ApiResponseEntity<SimpleSellerFromAdminDTO> getSellerInformation(@PathVariable Long sellerId) {
+        SimpleSellerFromAdminDTO dto = readSellerService.getSellerInformation(sellerId);
 
         return ApiResponseEntity
-                .<Object>builder()
+                .<SimpleSellerFromAdminDTO>builder()
                 .message("판매자 정보 조회 성공")
-                .data(null)
+                .data(dto)
                 .build();
     }
 }
