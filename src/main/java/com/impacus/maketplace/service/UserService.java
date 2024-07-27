@@ -2,6 +2,7 @@ package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -235,10 +236,11 @@ public class UserService {
         };
 
         UserStatusInfo userStatusInfo = userStatusInfoService.findUserStatusInfoByUserId(user.getId());
-        if (userStatusInfo.getStatus() == UserStatus.BLOCKED) {
-            throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
+        switch (userStatusInfo.getStatus()) {
+            case BLOCKED -> throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
+            case DEACTIVATED -> throw new CustomException(UserErrorType.DEACTIVATED_USER);
+            case SUSPENDED -> throw new CustomException(UserErrorType.SUSPENDED_USER);
         }
-        // TODO 판매자인 경우, SUSPENDED인지, DEACTIVATED 인지
 
         return user;
     }
