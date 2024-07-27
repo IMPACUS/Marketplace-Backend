@@ -7,18 +7,18 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class SimpleSellerDTO {
+public class SimpleSellerFromSellerDTO {
     private Long id;
     private String contactName;
     private EntryStatus entryStatus;
 
-    public SimpleSellerDTO(Long userId, Seller seller) {
+    public SimpleSellerFromSellerDTO(Long userId, Seller seller) {
         this.id = userId;
         this.contactName = seller.getContactName();
         this.entryStatus = seller.getEntryStatus();
     }
 
-    public static SimpleSellerDTO toDTO(Long userId, Seller seller) {
-        return new SimpleSellerDTO(userId, seller);
+    public static SimpleSellerFromSellerDTO toDTO(Long userId, Seller seller) {
+        return new SimpleSellerFromSellerDTO(userId, seller);
     }
 }

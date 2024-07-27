@@ -8,7 +8,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
-import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
+import com.impacus.maketplace.dto.seller.response.SimpleSellerFromSellerDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -56,11 +56,11 @@ public class CreateSellerService {
      * @return
      */
     @Transactional
-    public SimpleSellerDTO addSeller(CreateSellerDTO sellerDTO,
-                                     MultipartFile logoImage,
-                                     MultipartFile businessRegistrationImage,
-                                     MultipartFile mailOrderBusinessReportImage,
-                                     MultipartFile bankBookImage) {
+    public SimpleSellerFromSellerDTO addSeller(CreateSellerDTO sellerDTO,
+                                               MultipartFile logoImage,
+                                               MultipartFile businessRegistrationImage,
+                                               MultipartFile mailOrderBusinessReportImage,
+                                               MultipartFile bankBookImage) {
         try {
             String email = sellerDTO.getEmail();
             String password = sellerDTO.getPassword();
@@ -102,7 +102,7 @@ public class CreateSellerService {
             SellerAdjustmentInfo adjustmentInfo = sellerDTO.toSellerAdjustmentInfo(sellerId, bankBookFile.getId());
             sellerAdjustmentInfoService.saveSellerAdjustmentInfo(adjustmentInfo);
 
-            return SimpleSellerDTO.toDTO(user.getId(), seller);
+            return SimpleSellerFromSellerDTO.toDTO(user.getId(), seller);
         } catch (Exception e) {
             throw new CustomException(e);
         }

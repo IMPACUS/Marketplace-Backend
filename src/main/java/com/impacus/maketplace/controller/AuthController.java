@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.constants.HeaderConstants;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
-import com.impacus.maketplace.dto.seller.response.SimpleSellerDTO;
+import com.impacus.maketplace.dto.seller.response.SimpleSellerFromSellerDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.RefreshTokenDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
@@ -84,7 +84,7 @@ public class AuthController {
      * @return
      */
     @PostMapping("seller-entry")
-    public ApiResponseEntity<SimpleSellerDTO> addSeller(
+    public ApiResponseEntity<SimpleSellerFromSellerDTO> addSeller(
             @RequestPart(value = "seller") @Valid CreateSellerDTO sellerRequest,
             @RequestPart(value = "logo-image", required = false) MultipartFile logoImage,
             @RequestPart(value = "business-registration-image", required = false) MultipartFile businessRegistrationImage,
@@ -92,8 +92,8 @@ public class AuthController {
             @RequestPart(value = "bank-book-image", required = false) MultipartFile bankBookImage
 
     ) {
-        SimpleSellerDTO sellerDTO = createSellerService.addSeller(sellerRequest, logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
-        return ApiResponseEntity.<SimpleSellerDTO>builder()
+        SimpleSellerFromSellerDTO sellerDTO = createSellerService.addSeller(sellerRequest, logoImage, businessRegistrationImage, mailOrderBusinessReportImage, bankBookImage);
+        return ApiResponseEntity.<SimpleSellerFromSellerDTO>builder()
                 .data(sellerDTO)
                 .build();
     }
