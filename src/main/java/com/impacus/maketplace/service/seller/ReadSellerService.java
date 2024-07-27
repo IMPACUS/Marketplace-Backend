@@ -101,6 +101,17 @@ public class ReadSellerService {
     }
 
     /**
+     * sellerId로 판매자 조회하는 함수
+     *
+     * @param sellerId
+     * @return
+     */
+    public Seller findSellerBySellerId(Long sellerId) {
+        return sellerRepository.findById(sellerId)
+                .orElseThrow(() -> new CustomException(SellerErrorType.NOT_EXISTED_SELLER));
+    }
+
+    /**
      * 전체 판매자 입점 상태 리스트를 조회하는 함수
      *
      * @param startAt

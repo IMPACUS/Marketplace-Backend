@@ -419,4 +419,33 @@ public class UpdateSellerService {
             throw new CustomException(ex);
         }
     }
+
+    /**
+     * 판매자 정보 수정 함수
+     *
+     * @param sellerId     정보 수정할 판매자 아이디
+     * @param dto          변경할 정보
+     * @param profileImage 변경될 프로필 이미지
+     */
+    @Transactional
+    public void updateSellerInformation(
+            Long sellerId,
+            UpdateSellerInfoFromAdminDTO dto,
+            MultipartFile profileImage
+    ) {
+        try {
+            Seller seller = readSellerService.findSellerBySellerId(sellerId);
+
+            // 1. 프로필 이미지 존재하는 경우, 프로필 이미지 저장
+            Long profileImageId = null;
+            if (profileImage != null) {
+                profileImageId = attachFileService.uploadFileAndAddAttachFile(profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY).getId();
+            }
+
+            // 2. 판매자 정보 업데이트
+            sellerRepository.updateSellerInformation(seller.getUserId(), sellerId, dto, profileImageId);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
 }
