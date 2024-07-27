@@ -176,4 +176,20 @@ public class UpdateSellerController {
                 .data(true)
                 .build();
     }
+
+    /**
+     * 판매자 정보 수정 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @GetMapping("{sellerId}")
+    public ApiResponseEntity<?> updateSellerInformation(@PathVariable Long sellerId) {
+
+        return ApiResponseEntity
+                .<Object>builder()
+                .message("판매자 정보 수정 성공")
+                .data(null)
+                .build();
+    }
 }

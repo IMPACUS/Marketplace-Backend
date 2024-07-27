@@ -8,7 +8,6 @@ import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
-import com.impacus.maketplace.repository.seller.mapping.SellerMarketNameViewsMapping;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
@@ -155,6 +154,38 @@ public class ReadSellerController {
                 .<List<SellerMarketNamesDTO>>builder()
                 .message("판매자 마켓명 반환 성공")
                 .data(dtos)
+                .build();
+    }
+
+    /**
+     * 판매자 목록 조회 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @GetMapping("")
+    public ApiResponseEntity<?> getSellers() {
+
+        return ApiResponseEntity
+                .<Object>builder()
+                .message("판매자 목록 조회 성공")
+                .data(null)
+                .build();
+    }
+
+    /**
+     * 판매자 목록 조회 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @GetMapping("{sellerId}")
+    public ApiResponseEntity<?> getSellerInformation(@PathVariable Long sellerId) {
+
+        return ApiResponseEntity
+                .<Object>builder()
+                .message("판매자 정보 조회 성공")
+                .data(null)
                 .build();
     }
 }
