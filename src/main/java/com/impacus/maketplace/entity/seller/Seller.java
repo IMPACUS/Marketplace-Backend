@@ -9,6 +9,8 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Table(name = "seller")
@@ -27,6 +29,9 @@ public class Seller extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Comment("입점 상태")
     private EntryStatus entryStatus;
+
+    @Comment("입점 날짜")
+    private LocalDateTime entryApprovedAt;
 
     @Column(nullable = false)
     @Comment("판매 담당자 이름")

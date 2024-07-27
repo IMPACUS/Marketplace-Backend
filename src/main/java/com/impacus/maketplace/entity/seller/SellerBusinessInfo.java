@@ -26,6 +26,7 @@ public class SellerBusinessInfo extends BaseEntity {
 
     @Column(nullable = false)
     @Convert(converter = AES256ToStringConverter.class)
+    @Comment("대표 이메일")
     private String representativeContact;
 
     @Column(nullable = false)
