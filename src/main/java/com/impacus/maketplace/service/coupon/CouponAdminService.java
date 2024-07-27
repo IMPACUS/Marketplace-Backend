@@ -117,11 +117,29 @@ public class CouponAdminService {
 
     /**
      * 선택한 쿠폰 리스트 상태 변경
-     * @param couponStatusDTO
-     * @return Boolean
+     * @param couponIdList
+     * @param changeCouponStatus
+     * @return
      */
-    public Boolean changeStatus(CouponStatusDTO couponStatusDTO) {
-        return null;
+    @Transactional
+    public void changeStatus(List<Long> couponIdList, CouponStatusType changeCouponStatus) {
+
+        // 1. id를 통한 쿠폰 조회
+        List<Coupon> coupons = couponRepository.findWriteLockCouponsById(couponIdList);
+
+        // 2. 일치하는 쿠폰이 없다면,
+        if (coupons.isEmpty()) {
+            throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
+        }
+
+        // 3. Deleted 쿠폰이 있다면 예외를 던지고 아니면 상태 변경
+        coupons.forEach(coupon -> {
+            if (coupon.getIsDeleted()) {
+                throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
+            } else {
+                coupon.setStatusType(changeCouponStatus);
+            }
+        });
     }
 
     /**
@@ -131,15 +149,19 @@ public class CouponAdminService {
     @Transactional
     public void deleteCoupon(List<Long> couponIdList) {
 
-        // 1. 일치하는 쿠폰 전부 가져오기
+        // 1. id를 통한 쿠폰 조회
         List<Coupon> coupons = couponRepository.findWriteLockCouponsById(couponIdList);
 
+        // 2. 일치하는 쿠폰이 없다면,
         if (coupons.isEmpty()) {
             throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
         }
 
-        // 2. 쿠폰 삭제하기
-        coupons.forEach(coupon -> coupon.setIsDeleted(true));
+        // 3. 쿠폰 삭제하기
+        coupons.forEach(coupon -> {
+            coupon.setIsDeleted(true);
+            coupon.setStatusType(CouponStatusType.STOP);
+        });
     }
 
 

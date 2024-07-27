@@ -129,6 +129,7 @@ public class Coupon extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @ColumnDefault("'ISSUING'")
+    @Setter
     private CouponStatusType statusType; // 발급 상태 [ 발급 중, 발급 대기, 발급 중지 ]
 
     @Column(nullable = false)

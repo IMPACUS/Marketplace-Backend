@@ -1,5 +1,6 @@
 package com.impacus.maketplace.controller.coupon;
 
+import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
@@ -33,16 +34,13 @@ public class CouponController {
 
     /**
      * ADMIN: 쿠폰 등록 API
-     *
      * @param couponIssuedDto
-     * @param user
      * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
     "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @PostMapping("/admin")
-    public ApiResponseEntity<Boolean> registerCounponForAdmin(@Valid @RequestBody CouponIssueDTO couponIssuedDto,
-                                                              @AuthenticationPrincipal CustomUserDetails user) {
+    public ApiResponseEntity<Boolean> registerCounponForAdmin(@Valid @RequestBody CouponIssueDTO couponIssuedDto) {
         Coupon savedCoupon = couponAdminService.addCoupon(couponIssuedDto);
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
@@ -50,7 +48,6 @@ public class CouponController {
 
     /**
      * ADMIN: 쿠폰 코드 중복 검사 API
-     *
      * @param couponCodeCheckDTO
      * @return
      */
@@ -68,16 +65,13 @@ public class CouponController {
 
     /**
      * ADMIN: 쿠폰 수정 API
-     *
-     * @param couponUpdateDTO
-     * @param user
+     * @param couponUpdateDTO 쿠폰 수정 정보
      * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @PatchMapping("/admin")
-    public ApiResponseEntity<Boolean> updateCoupon(@Valid @RequestBody CouponUpdateDTO couponUpdateDTO,
-                                                    @AuthenticationPrincipal CustomUserDetails user) {
+    public ApiResponseEntity<Boolean> updateCoupon(@Valid @RequestBody CouponUpdateDTO couponUpdateDTO) {
         Coupon updateCoupon = couponAdminService.updateCoupon(couponUpdateDTO);
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
@@ -100,21 +94,21 @@ public class CouponController {
                 .build();
     }
 
-    /** [개발중]
-     * ADMIN: 쿠폰 상태 변경
-     * @param user
-     * @param couponStatusDTO 선택한 쿠폰 id List, 변경하려고 하는 Status
+    /**
+     * ADMIN: 쿠폰 리스트 상태 변경
+     * @param couponIdList couponId 리스트
+     * @param changeCouponStatus ISSUING, ISSUED, STOP
      * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @PatchMapping("/status")
-    public ApiResponseEntity<Boolean> changeCouponStatus(@AuthenticationPrincipal CustomUserDetails user,
-                                                         @Valid @RequestBody CouponStatusDTO couponStatusDTO) {
+    public ApiResponseEntity<Boolean> changeCouponStatus(@RequestParam(value = "coupon-id") List<Long> couponIdList,
+                                                         @RequestParam(value = "status") CouponStatusType changeCouponStatus) {
 
-        couponAdminService.changeStatus(couponStatusDTO);
+        couponAdminService.changeStatus(couponIdList, changeCouponStatus);
 
-        return null;
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 
     /**
@@ -123,8 +117,7 @@ public class CouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @DeleteMapping("")
-    public ApiResponseEntity<Boolean> deleteCoupons(@AuthenticationPrincipal CustomUserDetails user,
-                                                   @RequestParam(name = "coupon-id") List<Long> couponIdList) {
+    public ApiResponseEntity<Boolean> deleteCoupons(@RequestParam(name = "coupon-id") List<Long> couponIdList) {
 
         // 1. 쿠폰 삭제하기
         couponAdminService.deleteCoupon(couponIdList);
@@ -140,8 +133,7 @@ public class CouponController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
     @GetMapping("/admin/list")
-    public ApiResponseEntity<Page<CouponListInfoDTO>> getCouponList(@AuthenticationPrincipal CustomUserDetails user,
-                                             @RequestParam(name = "keyword", required = false) String keyword,
+    public ApiResponseEntity<Page<CouponListInfoDTO>> getCouponList(@RequestParam(name = "keyword", required = false) String keyword,
                                              @RequestParam(name = "status", required = false) String status,
                                              @PageableDefault(sort = "modifyAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<CouponListInfoDTO> couponListInfoDTOList = couponAdminService.getCouponListInfoList(keyword, status, pageable);
