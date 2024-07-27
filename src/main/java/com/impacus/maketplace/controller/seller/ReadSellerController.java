@@ -2,6 +2,7 @@ package com.impacus.maketplace.controller.seller;
 
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
@@ -164,12 +165,22 @@ public class ReadSellerController {
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("")
-    public ApiResponseEntity<?> getSellers() {
-
+    public ApiResponseEntity<Page<SellerDTO>> getSellers(
+            @PageableDefault(size = 15, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(value = "brand-name", required = false) String brandName,
+            @RequestParam(value = "contact-name", required = false) String contactName,
+            @RequestParam(value = "status", required = false) UserStatus status
+    ) {
+        Page<SellerDTO> dtos = readSellerService.getSellers(
+                pageable,
+                brandName,
+                contactName,
+                status
+        );
         return ApiResponseEntity
-                .<Object>builder()
+                .<Page<SellerDTO>>builder()
                 .message("판매자 목록 조회 성공")
-                .data(null)
+                .data(dtos)
                 .build();
     }
 

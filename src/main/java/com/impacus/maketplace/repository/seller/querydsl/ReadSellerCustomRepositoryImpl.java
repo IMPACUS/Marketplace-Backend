@@ -2,6 +2,8 @@ package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.seller.SellerType;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
@@ -15,6 +17,7 @@ import com.impacus.maketplace.entity.seller.delivery.QSellerDeliveryAddress;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSelectedSellerDeliveryCompany;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.impacus.maketplace.entity.user.QUser;
+import com.impacus.maketplace.entity.user.QUserStatusInfo;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -40,6 +44,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     private final JPAQueryFactory queryFactory;
     private final QSeller seller = QSeller.seller;
     private final QUser user = QUser.user;
+    private final QUserStatusInfo userStatusInfo = QUserStatusInfo.userStatusInfo;
     private final QSellerBusinessInfo sellerBusinessInfo = QSellerBusinessInfo.sellerBusinessInfo;
     private final QSellerAdjustmentInfo sellerAdjustmentInfo = QSellerAdjustmentInfo.sellerAdjustmentInfo;
     private final QAttachFile attachFile = QAttachFile.attachFile;
@@ -308,5 +313,79 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                 .distinct()
                 .sorted(Comparator.comparingLong(SelectedSellerDeliveryCompanyDTO::getSelectedSellerDeliveryCompanyId))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<SellerDTO> getSellers(
+            Pageable pageable,
+            String brandName,
+            String contactName,
+            UserStatus status
+    ) {
+        // 1. 전체 데이터 조회 (status 를 기준으로 1차 필터링)
+        List<SellerDTO> dtos = getSellerDTOs(status);
+
+        // 2. 검색어 조회 (brandName, contactName에 대해서 2차 필터링)
+        List<SellerDTO> filteredDTOs = filterSellerDTOsByKeyword(brandName, contactName, dtos);
+
+        // 3. 페이징 처리
+        long count = filteredDTOs.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredDTOs.size());
+        List<SellerDTO> paginatedDTOs = count < start ? new ArrayList<>() : filteredDTOs.subList(start, end);
+
+        return new PageImpl<>(paginatedDTOs, pageable, count);
+    }
+
+    private List<SellerDTO> getSellerDTOs(UserStatus status) {
+        BooleanBuilder userStatusBuilder = new BooleanBuilder()
+                .and(userStatusInfo.userId.eq(seller.userId));
+
+        if (status != null) {
+            userStatusBuilder.and(userStatusInfo.status.eq(status));
+        }
+
+        return queryFactory
+                .select(Projections.fields(
+                        SellerDTO.class,
+                        seller.id,
+                        seller.marketName.as("brandName"),
+                        seller.contactName,
+                        user.email,
+                        user.phoneNumber,
+                        seller.entryApprovedAt,
+                        user.recentLoginAt
+                ))
+                .from(seller)
+                .innerJoin(user).on(user.id.eq(seller.userId))
+                .innerJoin(userStatusInfo).on(userStatusBuilder)
+                .where(seller.isDeleted.eq(false))
+                .fetch();
+    }
+
+    private List<SellerDTO> filterSellerDTOsByKeyword(
+            String brandName,
+            String contactName,
+            List<SellerDTO> dtos
+    ) {
+        if ((brandName == null || brandName.isBlank())
+                && (contactName == null || contactName.isBlank())) {
+            return dtos;
+        }
+
+        List<SellerDTO> filteredDTOs = new ArrayList<>();
+        for (SellerDTO dto : dtos) {
+            if (brandName != null && !brandName.isBlank()) {
+                if (StringUtils.containsKeywordIgnoreCase(dto.getBrandName(), brandName)) { // 검색 옵션: 브랜드명
+                    filteredDTOs.add(dto);
+                }
+            } else if (contactName != null && !contactName.isBlank()) {
+                if (StringUtils.containsKeywordIgnoreCase(dto.getContactName(), contactName)) { // 검색 옵션: 브랜드명
+                    filteredDTOs.add(dto);
+                }
+            }
+        }
+
+        return filteredDTOs;
     }
 }

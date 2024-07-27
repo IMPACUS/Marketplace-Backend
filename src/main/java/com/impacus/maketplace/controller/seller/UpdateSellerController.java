@@ -183,7 +183,7 @@ public class UpdateSellerController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @GetMapping("{sellerId}")
+    @PatchMapping("{sellerId}")
     public ApiResponseEntity<?> updateSellerInformation(@PathVariable Long sellerId) {
 
         return ApiResponseEntity

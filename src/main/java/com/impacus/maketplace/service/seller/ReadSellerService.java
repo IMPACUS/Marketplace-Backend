@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.seller;
 
 import com.impacus.maketplace.common.enumType.error.SellerErrorType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.seller.response.*;
@@ -183,6 +184,33 @@ public class ReadSellerService {
                     .toList();
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 전체 판매자 목록 조회 함수 ([관리자] 판매자 관리 페이지)
+     *
+     * @param pageable
+     * @param brandName
+     * @param contactName
+     * @param status
+     * @return
+     */
+    public Page<SellerDTO> getSellers(
+            Pageable pageable,
+            String brandName,
+            String contactName,
+            UserStatus status
+    ) {
+        try {
+            return sellerRepository.getSellers(
+                    pageable,
+                    brandName,
+                    contactName,
+                    status
+            );
+        } catch (Exception exception) {
+            throw new CustomException(exception);
         }
     }
 }

@@ -238,6 +238,7 @@ public class UserService {
         if (userStatusInfo.getStatus() == UserStatus.BLOCKED) {
             throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
         }
+        // TODO 판매자인 경우, SUSPENDED인지, DEACTIVATED 인지
 
         return user;
     }
