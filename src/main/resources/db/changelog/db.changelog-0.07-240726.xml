@@ -20,4 +20,19 @@
             </column>
         </addColumn>
     </changeSet>
+
+    <!-- entry_approved_at 생성 -->
+    <changeSet id="changelog-0.07.02-240726" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="seller"/>
+            <not>
+                <columnExists tableName="seller" columnName="entry_approved_at"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="seller">
+            <column name="entry_approved_at" type="TIMESTAMP">
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

@@ -14,4 +14,6 @@ public interface UpdateSellerCustomRepository {
     void updateDeliveryCompanyInformationBySellerId(Long sellerId, ChangeSellerDeliveryCompanyInfoDTO dto);
 
     Long updateDeliveryAddressInformationBySellerIdAndId(Long sellerId, ChangeSellerDeliveryAddressInfoDTO dto);
+
+    void updateSellerInformation(Long userId, Long sellerId, UpdateSellerInfoFromAdminDTO seller, Long id);
 }

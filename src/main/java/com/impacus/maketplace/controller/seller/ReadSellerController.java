@@ -2,13 +2,13 @@ package com.impacus.maketplace.controller.seller;
 
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
-import com.impacus.maketplace.repository.seller.mapping.SellerMarketNameViewsMapping;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
@@ -155,6 +155,49 @@ public class ReadSellerController {
                 .<List<SellerMarketNamesDTO>>builder()
                 .message("판매자 마켓명 반환 성공")
                 .data(dtos)
+                .build();
+    }
+
+    /**
+     * 판매자 목록 조회 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @GetMapping("")
+    public ApiResponseEntity<Page<SellerDTO>> getSellers(
+            @PageableDefault(size = 15, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(value = "brand-name", required = false) String brandName,
+            @RequestParam(value = "contact-name", required = false) String contactName,
+            @RequestParam(value = "status", required = false) UserStatus status
+    ) {
+        Page<SellerDTO> dtos = readSellerService.getSellers(
+                pageable,
+                brandName,
+                contactName,
+                status
+        );
+        return ApiResponseEntity
+                .<Page<SellerDTO>>builder()
+                .message("판매자 목록 조회 성공")
+                .data(dtos)
+                .build();
+    }
+
+    /**
+     * 판매자 목록 조회 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @GetMapping("{sellerId}")
+    public ApiResponseEntity<SimpleSellerFromAdminDTO> getSellerInformation(@PathVariable Long sellerId) {
+        SimpleSellerFromAdminDTO dto = readSellerService.getSellerInformation(sellerId);
+
+        return ApiResponseEntity
+                .<SimpleSellerFromAdminDTO>builder()
+                .message("판매자 정보 조회 성공")
+                .data(dto)
                 .build();
     }
 }

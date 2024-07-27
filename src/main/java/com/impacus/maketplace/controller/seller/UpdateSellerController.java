@@ -176,4 +176,24 @@ public class UpdateSellerController {
                 .data(true)
                 .build();
     }
+
+    /**
+     * 판매자 정보 수정 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @PatchMapping("{sellerId}")
+    public ApiResponseEntity<Void> updateSellerInformation(
+            @PathVariable Long sellerId,
+            @Valid @RequestPart UpdateSellerInfoFromAdminDTO seller,
+            @RequestPart(required = false) MultipartFile profileImage
+    ) {
+        updateSellerService.updateSellerInformation(sellerId, seller, profileImage);
+        return ApiResponseEntity
+                .<Void>builder()
+                .message("판매자 정보 수정 성공")
+                .data(null)
+                .build();
+    }
 }

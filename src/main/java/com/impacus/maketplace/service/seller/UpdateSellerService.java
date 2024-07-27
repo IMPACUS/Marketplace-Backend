@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -80,10 +81,19 @@ public class UpdateSellerService {
             validateSellerEntry(entryStatus, charge);
 
             // 2. 입점 상태 및 판매자 수수료 저장
+
+            // 2-1 입정 승인 날짜 구하기
+            // 승인: 현재 날짜로 업데이트
+            // 거절: null로 변경
+            LocalDateTime entryApprovedAt = null;
+            if (entryStatus == EntryStatus.APPROVE) {
+                entryApprovedAt = LocalDateTime.now();
+            }
             sellerRepository.updateSellerEntryStatusAndChargePercent(
                     seller.getId(),
                     entryStatus,
-                    charge == null ? 0 : charge
+                    charge == null ? 0 : charge,
+                    entryApprovedAt
             );
 
             EmailDto emailDto = EmailDto.builder()
@@ -415,6 +425,35 @@ public class UpdateSellerService {
                         sellerDeliveryAddressId);
                 selectedSellerDeliveryAddressService.saveSelectedSellerDeliveryAddress(newAddress);
             }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 판매자 정보 수정 함수
+     *
+     * @param sellerId     정보 수정할 판매자 아이디
+     * @param dto          변경할 정보
+     * @param profileImage 변경될 프로필 이미지
+     */
+    @Transactional
+    public void updateSellerInformation(
+            Long sellerId,
+            UpdateSellerInfoFromAdminDTO dto,
+            MultipartFile profileImage
+    ) {
+        try {
+            Seller seller = readSellerService.findSellerBySellerId(sellerId);
+
+            // 1. 프로필 이미지 존재하는 경우, 프로필 이미지 저장
+            Long profileImageId = null;
+            if (profileImage != null) {
+                profileImageId = attachFileService.uploadFileAndAddAttachFile(profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY).getId();
+            }
+
+            // 2. 판매자 정보 업데이트
+            sellerRepository.updateSellerInformation(seller.getUserId(), sellerId, dto, profileImageId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
