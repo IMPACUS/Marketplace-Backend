@@ -29,11 +29,14 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSelle
 
     @Transactional
     @Modifying
-    @Query("UPDATE Seller s SET s.entryStatus = :entryStatus, s.chargePercent = :chargePercent WHERE s.id = :id")
+    @Query("UPDATE Seller s " +
+            "SET s.entryStatus = :entryStatus, s.chargePercent = :chargePercent, s.entryApprovedAt = :entryApprovedAt" +
+            " WHERE s.id = :id")
     int updateSellerEntryStatusAndChargePercent(
             @Param("id") Long id,
             @Param("entryStatus") EntryStatus entryStatus,
-            @Param("chargePercent") int chargePercent
+            @Param("chargePercent") int chargePercent,
+            @Param("entryApprovedAt") LocalDateTime entryApprovedAt
     );
 
     @Query("SELECT s.id AS id, s.marketName AS marketName" +

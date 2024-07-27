@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -80,10 +81,19 @@ public class UpdateSellerService {
             validateSellerEntry(entryStatus, charge);
 
             // 2. 입점 상태 및 판매자 수수료 저장
+
+            // 2-1 입정 승인 날짜 구하기
+            // 승인: 현재 날짜로 업데이트
+            // 거절: null로 변경
+            LocalDateTime entryApprovedAt = null;
+            if (entryStatus == EntryStatus.APPROVE) {
+                entryApprovedAt = LocalDateTime.now();
+            }
             sellerRepository.updateSellerEntryStatusAndChargePercent(
                     seller.getId(),
                     entryStatus,
-                    charge == null ? 0 : charge
+                    charge == null ? 0 : charge,
+                    entryApprovedAt
             );
 
             EmailDto emailDto = EmailDto.builder()
