@@ -51,9 +51,9 @@ public class CouponDetailDTO {
 
     private Long useStandardValue;
 
-    private StandardType issueStandardType;
+    private StandardType issueConditionType;
 
-    private Long issueStandardValue;
+    private Long issueConditionValue;
 
     private PeriodType periodType;
 
@@ -97,8 +97,8 @@ public class CouponDetailDTO {
                 .useCoverageSubCategoryName(coupon.getUseCoverageSubCategoryName())
                 .useStandardType(coupon.getUseStandardType())
                 .useStandardValue(coupon.getUseStandardValue())
-                .issueStandardType(coupon.getIssueStandardType())
-                .issueStandardValue(coupon.getIssueStandardValue())
+                .issueConditionType(coupon.getIssueConditionType())
+                .issueConditionValue(coupon.getIssueConditionValue())
                 .periodType(coupon.getPeriodType())
                 .periodStartAt(coupon.getPeriodStartAt())
                 .periodEndAt(coupon.getPeriodEndAt())

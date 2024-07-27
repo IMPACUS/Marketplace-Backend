@@ -66,9 +66,9 @@ public class CouponIssueDTO implements CouponDTO {
     private Long useStandardValue;
 
     @ValidEnum(enumClass = StandardType.class)
-    private StandardType issueStandardType;
+    private StandardType issueConditionType;
 
-    private Long issueStandardValue;
+    private Long issueConditionValue;
 
     @ValidEnum(enumClass = PeriodType.class)
     private PeriodType periodType;
@@ -118,8 +118,8 @@ public class CouponIssueDTO implements CouponDTO {
                 .useCoverageSubCategoryName(this.useCoverageSubCategoryName)
                 .useStandardType(this.useStandardType)
                 .useStandardValue(this.useStandardValue)
-                .issueStandardType(this.issueStandardType)
-                .issueStandardValue(this.issueStandardValue)
+                .issueConditionType(this.issueConditionType)
+                .issueConditionValue(this.issueConditionValue)
                 .periodType(this.periodType)
                 .periodStartAt(this.periodStartAt)
                 .periodEndAt(this.periodEndAt)

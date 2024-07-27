@@ -70,9 +70,9 @@ public class CouponUpdateDTO implements CouponDTO {
     private Long useStandardValue;
 
     @ValidEnum(enumClass = StandardType.class)
-    private StandardType issueStandardType;
+    private StandardType issueConditionType;
 
-    private Long issueStandardValue;
+    private Long issueConditionValue;
 
     @ValidEnum(enumClass = PeriodType.class)
     private PeriodType periodType;

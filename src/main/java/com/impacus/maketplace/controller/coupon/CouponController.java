@@ -1,18 +1,18 @@
 package com.impacus.maketplace.controller.coupon;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.coupon.request.CouponCodeCheckDTO;
-import com.impacus.maketplace.dto.coupon.request.CouponIssueDTO;
-import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
+import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
 import com.impacus.maketplace.service.coupon.CouponService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -100,17 +100,55 @@ public class CouponController {
                 .build();
     }
 
+    /** [개발중]
+     * ADMIN: 쿠폰 상태 변경
+     * @param user
+     * @param couponStatusDTO 선택한 쿠폰 id List, 변경하려고 하는 Status
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')")
+    @PatchMapping("/status")
+    public ApiResponseEntity<Boolean> changeCouponStatus(@AuthenticationPrincipal CustomUserDetails user,
+                                                         @Valid @RequestBody CouponStatusDTO couponStatusDTO) {
+
+        couponAdminService.changeStatus(couponStatusDTO);
+
+        return null;
+    }
+
     /**
-     * ADMIN: 쿠폰 상세 전체 조회 API
+     * ADMIN: 쿠폰 다중 삭제 API
+     */
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')")
+    @DeleteMapping("")
+    public ApiResponseEntity<Boolean> deleteCoupons(@AuthenticationPrincipal CustomUserDetails user,
+                                                   @RequestParam(name = "coupon-id") List<Long> couponIdList) {
+
+        // 1. 쿠폰 삭제하기
+        couponAdminService.deleteCoupon(couponIdList);
+
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
+    }
+
+
+    /** [개발중]
+     * ADMIN: 쿠폰 목록 조회 Pagination API
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
     @GetMapping("/admin/list")
-    public ApiResponseEntity<List<CouponDetailDTO>> getCouponDetailList(@RequestParam(value = "search-value") String serchValue,
-                                                                         @RequestParam(value = "search-order") String searchOrder,
-                                                                         @PageableDefault(size = 10, sort = { "name" }) Pageable pageable) {
+    public ApiResponseEntity<Page<CouponListInfoDTO>> getCouponList(@AuthenticationPrincipal CustomUserDetails user,
+                                             @RequestParam(name = "keyword", required = false) String keyword,
+                                             @RequestParam(name = "status", required = false) String status,
+                                             @PageableDefault(sort = "modifyAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<CouponListInfoDTO> couponListInfoDTOList = couponAdminService.getCouponListInfoList(keyword, status, pageable);
 
-        return null;
+        return ApiResponseEntity
+                .<Page<CouponListInfoDTO>>builder()
+                .data(couponListInfoDTOList)
+                .build();
     }
 }

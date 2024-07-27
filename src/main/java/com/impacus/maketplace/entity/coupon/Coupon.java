@@ -88,15 +88,13 @@ public class Coupon extends BaseEntity {
     @Column(nullable = false)
     private StandardType useStandardType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
-    @ColumnDefault("0")
     private Long useStandardValue;  // N원 (N원 이상 주문시 사용 가능)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StandardType issueStandardType; // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+    private StandardType issueConditionType; // 쿠폰 지급 조건 [ 가격제한없음, N원 이상 구매시 ]
 
-    @ColumnDefault("0")
-    private Long issueStandardValue;    // N원 (N원 이상 주문시 쿠폰 발급)
+    private Long issueConditionValue;    // N원 (N원 이상 주문시 쿠폰 발급)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -133,6 +131,11 @@ public class Coupon extends BaseEntity {
     @ColumnDefault("'ISSUING'")
     private CouponStatusType statusType; // 발급 상태 [ 발급 중, 발급 대기, 발급 중지 ]
 
+    @Column(nullable = false)
+    @ColumnDefault("'false")
+    @Setter
+    private Boolean isDeleted;
+
     public void update(String code, CouponUpdateDTO couponUpdateDTO) {
         this.code = code;
         this.name = couponUpdateDTO.getName();
@@ -153,8 +156,8 @@ public class Coupon extends BaseEntity {
         this.useCoverageSubCategoryName = couponUpdateDTO.getUseCoverageSubCategoryName();
         this.useStandardType = couponUpdateDTO.getUseStandardType();
         this.useStandardValue = couponUpdateDTO.getUseStandardValue();
-        this.issueStandardType = couponUpdateDTO.getIssueStandardType();
-        this.issueStandardValue = couponUpdateDTO.getIssueStandardValue();
+        this.issueConditionType = couponUpdateDTO.getIssueConditionType();
+        this.issueConditionValue = couponUpdateDTO.getIssueConditionValue();
         this.periodType = couponUpdateDTO.getPeriodType();
         this.periodStartAt = couponUpdateDTO.getPeriodStartAt();
         this.periodEndAt = couponUpdateDTO.getPeriodEndAt();

@@ -4,20 +4,24 @@ import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
-import com.impacus.maketplace.dto.coupon.request.CouponDTO;
-import com.impacus.maketplace.dto.coupon.request.CouponIssueDTO;
-import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
+import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -62,25 +66,95 @@ public class CouponAdminService {
         Coupon coupon = couponRepository.findWriteLockById(couponUpdateDTO.getId()).orElseThrow(() -> {
             log.error("CouponAdminService.updateCoupon error: id값이 존재하지 않습니다. " +
                     "id: {}",couponUpdateDTO.getId());
-            return new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
+            throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
         });
 
-        // 2. 발급한 횟수 확인
+        // 2. 삭제된 쿠폰인지 확인
+        if (coupon.getIsDeleted()) {
+            log.error("CouponAdminService.updateCoupon error: 삭제된 쿠폰입니다. " +
+                    "id: {}",couponUpdateDTO.getId());
+            throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
+        }
+
+        // 3. 발급한 횟수 확인
         if (coupon.getQuantityIssued() > 0) {
             log.error("CouponAdminService.updateCoupon error: 사용자에게 발급한 이력이 있습니다. QuantityIssued: {}", coupon.getQuantityIssued());
             throw new CustomException(CouponErrorType.INVALID_COUPON_UPDATE);
         }
 
-        // 3. 입력 값 검증
+        // 4. 입력 값 검증
         couponInputValidation(couponUpdateDTO);
 
-        // 4. 쿠폰 코드 처리
+        // 5. 쿠폰 코드 처리
         String code = getCode(couponUpdateDTO.getAutoManualType(), couponUpdateDTO);
 
-        // 5. 쿠폰 업데이트
+        // 6. 쿠폰 업데이트
         coupon.update(code, couponUpdateDTO);
 
         return coupon;
+    }
+
+    /**
+     * 단일 쿠폰 조회
+     * @param id
+     * @return
+     */
+    public CouponDetailDTO getCoupon(Long id) {
+
+        // 1. id를 통한 Coupon 조회
+        Coupon coupon = couponRepository.findById(id)
+                .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON));
+
+        // 2. 삭제된 쿠폰인지 확인
+        if (coupon.getIsDeleted()) {
+            log.error("CouponAdminService.updateCoupon error: 삭제된 쿠폰입니다. " +
+                    "id: {}", id);
+            throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
+        }
+
+        return CouponDetailDTO.fromEntity(coupon);
+    }
+
+    /**
+     * 선택한 쿠폰 리스트 상태 변경
+     * @param couponStatusDTO
+     * @return Boolean
+     */
+    public Boolean changeStatus(CouponStatusDTO couponStatusDTO) {
+        return null;
+    }
+
+    /**
+     * 쿠폰 삭제하기
+     * @param couponIdList
+     */
+    @Transactional
+    public void deleteCoupon(List<Long> couponIdList) {
+
+        // 1. 일치하는 쿠폰 전부 가져오기
+        List<Coupon> coupons = couponRepository.findWriteLockCouponsById(couponIdList);
+
+        if (coupons.isEmpty()) {
+            throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
+        }
+
+        // 2. 쿠폰 삭제하기
+        coupons.forEach(coupon -> coupon.setIsDeleted(true));
+    }
+
+
+    /**
+     * 쿠폰 목록 Pagination
+     * @param keyword 이름
+     * @param status 발급 상태
+     * @param pageable 페이지 숫자 및 크기
+     * @return couponListInfoDTOList
+     */
+    public Page<CouponListInfoDTO> getCouponListInfoList(String keyword, String status, Pageable pageable) {
+
+
+
+        return null;
     }
 
     /**
@@ -113,6 +187,10 @@ public class CouponAdminService {
     }
 
 
+    /**
+     * 쿠폰 입력 값 검증
+     * @param couponDTO CouponIssueDTO, CouponUpdateDTO
+     */
     private void couponInputValidation(CouponDTO couponDTO) {
         // 2.0 BenefitValue가 음수일 경우
         if (couponDTO.getBenefitValue() == null || couponDTO.getBenefitValue() < 0) {
@@ -179,10 +257,10 @@ public class CouponAdminService {
         }
 
         // 2.7 쿠폰 발급 기준 금액 설정한 경우 음수인지 확인
-        if (couponDTO.getIssueStandardType().equals(StandardType.LIMIT)) {
-            if (couponDTO.getIssueStandardValue() == null || couponDTO.getIssueStandardValue() < 0) {
+        if (couponDTO.getIssueConditionType().equals(StandardType.LIMIT)) {
+            if (couponDTO.getIssueConditionValue() == null || couponDTO.getIssueConditionValue() < 0) {
                 log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 issueStandardValue 값이 들어왔습니다. " +
-                        "issueStandardValue: {}", couponDTO.getIssueStandardValue());
+                        "issueStandardValue: {}", couponDTO.getIssueConditionValue());
                 throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_STANDARD_VALUE);
             }
         }
@@ -208,13 +286,5 @@ public class CouponAdminService {
                 throw new CustomException(CouponErrorType.INVALID_INPUT_NUMBER_OF_PERIOD);
             }
         }
-    }
-
-    public CouponDetailDTO getCoupon(Long id) {
-
-        Coupon coupon = couponRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON));
-
-        return CouponDetailDTO.fromEntity(coupon);
     }
 }

@@ -18,8 +18,8 @@ public interface CouponDTO {
     String getUseCoverageSubCategoryName();
     StandardType getUseStandardType();
     Long getUseStandardValue();
-    StandardType getIssueStandardType();
-    Long getIssueStandardValue();
+    StandardType getIssueConditionType();
+    Long getIssueConditionValue();
     PeriodType getPeriodType();
     LocalDate getPeriodStartAt();
     LocalDate getPeriodEndAt();

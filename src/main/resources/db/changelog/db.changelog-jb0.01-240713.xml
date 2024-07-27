@@ -232,4 +232,33 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="changelog-jb0.01-240721-1" author="jeongbeom4693">
+        <renameColumn tableName="coupon"
+                      oldColumnName="issue_standard_type"
+                      newColumnName="issue_condition_type"
+                      columnDataType="varchar(255)"/>
+        <renameColumn tableName="coupon"
+                      oldColumnName="issue_standard_value"
+                      newColumnName="issue_condition_value"
+                      columnDataType="BIGINT"/>
+
+        <!-- 기본값 제거 -->
+        <dropDefaultValue tableName="coupon" columnName="issue_condition_type"/>
+        <dropDefaultValue tableName="coupon" columnName="issue_condition_value"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240722-1" author="jeongbeom4693">
+        <preConditions>
+            <not>
+                <columnExists tableName="coupon" columnName="is_deleted"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="coupon">
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
