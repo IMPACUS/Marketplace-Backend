@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -268,25 +267,21 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         sellerBuilder.and(seller.sellerType.eq(SellerType.BRAND))
                 .and(seller.isDeleted.eq(false));
 
-        return queryFactory.selectFrom(seller)
-                .where(sellerBuilder)
-                .transform(
-                        GroupBy.groupBy(seller.id).list(
-                                Projections.constructor(
-                                        SubCategoryDetailDTO.class,
-                                        seller.id,
-                                        seller.marketName,
-                                        ExpressionUtils.as(
-                                                JPAExpressions.select(attachFile.attachFileName)
-                                                        .from(attachFile)
-                                                        .where(attachFile.id.eq(seller.logoImageId))
-                                                , "thumbnailUrl"
-                                        )
-                                )
-
-
+        return queryFactory
+                .select(Projections.constructor(
+                        SubCategoryDetailDTO.class,
+                        seller.id,
+                        seller.marketName,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(attachFile.attachFileName)
+                                        .from(attachFile)
+                                        .where(attachFile.id.eq(seller.logoImageId))
+                                , "thumbnailUrl"
                         )
-                );
+                ))
+                .from(seller)
+                .where(sellerBuilder)
+                .fetch();
     }
 
     /**
@@ -299,7 +294,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         return deliveryCompanies.stream()
                 .distinct()
                 .sorted(Comparator.comparingLong(SellerDeliveryAddressInfoDTO::getDeliveryAddressId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -312,7 +307,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         return deliveryCompanies.stream()
                 .distinct()
                 .sorted(Comparator.comparingLong(SelectedSellerDeliveryCompanyDTO::getSelectedSellerDeliveryCompanyId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -368,11 +363,13 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             String contactName,
             List<SellerDTO> dtos
     ) {
+        // 1. 검색어가 모두 존재하지 않는지 확인
         if ((brandName == null || brandName.isBlank())
                 && (contactName == null || contactName.isBlank())) {
             return dtos;
         }
 
+        // 2. 검색어 기준으로 필터링
         List<SellerDTO> filteredDTOs = new ArrayList<>();
         for (SellerDTO dto : dtos) {
             if (brandName != null && !brandName.isBlank()) {
