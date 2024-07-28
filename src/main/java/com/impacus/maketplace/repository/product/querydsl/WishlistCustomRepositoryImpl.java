@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
 import com.impacus.maketplace.entity.common.QAttachFile;
@@ -15,7 +16,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,6 +32,12 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
 
     @Override
     public Slice<WishlistDetailDTO> findAllWishListByUserId(Long userId, Pageable pageable) {
+        List<WishlistDetailDTO> dtos = getWishlistDetailDTOs(userId);
+
+        return PaginationUtils.toSlice(dtos, pageable);
+    }
+
+    private List<WishlistDetailDTO> getWishlistDetailDTOs(Long userId) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(wishlist.productId))
                 .and(product.isDeleted.eq(false));
@@ -40,15 +46,13 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
 
-        List<WishlistDetailDTO> content = queryFactory
+        return queryFactory
                 .selectFrom(wishlist)
                 .innerJoin(product).on(productBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .where(wishlist.registerId.eq(userId.toString()))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .transform(
                         GroupBy.groupBy(wishlist.id).list(Projections.constructor(
                                 WishlistDetailDTO.class,
@@ -71,13 +75,5 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
                                 )
                         ))
                 );
-
-        boolean hasNext = false;
-        if (content.size() > pageable.getPageSize()) {
-            hasNext = true;
-            content.remove(pageable.getPageSize());
-        }
-
-        return new SliceImpl<>(content, pageable, hasNext);
     }
 }

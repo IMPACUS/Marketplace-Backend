@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.*;
@@ -19,7 +20,9 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -79,12 +82,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         }
 
         // 5. 페이징 처리
-        long count = products.size();
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), products.size());
-        List<ProductForWebDTO> paginatedProducts = count < start ? new ArrayList<>() : products.subList(start, end);
-
-        return new PageImpl<>(paginatedProducts, pageable, count);
+        return PaginationUtils.toPage(products, pageable);
     }
 
     private List<ProductForWebDTO> removeDuplicatedProductsForWeb(List<ProductForWebDTO> products) {
@@ -267,19 +265,13 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             productIdIndexMap.put(productIds.get(i), i);
         }
 
-        List<ProductForAppDTO> products = findAllProduct(productBuilder, userId, pageable);
+        List<ProductForAppDTO> products = findAllProduct(productBuilder, userId);
 
         List<ProductForAppDTO> sortedProducts = products.stream()
                 .sorted(Comparator.comparingInt(product -> productIdIndexMap.get(product.getProductId())))
-                .collect(Collectors.toList());
+                .toList();
 
-        boolean hasNext = false;
-        if (sortedProducts.size() > pageable.getPageSize()) {
-            hasNext = true;
-            sortedProducts.remove(pageable.getPageSize());
-        }
-
-        return new SliceImpl<>(sortedProducts, pageable, hasNext);
+        return PaginationUtils.toSlice(sortedProducts, pageable);
     }
 
     @Override
@@ -412,21 +404,16 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                     .and(product.categoryId.eq(subCategoryId));
         }
 
-        List<ProductForAppDTO> content = findAllProduct(productBuilder, userId, pageable);
+        // 1. 전체 조회
+        List<ProductForAppDTO> dtos = findAllProduct(productBuilder, userId);
 
-        boolean hasNext = false;
-        if (content.size() > pageable.getPageSize()) {
-            hasNext = true;
-            content.remove(pageable.getPageSize());
-        }
-
-        return new SliceImpl<>(content, pageable, hasNext);
+        // 2. 슬라이스 처리
+        return PaginationUtils.toSlice(dtos, pageable);
     }
 
     public List<ProductForAppDTO> findAllProduct(
             BooleanBuilder productBuilder,
-            Long userId,
-            Pageable pageable
+            Long userId
     ) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
@@ -442,9 +429,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .leftJoin(wishlist).on(wishlistBuilder)
-                .where(productBuilder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+                .where(productBuilder);
 
         return query
                 .transform(
