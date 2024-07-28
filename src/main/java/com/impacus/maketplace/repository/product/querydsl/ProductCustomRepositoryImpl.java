@@ -118,8 +118,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 content.add(dto);
             } else {
                 for (ProductOptionDTO productOptionDTO : dto.getOptions()) { // 검색 옵션: 상품 옵션
-                    if (StringUtils.containsKeywordIgnoreCase(productOptionDTO.getColor(), keyword)
-                            || StringUtils.containsKeywordIgnoreCase(productOptionDTO.getSize(), keyword)) {
+                    if (productOptionDTO.getColor() != null && StringUtils.containsKeywordIgnoreCase(productOptionDTO.getColor(), keyword)
+                            || (productOptionDTO.getSize() != null && StringUtils.containsKeywordIgnoreCase(productOptionDTO.getSize(), keyword))) {
                         content.add(dto);
                         break;
                     }
