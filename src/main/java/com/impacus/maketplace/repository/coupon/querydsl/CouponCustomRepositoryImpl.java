@@ -2,7 +2,9 @@ package com.impacus.maketplace.repository.coupon.querydsl;
 
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.PayCouponInfoDTO;
 import com.impacus.maketplace.dto.coupon.response.QCouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.QPayCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.QCoupon;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -60,11 +62,43 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
+
+    @Override
+    public List<PayCouponInfoDTO> findPayCouponInfoList() {
+        return queryFactory
+                .select(new QPayCouponInfoDTO(
+                        coupon.id,
+                        coupon.name,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.description,
+                        coupon.issuedTimeType,
+                        coupon.expireTimeType,
+                        coupon.expireTimeDays,
+                        coupon.useStandardType,
+                        coupon.useStandardValue,
+                        coupon.useCoverageType,
+                        coupon.useCoverageSubCategoryName,
+                        coupon.smsAlarm,
+                        coupon.emailAlarm,
+                        coupon.kakaoAlarm
+                ))
+                .from(coupon)
+                .where(checkCanIssueCoupon())
+                .fetch();
+    }
+    private BooleanExpression checkCanIssueCoupon() {
+        return (coupon.statusType.eq(CouponStatusType.ISSUED).or(coupon.statusType.eq(CouponStatusType.ISSUING))).and(couponIsNotDeleted());
+    }
+
     private BooleanExpression couponStatusEq(CouponStatusType couponStatus) {
         log.info("CouponStatusType: " + couponStatus);
         return couponStatus != null ? coupon.statusType.eq(couponStatus) : null;
     }
     private BooleanExpression couponNameEq(String name) {
         return StringUtils.hasText(name) ? coupon.name.contains(name) : null;
+    }
+    private BooleanExpression couponIsNotDeleted() {
+        return coupon.isDeleted.eq(false);
     }
 }

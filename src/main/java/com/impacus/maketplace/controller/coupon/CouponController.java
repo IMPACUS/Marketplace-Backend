@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.PayCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
 import com.impacus.maketplace.service.coupon.CouponService;
@@ -139,6 +140,22 @@ public class CouponController {
         return ApiResponseEntity
                 .<Page<CouponListInfoDTO>>builder()
                 .data(couponListInfoDTOList)
+                .build();
+    }
+
+    /**
+     * ADMIN: 쿠폰 지급::쿠폰명 선택
+     */
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')")
+    @GetMapping("/admin/pay-coupon-info/list")
+    public ApiResponseEntity<List<PayCouponInfoDTO>> getPayCouponInfoList() {
+
+        List<PayCouponInfoDTO> payCouponInfoList = couponAdminService.getPayCouponInfoList();
+
+        return ApiResponseEntity
+                .<List<PayCouponInfoDTO>>builder()
+                .data(payCouponInfoList)
                 .build();
     }
 }

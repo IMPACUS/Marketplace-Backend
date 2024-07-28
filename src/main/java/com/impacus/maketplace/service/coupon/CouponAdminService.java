@@ -7,6 +7,7 @@ import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.PayCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
@@ -161,8 +162,8 @@ public class CouponAdminService {
 
         // 3. 쿠폰 삭제하기
         coupons.forEach(coupon -> {
-            coupon.setIsDeleted(true);
             coupon.setStatusType(CouponStatusType.STOP);
+            coupon.setIsDeleted(true);
         });
     }
 
@@ -307,5 +308,13 @@ public class CouponAdminService {
                 throw new CustomException(CouponErrorType.INVALID_INPUT_NUMBER_OF_PERIOD);
             }
         }
+    }
+
+    /**
+     * 쿠폰 지급하기 페이지: 쿠폰 정보 조회
+     * @return List<PayCouponInfoDTO>
+     */
+    public List<PayCouponInfoDTO> getPayCouponInfoList() {
+        return couponCustomRepositroy.findPayCouponInfoList();
     }
 }
