@@ -450,7 +450,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
                                 ProductForAppDTO.class,
-                                product.categoryId,
+                                product.id,
                                         product.name,
                                         seller.marketName,
                                         product.appSalesPrice,
