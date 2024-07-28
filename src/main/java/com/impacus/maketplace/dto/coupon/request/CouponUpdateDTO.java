@@ -5,16 +5,13 @@ import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class CouponUpdateDTO implements CouponDTO {
 

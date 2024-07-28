@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.coupon;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.*;
+import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
 import com.impacus.maketplace.dto.coupon.response.PayCouponInfoDTO;
@@ -18,7 +19,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import security.CustomUserDetails;
 
 import java.util.List;
 
@@ -96,16 +100,16 @@ public class CouponController {
     /**
      * ADMIN: 쿠폰 리스트 상태 변경
      * @param couponIdList couponId 리스트
-     * @param changeCouponStatus ISSUING, ISSUED, STOP
+     * @param changeCouponStatusDTO ISSUING, ISSUED, STOP
      * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @PatchMapping("/status")
     public ApiResponseEntity<Boolean> changeCouponStatus(@RequestParam(value = "coupon-id") List<Long> couponIdList,
-                                                         @RequestParam(value = "status") CouponStatusType changeCouponStatus) {
+                                                         @Valid @RequestBody ChangeCouponStatusDTO changeCouponStatusDTO) {
 
-        couponAdminService.changeStatus(couponIdList, changeCouponStatus);
+        couponAdminService.changeStatus(couponIdList, changeCouponStatusDTO.getStatus());
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
@@ -144,7 +148,7 @@ public class CouponController {
     }
 
     /**
-     * ADMIN: 쿠폰 지급::쿠폰명 선택
+     * ADMIN: 쿠폰 지급::쿠폰명 선택 API
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
@@ -158,4 +162,59 @@ public class CouponController {
                 .data(payCouponInfoList)
                 .build();
     }
+
+
+    /**
+     * [개발 준비]: 쿠폰 수정 불가 정책 확정 및 모든 회원 등급 적용 발급 방식 확정시 개발 시작
+     * ADMIN: 모든 회원 쿠폰 지급 API
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')")
+    @PostMapping("/admin/pay-coupon/all-user")
+    public ApiResponseEntity<Boolean> payCouponAllUser() {
+        return null;
+    }
+
+    /**
+     * [개발 준비]: 쿠폰 수정 불가 정책 확정시 개발 진행
+     * ADMIN: 특정 회원 쿠폰 지급 API
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')")
+    @PostMapping()
+    public ApiResponseEntity<Boolean> payCouponTargetUser() {
+        return null;
+    }
+
+    /**
+     * [개발 준비]: 지급 상태에 대한 정리가 끝나면 개발 진행
+     * ADMIN: 쿠폰 지급 내역 Pagination API
+     */
+    public ApiResponseEntity<Void> getPayCouponHistory() {
+        return null;
+    }
+
+    /**
+     * [개발 준비]: 모든 회원 쿠폰 지급 기능 구현시 개발 진행
+     * APP: 보유 쿠폰 List API
+     * @param user
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("/coupon-box/coupons")
+    public ApiResponseEntity<List<UserCouponOverviewDTO>> getUserCouponOverviewList(@AuthenticationPrincipal CustomUserDetails user) {
+
+
+        return null;
+    }
+
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("/coupon-box/coupon")
+    public ApiResponseEntity<List<UserCouponOverviewDTO>> registUserCoupon(@AuthenticationPrincipal CustomUserDetails user) {
+
+        return null;
+    }
+
 }
