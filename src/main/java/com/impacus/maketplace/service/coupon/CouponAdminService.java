@@ -1,18 +1,21 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.*;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
-import com.impacus.maketplace.dto.coupon.response.PayCouponInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
+import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
+import com.impacus.maketplace.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,8 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,6 +36,7 @@ public class CouponAdminService {
     private final SubCategoryRepository subCategoryRepository;
     private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
+    private final UserRepository userRepository;
     private final CouponUtils couponUtils;
 
 
@@ -314,7 +316,25 @@ public class CouponAdminService {
      * 쿠폰 지급하기 페이지: 쿠폰 정보 조회
      * @return List<PayCouponInfoDTO>
      */
-    public List<PayCouponInfoDTO> getPayCouponInfoList() {
+    public List<IssueCouponInfoDTO> getIssueCouponInfoList() {
         return couponCustomRepositroy.findPayCouponInfoList();
+    }
+
+    public void issueCouponAllUser(IssueCouponAllUserDTO payCouponAllUserDTO) {
+
+        // 1. Condition(level)에 따라서 회원 id 조회
+
+
+    }
+
+
+    public void issueCouponTargetUser(IssueCouponTargetUserDTO payCouponTargetUserDTO) {
+
+        // 1. Email을 통해서 회원 검색
+        User user = userRepository.findByEmail(payCouponTargetUserDTO.getEmail())
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+
+        // 2. 쿠폰 지급
+
     }
 }

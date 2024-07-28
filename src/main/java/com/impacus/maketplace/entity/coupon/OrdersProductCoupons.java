@@ -12,11 +12,12 @@ public class OrdersProductCoupons {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "orders_product_coupons_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "orders_product_id", nullable = false)
     private Long ordersProductId;
 
-    @Column(nullable = false)
-    private Long issuedCouponId;
+    @Column(name = "user_coupon_id", nullable = false)
+    private Long userCouponId;
 }

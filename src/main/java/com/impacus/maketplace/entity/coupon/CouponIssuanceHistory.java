@@ -12,11 +12,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class IssuedCouponHistory extends BaseEntity {
+public class CouponIssuanceHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "issued_coupon_history_id")
+    @Column(name = "coupon_issuance_history_id")
     private Long id;
 
     @Column(nullable = false)

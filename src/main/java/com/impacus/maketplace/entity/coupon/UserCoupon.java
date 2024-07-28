@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
 @Builder
-public class IssuedCoupon extends BaseEntity {
+public class UserCoupon extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "issued_coupon_id")
+    @Column(name = "user_coupon_id")
     private Long id;    // PK
 
     @Column(nullable = false)
@@ -24,10 +24,6 @@ public class IssuedCoupon extends BaseEntity {
 
     @Column(nullable = false)
     private Long couponId;  // 쿠폰 아이디
-
-    @Column(nullable = false)
-    @ColumnDefault("'false'")
-    private Boolean lock;   // 잠금 상태
 
     @Column(nullable = false)
     private LocalDateTime availableDownladAt;   // 쿠폰을 다운로드 받을 수 있는 날짜

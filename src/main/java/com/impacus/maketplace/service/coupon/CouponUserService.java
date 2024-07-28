@@ -6,11 +6,12 @@ import com.impacus.maketplace.repository.coupon.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import security.CustomUserDetails;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CouponService {
+public class CouponUserService {
     private final CouponRepository couponRepository;
 
     /**
@@ -21,5 +22,9 @@ public class CouponService {
         if(couponRepository.existsByCode(code)) {
             throw new CustomException(new CustomException(CouponErrorType.DUPLICATED_COUPON_CODE));
         }
+    }
+
+    public void getUserCouponOverviewList(CustomUserDetails user) {
+
     }
 }

@@ -2,9 +2,9 @@ package com.impacus.maketplace.repository.coupon.querydsl;
 
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
-import com.impacus.maketplace.dto.coupon.response.PayCouponInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.dto.coupon.response.QCouponListInfoDTO;
-import com.impacus.maketplace.dto.coupon.response.QPayCouponInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.QIssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.QCoupon;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -64,9 +64,9 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public List<PayCouponInfoDTO> findPayCouponInfoList() {
+    public List<IssueCouponInfoDTO> findPayCouponInfoList() {
         return queryFactory
-                .select(new QPayCouponInfoDTO(
+                .select(new QIssueCouponInfoDTO(
                         coupon.id,
                         coupon.name,
                         coupon.benefitType,

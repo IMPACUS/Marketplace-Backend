@@ -3,13 +3,13 @@ package com.impacus.maketplace.controller.coupon;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.*;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
-import com.impacus.maketplace.dto.coupon.response.PayCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
-import com.impacus.maketplace.service.coupon.CouponService;
+import com.impacus.maketplace.service.coupon.CouponUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import security.CustomUserDetails;
 
@@ -32,8 +31,13 @@ import java.util.List;
 @RequestMapping("api/v1/coupon")
 public class CouponController {
 
+    // 용어 정리
+    // ADMIN이 새롭게 쿠폰 등록: Register
+    // ADMIN -> USER과 같은 USER에게 지급: Issue
+    // USER가 쿠폰을 사용: Redeem
+
     private final CouponAdminService couponAdminService;
-    private final CouponService couponService;
+    private final CouponUserService couponService;
 
     /**
      * ADMIN: 쿠폰 등록 API
@@ -153,26 +157,29 @@ public class CouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @GetMapping("/admin/pay-coupon-info/list")
-    public ApiResponseEntity<List<PayCouponInfoDTO>> getPayCouponInfoList() {
+    public ApiResponseEntity<List<IssueCouponInfoDTO>> getIssueCouponInfoList() {
 
-        List<PayCouponInfoDTO> payCouponInfoList = couponAdminService.getPayCouponInfoList();
+        List<IssueCouponInfoDTO> payCouponInfoList = couponAdminService.getIssueCouponInfoList();
 
         return ApiResponseEntity
-                .<List<PayCouponInfoDTO>>builder()
+                .<List<IssueCouponInfoDTO>>builder()
                 .data(payCouponInfoList)
                 .build();
     }
 
 
     /**
-     * [개발 준비]: 쿠폰 수정 불가 정책 확정 및 모든 회원 등급 적용 발급 방식 확정시 개발 시작
+     * [개발 미완성]: level_point_master 엔티티 확정 후 레벨별 지급 가능(회원 가져오는 기능 필요)
      * ADMIN: 모든 회원 쿠폰 지급 API
      * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @PostMapping("/admin/pay-coupon/all-user")
-    public ApiResponseEntity<Boolean> payCouponAllUser() {
+    public ApiResponseEntity<Boolean> issueCouponAllUser(@Valid @RequestBody IssueCouponAllUserDTO payCouponAllUserDTO) {
+
+        couponAdminService.issueCouponAllUser(payCouponAllUserDTO);
+
         return null;
     }
 
@@ -184,7 +191,10 @@ public class CouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @PostMapping()
-    public ApiResponseEntity<Boolean> payCouponTargetUser() {
+    public ApiResponseEntity<Boolean> issueCouponTargetUser(@Valid @RequestBody IssueCouponTargetUserDTO payCouponTargetUserDTO) {
+
+        couponAdminService.issueCouponTargetUser(payCouponTargetUserDTO);
+
         return null;
     }
 
@@ -192,7 +202,7 @@ public class CouponController {
      * [개발 준비]: 지급 상태에 대한 정리가 끝나면 개발 진행
      * ADMIN: 쿠폰 지급 내역 Pagination API
      */
-    public ApiResponseEntity<Void> getPayCouponHistory() {
+    public ApiResponseEntity<Void> getIssueCouponHistory() {
         return null;
     }
 
@@ -206,6 +216,7 @@ public class CouponController {
     @GetMapping("/coupon-box/coupons")
     public ApiResponseEntity<List<UserCouponOverviewDTO>> getUserCouponOverviewList(@AuthenticationPrincipal CustomUserDetails user) {
 
+        couponService.getUserCouponOverviewList(user);
 
         return null;
     }

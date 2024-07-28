@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PayCouponInfoDTO {
+public class IssueCouponInfoDTO {
     private Long couponId;
     private String name;
     private BenefitType benefitType;
@@ -25,7 +25,7 @@ public class PayCouponInfoDTO {
     private Boolean kakaoAlarm;
 
     @QueryProjection
-    public PayCouponInfoDTO(Long couponId, String name, BenefitType benefitType, Long benefitValue, String description, IssuedTimeType issuedTimeType, ExpireTimeType expireTimeType, Integer expireTimeDays, StandardType useStandardType, Long useStandardValue, CoverageType useConverageType, String useCoverageSubCategoryName, Boolean smsAlarm, Boolean emailAlarm, Boolean kakaoAlarm) {
+    public IssueCouponInfoDTO(Long couponId, String name, BenefitType benefitType, Long benefitValue, String description, IssuedTimeType issuedTimeType, ExpireTimeType expireTimeType, Integer expireTimeDays, StandardType useStandardType, Long useStandardValue, CoverageType useConverageType, String useCoverageSubCategoryName, Boolean smsAlarm, Boolean emailAlarm, Boolean kakaoAlarm) {
         this.couponId = couponId;
         this.name = name;
         this.benefitType = benefitType;
