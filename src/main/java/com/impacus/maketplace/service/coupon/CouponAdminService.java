@@ -11,6 +11,7 @@ import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
+import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,7 @@ public class CouponAdminService {
     private final SuperCategoryRepository superCategoryRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final CouponRepository couponRepository;
+    private final CouponCustomRepositroy couponCustomRepositroy;
     private final CouponUtils couponUtils;
 
 
@@ -63,16 +65,16 @@ public class CouponAdminService {
     public Coupon updateCoupon(CouponUpdateDTO couponUpdateDTO) {
 
         // 1. 해당 id를 가진 쿠폰의 발급 수량 가져오기(Lock)
-        Coupon coupon = couponRepository.findWriteLockById(couponUpdateDTO.getId()).orElseThrow(() -> {
+        Coupon coupon = couponRepository.findWriteLockById(couponUpdateDTO.getCouponId()).orElseThrow(() -> {
             log.error("CouponAdminService.updateCoupon error: id값이 존재하지 않습니다. " +
-                    "id: {}",couponUpdateDTO.getId());
+                    "id: {}",couponUpdateDTO.getCouponId());
             throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
         });
 
         // 2. 삭제된 쿠폰인지 확인
         if (coupon.getIsDeleted()) {
             log.error("CouponAdminService.updateCoupon error: 삭제된 쿠폰입니다. " +
-                    "id: {}",couponUpdateDTO.getId());
+                    "id: {}",couponUpdateDTO.getCouponId());
             throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
         }
 
@@ -167,16 +169,13 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 목록 Pagination
-     * @param keyword 이름
-     * @param status 발급 상태
+     * @param name 쿠폰명/혜택
+     * @param couponStatus 발급 상태
      * @param pageable 페이지 숫자 및 크기
      * @return couponListInfoDTOList
      */
-    public Page<CouponListInfoDTO> getCouponListInfoList(String keyword, String status, Pageable pageable) {
-
-
-
-        return null;
+    public Page<CouponListInfoDTO> getCouponListInfoList(String name, CouponStatusType couponStatus, Pageable pageable) {
+        return couponCustomRepositroy.findCouponListInfo(name, couponStatus, pageable);
     }
 
     /**

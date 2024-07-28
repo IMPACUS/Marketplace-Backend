@@ -17,9 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import security.CustomUserDetails;
 
 import java.util.List;
 
@@ -126,17 +124,17 @@ public class CouponController {
     }
 
 
-    /** [개발중]
+    /**
      * ADMIN: 쿠폰 목록 조회 Pagination API
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
     @GetMapping("/admin/list")
-    public ApiResponseEntity<Page<CouponListInfoDTO>> getCouponList(@RequestParam(name = "keyword", required = false) String keyword,
-                                             @RequestParam(name = "status", required = false) String status,
-                                             @PageableDefault(sort = "modifyAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<CouponListInfoDTO> couponListInfoDTOList = couponAdminService.getCouponListInfoList(keyword, status, pageable);
+    public ApiResponseEntity<Page<CouponListInfoDTO>> getCouponList(@RequestParam(name = "name", required = false) String name,
+                                                                     @RequestParam(name = "status", required = false) CouponStatusType couponStatus,
+                                                                     @PageableDefault(sort = "modifyAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<CouponListInfoDTO> couponListInfoDTOList = couponAdminService.getCouponListInfoList(name, couponStatus, pageable);
 
         return ApiResponseEntity
                 .<Page<CouponListInfoDTO>>builder()

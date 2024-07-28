@@ -248,7 +248,7 @@
     </changeSet>
 
     <changeSet id="changelog-jb-0.01-240722-1" author="jeongbeom4693">
-        <preConditions>
+        <preConditions onFail="CONTINUE">
             <not>
                 <columnExists tableName="coupon" columnName="is_deleted"/>
             </not>
@@ -259,6 +259,13 @@
                 <constraints nullable="false"/>
             </column>
         </addColumn>
+    </changeSet>
+    
+    <changeSet id="changelog-jb-0.01-240728" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="coupon" columnName="is_deleted"/>
+        </preConditions>
+        <addDefaultValue tableName="coupon" columnName="is_deleted" defaultValueBoolean="false"/>
     </changeSet>
 
 </databaseChangeLog>

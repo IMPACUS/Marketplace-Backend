@@ -130,6 +130,7 @@ public class CouponIssueDTO implements CouponDTO {
                 .emailAlarm(this.emailAlarm)
                 .kakaoAlarm(this.kakaoAlarm)
                 .statusType(CouponStatusType.ISSUING)
+                .isDeleted(false)
                 .build();
     }
 }

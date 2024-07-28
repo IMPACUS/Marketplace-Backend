@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Builder
 public class CouponDetailDTO {
 
-    private Long id;
+    private Long couponId;
 
     private String name;
 
@@ -77,7 +77,7 @@ public class CouponDetailDTO {
 
     public static CouponDetailDTO fromEntity(Coupon coupon) {
         return CouponDetailDTO.builder()
-                .id(coupon.getId())
+                .couponId(coupon.getId())
                 .code(coupon.getCode())
                 .name(coupon.getName())
                 .description(coupon.getDescription())

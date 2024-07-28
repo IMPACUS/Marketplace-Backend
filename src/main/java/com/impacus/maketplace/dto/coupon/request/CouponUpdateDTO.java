@@ -19,7 +19,7 @@ import java.time.LocalDate;
 public class CouponUpdateDTO implements CouponDTO {
 
     @NotNull(message = "쿠폰 id는 필수값 입니다.")
-    private Long id;
+    private Long couponId;
 
     @NotNull(message = "쿠폰 이름은 필수값 입니다.")
     private String name;
