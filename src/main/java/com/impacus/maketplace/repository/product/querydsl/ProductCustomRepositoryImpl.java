@@ -403,10 +403,14 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Long subCategoryId,
             Pageable pageable
     ) {
-        BooleanBuilder productBuilder = new BooleanBuilder();
-        productBuilder
-                .and(product.categoryId.eq(subCategoryId))
+        BooleanBuilder productBuilder = new BooleanBuilder()
                 .and(product.isDeleted.eq(false));
+
+        // 카테고리가 검색에 존재할 때만 검색
+        if (subCategoryId != null) {
+            productBuilder
+                    .and(product.categoryId.eq(subCategoryId));
+        }
 
         List<ProductForAppDTO> content = findAllProduct(productBuilder, userId, pageable);
 
@@ -446,7 +450,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
                                 ProductForAppDTO.class,
-                                        product.id,
+                                product.categoryId,
                                         product.name,
                                         seller.marketName,
                                         product.appSalesPrice,
