@@ -1,6 +1,6 @@
 package com.impacus.maketplace.common.converter;
 
-import com.impacus.maketplace.common.enumType.PointType;
+import com.impacus.maketplace.common.enumType.point.PointType;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Convert;
 

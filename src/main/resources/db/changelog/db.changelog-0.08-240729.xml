@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- 이전 설계된 point table 삭제 생성 -->
+    <changeSet id="changelog-0.08.01-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="point_master"/>
+        </preConditions>
+
+        <dropTable tableName="point_master"/>
+    </changeSet>
+    <changeSet id="changelog-0.08.02-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="point_history"/>
+        </preConditions>
+
+        <dropTable tableName="point_history"/>
+    </changeSet>
+
+    <!-- level_point 관련 생성 -->
+    <changeSet id="changelog-0.08.03-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="level_point_master"/>
+            </not>
+        </preConditions>
+        <createTable tableName="level_point_master">
+            <column name="level_point_master_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="level_point" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiration_start_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="level_point_master" columnName="expiration_start_at" remarks="포인트 소멸 시작일"/>
+    </changeSet>
+    <changeSet id="changelog-0.08.04-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="level_achievement"/>
+            </not>
+        </preConditions>
+        <createTable tableName="level_achievement">
+            <column name="level_achievement_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="achieved_bronze" type="BOOLEAN"/>
+            <column name="achieved_rookie" type="BOOLEAN"/>
+            <column name="achieved_silver" type="BOOLEAN"/>
+            <column name="achieved_gold" type="BOOLEAN"/>
+            <column name="achieved_vip" type="BOOLEAN"/>
+            <column name="recent_achieved_bronze_at" type="TIMESTAMP"/>
+            <column name="recent_achieved_rookie_at" type="TIMESTAMP"/>
+            <column name="recent_achieved_silver_at" type="TIMESTAMP"/>
+            <column name="recent_achieved_gold_at" type="TIMESTAMP"/>
+            <column name="recent_achieved_vip_at" type="TIMESTAMP"/>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="changelog-0.08.05-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="level_point_history"/>
+            </not>
+        </preConditions>
+        <createTable tableName="level_point_history">
+            <column name="level_point_history_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="point_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="point_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trade_amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="level_point_master" columnName="expiration_start_at" remarks="포인트 소멸 시작일"/>
+    </changeSet>
+
+    <!-- green_label_point 관련 생성 -->
+    <changeSet id="changelog-0.08.06-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="green_label_point_allocation"/>
+            </not>
+        </preConditions>
+        <createTable tableName="green_label_point_allocation">
+            <column name="green_label_point_allocation_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="point_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="point_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="remain_point" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="changelog-0.08.07-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="green_label_point_history"/>
+            </not>
+        </preConditions>
+        <createTable tableName="green_label_point_history">
+            <column name="green_label_point_history_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="point_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="point_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="remain_point" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="changelog-0.08.08-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="green_label_point_history_relation"/>
+            </not>
+        </preConditions>
+        <createTable tableName="green_label_point_history_relation">
+            <column name="green_label_point_history_relation_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="green_label_point_allocation_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="green_label_point_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trade_amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previous_expired_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- shard_link 관련 생성 -->
+    <changeSet id="changelog-0.08.09-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="shared_link"/>
+            </not>
+        </preConditions>
+        <createTable tableName="shared_link">
+            <column name="shared_link_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shared_user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
