@@ -2,11 +2,15 @@ package com.impacus.maketplace.service.seller;
 
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
+import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.SellerErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
+import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -15,11 +19,13 @@ import com.impacus.maketplace.entity.seller.delivery.SelectedSellerDeliveryAddre
 import com.impacus.maketplace.entity.seller.delivery.SellerDeliveryAddress;
 import com.impacus.maketplace.entity.seller.deliveryCompany.SelectedSellerDeliveryCompany;
 import com.impacus.maketplace.entity.seller.deliveryCompany.SellerDeliveryCompany;
+import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.seller.BrandRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.repository.seller.delivery.SelectedSellerDeliveryAddressRepository;
 import com.impacus.maketplace.repository.seller.deliveryCompany.SellerDeliveryCompanyRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.seller.delivery.SelectedSellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.delivery.SellerDeliveryAddressService;
@@ -30,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -38,10 +45,10 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class SellerWriteService {
+public class UpdateSellerService {
     private final SellerRepository sellerRepository;
     private final AttachFileService attachFileService;
-    private final SellerService sellerService;
+    private final ReadSellerService readSellerService;
     private final BrandRepository brandRepository;
     private final BrandService brandService;
     private final SellerBusinessInfoService sellerBusinessInfoService;
@@ -53,7 +60,80 @@ public class SellerWriteService {
     private final SellerDeliveryAddressService sellerDeliveryAddressService;
     private final SelectedSellerDeliveryAddressService selectedSellerDeliveryAddressService;
     private final SelectedSellerDeliveryAddressRepository selectedSellerDeliveryAddressRepository;
+    private final EmailService emailService;
 
+    /**
+     * 판매자 입점 상태를 변경하는 함수
+     *
+     * @param sellerDTO
+     * @return
+     */
+    @Transactional
+    public Boolean changeEntryStatus(ChangeSellerEntryStatusDTO sellerDTO) {
+        try {
+            Long userId = sellerDTO.getUserId();
+            EntryStatus entryStatus = sellerDTO.getEntryStatus();
+            Integer charge = sellerDTO.getCharge();
+
+            // 1. 유효성 검사
+            User user = userService.findUserById(userId);
+            Seller seller = readSellerService.findSellerByUserId(userId);
+            validateSellerEntry(entryStatus, charge);
+
+            // 2. 입점 상태 및 판매자 수수료 저장
+
+            // 2-1 입정 승인 날짜 구하기
+            // 승인: 현재 날짜로 업데이트
+            // 거절: null로 변경
+            LocalDateTime entryApprovedAt = null;
+            if (entryStatus == EntryStatus.APPROVE) {
+                entryApprovedAt = LocalDateTime.now();
+            }
+            sellerRepository.updateSellerEntryStatusAndChargePercent(
+                    seller.getId(),
+                    entryStatus,
+                    charge == null ? 0 : charge,
+                    entryApprovedAt
+            );
+
+            EmailDto emailDto = EmailDto.builder()
+                    .subject("입점 결과 메일 입니다.")
+                    .receiveEmail(user.getEmail())
+                    .build();
+
+            // 3. Role 변경
+            if (entryStatus == EntryStatus.APPROVE) {
+                userService.updateUserType(userId, UserType.ROLE_APPROVED_SELLER);
+                emailService.sendMail(emailDto, MailType.SELLER_APPROVE);
+            } else {
+                userService.updateUserType(userId, UserType.ROLE_UNAPPROVED_SELLER);
+                emailService.sendMail(emailDto, MailType.SELLER_REJECT);
+            }
+
+            sellerRepository.save(seller);
+
+            return true;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * Seller 입점 상태 변경 데이터 유효성 검사하는 함수
+     */
+    private void validateSellerEntry(EntryStatus entryStatus, Integer charge) {
+        if (entryStatus == EntryStatus.APPROVE) {
+            if (charge == null) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "charge는 null이 될 수 없습니다.");
+            }
+        } else if (entryStatus == EntryStatus.REJECT) {
+            if (charge != null) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "charge는 null 이여야 합니다.");
+            }
+        } else {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "entryStatus 데이터가 올바르지 않습니다.");
+        }
+    }
 
     /**
      * 판매자 스토어 정보 변경 함수
@@ -68,7 +148,7 @@ public class SellerWriteService {
             MultipartFile logoImage
     ) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            Seller seller = readSellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
 
             // 1. 브랜드 정보 존재 확인
@@ -103,7 +183,7 @@ public class SellerWriteService {
             MultipartFile mailOrderBusinessReportImage
     ) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            Seller seller = readSellerService.findSellerByUserId(userId);
             BusinessType businessType = seller.getBusinessType();
             Long sellerId = seller.getId();
             SellerBusinessInfo sellerBusinessInfo = sellerBusinessInfoService.findSellerBusinessInfoBySellerId(sellerId);
@@ -174,7 +254,7 @@ public class SellerWriteService {
             MultipartFile bankBookImage
     ) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            Seller seller = readSellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
             SellerAdjustmentInfo adjustmentInfo = sellerAdjustmentInfoService.findSellerAdjustmentInfoBySellerId(sellerId);
 
@@ -222,7 +302,7 @@ public class SellerWriteService {
     @Transactional
     public void updateDeliveryCompanyInformation(Long userId, ChangeSellerDeliveryCompanyInfoDTO dto) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            Seller seller = readSellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
             Optional<SellerDeliveryCompany> optionalSellerDeliveryCompany = sellerDeliveryCompanyRepository.findBySellerId(sellerId);
             List<DeliveryCompany> deliveryCompanies = dto.getDeliveryCompanies();
@@ -292,7 +372,7 @@ public class SellerWriteService {
     ) {
 
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            Seller seller = readSellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
 
             if (dto.getDeliveryAddressId() == null) {
@@ -322,7 +402,7 @@ public class SellerWriteService {
     @Transactional
     public void updateMainDeliveryAddress(Long userId, Long sellerDeliveryAddressId) {
         try {
-            Seller seller = sellerService.findSellerByUserId(userId);
+            Seller seller = readSellerService.findSellerByUserId(userId);
             Long sellerId = seller.getId();
             Optional<SelectedSellerDeliveryAddress> optionalAddress = selectedSellerDeliveryAddressRepository
                     .findBySellerId(sellerId);
@@ -345,6 +425,35 @@ public class SellerWriteService {
                         sellerDeliveryAddressId);
                 selectedSellerDeliveryAddressService.saveSelectedSellerDeliveryAddress(newAddress);
             }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 판매자 정보 수정 함수
+     *
+     * @param sellerId     정보 수정할 판매자 아이디
+     * @param dto          변경할 정보
+     * @param profileImage 변경될 프로필 이미지
+     */
+    @Transactional
+    public void updateSellerInformation(
+            Long sellerId,
+            UpdateSellerInfoFromAdminDTO dto,
+            MultipartFile profileImage
+    ) {
+        try {
+            Seller seller = readSellerService.findSellerBySellerId(sellerId);
+
+            // 1. 프로필 이미지 존재하는 경우, 프로필 이미지 저장
+            Long profileImageId = null;
+            if (profileImage != null) {
+                profileImageId = attachFileService.uploadFileAndAddAttachFile(profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY).getId();
+            }
+
+            // 2. 판매자 정보 업데이트
+            sellerRepository.updateSellerInformation(seller.getUserId(), sellerId, dto, profileImageId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

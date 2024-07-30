@@ -1,6 +1,10 @@
 package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.seller.SellerType;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.common.QAttachFile;
@@ -13,9 +17,12 @@ import com.impacus.maketplace.entity.seller.delivery.QSellerDeliveryAddress;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSelectedSellerDeliveryCompany;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.impacus.maketplace.entity.user.QUser;
+import com.impacus.maketplace.entity.user.QUserStatusInfo;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,17 +32,18 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class SellerReadCustomRepositoryImpl implements SellerReadCustomRepository {
+public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QSeller seller = QSeller.seller;
     private final QUser user = QUser.user;
+    private final QUserStatusInfo userStatusInfo = QUserStatusInfo.userStatusInfo;
     private final QSellerBusinessInfo sellerBusinessInfo = QSellerBusinessInfo.sellerBusinessInfo;
     private final QSellerAdjustmentInfo sellerAdjustmentInfo = QSellerAdjustmentInfo.sellerAdjustmentInfo;
     private final QAttachFile attachFile = QAttachFile.attachFile;
@@ -253,6 +261,29 @@ public class SellerReadCustomRepositoryImpl implements SellerReadCustomRepositor
         }
     }
 
+    @Override
+    public List<SubCategoryDetailDTO> findAllBrandName() {
+        BooleanBuilder sellerBuilder = new BooleanBuilder();
+        sellerBuilder.and(seller.sellerType.eq(SellerType.BRAND))
+                .and(seller.isDeleted.eq(false));
+
+        return queryFactory
+                .select(Projections.constructor(
+                        SubCategoryDetailDTO.class,
+                        seller.id,
+                        seller.marketName,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(attachFile.attachFileName)
+                                        .from(attachFile)
+                                        .where(attachFile.id.eq(seller.logoImageId))
+                                , "thumbnailUrl"
+                        )
+                ))
+                .from(seller)
+                .where(sellerBuilder)
+                .fetch();
+    }
+
     /**
      * SellerDeliveryAddressInfoDTO 중복 제거 및 정렬
      *
@@ -263,7 +294,7 @@ public class SellerReadCustomRepositoryImpl implements SellerReadCustomRepositor
         return deliveryCompanies.stream()
                 .distinct()
                 .sorted(Comparator.comparingLong(SellerDeliveryAddressInfoDTO::getDeliveryAddressId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -276,6 +307,141 @@ public class SellerReadCustomRepositoryImpl implements SellerReadCustomRepositor
         return deliveryCompanies.stream()
                 .distinct()
                 .sorted(Comparator.comparingLong(SelectedSellerDeliveryCompanyDTO::getSelectedSellerDeliveryCompanyId))
-                .collect(Collectors.toList());
+                .toList();
     }
+
+    @Override
+    public Page<SellerDTO> getSellers(
+            Pageable pageable,
+            String brandName,
+            String contactName,
+            UserStatus status
+    ) {
+        // 1. 전체 데이터 조회 (status 를 기준으로 1차 필터링)
+        List<SellerDTO> dtos = getSellerDTOs(status);
+
+        // 2. 검색어 조회 (brandName, contactName에 대해서 2차 필터링)
+        List<SellerDTO> filteredDTOs = filterSellerDTOsByKeyword(brandName, contactName, dtos);
+
+        // 3. 페이징 처리
+        long count = filteredDTOs.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredDTOs.size());
+        List<SellerDTO> paginatedDTOs = count < start ? new ArrayList<>() : filteredDTOs.subList(start, end);
+
+        return new PageImpl<>(paginatedDTOs, pageable, count);
+    }
+
+    private List<SellerDTO> getSellerDTOs(UserStatus status) {
+        BooleanBuilder userStatusBuilder = new BooleanBuilder()
+                .and(userStatusInfo.userId.eq(seller.userId));
+
+        if (status != null) {
+            userStatusBuilder.and(userStatusInfo.status.eq(status));
+        }
+
+        return queryFactory
+                .select(Projections.fields(
+                        SellerDTO.class,
+                        seller.id,
+                        seller.marketName.as("brandName"),
+                        seller.contactName,
+                        user.email,
+                        user.phoneNumber,
+                        seller.entryApprovedAt,
+                        user.recentLoginAt
+                ))
+                .from(seller)
+                .innerJoin(user).on(user.id.eq(seller.userId))
+                .innerJoin(userStatusInfo).on(userStatusBuilder)
+                .where(seller.isDeleted.eq(false))
+                .fetch();
+    }
+
+    private List<SellerDTO> filterSellerDTOsByKeyword(
+            String brandName,
+            String contactName,
+            List<SellerDTO> dtos
+    ) {
+        // 1. 검색어가 모두 존재하지 않는지 확인
+        if ((brandName == null || brandName.isBlank())
+                && (contactName == null || contactName.isBlank())) {
+            return dtos;
+        }
+
+        // 2. 검색어 기준으로 필터링
+        List<SellerDTO> filteredDTOs = new ArrayList<>();
+        for (SellerDTO dto : dtos) {
+            if (brandName != null && !brandName.isBlank()) {
+                if (StringUtils.containsKeywordIgnoreCase(dto.getBrandName(), brandName)) { // 검색 옵션: 브랜드명
+                    filteredDTOs.add(dto);
+                }
+            } else if (contactName != null && !contactName.isBlank()) {
+                if (StringUtils.containsKeywordIgnoreCase(dto.getContactName(), contactName)) { // 검색 옵션: 브랜드명
+                    filteredDTOs.add(dto);
+                }
+            }
+        }
+
+        return filteredDTOs;
+    }
+
+    @Override
+    public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
+        SimpleSellerFromAdminDTO dto = queryFactory
+                .select(
+                        Projections.fields(
+                                SimpleSellerFromAdminDTO.class,
+                                seller.id,
+                                seller.marketName,
+                                seller.contactName,
+                                user.email,
+                                user.phoneNumber,
+                                seller.entryApprovedAt,
+                                sellerBusinessInfo.representativeContact,
+                                sellerBusinessInfo.businessAddress,
+                                sellerBusinessInfo.businessRegistrationNumber,
+                                sellerBusinessInfo.mailOrderBusinessReportNumber,
+                                sellerAdjustmentInfo.bankCode,
+                                sellerAdjustmentInfo.accountName,
+                                sellerAdjustmentInfo.accountNumber,
+                                seller.chargePercent,
+                                userStatusInfo.status.as("userStatus")
+                        )
+                )
+                .from(seller)
+                .innerJoin(user).on(user.id.eq(seller.userId))
+                .leftJoin(userStatusInfo).on(userStatusInfo.userId.eq(seller.userId))
+                .leftJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .leftJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
+                .where(seller.isDeleted.eq(false))
+                .fetchFirst();
+
+
+        // 사본 데이터 추가
+        AttachFile businessRegistration = queryFactory.selectFrom(attachFile)
+                .innerJoin(seller).on(seller.id.eq(sellerId))
+                .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .where(attachFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
+                .fetchOne();
+
+        AttachFile mailOrderBusinessReport = queryFactory.selectFrom(attachFile)
+                .innerJoin(seller).on(seller.id.eq(sellerId))
+                .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .where(attachFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
+                .fetchOne();
+
+        dto.setBusinessRegistrationUrl(businessRegistration == null ? null : businessRegistration.getAttachFileName());
+        dto.setMailOrderBusinessReportUrl(mailOrderBusinessReport == null ? null : mailOrderBusinessReport.getAttachFileName());
+
+        AttachFile bankBookUrl = queryFactory.selectFrom(attachFile)
+                .innerJoin(seller).on(seller.id.eq(sellerId))
+                .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
+                .where(attachFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
+                .fetchOne();
+        dto.setBankBookUrl(bankBookUrl == null ? null : bankBookUrl.getAttachFileName());
+
+        return dto;
+    }
+
 }

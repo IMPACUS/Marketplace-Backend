@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.*;
@@ -19,7 +20,9 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -79,12 +82,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         }
 
         // 5. 페이징 처리
-        long count = products.size();
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), products.size());
-        List<ProductForWebDTO> paginatedProducts = count < start ? new ArrayList<>() : products.subList(start, end);
-
-        return new PageImpl<>(paginatedProducts, pageable, count);
+        return PaginationUtils.toPage(products, pageable);
     }
 
     private List<ProductForWebDTO> removeDuplicatedProductsForWeb(List<ProductForWebDTO> products) {
@@ -120,8 +118,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 content.add(dto);
             } else {
                 for (ProductOptionDTO productOptionDTO : dto.getOptions()) { // 검색 옵션: 상품 옵션
-                    if (StringUtils.containsKeywordIgnoreCase(productOptionDTO.getColor(), keyword)
-                            || StringUtils.containsKeywordIgnoreCase(productOptionDTO.getSize(), keyword)) {
+                    if (productOptionDTO.getColor() != null && StringUtils.containsKeywordIgnoreCase(productOptionDTO.getColor(), keyword)
+                            || (productOptionDTO.getSize() != null && StringUtils.containsKeywordIgnoreCase(productOptionDTO.getSize(), keyword))) {
                         content.add(dto);
                         break;
                     }
@@ -267,19 +265,13 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             productIdIndexMap.put(productIds.get(i), i);
         }
 
-        List<ProductForAppDTO> products = findAllProduct(productBuilder, userId, pageable);
+        List<ProductForAppDTO> products = findAllProduct(productBuilder, userId);
 
         List<ProductForAppDTO> sortedProducts = products.stream()
                 .sorted(Comparator.comparingInt(product -> productIdIndexMap.get(product.getProductId())))
-                .collect(Collectors.toList());
+                .toList();
 
-        boolean hasNext = false;
-        if (sortedProducts.size() > pageable.getPageSize()) {
-            hasNext = true;
-            sortedProducts.remove(pageable.getPageSize());
-        }
-
-        return new SliceImpl<>(sortedProducts, pageable, hasNext);
+        return PaginationUtils.toSlice(sortedProducts, pageable);
     }
 
     @Override
@@ -403,26 +395,25 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Long subCategoryId,
             Pageable pageable
     ) {
-        BooleanBuilder productBuilder = new BooleanBuilder();
-        productBuilder
-                .and(product.categoryId.eq(subCategoryId))
+        BooleanBuilder productBuilder = new BooleanBuilder()
                 .and(product.isDeleted.eq(false));
 
-        List<ProductForAppDTO> content = findAllProduct(productBuilder, userId, pageable);
-
-        boolean hasNext = false;
-        if (content.size() > pageable.getPageSize()) {
-            hasNext = true;
-            content.remove(pageable.getPageSize());
+        // 카테고리가 검색에 존재할 때만 검색
+        if (subCategoryId != null) {
+            productBuilder
+                    .and(product.categoryId.eq(subCategoryId));
         }
 
-        return new SliceImpl<>(content, pageable, hasNext);
+        // 1. 전체 조회
+        List<ProductForAppDTO> dtos = findAllProduct(productBuilder, userId);
+
+        // 2. 슬라이스 처리
+        return PaginationUtils.toSlice(dtos, pageable);
     }
 
     public List<ProductForAppDTO> findAllProduct(
             BooleanBuilder productBuilder,
-            Long userId,
-            Pageable pageable
+            Long userId
     ) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
@@ -438,15 +429,13 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .leftJoin(wishlist).on(wishlistBuilder)
-                .where(productBuilder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+                .where(productBuilder);
 
         return query
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
                                 ProductForAppDTO.class,
-                                        product.id,
+                                product.id,
                                         product.name,
                                         seller.marketName,
                                         product.appSalesPrice,

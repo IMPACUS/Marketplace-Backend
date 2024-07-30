@@ -8,6 +8,7 @@ import com.impacus.maketplace.entity.seller.QSellerBusinessInfo;
 import com.impacus.maketplace.entity.seller.delivery.QSellerDeliveryAddress;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.impacus.maketplace.entity.user.QUser;
+import com.impacus.maketplace.entity.user.QUserStatusInfo;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 
 @Repository
 @RequiredArgsConstructor
-public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomRepository {
+public class UpdateSellerCustomRepositoryImpl implements UpdateSellerCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final AuditorAware<String> auditorProvider;
 
@@ -29,6 +30,7 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
     private final QUser user = QUser.user;
     private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
     private final QSellerDeliveryAddress sellerDeliveryAddress = QSellerDeliveryAddress.sellerDeliveryAddress;
+    private final QUserStatusInfo userStatusInfo = QUserStatusInfo.userStatusInfo;
 
     @Override
     public void updateBrandInformationByUserId(
@@ -164,6 +166,46 @@ public class SellerWriteCustomRepositoryImpl implements SellerWriteCustomReposit
                 .set(sellerDeliveryAddress.modifyAt, LocalDateTime.now())
                 .set(sellerDeliveryAddress.modifyId, currentAuditor)
                 .where(builder)
+                .execute();
+    }
+
+    @Override
+    public void updateSellerInformation(
+            Long userId,
+            Long sellerId,
+            UpdateSellerInfoFromAdminDTO dto,
+            Long profileImageId
+    ) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        // 프로필 이미지 업데이트
+        queryFactory
+                .update(user)
+                .set(user.profileImageId, profileImageId)
+
+                .set(user.modifyAt, LocalDateTime.now())
+                .set(user.modifyId, currentAuditor)
+                .where(user.id.eq(userId))
+                .execute();
+
+        // userStatus 정보 업데이트
+        queryFactory
+                .update(userStatusInfo)
+                .set(userStatusInfo.status, dto.getUserStatus())
+
+                .set(userStatusInfo.modifyAt, LocalDateTime.now())
+                .set(userStatusInfo.modifyId, currentAuditor)
+                .where(userStatusInfo.userId.eq(userId))
+                .execute();
+
+        // 판매자 정보 업데이트
+        queryFactory
+                .update(seller)
+                .set(seller.chargePercent, dto.getCharge())
+
+                .set(seller.modifyAt, LocalDateTime.now())
+                .set(seller.modifyId, currentAuditor)
+                .where(seller.id.eq(sellerId))
                 .execute();
     }
 }

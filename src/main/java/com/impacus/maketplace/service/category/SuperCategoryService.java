@@ -6,9 +6,11 @@ import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
 import com.impacus.maketplace.dto.category.request.CreateSuperCategoryDTO;
 import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
+import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
+import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +22,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class SuperCategoryService {
 
+    private static final String BRAND_CATEGORY_NAME = "브랜드";
+
     private final SuperCategoryRepository superCategoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
+    private final ReadSellerService readSellerService;
 
     /**
      * 1차 카테고리 추가하는 함수
@@ -111,11 +116,33 @@ public class SuperCategoryService {
 
     /**
      * 전체 1차/2차 카테고리를 찾는 함수
+     * - true인 경우 brand 데이터 조회, false인 경우 brand까지 포함한 전체 데이터 조회
      *
+     * @param isExceptBrand brand 데이터 포함 여부
      * @return
      */
-    public List<CategoryDetailDTO> findAllCategory() {
-        return superCategoryRepository.findAllCategory();
+    public List<CategoryDetailDTO> findAllCategory(boolean isExceptBrand) {
+        List<CategoryDetailDTO> dtos =  superCategoryRepository.findAllCategory();
+
+        // 2. brand 데이터 삭제 여부 확인
+        int brandSuperCategoryId = -1;
+        for(int i = 0; i < dtos.size(); i++) {
+            CategoryDetailDTO category = dtos.get(i);
+            if (category.getSuperCategoryName().equals(BRAND_CATEGORY_NAME)) {
+                brandSuperCategoryId = i;
+                break;
+            }
+        }
+        if (isExceptBrand) {
+            // 2-1. brand 데이터 삭제
+            dtos.remove(brandSuperCategoryId);
+        } else {
+            // 2-2. brand 브랜드 명을 2차 카테고리에 추가
+            List<SubCategoryDetailDTO> subCategories = readSellerService.findAllBrandName();
+            dtos.get(brandSuperCategoryId).setSubCategories(subCategories);
+        }
+
+        return dtos;
     }
 
     public void deleteAllInBatch(List<SuperCategory> superCategories) {

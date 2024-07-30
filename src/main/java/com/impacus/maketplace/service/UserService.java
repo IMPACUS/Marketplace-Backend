@@ -2,6 +2,7 @@ package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -176,7 +177,7 @@ public class UserService {
         String adminIdName = dto.getAdminIdName();
         String password = dto.getPassword();
 
-//        try {
+        try {
         // 1. 이메일 유효성 검사
         AdminInfo admin = validateAndFindAdmin(adminIdName);
 
@@ -205,9 +206,9 @@ public class UserService {
         TokenInfoVO tokenInfoVO = getJwtTokenInfo(admin.getAdminIdName(), password);
 
         return new UserDTO(admin, tokenInfoVO);
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
@@ -235,8 +236,10 @@ public class UserService {
         };
 
         UserStatusInfo userStatusInfo = userStatusInfoService.findUserStatusInfoByUserId(user.getId());
-        if (userStatusInfo.getStatus() == UserStatus.BLOCKED) {
-            throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
+        switch (userStatusInfo.getStatus()) {
+            case BLOCKED -> throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
+            case DEACTIVATED -> throw new CustomException(UserErrorType.DEACTIVATED_USER);
+            case SUSPENDED -> throw new CustomException(UserErrorType.SUSPENDED_USER);
         }
 
         return user;

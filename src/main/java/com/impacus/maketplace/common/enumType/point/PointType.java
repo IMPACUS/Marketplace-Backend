@@ -1,4 +1,4 @@
-package com.impacus.maketplace.common.enumType;
+package com.impacus.maketplace.common.enumType.point;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
