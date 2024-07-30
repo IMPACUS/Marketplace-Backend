@@ -3,7 +3,6 @@ package com.impacus.maketplace.repository.seller.querydsl;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.seller.SellerType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
@@ -32,7 +31,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -322,22 +320,6 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             String contactName,
             UserStatus status
     ) {
-        // 1. 전체 데이터 조회 (status 를 기준으로 1차 필터링)
-        List<SellerDTO> dtos = getSellerDTOs(status);
-
-        // 2. 검색어 조회 (brandName, contactName에 대해서 2차 필터링)
-        List<SellerDTO> filteredDTOs = filterSellerDTOsByKeyword(brandName, contactName, dtos);
-
-        // 3. 페이징 처리
-        long count = filteredDTOs.size();
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), filteredDTOs.size());
-        List<SellerDTO> paginatedDTOs = count < start ? new ArrayList<>() : filteredDTOs.subList(start, end);
-
-        return new PageImpl<>(paginatedDTOs, pageable, count);
-    }
-
-    private List<SellerDTO> getSellerDTOs(UserStatus status) {
         BooleanBuilder userStatusBuilder = new BooleanBuilder()
                 .and(userStatusInfo.userId.eq(seller.userId));
 
@@ -345,6 +327,20 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             userStatusBuilder.and(userStatusInfo.status.eq(status));
         }
 
+        // 1. 전체 데이터 조회
+        List<SellerDTO> dtos = getSellerDTOs(userStatusBuilder, brandName, contactName, pageable);
+
+        // 2. 페이징 처리
+        Long count = getSellerDTOCount(userStatusBuilder, brandName, contactName);
+        return new PageImpl<>(dtos, pageable, count);
+    }
+
+    private List<SellerDTO> getSellerDTOs(
+            BooleanBuilder userStatusBuilder,
+            String brandName,
+            String contactName,
+            Pageable pageable
+    ) {
         return queryFactory
                 .select(Projections.fields(
                         SellerDTO.class,
@@ -359,35 +355,50 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(seller.userId))
                 .innerJoin(userStatusInfo).on(userStatusBuilder)
-                .where(seller.isDeleted.eq(false))
+                .where(seller.isDeleted.eq(false)
+                        .and(checkIsContainBrandName(brandName))
+                        .and(checkIsContainContactName(contactName))
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
     }
 
-    private List<SellerDTO> filterSellerDTOsByKeyword(
+    private Long getSellerDTOCount(
+            BooleanBuilder userStatusBuilder,
             String brandName,
-            String contactName,
-            List<SellerDTO> dtos
+            String contactName
     ) {
-        if ((brandName == null || brandName.isBlank())
-                && (contactName == null || contactName.isBlank())) {
-            return dtos;
-        }
-
-        List<SellerDTO> filteredDTOs = new ArrayList<>();
-        for (SellerDTO dto : dtos) {
-            if (brandName != null && !brandName.isBlank()) {
-                if (StringUtils.containsKeywordIgnoreCase(dto.getBrandName(), brandName)) { // 검색 옵션: 브랜드명
-                    filteredDTOs.add(dto);
-                }
-            } else if (contactName != null && !contactName.isBlank()) {
-                if (StringUtils.containsKeywordIgnoreCase(dto.getContactName(), contactName)) { // 검색 옵션: 브랜드명
-                    filteredDTOs.add(dto);
-                }
-            }
-        }
-
-        return filteredDTOs;
+        return queryFactory
+                .select(seller.count())
+                .from(seller)
+                .innerJoin(user).on(user.id.eq(seller.userId))
+                .innerJoin(userStatusInfo).on(userStatusBuilder)
+                .where(seller.isDeleted.eq(false)
+                        .and(checkIsContainBrandName(brandName))
+                        .and(checkIsContainContactName(contactName))
+                )
+                .fetchOne();
     }
+
+    private BooleanBuilder checkIsContainBrandName(String brandName) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (brandName != null && !brandName.isBlank()) {
+            booleanBuilder.and(seller.marketName.contains(brandName));
+        }
+
+        return booleanBuilder;
+    }
+
+    private BooleanBuilder checkIsContainContactName(String contactName) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (contactName != null && !contactName.isBlank()) {
+            booleanBuilder.and(seller.contactName.contains(contactName));
+        }
+
+        return booleanBuilder;
+    }
+
 
     @Override
     public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
