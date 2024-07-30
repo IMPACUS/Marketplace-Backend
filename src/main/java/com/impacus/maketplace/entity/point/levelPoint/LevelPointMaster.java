@@ -25,7 +25,11 @@ public class LevelPointMaster extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserLevel levelPoint;
+    private UserLevel userLevel;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Long levelPoint;
 
     @Comment("포인트 소멸 시작일")
     @Column(nullable = false)

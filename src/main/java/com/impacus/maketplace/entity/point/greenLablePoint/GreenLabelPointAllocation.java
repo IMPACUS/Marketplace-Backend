@@ -29,7 +29,7 @@ public class GreenLabelPointAllocation extends BaseEntity {
     private PointStatus pointStatus;
 
     @Column(nullable = false)
-    private int remainPoint;
+    private Long remainPoint;
 
     @Column(nullable = false)
     private LocalDateTime expiredAt;

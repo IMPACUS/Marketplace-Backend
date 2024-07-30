@@ -38,6 +38,9 @@
             <column name="level_point" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column name="user_level" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="expiration_start_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>

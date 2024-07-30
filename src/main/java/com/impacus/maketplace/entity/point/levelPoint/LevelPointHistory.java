@@ -30,5 +30,5 @@ public class LevelPointHistory extends BaseEntity {
     private PointStatus pointStatus;
 
     @Column(nullable = false)
-    private int tradeAmount;
+    private Long tradeAmount;
 }
