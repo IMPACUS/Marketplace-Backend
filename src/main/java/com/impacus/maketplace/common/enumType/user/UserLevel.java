@@ -1,6 +1,5 @@
 package com.impacus.maketplace.common.enumType.user;
 
-import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.error.PointErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import lombok.Getter;
@@ -13,6 +12,7 @@ import java.util.Comparator;
 @RequiredArgsConstructor
 public enum UserLevel {
 
+    NONE("등급 없음", 0, 0, 100000 - 1, 0, 0),
     BRONZE("BRONZE", 1,0,100000, 0, 1.0),
     ROOKIE("ROOKIE", 2,100001,300000, 10000, 1.5),
     SILVER("SILVER", 3,300001,500000, 30000, 2.0),

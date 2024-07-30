@@ -9,7 +9,6 @@ import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.RefreshTokenDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
-import com.impacus.maketplace.service.PointService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
@@ -30,7 +29,7 @@ public class AuthController {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private final UserService userService;
     private final AuthService authService;
-    private final PointService pointService;
+    //private final PointService pointService;
     private final CreateSellerService createSellerService;
 
     private final CouponAdminService couponAdminService;
@@ -38,16 +37,16 @@ public class AuthController {
     @PostMapping("sign-up")
     public ApiResponseEntity<UserDTO> addUser(@Valid @RequestBody SignUpDTO signUpRequest) {
         UserDTO userDTO = this.userService.addUser(signUpRequest);
-        boolean existPointMaster = pointService.initPointMaster(userDTO);
+        //boolean existPointMaster = pointService.initPointMaster(userDTO);
         // 회원 가입 축하 이벤트
         couponAdminService.joinCouponForOpenEvent(userDTO.id());
 
-        if (existPointMaster) {
-            return ApiResponseEntity.<UserDTO>builder()
-                    .code(HttpStatus.CONFLICT)
-                    .data(userDTO)
-                    .build();
-        }
+//        if (existPointMaster) {
+//            return ApiResponseEntity.<UserDTO>builder()
+//                    .code(HttpStatus.CONFLICT)
+//                    .data(userDTO)
+//                    .build();
+//        }
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
                 .build();
