@@ -27,7 +27,12 @@ public class GreenLabelPoint extends BaseEntity {
     @Comment("그린 라벨 포인트")
     private Long greenLabelPoint;
 
-    public GreenLabelPoint(Long userId, Long greenLabelPoint) {
+    public GreenLabelPoint(Long userId) {
+        this.userId = userId;
+        this.greenLabelPoint = 0L;
+    }
 
+    public static GreenLabelPoint toEntity(Long userId) {
+        return new GreenLabelPoint(userId);
     }
 }

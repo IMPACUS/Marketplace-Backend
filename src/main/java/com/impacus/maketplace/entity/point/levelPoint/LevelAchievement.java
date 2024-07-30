@@ -33,4 +33,12 @@ public class LevelAchievement extends BaseEntity {
     private LocalDateTime recentAchievedSilverAt;
     private LocalDateTime recentAchievedGoldAt;
     private LocalDateTime recentAchievedVipAt;
+
+    public LevelAchievement(Long userId) {
+        this.userId = userId;
+    }
+
+    public static LevelAchievement toEntity(Long userId) {
+        return new LevelAchievement(userId);
+    }
 }

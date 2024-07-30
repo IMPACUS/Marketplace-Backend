@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.point.greenLablePoint;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.point.PointStatus;
+import com.impacus.maketplace.common.enumType.point.PointType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class GreenLabelPointAllocation extends BaseEntity {
     private Long userId;
 
     @Column(nullable = false)
-    private PointStatus pointType;
+    private PointType pointType;
 
     @Column(nullable = false)
     private PointStatus pointStatus;

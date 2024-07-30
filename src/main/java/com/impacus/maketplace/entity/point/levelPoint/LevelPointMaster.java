@@ -28,10 +28,20 @@ public class LevelPointMaster extends BaseEntity {
     private UserLevel userLevel;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     private Long levelPoint;
 
     @Comment("포인트 소멸 시작일")
     @Column(nullable = false)
     private LocalDateTime expirationStartAt;
+
+    public LevelPointMaster(Long userId) {
+        this.userId = userId;
+        this.userLevel = UserLevel.NONE;
+        this.levelPoint = 0L;
+        this.expirationStartAt = LocalDateTime.now();
+    }
+
+    public static LevelPointMaster toEntity(Long userId) {
+        return new LevelPointMaster(userId);
+    }
 }

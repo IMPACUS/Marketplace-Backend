@@ -23,6 +23,7 @@ import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
+import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class UserService {
     private final EmailVerificationCodeService emailVerificationCodeService;
     private final AdminService adminService;
     private final UserStatusInfoService userStatusInfoService;
-
+    private final PointService pointService;
 
     @Transactional
     public UserDTO addUser(SignUpDTO signUpRequest) {
@@ -86,12 +87,17 @@ public class UserService {
             userRepository.save(user);
             userStatusInfoService.addUserStatusInfo(user.getId());
 
+            // 4. 포인트 관련 Entity 생성
+            // (LevelPointMaster, LevelAchievement, GreenLabelPoint)
+            pointService.addEntityAboutPoint(user.getId());
+
             // 5. UserDTO 반환
             return new UserDTO(user);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
+
 
     /**
      * Oauth Provider와 상관없이 email로 등록된 User를 검색하는 함수

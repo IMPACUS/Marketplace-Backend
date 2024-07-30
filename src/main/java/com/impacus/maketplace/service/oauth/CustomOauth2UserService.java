@@ -1,4 +1,4 @@
-package com.impacus.maketplace.service.auth;
+package com.impacus.maketplace.service.oauth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,7 @@ import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.user.UserRepository;
+import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
     private final UserStatusInfoService userStatusInfoService;
     private String oauthToken = "";
+    private final PointService pointService;
 
     public static Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
         Map<String, Object> jwtClaims = new HashMap<>();
@@ -110,12 +112,14 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         // 2. 등록되지 않은 경우: 저장 / 다른 제공사로 등록되어 있는 경우 예외 발생
         User user = null;
         if (!userList.isEmpty()) {
+            // 로그인
             user = userList.get(0);
             validateOauthProvider(user, oauthProviderType);
-            user = userRepository.save(user);
-            userStatusInfoService.addUserStatusInfo(user.getId());
         } else {
+            // 회원 가입
             user = addUser(attributes);
+            userStatusInfoService.addUserStatusInfo(user.getId());
+            pointService.addEntityAboutPoint(user.getId());
         }
 
         updateRecentLoginAt(user);
