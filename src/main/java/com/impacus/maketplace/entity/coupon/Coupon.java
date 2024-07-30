@@ -137,6 +137,10 @@ public class Coupon extends BaseEntity {
     @Setter
     private Boolean isDeleted;
 
+    public void updateQuantityIssued(int count) {
+        this.quantityIssued += count;
+    }
+
     public void update(String code, CouponUpdateDTO couponUpdateDTO) {
         this.code = code;
         this.name = couponUpdateDTO.getName();

@@ -20,12 +20,12 @@ public class CouponIssuanceHistory extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long issuedCouponId;
+    private Long userCouponId;
+
+    @Column(nullable = false)
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TriggerType triggerType;
-
-    @Column(nullable = false)
-    private LocalDate issuedAt;
 }

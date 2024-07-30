@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.coupon;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -40,5 +41,5 @@ public class UserCoupon extends BaseEntity {
 
     private LocalDateTime usedAt;   // 쿠폰을 사용한 날짜
 
-    private LocalDateTime  expiredAt;   // 쿠폰 만료 날짜
+    private LocalDateTime expiredAt;   // 쿠폰 만료 날짜
 }

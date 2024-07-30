@@ -41,8 +41,6 @@ public class CouponController {
 
     /**
      * ADMIN: 쿠폰 등록 API
-     * @param couponIssuedDto
-     * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
     "or hasRole('ROLE_PRINCIPAL_ADMIN')")
@@ -55,8 +53,6 @@ public class CouponController {
 
     /**
      * ADMIN: 쿠폰 코드 중복 검사 API
-     * @param couponCodeCheckDTO
-     * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
@@ -72,8 +68,6 @@ public class CouponController {
 
     /**
      * ADMIN: 쿠폰 수정 API
-     * @param couponUpdateDTO 쿠폰 수정 정보
-     * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
@@ -103,17 +97,14 @@ public class CouponController {
 
     /**
      * ADMIN: 쿠폰 리스트 상태 변경
-     * @param couponIdList couponId 리스트
-     * @param changeCouponStatusDTO ISSUING, ISSUED, STOP
-     * @return
+     * @param changeCouponStatusDTO couponIdList, {ISSUING, ISSUED, STOP}
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PatchMapping("/status")
-    public ApiResponseEntity<Boolean> changeCouponStatus(@RequestParam(value = "coupon-id") List<Long> couponIdList,
-                                                         @Valid @RequestBody ChangeCouponStatusDTO changeCouponStatusDTO) {
+    @PatchMapping("/admin/status")
+    public ApiResponseEntity<Boolean> changeCouponStatus(@Valid @RequestBody ChangeCouponStatusDTO changeCouponStatusDTO) {
 
-        couponAdminService.changeStatus(couponIdList, changeCouponStatusDTO.getStatus());
+        couponAdminService.changeStatus(changeCouponStatusDTO.getCouponIdList(), changeCouponStatusDTO.getStatus());
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
@@ -123,11 +114,11 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @DeleteMapping("")
-    public ApiResponseEntity<Boolean> deleteCoupons(@RequestParam(name = "coupon-id") List<Long> couponIdList) {
+    @DeleteMapping("/admin")
+    public ApiResponseEntity<Boolean> deleteCoupons(@Valid @RequestBody CouponIdListDTO couponIdListDTO) {
 
         // 1. 쿠폰 삭제하기
-        couponAdminService.deleteCoupon(couponIdList);
+        couponAdminService.deleteCoupon(couponIdListDTO.getCouponIdList());
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
@@ -156,14 +147,14 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @GetMapping("/admin/pay-coupon-info/list")
+    @GetMapping("/admin/issue-coupon-info/list")
     public ApiResponseEntity<List<IssueCouponInfoDTO>> getIssueCouponInfoList() {
 
-        List<IssueCouponInfoDTO> payCouponInfoList = couponAdminService.getIssueCouponInfoList();
+        List<IssueCouponInfoDTO> issueCouponInfoList = couponAdminService.getIssueCouponInfoList();
 
         return ApiResponseEntity
                 .<List<IssueCouponInfoDTO>>builder()
-                .data(payCouponInfoList)
+                .data(issueCouponInfoList)
                 .build();
     }
 
@@ -171,31 +162,28 @@ public class CouponController {
     /**
      * [개발 미완성]: level_point_master 엔티티 확정 후 레벨별 지급 가능(회원 가져오는 기능 필요)
      * ADMIN: 모든 회원 쿠폰 지급 API
-     * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PostMapping("/admin/pay-coupon/all-user")
-    public ApiResponseEntity<Boolean> issueCouponAllUser(@Valid @RequestBody IssueCouponAllUserDTO payCouponAllUserDTO) {
+    @PostMapping("/admin/issue-coupon/all-user")
+    public ApiResponseEntity<Boolean> issueCouponAllUser(@Valid @RequestBody IssueCouponAllUserDTO issueCouponAllUserDTO) {
 
-        couponAdminService.issueCouponAllUser(payCouponAllUserDTO);
+        couponAdminService.issueCouponAllUser(issueCouponAllUserDTO);
 
         return null;
     }
 
     /**
-     * [개발 준비]: 쿠폰 수정 불가 정책 확정시 개발 진행
      * ADMIN: 특정 회원 쿠폰 지급 API
-     * @return
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PostMapping()
-    public ApiResponseEntity<Boolean> issueCouponTargetUser(@Valid @RequestBody IssueCouponTargetUserDTO payCouponTargetUserDTO) {
+    @PostMapping("/admin/issue-coupon")
+    public ApiResponseEntity<Boolean> issueCouponTargetUser(@Valid @RequestBody IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
 
-        couponAdminService.issueCouponTargetUser(payCouponTargetUserDTO);
+        couponAdminService.issueCouponTargetUser(issueCouponTargetUserDTO);
 
-        return null;
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 
     /**

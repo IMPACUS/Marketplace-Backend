@@ -38,6 +38,7 @@ public class CouponAdminService {
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final UserRepository userRepository;
     private final CouponUtils couponUtils;
+    private final CouponRedemptionService couponRedemptionService;
 
 
     /**
@@ -328,13 +329,17 @@ public class CouponAdminService {
     }
 
 
-    public void issueCouponTargetUser(IssueCouponTargetUserDTO payCouponTargetUserDTO) {
-
+    /**
+     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 무조건 발급해주는 서비스
+     * @param issueCouponTargetUserDTO 쿠폰 ID, email
+     */
+    @Transactional
+    public void issueCouponTargetUser(IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
         // 1. Email을 통해서 회원 검색
-        User user = userRepository.findByEmail(payCouponTargetUserDTO.getEmail())
+        User user = userRepository.findByEmail(issueCouponTargetUserDTO.getEmail())
                 .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
 
         // 2. 쿠폰 지급
-
+        couponRedemptionService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user);
     }
 }

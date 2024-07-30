@@ -342,4 +342,41 @@
                       newColumnName="user_coupon_id"/>
     </changeSet>
 
+    <changeSet id="changelog-jb-0.01-240730-01" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="coupon_issuance_history" columnName="issued_at"/>
+            <columnExists tableName="coupon_issuance_history" columnName="issued_coupon_id"/>
+        </preConditions>
+        <dropColumn tableName="coupon_issuance_history" columnName="issued_at"/>
+        <dropColumn tableName="coupon_issuance_history" columnName="issued_coupon_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240730-02" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM coupon_issuance_history WHERE coupon_issuance_history_id = 3</sqlCheck>
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM user_coupon WHERE user_coupon_id = 3</sqlCheck>
+        </preConditions>
+        <delete tableName="coupon_issuance_history">
+            <where>coupon_issuance_history_id = 3</where>
+        </delete>
+
+        <delete tableName="user_coupon">
+            <where>user_coupon_id = 3</where>
+        </delete>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240730-03" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM coupon_issuance_history WHERE coupon_issuance_history_id = 6</sqlCheck>
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM user_coupon WHERE user_coupon_id = 6</sqlCheck>
+        </preConditions>
+        <delete tableName="coupon_issuance_history">
+            <where>coupon_issuance_history_id = 6</where>
+        </delete>
+
+        <delete tableName="user_coupon">
+            <where>user_coupon_id = 6</where>
+        </delete>
+    </changeSet>
+
 </databaseChangeLog>
