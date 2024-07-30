@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.dev.request;
 
 import com.impacus.maketplace.common.annotation.ValidEnum;
-import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
