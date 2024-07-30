@@ -86,6 +86,10 @@ public class StringUtils {
      * @return
      */
     public static boolean containsKeywordIgnoreCase(String str, String keyword) {
+        if (str == null) {
+            return false;
+        }
+
         return str.toLowerCase().contains(keyword.toLowerCase());
     }
 

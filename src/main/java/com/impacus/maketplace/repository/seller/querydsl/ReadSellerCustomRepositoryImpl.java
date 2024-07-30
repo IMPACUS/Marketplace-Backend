@@ -34,7 +34,6 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -266,25 +265,21 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         sellerBuilder.and(seller.sellerType.eq(SellerType.BRAND))
                 .and(seller.isDeleted.eq(false));
 
-        return queryFactory.selectFrom(seller)
-                .where(sellerBuilder)
-                .transform(
-                        GroupBy.groupBy(seller.id).list(
-                                Projections.constructor(
-                                        SubCategoryDetailDTO.class,
-                                        seller.id,
-                                        seller.marketName,
-                                        ExpressionUtils.as(
-                                                JPAExpressions.select(attachFile.attachFileName)
-                                                        .from(attachFile)
-                                                        .where(attachFile.id.eq(seller.logoImageId))
-                                                , "thumbnailUrl"
-                                        )
-                                )
-
-
+        return queryFactory
+                .select(Projections.constructor(
+                        SubCategoryDetailDTO.class,
+                        seller.id,
+                        seller.marketName,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(attachFile.attachFileName)
+                                        .from(attachFile)
+                                        .where(attachFile.id.eq(seller.logoImageId))
+                                , "thumbnailUrl"
                         )
-                );
+                ))
+                .from(seller)
+                .where(sellerBuilder)
+                .fetch();
     }
 
     /**
@@ -297,7 +292,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         return deliveryCompanies.stream()
                 .distinct()
                 .sorted(Comparator.comparingLong(SellerDeliveryAddressInfoDTO::getDeliveryAddressId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -310,7 +305,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         return deliveryCompanies.stream()
                 .distinct()
                 .sorted(Comparator.comparingLong(SelectedSellerDeliveryCompanyDTO::getSelectedSellerDeliveryCompanyId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
