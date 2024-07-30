@@ -1,16 +1,16 @@
-package com.impacus.maketplace.entity.user;
+package com.impacus.maketplace.entity.point.greenLablePoint;
 
 import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
-@Builder
 @Table(name = "green_label_point")
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GreenLabelPoint extends BaseEntity {
     @Id
@@ -26,4 +26,8 @@ public class GreenLabelPoint extends BaseEntity {
     @Column(nullable = false)
     @Comment("그린 라벨 포인트")
     private Long greenLabelPoint;
+
+    public GreenLabelPoint(Long userId, Long greenLabelPoint) {
+
+    }
 }
