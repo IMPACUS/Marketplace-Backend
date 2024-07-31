@@ -114,6 +114,9 @@
             <column name="trade_amount" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column name="previous_expired_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
