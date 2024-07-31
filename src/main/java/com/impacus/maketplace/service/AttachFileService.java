@@ -175,7 +175,7 @@ public class AttachFileService {
                 fileName,
                 changedFile.getSize(),
                 changedFile.getOriginalFilename(),
-                com.impacus.maketplace.common.utils.StringUtils.getFileExtension(changedFile.getOriginalFilename()).orElse(null)
+                StringUtils.getFilenameExtension(changedFile.getOriginalFilename())
         );
     }
 }
