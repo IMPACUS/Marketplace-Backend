@@ -34,11 +34,20 @@ public class LevelPointMaster extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime expirationStartAt;
 
+    // PostLoad 를 위해서 관리되는 데이터
+    @Transient
+    private LocalDateTime previousExpirationStartAt;
+
     public LevelPointMaster(Long userId) {
         this.userId = userId;
-        this.userLevel = UserLevel.NONE;
+        this.userLevel = UserLevel.BRONZE;
         this.levelPoint = 0L;
         this.expirationStartAt = LocalDateTime.now();
+    }
+
+    @PostLoad
+    public void storePreviousState() {
+        this.previousExpirationStartAt = this.expirationStartAt;
     }
 
     public static LevelPointMaster toEntity(Long userId) {

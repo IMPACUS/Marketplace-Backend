@@ -36,9 +36,32 @@ public class LevelAchievement extends BaseEntity {
 
     public LevelAchievement(Long userId) {
         this.userId = userId;
+        this.achievedBronze = true;
+        this.recentAchievedBronzeAt = LocalDateTime.now();
     }
+
 
     public static LevelAchievement toEntity(Long userId) {
         return new LevelAchievement(userId);
+    }
+
+    public void updateRookie(boolean achievedRooke) {
+        this.achievedRookie = achievedRooke;
+        this.recentAchievedRookieAt = LocalDateTime.now();
+    }
+
+    public void updateSilver(boolean achievedSilver) {
+        this.achievedSilver = achievedSilver;
+        this.recentAchievedSilverAt = LocalDateTime.now();
+    }
+
+    public void updateGold(boolean achievedGold) {
+        this.achievedGold = achievedGold;
+        this.recentAchievedGoldAt = LocalDateTime.now();
+    }
+
+    public void updateVip(boolean achievedVip) {
+        this.achievedVip = achievedVip;
+        this.recentAchievedVipAt = LocalDateTime.now();
     }
 }

@@ -36,4 +36,28 @@ public class LevelPointHistory extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime previousExpiredAt;
+
+    public LevelPointHistory(
+            Long userId,
+            PointType pointType,
+            PointStatus pointStatus,
+            Long tradeAmount,
+            LocalDateTime previousExpiredAt
+    ) {
+        this.userId = userId;
+        this.pointType = pointType;
+        this.pointStatus = pointStatus;
+        this.tradeAmount = tradeAmount;
+        this.previousExpiredAt = previousExpiredAt;
+    }
+
+    public static LevelPointHistory toEntity(
+            Long userId,
+            PointType pointType,
+            PointStatus pointStatus,
+            Long tradeAmount,
+            LocalDateTime previousExpiredAt
+    ) {
+        return new LevelPointHistory(userId, pointType, pointStatus, tradeAmount, previousExpiredAt);
+    }
 }
