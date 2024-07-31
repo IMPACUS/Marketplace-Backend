@@ -1,32 +1,34 @@
 package com.impacus.maketplace.service.aws;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.service.CloudFileUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class S3Service {
+public class S3Service implements CloudFileUploadService {
 
-    private final static String UPLOAD_FILE_NAME_FORMAT = "yy-MM-dd-HH-mm-ss";
-    private final AmazonS3Client amazonS3Client;
+    private static final String UPLOAD_FILE_NAME_FORMAT = "yy-MM-dd-HH-mm-ss";
+    private static final DateTimeFormatter UPLOAD_FILE_FORMATTER = DateTimeFormatter.ofPattern(UPLOAD_FILE_NAME_FORMAT);
+
+    private final S3Client amazonS3Client;
+
     @Value("${cloud.aws.s3.bucket}")
     private String s3BucketName;
 
@@ -36,39 +38,45 @@ public class S3Service {
      * @param file 업로드할 파일
      * @return
      */
-    public String uploadFileInS3(MultipartFile file, String directoryPath) throws IOException {
+    @Override
+    public URI uploadFile(MultipartFile file, Path directoryPath) {
         // 1. MultipartFile을 File로 변환
-        File uploadFile = convertAndSaveInLocal(file)
-                .orElseThrow(() -> new CustomException(CommonErrorType.FAIL_TO_CONVERT_FILE));
+        File uploadFile = convertAndSaveInLocal(file);
+        if (uploadFile == null) {
+            throw new CustomException(CommonErrorType.FAIL_TO_CONVERT_FILE);
+        }
 
         // 2. 업로드할 파일명 지정
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(UPLOAD_FILE_NAME_FORMAT);
-        String formattedNow = LocalDateTime.now().format(formatter);
-        String fillExtension = StringUtils.getFileExtension(file.getOriginalFilename())
-                .orElse(null);
-        String fileName = (fillExtension == null) ? String.format("%s/%s", directoryPath, formattedNow) :
-                String.format("%s/%s.%s", directoryPath, formattedNow, fillExtension);
+        String formattedNow = LocalDateTime.now().format(UPLOAD_FILE_FORMATTER);
+        String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+        String fileKey = (extension == null) ? String.format("%s/%s", directoryPath, formattedNow) :
+                String.format("%s/%s.%s", directoryPath, formattedNow, extension);
 
         // 3. S3에 업로드
-        return putFileInS3(uploadFile, fileName);
+        return putFileInS3AndGetUrl(uploadFile, fileKey);
     }
 
     /**
      * s3 File을 올리는 함수
      */
-    private String putFileInS3(File uploadFile, String fileName) {
+    private URI putFileInS3AndGetUrl(File uploadFile, String fileKey) {
         try {
-            amazonS3Client.putObject(
-                    new PutObjectRequest(s3BucketName, fileName, uploadFile).withCannedAcl(
-                            CannedAccessControlList.PublicRead));
-            return amazonS3Client.getUrl(s3BucketName, fileName).toString();
+            amazonS3Client.putObject(builder -> builder
+                            .acl(ObjectCannedACL.PUBLIC_READ)
+                            .bucket(s3BucketName)
+                            .key(fileKey),
+                    uploadFile.toPath());
+            return amazonS3Client.utilities()
+                    .getUrl(builder -> builder
+                            .bucket(s3BucketName)
+                            .key(fileKey))
+                    .toURI();
         } catch (Exception ex) {
             throw new CustomException(ex);
         } finally {
             removeFileInLocal(uploadFile);
         }
     }
-
 
     /**
      * MultipartFile을 File로 변환하고, Local에 저장하는 함수
@@ -77,15 +85,19 @@ public class S3Service {
      * @return
      * @throws IOException
      */
-    private Optional<File> convertAndSaveInLocal(MultipartFile file) throws IOException {
+    private File convertAndSaveInLocal(MultipartFile file) {
         File convertFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
-        if (convertFile.createNewFile()) {
-            try (FileOutputStream fos = new FileOutputStream(convertFile)) {
-                fos.write(file.getBytes());
+        try {
+            if (convertFile.createNewFile()) {
+                try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+                    fos.write(file.getBytes());
+                }
+                return convertFile;
             }
-            return Optional.of(convertFile);
+            return null;
+        } catch (IOException e) {
+            throw new CustomException(e);
         }
-        return Optional.empty();
     }
 
     /**
@@ -97,14 +109,11 @@ public class S3Service {
         targetFile.delete();
     }
 
-    /**
-     * @param fileName
-     */
-    public void deleteFileInS3(String fileName) {
-        boolean isObjectExist = amazonS3Client.doesObjectExist(s3BucketName, fileName);
-        // S3에서 파일 삭제
-        if (isObjectExist) {
-            amazonS3Client.deleteObject(s3BucketName, fileName);
-        }
+    @Override
+    public boolean deleteFile(String fileKey) {
+        amazonS3Client.deleteObject(builder -> builder
+                .bucket(s3BucketName)
+                .key(fileKey));
+        return true;
     }
 }
