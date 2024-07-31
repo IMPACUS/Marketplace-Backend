@@ -55,16 +55,22 @@ public class LevelPointMasterService {
         LevelPointMaster levelPointMaster = findLevelPointMasterByUserId(userId);
         Long changedPoint = levelPointMaster.getLevelPoint() + tradePoint;
 
-        // 3. 등급 변동
+        // 3. 등급 변동 후, 포인트 지급되어야 하는지 확인
         UserLevel userLevel = levelPointMaster.getUserLevel();
-        UserLevel changedLevel = switch (userLevel) {
-            case NONE -> UserLevel.BRONZE;
-            case BRONZE -> UserLevel.ROOKIE;
-            case ROOKIE -> UserLevel.SILVER;
-            case SILVER -> UserLevel.GOLD;
-            case GOLD -> UserLevel.ECO_VIP;
-            default -> throw new CustomException(CommonErrorType.UNKNOWN, "등급 변동을 할 수 없는 레벨입니다.");
-        };
+        UserLevel changedLevel = userLevel;
+        if (userLevel != UserLevel.ECO_VIP && userLevel.checkIsPossibleUpgrade(changedPoint)) {
+            changedLevel = switch (userLevel) {
+                case NONE -> UserLevel.BRONZE;
+                case BRONZE -> UserLevel.ROOKIE;
+                case ROOKIE -> UserLevel.SILVER;
+                case SILVER -> UserLevel.GOLD;
+                case GOLD -> UserLevel.ECO_VIP;
+                default -> throw new CustomException(CommonErrorType.UNKNOWN, "등급 변동을 할 수 없는 레벨입니다.");
+            };
+            levelAchievementService.upgradeUserLevel(userId, changedLevel);
+        }
+
+        // 4. 등급 변동
         levelPointMasterRepository.updateLevelPointAndExpiredAt(
                 changedPoint,
                 changedLevel,
@@ -72,20 +78,35 @@ public class LevelPointMasterService {
                 userId
         );
 
-        // 3. 레벨 포인트 이력 저장
+        // 5. 레벨 포인트 이력 저장
         levelPointHistoryService.saveLevelPointHistory(
                 userId,
                 pointType,
                 PointStatus.GRANT,
-                tradePoint,
-                levelPointMaster.getPreviousExpirationStartAt()
+                tradePoint
         );
-
-        // 4. 등급 변동 후, 포인트 지급되어야 하는지 확인
-        if (userLevel != UserLevel.ECO_VIP && userLevel.checkIsPossibleUpgrade(changedPoint)) {
-            levelAchievementService.upgradeUserLevel(userId, changedLevel);
-        }
     }
 
-    // 레벨 포인트 반환 함수
+    /**
+     * 레벨 포인트 반환 함수
+     *
+     * @param userId     포인트 반환받을 사용자 아이디
+     * @param pointType  포인트 이력 타입
+     * @param tradePoint 반환 포인트
+     */
+    @Transactional
+    public void returnPoint(Long userId, PointType pointType, Long tradePoint) {
+        LevelPointMaster levelPointMaster = findLevelPointMasterByUserId(userId);
+        // levelPointHistoryId 로 이력 조회
+
+        // 1. 포인트 차감
+
+        // 2. 포인트 만료일 원복
+        // (가장 최근의 상품 구매일에서 +6개월)
+        // 상품 구매일이 없는 경우, levelpointMaster의 생성일
+
+        // 3. 등급 변동 있는지 확인
+
+        // 3.
+    }
 }
