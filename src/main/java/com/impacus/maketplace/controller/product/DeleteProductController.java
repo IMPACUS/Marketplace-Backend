@@ -1,7 +1,7 @@
 package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.service.product.ProductService;
+import com.impacus.maketplace.service.product.DeleteProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/product")
 public class DeleteProductController {
-    private final ProductService productService;
+    private final DeleteProductService deleteProductService;
 
     /**
      * 상품 다중 삭제 API
@@ -37,7 +37,7 @@ public class DeleteProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "product-id") List<Long> productIdList
     ) {
-        productService.deleteAllProduct(user.getId(), productIdList);
+        deleteProductService.deleteAllProduct(user.getId(), productIdList);
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 }
