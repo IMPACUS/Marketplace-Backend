@@ -3,7 +3,7 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.service.product.ProductService;
+import com.impacus.maketplace.service.product.CreateProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/product")
 public class CreateProductController {
-    private final ProductService productService;
+    private final CreateProductService createProductService;
 
     /**
      * 새로운 상품을 등록하는 API
@@ -43,7 +43,7 @@ public class CreateProductController {
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
             @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @Valid @RequestPart(value = "product") CreateProductDTO dto) {
-        ProductDTO productDTO = productService.addProduct(
+        ProductDTO productDTO = createProductService.addProduct(
                 user.getId(),
                 productImageList,
                 dto,

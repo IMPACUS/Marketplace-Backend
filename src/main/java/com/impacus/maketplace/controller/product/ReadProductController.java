@@ -6,7 +6,7 @@ import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
-import com.impacus.maketplace.service.product.ProductService;
+import com.impacus.maketplace.service.product.ReadProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,7 +31,7 @@ import java.time.LocalDate;
 @RequestMapping("api/v1/product")
 public class ReadProductController {
 
-    private final ProductService productService;
+    private final ReadProductService productService;
 
     /**
      * 앱용 소비자가 전체 상품 조회 API

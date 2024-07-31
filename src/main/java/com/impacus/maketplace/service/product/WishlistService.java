@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class WishlistService {
 
     private final WishlistRepository wishlistRepository;
-    private final ProductService productService;
+    private final ReadProductService productService;
 
     /**
      * Wishlist를 저장하는 함수
