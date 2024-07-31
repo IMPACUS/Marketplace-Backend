@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Table(name = "level_point_history")
@@ -31,4 +33,7 @@ public class LevelPointHistory extends BaseEntity {
 
     @Column(nullable = false)
     private Long tradeAmount;
+
+    @Column(nullable = false)
+    private LocalDateTime previousExpiredAt;
 }
