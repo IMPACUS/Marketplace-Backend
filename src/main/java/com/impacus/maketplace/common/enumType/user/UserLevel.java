@@ -1,5 +1,7 @@
 package com.impacus.maketplace.common.enumType.user;
 
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,12 +24,53 @@ public enum UserLevel {
     private final double reserveRate;
 
     /**
-     * point가 레벨을 올릴 수 있는 포인트 인지 확인하는 함수
+     * userLevel 에서 상승 시, 변동되어야 하는 레벨을 반환하는 함수
+     *
+     * @return
+     */
+    public static UserLevel getUpgradeLevel(UserLevel userLevel) {
+        return switch (userLevel) {
+            case NONE -> UserLevel.BRONZE;
+            case BRONZE -> UserLevel.ROOKIE;
+            case ROOKIE -> UserLevel.SILVER;
+            case SILVER -> UserLevel.GOLD;
+            case GOLD -> UserLevel.ECO_VIP;
+            default -> throw new CustomException(CommonErrorType.UNKNOWN, "등급 변동을 할 수 없는 레벨입니다.");
+        };
+    }
+
+    /**
+     * userLevel 에서 하락 시, 변동되어야 하는 레벨을 반환하는 함수
+     *
+     * @return
+     */
+    public static UserLevel getDowngradeLevel(UserLevel userLevel) {
+        return switch (userLevel) {
+            case BRONZE, ROOKIE -> UserLevel.BRONZE;
+            case SILVER -> UserLevel.ROOKIE;
+            case GOLD -> UserLevel.SILVER;
+            case ECO_VIP -> UserLevel.GOLD;
+            default -> throw new CustomException(CommonErrorType.UNKNOWN, "등급 변동을 할 수 없는 레벨입니다.");
+        };
+    }
+
+    /**
+     * point가 레벨을 올릴 수 있는 포인트인지 확인하는 함수
      *
      * @param point 확인할 포인트
      * @return
      */
     public boolean checkIsPossibleUpgrade(Long point) {
         return (point > getMaxScore());
+    }
+
+    /**
+     * point가 레벨이 하락되어야 하는 포인트인지 확인하는 함수
+     *
+     * @param point 확인할 포인트
+     * @return
+     */
+    public boolean checkIsPossibleDowngrade(Long point) {
+        return (point < getMinScore());
     }
 }
