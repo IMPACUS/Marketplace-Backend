@@ -29,13 +29,13 @@ public class LevelAchievementService {
         // 1. 처음 달성인지 확인
         boolean hasReceivedLevelUpPoints = false;
         if (checkIsFirstAchievement(levelAchievement, userLevel) || userLevel == UserLevel.ECO_VIP) {
-            // 2. 포인트 지급
+            // 2. 달성 그린 라벨 포인트 지급
             awardPointsAndLogHistory(userId, userLevel);
             hasReceivedLevelUpPoints = true;
         }
 
         // 3. 사용자 레벨 달성 상태 업데이트
-        updateUserLevelAchievement(levelAchievement, userLevel);
+        updateUserLevelAchievementInUpgrade(levelAchievement, userLevel);
         levelAchievementRepository.save(levelAchievement);
         return hasReceivedLevelUpPoints;
     }
@@ -73,12 +73,12 @@ public class LevelAchievementService {
     }
 
     /**
-     * 사용자 레벨 달성 상태 업데이트
+     * (레벨 상승) 사용자 레벨 달성 상태 업데이트
      *
      * @param levelAchievement 사용자 레벨 달성 상태
      * @param userLevel        사용자 레벨
      */
-    private void updateUserLevelAchievement(LevelAchievement levelAchievement, UserLevel userLevel) {
+    private void updateUserLevelAchievementInUpgrade(LevelAchievement levelAchievement, UserLevel userLevel) {
         switch (userLevel) {
             case ROOKIE:
                 levelAchievement.updateRookie(true);
@@ -96,6 +96,29 @@ public class LevelAchievementService {
     }
 
     /**
+     * (레벨 하락) 사용자 레벨 달성 상태 업데이트
+     *
+     * @param levelAchievement 사용자 레벨 달성 상태
+     * @param userLevel        하락시키기 전, 사용자 레벨
+     */
+    private void updateUserLevelAchievementInDowngrade(LevelAchievement levelAchievement, UserLevel userLevel) {
+        switch (userLevel) {
+            case ROOKIE:
+                levelAchievement.updateRookie(false);
+                break;
+            case SILVER:
+                levelAchievement.updateSilver(false);
+                break;
+            case GOLD:
+                levelAchievement.updateGold(false);
+                break;
+            case ECO_VIP:
+                levelAchievement.updateVip(false);
+                break;
+        }
+    }
+
+    /**
      * userId로 LevelAchievement 조회하는 함수
      *
      * @param userId
@@ -104,5 +127,24 @@ public class LevelAchievementService {
     private LevelAchievement findLevelAchievementByUserId(Long userId) {
         return levelAchievementRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_USER));
+    }
+
+    /**
+     * 사용자 레벨을 하락시키고, 지급 받았던 달성 포인트를 반환하는 함수
+     *
+     * @param userId       사용자 ID
+     * @param currentLevel 현재 사용자 레벨 (하락하기 전, 레벨)
+     * @return 달성 포인트 지급 여부
+     */
+    public void downgradeUserLevelAndAwardPoints(Long userId, UserLevel currentLevel) {
+        LevelAchievement levelAchievement = findLevelAchievementByUserId(userId);
+
+        // 1. 달성 그린 라벨 포인트 반환
+        // TODO currentLevel.getCelebrationPoint(): 반환 포인트
+        // TODO 포인트 반환 후, 이력 저장되도록 추가 (만약 부족한 경우 unappliedPoint에 표기)
+
+        // 2. 사용자 레벨 달성 상태 원복
+        updateUserLevelAchievementInDowngrade(levelAchievement, currentLevel);
+        levelAchievementRepository.save(levelAchievement);
     }
 }

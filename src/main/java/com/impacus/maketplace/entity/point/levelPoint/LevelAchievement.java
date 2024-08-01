@@ -47,21 +47,41 @@ public class LevelAchievement extends BaseEntity {
 
     public void updateRookie(boolean achievedRooke) {
         this.achievedRookie = achievedRooke;
-        this.recentAchievedRookieAt = LocalDateTime.now();
+
+        if (achievedRooke) {
+            this.recentAchievedRookieAt = LocalDateTime.now();
+        } else {
+            this.recentAchievedRookieAt = null;
+        }
     }
 
     public void updateSilver(boolean achievedSilver) {
         this.achievedSilver = achievedSilver;
-        this.recentAchievedSilverAt = LocalDateTime.now();
+
+        if (achievedSilver) {
+            this.recentAchievedSilverAt = LocalDateTime.now();
+        } else {
+            this.recentAchievedSilverAt = null;
+        }
     }
 
     public void updateGold(boolean achievedGold) {
         this.achievedGold = achievedGold;
-        this.recentAchievedGoldAt = LocalDateTime.now();
+
+        if (achievedGold) {
+            this.recentAchievedGoldAt = LocalDateTime.now();
+        } else {
+            this.recentAchievedGoldAt = null;
+        }
     }
 
     public void updateVip(boolean achievedVip) {
         this.achievedVip = achievedVip;
-        this.recentAchievedVipAt = LocalDateTime.now();
+
+        if (achievedVip) {
+            this.recentAchievedVipAt = LocalDateTime.now();
+        } else {
+            this.recentAchievedVipAt = null;
+        }
     }
 }
