@@ -16,53 +16,91 @@ public class LevelAchievementService {
     private final LevelAchievementRepository levelAchievementRepository;
 
     /**
-     * 사용자 레벨 업그레이드
-     * - ECO_VIP 이거나 등급에 처음 달성하였다면 포인트 지급
+     * 사용자 레벨 업그레이드하고, ECO_VIP 이거나 등급에 처음 달성하였다면 포인트 지급하는 함수
      *
-     * @param userId
-     * @param userLevel
+     * @param userId 사용자 ID
+     * @param userLevel 변경될 사용자 레벨
+     * @return 달성 포인트 지급 여부
      */
     @Transactional
-    public void upgradeUserLevel(Long userId, UserLevel userLevel) {
+    public boolean upgradeUserLevelAndAwardPoints(Long userId, UserLevel userLevel) {
         LevelAchievement levelAchievement = findLevelAchievementByUserId(userId);
+
         // 1. 처음 달성인지 확인
-        // 2. 포인트 지급
-        // 3. 사용자 레벨 달성 상태 업데이트
-        switch (userLevel) {
-            case ROOKIE: {
-                if (levelAchievement.isAchievedRookie()) {
-                    // TODO 포인트 발급 후, 이력 저장되도록 추가
-                }
-
-                levelAchievement.updateRookie(true);
-            }
-            break;
-            case SILVER: {
-                if (levelAchievement.isAchievedSilver()) {
-                    // TODO 포인트 발급 후, 이력 저장되도록 추가
-                }
-
-                levelAchievement.updateSilver(true);
-            }
-            break;
-            case GOLD: {
-                if (levelAchievement.isAchievedGold()) {
-                    // TODO 포인트 발급 후, 이력 저장되도록 추가
-                }
-
-                levelAchievement.updateGold(true);
-            }
-            break;
-            case ECO_VIP: {
-                // TODO 포인트 발급 후, 이력 저장되도록 추가
-                levelAchievement.updateVip(true);
-            }
-            break;
+        boolean hasReceivedLevelUpPoints = false;
+        if (checkIsFirstAchievement(levelAchievement, userLevel) || userLevel == UserLevel.ECO_VIP) {
+            // 2. 포인트 지급
+            awardPointsAndLogHistory(userId, userLevel);
+            hasReceivedLevelUpPoints = true;
         }
 
+        // 3. 사용자 레벨 달성 상태 업데이트
+        updateUserLevelAchievement(levelAchievement, userLevel);
         levelAchievementRepository.save(levelAchievement);
+        return hasReceivedLevelUpPoints;
     }
 
+    /**
+     * 해당 레벨이 처음 달성되었는지 확인하는 함수
+     *
+     * @param levelAchievement 사용자 레벨 달성 상태
+     * @param userLevel        사용자 레벨
+     * @return 처음 달성 여부
+     */
+    private boolean checkIsFirstAchievement(LevelAchievement levelAchievement, UserLevel userLevel) {
+        switch (userLevel) {
+            case ROOKIE:
+                return !levelAchievement.isAchievedRookie();
+            case SILVER:
+                return !levelAchievement.isAchievedSilver();
+            case GOLD:
+                return !levelAchievement.isAchievedGold();
+            case ECO_VIP:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * 달성 포인트 발급 후 이력 저장 함수
+     *
+     * @param userId    사용자 ID
+     * @param userLevel 사용자 레벨
+     */
+    private void awardPointsAndLogHistory(Long userId, UserLevel userLevel) {
+        // TODO 포인트 발급 후, 이력 저장되도록 추가
+    }
+
+    /**
+     * 사용자 레벨 달성 상태 업데이트
+     *
+     * @param levelAchievement 사용자 레벨 달성 상태
+     * @param userLevel        사용자 레벨
+     */
+    private void updateUserLevelAchievement(LevelAchievement levelAchievement, UserLevel userLevel) {
+        switch (userLevel) {
+            case ROOKIE:
+                levelAchievement.updateRookie(true);
+                break;
+            case SILVER:
+                levelAchievement.updateSilver(true);
+                break;
+            case GOLD:
+                levelAchievement.updateGold(true);
+                break;
+            case ECO_VIP:
+                levelAchievement.updateVip(true);
+                break;
+        }
+    }
+
+    /**
+     * userId로 LevelAchievement 조회하는 함수
+     *
+     * @param userId
+     * @return
+     */
     private LevelAchievement findLevelAchievementByUserId(Long userId) {
         return levelAchievementRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_USER));
