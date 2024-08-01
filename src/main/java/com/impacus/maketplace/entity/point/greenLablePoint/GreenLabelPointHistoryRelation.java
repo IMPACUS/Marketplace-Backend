@@ -25,8 +25,5 @@ public class GreenLabelPointHistoryRelation extends BaseEntity {
     private Long greenLabelPointHistoryId;
 
     @Column(nullable = false)
-    private Long tradeAmount;
-
-    @Column(nullable = false)
     private LocalDateTime previousExpiredAt;
 }

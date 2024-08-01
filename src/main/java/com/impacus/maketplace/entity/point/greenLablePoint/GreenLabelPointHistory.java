@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 
 @Entity
@@ -26,4 +27,8 @@ public class GreenLabelPointHistory extends BaseEntity {
 
     @Column(nullable = false)
     private Long tradeAmount;
+
+    @Column(nullable = false)
+    @Comment("미적용 포인트")
+    private Long unappliedPoint;
 }
