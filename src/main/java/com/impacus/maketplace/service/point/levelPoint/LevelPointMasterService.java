@@ -58,6 +58,7 @@ public class LevelPointMasterService {
         // 3. 등급 변동 후, 포인트 지급되어야 하는지 확인
         UserLevel userLevel = levelPointMaster.getUserLevel();
         UserLevel changedLevel = userLevel;
+        boolean hasReceivedLevelUpPoints = false;
         if (userLevel != UserLevel.ECO_VIP && userLevel.checkIsPossibleUpgrade(changedPoint)) {
             changedLevel = switch (userLevel) {
                 case NONE -> UserLevel.BRONZE;
@@ -67,7 +68,7 @@ public class LevelPointMasterService {
                 case GOLD -> UserLevel.ECO_VIP;
                 default -> throw new CustomException(CommonErrorType.UNKNOWN, "등급 변동을 할 수 없는 레벨입니다.");
             };
-            levelAchievementService.upgradeUserLevel(userId, changedLevel);
+            hasReceivedLevelUpPoints = levelAchievementService.upgradeUserLevelAndAwardPoints(userId, changedLevel);
         }
 
         // 4. 등급 변동
@@ -83,7 +84,8 @@ public class LevelPointMasterService {
                 userId,
                 pointType,
                 PointStatus.GRANT,
-                tradePoint
+                tradePoint,
+                hasReceivedLevelUpPoints
         );
     }
 
@@ -95,7 +97,7 @@ public class LevelPointMasterService {
      * @param tradePoint 반환 포인트
      */
     @Transactional
-    public void returnPoint(Long userId, PointType pointType, Long tradePoint) {
+    public void returnPoint(Long userId, PointType pointType, Long levelPointHistoryId, Long tradePoint) {
         LevelPointMaster levelPointMaster = findLevelPointMasterByUserId(userId);
         // levelPointHistoryId 로 이력 조회
 
@@ -107,6 +109,7 @@ public class LevelPointMasterService {
 
         // 3. 등급 변동 있는지 확인
 
-        // 3.
+        // 4. 등급 변동이 있는 경우, 등급 상승으로 인한 받았던 가용 포인트 반환
+        // 이력으로 인해 등급 변동이 존재한 경우
     }
 }

@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,16 +21,16 @@ public class LevelPointHistoryService {
      * @param pointType
      * @param pointStatus
      * @param tradePoint
-     * @param previousExpirationStartAt
+     * @param hasReceivedLevelUpPoints
      */
     public void saveLevelPointHistory(
             Long userId,
             PointType pointType,
             PointStatus pointStatus,
             Long tradePoint,
-            LocalDateTime previousExpirationStartAt
+            boolean hasReceivedLevelUpPoints
     ) {
-        LevelPointHistory levelPointHistory = LevelPointHistory.toEntity(userId, pointType, pointStatus, tradePoint, previousExpirationStartAt);
+        LevelPointHistory levelPointHistory = LevelPointHistory.toEntity(userId, pointType, pointStatus, tradePoint, hasReceivedLevelUpPoints);
         levelPointHistoryRepository.save(levelPointHistory);
     }
 }

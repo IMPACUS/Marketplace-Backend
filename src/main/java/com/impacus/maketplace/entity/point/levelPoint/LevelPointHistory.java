@@ -43,20 +43,23 @@ public class LevelPointHistory extends BaseEntity {
             Long userId,
             PointType pointType,
             PointStatus pointStatus,
-            Long tradeAmount
+            Long tradeAmount,
+            boolean hasReceivedLevelUpPoints
     ) {
         this.userId = userId;
         this.pointType = pointType;
         this.pointStatus = pointStatus;
         this.tradeAmount = tradeAmount;
+        this.hasReceivedLevelUpPoints = hasReceivedLevelUpPoints;
     }
 
     public static LevelPointHistory toEntity(
             Long userId,
             PointType pointType,
             PointStatus pointStatus,
-            Long tradeAmount
+            Long tradeAmount,
+            boolean hasReceivedLevelUpPoints
     ) {
-        return new LevelPointHistory(userId, pointType, pointStatus, tradeAmount);
+        return new LevelPointHistory(userId, pointType, pointStatus, tradeAmount, hasReceivedLevelUpPoints);
     }
 }
