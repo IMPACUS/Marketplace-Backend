@@ -129,7 +129,7 @@ public class LevelPointMasterService {
 
         // 4. 변경된 레벨 포인트, 등급 저장
         levelPointMasterRepository.updateLevelPointAndExpiredAt(
-                changedPoint,
+                changedPoint < 0 ? 0L : changedPoint,
                 changedLevel,
                 changedExpiredAt,
                 userId
