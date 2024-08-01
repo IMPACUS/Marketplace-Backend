@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -31,6 +33,11 @@ public class LevelPointHistory extends BaseEntity {
 
     @Column(nullable = false)
     private Long tradeAmount;
+
+    @Column(nullable = false)
+    @ColumnDefault("FALSE")
+    @Comment("등급 상승 및 달성 포인트 받았는지 여부")
+    private boolean hasReceivedLevelUpPoints;
 
     public LevelPointHistory(
             Long userId,

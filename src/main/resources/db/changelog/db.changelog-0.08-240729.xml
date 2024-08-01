@@ -114,6 +114,9 @@
             <column name="trade_amount" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column name="has_received_level_up_points" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -125,7 +128,8 @@
             </column>
         </createTable>
 
-        <setColumnRemarks tableName="level_point_master" columnName="expiration_start_at" remarks="포인트 소멸 시작일"/>
+        <setColumnRemarks tableName="level_point_history" columnName="has_received_level_up_points"
+                          remarks="등급 상승 및 달성 포인트 받았는지 여부"/>
     </changeSet>
 
     <!-- green_label_point 관련 생성 -->
@@ -190,6 +194,9 @@
             <column name="expired_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            <column name="unapplied_point" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -200,6 +207,9 @@
             <column name="modify_id" type="VARCHAR(255)">
             </column>
         </createTable>
+
+        <setColumnRemarks tableName="green_label_point_history" columnName="unapplied_point"
+                          remarks="미적용 포인트"/>
     </changeSet>
     <changeSet id="changelog-0.08.08-240729" author="lchy0413">
         <preConditions onFail="MARK_RAN">
@@ -215,9 +225,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="green_label_point_history_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="trade_amount" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="previous_expired_at" type="TIMESTAMP">
