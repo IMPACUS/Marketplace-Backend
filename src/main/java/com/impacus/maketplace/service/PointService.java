@@ -50,82 +50,10 @@
 //    private final Integer FIRST_DORMANCY_POINT = 1500;
 //    private final Integer SECOND_DORMANCY_POINT = 2000;
 //
-//    //1월16일 12시 10분
-//    private static void changeUpLevel(PointMaster pointMaster, Integer userScore, UserLevel currentUserLevel) {
-//        UserLevel changeUserLevel = UserLevel.fromScore(userScore);
-//        if (!StringUtils.equals(changeUserLevel, currentUserLevel)) {
-//            pointMaster.setUserLevel(changeUserLevel);
-//
-//            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
-//            switch (changeUserLevel) {
-//                case BRONZE -> pointMaster.setBronze(true);
-//                case ROOKIE -> {
-//                    if (!pointMaster.isRookie()) {
-//                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.ROOKIE.getCelebrationPoint());
-//                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.ROOKIE.getCelebrationPoint());
-//                    } else {
-//                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.ROOKIE.getCelebrationPoint() / 2));
-//                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.ROOKIE.getCelebrationPoint() / 2));
-//                    }
-//                    pointMaster.setRookie(true);
-//                }
-//                case SILVER -> {
-//                    if (!pointMaster.isSilver()) {
-//                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.SILVER.getCelebrationPoint());
-//                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.SILVER.getCelebrationPoint());
-//                    } else {
-//                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.SILVER.getCelebrationPoint() / 2));
-//                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.SILVER.getCelebrationPoint() / 2));
-//                    }
-//                    pointMaster.setSilver(true);
-//                }
-//                case GOLD -> {
-//                    if (!pointMaster.isGold()) {
-//                        pointMaster.setAvailablePoint(currentAvailablePoint + UserLevel.GOLD.getCelebrationPoint());
-//                        pointMaster.setUserScore(currentAvailablePoint + UserLevel.GOLD.getCelebrationPoint());
-//                    } else {
-//                        pointMaster.setAvailablePoint(currentAvailablePoint + (UserLevel.GOLD.getCelebrationPoint() / 2));
-//                        pointMaster.setUserScore(currentAvailablePoint + (UserLevel.GOLD.getCelebrationPoint() / 2));
-//                    }
-//                    pointMaster.setGold(true);
-//                }
-//                case ECO_VIP -> pointMaster.setEcoVip(true);
-//            }
-//        }
-//    }
-//
-//    @Transactional
-//    public boolean initPointMaster(UserDTO userDTO) {
-//        if (pointMasterRepository.existsPointMasterByUserId(userDTO.id())) {
-//            return true;
-//        }
-//
-//        User user = userRepository.findById(userDTO.id()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
-//
-//        PointMaster pointMaster = PointMaster.builder()
-//                .user(user)
-//                .availablePoint(CELEBRATION_POINT)
-//                .userScore(CELEBRATION_POINT)
-//                .isBronze(true)
-//                .registerId("ADMIN")
-//                .build();
-//        pointMasterRepository.save(pointMaster);
-//
-//        PointHistory pointHistory = PointHistory.builder()
-//                .pointMasterId(pointMaster.getId())
-//                .pointType(PointType.JOIN)
-//                .changePoint(CELEBRATION_POINT)
-//                .isManual(null)
-//                .expiredAt(LocalDateTime.now().plusMonths(6L))
-//                .build();
-//        pointHistoryRepository.save(pointHistory);
-//
-//        return false;
-//    }
 //
 //    @Transactional
 //    public PointMasterDTO changePoint(PointRequestDTO pointRequestDto) {
-//        PointMaster pointMaster = pointMasterRepository.findByUserId(pointRequestDto.getUserId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
+//        PointMaster pointMaster = pointMasterRepository.findByUserIdForUpdate(pointRequestDto.getUserId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
 //        LocalDateTime settingExpiredAt = null;
 //        if (pointRequestDto.getPointTypeEnum() != PointType.USE &&
 //                pointRequestDto.getPointTypeEnum() != PointType.EXPIRE) {
@@ -168,7 +96,7 @@
 //    }
 //
 //    public PointInfoDto findMyPointInfo(CustomUserDetails user) {
-//        PointMaster pointMaster = pointMasterRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
+//        PointMaster pointMaster = pointMasterRepository.findByUserIdForUpdate(user.getId()).orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
 //        PointInfoDto pointInfoDto = new PointInfoDto(pointMaster.getUserScore());
 //        return pointInfoDto;
 //    }
@@ -215,7 +143,7 @@
 ////        List<User> usersToUpdate = userRepository.findByUpdateDormancyAtAndFirstDormancyIsTrueOrSecondDormancyIsTrue(nowDate);
 ////        for (User user : usersToUpdate) {
 ////            if (user.getFirstDormancy() || user.getSecondDormancy()) { // 임시 휴면 회원 || 12개월 휴면 회원
-////                PointMaster pointMaster = pointMasterRepository.findByUserId(user.getId())
+////                PointMaster pointMaster = pointMasterRepository.findByUserIdForUpdate(user.getId())
 ////                        .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
 ////
 ////                Integer currentAvailablePoint = pointMaster.getAvailablePoint();
@@ -386,7 +314,7 @@
 //    @Transactional
 //    public boolean pointManage(PointManageDTO pointManageDto) {
 //        try {
-//            PointMaster pointMaster = pointMasterRepository.findByUserId(pointManageDto.getUserId())
+//            PointMaster pointMaster = pointMasterRepository.findByUserIdForUpdate(pointManageDto.getUserId())
 //                    .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_POINT_MASTER));
 //
 //            Integer currentAvailablePoint = pointMaster.getAvailablePoint();
