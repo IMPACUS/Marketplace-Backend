@@ -1,0 +1,20 @@
+spring:
+  profiles:
+    active: dev
+    group:
+      local:
+        - key
+        - mail
+      dev:
+        - key
+        - mail
+  logging:
+    level:
+      org.apache.http: DEBUG
+      httpclient.wire: DEBUG
+  servlet:
+    multipart:
+      maxFileSize: 24MB # 1080 * 1053 * 3 = 3.41172MB / 1000 * 8000 * 3 = 24 MB
+      maxRequestSize: 30MB
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
