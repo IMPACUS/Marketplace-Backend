@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponHIstoryDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,4 +18,6 @@ public interface CouponCustomRepositroy {
     List<IssueCouponInfoDTO> findIssueCouponInfoList();
 
     Page<IssueCouponHIstoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus UserCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable);
+
+    List<UserCouponOverviewDTO> findUserCouponOverviewList(Long userId);
 }

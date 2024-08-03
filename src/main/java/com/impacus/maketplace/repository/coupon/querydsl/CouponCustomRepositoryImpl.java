@@ -131,6 +131,28 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public List<UserCouponOverviewDTO> findUserCouponOverviewList(Long userId) {
+        return queryFactory
+                .select(new QUserCouponOverviewDTO(
+                        userCoupon.couponId,
+                        coupon.name,
+                        coupon.description,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        userCoupon.isDownload,
+                        userCoupon.downloadAt,
+                        userCoupon.isUsed,
+                        userCoupon.usedAt,
+                        userCoupon.expiredAt,
+                        userCoupon.availableDownloadAt
+                ))
+                .from(userCoupon)
+                .where(userCoupon.userId.eq(userId))
+                .join(coupon).on(userCoupon.couponId.eq(coupon.id))
+                .fetch();
+    }
+
     private BooleanExpression betweenDate(LocalDate startAt, LocalDate endAt) {
         if (startAt != null && endAt != null) {
             LocalDateTime startDateTime = startAt.atStartOfDay(); // 시작 날짜의 00:00

@@ -216,9 +216,12 @@ public class CouponController {
     @GetMapping("/coupon-box/coupon-list")
     public ApiResponseEntity<List<UserCouponOverviewDTO>> getUserCouponOverviewList(@AuthenticationPrincipal CustomUserDetails user) {
 
-        couponService.getUserCouponOverviewList(user);
+        List<UserCouponOverviewDTO> userCouponOverviewList = couponService.getUserCouponOverviewList(user.getId());
 
-        return null;
+        return ApiResponseEntity
+                .<List<UserCouponOverviewDTO>>builder()
+                .data(userCouponOverviewList)
+                .build();
     }
 
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
