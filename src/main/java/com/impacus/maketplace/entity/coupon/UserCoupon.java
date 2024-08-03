@@ -1,6 +1,8 @@
 package com.impacus.maketplace.entity.coupon;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.annotation.ValidEnum;
+import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +29,7 @@ public class UserCoupon extends BaseEntity {
     private Long couponId;  // 쿠폰 아이디
 
     @Column(nullable = false)
-    private LocalDateTime availableDownladAt;   // 쿠폰을 다운로드 받을 수 있는 날짜
+    private LocalDateTime availableDownloadAt;   // 쿠폰을 다운로드 받을 수 있는 날짜
 
     @Column(nullable = false)
     @ColumnDefault("'false'")
@@ -42,4 +44,9 @@ public class UserCoupon extends BaseEntity {
     private LocalDateTime usedAt;   // 쿠폰을 사용한 날짜
 
     private LocalDateTime expiredAt;   // 쿠폰 만료 날짜
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @ValidEnum(enumClass = UserCouponStatus.class)
+    private UserCouponStatus status;    // 발급된 쿠폰 상태
 }

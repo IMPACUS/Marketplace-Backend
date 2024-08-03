@@ -5,6 +5,8 @@ import com.impacus.maketplace.common.enumType.coupon.ExpireTimeType;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 public class UserCouponOverviewDTO {
@@ -14,5 +16,5 @@ public class UserCouponOverviewDTO {
     private BenefitType benefitType;
     private Long benefitValue;
     private ExpireTimeType expireTimeType;
-    //private LocalDate localDate; ? Time?
+    private LocalDate availableDownloadAt;
 }

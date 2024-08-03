@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponHIstoryDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.user.User;
@@ -183,6 +184,50 @@ public class CouponAdminService {
     }
 
     /**
+     * 쿠폰 지급하기 페이지: 쿠폰 정보 조회
+     * @return List<PayCouponInfoDTO>
+     */
+    public List<IssueCouponInfoDTO> getIssueCouponInfoList() {
+        return couponCustomRepositroy.findIssueCouponInfoList();
+    }
+
+    public void issueCouponAllUser(IssueCouponAllUserDTO payCouponAllUserDTO) {
+
+        // 1. Condition(level)에 따라서 회원 id 조회
+        /**
+         * 구현 대기 (Level을 통한 유저 조회 기능 필요)
+         */
+
+
+    }
+
+
+    /**
+     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 무조건 발급해주는 서비스
+     * @param issueCouponTargetUserDTO 쿠폰 ID, email
+     */
+    @Transactional
+    public void issueCouponTargetUser(IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
+        // 1. Email을 통해서 회원 검색
+        User user = userRepository.findByEmail(issueCouponTargetUserDTO.getEmail())
+                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+
+        // 2. 쿠폰 지급
+        couponRedemptionService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user);
+    }
+
+    public Page<IssueCouponHIstoryDTO> getIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+
+        // 1. 입력값 검증(날짜 검증)
+        if (startAt.isAfter(endAt)) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA);
+        }
+
+        // 2. DB 조회
+        return couponCustomRepositroy.findIssueCouponHistoryList(name, userCouponStatus, startAt, endAt, pageable);
+    }
+
+    /**
      * 쿠폰 코드를 수동/자동 방식에 따라 중복 검증 후 가져오는 함수
      * @param coupontDto 쿠폰 DTO
      * @return code 검증 완료된 쿠폰 코드
@@ -311,35 +356,5 @@ public class CouponAdminService {
                 throw new CustomException(CouponErrorType.INVALID_INPUT_NUMBER_OF_PERIOD);
             }
         }
-    }
-
-    /**
-     * 쿠폰 지급하기 페이지: 쿠폰 정보 조회
-     * @return List<PayCouponInfoDTO>
-     */
-    public List<IssueCouponInfoDTO> getIssueCouponInfoList() {
-        return couponCustomRepositroy.findPayCouponInfoList();
-    }
-
-    public void issueCouponAllUser(IssueCouponAllUserDTO payCouponAllUserDTO) {
-
-        // 1. Condition(level)에 따라서 회원 id 조회
-
-
-    }
-
-
-    /**
-     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 무조건 발급해주는 서비스
-     * @param issueCouponTargetUserDTO 쿠폰 ID, email
-     */
-    @Transactional
-    public void issueCouponTargetUser(IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
-        // 1. Email을 통해서 회원 검색
-        User user = userRepository.findByEmail(issueCouponTargetUserDTO.getEmail())
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
-
-        // 2. 쿠폰 지급
-        couponRedemptionService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user);
     }
 }

@@ -379,4 +379,29 @@
         </delete>
     </changeSet>
 
+    <changeSet id="changelog-jb-0.01-240730-04" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <columnExists tableName="user_coupon" columnName="status"/>
+            </not>
+        </preConditions>
+        <comment>Clear any existing legacy data does not Have a status column in the tables</comment>
+        <sql splitStatements="true">
+            TRUNCATE TABLE user_coupon;
+            TRUNCATE TABLE coupon_issuance_history;
+        </sql>
+        <addColumn tableName="user_coupon">
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240830-01" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_coupon" columnName="available_downlad_at"/>
+        </preConditions>
+        <renameColumn tableName="user_coupon" oldColumnName="available_downlad_at"
+                      newColumnName="available_download_at"/>
+    </changeSet>
 </databaseChangeLog>

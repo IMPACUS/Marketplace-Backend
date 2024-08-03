@@ -1,6 +1,7 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.TriggerType;
+import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -81,12 +82,13 @@ public class CouponRedemptionService {
         return UserCoupon.builder()
                 .userId(userId)
                 .couponId(coupon.getId())
-                .availableDownladAt(LocalDateTime.now())
+                .availableDownloadAt(LocalDateTime.now())
                 .isDownload(false)
                 .downloadAt(null)
                 .isUsed(false)
                 .usedAt(null)
                 .expiredAt(null)
+                .status(UserCouponStatus.ISSUE_SUCCESS)
                 .build();
     }
 

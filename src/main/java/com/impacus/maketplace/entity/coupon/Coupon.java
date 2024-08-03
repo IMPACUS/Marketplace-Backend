@@ -36,7 +36,7 @@ public class Coupon extends BaseEntity {
     private BenefitType benefitType;  // 혜택 구분 [ 원, % ]
 
     @Column(nullable = false)
-    private Long benefitValue;   // 혜택 금액 및 퍼센트
+    private Long benefitValue;   // 혜택 금액 혹은 퍼센트
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

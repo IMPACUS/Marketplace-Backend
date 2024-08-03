@@ -1,12 +1,10 @@
 package com.impacus.maketplace.controller.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
+import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.*;
-import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
-import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
-import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
-import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
 import com.impacus.maketplace.service.coupon.CouponUserService;
@@ -17,12 +15,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import security.CustomUserDetails;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -147,7 +147,7 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @GetMapping("/admin/issue-coupon-info/list")
+    @GetMapping("/admin/issue-coupon/info-list")
     public ApiResponseEntity<List<IssueCouponInfoDTO>> getIssueCouponInfoList() {
 
         List<IssueCouponInfoDTO> issueCouponInfoList = couponAdminService.getIssueCouponInfoList();
@@ -187,21 +187,33 @@ public class CouponController {
     }
 
     /**
-     * [개발 준비]: 지급 상태에 대한 정리가 끝나면 개발 진행
      * ADMIN: 쿠폰 지급 내역 Pagination API
      */
-    public ApiResponseEntity<Void> getIssueCouponHistory() {
-        return null;
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
+            "or hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin/issue-coupon/history-list")
+    public ApiResponseEntity<Page<IssueCouponHIstoryDTO>> getIssueCouponHistoryList(@RequestParam(name = "name", required = false) String name,
+                                                         @RequestParam(name = "status", required = false) UserCouponStatus userCouponStatus,
+                                                         @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+                                                         @RequestParam(name = "end-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+                                                         @PageableDefault(sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<IssueCouponHIstoryDTO> issueCouponHistoryList = couponAdminService.getIssueCouponHistoryList(name, userCouponStatus, startAt, endAt, pageable);
+
+        return ApiResponseEntity
+                .<Page<IssueCouponHIstoryDTO>>builder()
+                .data(issueCouponHistoryList)
+                .build();
     }
 
     /**
-     * [개발 준비]: 모든 회원 쿠폰 지급 기능 구현시 개발 진행
      * APP: 보유 쿠폰 List API
      * @param user
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("/coupon-box/coupons")
+    @GetMapping("/coupon-box/coupon-list")
     public ApiResponseEntity<List<UserCouponOverviewDTO>> getUserCouponOverviewList(@AuthenticationPrincipal CustomUserDetails user) {
 
         couponService.getUserCouponOverviewList(user);
