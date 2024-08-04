@@ -155,6 +155,9 @@
             <column name="remain_point" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column name="allocated_point" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="expired_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -168,6 +171,11 @@
             <column name="modify_id" type="VARCHAR(255)">
             </column>
         </createTable>
+
+        <setColumnRemarks tableName="green_label_point_allocation" columnName="remain_point"
+                          remarks="남은 포인트"/>
+        <setColumnRemarks tableName="green_label_point_allocation" columnName="allocated_point"
+                          remarks="지급 포인트"/>
     </changeSet>
     <changeSet id="changelog-0.08.07-240729" author="lchy0413">
         <preConditions onFail="MARK_RAN">
@@ -188,10 +196,7 @@
             <column name="point_status" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="remain_point" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="expired_at" type="TIMESTAMP">
+            <column name="trade_amount" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="unapplied_point" type="BIGINT">
