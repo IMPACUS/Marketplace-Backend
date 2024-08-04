@@ -1,5 +1,6 @@
 package com.impacus.maketplace.repository.user.querydsl;
 
+import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.entity.common.QAttachFile;
@@ -11,6 +12,8 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -48,5 +51,19 @@ public class ReadUserCustomRepositoryImpl implements ReadUserCustomRepository {
                 .leftJoin(attachFile).on(user.profileImageId.eq(attachFile.id))
                 .where(userBuilder)
                 .fetchFirst();
+    }
+
+    @Override
+    public List<Long> findUserIdByUserLevel(UserLevel userLevel) {
+        BooleanBuilder userBuilder = new BooleanBuilder();
+        userBuilder.and(user.type.eq(UserType.ROLE_CERTIFIED_USER))
+                .and(user.id.eq(levelPointMaster.userId));
+
+        return queryFactory
+                .select(user.id)
+                .from(user)
+                .innerJoin(levelPointMaster).on(levelPointMaster.userLevel.eq(userLevel))
+                .where(userBuilder)
+                .fetch();
     }
 }
