@@ -39,7 +39,18 @@ public class CouponAdminService {
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final UserRepository userRepository;
     private final CouponUtils couponUtils;
-    private final CouponRedemptionService couponRedemptionService;
+    private final CouponManagementService couponManagementService;
+
+    /**
+     * 쿠폰 코드 중복 검사
+     * @param code
+     */
+    public void duplicateCheckCode(String code) {
+        if(couponRepository.existsByCode(code)) {
+            throw new CustomException(new CustomException(CouponErrorType.DUPLICATED_COUPON_CODE));
+        }
+    }
+
 
 
     /**
@@ -213,7 +224,7 @@ public class CouponAdminService {
                 .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
 
         // 2. 쿠폰 지급
-        couponRedemptionService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user);
+        couponManagementService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user);
     }
 
     public Page<IssueCouponHIstoryDTO> getIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {

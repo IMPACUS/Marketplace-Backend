@@ -20,4 +20,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Coupon c WHERE c.id IN :couponIdList")
     List<Coupon> findWriteLockCouponsById(List<Long> couponIdList);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<Coupon> findWriteLockCouponByCode(String code);
 }

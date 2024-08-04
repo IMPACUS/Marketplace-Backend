@@ -1,14 +1,10 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.impacus.maketplace.common.enumType.error.CouponErrorType;
-import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
-import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import security.CustomUserDetails;
 
 import java.util.List;
 
@@ -16,21 +12,25 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CouponUserService {
-    private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
+    private final CouponManagementService couponManagementService;
 
     /**
-     * 쿠폰 코드 중복 검사
-     * @param code
+     * 쿠폰함에서 사용자가 가지고 있는 쿠폰 리스트 조회
+     * @param userId 사용자 id
      */
-    public void duplicateCheckCode(String code) {
-        if(couponRepository.existsByCode(code)) {
-            throw new CustomException(new CustomException(CouponErrorType.DUPLICATED_COUPON_CODE));
-        }
-    }
-
     public List<UserCouponOverviewDTO> getUserCouponOverviewList(Long userId) {
         // 1. 사용자가 가지고 있는 쿠폰 조회
         return couponCustomRepositroy.findUserCouponOverviewList(userId);
+    }
+
+    /**
+     * 사용자 쿠폰 등록하기
+     * @param userId 사용자 id
+     * @param couponCode 쿠폰 코드
+     */
+    @Transactional
+    public void registerUserCoupon(Long userId, String couponCode) {
+        couponManagementService.registerCouponByUser(userId, couponCode);
     }
 }

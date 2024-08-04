@@ -58,11 +58,11 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CouponIssueType couponIssueType;    // 쿠폰 발급 횟수 [ 1회성, 지속성 ]
+    private CouponType couponType;  // 쿠폰 형식 [ 이벤트 , 지급형 ]
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CouponType couponType;  // 쿠폰 형식 [ 이벤트 , 지급형 ]
+    private CouponIssueType couponIssueType;    // 쿠폰 발급 횟수 [ 1회성, 지속성 ]
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
