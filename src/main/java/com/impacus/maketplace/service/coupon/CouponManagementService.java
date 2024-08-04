@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.coupon.response.UserCouponDownloadDTO;
 import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponIssuanceHistory;
@@ -77,7 +78,7 @@ public class CouponManagementService {
                 .orElseThrow(() -> new CustomException(CouponErrorType.INVALID_COUPON_FORMAT));
 
         // 2. 쿠폰 등록 조건 검증
-        validationRegisterContion(userId, coupon);
+        validationInstantCouponCondition(userId, coupon);
 
         // 3. 쿠폰 발급하기
         // 3.1 해당 사용자에게 발급 + 발급 횟수 증가
@@ -102,7 +103,34 @@ public class CouponManagementService {
                 .availableDownloadAt(userCoupon.getAvailableDownloadAt())
                 .build();
     }
-    private void validationRegisterContion(Long userId, Coupon coupon) {
+
+    @Transactional
+    public UserCouponDownloadDTO issueAndDownloadCoupon(Long userId, Long couponId) {
+
+        // 1. 쿠폰 확인
+        Coupon coupon = couponRepository.findWriteLockById(couponId)
+                .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON));
+
+        // 2. 쿠폰 발급 조건 확인
+        validationInstantCouponCondition(userId, coupon);
+
+        // 3. 쿠폰 발급하기
+        // 3.1 해상 사용자에게 발급 + 발급 횟수 증가
+        UserCoupon userCoupon = issueInstantCoupon(userId, coupon);
+        userCoupon.setIsDownload(true);
+        userCoupon.setDownloadAt(LocalDateTime.now());
+        userCouponRepository.save(userCoupon);
+
+        // 3.2 쿠폰 발급 이력 기록
+        CouponIssuanceHistory couponIssuanceHistory = createCouponIssuanceHistory(userCoupon.getId(), userId, TriggerType.BRAND);
+        couponIssuanceHistoryRepository.save(couponIssuanceHistory);
+
+        return UserCouponDownloadDTO.builder()
+                .userCouponId(userCoupon.getId())
+                .isDownload(userCoupon.getIsDownload())
+                .build();
+    }
+    private void validationInstantCouponCondition(Long userId, Coupon coupon) {
         // 1. 공통 검증 조건 확인(삭제 여부, 발급 상태, 선착순)
         validationCommonCondtion(coupon);
 

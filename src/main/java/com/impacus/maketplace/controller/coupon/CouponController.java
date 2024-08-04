@@ -241,7 +241,7 @@ public class CouponController {
     }
 
     /**
-     * APP: 쿠폰 등록하기
+     * APP: 쿠폰함 - 쿠폰 다운로드
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("/coupon-box/coupon/download")
@@ -256,6 +256,32 @@ public class CouponController {
                 .build();
     }
 
+    /**
+     * APP: 브랜드 쿠폰 받기 - 쿠폰 List API
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("/brand-coupon/coupon-list")
+    public ApiResponseEntity<List<UserCouponOverviewDTO>> getBrandCouponList(@AuthenticationPrincipal CustomUserDetails user,
+                                                                             @RequestParam(name = "brand-name") String brandName,
+                                                                             @RequestParam(name = "eco-product") Boolean isEcoProduct) {
 
+        couponService.getBrandCouponList(user.getId(), brandName);
+        return null;
+    }
+
+    /**
+     * APP: 브랜드 쿠폰 받기 - 쿠폰 다운 받기 API
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("/brand-coupon/download")
+    public ApiResponseEntity<UserCouponDownloadDTO> issueAndDownloadCoupon(@AuthenticationPrincipal CustomUserDetails user,
+                                                                        @Valid @RequestBody CouponIdDTO couponDownloadDTO) {
+
+        UserCouponDownloadDTO userCouponDownloadDTO = couponService.issueAndDownloadCoupon(user.getId(), couponDownloadDTO.getCouponId());
+        return ApiResponseEntity
+                .<UserCouponDownloadDTO>builder()
+                .data(userCouponDownloadDTO)
+                .build();
+    }
 
 }

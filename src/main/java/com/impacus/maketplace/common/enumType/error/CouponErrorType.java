@@ -47,7 +47,12 @@ public enum CouponErrorType implements ErrorType{
     // 쿠폰 등록 조건
     INVALID_REGISTER_EVENT_COUPON("046_INVALID_REGISTER_EVENT_COUPON", "이벤트형 쿠폰은 등록하실 수 없습니다."),
     INVALID_REGISTER_PERSISTENCE_COUPON("046_1_INVALID_REGISTER_PERSISTENCE_COUPON", "지속형 쿠폰은 등록하실 수 없습니다."),
-    INVALID_REGISTER_ALREADY_ISSUE("046_2_INVALID_REGISTER_ALREADY_ISSUE", "해당 쿠폰을 이미 발급 받은 이력이 존재합니다.");
+    INVALID_REGISTER_ALREADY_ISSUE("046_2_INVALID_REGISTER_ALREADY_ISSUE", "해당 쿠폰을 이미 발급 받은 이력이 존재합니다."),
+
+    // 쿠폰 다운로드 조건
+    INVALID_DOWNLOAD_EVENT_COUPON("047_INVALID_DOWNLOAD_EVENT_COUPON", "이벤트형 쿠폰은 다운로드 받을 수 없습니다."),
+    INVALID_DOWNLOAD_PERSISTENCE_COUPON("047_1_INVALID_DOWNLOAD_PERSISTENCE_COUPON", "지속형 쿠폰은 다운로드 받을 수 없습니다."),
+    ALREADY_ISSUED_COUPON("047_2_ALREADY_ISSUED_COUPON", "이미 발급 받은 쿠폰입니다.");
 
     private final String code;
     private final String msg;

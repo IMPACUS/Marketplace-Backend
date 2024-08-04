@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.response.UserCouponDownloadDTO;
 import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
+import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class CouponUserService {
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final CouponManagementService couponManagementService;
     private final UserCouponRepository userCouponRepository;
+    private final CouponRepository couponRepository;
 
     /**
      * 쿠폰함에서 사용자가 가지고 있는 쿠폰 리스트 조회
@@ -42,6 +44,11 @@ public class CouponUserService {
         return couponManagementService.registerCouponByUser(userId, couponCode);
     }
 
+    /**
+     * 쿠폰함에 있는 쿠폰 다운로드
+     * @param userId 사용자 id
+     * @param userCouponId 사용자 쿠폰 id
+     */
     @Transactional
     public UserCouponDownloadDTO downloadUserCoupon(Long userId, Long userCouponId) {
 
@@ -77,5 +84,22 @@ public class CouponUserService {
                 .userCouponId(userCouponId)
                 .isDownload(userCoupon.getIsDownload())
                 .build();
+    }
+
+    public void getBrandCouponList(Long userId, String brandName) {
+
+        // 1. CoverageType == ALL || (CoverageType == BRAND && useCoverageSubCategoryName == brandName)인 쿠폰 가져오기
+        // 2. 추가적으로 해당 사용자가 발급 받은 적이 있는 쿠폰인지 확인
+        // 3. 리스트 내려주기
+    }
+
+    /**
+     * 브랜드 쿠폰 받기 팝업창에서 쿠폰 다운로드
+     * @param userId 사용자 id
+     * @param couponId 쿠폰 id
+     */
+    @Transactional
+    public UserCouponDownloadDTO issueAndDownloadCoupon(Long userId, Long couponId) {
+        return couponManagementService.issueAndDownloadCoupon(userId, couponId);
     }
 }
