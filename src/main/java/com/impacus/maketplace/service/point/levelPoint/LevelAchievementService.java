@@ -1,10 +1,12 @@
 package com.impacus.maketplace.service.point.levelPoint;
 
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
+import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.point.levelPoint.LevelAchievement;
 import com.impacus.maketplace.repository.point.levelPoint.LevelAchievementRepository;
+import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class LevelAchievementService {
     private final LevelAchievementRepository levelAchievementRepository;
+    private final GreenLabelPointAllocationService greenLabelPointAllocationService;
 
     /**
      * 사용자 레벨 업그레이드하고, ECO_VIP 이거나 등급에 처음 달성하였다면 포인트 지급하는 함수
@@ -66,10 +69,14 @@ public class LevelAchievementService {
      * 달성 포인트 발급 후 이력 저장 함수
      *
      * @param userId    사용자 ID
-     * @param userLevel 사용자 레벨
+     * @param userLevel 달성한 사용자 레벨
      */
     private void awardPointsAndLogHistory(Long userId, UserLevel userLevel) {
-        // TODO 포인트 발급 후, 이력 저장되도록 추가
+        greenLabelPointAllocationService.payGreenLabelPoint(
+                userId,
+                PointType.UPGRADE_LEVEL,
+                userLevel.getCelebrationPoint()
+        );
     }
 
     /**
