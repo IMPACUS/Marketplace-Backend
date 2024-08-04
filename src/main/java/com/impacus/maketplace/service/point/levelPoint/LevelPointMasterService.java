@@ -48,7 +48,7 @@ public class LevelPointMasterService {
     public void payLevelPoint(Long userId, PointType pointType, Long tradePoint) {
         // 1. 지급 포인트 유효성 확인
         if (tradePoint < 0) {
-            throw new CustomException(PointErrorType.INVALID_POINT_MANAGE, "지급 포인트는 음수일 수 없습니다.");
+            throw new CustomException(PointErrorType.INVALID_POINT, "지급 포인트는 음수일 수 없습니다.");
         }
 
         // 2. 포인트 지급 및 소멸일 6개월 연장

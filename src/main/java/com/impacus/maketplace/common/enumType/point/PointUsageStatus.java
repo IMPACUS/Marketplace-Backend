@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PointUsageStatus {
     UNUSED("01", "미사용"),
-    USED("02", "사용중"),
+    IN_USE("02", "사용중"),
     COMPLETED("03", "사용 완료"),
     EXPIRED("04", "소멸");
 
