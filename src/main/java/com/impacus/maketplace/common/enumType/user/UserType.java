@@ -15,6 +15,7 @@ public enum UserType {
     ROLE_OWNER(4, "관리자(총관 권한)"),
     ROLE_PRINCIPAL_ADMIN(5, "관리자(전체 수정 권한)"),
     ROLE_ADMIN(6, "관리자(일부 수정 권한)"),
+    ROLE_DEACTIVATED_USER(7, "탈퇴한 회원"),
     ROLE_NONE(100, "알수 없는 권한");
 
     public static UserType getAdminRole(String accountType) {
