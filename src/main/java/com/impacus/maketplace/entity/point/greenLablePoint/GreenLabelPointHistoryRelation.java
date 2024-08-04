@@ -26,4 +26,24 @@ public class GreenLabelPointHistoryRelation extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime previousExpiredAt;
+
+    public GreenLabelPointHistoryRelation(
+            Long greenLabelPointAllocationId,
+            Long greenLabelPointHistoryId,
+            LocalDateTime previousExpiredAt
+    ) {
+        this.greenLabelPointAllocationId = greenLabelPointAllocationId;
+        this.greenLabelPointHistoryId = greenLabelPointHistoryId;
+        this.previousExpiredAt = previousExpiredAt;
+    }
+
+    public static GreenLabelPointHistoryRelation of(
+            Long greenLabelPointAllocationId,
+            Long greenLabelPointHistoryId,
+            LocalDateTime previousExpiredAt
+    ) {
+        return new GreenLabelPointHistoryRelation(
+                greenLabelPointAllocationId, greenLabelPointHistoryId, previousExpiredAt
+        );
+    }
 }

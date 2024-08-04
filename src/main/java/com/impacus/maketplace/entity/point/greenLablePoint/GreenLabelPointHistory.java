@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.point.greenLablePoint;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.point.PointStatus;
+import com.impacus.maketplace.common.enumType.point.PointType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,6 +24,11 @@ public class GreenLabelPointHistory extends BaseEntity {
     private Long userId;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PointType pointType;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private PointStatus pointStatus;
 
     @Column(nullable = false)
@@ -31,4 +37,30 @@ public class GreenLabelPointHistory extends BaseEntity {
     @Column(nullable = false)
     @Comment("미적용 포인트")
     private Long unappliedPoint;
+
+    public GreenLabelPointHistory(
+            Long userId,
+            PointType pointType,
+            PointStatus pointStatus,
+            Long tradeAmount,
+            Long unappliedPoint
+    ) {
+        this.userId = userId;
+        this.pointType = pointType;
+        this.pointStatus = pointStatus;
+        this.tradeAmount = tradeAmount;
+        this.unappliedPoint = unappliedPoint;
+    }
+
+    public static GreenLabelPointHistory of(
+            Long userId,
+            PointType pointType,
+            PointStatus pointStatus,
+            Long tradeAmount,
+            Long unappliedPoint
+    ) {
+        return new GreenLabelPointHistory(
+                userId, pointType, pointStatus, tradeAmount, unappliedPoint
+        );
+    }
 }
