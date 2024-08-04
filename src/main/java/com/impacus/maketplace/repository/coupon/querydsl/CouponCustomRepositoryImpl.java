@@ -135,6 +135,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     public List<UserCouponOverviewDTO> findUserCouponOverviewList(Long userId) {
         return queryFactory
                 .select(new QUserCouponOverviewDTO(
+                        userCoupon.id,
                         userCoupon.couponId,
                         coupon.name,
                         coupon.description,

@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,21 +30,23 @@ public class UserCoupon extends BaseEntity {
     private Long couponId;  // 쿠폰 아이디
 
     @Column(nullable = false)
-    private LocalDateTime availableDownloadAt;   // 쿠폰을 다운로드 받을 수 있는 날짜
+    private LocalDate availableDownloadAt;   // 쿠폰을 다운로드 받을 수 있는 날짜
 
     @Column(nullable = false)
     @ColumnDefault("'false'")
+    @Setter
     private Boolean isDownload; // 쿠폰 다운로드 여부
 
+    @Setter
     private LocalDateTime downloadAt;   // 쿠폰을 다운로드 받은 날짜
 
     @Column(nullable = false)
     @ColumnDefault("'false'")
     private Boolean isUsed; // 쿠폰 사용 여부
 
-    private LocalDateTime usedAt;   // 쿠폰을 사용한 날짜
+    private LocalDate expiredAt;   // 쿠폰 만료 날짜
 
-    private LocalDateTime expiredAt;   // 쿠폰 만료 날짜
+    private LocalDateTime usedAt;   // 쿠폰을 사용한 날짜
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

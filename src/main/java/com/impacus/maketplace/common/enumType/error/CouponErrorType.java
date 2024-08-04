@@ -33,11 +33,16 @@ public enum CouponErrorType implements ErrorType{
 
     // 쿠폰 조회
     NOT_EXISTED_COUPON("044_NOT_EXISTED_COUPON", "존재하지 않는 쿠폰 데이터입니다."),
+    NOT_EXISTED_USER_COUPON("044_1_NOT_EXISTED_USER_COUPON", "해당 사용자에게 발급된 쿠폰이 아닙니다."),
 
     // 쿠폰 상태
     IS_DELETED_COUPON("045_IS_DELETED_COUPON", "삭제된 쿠폰입니다."),
     IS_STOP_COUPON("045_1_IS_STOP_COUPON", "발급 중지된 쿠폰입니다."),
     END_FIRST_COUNT_COUPON("045_2_END_FIRST_COUNT_COUPON", "선착순 만료된 쿠폰입니다."),
+    NOT_AVAILABLE_DOWNLOAD_USER_COUPON("045_3_NOT_AVAILABLE_DOWNLOAD_USER_COUPON", "아직 다운로드 받을 수 없습니다."),
+    ALREADY_DOWNLOAD_USER_COUPON("045_4_ALREADY_DOWNLOAD_USER_COUPON", "이미 다운로드 받은 쿠폰입니다."),
+    ALREADY_USED_USER_COUPON("045_5_ALREADY_USED_USER_COUPON", "이미 사용한 쿠폰입니다."),
+    EXPIRED_USER_COUPON("045_6_EXPIRED_USER_COUPON", "만료 기간이 지난 쿠폰입니다."),
 
     // 쿠폰 등록 조건
     INVALID_REGISTER_EVENT_COUPON("046_INVALID_REGISTER_EVENT_COUPON", "이벤트형 쿠폰은 등록하실 수 없습니다."),

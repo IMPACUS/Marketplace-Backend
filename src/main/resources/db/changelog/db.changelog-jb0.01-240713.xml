@@ -404,4 +404,20 @@
         <renameColumn tableName="user_coupon" oldColumnName="available_downlad_at"
                       newColumnName="available_download_at"/>
     </changeSet>
+    
+    <changeSet id="changelog-jb-0.01-240804-01" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_coupon" columnName="available_download_at"/>
+            <columnExists tableName="user_coupon" columnName="expired_at"/>
+            <sqlCheck expectedResult="2">
+                SELECT COUNT(*)
+                FROM information_schema.columns
+                WHERE table_name = 'user_coupon'
+                  AND column_name IN ('available_download_at', 'expired_at')
+                  AND data_type = 'timestamp without time zone'
+            </sqlCheck>
+        </preConditions>
+        <sql>ALTER TABLE user_coupon ALTER COLUMN available_download_at TYPE DATE USING available_download_at::date;</sql>
+        <sql>ALTER TABLE user_coupon ALTER COLUMN expired_at TYPE DATE USING expired_at::date;</sql>
+    </changeSet>
 </databaseChangeLog>

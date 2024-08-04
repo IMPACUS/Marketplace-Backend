@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class UserCouponOverviewDTO {
+    private Long userCouponId;
     private Long couponId;
     private String name;
     private String description;
@@ -21,11 +22,12 @@ public class UserCouponOverviewDTO {
     private LocalDateTime downloadAt;   // 쿠폰을 다운로드 받은 날짜
     private Boolean isUsed; // 쿠폰 사용 여부
     private LocalDateTime usedAt;   // 쿠폰을 사용한 날짜
-    private LocalDateTime expiredAt;
-    private LocalDateTime availableDownloadAt;
+    private LocalDate expiredAt;
+    private LocalDate availableDownloadAt;
 
     @QueryProjection
-    public UserCouponOverviewDTO(Long couponId, String name, String description, BenefitType benefitType, Long benefitValue, Boolean isDownload, LocalDateTime downloadAt, Boolean isUsed, LocalDateTime usedAt, LocalDateTime expiredAt, LocalDateTime availableDownloadAt) {
+    public UserCouponOverviewDTO(Long userCouponId, Long couponId, String name, String description, BenefitType benefitType, Long benefitValue, Boolean isDownload, LocalDateTime downloadAt, Boolean isUsed, LocalDateTime usedAt, LocalDate expiredAt, LocalDate availableDownloadAt) {
+        this.userCouponId = userCouponId;
         this.couponId = couponId;
         this.name = name;
         this.description = description;

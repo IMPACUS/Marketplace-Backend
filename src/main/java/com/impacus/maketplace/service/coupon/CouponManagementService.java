@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponIssuanceHistory;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -69,7 +71,7 @@ public class CouponManagementService {
     }
 
     @Transactional
-    public void registerCouponByUser(Long userId, String code) {
+    public UserCouponOverviewDTO registerCouponByUser(Long userId, String code) {
         // 1. 쿠폰 조회하기
         Coupon coupon = couponRepository.findWriteLockCouponByCode(code)
                 .orElseThrow(() -> new CustomException(CouponErrorType.INVALID_COUPON_FORMAT));
@@ -85,6 +87,20 @@ public class CouponManagementService {
         // 3.2 쿠폰 발급 이력 기록
         CouponIssuanceHistory couponIssuanceHistory = createCouponIssuanceHistory(userCoupon.getId(), userId, TriggerType.REGISTER);
         couponIssuanceHistoryRepository.save(couponIssuanceHistory);
+
+        return UserCouponOverviewDTO.builder()
+                .couponId(userCoupon.getCouponId())
+                .name(coupon.getName())
+                .description(coupon.getDescription())
+                .benefitType(coupon.getBenefitType())
+                .benefitValue(coupon.getBenefitValue())
+                .isDownload(userCoupon.getIsDownload())
+                .downloadAt(userCoupon.getDownloadAt())
+                .isUsed(userCoupon.getIsUsed())
+                .usedAt(userCoupon.getUsedAt())
+                .expiredAt(userCoupon.getExpiredAt())
+                .availableDownloadAt(userCoupon.getAvailableDownloadAt())
+                .build();
     }
     private void validationRegisterContion(Long userId, Coupon coupon) {
         // 1. 공통 검증 조건 확인(삭제 여부, 발급 상태, 선착순)
@@ -131,16 +147,18 @@ public class CouponManagementService {
      * @return UserCoupon
      */
     private UserCoupon issueInstantCoupon(Long userId, Coupon coupon) {
+        LocalDate expiredAt = coupon.getExpireTimeType() == ExpireTimeType.LIMIT ?
+                LocalDate.now().plusDays(coupon.getExpireTimeDays()) : null;
         coupon.updateQuantityIssued(1);
         return UserCoupon.builder()
                 .userId(userId)
                 .couponId(coupon.getId())
-                .availableDownloadAt(LocalDateTime.now())
+                .availableDownloadAt(LocalDate.now())
                 .isDownload(false)
                 .downloadAt(null)
                 .isUsed(false)
                 .usedAt(null)
-                .expiredAt(null)    // 변경해야함!!
+                .expiredAt(expiredAt)
                 .status(UserCouponStatus.ISSUE_SUCCESS)
                 .build();
     }

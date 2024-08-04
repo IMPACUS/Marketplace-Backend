@@ -4,16 +4,13 @@ import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class CouponIssueDTO implements CouponDTO {
 
@@ -105,24 +102,24 @@ public class CouponIssueDTO implements CouponDTO {
                 .benefitValue(this.benefitValue)
                 .productType(this.productType)
                 .paymentTarget(this.paymentTarget)
-                .firstCount(this.firstCount)
+                .firstCount(this.paymentTarget == PaymentTarget.FIRST ? this.firstCount : null)
                 .quantityIssued(0L)
                 .issuedTimeType(this.issuedTimeType)
                 .couponIssueType(this.couponIssueType)
                 .couponType(this.couponType)
                 .expireTimeType(this.expireTimeType)
-                .expireTimeDays(this.expireTimeDays)
+                .expireTimeDays(this.expireTimeType == ExpireTimeType.LIMIT ? this.expireTimeDays : null)
                 .issueCoverageType(this.issueCoverageType)
-                .issueCoverageSubCategoryName(this.issueCoverageSubCategoryName)
+                .issueCoverageSubCategoryName(this.issueCoverageType == CoverageType.BRAND ? this.issueCoverageSubCategoryName : null)
                 .useCoverageType(this.useCoverageType)
-                .useCoverageSubCategoryName(this.useCoverageSubCategoryName)
+                .useCoverageSubCategoryName(this.useCoverageType == CoverageType.BRAND ? this.useCoverageSubCategoryName : null)
                 .useStandardType(this.useStandardType)
-                .useStandardValue(this.useStandardValue)
+                .useStandardValue(this.useStandardType == StandardType.LIMIT ? this.useStandardValue : null)
                 .issueConditionType(this.issueConditionType)
-                .issueConditionValue(this.issueConditionValue)
+                .issueConditionValue(this.issueConditionType == StandardType.LIMIT ? this.issueConditionValue : null)
                 .periodType(this.periodType)
-                .periodStartAt(this.periodStartAt)
-                .periodEndAt(this.periodEndAt)
+                .periodStartAt(this.periodType == PeriodType.SET ? this.periodStartAt : null)
+                .periodEndAt(this.periodType == PeriodType.SET ? this.periodEndAt : null)
                 .numberOfPeriod(this.numberOfPeriod)
                 .autoManualType(this.autoManualType)
                 .loginAlarm(this.loginAlarm)

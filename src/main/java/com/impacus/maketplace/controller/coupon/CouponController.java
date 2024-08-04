@@ -57,8 +57,8 @@ public class CouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @PostMapping("/coupon-code")
-    public ApiResponseEntity<Boolean> checkDuplicateCode(@Valid @RequestBody CouponCodeCheckDTO couponCodeCheckDTO) {
-        couponAdminService.duplicateCheckCode(couponCodeCheckDTO.getCode());
+    public ApiResponseEntity<Boolean> checkDuplicateCode(@Valid @RequestBody CouponCodeDTO couponCodeDTO) {
+        couponAdminService.duplicateCheckCode(couponCodeDTO.getCouponCode());
 
         return ApiResponseEntity
                 .<Boolean>builder()
@@ -209,10 +209,7 @@ public class CouponController {
     }
 
     /**
-     * APP: 보유 쿠폰 List API
-     *
-     * @param user
-     * @return
+     * APP: 쿠폰함 - 보유 쿠폰 List API
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/coupon-box/coupon-list")
@@ -227,18 +224,38 @@ public class CouponController {
     }
 
     /**
-     * APP: 쿠폰 등록하기
-     * @param user
-     * @param registerUserCouponDTO
-     * @return
+     * POSTMANE API 수정하기
+     * APP: 쿠폰함 - 쿠폰 등록하기
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("/coupon-box/coupon")
-    public ApiResponseEntity<Boolean> registUserCoupon(@AuthenticationPrincipal CustomUserDetails user,
-                                                       @Valid @RequestBody RegisterUserCouponDTO registerUserCouponDTO) {
+    public ApiResponseEntity<UserCouponOverviewDTO> registUserCoupon(@AuthenticationPrincipal CustomUserDetails user,
+                                                                     @Valid @RequestBody CouponCodeDTO registerUserCouponDTO) {
 
-        couponService.registerUserCoupon(user.getId(), registerUserCouponDTO.getCouponCode());
+        UserCouponOverviewDTO userCouponOverviewDTO = couponService.registerUserCoupon(user.getId(), registerUserCouponDTO.getCouponCode());
 
-        return ApiResponseEntity.simpleResult(HttpStatus.OK);
+        return ApiResponseEntity
+                .<UserCouponOverviewDTO>builder()
+                .data(userCouponOverviewDTO)
+                .build();
     }
+
+    /**
+     * APP: 쿠폰 등록하기
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("/coupon-box/coupon/download")
+    public ApiResponseEntity<UserCouponDownloadDTO> downloadUserCoupon(@AuthenticationPrincipal CustomUserDetails user,
+                                                         @Valid @RequestBody UserCouponIdDTO couponIdDTO) {
+
+        UserCouponDownloadDTO userCouponDownloadDTO = couponService.downloadUserCoupon(user.getId(), couponIdDTO.getUserCouponId());
+
+        return ApiResponseEntity
+                .<UserCouponDownloadDTO>builder()
+                .data(userCouponDownloadDTO)
+                .build();
+    }
+
+
+
 }
