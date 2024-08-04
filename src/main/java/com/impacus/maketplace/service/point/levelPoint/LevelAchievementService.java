@@ -147,8 +147,12 @@ public class LevelAchievementService {
         LevelAchievement levelAchievement = findLevelAchievementByUserId(userId);
 
         // 1. 달성 그린 라벨 포인트 반환
-        // TODO currentLevel.getCelebrationPoint(): 반환 포인트
-        // TODO 포인트 반환 후, 이력 저장되도록 추가 (만약 부족한 경우 unappliedPoint에 표기)
+        greenLabelPointAllocationService.deductPoints(
+                userId,
+                PointType.DOWNGRADE_LEVEL,
+                currentLevel.getCelebrationPoint(),
+                true
+        );
 
         // 2. 사용자 레벨 달성 상태 원복
         updateUserLevelAchievementInDowngrade(levelAchievement, currentLevel);

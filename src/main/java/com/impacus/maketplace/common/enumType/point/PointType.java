@@ -15,7 +15,8 @@ public enum PointType {
     ADMIN_PROVIDE(6, "관리자에 의한 포인트 지급"),
     ADMIN_RECEIVE(7, "관리자에 의한 포인트 감소"),
     REFUND_PRODUCT(8, "상품 환불"),
-    UPGRADE_LEVEL(9, "레벨 포인트 등급 상승");
+    UPGRADE_LEVEL(9, "레벨 포인트 등급 상승"),
+    DOWNGRADE_LEVEL(10, "레벨 포인트 등급 하락");
 
 
     private final int code;
