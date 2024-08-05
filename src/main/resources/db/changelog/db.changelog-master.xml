@@ -12,7 +12,7 @@
     <include file="/db/changelog/db.changelog-0.06-240716.xml"/>
     <include file="/db/changelog/db.changelog-0.07-240726.xml"/>
     <include file="/db/changelog/db.changelog-0.08-240729.xml"/>
-    <include file="/db/changelog/db.changelog-jb0.01-240713.xml"/>
+    <!--    <include file="/db/changelog/db.changelog-jb0.01-240713.xml"/>-->
 
 
 </databaseChangeLog>
