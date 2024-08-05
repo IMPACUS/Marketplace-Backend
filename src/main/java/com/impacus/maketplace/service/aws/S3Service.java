@@ -29,7 +29,7 @@ public class S3Service implements CloudFileUploadService {
 
     private final S3Client amazonS3Client;
 
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${spring.cloud.aws.s3.bucket}")
     private String s3BucketName;
 
     /**
@@ -83,7 +83,6 @@ public class S3Service implements CloudFileUploadService {
      *
      * @param file
      * @return
-     * @throws IOException
      */
     private File convertAndSaveInLocal(MultipartFile file) {
         File convertFile = new File(Objects.requireNonNull(file.getOriginalFilename()));

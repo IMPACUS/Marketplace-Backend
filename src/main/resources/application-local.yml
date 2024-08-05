@@ -6,8 +6,9 @@ spring:
     type: redis
     redis:
       cache-null-values: true
-      host:
-      port: 6379
+  data:
+    redis:
+      client-type: lettuce
       password:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -22,3 +23,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 10
+        queue-capacity: 500
+      thread-name-prefix: implace-async-
