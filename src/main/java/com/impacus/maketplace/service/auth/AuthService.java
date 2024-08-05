@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.auth;
 
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
+import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
@@ -11,6 +12,7 @@ import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.redis.service.BlacklistService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,7 @@ public class AuthService {
     private final UserService userService;
     private final BlacklistService blacklistService;
     private final PasswordEncoder passwordEncoder;
+    private final GreenLabelPointAllocationService greenLabelPointAllocationService;
 
     private final static String AUTHENTICATION_HEADER_TYPE = "Bearer";
 
@@ -55,6 +58,15 @@ public class AuthService {
 
             // 3. JWT 토큰 재발급
             TokenInfoVO tokenInfoVO = tokenProvider.createToken(authentication);
+
+            // 4. 소비자인 경우 출석 포인트 지급
+            if (user.getType() == UserType.ROLE_CERTIFIED_USER) {
+                greenLabelPointAllocationService.payGreenLabelPoint(
+                        user.getId(),
+                        PointType.CHECK,
+                        PointType.CHECK.getAllocatedPoints()
+                );
+            }
 
             return new UserDTO(user, tokenInfoVO);
         } catch (Exception ex) {

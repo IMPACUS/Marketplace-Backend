@@ -4,12 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationException;
 import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.point.PointService;
+import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +42,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final HttpSession httpSession;
     private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
     private final UserStatusInfoService userStatusInfoService;
+    private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private String oauthToken = "";
     private final PointService pointService;
 
@@ -115,6 +119,15 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             // 로그인
             user = userList.get(0);
             validateOauthProvider(user, oauthProviderType);
+
+            // 6. 소비자인 경우 출석 포인트 지급
+            if (user.getType() == UserType.ROLE_CERTIFIED_USER) {
+                greenLabelPointAllocationService.payGreenLabelPoint(
+                        user.getId(),
+                        PointType.CHECK,
+                        PointType.CHECK.getAllocatedPoints()
+                );
+            }
         } else {
             // 회원 가입
             user = addUser(attributes);

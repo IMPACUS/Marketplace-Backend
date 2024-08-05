@@ -22,7 +22,6 @@ public enum PointType {
     SHARE_PRODUCT(13, "상품 공유", 200L),
     SNS_TAG(14, "SNS 태그", 1000L);
 
-
     private final int code;
     private final String value;
     private final Long allocatedPoints;
