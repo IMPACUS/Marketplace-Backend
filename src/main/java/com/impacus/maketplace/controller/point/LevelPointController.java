@@ -16,7 +16,7 @@ import security.CustomUserDetails;
 @RequestMapping("api/v1/level-point")
 public class LevelPointController {
 
-    private LevelPointMasterService levelPointMasterService;
+    private final LevelPointMasterService levelPointMasterService;
 
     /**
      * 레벨 포인트 정보 조회 API
@@ -35,5 +35,4 @@ public class LevelPointController {
                 .data(dto)
                 .build();
     }
-
 }
