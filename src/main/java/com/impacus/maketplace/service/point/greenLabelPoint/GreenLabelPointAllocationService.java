@@ -203,20 +203,20 @@ public class GreenLabelPointAllocationService {
 
                 // 오늘 00시 이전의 이력인지 확인
                 LocalDateTime todayMidnight = LocalDate.now().atStartOfDay();
-                yield allocatedPointAt.isBefore(todayMidnight);
+                yield allocatedPointAt == null || allocatedPointAt.isBefore(todayMidnight);
             }
             case SHARE_PRODUCT -> {
                 Long allocatedPointCnt = allocationRepository.findAllocatedPointCntByUserIdAndPointType(userId, pointType);
 
                 // 오늘 2회 이하로 지급 받았는지 확인
-                yield allocatedPointCnt < 2;
+                yield allocatedPointCnt == null || allocatedPointCnt < 2;
             }
             case SNS_TAG -> {
                 LocalDateTime allocatedPointAt = allocationRepository.findRecentAllocatedPointAtByUserIdAndPointType(userId, pointType);
 
                 // 현재 시간으로 2주 전의 이력인지 확인
                 LocalDateTime twoWeeksAgo = LocalDateTime.now().minusWeeks(2);
-                yield allocatedPointAt.isBefore(twoWeeksAgo);
+                yield allocatedPointAt == null || allocatedPointAt.isBefore(twoWeeksAgo);
             }
             default -> true;
         };
