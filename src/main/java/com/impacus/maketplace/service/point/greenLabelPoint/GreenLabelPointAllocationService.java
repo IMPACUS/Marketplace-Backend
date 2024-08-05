@@ -31,7 +31,6 @@ public class GreenLabelPointAllocationService {
     private final GreenLabelPointRepository greenLabelPointRepository;
     private final GreenLabelPointHistoryRepository historyRepository;
     private final GreenLabelPointHistoryRelationRepository relationRepository;
-    private final GreenLabelPointAllocationRepository greenLabelPointAllocationRepository;
 
     /**
      * 그린 라벨 포인트를 지급하는 함수
@@ -80,12 +79,15 @@ public class GreenLabelPointAllocationService {
                     LocalDateTime.now().plusMonths(6)
             );
             relationRepository.save(relation);
+
+            return true;
+        } catch (CustomException ex) {
+            throw new CustomException(ex);
         } catch (Exception ex) {
             LogUtils.writeInfoLog("GreenLabelPointAllocationService",
                     String.format("fail to pay point: userId {%d} pointType {%s} tradePoint {%d}",
                             userId, pointType, tradePoint)
             );
-        } finally {
             return true;
         }
     }
@@ -163,7 +165,7 @@ public class GreenLabelPointAllocationService {
                     allocation.getExpiredAt()
             );
             relationRepository.save(relation);
-            greenLabelPointAllocationRepository.updateGreenLabelPointAllocationById(
+            allocationRepository.updateGreenLabelPointAllocationById(
                     allocation.getId(),
                     changedStatus,
                     changedRemainPoint
@@ -181,7 +183,7 @@ public class GreenLabelPointAllocationService {
      */
     public GreenLabelPointDTO getGreenLabelPointInformation(Long userId) {
         try {
-            return greenLabelPointAllocationRepository.findPointInformationByUserId(userId);
+            return allocationRepository.findPointInformationByUserId(userId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
