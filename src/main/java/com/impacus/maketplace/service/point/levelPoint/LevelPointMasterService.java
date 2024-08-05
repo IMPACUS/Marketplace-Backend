@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.point.PointStatus;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.point.levelPoint.LevelPointDTO;
 import com.impacus.maketplace.entity.point.levelPoint.LevelPointHistory;
 import com.impacus.maketplace.entity.point.levelPoint.LevelPointMaster;
 import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
@@ -143,5 +144,19 @@ public class LevelPointMasterService {
                 tradePoint,
                 false
         );
+    }
+
+    /**
+     * 사용자의 레벨 포인트 정보 조회하는 함수
+     *
+     * @param userId
+     * @return
+     */
+    public LevelPointDTO getLevelPointInformation(Long userId) {
+        try {
+            return null;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

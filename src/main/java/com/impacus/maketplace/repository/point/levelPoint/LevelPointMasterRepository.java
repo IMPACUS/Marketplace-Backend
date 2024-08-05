@@ -2,6 +2,7 @@ package com.impacus.maketplace.repository.point.levelPoint;
 
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.entity.point.levelPoint.LevelPointMaster;
+import com.impacus.maketplace.repository.point.levelPoint.querydsl.LevelPointMasterCustomRepository;
 import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface LevelPointMasterRepository extends JpaRepository<LevelPointMaster, Long>{
+public interface LevelPointMasterRepository extends JpaRepository<LevelPointMaster, Long>, LevelPointMasterCustomRepository {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT lpm FROM LevelPointMaster lpm where lpm.userId = :userId")
