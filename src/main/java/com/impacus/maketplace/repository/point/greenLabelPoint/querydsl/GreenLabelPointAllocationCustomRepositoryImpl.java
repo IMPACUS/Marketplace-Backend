@@ -1,5 +1,6 @@
 package com.impacus.maketplace.repository.point.greenLabelPoint.querydsl;
 
+import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
@@ -12,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -82,6 +85,35 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
                 .fetchOne();
 
         return GreenLabelPointDTO.toDTO(point, pointsExpiringIn30Days);
+    }
+
+    @Override
+    public LocalDateTime findRecentAllocatedPointAtByUserIdAndPointType(Long userId, PointType pointType) {
+        BooleanBuilder allocationBuilder = new BooleanBuilder();
+        allocationBuilder.and(allocation.userId.eq(userId))
+                .and(allocation.pointType.eq(pointType));
+
+        return queryFactory
+                .select(allocation.createAt)
+                .from(allocation)
+                .where(allocationBuilder)
+                .orderBy(allocation.createAt.desc())
+                .fetchFirst();
+    }
+
+    @Override
+    public Long findAllocatedPointCntByUserIdAndPointType(Long userId, PointType pointType) {
+        BooleanBuilder allocationBuilder = new BooleanBuilder();
+        allocationBuilder.and(allocation.userId.eq(userId))
+                .and(allocation.pointType.eq(pointType))
+                .and(allocation.createAt.between(LocalDate.now().atStartOfDay(), LocalDate.now().atTime(LocalTime.MAX)));
+
+        return queryFactory
+                .select(allocation.count())
+                .from(allocation)
+                .where(allocationBuilder)
+                .orderBy(allocation.createAt.desc())
+                .fetchOne();
     }
 
 }
