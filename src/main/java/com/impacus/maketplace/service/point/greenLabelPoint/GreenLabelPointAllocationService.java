@@ -166,7 +166,7 @@ public class GreenLabelPointAllocationService {
      */
     public GreenLabelPointDTO getGreenLabelPointInformation(Long userId) {
         try {
-            return null;
+            return greenLabelPointAllocationRepository.findPointInformationByUserId(userId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

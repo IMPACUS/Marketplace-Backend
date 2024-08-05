@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository.point.greenLabelPoint.querydsl;
 
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
+import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
 import org.springframework.data.repository.query.Param;
 
@@ -14,4 +15,6 @@ public interface GreenLabelPointAllocationCustomRepository {
             PointUsageStatus pointUsageStatus,
             Long remainPoint
     );
+
+    GreenLabelPointDTO findPointInformationByUserId(Long userId);
 }
