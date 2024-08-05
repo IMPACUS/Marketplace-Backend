@@ -56,7 +56,6 @@ class LevelPointMasterServiceTest {
         when(levelPointMasterRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(levelPointMaster));
         when(levelPointMaster.getLevelPoint()).thenReturn((long) UserLevel.SILVER.getMinScore());
         when(levelPointMaster.getUserLevel()).thenReturn(UserLevel.SILVER);
-        when(levelAchievementService.upgradeUserLevelAndAwardPoints(userId, UserLevel.GOLD)).thenReturn(false);
         when(levelPointHistoryService.saveLevelPointHistory(userId, pointType, PointStatus.GRANT, tradePoint, false))
                 .thenReturn(history.getId());
 
@@ -79,7 +78,7 @@ class LevelPointMasterServiceTest {
                 pointType,
                 PointStatus.USE,
                 tradePoint,
-                false
+                true
         );
 
         // when
@@ -88,7 +87,7 @@ class LevelPointMasterServiceTest {
         when(levelPointMaster.getUserLevel()).thenReturn(UserLevel.SILVER);
         when(levelAchievementService.upgradeUserLevelAndAwardPoints(userId, UserLevel.GOLD)).thenReturn(true);
 
-        when(levelPointHistoryService.saveLevelPointHistory(userId, pointType, PointStatus.GRANT, tradePoint, false))
+        when(levelPointHistoryService.saveLevelPointHistory(userId, pointType, PointStatus.GRANT, tradePoint, true))
                 .thenReturn(history.getId());
 
         Long historyId = levelPointMasterService.payLevelPoint(userId, pointType, tradePoint);
@@ -115,7 +114,6 @@ class LevelPointMasterServiceTest {
         when(levelPointMaster.getUserLevel()).thenReturn(UserLevel.SILVER);
         when(levelPointHistory.getTradeAmount()).thenReturn(tradeAmount);
         when(levelPointMaster.getLevelPoint()).thenReturn(UserLevel.SILVER.getMinScore() + tradeAmount);
-        when(levelPointMaster.getCreateAt()).thenReturn(LocalDateTime.now());
 
         levelPointMasterService.returnPoint(userId, pointType, levelPointHistoryId, recentOrderAt);
 
