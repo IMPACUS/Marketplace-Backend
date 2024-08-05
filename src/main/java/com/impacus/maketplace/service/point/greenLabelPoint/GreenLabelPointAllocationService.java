@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.point.PointStatus;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistory;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistoryRelation;
@@ -157,4 +158,17 @@ public class GreenLabelPointAllocationService {
         return history.getId();
     }
 
+    /**
+     * 그린 라벨 포인트 조회 함수
+     *
+     * @param userId
+     * @return
+     */
+    public GreenLabelPointDTO getGreenLabelPointInformation(Long userId) {
+        try {
+            return null;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
 }
