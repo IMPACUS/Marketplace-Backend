@@ -35,18 +35,16 @@ public class LevelPointMasterService {
                 .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_USER));
     }
 
-
-    // 등급에 대한 사용자들을 반환하는 함수
-
     /**
      * 레벨 포인트를 지급하는 함수
      *
      * @param userId     포인트 지급받을 사용자 아이디
      * @param pointType  지급 포인트 타입
      * @param tradePoint 지급 포인트
+     * @return 레벨 포인트 이력 id 반환
      */
     @Transactional
-    public void payLevelPoint(Long userId, PointType pointType, Long tradePoint) {
+    public Long payLevelPoint(Long userId, PointType pointType, Long tradePoint) {
         // 1. 지급 포인트 유효성 확인
         if (tradePoint < 0) {
             throw new CustomException(PointErrorType.INVALID_POINT, "지급 포인트는 음수일 수 없습니다.");
@@ -75,13 +73,15 @@ public class LevelPointMasterService {
         );
 
         // 5. 레벨 포인트 이력 저장
-        levelPointHistoryService.saveLevelPointHistory(
+        Long historyId = levelPointHistoryService.saveLevelPointHistory(
                 userId,
                 pointType,
                 PointStatus.GRANT,
                 tradePoint,
                 hasReceivedLevelUpPoints
         );
+
+        return historyId;
     }
 
     /**

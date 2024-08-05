@@ -25,7 +25,7 @@ public class LevelPointHistoryService {
      * @param tradePoint
      * @param hasReceivedLevelUpPoints
      */
-    public void saveLevelPointHistory(
+    public Long saveLevelPointHistory(
             Long userId,
             PointType pointType,
             PointStatus pointStatus,
@@ -34,6 +34,8 @@ public class LevelPointHistoryService {
     ) {
         LevelPointHistory levelPointHistory = LevelPointHistory.toEntity(userId, pointType, pointStatus, tradePoint, hasReceivedLevelUpPoints);
         levelPointHistoryRepository.save(levelPointHistory);
+
+        return levelPointHistory.getId();
     }
 
     /**
