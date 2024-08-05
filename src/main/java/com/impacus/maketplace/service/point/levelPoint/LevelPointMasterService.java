@@ -154,7 +154,7 @@ public class LevelPointMasterService {
      */
     public LevelPointDTO getLevelPointInformation(Long userId) {
         try {
-            return null;
+            return levelPointMasterRepository.findPointInformationByUserId(userId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
