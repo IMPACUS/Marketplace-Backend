@@ -24,7 +24,7 @@ public class GreenLabelPointHistoryService {
      */
     public Slice<GreenLabelHistoryDTO> getGreenLabelPointHistories(Long userId, Pageable pageable) {
         try {
-            return null;
+            return greenLabelPointHistoryRepository.findHistoriesByUserId(userId, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
