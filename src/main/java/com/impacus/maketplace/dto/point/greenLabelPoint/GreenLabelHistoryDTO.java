@@ -14,7 +14,6 @@ public class GreenLabelHistoryDTO {
     private LocalDateTime expiredAt;
     private LocalDateTime createAt;
 
-
     public GreenLabelHistoryDTO(
             Long historyId,
             Long tradeAmount,
@@ -27,7 +26,6 @@ public class GreenLabelHistoryDTO {
         this.tradeAmount = tradeAmount;
         this.pointType = pointType;
         this.createAt = createAt;
-
         setExpiredAt(pointStatus, expiredAt);
     }
 
