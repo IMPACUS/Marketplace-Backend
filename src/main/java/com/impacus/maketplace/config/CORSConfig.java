@@ -16,7 +16,13 @@ public class CORSConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://back-dev.implace.kr", "https://appleid.apple.com"));
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",
+                "https://back-dev.implace.kr",
+                "https://appleid.apple.com",
+                "https://seller.dev.implace.kr",
+                "https://admin.dev.implace.kr"
+        ));
         config.setAllowedHeaders(Collections.singletonList("*"));
         config.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
