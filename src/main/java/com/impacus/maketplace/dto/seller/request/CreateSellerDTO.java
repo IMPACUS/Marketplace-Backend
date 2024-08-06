@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.annotation.ValidAccountNumber;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.BankCode;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
+import com.impacus.maketplace.common.enumType.seller.SellerType;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
 import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
@@ -24,6 +25,9 @@ public class CreateSellerDTO {
 
     @NotBlank(message = "비밀번호는 공백이 될 수 없습니다.")
     private String password;
+
+    @ValidEnum(enumClass = SellerType.class)
+    private SellerType sellerType;
 
     @Size(max = 25)
     @NotBlank
@@ -96,6 +100,7 @@ public class CreateSellerDTO {
                 .logoImageId(logoImageId)
                 .businessType(this.businessType)
                 .customerServiceNumber(this.customerServiceNumber)
+                .sellerType(sellerType)
                 .build();
     }
 

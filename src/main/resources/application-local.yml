@@ -1,0 +1,24 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  cache:
+    type: redis
+    redis:
+      cache-null-values: true
+      host: 127.0.0.1
+      port: 6379
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/impacus_test?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
+    username: postgres
+    password: postgres
+  jpa:
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true

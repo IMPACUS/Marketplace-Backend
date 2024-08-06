@@ -2,6 +2,8 @@ package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
+import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -22,6 +24,8 @@ import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
+import com.impacus.maketplace.service.point.PointService;
+import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +59,8 @@ public class UserService {
     private final EmailVerificationCodeService emailVerificationCodeService;
     private final AdminService adminService;
     private final UserStatusInfoService userStatusInfoService;
-
+    private final PointService pointService;
+    private final GreenLabelPointAllocationService greenLabelPointAllocationService;
 
     @Transactional
     public UserDTO addUser(SignUpDTO signUpRequest) {
@@ -85,12 +90,17 @@ public class UserService {
             userRepository.save(user);
             userStatusInfoService.addUserStatusInfo(user.getId());
 
+            // 4. 포인트 관련 Entity 생성
+            // (LevelPointMaster, LevelAchievement, GreenLabelPoint)
+            pointService.addEntityAboutPoint(user.getId());
+
             // 5. UserDTO 반환
             return new UserDTO(user);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
+
 
     /**
      * Oauth Provider와 상관없이 email로 등록된 User를 검색하는 함수
@@ -159,6 +169,15 @@ public class UserService {
             // 5. 최근 로그인 시간 갱신
             updateRecentLoginAt(user);
 
+            // 6. 소비자인 경우 출석 포인트 지급
+            if (userType == UserType.ROLE_CERTIFIED_USER) {
+                greenLabelPointAllocationService.payGreenLabelPoint(
+                        user.getId(),
+                        PointType.CHECK,
+                        PointType.CHECK.getAllocatedPoints()
+                );
+            }
+
             return new UserDTO(user, tokenInfoVO);
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -176,7 +195,7 @@ public class UserService {
         String adminIdName = dto.getAdminIdName();
         String password = dto.getPassword();
 
-//        try {
+        try {
         // 1. 이메일 유효성 검사
         AdminInfo admin = validateAndFindAdmin(adminIdName);
 
@@ -205,9 +224,9 @@ public class UserService {
         TokenInfoVO tokenInfoVO = getJwtTokenInfo(admin.getAdminIdName(), password);
 
         return new UserDTO(admin, tokenInfoVO);
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
@@ -235,8 +254,10 @@ public class UserService {
         };
 
         UserStatusInfo userStatusInfo = userStatusInfoService.findUserStatusInfoByUserId(user.getId());
-        if (userStatusInfo.getStatus() == UserStatus.BLOCKED) {
-            throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
+        switch (userStatusInfo.getStatus()) {
+            case BLOCKED -> throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
+            case DEACTIVATED -> throw new CustomException(UserErrorType.DEACTIVATED_USER);
+            case SUSPENDED -> throw new CustomException(UserErrorType.SUSPENDED_USER);
         }
 
         return user;

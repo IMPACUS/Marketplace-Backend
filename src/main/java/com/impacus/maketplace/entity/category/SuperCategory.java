@@ -16,7 +16,7 @@ public class SuperCategory extends BaseEntity {
     @Column(name = "super_category_id")
     private Long id;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 10, unique = true)
     private String name;
 
     public SuperCategory(String name) {

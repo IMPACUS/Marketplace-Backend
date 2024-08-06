@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
@@ -18,7 +19,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,6 +36,14 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
 
     @Override
     public Slice<ShoppingBasketDetailDTO> findAllShoppingBasketByUserId(Long userId, Pageable pageable) {
+        // 1. 전체 데이터 조회
+        List<ShoppingBasketDetailDTO> dtos = getShoppingBasketDetailDTOs(userId);
+
+        // 2. 슬라이스 처리
+        return PaginationUtils.toSlice(dtos, pageable);
+    }
+
+    private List<ShoppingBasketDetailDTO> getShoppingBasketDetailDTOs(Long userId) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
@@ -48,7 +56,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
         productOptionBuilder.and(shoppingBasket.productOptionId.eq(productOption.id))
                 .and(productOption.isDeleted.eq(false));
 
-        List<ShoppingBasketDetailDTO> content = queryFactory
+        return queryFactory
                 .selectFrom(shoppingBasket)
                 .leftJoin(productOption).on(productOptionBuilder)
                 .innerJoin(product).on(productBuilder)
@@ -56,47 +64,38 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .where(shoppingBasket.userId.eq(userId))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .transform(
                         GroupBy.groupBy(shoppingBasket.id).list(Projections.constructor(
-                                ShoppingBasketDetailDTO.class,
-                                shoppingBasket.id,
-                                shoppingBasket.quantity,
-                                Projections.constructor(
-                                        ProductForAppDTO.class,
-                                        product.id,
-                                        product.name,
-                                        seller.marketName,
-                                        product.appSalesPrice,
-                                        product.deliveryType,
-                                        product.discountPrice,
-                                        GroupBy.list(Projections.list(Projections.constructor(
-                                                                AttachFileDTO.class,
-                                                                attachFile.id,
-                                                                attachFile.attachFileName
+                                        ShoppingBasketDetailDTO.class,
+                                        shoppingBasket.id,
+                                        shoppingBasket.quantity,
+                                        Projections.constructor(
+                                                ProductForAppDTO.class,
+                                                product.id,
+                                                product.name,
+                                                seller.marketName,
+                                                product.appSalesPrice,
+                                                product.deliveryType,
+                                                product.discountPrice,
+                                                GroupBy.list(Projections.list(Projections.constructor(
+                                                                        AttachFileDTO.class,
+                                                                        attachFile.id,
+                                                                        attachFile.attachFileName
+                                                                )
                                                         )
-                                                )
+                                                ),
+                                                product.deliveryFee,
+                                                product.type,
+                                                product.createAt
                                         ),
-                                        product.deliveryFee,
-                                        product.type,
-                                        product.createAt
-                                ),
-                                Projections.constructor(
-                                        ProductOptionDTO.class,
-                                        productOption.id,
-                                        productOption.color,
-                                        productOption.size
+                                        Projections.constructor(
+                                                ProductOptionDTO.class,
+                                                productOption.id,
+                                                productOption.color,
+                                                productOption.size
+                                        )
                                 )
-                        ))
+                        )
                 );
-
-        boolean hasNext = false;
-        if (content.size() > pageable.getPageSize()) {
-            hasNext = true;
-            content.remove(pageable.getPageSize());
-        }
-
-        return new SliceImpl<>(content, pageable, hasNext);
     }
 }

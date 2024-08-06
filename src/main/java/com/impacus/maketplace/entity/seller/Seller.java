@@ -3,10 +3,13 @@ package com.impacus.maketplace.entity.seller;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.seller.SellerType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -26,6 +29,9 @@ public class Seller extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Comment("입점 상태")
     private EntryStatus entryStatus;
+
+    @Comment("입점 날짜")
+    private LocalDateTime entryApprovedAt;
 
     @Column(nullable = false)
     @Comment("판매 담당자 이름")
@@ -55,13 +61,20 @@ public class Seller extends BaseEntity {
     @Comment("수수료 비율")
     private int chargePercent;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @ColumnDefault("UNOFFICIAL_AGENT")
+    private SellerType sellerType;
+
     @Builder
     public Seller(Long userId,
                   String contactName,
                   String marketName,
                   Long logoImageId,
                   String customerServiceNumber,
-                  BusinessType businessType) {
+                  BusinessType businessType,
+                  SellerType sellerType
+    ) {
         this.userId = userId;
         this.contactName = contactName;
         this.marketName = marketName;
@@ -71,5 +84,6 @@ public class Seller extends BaseEntity {
         this.entryStatus = EntryStatus.REQUEST;
         this.isDeleted = false;
         this.chargePercent = 0;
+        this.sellerType = sellerType;
     }
 }
