@@ -1,6 +1,8 @@
 package com.impacus.maketplace.repository.coupon.querydsl;
 
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
+import com.impacus.maketplace.common.enumType.coupon.CoverageType;
+import com.impacus.maketplace.common.enumType.coupon.ProductType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.QCoupon;
@@ -152,6 +154,63 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                 .where(userCoupon.userId.eq(userId))
                 .join(coupon).on(userCoupon.couponId.eq(coupon.id))
                 .fetch();
+    }
+
+    @Override
+    public List<BrandCouponOverviewDTO> findBrandCouponList(Long userId, String brandName, Boolean isEcoProduct) {
+        // 1. NOT IN을 이용한 SUB QUERY 방식
+/*        queryFactory
+                .select(new QBrandCouponOverviewDTO(
+                        coupon.id,
+                        coupon.name,
+                        coupon.description,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.periodType,
+                        coupon.periodStartAt,
+                        coupon.periodEndAt,
+                        coupon.productType
+                ))
+                .where(eqBrandName(brandName), eqAllOrIsEcoProduct(isEcoProduct))
+                .where(coupon.id.notIn(
+                        JPAExpressions
+                                .select(userCoupon.couponId)
+                                .from(userCoupon)
+                                .where(userCoupon.userId.eq(userId))
+                ))
+                .fetch();*/
+        // 2. IS NULL 체크를 이용한 LEFT JOIN 방식
+        return queryFactory
+                .select(new QBrandCouponOverviewDTO(
+                        coupon.id,
+                        coupon.name,
+                        coupon.description,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.periodType,
+                        coupon.periodStartAt,
+                        coupon.periodEndAt,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useCoverageSubCategoryName
+                ))
+                .from(coupon)
+                .where(eqAllOrIsEcoProduct(isEcoProduct), eqAllOrBrandName(brandName))
+                .leftJoin(userCoupon).on(userCoupon.couponId.eq(coupon.id))
+                .where(userCoupon.id.isNull())
+                .fetch();
+    }
+
+    private BooleanExpression eqAllOrIsEcoProduct(Boolean isEcoProduct) {
+        return coupon.productType.eq(ProductType.ALL).or(
+                isEcoProduct ? coupon.productType.eq(ProductType.ECO_GREEN) : coupon.productType.eq(ProductType.BASIC)
+        );
+    }
+
+    private BooleanExpression eqAllOrBrandName(String brandName) {
+        return coupon.useCoverageType.eq(CoverageType.ALL).or(
+                brandName != null ? coupon.useCoverageSubCategoryName.eq(brandName) : null
+        );
     }
 
     private BooleanExpression betweenDate(LocalDate startAt, LocalDate endAt) {

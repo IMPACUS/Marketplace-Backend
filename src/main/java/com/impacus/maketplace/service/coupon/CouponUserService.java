@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.coupon.response.BrandCouponOverviewDTO;
 import com.impacus.maketplace.dto.coupon.response.UserCouponDownloadDTO;
 import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
@@ -86,11 +87,12 @@ public class CouponUserService {
                 .build();
     }
 
-    public void getBrandCouponList(Long userId, String brandName) {
-
+    public List<BrandCouponOverviewDTO> getBrandCouponList(Long userId, String brandName, Boolean isEcoProduct) {
+        // 쿼리 특징
         // 1. CoverageType == ALL || (CoverageType == BRAND && useCoverageSubCategoryName == brandName)인 쿠폰 가져오기
-        // 2. 추가적으로 해당 사용자가 발급 받은 적이 있는 쿠폰인지 확인
-        // 3. 리스트 내려주기
+        // 2. 쿠폰 사용 범위가 ALL 또는 브랜드 이름으로 일치하는 쿠폰
+        // 3. 사용자가 소유하고 있지 않은 쿠폰
+        return couponCustomRepositroy.findBrandCouponList(userId, brandName, isEcoProduct);
     }
 
     /**

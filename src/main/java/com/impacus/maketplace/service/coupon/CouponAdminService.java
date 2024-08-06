@@ -59,7 +59,7 @@ public class CouponAdminService {
      * @return coupon 저장된 쿠폰 Entity
      */
     @Transactional
-    public Coupon addCoupon(CouponIssueDTO couponIssuedDto) {
+    public Coupon registerCoupon(CouponIssueDTO couponIssuedDto) {
 
         // 1. 입력 값 검증
         couponInputValidation(couponIssuedDto);

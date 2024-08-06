@@ -46,7 +46,7 @@ public class CouponController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @PostMapping("/admin")
     public ApiResponseEntity<Boolean> registerCounponForAdmin(@Valid @RequestBody CouponIssueDTO couponIssuedDto) {
-        Coupon savedCoupon = couponAdminService.addCoupon(couponIssuedDto);
+        Coupon savedCoupon = couponAdminService.registerCoupon(couponIssuedDto);
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
@@ -261,12 +261,16 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/brand-coupon/coupon-list")
-    public ApiResponseEntity<List<UserCouponOverviewDTO>> getBrandCouponList(@AuthenticationPrincipal CustomUserDetails user,
+    public ApiResponseEntity<List<BrandCouponOverviewDTO>> getBrandCouponList(@AuthenticationPrincipal CustomUserDetails user,
                                                                              @RequestParam(name = "brand-name") String brandName,
                                                                              @RequestParam(name = "eco-product") Boolean isEcoProduct) {
 
-        couponService.getBrandCouponList(user.getId(), brandName);
-        return null;
+        List<BrandCouponOverviewDTO> brandCouponList = couponService.getBrandCouponList(user.getId(), brandName, isEcoProduct);
+
+        return ApiResponseEntity
+                .<List<BrandCouponOverviewDTO>>builder()
+                .data(brandCouponList)
+                .build();
     }
 
     /**
