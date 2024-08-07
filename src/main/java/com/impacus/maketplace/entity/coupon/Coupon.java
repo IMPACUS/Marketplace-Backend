@@ -2,7 +2,10 @@ package com.impacus.maketplace.entity.coupon;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.coupon.*;
+import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -33,7 +36,7 @@ public class Coupon extends BaseEntity {
     private BenefitType benefitType;  // 혜택 구분 [ 원, % ]
 
     @Column(nullable = false)
-    private Integer benefitValue;   // 혜택 금액 및 퍼센트
+    private Long benefitValue;   // 혜택 금액 혹은 퍼센트
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -41,7 +44,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentTarget paymentType;   // 지급 대상 [ 모든 회원, 선착순 ]
+    private PaymentTarget paymentTarget;   // 지급 대상 [ 모든 회원, 선착순 ]
 
     private Integer firstCount;  // 선착순 발급 수
 
@@ -59,44 +62,39 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private CouponIssueType couponIssueType;    // 쿠폰 발급 횟수 [ 1회성, 지속성 ]
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ExpireTimeType expireTimeType;  // 사용기간 타입 [ 발급일로 부터 N일, 무제한 ]
 
-    @ColumnDefault("0")
     private Integer expireTimeDays; // 사용기간(일)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CoverageType issueCoverageType; // 발급 적용 범위 [ 모든 상품/특정 브랜드 및 카테고리 ]
 
-    @Column(name = "issue_coverage_super_category_id")
-    private Long issueCoverageSuperCategoryId;   // 발급 적용 범위 1차 카테고리 id
-
-    @Column(name = "issue_coverage_sub_category_id")
-    private Long issueCoverageSubCategoryId;    // 발급 적용 범위 2차 카테고리 id
+    @Column(name = "issue_coverage_sub_category_name")
+    private String issueCoverageSubCategoryName;    // 발급 적용 범위 2차 카테고리 이름(현재는 브랜드명)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CoverageType useCoverageType;   // 쿠폰 사용 범위 [ 모든 상품/특정 브랜드 및 카테고리 ]
 
-    @Column(name = "use_coverage_super_category_id")
-    private Long useCoverageSuperCategoryId;    // 쿠폰 사용 범위 1차 카테고리 id
-
-    @Column(name = "use_coverage_sub_category_id")
-    private Long useCoverageSubCategoryId;  // 쿠폰 사용 범위 2차 카테고리 id
+    @Column(name = "use_coverage_sub_category_name")
+    private String useCoverageSubCategoryName;  // 쿠폰 사용 범위 2차 카테고리 이름(현재는 브랜드명)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StandardType useStandardType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
 
-    @ColumnDefault("0")
     private Long useStandardValue;  // N원 (N원 이상 주문시 사용 가능)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StandardType issueStandardType; // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
+    private StandardType issueConditionType; // 쿠폰 지급 조건 [ 가격제한없음, N원 이상 구매시 ]
 
-    @ColumnDefault("0")
-    private Long issueStandardValue;    // N원 (N원 이상 주문시 쿠폰 발급)
+    private Long issueConditionValue;    // N원 (N원 이상 주문시 쿠폰 발급)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -131,5 +129,48 @@ public class Coupon extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @ColumnDefault("'ISSUING'")
+    @Setter
     private CouponStatusType statusType; // 발급 상태 [ 발급 중, 발급 대기, 발급 중지 ]
+
+    @Column(nullable = false)
+    @ColumnDefault("'false'")
+    @Setter
+    private Boolean isDeleted;
+
+    public void updateQuantityIssued(int count) {
+        this.quantityIssued += count;
+    }
+
+    public void update(String code, CouponUpdateDTO couponUpdateDTO) {
+        this.code = code;
+        this.name = couponUpdateDTO.getName();
+        this.description = couponUpdateDTO.getDescription();
+        this.benefitType = couponUpdateDTO.getBenefitType();
+        this.benefitValue = couponUpdateDTO.getBenefitValue();
+        this.productType = couponUpdateDTO.getProductType();
+        this.paymentTarget = couponUpdateDTO.getPaymentTarget();
+        this.firstCount = couponUpdateDTO.getFirstCount();
+        this.issuedTimeType = couponUpdateDTO.getIssuedTimeType();
+        this.couponType = couponUpdateDTO.getCouponType();
+        this.couponIssueType = couponUpdateDTO.getCouponIssueType();
+        this.expireTimeType = couponUpdateDTO.getExpireTimeType();
+        this.expireTimeDays = couponUpdateDTO.getExpireTimeDays();
+        this.issueCoverageType = couponUpdateDTO.getIssueCoverageType();
+        this.issueCoverageSubCategoryName = couponUpdateDTO.getIssueCoverageSubCategoryName();
+        this.useCoverageType = couponUpdateDTO.getUseCoverageType();
+        this.useCoverageSubCategoryName = couponUpdateDTO.getUseCoverageSubCategoryName();
+        this.useStandardType = couponUpdateDTO.getUseStandardType();
+        this.useStandardValue = couponUpdateDTO.getUseStandardValue();
+        this.issueConditionType = couponUpdateDTO.getIssueConditionType();
+        this.issueConditionValue = couponUpdateDTO.getIssueConditionValue();
+        this.periodType = couponUpdateDTO.getPeriodType();
+        this.periodStartAt = couponUpdateDTO.getPeriodStartAt();
+        this.periodEndAt = couponUpdateDTO.getPeriodEndAt();
+        this.numberOfPeriod = couponUpdateDTO.getNumberOfPeriod();
+        this.autoManualType = couponUpdateDTO.getAutoManualType();
+        this.loginAlarm = couponUpdateDTO.getLoginAlarm();
+        this.smsAlarm = couponUpdateDTO.getSmsAlarm();
+        this.emailAlarm = couponUpdateDTO.getEmailAlarm();
+        this.kakaoAlarm = couponUpdateDTO.getKakaoAlarm();
+    }
 }

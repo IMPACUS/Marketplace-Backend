@@ -8,16 +8,16 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class OrdersProductCoupons {
+public class CouponTrigger {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orders_product_coupons_id")
+    @Column(name = "coupon_trigger_id")
     private Long id;
 
-    @Column(name = "orders_product_id", nullable = false)
-    private Long ordersProductId;
+    @Column(nullable = false)
+    private Long issuedCouponHistoryId;
 
-    @Column(name = "user_coupon_id", nullable = false)
-    private Long userCouponId;
+    @Column(nullable = false)
+    private Long triggerId;
 }
