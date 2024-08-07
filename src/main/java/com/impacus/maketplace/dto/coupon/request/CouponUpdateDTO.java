@@ -1,97 +1,100 @@
 package com.impacus.maketplace.dto.coupon.request;
 
+import com.impacus.maketplace.common.annotation.ValidEnum;
+import com.impacus.maketplace.common.enumType.coupon.*;
+import com.impacus.maketplace.entity.coupon.Coupon;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class CouponUpdateDTO {
+public class CouponUpdateDTO implements CouponDTO {
+
+    @NotNull(message = "쿠폰 id는 필수값 입니다.")
+    private Long couponId;
+
+    @NotNull(message = "쿠폰 이름은 필수값 입니다.")
+    private String name;
+
+    private String description;
+
+    @ValidEnum(enumClass = BenefitType.class)
+    private BenefitType benefitType;
 
     @NotNull
-    private Long id;
-    @NotNull
-    private String benefitType;    // 혜택 구분 [ 원, % ]
-    @NotNull
-    private int benefitValue;   // 혜택 금액 및 퍼센트
+    @Min(value = 0, message = "음수 입력은 허용되지 않습니다.")
+    private Long benefitValue;
+
+    @ValidEnum(enumClass = ProductType.class)
+    private ProductType productType;
+
+    @ValidEnum(enumClass = PaymentTarget.class)
+    private PaymentTarget paymentTarget;
+
+    private Integer firstCount;
+
+    @ValidEnum(enumClass = IssuedTimeType.class)
+    private IssuedTimeType issuedTimeType;
+
+    @ValidEnum(enumClass = CouponType.class)
+    private CouponType couponType;
+
+    private CouponIssueType couponIssueType;
+
+    @ValidEnum(enumClass = ExpireTimeType.class)
+    private ExpireTimeType expireTimeType;
+
+    private Integer expireTimeDays;
+
+    @ValidEnum(enumClass = CoverageType.class)
+    private CoverageType issueCoverageType;
+
+    private String issueCoverageSubCategoryName;
+
+    @ValidEnum(enumClass = CoverageType.class)
+    private CoverageType useCoverageType;
+
+    private String useCoverageSubCategoryName;
+
+    @ValidEnum(enumClass = StandardType.class)
+    private StandardType useStandardType;
+
+    private Long useStandardValue;
+
+    @ValidEnum(enumClass = StandardType.class)
+    private StandardType issueConditionType;
+
+    private Long issueConditionValue;
+
+    @ValidEnum(enumClass = PeriodType.class)
+    private PeriodType periodType;
+
+    private LocalDate periodStartAt;
+
+    private LocalDate periodEndAt;
+
+    private Long numberOfPeriod;
+
+    @ValidEnum(enumClass = AutoManualType.class)
+    private AutoManualType autoManualType;
+
+    // Null일 경우, 자동 발급
+    private String code;
 
     @NotNull
-    private String productTargetType;   //  ECO 상품 여부 [ECO할인,그린태그 , 일반 상품, 구분안함]
-    @NotNull
-    private String paymentTargetType;    // 지급 대상 [ 모든 회원, 선착순 ]
-
-    @Builder.Default
-    private Long firstCount = 0L; // 선착순 발급 수
+    private Boolean loginAlarm;
 
     @NotNull
-    private String issuedTimeType;  // 발급 시점 [ 구매 후 1주일 뒤, 즉시발급 ]
-    @NotNull
-    private String type;              // 쿠폰 형식 [ 이벤트 , 지급형 ]
-    @NotNull
-    private String issueCoverageType;  // 발급 적용 범위 [ 모든상품/브랜드, 특정 브랜드]
-    @NotNull
-    private String useCoverageType;   // 쿠폰 사용 범위 [ 모든상품/브랜드, 특정 브랜드]
-
-    //TODO: 브랜드 추가시 브랜드 코드추가 예정
-//    private Brand issueBrand;
-
-
-    //TODO: 브랜드 추가시 브랜드 코드추가 예정
-//    private Brand useBrand;
+    private Boolean smsAlarm;
 
     @NotNull
-    private String useStandardType;    // 쿠폰 사용가능 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-
-    @Builder.Default
-    private int useStandardValue = 0; // N원 (N원 이상 주문시 사용 가능)
+    private Boolean emailAlarm;
 
     @NotNull
-    private String issueStandardType;  // 쿠폰 발급 기준 금액 [ 가격제한없음, N원 이상 구매시 ]
-
-    private int issueStandardValue = 0;  // N원 (N원 이상 주문시 쿠폰 발급)
-    @NotNull
-    private String periodType;  // 기간 설정
-
-    private String periodStartAt;  // 기간설정 시작 기간
-
-    private String periodEndAt;    // 기간설정 종료 기간
-
-    @Builder.Default
-    private Long numberOfPeriod = 0L;    // 기간 내 N 회 주문 시
-
-    @NotNull
-    private String autoManualType;  // 자동 / 수동 발급 [ 자동, 수동 ]
-
-    //TODO: 수정할때 필요하지 않을까?
-    private String expireTimeType;  // 사용기간 [ 발급일로 부터 N일, 무제한 ]
-    private Long expireDays = -1L;    // 유효기간(일)
-
-    private String code;    //  변경할 쿠폰 코드
-
-    @Builder.Default
-    @NotNull
-    private String loginAlert = "N";  // 로그인 쿠폰 발급 알림
-
-    @Builder.Default
-    @NotNull
-    private String smsAlert = "N"; // 쿠폰발급 SMS 발송
-
-    @Builder.Default
-    @NotNull
-    private String emailAlert = "N";   // 쿠폰 발급 Email 발송
-
-    private Boolean updateStatus;   //  쿠폰의 상태 변경
-
-    private List<Long> couponList;  // 쿠폰의 상태를 변경하고자 하는 ID 리스트
-
-    private String updateStatusValue;   //  수정하고자 하는 쿠폰의 상태 값
-
-
+    private Boolean kakaoAlarm;
 }
-

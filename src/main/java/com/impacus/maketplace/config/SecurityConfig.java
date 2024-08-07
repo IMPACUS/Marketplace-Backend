@@ -7,7 +7,7 @@ import com.impacus.maketplace.common.handler.OAuth2AuthenticationSuccessHandler;
 import com.impacus.maketplace.config.endpoint.JwtAuthenticationEntryPoint;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.redis.service.BlacklistService;
-import com.impacus.maketplace.service.auth.CustomOauth2UserService;
+import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

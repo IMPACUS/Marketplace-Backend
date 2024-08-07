@@ -1,0 +1,66 @@
+package com.impacus.maketplace.entity.point.greenLablePoint;
+
+import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.enumType.point.PointStatus;
+import com.impacus.maketplace.common.enumType.point.PointType;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
+
+
+@Entity
+@Getter
+@Table(name = "green_label_point_history")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class GreenLabelPointHistory extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "green_label_point_history_id")
+    private Long id;
+
+    @Column(nullable = false)
+    private Long userId;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PointType pointType;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PointStatus pointStatus;
+
+    @Column(nullable = false)
+    private Long tradeAmount;
+
+    @Column(nullable = false)
+    @Comment("미적용 포인트")
+    private Long unappliedPoint;
+
+    public GreenLabelPointHistory(
+            Long userId,
+            PointType pointType,
+            PointStatus pointStatus,
+            Long tradeAmount,
+            Long unappliedPoint
+    ) {
+        this.userId = userId;
+        this.pointType = pointType;
+        this.pointStatus = pointStatus;
+        this.tradeAmount = tradeAmount;
+        this.unappliedPoint = unappliedPoint;
+    }
+
+    public static GreenLabelPointHistory of(
+            Long userId,
+            PointType pointType,
+            PointStatus pointStatus,
+            Long tradeAmount,
+            Long unappliedPoint
+    ) {
+        return new GreenLabelPointHistory(
+                userId, pointType, pointStatus, tradeAmount, unappliedPoint
+        );
+    }
+}
