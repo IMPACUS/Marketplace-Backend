@@ -6,8 +6,12 @@ spring:
     type: redis
     redis:
       cache-null-values: true
+  data:
+    redis:
+      client-type: lettuce
       host: 127.0.0.1
       port: 6379
+      password:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/impacus_test?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
@@ -22,3 +26,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 10
+        queue-capacity: 500
+      thread-name-prefix: implace-async-

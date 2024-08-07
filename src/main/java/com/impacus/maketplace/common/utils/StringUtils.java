@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.Random;
 
 @Component
@@ -30,18 +29,6 @@ public class StringUtils {
     }
 
     /**
-     * 파일명에서 파일 확장자를 찾는 함수
-     *
-     * @param filename
-     * @return
-     */
-    public static Optional<String> getFileExtension(String filename) {
-        return Optional.ofNullable(filename)
-                .filter(f -> f.contains("."))
-                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
-    }
-
-    /**
      * YYMMddHHmmXXX 형식의 상품번호를 생성하는 함 (XXX: 랜덤 숫자)
      *
      * @return
@@ -50,7 +37,7 @@ public class StringUtils {
         String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmm"));
         Random random = new Random(Long.parseLong(nowDate));
         int randomNumber = random.nextInt(999 - 100 + 1) + 100;
-        
+
         return nowDate + randomNumber;
     }
 
@@ -58,7 +45,7 @@ public class StringUtils {
      * String 타입의 number 가 들어오면 구분[,] 넣어주기
      * ex ) String number = 4000;
      *
-     * @return 4,000
+     * @return 4, 000
      */
 
     public static String convertNumberFormat(String number) {
@@ -67,11 +54,12 @@ public class StringUtils {
         return decimalFormat.format(Integer.parseInt(number));
 
     }
+
     public static boolean isNotBlank(String param) {
 
         if (param != null) {
             param = param.trim();
-            if (param.equals("") && param.length() != 0){
+            if (param.equals("") && param.length() != 0) {
                 return true;
             }
         }

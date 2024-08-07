@@ -6,6 +6,9 @@ spring:
     type: redis
     redis:
       cache-null-values: true
+  data:
+    redis:
+      client-type: lettuce
       host: 3.39.194.239
       port: 6379
       password: Dlavorzjtm030#z
@@ -22,3 +25,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 10
+        queue-capacity: 500
+      thread-name-prefix: implace-async-
