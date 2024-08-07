@@ -9,6 +9,8 @@ import com.impacus.maketplace.entity.point.levelPoint.QLevelPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -57,13 +59,18 @@ public class ReadUserCustomRepositoryImpl implements ReadUserCustomRepository {
     public List<Long> findUserIdByUserLevel(UserLevel userLevel) {
         BooleanBuilder userBuilder = new BooleanBuilder();
         userBuilder.and(user.type.eq(UserType.ROLE_CERTIFIED_USER))
-                .and(user.id.eq(levelPointMaster.userId));
+                .and(user.id.eq(levelPointMaster.userId))
+                .and(user.isDeleted.eq(false));
 
         return queryFactory
                 .select(user.id)
                 .from(user)
-                .innerJoin(levelPointMaster).on(levelPointMaster.userLevel.eq(userLevel))
                 .where(userBuilder)
+                .innerJoin(levelPointMaster).on(levelCondition(userLevel))
                 .fetch();
+    }
+
+    private BooleanExpression levelCondition(UserLevel userLevel) {
+        return userLevel != null ? levelPointMaster.userLevel.eq(userLevel) : Expressions.TRUE;
     }
 }

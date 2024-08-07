@@ -22,9 +22,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CouponUserService {
     private final CouponCustomRepositroy couponCustomRepositroy;
-    private final CouponManagementService couponManagementService;
+    private final CouponIssuanceService couponIssuanceService;
     private final UserCouponRepository userCouponRepository;
-    private final CouponRepository couponRepository;
 
     /**
      * 쿠폰함에서 사용자가 가지고 있는 쿠폰 리스트 조회
@@ -42,7 +41,7 @@ public class CouponUserService {
      */
     @Transactional
     public UserCouponOverviewDTO registerUserCoupon(Long userId, String couponCode) {
-        return couponManagementService.registerCouponByUser(userId, couponCode);
+        return couponIssuanceService.registerCouponByUser(userId, couponCode);
     }
 
     /**
@@ -102,6 +101,6 @@ public class CouponUserService {
      */
     @Transactional
     public UserCouponDownloadDTO issueAndDownloadCoupon(Long userId, Long couponId) {
-        return couponManagementService.issueAndDownloadCoupon(userId, couponId);
+        return couponIssuanceService.issueAndDownloadCoupon(userId, couponId);
     }
 }

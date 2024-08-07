@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.coupon;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
+import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.dto.coupon.request.*;
@@ -13,10 +14,10 @@ import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
-import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import com.impacus.maketplace.repository.user.UserRepository;
+import com.impacus.maketplace.repository.user.querydsl.ReadUserCustomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,13 +34,12 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CouponAdminService {
 
-    private final SuperCategoryRepository superCategoryRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final UserRepository userRepository;
     private final CouponUtils couponUtils;
-    private final CouponManagementService couponManagementService;
+    private final CouponIssuanceService couponIssuanceService;
 
     /**
      * 쿠폰 코드 중복 검사
@@ -50,8 +50,6 @@ public class CouponAdminService {
             throw new CustomException(new CustomException(CouponErrorType.DUPLICATED_COUPON_CODE));
         }
     }
-
-
 
     /**
      * 관리자 페이지에서 쿠폰 등록
@@ -202,19 +200,28 @@ public class CouponAdminService {
         return couponCustomRepositroy.findIssueCouponInfoList();
     }
 
-    public void issueCouponAllUser(IssueCouponAllUserDTO payCouponAllUserDTO) {
+    /**
+     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 조건에 해당하는 모든 유저에게 쿠폰을 발급
+     * @param couponId
+     * @param userLevel
+     */
+    @Transactional
+    public void issueCouponAllUser(Long couponId, UserLevel userLevel) {
 
-        // 1. Condition(level)에 따라서 회원 id 조회
-        /**
-         * 구현 대기 (Level을 통한 유저 조회 기능 필요)
-         */
+        // 1. 아래 조건을 충족하는 유저들 id 가져오기
+        // 1.1 레벨이 있을 경우 레벨에 맞는 유저 조회
+        // 1.2 레벨이 null일 경우 모든 유저 조회
+        // 1.3 삭제되지 않은 유저에 한해서 쿠폰 발급
+        List<Long> userIdList = userRepository
+                .findUserIdByUserLevel(userLevel);
 
-
+        // 2, 해당하는 유저들에게 쿠폰 발급
+        couponIssuanceService.issueCouponAllUserByAdmin(couponId, userIdList);
     }
 
 
     /**
-     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 무조건 발급해주는 서비스
+     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 특정 유저에게 쿠폰을 발급
      * @param issueCouponTargetUserDTO 쿠폰 ID, email
      */
     @Transactional
@@ -224,7 +231,7 @@ public class CouponAdminService {
                 .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
 
         // 2. 쿠폰 지급
-        couponManagementService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user);
+        couponIssuanceService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user);
     }
 
     public Page<IssueCouponHIstoryDTO> getIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {

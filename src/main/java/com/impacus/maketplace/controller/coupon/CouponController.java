@@ -161,7 +161,6 @@ public class CouponController {
 
 
     /**
-     * [개발 미완성]: level_point_master 엔티티 확정 후 레벨별 지급 가능(회원 가져오는 기능 필요)
      * ADMIN: 모든 회원 쿠폰 지급 API
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
@@ -169,9 +168,9 @@ public class CouponController {
     @PostMapping("/admin/issue-coupon/all-user")
     public ApiResponseEntity<Boolean> issueCouponAllUser(@Valid @RequestBody IssueCouponAllUserDTO issueCouponAllUserDTO) {
 
-        couponAdminService.issueCouponAllUser(issueCouponAllUserDTO);
+        couponAdminService.issueCouponAllUser(issueCouponAllUserDTO.getCouponId(), issueCouponAllUserDTO.getUserLevel());
 
-        return null;
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 
     /**

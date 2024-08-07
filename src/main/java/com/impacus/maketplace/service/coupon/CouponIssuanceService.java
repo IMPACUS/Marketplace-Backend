@@ -13,6 +13,7 @@ import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceHistoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
+import com.impacus.maketplace.repository.user.querydsl.ReadUserCustomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 시스템이 쿠폰을 지급하는 로직이 담겨있는 서비스
@@ -28,7 +30,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CouponManagementService {
+public class CouponIssuanceService {
 
     private final CouponRepository couponRepository;
     private final UserCouponRepository userCouponRepository;
@@ -53,22 +55,34 @@ public class CouponManagementService {
         userCouponRepository.save(userCoupon);
 
 
-        // 2.2 쿠폰 발급 이력 기록
-        CouponIssuanceHistory couponIssuanceHistory = createCouponIssuanceHistory(userCoupon.getId(), user.getId(), TriggerType.ADMIN);
+        // 3 쿠폰 발급 이력 기록
+        CouponIssuanceHistory couponIssuanceHistory = createCouponIssuanceHistory(userCoupon.getId(), userCoupon.getId(), TriggerType.ADMIN);
         couponIssuanceHistoryRepository.save(couponIssuanceHistory);
     }
 
     @Transactional
-    public void issueCouponAllUserByAdmin(Long couponId, UserLevel userLevel) {
+    public void issueCouponAllUserByAdmin(Long couponId, List<Long> userIdList) {
 
         // 1. 등록되어 있는 쿠폰 조회
+        Coupon coupon = couponRepository.findWriteLockById(couponId)
+                .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON));
 
-        // 2.1 레벨이 있을 경우 레벨에 맞는 유저 조회
-        // 2.2 레벨이 null일 경우 모든 유저 조회
+        // 2. 쿠폰 상태 확인
+        // 2.1 삭제된 쿠폰인지 확인
+        if (coupon.getIsDeleted()) {
+            throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
+        }
 
-        // 3. 삭제되지 않은 유저에 한해서 쿠폰 발급
+        // 2. 쿠폰 발급하기
+        // 2.1 모든 사용자에게 발급 + 발급 횟수 증가
+        List<UserCoupon> userCouponList = userIdList.stream()
+                .map((id) -> issueInstantCoupon(id, coupon)).toList();
+        userCouponRepository.saveAll(userCouponList);
 
-        // 4. 발급 이력 기록하기
+        // 3 쿠폰 발급 이력 기록
+        List<CouponIssuanceHistory> couponIssuanceHistoryList = userCouponList.stream()
+                .map((userCoupon) -> createCouponIssuanceHistory(userCoupon.getId(), userCoupon.getUserId(), TriggerType.ADMIN)).toList();
+        couponIssuanceHistoryRepository.saveAll(couponIssuanceHistoryList);
     }
 
     @Transactional
