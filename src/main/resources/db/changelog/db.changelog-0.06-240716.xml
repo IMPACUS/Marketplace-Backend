@@ -6,7 +6,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- product 생성 -->
-    <changeSet author="lchy0413" id="changelog-0.06.01-240716">
+    <changeSet author="lchy0413" id="changelog-0.06.01-240716-2">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="product_info"/>
@@ -72,21 +72,21 @@
             </column>
         </createTable>
 
-        <setColumnRemarks tableName="product" columnName="seller_id" remarks="판매자 ID"/>
-        <setColumnRemarks tableName="product" columnName="name" remarks="상품명"/>
-        <setColumnRemarks tableName="product" columnName="product_number" remarks="상품 번호"/>
-        <setColumnRemarks tableName="product" columnName="delivery_type" remarks="배송 타입"/>
-        <setColumnRemarks tableName="product" columnName="category_id" remarks="카테고리 ID"/>
-        <setColumnRemarks tableName="product" columnName="delivery_fee" remarks="배송비"/>
-        <setColumnRemarks tableName="product" columnName="refund_fee" remarks="반송비"/>
-        <setColumnRemarks tableName="product" columnName="market_price" remarks="시중 판매가"/>
-        <setColumnRemarks tableName="product" columnName="app_sales_price" remarks="앱 판매가"/>
-        <setColumnRemarks tableName="product" columnName="discount_price" remarks="할인가"/>
-        <setColumnRemarks tableName="product" columnName="weight" remarks="무게"/>
-        <setColumnRemarks tableName="product" columnName="is_deleted" remarks="삭제 여부"/>
-        <setColumnRemarks tableName="product" columnName="product_status" remarks="상품 상태"/>
-        <setColumnRemarks tableName="product" columnName="discount_status" remarks="할인 상태"/>
-        <setColumnRemarks tableName="product" columnName="type" remarks="상품 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="seller_id" remarks="판매자 ID"/>
+        <setColumnRemarks tableName="product_info" columnName="name" remarks="상품명"/>
+        <setColumnRemarks tableName="product_info" columnName="product_number" remarks="상품 번호"/>
+        <setColumnRemarks tableName="product_info" columnName="delivery_type" remarks="배송 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="category_id" remarks="카테고리 ID"/>
+        <setColumnRemarks tableName="product_info" columnName="delivery_fee" remarks="배송비"/>
+        <setColumnRemarks tableName="product_info" columnName="refund_fee" remarks="반송비"/>
+        <setColumnRemarks tableName="product_info" columnName="market_price" remarks="시중 판매가"/>
+        <setColumnRemarks tableName="product_info" columnName="app_sales_price" remarks="앱 판매가"/>
+        <setColumnRemarks tableName="product_info" columnName="discount_price" remarks="할인가"/>
+        <setColumnRemarks tableName="product_info" columnName="weight" remarks="무게"/>
+        <setColumnRemarks tableName="product_info" columnName="is_deleted" remarks="삭제 여부"/>
+        <setColumnRemarks tableName="product_info" columnName="product_status" remarks="상품 상태"/>
+        <setColumnRemarks tableName="product_info" columnName="discount_status" remarks="할인 상태"/>
+        <setColumnRemarks tableName="product_info" columnName="type" remarks="상품 타입"/>
     </changeSet>
 
     <!-- product_claim_info 생성 -->

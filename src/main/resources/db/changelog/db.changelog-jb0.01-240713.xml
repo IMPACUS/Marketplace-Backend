@@ -148,12 +148,12 @@
             <column name="is_download" type="BOOLEAN" defaultValueBoolean="false">
                 <constraints nullable="false"/>
             </column>
-            <column name="download_at" type="TIMESTMAP"/>
+            <column name="download_at" type="TIMESTAMP"/>
             <column name="is_used" type="BOOLEAN" defaultValueBoolean="false">
                 <constraints nullable="false"/>
             </column>
-            <column name="used_at" type="TIMESTMAP"/>
-            <column name="expired_at" type="TIMESTMAP"/>
+            <column name="used_at" type="TIMESTAMP"/>
+            <column name="expired_at" type="TIMESTAMP"/>
             <column name="create_at" type="TIMESTAMP">
             </column>
             <column name="modify_at" type="TIMESTAMP">
