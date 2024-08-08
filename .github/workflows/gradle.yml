@@ -25,6 +25,8 @@ jobs:
           distribution: 'adopt'
 
       - name: Test with Gradle
+        env:
+          SPRING_PROFILES_ACTIVE: test
         run: |
           chmod +x ./gradlew
           ./gradlew --info test
