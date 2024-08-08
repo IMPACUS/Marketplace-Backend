@@ -118,7 +118,7 @@
             <column name="status" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="status_reason" type="CLOB"/>
+            <column name="status_reason" type="VARCHAR(255)"/>
             <column name="create_at" type="TIMESTAMP">
             </column>
             <column name="modify_at" type="TIMESTAMP">

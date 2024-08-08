@@ -163,4 +163,47 @@
         <setColumnRemarks tableName="user_info" columnName="is_deleted" remarks="삭제 여부"/>
     </changeSet>
 
+    <changeSet id="changelog-0.11.05-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="orders" foreignKeyName="user_id"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint
+                constraintName="FK_orders_user_info"
+                baseTableName="orders"
+                baseColumnNames="user_id"
+                referencedTableName="user_info"
+                referencedColumnNames="user_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.11.06-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="purchase_product" foreignKeyName="order_id"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint
+                constraintName="FK_purchase_product_orders"
+                baseTableName="purchase_product"
+                baseColumnNames="order_id"
+                referencedTableName="orders"
+                referencedColumnNames="order_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.11.07-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="purchase_product"
+                                            foreignKeyName="product_detail_info_id"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint
+                constraintName="FK_purchase_product_product_detail_info"
+                baseTableName="purchase_product"
+                baseColumnNames="product_detail_info_id"
+                referencedTableName="product_detail_info"
+                referencedColumnNames="product_detail_info_id"/>
+    </changeSet>
+
 </databaseChangeLog>
