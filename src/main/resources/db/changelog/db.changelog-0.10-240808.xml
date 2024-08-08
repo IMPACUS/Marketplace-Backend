@@ -74,7 +74,7 @@
             <column name="original_file_name" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="attach_file_ext" type="VARCHAR(50)">
+            <column name="attach_file_ext" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
@@ -148,7 +148,7 @@
             <column name="history_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="mail_type" type="INTEGER" defaultValue="1">
+            <column name="mail_type" type="SMALLINT" defaultValue="1">
                 <constraints nullable="false"/>
             </column>
             <column name="receive_email" type="VARCHAR(255)">
@@ -241,7 +241,7 @@
     <changeSet id="db.changelog-0.10.07-240808" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="super_category"/>
+                <tableExists tableName="admin_activity_log"/>
             </not>
         </preConditions>
         <createTable tableName="admin_activity_log">
@@ -285,25 +285,25 @@
             <column name="img_src" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="name" type="VARCHAR(100)">
+            <column name="name" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="phone_number" type="VARCHAR(20)">
+            <column name="phone_number" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="email" type="VARCHAR(100)">
+            <column name="email" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="addr" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="jumin_no" type="VARCHAR(13)">
+            <column name="jumin_no" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="account_type" type="VARCHAR(50)">
+            <column name="account_type" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="admin_id_name" type="VARCHAR(100)">
+            <column name="admin_id_name" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="password" type="VARCHAR(255)">
@@ -347,10 +347,10 @@
             <column name="admin_id" type="BIGINT">
                 <constraints nullable="true"/>
             </column>
-            <column name="crt_date" type="TIMESTAMP">
+            <column name="crt_date" type="TIMESTAMP(6)">
                 <constraints nullable="true"/>
             </column>
-            <column name="status" type="VARCHAR(50)">
+            <column name="status" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
 
@@ -382,7 +382,7 @@
             <column name="receiver" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="connect_number" type="VARCHAR(50)">
+            <column name="connect_number" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="address" type="VARCHAR(255)">
@@ -391,7 +391,7 @@
             <column name="detail_address" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="postal_code" type="VARCHAR(20)">
+            <column name="postal_code" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="memo" type="TEXT">
@@ -432,7 +432,7 @@
             <column name="receiver" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="connect_number" type="VARCHAR(50)">
+            <column name="connect_number" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="address" type="VARCHAR(255)">
@@ -441,7 +441,7 @@
             <column name="detail_address" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="postal_code" type="VARCHAR(20)">
+            <column name="postal_code" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="memo" type="TEXT">

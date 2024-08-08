@@ -68,7 +68,7 @@
             <column name="profile_image_id" type="BIGINT"/>
             <column name="password" type="VARCHAR(255)"/>
             <column name="wrong_password_cnt" type="INT"/>
-            <column name="bank_code" type="INT"/>
+            <column name="bank_code" type="SMALLINT"/>
             <column name="bank_account_number" type="VARCHAR(255)"/>
             <column name="user_jumin1" type="VARCHAR(255)"/>
             <column name="user_jumin2" type="VARCHAR(255)"/>
@@ -237,13 +237,13 @@
         </createTable>
 
         <!-- Column Remarks -->
-        <setColumnRemarks tableName="claim_info" columnName="recall_info"
+        <setColumnRemarks tableName="temporary_product_claim_info" columnName="recall_info"
                           remarks="상품 회수 목록"/>
-        <setColumnRemarks tableName="claim_info" columnName="claim_cost"
+        <setColumnRemarks tableName="temporary_product_claim_info" columnName="claim_cost"
                           remarks="클레임 비용"/>
-        <setColumnRemarks tableName="claim_info" columnName="claim_policy_guild"
+        <setColumnRemarks tableName="temporary_product_claim_info" columnName="claim_policy_guild"
                           remarks="클레임 정책 안내"/>
-        <setColumnRemarks tableName="claim_info" columnName="claim_contact_info"
+        <setColumnRemarks tableName="temporary_product_claim_info" columnName="claim_contact_info"
                           remarks="클레임 문의처"/>
 
     </changeSet>
@@ -281,9 +281,9 @@
         </createTable>
 
         <!-- Column Remarks -->
-        <setColumnRemarks tableName="delivery_time" columnName="min_days"
+        <setColumnRemarks tableName="temporary_product_delivery_time" columnName="min_days"
                           remarks="최소 배송 일수"/>
-        <setColumnRemarks tableName="delivery_time" columnName="max_days"
+        <setColumnRemarks tableName="temporary_product_delivery_time" columnName="max_days"
                           remarks="최대 배송 일수"/>
     </changeSet>
 
@@ -464,7 +464,6 @@
             <column name="buyer_id" type="BIGINT">
                 <constraints nullable="true"/>
             </column>
-
             <column name="score" type="INTEGER">
                 <constraints nullable="true"/>
             </column>
@@ -489,15 +488,6 @@
             <column name="is_comment" type="BOOLEAN">
                 <constraints nullable="true"/>
             </column>
-
-            <column name="create_at" type="TIMESTAMP">
-            </column>
-            <column name="modify_at" type="TIMESTAMP">
-            </column>
-            <column name="register_id" type="VARCHAR(255)">
-            </column>
-            <column name="modify_id" type="VARCHAR(255)">
-            </column>
         </createTable>
 
         <!-- Column Remarks -->
@@ -516,7 +506,7 @@
     </changeSet>
 
     <!--  orders 생성  -->
-    <changeSet id="changelog-0.09.08-240729" author="lchy0413">
+    <changeSet id="changelog-0.09.09-240729" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="orders"/>
@@ -566,7 +556,7 @@
     </changeSet>
 
     <!--  purchase_product 생성  -->
-    <changeSet id="changelog-0.09.09-240729" author="lchy0413">
+    <changeSet id="changelog-0.09.10-240729" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="purchase_product"/>
