@@ -280,17 +280,23 @@
         <dropColumn tableName="issued_coupon" columnName="lock"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-02" author="jeongbeom4693">
+    <changeSet id="changelog-jb-0.01-240728-02-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <tableExists tableName="issued_coupon"/>
+            <not>
+                <tableExists tableName="user_coupon"/>
+            </not>
         </preConditions>
         <renameColumn tableName="issued_coupon" oldColumnName="issued_coupon_id" newColumnName="user_coupon_id"/>
         <renameTable oldTableName="issued_coupon" newTableName="user_coupon"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-03" author="jeongbeom4693">
+    <changeSet id="changelog-jb-0.01-240728-03-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <tableExists tableName="issued_coupon_history"/>
+            <not>
+                <tableExists tableName="coupon_issuance_history"/>
+            </not>
         </preConditions>
         <dropTable tableName="issued_coupon_history"/>
         <createTable tableName="coupon_issuance_history">
@@ -347,9 +353,12 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-05" author="jeongbeom4693">
+    <changeSet id="changelog-jb-0.01-240728-05-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="orders_product_coupons" columnName="issued_coupon_id"/>
+            <not>
+                <columnExists tableName="orders_product_coupons" columnName="user_coupon_id"/>
+            </not>
         </preConditions>
         <renameColumn tableName="orders_product_coupons" oldColumnName="issued_coupon_id"
                       newColumnName="user_coupon_id"/>
