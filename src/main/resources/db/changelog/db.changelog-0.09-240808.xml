@@ -444,4 +444,180 @@
                           remarks="재고"/>
     </changeSet>
 
+    <!--  review 생성  -->
+    <changeSet id="changelog-0.09.08-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="review"/>
+            </not>
+        </preConditions>
+        <createTable tableName="review">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="seller_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="buyer_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="score" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="buyer_contents" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="buyer_upload_img_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="seller_comment" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_archive" type="BOOLEAN">
+                <constraints nullable="true"/>
+            </column>
+            <column name="archive_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_comment" type="BOOLEAN">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="review" columnName="id" remarks="리뷰 ID"/>
+        <setColumnRemarks tableName="review" columnName="order_id" remarks="주문 ID"/>
+        <setColumnRemarks tableName="review" columnName="seller_id" remarks="판매자 ID"/>
+        <setColumnRemarks tableName="review" columnName="buyer_id" remarks="구매자 ID"/>
+        <setColumnRemarks tableName="review" columnName="score" remarks="점수"/>
+        <setColumnRemarks tableName="review" columnName="buyer_contents" remarks="구매자 내용"/>
+        <setColumnRemarks tableName="review" columnName="buyer_upload_img_id" remarks="구매자 업로드 이미지 ID"/>
+        <setColumnRemarks tableName="review" columnName="seller_comment" remarks="판매자 댓글"/>
+        <setColumnRemarks tableName="review" columnName="create_at" remarks="생성일"/>
+        <setColumnRemarks tableName="review" columnName="is_archive" remarks="보관 여부"/>
+        <setColumnRemarks tableName="review" columnName="archive_at" remarks="보관일"/>
+        <setColumnRemarks tableName="review" columnName="is_comment" remarks="댓글 여부"/>
+    </changeSet>
+
+    <!--  orders 생성  -->
+    <changeSet id="changelog-0.09.08-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="orders"/>
+            </not>
+        </preConditions>
+        <createTable tableName="orders">
+            <column name="order_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="total_production_cost" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="delivery_fee" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="received_point" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="discount_amount" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="used_point" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="orders" columnName="order_id" remarks="주문 아이디"/>
+        <setColumnRemarks tableName="orders" columnName="user_id" remarks="사용자 ID"/>
+        <setColumnRemarks tableName="orders" columnName="total_production_cost" remarks="상품 총 가격"/>
+        <setColumnRemarks tableName="orders" columnName="delivery_fee" remarks="배송비"/>
+        <setColumnRemarks tableName="orders" columnName="received_point" remarks="받은 포인트"/>
+        <setColumnRemarks tableName="orders" columnName="discount_amount" remarks="할인 금액"/>
+        <setColumnRemarks tableName="orders" columnName="used_point" remarks="사용한 포인트"/>
+    </changeSet>
+
+    <!--  purchase_product 생성  -->
+    <changeSet id="changelog-0.09.09-240729" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="purchase_product"/>
+            </not>
+        </preConditions>
+        <createTable tableName="purchase_product">
+            <column name="purchase_product_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_detail_info_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="quantity" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="delivery_status" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="return_status" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="exchange_status" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="total_price" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="purchase_product" columnName="purchase_product_id" remarks="주문 상품 아이디"/>
+        <setColumnRemarks tableName="purchase_product" columnName="order_id" remarks="주문 ID"/>
+        <setColumnRemarks tableName="purchase_product" columnName="product_detail_info_id" remarks="상품 상세 정보 ID"/>
+        <setColumnRemarks tableName="purchase_product" columnName="quantity" remarks="수량"/>
+        <setColumnRemarks tableName="purchase_product" columnName="delivery_status" remarks="배송 상태"/>
+        <setColumnRemarks tableName="purchase_product" columnName="return_status" remarks="반품 상태"/>
+        <setColumnRemarks tableName="purchase_product" columnName="exchange_status" remarks="교환 상태"/>
+        <setColumnRemarks tableName="purchase_product" columnName="total_price" remarks="총 가격"/>
+    </changeSet>
+
+
 </databaseChangeLog>
