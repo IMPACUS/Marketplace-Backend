@@ -317,9 +317,12 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-04-1" author="jeongbeom4693">
+    <changeSet id="changelog-jb-0.01-240728-04-2" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <tableExists tableName="issued_coupon_triggers"/>
+            <not>
+                <tableExists tableName="coupon_trigger"/>
+            </not>
         </preConditions>
         <dropTable tableName="issued_coupon_triggers"/>
         <createTable tableName="coupon_trigger">
