@@ -35,6 +35,4 @@ public class Order extends BaseEntity {
 
     @Column(name = "used_point")
     private Integer usedPoint; // 사용한 포인트
-
-
 }

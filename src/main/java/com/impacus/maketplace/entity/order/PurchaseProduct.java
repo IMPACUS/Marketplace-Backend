@@ -43,5 +43,4 @@ public class PurchaseProduct extends BaseEntity {
 
     @Column(name = "total_price")
     private Integer totalPrice; // 총 가격
-
 }
