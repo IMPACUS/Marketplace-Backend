@@ -1,9 +1,12 @@
 name: ci
 
 on:
-  pull_request:
+  push:
     branches:
       - feature/lchy/cicd
+  pull_request:
+    branches:
+      - develop
 
 permissions:
   contents: read
@@ -20,13 +23,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
-
-      - name: Make application.properties
-        run: |
-          cd ./src/main/resources
-          touch ./application.yml
-          echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
-        shell: bash
 
       - name: Test with Gradle
         run: |
