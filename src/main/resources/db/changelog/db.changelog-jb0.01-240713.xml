@@ -410,6 +410,10 @@
     <changeSet id="changelog-jb-0.01-240830-01-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_coupon" columnName="available_downlad_at"/>
+
+            <not>
+                <columnExists tableName="user_coupon" columnName="available_download_at"/>
+            </not>
         </preConditions>
         <renameColumn tableName="user_coupon" oldColumnName="available_downlad_at"
                       newColumnName="available_download_at"/>
