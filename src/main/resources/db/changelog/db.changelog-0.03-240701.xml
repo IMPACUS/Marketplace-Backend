@@ -102,7 +102,7 @@
     </changeSet>
 
     <!-- user_status_info 테이블 생성 -->
-    <changeSet id="changelog-0.03.11-240525-1" author="lchy0413">
+    <changeSet id="changelog-0.03.11-240525-2" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_status_info"/>
@@ -118,7 +118,7 @@
             <column name="status" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="status_reason" type="TEXT"/>
+            <column name="status_reason" type="CLOB"/>
             <column name="create_at" type="TIMESTAMP">
             </column>
             <column name="modify_at" type="TIMESTAMP">

@@ -426,7 +426,7 @@
             <column name="name" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="product_images" type="TEXT"/>
+            <column name="product_images" type="CLOB"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>

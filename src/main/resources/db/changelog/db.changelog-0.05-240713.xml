@@ -17,7 +17,7 @@
       <column autoIncrement="true" name="brand_id" type="BIGINT">
         <constraints nullable="false" primaryKey="true"/>
       </column>
-      <column name="introduction" type="TEXT">
+      <column name="introduction" type="CLOB">
         <constraints nullable="false"/>
       </column>
       <column name="seller_id" type="BIGINT">
