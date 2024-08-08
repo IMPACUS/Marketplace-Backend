@@ -366,4 +366,100 @@
         <setColumnRemarks tableName="admin_login_log" columnName="crt_date" remarks="생성 일자"/>
         <setColumnRemarks tableName="admin_login_log" columnName="status" remarks="상태"/>
     </changeSet>
+
+    <!--  delivery_address 생성  -->
+    <changeSet id="db.changelog-0.10.10-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="delivery_address"/>
+            </not>
+        </preConditions>
+        <createTable tableName="delivery_address">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="receiver" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="connect_number" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="address" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="detail_address" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="postal_code" type="VARCHAR(20)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="memo" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="delivery_address" columnName="receiver" remarks="수신인"/>
+        <setColumnRemarks tableName="delivery_address" columnName="connect_number" remarks="연락처 번호"/>
+        <setColumnRemarks tableName="delivery_address" columnName="address" remarks="주소"/>
+        <setColumnRemarks tableName="delivery_address" columnName="detail_address" remarks="상세 주소"/>
+        <setColumnRemarks tableName="delivery_address" columnName="postal_code" remarks="우편번호"/>
+        <setColumnRemarks tableName="delivery_address" columnName="memo" remarks="메모"/>
+    </changeSet>
+
+    <!--  my_delivery_address 생성  -->
+    <changeSet id="db.changelog-0.10.11-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="my_delivery_address"/>
+            </not>
+        </preConditions>
+        <createTable tableName="my_delivery_address">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="receiver" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="connect_number" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="address" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="detail_address" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="postal_code" type="VARCHAR(20)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="memo" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="delivery_address" columnName="receiver" remarks="수신인"/>
+        <setColumnRemarks tableName="delivery_address" columnName="connect_number" remarks="연락처 번호"/>
+        <setColumnRemarks tableName="delivery_address" columnName="address" remarks="주소"/>
+        <setColumnRemarks tableName="delivery_address" columnName="detail_address" remarks="상세 주소"/>
+        <setColumnRemarks tableName="delivery_address" columnName="postal_code" remarks="우편번호"/>
+        <setColumnRemarks tableName="delivery_address" columnName="memo" remarks="메모"/>
+    </changeSet>
 </databaseChangeLog>
