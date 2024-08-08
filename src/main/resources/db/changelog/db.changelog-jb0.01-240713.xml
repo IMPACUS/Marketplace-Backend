@@ -89,8 +89,8 @@
             <column name="period_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="period_start_at" type="TIMESTAMP"/>
-            <column name="period_end_at" type="TIMESTAMP"/>
+            <column name="period_start_at" type="DATE"/>
+            <column name="period_end_at" type="DATE"/>
             <column name="number_of_period" type="BIGINT"/>
             <column name="auto_manual_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -110,6 +110,10 @@
             <column name="status_type" type="VARCHAR(255)" defaultValue="ISSUING">
                 <constraints nullable="false"/>
             </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
             <column name="create_at" type="TIMESTAMP">
             </column>
             <column name="modify_at" type="TIMESTAMP">
@@ -313,7 +317,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-04" author="jeongbeom4693">
+    <changeSet id="changelog-jb-0.01-240728-04-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <tableExists tableName="issued_coupon_triggers"/>
         </preConditions>
@@ -329,6 +333,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="trigger_entity_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_coupon_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>

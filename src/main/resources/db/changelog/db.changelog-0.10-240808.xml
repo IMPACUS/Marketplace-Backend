@@ -24,7 +24,7 @@
             <column name="title" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="contents" type="TEXT">
+            <column name="contents" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="is_answered" type="BOOLEAN">
@@ -97,6 +97,8 @@
         <setColumnRemarks tableName="attach_file" columnName="original_file_name" remarks="원본 이름"/>
         <setColumnRemarks tableName="attach_file" columnName="attach_file_ext" remarks="첨부파일 확장자"/>
         <setColumnRemarks tableName="attach_file" columnName="is_deleted" remarks="삭제 여부"/>
+
+        <createSequence sequenceName="attach_file_seq" startValue="1" incrementBy="50"/>
     </changeSet>
 
     <!--  attach_file_group 생성  -->
@@ -135,6 +137,8 @@
         <setColumnRemarks tableName="attach_file_group" columnName="attach_file_id" remarks="AttachFile 객체 ID"/>
         <setColumnRemarks tableName="attach_file_group" columnName="referenced_id" remarks="AttachFile을 참조하는 ID"/>
         <setColumnRemarks tableName="attach_file_group" columnName="referenced_entity" remarks="참조된 엔티티 타입"/>
+
+        <createSequence sequenceName="attach_file_group_seq" startValue="1" incrementBy="50"/>
     </changeSet>
 
     <!--  email_history 생성  -->
@@ -251,7 +255,7 @@
             <column name="admin_id" type="BIGINT">
                 <constraints nullable="true"/>
             </column>
-            <column name="crtDate" type="TIMESTAMP">
+            <column name="crt_date" type="TIMESTAMP">
                 <constraints nullable="true"/>
             </column>
             <column name="activity_detail" type="VARCHAR(255)">
@@ -267,7 +271,7 @@
         <!-- Column Remarks -->
         <setColumnRemarks tableName="admin_activity_log" columnName="id" remarks="관리자 활동 로그 ID"/>
         <setColumnRemarks tableName="admin_activity_log" columnName="admin_id" remarks="관리자 ID"/>
-        <setColumnRemarks tableName="admin_activity_log" columnName="crtDate" remarks="생성 일자"/>
+        <setColumnRemarks tableName="admin_activity_log" columnName="crt_date" remarks="생성 일자"/>
         <setColumnRemarks tableName="admin_activity_log" columnName="activity_detail" remarks="활동 상세 정보"/>
     </changeSet>
 
@@ -394,7 +398,7 @@
             <column name="postal_code" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="memo" type="TEXT">
+            <column name="memo" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
 
@@ -444,7 +448,7 @@
             <column name="postal_code" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="memo" type="TEXT">
+            <column name="memo" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
 

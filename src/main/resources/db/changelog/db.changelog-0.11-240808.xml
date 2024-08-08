@@ -36,6 +36,9 @@
             </column>
             <column name="used_at" type="TIMESTAMP"/>
             <column name="expired_at" type="TIMESTAMP"/>
+            <column name="available_downlad_at" type="TIMESTAMP(6)">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="create_at" type="TIMESTAMP"/>
             <column name="modify_at" type="TIMESTAMP"/>
