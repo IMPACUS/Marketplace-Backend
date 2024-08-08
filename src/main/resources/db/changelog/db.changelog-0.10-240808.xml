@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!--  ask 생성  -->
+    <changeSet id="db.changelog-0.10.01-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="ask"/>
+            </not>
+        </preConditions>
+        <createTable tableName="ask">
+            <column name="ask_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="parent_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ask_type" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="contents" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_answered" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="ask" columnName="ask_id" remarks="질문 ID"/>
+        <setColumnRemarks tableName="ask" columnName="parent_id" remarks="부모 질문 ID"/>
+        <setColumnRemarks tableName="ask" columnName="ask_type" remarks="질문 타입"/>
+        <setColumnRemarks tableName="ask" columnName="title" remarks="제목"/>
+        <setColumnRemarks tableName="ask" columnName="contents" remarks="내용"/>
+        <setColumnRemarks tableName="ask" columnName="is_answered" remarks="답변 여부"/>
+        <setColumnRemarks tableName="ask" columnName="is_deleted" remarks="삭제 여부"/>
+    </changeSet>
+
+    <!--  attach_file 생성  -->
+    <changeSet id="db.changelog-0.10.02-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="attach_file"/>
+            </not>
+        </preConditions>
+        <createTable tableName="attach_file">
+            <column name="attach_file_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="attach_file_name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="attach_file_size" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="original_file_name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="attach_file_ext" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="attach_file" columnName="attach_file_id" remarks="첨부파일 ID"/>
+        <setColumnRemarks tableName="attach_file" columnName="attach_file_name" remarks="첨부파일 이름"/>
+        <setColumnRemarks tableName="attach_file" columnName="attach_file_size" remarks="첨부파일 용량"/>
+        <setColumnRemarks tableName="attach_file" columnName="original_file_name" remarks="원본 이름"/>
+        <setColumnRemarks tableName="attach_file" columnName="attach_file_ext" remarks="첨부파일 확장자"/>
+        <setColumnRemarks tableName="attach_file" columnName="is_deleted" remarks="삭제 여부"/>
+    </changeSet>
+
+    <!--  attach_file_group 생성  -->
+    <changeSet id="db.changelog-0.10.03-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="attach_file_group"/>
+            </not>
+        </preConditions>
+        <createTable tableName="attach_file_group">
+            <column name="attach_file_group_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="attach_file_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="referenced_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="referenced_entity" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="attach_file_group" columnName="attach_file_group_id" remarks="AttachFileGroup ID"/>
+        <setColumnRemarks tableName="attach_file_group" columnName="attach_file_id" remarks="AttachFile 객체 ID"/>
+        <setColumnRemarks tableName="attach_file_group" columnName="referenced_id" remarks="AttachFile을 참조하는 ID"/>
+        <setColumnRemarks tableName="attach_file_group" columnName="referenced_entity" remarks="참조된 엔티티 타입"/>
+    </changeSet>
+
+    <!--  email_history 생성  -->
+    <changeSet id="db.changelog-0.10.04-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="email_history"/>
+            </not>
+        </preConditions>
+        <createTable tableName="email_history">
+            <column name="history_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="mail_type" type="INTEGER" defaultValue="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="receive_email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="receiver_id" type="VARCHAR(255)" defaultValue="implace">
+                <constraints nullable="false"/>
+            </column>
+            <column name="auth_no" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="send_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="email_history" columnName="history_id" remarks="이메일 히스토리 ID"/>
+        <setColumnRemarks tableName="email_history" columnName="mail_type" remarks="메일 타입"/>
+        <setColumnRemarks tableName="email_history" columnName="receive_email" remarks="수신인 이메일"/>
+        <setColumnRemarks tableName="email_history" columnName="receiver_id" remarks="발신인 ID"/>
+        <setColumnRemarks tableName="email_history" columnName="auth_no" remarks="인증번호"/>
+        <setColumnRemarks tableName="email_history" columnName="send_at" remarks="발송 시각"/>
+    </changeSet>
+
+
+</databaseChangeLog>

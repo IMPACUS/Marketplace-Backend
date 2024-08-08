@@ -619,5 +619,4 @@
         <setColumnRemarks tableName="purchase_product" columnName="total_price" remarks="총 가격"/>
     </changeSet>
 
-
 </databaseChangeLog>
