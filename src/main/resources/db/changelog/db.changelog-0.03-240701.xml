@@ -238,8 +238,8 @@
     </changeSet>
 
     <!-- user_info 테이블의 데이터에 대해서 user_status_info 생성 -->
-    <changeSet id="changelog-0.03.15-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-0.03.15-240525-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="user_info"/>
             <tableExists tableName="user_status_info"/>
         </preConditions>
@@ -254,8 +254,8 @@
     </changeSet>
 
     <!-- user_info 테이블의 데이터에 대해서 user_consent 생성 -->
-    <changeSet id="changelog-0.03.16-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-0.03.16-240525-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="user_info"/>
             <tableExists tableName="user_consent"/>
         </preConditions>
@@ -280,8 +280,8 @@
     </changeSet>
 
     <!-- user_info 테이블의 데이터에 대해서 green_label_point 생성 -->
-    <changeSet id="changelog-0.03.17-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-0.03.17-240525-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="user_info"/>
             <tableExists tableName="green_label_point"/>
         </preConditions>
