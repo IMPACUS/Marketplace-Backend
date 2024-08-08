@@ -237,5 +237,133 @@
         <setColumnRemarks tableName="super_category" columnName="name" remarks="카테고리 이름"/>
     </changeSet>
 
+    <!--  admin_activity_log 생성  -->
+    <changeSet id="db.changelog-0.10.07-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="super_category"/>
+            </not>
+        </preConditions>
+        <createTable tableName="admin_activity_log">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="admin_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="crtDate" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="activity_detail" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
 
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="admin_activity_log" columnName="id" remarks="관리자 활동 로그 ID"/>
+        <setColumnRemarks tableName="admin_activity_log" columnName="admin_id" remarks="관리자 ID"/>
+        <setColumnRemarks tableName="admin_activity_log" columnName="crtDate" remarks="생성 일자"/>
+        <setColumnRemarks tableName="admin_activity_log" columnName="activity_detail" remarks="활동 상세 정보"/>
+    </changeSet>
+
+    <!--  admin_info 생성  -->
+    <changeSet id="db.changelog-0.10.08-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="admin_info"/>
+            </not>
+        </preConditions>
+        <createTable tableName="admin_info">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="img_src" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(20)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="email" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="addr" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="jumin_no" type="VARCHAR(13)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="account_type" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="admin_id_name" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="recent_activity_date" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="admin_info" columnName="id" remarks="관리자 ID"/>
+        <setColumnRemarks tableName="admin_info" columnName="img_src" remarks="이미지 소스"/>
+        <setColumnRemarks tableName="admin_info" columnName="name" remarks="관리자 이름"/>
+        <setColumnRemarks tableName="admin_info" columnName="phone_number" remarks="전화번호"/>
+        <setColumnRemarks tableName="admin_info" columnName="email" remarks="이메일"/>
+        <setColumnRemarks tableName="admin_info" columnName="addr" remarks="주소"/>
+        <setColumnRemarks tableName="admin_info" columnName="jumin_no" remarks="주민번호"/>
+        <setColumnRemarks tableName="admin_info" columnName="account_type" remarks="계좌 유형"/>
+        <setColumnRemarks tableName="admin_info" columnName="admin_id_name" remarks="관리자 ID 이름"/>
+        <setColumnRemarks tableName="admin_info" columnName="password" remarks="비밀번호"/>
+        <setColumnRemarks tableName="admin_info" columnName="recent_activity_date" remarks="최근 활동 일자"/>
+    </changeSet>
+
+    <!--  admin_login_log 생성  -->
+    <changeSet id="db.changelog-0.10.09-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="admin_login_log"/>
+            </not>
+        </preConditions>
+        <createTable tableName="admin_login_log">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="admin_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="crt_date" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="admin_login_log" columnName="id" remarks="로그인 로그 ID"/>
+        <setColumnRemarks tableName="admin_login_log" columnName="admin_id" remarks="관리자 ID"/>
+        <setColumnRemarks tableName="admin_login_log" columnName="crt_date" remarks="생성 일자"/>
+        <setColumnRemarks tableName="admin_login_log" columnName="status" remarks="상태"/>
+    </changeSet>
 </databaseChangeLog>
