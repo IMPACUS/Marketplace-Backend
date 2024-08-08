@@ -27,7 +27,7 @@
     </changeSet>
 
     <!-- 새로운 쿠폰 테이블 생성 및 MOCK 쿠폰 추가 -->
-    <changeSet id="changelog-jb0.01-240713-3-1" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-3-2" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="coupon"/>
@@ -91,7 +91,7 @@
             </column>
             <column name="period_start_at" type="TIMESTAMP"/>
             <column name="period_end_at" type="TIMESTAMP"/>
-            <column name="number_of_period" type="INT"/>
+            <column name="number_of_period" type="BIGINT"/>
             <column name="auto_manual_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
