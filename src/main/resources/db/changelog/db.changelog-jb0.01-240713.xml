@@ -5,8 +5,8 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- 쿠폰_유저 테이블 DROP -->
-    <changeSet id="changelog-jb0.01-240713-1" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240713-1-2" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="coupon_user"/>
         </preConditions>
         <dropTable tableName="coupon_user"/>
@@ -27,8 +27,8 @@
     </changeSet>
 
     <!-- 새로운 쿠폰 테이블 생성 및 MOCK 쿠폰 추가 -->
-    <changeSet id="changelog-jb0.01-240713-3" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240713-3-1" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="coupon"/>
             </not>
@@ -122,8 +122,8 @@
     </changeSet>
 
 
-    <changeSet id="changelog-jb0.01-240713-4" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240713-4-1" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="issued_coupon"/>
                 <tableExists tableName="user_coupon"/>
@@ -165,8 +165,8 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb0.01-240713-5" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240713-5-1" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="issued_coupon_history"/>
             </not>
@@ -195,8 +195,8 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb0.01-240713-6" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240713-6-1" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="issued_coupon_triggers"/>
             </not>
@@ -342,7 +342,7 @@
                       newColumnName="user_coupon_id"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240730-01" author="jeongbeom4693">
+    <changeSet id="changelog-jb-0.01-240730-01-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="coupon_issuance_history" columnName="issued_at"/>
             <columnExists tableName="coupon_issuance_history" columnName="issued_coupon_id"/>
@@ -365,7 +365,7 @@
         </delete>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240730-03" author="jeongbeom4693">
+    <changeSet id="changelog-jb-0.01-240730-03-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <sqlCheck expectedResult="1">SELECT COUNT(*) FROM coupon_issuance_history WHERE coupon_issuance_history_id = 6</sqlCheck>
             <sqlCheck expectedResult="1">SELECT COUNT(*) FROM user_coupon WHERE user_coupon_id = 6</sqlCheck>
@@ -397,7 +397,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240830-01" author="jeongbeom4693">
+    <changeSet id="changelog-jb-0.01-240830-01-1" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <columnExists tableName="user_coupon" columnName="available_downlad_at"/>
         </preConditions>
