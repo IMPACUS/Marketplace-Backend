@@ -100,4 +100,67 @@
         </createTable>
     </changeSet>
 
+    <!-- user_info 생성 -->
+    <changeSet id="changelog-0.11.04-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_info"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_info">
+            <column name="user_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id_name" type="VARCHAR(255)"/>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="jumin1" type="VARCHAR(255)"/>
+            <column name="jumin2" type="VARCHAR(255)"/>
+            <column name="phone_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profile_image_id" type="BIGINT"/>
+            <column name="recent_login_at" type="TIMESTAMP"/>
+            <column name="is_cert_email" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="is_cert_phone" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="cert_email_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="cert_phone_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false"/>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="user_info" columnName="user_id" remarks="회원 ID"/>
+        <setColumnRemarks tableName="user_info" columnName="email" remarks="이메일"/>
+        <setColumnRemarks tableName="user_info" columnName="password" remarks="비밀번호"/>
+        <setColumnRemarks tableName="user_info" columnName="name" remarks="이름"/>
+        <setColumnRemarks tableName="user_info" columnName="user_id_name" remarks="회원 아이디"/>
+        <setColumnRemarks tableName="user_info" columnName="type" remarks="사용자 타입"/>
+        <setColumnRemarks tableName="user_info" columnName="jumin1" remarks="주민 번호 앞자리"/>
+        <setColumnRemarks tableName="user_info" columnName="jumin2" remarks="주민 번호 뒷자리"/>
+        <setColumnRemarks tableName="user_info" columnName="phone_number" remarks="전화번호"/>
+        <setColumnRemarks tableName="user_info" columnName="profile_image_id" remarks="프로필 이미지 아이디"/>
+        <setColumnRemarks tableName="user_info" columnName="recent_login_at" remarks="최근 로그인 일자"/>
+        <setColumnRemarks tableName="user_info" columnName="is_cert_email" remarks="이메일 동의 여부"/>
+        <setColumnRemarks tableName="user_info" columnName="is_cert_phone" remarks="휴대전화 동의 여부"/>
+        <setColumnRemarks tableName="user_info" columnName="cert_email_at" remarks="이메일 동의 날짜"/>
+        <setColumnRemarks tableName="user_info" columnName="cert_phone_at" remarks="휴대전화 동의 날짜"/>
+        <setColumnRemarks tableName="user_info" columnName="is_deleted" remarks="삭제 여부"/>
+    </changeSet>
+
 </databaseChangeLog>
