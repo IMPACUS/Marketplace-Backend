@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and deploy
+    name: Build and test
     runs-on: ubuntu-latest
     services:
       redis:
