@@ -102,17 +102,17 @@
     </changeSet>
 
     <!-- user_status_info 테이블 생성 -->
-    <changeSet id="changelog-0.03.11-240525" author="lchy0413">
+    <changeSet id="changelog-0.03.11-240525-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_status_info"/>
             </not>
         </preConditions>
         <createTable tableName="user_status_info">
-            <column name="user_status_info_id" type="bigint" autoIncrement="true">
+            <column name="user_status_info_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_id" type="bigint">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="status" type="VARCHAR(255)">
@@ -164,14 +164,14 @@
     </changeSet>
 
     <!-- user_consent 테이블 생성 -->
-    <changeSet id="changelog-0.03.13-240525" author="lchy0413">
+    <changeSet id="changelog-0.03.13-240525-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_consent"/>
             </not>
         </preConditions>
         <createTable tableName="user_consent">
-            <column name="user_consent_id" type="BIGSERIAL">
+            <column name="user_consent_id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
