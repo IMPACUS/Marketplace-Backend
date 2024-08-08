@@ -54,6 +54,7 @@ public class SellerDeliveryAddress extends BaseEntity {
 
   @Column(nullable = false)
   @Comment("반품 계좌 은행")
+  @Enumerated(EnumType.STRING)
   private BankCode refundBankCode;
 
   @Builder
