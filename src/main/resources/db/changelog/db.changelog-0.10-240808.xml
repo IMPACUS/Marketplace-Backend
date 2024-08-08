@@ -179,5 +179,63 @@
         <setColumnRemarks tableName="email_history" columnName="send_at" remarks="발송 시각"/>
     </changeSet>
 
+    <!--  sub_category 생성  -->
+    <changeSet id="db.changelog-0.10.05-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="sub_category"/>
+            </not>
+        </preConditions>
+        <createTable tableName="sub_category">
+            <column name="sub_category_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="super_category_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="thumbnail_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="name" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="sub_category" columnName="sub_category_id" remarks="서브 카테고리 ID"/>
+        <setColumnRemarks tableName="sub_category" columnName="super_category_id" remarks="슈퍼 카테고리 ID"/>
+        <setColumnRemarks tableName="sub_category" columnName="thumbnail_id" remarks="썸네일 ID"/>
+        <setColumnRemarks tableName="sub_category" columnName="name" remarks="카테고리 이름"/>
+    </changeSet>
+
+    <!--  super_category 생성  -->
+    <changeSet id="db.changelog-0.10.06-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="super_category"/>
+            </not>
+        </preConditions>
+        <createTable tableName="super_category">
+            <column name="super_category_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(10)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <setColumnRemarks tableName="super_category" columnName="super_category_id" remarks="슈퍼 카테고리 ID"/>
+        <setColumnRemarks tableName="super_category" columnName="name" remarks="카테고리 이름"/>
+    </changeSet>
+
 
 </databaseChangeLog>
