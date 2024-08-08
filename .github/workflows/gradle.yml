@@ -1,9 +1,6 @@
 name: ci
 
 on:
-  push:
-    branches:
-      - feature/lchy/cicd
   pull_request:
     branches:
       - develop
