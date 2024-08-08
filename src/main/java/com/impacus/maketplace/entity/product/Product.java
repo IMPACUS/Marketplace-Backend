@@ -19,7 +19,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "product_info")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE product_info SET is_deleted = true WHERE product_info_id = ?")
+@SQLDelete(sql = "UPDATE product_info SET is_deleted = TRUE WHERE product_info_id = ?")
 @Where(clause = "is_deleted = false")
 public class Product extends BaseEntity {
     @Id
@@ -35,7 +35,6 @@ public class Product extends BaseEntity {
     private String name; // 상품명
 
     @Column(nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String productNumber; // 상품 번호
 
     @Column(nullable = false)

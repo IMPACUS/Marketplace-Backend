@@ -32,3 +32,6 @@ spring:
         max-size: 10
         queue-capacity: 500
       thread-name-prefix: implace-async-
+  docker:
+    compose:
+      enabled: false
