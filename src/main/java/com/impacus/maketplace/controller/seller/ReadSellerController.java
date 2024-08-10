@@ -65,7 +65,7 @@ public class ReadSellerController {
     public ApiResponseEntity<Object> getSellerEntryList(
             @RequestParam(value = "start-at") LocalDate startAt,
             @RequestParam(value = "end-at") LocalDate endAt,
-            @Valid @ValidEnum(enumClass = EntryStatus.class) @RequestParam(value = "entry-status", required = false) EntryStatus[] entryStatus,
+            @RequestParam(value = "entry-status", required = false) EntryStatus[] entryStatus,
             @PageableDefault(size = 6, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<SimpleSellerEntryDTO> entryDTOList = readSellerService.getSellerEntryList(startAt, endAt, entryStatus, pageable);
@@ -94,7 +94,7 @@ public class ReadSellerController {
      *
      * @param email
      * @return
-    */
+     */
     @GetMapping("/email")
     public ApiResponseEntity<CheckExistedEmailDTO> checkDuplicatedEmail(
             @Valid @Email @RequestParam(value = "email") String email
@@ -114,14 +114,14 @@ public class ReadSellerController {
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PostMapping("/password")
     public ApiResponseEntity<CheckMatchedPasswordDTO> checkIsMatchPassword(
-                    @AuthenticationPrincipal CustomUserDetails user, @Valid @RequestBody PasswordDTO dto) {
-            CheckMatchedPasswordDTO result = authService.checkIsPasswordMatch(user.getId(),
-                            UserType.ROLE_APPROVED_SELLER, dto.getPassword());
-            return ApiResponseEntity
-                            .<CheckMatchedPasswordDTO>builder()
-                            .message("기존 비밀번호 일치 여부 확인 성공")
-                            .data(result)
-                            .build();
+            @AuthenticationPrincipal CustomUserDetails user, @Valid @RequestBody PasswordDTO dto) {
+        CheckMatchedPasswordDTO result = authService.checkIsPasswordMatch(user.getId(),
+                UserType.ROLE_APPROVED_SELLER, dto.getPassword());
+        return ApiResponseEntity
+                .<CheckMatchedPasswordDTO>builder()
+                .message("기존 비밀번호 일치 여부 확인 성공")
+                .data(result)
+                .build();
     }
 
     /**
