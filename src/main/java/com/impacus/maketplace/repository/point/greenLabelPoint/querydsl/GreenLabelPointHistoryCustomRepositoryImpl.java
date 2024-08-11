@@ -47,6 +47,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
                 .from(history)
                 .leftJoin(relation).on(relationBuilder)
                 .leftJoin(allocation).on(allocation.id.eq(relation.greenLabelPointAllocationId))
+                .orderBy(history.createAt.desc())
                 .where(history.userId.eq(userId))
                 .groupBy(history.id, allocation.id)
                 .offset(pageable.getOffset())
