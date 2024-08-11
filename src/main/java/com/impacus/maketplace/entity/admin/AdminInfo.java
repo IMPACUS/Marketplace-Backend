@@ -1,7 +1,7 @@
 package com.impacus.maketplace.entity.admin;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.querydsl.core.annotations.QueryProjection;
+import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AdminInfo {
+public class AdminInfo extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

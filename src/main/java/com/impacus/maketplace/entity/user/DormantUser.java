@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class DormantUser extends BaseEntity {
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = "dormant_user_id")
     private Long id;
 
     @Column(nullable = false, unique = true)

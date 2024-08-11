@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: mail
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: jyyoun1021@gmail.com
+    password: zmgglfgmwmwargpi
+    default-encoding: UTF-8
+    properties:
+      mail:
+        mime:
+          charset: UTF-8
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true

@@ -67,27 +67,31 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
     @Override
     public DetailedSellerEntryDTO findDetailedSellerEntry(Long userId) {
-        DetailedSellerEntryDTO detailedSellerEntryDTO = queryFactory.select(
-                        new QDetailedSellerEntryDTO(
+        DetailedSellerEntryDTO detailedSellerEntryDTO = queryFactory
+                .select(
+                        Projections.fields(
+                                DetailedSellerEntryDTO.class,
                                 user.id,
                                 seller.marketName,
                                 seller.contactName,
                                 user.email,
-                                user.phoneNumber,
+                                user.phoneNumber.as("contactNumber"),
                                 sellerBusinessInfo.businessRegistrationNumber,
                                 sellerBusinessInfo.mailOrderBusinessReportNumber,
                                 sellerBusinessInfo.businessAddress,
                                 sellerAdjustmentInfo.bankCode,
                                 sellerAdjustmentInfo.accountName,
-                                sellerAdjustmentInfo.accountNumber
+                                sellerAdjustmentInfo.accountNumber,
+                                attachFile.attachFileName.as("logoImageUrl")
                         )
                 )
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(userId))
+                .innerJoin(attachFile).on(attachFile.id.eq(seller.logoImageId))
                 .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
                 .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
                 .where(seller.userId.eq(userId))
-                .fetch().get(0);
+                .fetchFirst();
 
         AttachFile businessRegistration = queryFactory.selectFrom(attachFile)
                 .innerJoin(seller).on(seller.userId.eq(userId))

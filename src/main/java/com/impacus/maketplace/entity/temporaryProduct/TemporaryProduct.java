@@ -3,7 +3,7 @@ package com.impacus.maketplace.entity.temporaryProduct;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
-import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import jakarta.persistence.*;

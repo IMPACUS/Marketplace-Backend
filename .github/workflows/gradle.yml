@@ -3,15 +3,22 @@ name: ci
 on:
   pull_request:
     branches:
-      - feature/lchy/cicd
+      - develop
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Build and deploy
+    name: Build and test
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,14 +28,11 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Make application.properties
-        run: |
-          cd ./src/main/resources
-          touch ./application.yml
-          echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
-        shell: bash
-
       - name: Test with Gradle
+        env:
+          SPRING_PROFILES_ACTIVE: test
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
         run: |
           chmod +x ./gradlew
           ./gradlew --info test

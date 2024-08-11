@@ -22,7 +22,7 @@ public class SubCategory extends BaseEntity {
     @Column(nullable = true)
     private Long thumbnailId;
 
-    @Column(nullable = false, length = 10, unique = true)
+    @Column(nullable = false, length = 10)
     private String name;
 
     public SubCategory(Long superCategoryId, Long thumbnailId, String name) {

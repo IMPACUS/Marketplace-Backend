@@ -4,25 +4,11 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="changelog-0.02.01-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
-            <columnExists tableName="user_info" columnName="is_cert_email"/>
-        </preConditions>
-        <dropColumn tableName="user_info" columnName="is_cert_email"/>
-    </changeSet>
-
     <changeSet id="changelog-0.02.02-240525" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="cert_email_date_time"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="cert_email_date_time"/>
-    </changeSet>
-
-    <changeSet id="changelog-0.02.03-240525" author="lchy0413">
-        <preConditions onFail="CONTINUE">
-            <columnExists tableName="user_info" columnName="is_cert_phone"/>
-        </preConditions>
-        <dropColumn tableName="user_info" columnName="is_cert_phone"/>
     </changeSet>
 
     <changeSet id="changelog-0.02.04-240525" author="lchy0413">

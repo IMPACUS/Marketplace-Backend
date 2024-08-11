@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- 쿠폰_유저 테이블 DROP -->
+    <changeSet id="changelog-jb0.01-240713-1-2" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="coupon_user"/>
+        </preConditions>
+        <dropTable tableName="coupon_user"/>
+    </changeSet>
+
+
+    <!-- 이전 쿠폰 테이블 DROP -->
+    <changeSet id="changelog-jb0.01-240713-2" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="coupon" columnName="modify_id"/>
+            <columnExists tableName="coupon" columnName="coupon_desc"/>
+            <columnExists tableName="coupon" columnName="product_target"/>
+            <columnExists tableName="coupon" columnName="payment_type"/>
+            <columnExists tableName="coupon" columnName="login_alert"/>
+            <columnExists tableName="coupon" columnName="coupon_status_type"/>
+        </preConditions>
+        <dropTable tableName="coupon"/>
+    </changeSet>
+
+    <!-- 새로운 쿠폰 테이블 생성 및 MOCK 쿠폰 추가 -->
+    <changeSet id="changelog-jb0.01-240713-3-2" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="coupon"/>
+            </not>
+        </preConditions>
+        <createTable tableName="coupon">
+            <column name="coupon_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="benefit_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="benefit_value" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_target" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_count" type="INT"/>
+            <column name="quantity_issued" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_time_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coupon_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coupon_issue_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expire_time_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expire_time_days" type="INT"/>
+            <column name="issue_coverage_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issue_coverage_sub_category_name" type="VARCHAR(255)"/>
+            <column name="use_coverage_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="use_coverage_sub_category_name" type="VARCHAR(255)"/>
+            <column name="use_standard_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="use_standard_value" type="BIGINT" defaultValueNumeric="0"/>
+            <column name="issue_standard_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issue_standard_value" type="BIGINT" defaultValueNumeric="0"/>
+            <column name="period_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="period_start_at" type="DATE"/>
+            <column name="period_end_at" type="DATE"/>
+            <column name="number_of_period" type="BIGINT"/>
+            <column name="auto_manual_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="login_alarm" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sms_alarm" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email_alarm" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao_alarm" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_type" type="VARCHAR(255)" defaultValue="ISSUING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="changelog-jb0.01-240713-4-1" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="issued_coupon"/>
+                <tableExists tableName="user_coupon"/>
+            </not>
+        </preConditions>
+        <createTable tableName="issued_coupon">
+            <column name="issued_coupon_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lock" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="available_download_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_download" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="download_at" type="TIMESTAMP"/>
+            <column name="is_used" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="used_at" type="TIMESTAMP"/>
+            <column name="expired_at" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.01-240713-5-1" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="issued_coupon_history"/>
+            </not>
+        </preConditions>
+        <createTable tableName="issued_coupon_history">
+            <column name="issued_coupon_history_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="issued_coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.01-240713-6-1" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="issued_coupon_triggers"/>
+            </not>
+        </preConditions>
+        <createTable tableName="issued_coupon_triggers">
+            <column name="issued_coupon_triggers_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="issued_coupon_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.01-240713-7" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <tableExists tableName="orders_product_coupons"/>
+            </not>
+        </preConditions>
+        <createTable tableName="orders_product_coupons">
+            <column name="orders_product_coupons_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="orders_product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.01-240721-1" author="jeongbeom4693">
+        <renameColumn tableName="coupon"
+                      oldColumnName="issue_standard_type"
+                      newColumnName="issue_condition_type"
+                      columnDataType="varchar(255)"/>
+        <renameColumn tableName="coupon"
+                      oldColumnName="issue_standard_value"
+                      newColumnName="issue_condition_value"
+                      columnDataType="BIGINT"/>
+
+        <!-- 기본값 제거 -->
+        <dropDefaultValue tableName="coupon" columnName="issue_condition_type"/>
+        <dropDefaultValue tableName="coupon" columnName="issue_condition_value"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240722-1" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <columnExists tableName="coupon" columnName="is_deleted"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="coupon">
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    
+    <changeSet id="changelog-jb-0.01-240728" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="coupon" columnName="is_deleted"/>
+        </preConditions>
+        <addDefaultValue tableName="coupon" columnName="is_deleted" defaultValueBoolean="false"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240728" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="issued_coupon" columnName="lock"/>
+        </preConditions>
+        <dropColumn tableName="issued_coupon" columnName="lock"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240728-02-1" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="issued_coupon"/>
+            <not>
+                <tableExists tableName="user_coupon"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="issued_coupon" oldColumnName="issued_coupon_id" newColumnName="user_coupon_id"/>
+        <renameTable oldTableName="issued_coupon" newTableName="user_coupon"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240728-03-1" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="issued_coupon_history"/>
+            <not>
+                <tableExists tableName="coupon_issuance_history"/>
+            </not>
+        </preConditions>
+        <dropTable tableName="issued_coupon_history"/>
+        <createTable tableName="coupon_issuance_history">
+            <column name="coupon_issuance_history_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="user_coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240728-04-2" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="issued_coupon_triggers"/>
+            <not>
+                <tableExists tableName="coupon_trigger"/>
+            </not>
+        </preConditions>
+        <dropTable tableName="issued_coupon_triggers"/>
+        <createTable tableName="coupon_trigger">
+            <column name="coupon_trigger_id" type="BIGINT" autoIncrement="true">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="coupon_issuance_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_entity_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_entity_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_coupon_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240728-05-1" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="orders_product_coupons" columnName="issued_coupon_id"/>
+            <not>
+                <columnExists tableName="orders_product_coupons" columnName="user_coupon_id"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="orders_product_coupons" oldColumnName="issued_coupon_id"
+                      newColumnName="user_coupon_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240730-01-1" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="coupon_issuance_history" columnName="issued_at"/>
+            <columnExists tableName="coupon_issuance_history" columnName="issued_coupon_id"/>
+        </preConditions>
+        <dropColumn tableName="coupon_issuance_history" columnName="issued_at"/>
+        <dropColumn tableName="coupon_issuance_history" columnName="issued_coupon_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240730-02" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM coupon_issuance_history WHERE coupon_issuance_history_id = 3</sqlCheck>
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM user_coupon WHERE user_coupon_id = 3</sqlCheck>
+        </preConditions>
+        <delete tableName="coupon_issuance_history">
+            <where>coupon_issuance_history_id = 3</where>
+        </delete>
+
+        <delete tableName="user_coupon">
+            <where>user_coupon_id = 3</where>
+        </delete>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240730-03-1" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM coupon_issuance_history WHERE coupon_issuance_history_id = 6</sqlCheck>
+            <sqlCheck expectedResult="1">SELECT COUNT(*) FROM user_coupon WHERE user_coupon_id = 6</sqlCheck>
+        </preConditions>
+        <delete tableName="coupon_issuance_history">
+            <where>coupon_issuance_history_id = 6</where>
+        </delete>
+
+        <delete tableName="user_coupon">
+            <where>user_coupon_id = 6</where>
+        </delete>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240730-04" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <not>
+                <columnExists tableName="user_coupon" columnName="status"/>
+            </not>
+        </preConditions>
+        <comment>Clear any existing legacy data does not Have a status column in the tables</comment>
+        <sql splitStatements="true">
+            TRUNCATE TABLE user_coupon;
+            TRUNCATE TABLE coupon_issuance_history;
+        </sql>
+        <addColumn tableName="user_coupon">
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.01-240830-01-1" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_coupon" columnName="available_downlad_at"/>
+
+            <not>
+                <columnExists tableName="user_coupon" columnName="available_download_at"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="user_coupon" oldColumnName="available_downlad_at"
+                      newColumnName="available_download_at"/>
+    </changeSet>
+    
+    <changeSet id="changelog-jb-0.01-240804-01" author="jeongbeom4693">
+        <preConditions onFail="CONTINUE">
+            <columnExists tableName="user_coupon" columnName="available_download_at"/>
+            <columnExists tableName="user_coupon" columnName="expired_at"/>
+            <sqlCheck expectedResult="2">
+                SELECT COUNT(*)
+                FROM information_schema.columns
+                WHERE table_name = 'user_coupon'
+                  AND column_name IN ('available_download_at', 'expired_at')
+                  AND data_type = 'timestamp without time zone'
+            </sqlCheck>
+        </preConditions>
+        <sql>ALTER TABLE user_coupon ALTER COLUMN available_download_at TYPE DATE USING available_download_at::date;</sql>
+        <sql>ALTER TABLE user_coupon ALTER COLUMN expired_at TYPE DATE USING expired_at::date;</sql>
+    </changeSet>
+</databaseChangeLog>

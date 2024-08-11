@@ -4,8 +4,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="changelog-0.04.00-240709" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-0.04.00-240709-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
             <primaryKeyExists tableName="seller_info" primaryKeyName="seller_info_pkey"/>
         </preConditions>
         <dropPrimaryKey tableName="seller_info" constraintName="seller_info_pkey"/>

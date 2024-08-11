@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.temporaryProduct.response;
 
 import com.impacus.maketplace.common.enumType.DeliveryType;
-import com.impacus.maketplace.common.enumType.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import lombok.Data;

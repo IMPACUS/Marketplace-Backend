@@ -1,0 +1,37 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  cache:
+    type: redis
+    redis:
+      cache-null-values: true
+  data:
+    redis:
+      client-type: lettuce
+      host: 3.39.194.239
+      port: 6379
+      password: Dlavorzjtm030#z
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://dev-impacus.c6unqkaeefhz.ap-northeast-2.rds.amazonaws.com:5432/dev?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
+    username: postgres
+    password: Dlavorzjtm030#z
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 10
+        queue-capacity: 500
+      thread-name-prefix: implace-async-
+  docker:
+    compose:
+      enabled: false

@@ -1,7 +1,7 @@
 package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.enumType.user.Role;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -24,5 +24,5 @@ public class UserRole extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private UserType role;
 }
