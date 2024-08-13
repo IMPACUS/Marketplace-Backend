@@ -35,12 +35,12 @@
             </column>
         </addColumn>
         <addColumn tableName="product_info">
-            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
         <addColumn tableName="product_info">
-            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
@@ -67,12 +67,12 @@
             </column>
         </addColumn>
         <addColumn tableName="temporary_product_info">
-            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
                 <constraints nullable="true"/>
             </column>
         </addColumn>
         <addColumn tableName="temporary_product_info">
-            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
                 <constraints nullable="true"/>
             </column>
         </addColumn>

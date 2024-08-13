@@ -156,16 +156,16 @@
             <column name="type" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="special_delivery_fee" type="INT" defaultValue="GENERAL">
+            <column name="special_delivery_fee" type="INT">
                 <constraints nullable="true"/>
             </column>
-            <column name="special_refund_fee" type="INT" defaultValue="GENERAL">
+            <column name="special_refund_fee" type="INT">
                 <constraints nullable="true"/>
             </column>
-            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
                 <constraints nullable="true"/>
             </column>
-            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
                 <constraints nullable="true"/>
             </column>
             <column name="description" type="TEXT">
