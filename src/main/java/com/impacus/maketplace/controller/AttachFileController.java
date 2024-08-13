@@ -30,8 +30,7 @@ public class AttachFileController {
 
     @DeleteMapping("")
     public ApiResponseEntity<Void> addAttachFile(@RequestParam("file-name") String fileName) {
-        URI uri = URI.create(fileName);
-        cloudFileUploadService.deleteFile(uri.getPath().substring(1, uri.getPath().length()));
+        cloudFileUploadService.deleteFile(fileName);
 
         return ApiResponseEntity
                 .<Void>builder()
