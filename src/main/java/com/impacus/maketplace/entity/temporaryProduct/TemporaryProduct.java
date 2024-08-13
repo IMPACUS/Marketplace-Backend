@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.temporaryProduct;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
@@ -86,6 +87,10 @@ public class TemporaryProduct extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ProductType type; // 상품 타입
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DeliveryCompany deliveryCompany;
 
     public TemporaryProduct(Long sellerId, CreateProductDTO productRequest) {
         this.sellerId = sellerId;

@@ -6,7 +6,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- product 생성 -->
-    <changeSet author="lchy0413" id="changelog-0.06.01-240716-4">
+    <changeSet author="lchy0413" id="changelog-0.06.01-240716-5">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="product_info"/>
@@ -75,6 +75,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="description" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delivery_company" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
 

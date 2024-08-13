@@ -123,7 +123,7 @@
     </changeSet>
 
     <!--  temporary_product_info 생성  -->
-    <changeSet id="changelog-0.09.02-240729-2" author="lchy0413">
+    <changeSet id="changelog-0.09.02-240729-3" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="temporary_product_info"/>
@@ -169,6 +169,9 @@
                 <constraints nullable="true"/>
             </column>
             <column name="description" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="delivery_company" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
 

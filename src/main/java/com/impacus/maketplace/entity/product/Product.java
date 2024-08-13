@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.product;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
@@ -42,6 +43,10 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DeliveryType deliveryType; // 배송 타입
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DeliveryCompany deliveryCompany;
 
     @Column(nullable = false)
     @ColumnDefault("1")
@@ -121,6 +126,9 @@ public class Product extends BaseEntity {
         this.productStatus = productRequest.getProductStatus();
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
         this.type = productRequest.getType();
+        this.description = productRequest.getDescription();
+        this.deliveryFeeType = productRequest.getDeliveryFeeType();
+        this.refundFeeType = productRequest.getRefundFeeType();
     }
 
     public void setProduct(UpdateProductDTO dto) {

@@ -89,13 +89,13 @@
     </changeSet>
 
     <!-- product column 추가 (description)  -->
-    <changeSet author="lchy0413" id="changelog-0.12.05-240813-1">
+    <changeSet author="lchy0413" id="changelog-0.12.05-240813-2">
         <preConditions onFail="MARK_RAN">
             <not>
-                <columnExists tableName="temporary_product_info" columnName="description"/>
+                <columnExists tableName="product_info" columnName="description"/>
             </not>
         </preConditions>
-        <addColumn tableName="temporary_product_info">
+        <addColumn tableName="product_info">
             <column name="description" type="TEXT" defaultValue="''">
                 <constraints nullable="true"/>
             </column>
@@ -112,6 +112,34 @@
         <addColumn tableName="temporary_product_info">
             <column name="description" type="TEXT" defaultValue="''">
                 <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- product column 추가 (delivery_company)  -->
+    <changeSet author="lchy0413" id="changelog-0.12.07-240813">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="delivery_company"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="delivery_company" type="VARCHAR(255)" defaultValue="'CJ'">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- temporary_product_info column 추가 (delivery_company)  -->
+    <changeSet author="lchy0413" id="changelog-0.12.08-240813">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="temporary_product_info" columnName="delivery_company"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="temporary_product_info">
+            <column name="delivery_company" type="VARCHAR(255)" defaultValue="'CJ'">
+                <constraints nullable="false"/>
             </column>
         </addColumn>
     </changeSet>
