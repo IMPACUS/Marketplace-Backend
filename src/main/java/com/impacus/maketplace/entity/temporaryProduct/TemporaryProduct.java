@@ -52,28 +52,28 @@ public class TemporaryProduct extends BaseEntity {
     private String description; // 상품 설명
 
     @Column
-    private int deliveryFee; // 배송비
+    private Integer deliveryFee; // 배송비
 
     @Column
-    private int refundFee; // 반송비
+    private Integer refundFee; // 반송비
 
     @Comment("특수 지역 배송비")
-    private int specialDeliveryFee;
+    private Integer specialDeliveryFee;
 
     @Comment("특수 지역 반품비")
-    private int specialRefundFee;
+    private Integer specialRefundFee;
 
     @Column
-    private int marketPrice; // 시중 판매가
+    private Integer marketPrice; // 시중 판매가
 
     @Column
-    private int appSalesPrice; // 앱 판매가
+    private Integer appSalesPrice; // 앱 판매가
 
     @Column
-    private int discountPrice; // 할인가
+    private Integer discountPrice; // 할인가
 
     @Column
-    private int weight; // 무게
+    private Integer weight; // 무게
 
     @ColumnDefault("'SALES_PROGRESS'")
     @Column

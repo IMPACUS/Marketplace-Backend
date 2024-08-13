@@ -64,15 +64,15 @@ public class Product extends BaseEntity {
     @Comment("반송비 타입")
     private DeliveryRefundType refundFeeType;
 
-    private int deliveryFee; // 배송비
+    private Integer deliveryFee; // 배송비
 
-    private int refundFee; // 반송비
+    private Integer refundFee; // 반송비
 
     @Comment("특수 지역 배송비")
-    private int specialDeliveryFee;
+    private Integer specialDeliveryFee;
 
     @Comment("특수 지역 반품비")
-    private int specialRefundFee;
+    private Integer specialRefundFee;
 
     @Column(nullable = false)
     private int marketPrice; // 시중 판매가
@@ -116,19 +116,29 @@ public class Product extends BaseEntity {
         this.name = productRequest.getName();
         this.productNumber = productNumber;
         this.deliveryType = productRequest.getDeliveryType();
+        this.deliveryCompany = productRequest.getDeliveryCompany();
         this.categoryId = productRequest.getCategoryId();
-        this.deliveryFee = productRequest.getDeliveryFee();
-        this.refundFee = productRequest.getRefundFee();
+        this.deliveryFeeType = productRequest.getDeliveryFeeType();
+        this.refundFeeType = productRequest.getRefundFeeType();
         this.marketPrice = productRequest.getMarketPrice();
         this.appSalesPrice = productRequest.getAppSalesPrice();
         this.discountPrice = productRequest.getDiscountPrice();
         this.weight = productRequest.getWeight();
+        this.isDeleted = false;
         this.productStatus = productRequest.getProductStatus();
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
         this.type = productRequest.getType();
         this.description = productRequest.getDescription();
-        this.deliveryFeeType = productRequest.getDeliveryFeeType();
-        this.refundFeeType = productRequest.getRefundFeeType();
+
+        if (productRequest.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.deliveryFee = productRequest.getDeliveryFee();
+            this.specialDeliveryFee = productRequest.getSpecialDeliveryFee();
+        }
+
+        if (productRequest.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.refundFee = productRequest.getRefundFee();
+            this.specialRefundFee = productRequest.getSpecialRefundFee();
+        }
     }
 
     public void setProduct(UpdateProductDTO dto) {

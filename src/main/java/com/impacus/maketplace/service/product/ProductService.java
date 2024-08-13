@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
@@ -27,6 +28,7 @@ import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
+import com.impacus.maketplace.service.seller.deliveryCompany.SellerDeliveryCompanyService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -56,6 +58,7 @@ public class ProductService {
     private final RecentProductViewsService recentProductViewsService;
     private final ProductClaimService productClaimService;
     private final ProductHistoryService productHistoryService;
+    private final SellerDeliveryCompanyService sellerDeliveryCompanyService;
 
     /**
      * 새로운 Product 생성 함수
@@ -69,8 +72,7 @@ public class ProductService {
     public ProductDTO addProduct(
             Long userId,
             List<MultipartFile> multiProductImages,
-            CreateProductDTO dto,
-            List<MultipartFile> productDescriptionImageList) {
+            CreateProductDTO dto) {
         try {
             // 0. 판매자 id 유효성 검사
             // 판매자: API 요청 시, 사용한 인증 정보의 userId를 통해 sellerId 반환
@@ -89,17 +91,26 @@ public class ProductService {
 
             // 1. productRequest 데이터 유효성 검사
             validateProductRequest(
-                    multiProductImages, dto.getCategoryId(), productDescriptionImageList
+                    multiProductImages, dto.getCategoryId()
+            );
+            validateDeliveryRefundFee(
+                    dto.getDeliveryFee(),
+                    dto.getRefundFee(),
+                    dto.getSpecialDeliveryFee(),
+                    dto.getSpecialRefundFee(),
+                    dto.getDeliveryFeeType(),
+                    dto.getRefundFeeType()
             );
 
             // 2. 상풍 번호 생성
             String productNumber = StringUtils.getProductNumber();
 
             // 3. Product 저장
+            // 배송비 & 반송비는 CHARGE_UNDER_30000일 때만 저장
             Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
             Long productId = newProduct.getId();
 
-            // 4. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
+            // 3. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
             List<AttachFile> productImages = multiProductImages
                     .stream().map(productImage -> {
                         try {
@@ -109,24 +120,24 @@ public class ProductService {
                         }
                     }).toList();
 
-            //7. Product option 저장
+            // 4. Product option 저장
             List<ProductOption> newProductOptions = productOptionService.addProductOption(productId, dto.getProductOptions());
 
-            // 8. Product detail 저장
+            // 5. Product detail 저장
             productDetailInfoService.addProductDetailInfo(productId, dto.getProductDetail());
 
-            // 9. ProductDeliveryTime 저장
+            // 6. ProductDeliveryTime 저장
             deliveryTimeService.addProductDeliveryTime(productId, dto.getDeliveryTime());
 
-            // 10. 상품 클레임 정보 저장
+            // 7. 상품 클레임 정보 저장
             productClaimService.addProductClaimInfo(productId, dto.getClaim());
 
-            // 11. TemporaryProduct 삭제
+            // 8. TemporaryProduct 삭제
             if (dto.isDoesUseTemporaryProduct()) {
                 temporaryProductService.deleteTemporaryProduct(userId);
             }
 
-            // 12. 상품 관련 이력 생성
+            // 9. 상품 관련 이력 생성
             addProductHistoryInCreateMode(newProduct, productImages);
 
             return ProductDTO.toDTO(newProduct);
@@ -155,12 +166,10 @@ public class ProductService {
      * 전달받은 ProductRequest 의 유효성 검사를 하는 함수
      * @param productImageList
      * @param categoryId
-     * @param productDescriptionImageList
      */
-    public void validateProductRequest(
+    private void validateProductRequest(
             List<MultipartFile> productImageList,
-            Long categoryId,
-            List<MultipartFile> productDescriptionImageList
+            Long categoryId
     ) {
         // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImageList.size() > 5) {
@@ -173,16 +182,43 @@ public class ProductService {
             }
         }
 
-        // 2. 상품 설명 이미지 크기 확인
-        for (MultipartFile productImage : productDescriptionImageList) {
-            if (productImage.getSize() > FileSizeConstants.PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
-            }
-        }
-
-        // 3. 상품 내부 데이터 확인
+        // 2. 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
             throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
+        }
+    }
+
+    /**
+     * 배송비&반품비 유효성 검사 함수
+     * - CHARGE_UNDER_30000 일 때, 배송비 정보 혹은 반품비 정보가 null 일 수 없음.
+     *
+     * @param deliveryFee
+     * @param refundFee
+     * @param specialDeliveryFee
+     * @param specialRefundFee
+     * @param deliveryFeeType
+     * @param refundFeeType
+     */
+    private void validateDeliveryRefundFee(
+            Integer deliveryFee,
+            Integer refundFee,
+            Integer specialDeliveryFee,
+            Integer specialRefundFee,
+            DeliveryRefundType deliveryFeeType,
+            DeliveryRefundType refundFeeType
+    ) {
+        // 1. 배송비 정보 확인
+        if (deliveryFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (deliveryFee == null || specialRefundFee == null)) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
+                    "deliveryFeeType 가 CHARGE_UNDER_30000 일 때는 배송비 데이터가 null 이면 안됩니다.");
+
+        }
+
+        // 2. 반송비 정보 확인
+        if (refundFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (refundFee == null || specialDeliveryFee == null)) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
+                    "refundFeeType 가 CHARGE_UNDER_30000 일 때는 반송비 데이터가 null 이면 안됩니다.");
+
         }
     }
 
@@ -312,7 +348,7 @@ public class ProductService {
 
             // 3. productRequest 데이터 유효성 검사
             validateProductRequest(
-                    productImageList, dto.getCategoryId(), productDescriptionImageList
+                    productImageList, dto.getCategoryId()
             );
 
             // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성

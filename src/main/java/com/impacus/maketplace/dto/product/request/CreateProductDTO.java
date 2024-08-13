@@ -1,7 +1,9 @@
 package com.impacus.maketplace.dto.product.request;
 
 import com.impacus.maketplace.common.annotation.ValidEnum;
+import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.entity.product.Product;
@@ -34,14 +36,27 @@ public class CreateProductDTO {
     @ValidEnum(enumClass = DeliveryType.class)
     private DeliveryType deliveryType;
 
+    @ValidEnum(enumClass = DeliveryCompany.class)
+    private DeliveryCompany deliveryCompany;
+
     @NotNull
     private Long categoryId;
 
-    @NotNull
-    private int deliveryFee;
+    private Integer deliveryFee;
+
+    private Integer refundFee;
 
     @NotNull
-    private int refundFee;
+    @ValidEnum(enumClass = DeliveryRefundType.class)
+    private DeliveryRefundType deliveryFeeType;
+
+    @NotNull
+    @ValidEnum(enumClass = DeliveryRefundType.class)
+    private DeliveryRefundType refundFeeType;
+
+    private Integer specialDeliveryFee;
+
+    private Integer specialRefundFee;
 
     @NotNull
     private int marketPrice;
