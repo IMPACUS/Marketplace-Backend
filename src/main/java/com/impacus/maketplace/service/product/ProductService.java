@@ -302,13 +302,13 @@ public class ProductService {
             // 2. ProductOption 삭제
             productOptionService.deleteAllProductionOptionByProductId(deleteProduct.getId());
 
-            // 5. Product 대표 이미지 삭제
+            // 3. Product 대표 이미지 삭제
             attachFileService.deleteAttachFileByReferencedId(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
 
-            // 6. 찜 데이터 삭제
+            // 4. 찜 데이터 삭제
             wishlistRepository.deleteByProductId(productId);
 
-            // 2. 삭제
+            // 5. 삭제
             productRepository.deleteById(productId);
         } catch (Exception ex) {
             throw new CustomException(ex);
