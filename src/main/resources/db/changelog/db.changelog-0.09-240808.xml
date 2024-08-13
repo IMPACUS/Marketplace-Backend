@@ -123,7 +123,7 @@
     </changeSet>
 
     <!--  temporary_product_info 생성  -->
-    <changeSet id="changelog-0.09.02-240729" author="lchy0413">
+    <changeSet id="changelog-0.09.02-240729-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="temporary_product_info"/>
@@ -154,6 +154,18 @@
                 <constraints nullable="true"/>
             </column>
             <column name="type" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="special_delivery_fee" type="INT" defaultValue="GENERAL">
+                <constraints nullable="true"/>
+            </column>
+            <column name="special_refund_fee" type="INT" defaultValue="GENERAL">
+                <constraints nullable="true"/>
+            </column>
+            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+                <constraints nullable="true"/>
+            </column>
+            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
                 <constraints nullable="true"/>
             </column>
 
@@ -196,6 +208,10 @@
                           remarks="할인 상태"/>
         <setColumnRemarks tableName="temporary_product_info" columnName="type"
                           remarks="상품 타입"/>
+        <setColumnRemarks tableName="temporary_product_info" columnName="special_delivery_fee" remarks="특수 지역 배송비"/>
+        <setColumnRemarks tableName="temporary_product_info" columnName="special_refund_fee" remarks="특수 지역  반품비"/>
+        <setColumnRemarks tableName="temporary_product_info" columnName="delivery_fee_type" remarks="배송비 타입"/>
+        <setColumnRemarks tableName="temporary_product_info" columnName="refund_fee_type" remarks="반송비 타입"/>
     </changeSet>
 
     <!--  temporary_product_claim_info 생성  -->

@@ -3,6 +3,7 @@ package com.impacus.maketplace.entity.product;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
@@ -10,6 +11,7 @@ import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -46,10 +48,26 @@ public class Product extends BaseEntity {
     private Long categoryId; // 카테고리 id
 
     @Column(nullable = false)
-    private int deliveryFee; // 배송비
+    @ColumnDefault("'CHARGE_UNDER_30000'")
+    @Enumerated(EnumType.STRING)
+    @Comment("배송비 타입")
+    private DeliveryRefundType deliveryFeeType;
 
     @Column(nullable = false)
+    @ColumnDefault("'CHARGE_UNDER_30000'")
+    @Enumerated(EnumType.STRING)
+    @Comment("반송비 타입")
+    private DeliveryRefundType refundFeeType;
+
+    private int deliveryFee; // 배송비
+
     private int refundFee; // 반송비
+
+    @Comment("특수 지역 배송비")
+    private int specialDeliveryFee;
+
+    @Comment("특수 지역 반품비")
+    private int specialRefundFee;
 
     @Column(nullable = false)
     private int marketPrice; // 시중 판매가

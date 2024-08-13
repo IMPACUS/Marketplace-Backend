@@ -3,12 +3,14 @@ package com.impacus.maketplace.entity.temporaryProduct;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -35,11 +37,27 @@ public class TemporaryProduct extends BaseEntity {
     @Column
     private Long categoryId; // 2차 카테고리 id
 
+    @ColumnDefault("'CHARGE_UNDER_30000'")
+    @Enumerated(EnumType.STRING)
+    @Comment("배송비 타입")
+    private DeliveryRefundType deliveryFeeType;
+    
+    @ColumnDefault("'CHARGE_UNDER_30000'")
+    @Enumerated(EnumType.STRING)
+    @Comment("반송비 타입")
+    private DeliveryRefundType refundFeeType;
+
     @Column
     private int deliveryFee; // 배송비
 
     @Column
     private int refundFee; // 반송비
+
+    @Comment("특수 지역 배송비")
+    private int specialDeliveryFee;
+
+    @Comment("특수 지역 반품비")
+    private int specialRefundFee;
 
     @Column
     private int marketPrice; // 시중 판매가
