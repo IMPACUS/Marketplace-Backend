@@ -83,7 +83,7 @@ public class TemporaryProduct extends BaseEntity {
     @ColumnDefault("'DISCOUNT_STOP'")
     @Column
     @Enumerated(EnumType.STRING)
-    private DiscountStatus discountStatus; // 할인 상태
+    private DiscountStatus discountStatus; // TODO 삭제 필요
 
     @Enumerated(EnumType.STRING)
     private ProductType type; // 상품 타입
@@ -92,35 +92,57 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DeliveryCompany deliveryCompany;
 
-    public TemporaryProduct(Long sellerId, CreateProductDTO productRequest) {
+    public TemporaryProduct(Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;
-        this.name = productRequest.getName();
-        this.deliveryType = productRequest.getDeliveryType();
-        this.categoryId = productRequest.getCategoryId();
-        this.deliveryFee = productRequest.getDeliveryFee();
-        this.refundFee = productRequest.getRefundFee();
-        this.marketPrice = productRequest.getMarketPrice();
-        this.appSalesPrice = productRequest.getAppSalesPrice();
-        this.discountPrice = productRequest.getDiscountPrice();
-        this.weight = productRequest.getWeight();
-        this.productStatus = productRequest.getProductStatus();
-        this.discountStatus = DiscountStatus.DISCOUNT_STOP;
-        this.type = productRequest.getType();
-        this.description = productRequest.getDescription();
+        this.name = dto.getName();
+        this.deliveryType = dto.getDeliveryType();
+        this.deliveryCompany = dto.getDeliveryCompany();
+        this.categoryId = dto.getCategoryId();
+        this.deliveryFeeType = dto.getDeliveryFeeType();
+        this.refundFeeType = dto.getRefundFeeType();
+        this.marketPrice = dto.getMarketPrice();
+        this.appSalesPrice = dto.getAppSalesPrice();
+        this.discountPrice = dto.getDiscountPrice();
+        this.weight = dto.getWeight();
+        this.productStatus = dto.getProductStatus();
+        this.discountStatus = DiscountStatus.DISCOUNT_PROGRESS; // TODO 삭제
+        this.type = dto.getType();
+        this.description = dto.getDescription();
+
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.deliveryFee = dto.getDeliveryFee();
+            this.specialDeliveryFee = dto.getSpecialDeliveryFee();
+        }
+
+        if (dto.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.refundFee = dto.getRefundFee();
+            this.specialRefundFee = dto.getSpecialRefundFee();
+        }
     }
 
-    public void setProduct(CreateProductDTO productRequest) {
-        this.name = productRequest.getName();
-        this.deliveryType = productRequest.getDeliveryType();
-        this.categoryId = productRequest.getCategoryId();
-        this.deliveryFee = productRequest.getDeliveryFee();
-        this.refundFee = productRequest.getRefundFee();
-        this.marketPrice = productRequest.getMarketPrice();
-        this.appSalesPrice = productRequest.getAppSalesPrice();
-        this.discountPrice = productRequest.getDiscountPrice();
-        this.weight = productRequest.getWeight();
-        this.productStatus = productRequest.getProductStatus();
-        this.type = productRequest.getType();
-        this.description = productRequest.getDescription();
+    public void setProduct(CreateProductDTO dto) {
+        this.name = dto.getName();
+        this.deliveryType = dto.getDeliveryType();
+        this.deliveryCompany = dto.getDeliveryCompany();
+        this.categoryId = dto.getCategoryId();
+        this.deliveryFeeType = dto.getDeliveryFeeType();
+        this.refundFeeType = dto.getRefundFeeType();
+        this.marketPrice = dto.getMarketPrice();
+        this.appSalesPrice = dto.getAppSalesPrice();
+        this.discountPrice = dto.getDiscountPrice();
+        this.weight = dto.getWeight();
+        this.productStatus = dto.getProductStatus();
+        this.type = dto.getType();
+        this.description = dto.getDescription();
+
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.deliveryFee = dto.getDeliveryFee();
+            this.specialDeliveryFee = dto.getSpecialDeliveryFee();
+        }
+
+        if (dto.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.refundFee = dto.getRefundFee();
+            this.specialRefundFee = dto.getSpecialRefundFee();
+        }
     }
 }

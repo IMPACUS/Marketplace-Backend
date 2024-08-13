@@ -152,7 +152,6 @@ public class Product extends BaseEntity {
         this.appSalesPrice = dto.getAppSalesPrice();
         this.discountPrice = dto.getDiscountPrice();
         this.weight = dto.getWeight();
-        this.isDeleted = false;
         this.productStatus = dto.getProductStatus();
         this.type = dto.getType();
         this.description = dto.getDescription();

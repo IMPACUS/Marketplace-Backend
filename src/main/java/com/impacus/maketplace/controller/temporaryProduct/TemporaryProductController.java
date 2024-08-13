@@ -47,7 +47,6 @@ public class TemporaryProductController {
      * 임시 저장 상품 데이터를 등록 혹은 수정하는 API
      *
      * @param productImageList
-     * @param productDescriptionImageList
      * @param productRequest
      * @return
      */
@@ -56,9 +55,8 @@ public class TemporaryProductController {
     public ApiResponseEntity<Object> addOrModifyTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
             @RequestPart(value = "product") CreateProductDTO productRequest) {
-        SimpleTemporaryProductDTO simpleTemporaryProductDTO = temporaryProductService.addOrModifyTemporaryProduct(user.getId(), productImageList, productRequest, productDescriptionImageList);
+        SimpleTemporaryProductDTO simpleTemporaryProductDTO = temporaryProductService.addOrModifyTemporaryProduct(user.getId(), productImageList, productRequest);
         return ApiResponseEntity
                 .builder()
                 .data(simpleTemporaryProductDTO)
@@ -67,12 +65,12 @@ public class TemporaryProductController {
 
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("")
-    public ApiResponseEntity<Object> getTemporaryProduct(
+    public ApiResponseEntity<TemporaryProductDTO> getTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user) {
-        TemporaryProductDTO temporaryProductDTO = temporaryProductService.findTemporaryProduct(user.getId());
+        TemporaryProductDTO dto = temporaryProductService.findTemporaryProduct(user.getId());
         return ApiResponseEntity
-                .builder()
-                .data(temporaryProductDTO)
+                .<TemporaryProductDTO>builder()
+                .data(dto)
                 .build();
     }
 
