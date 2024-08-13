@@ -18,7 +18,6 @@ import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
-import com.impacus.maketplace.entity.product.ProductOption;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.redis.service.RecentProductViewsService;
@@ -121,7 +120,7 @@ public class ProductService {
                     }).toList();
 
             // 4. Product option 저장
-            List<ProductOption> newProductOptions = productOptionService.addProductOption(productId, dto.getProductOptions());
+            productOptionService.addProductOption(productId, dto.getProductOptions());
 
             // 5. Product detail 저장
             productDetailInfoService.addProductDetailInfo(productId, dto.getProductDetail());
@@ -208,14 +207,14 @@ public class ProductService {
             DeliveryRefundType refundFeeType
     ) {
         // 1. 배송비 정보 확인
-        if (deliveryFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (deliveryFee == null || specialRefundFee == null)) {
+        if (deliveryFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (deliveryFee == null || specialDeliveryFee == null)) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
                     "deliveryFeeType 가 CHARGE_UNDER_30000 일 때는 배송비 데이터가 null 이면 안됩니다.");
 
         }
 
         // 2. 반송비 정보 확인
-        if (refundFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (refundFee == null || specialDeliveryFee == null)) {
+        if (refundFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (refundFee == null || specialRefundFee == null)) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
                     "refundFeeType 가 CHARGE_UNDER_30000 일 때는 반송비 데이터가 null 이면 안됩니다.");
 
@@ -321,15 +320,13 @@ public class ProductService {
      * - 관리자: 모든 상품 수정 가능
      *
      * @param productImageList
-     * @param productDescriptionImageList
      * @return
      */
     @Transactional
     public ProductDTO updateProduct(
             Long userId,
             List<MultipartFile> productImageList,
-            UpdateProductDTO dto,
-            List<MultipartFile> productDescriptionImageList) {
+            UpdateProductDTO dto) {
         try {
             Long productId = dto.getProductId();
 
@@ -350,6 +347,14 @@ public class ProductService {
             validateProductRequest(
                     productImageList, dto.getCategoryId()
             );
+            validateDeliveryRefundFee(
+                    dto.getDeliveryFee(),
+                    dto.getRefundFee(),
+                    dto.getSpecialDeliveryFee(),
+                    dto.getSpecialRefundFee(),
+                    dto.getDeliveryFeeType(),
+                    dto.getRefundFeeType()
+            );
 
             // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
             attachFileService.deleteAttachFileByReferencedId(product.getId(), ReferencedEntityType.PRODUCT);
@@ -369,17 +374,17 @@ public class ProductService {
             product.setProduct(dto);
             productRepository.save(product);
 
-            // 9. Product option 수정
+            // 7. Product option 수정
             productOptionService.updateProductOptionList(productId, dto.getProductOptions());
 
-            // 10. Product detail 수정
+            // 8. Product detail 수정
             ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
             productDetailInfo.setProductDetailInfo(dto.getProductDetail());
 
-            // 11. Product delivery time 수정
+            // 9. Product delivery time 수정
             deliveryTimeService.updateProductDeliveryTime(productId, dto.getDeliveryTime());
 
-            // 12. 상품 클레임 정보 수정
+            // 10. 상품 클레임 정보 수정
             productClaimService.updateProductClaimInfo(productId, dto.getClaim());
 
             return ProductDTO.toDTO(product);

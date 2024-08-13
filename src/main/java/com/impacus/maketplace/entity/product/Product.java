@@ -111,47 +111,60 @@ public class Product extends BaseEntity {
     private String description;
 
 
-    public Product(String productNumber, Long sellerId, CreateProductDTO productRequest) {
+    public Product(String productNumber, Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;
-        this.name = productRequest.getName();
+        this.name = dto.getName();
         this.productNumber = productNumber;
-        this.deliveryType = productRequest.getDeliveryType();
-        this.deliveryCompany = productRequest.getDeliveryCompany();
-        this.categoryId = productRequest.getCategoryId();
-        this.deliveryFeeType = productRequest.getDeliveryFeeType();
-        this.refundFeeType = productRequest.getRefundFeeType();
-        this.marketPrice = productRequest.getMarketPrice();
-        this.appSalesPrice = productRequest.getAppSalesPrice();
-        this.discountPrice = productRequest.getDiscountPrice();
-        this.weight = productRequest.getWeight();
+        this.deliveryType = dto.getDeliveryType();
+        this.deliveryCompany = dto.getDeliveryCompany();
+        this.categoryId = dto.getCategoryId();
+        this.deliveryFeeType = dto.getDeliveryFeeType();
+        this.refundFeeType = dto.getRefundFeeType();
+        this.marketPrice = dto.getMarketPrice();
+        this.appSalesPrice = dto.getAppSalesPrice();
+        this.discountPrice = dto.getDiscountPrice();
+        this.weight = dto.getWeight();
         this.isDeleted = false;
-        this.productStatus = productRequest.getProductStatus();
-        this.discountStatus = DiscountStatus.DISCOUNT_STOP;
-        this.type = productRequest.getType();
-        this.description = productRequest.getDescription();
+        this.productStatus = dto.getProductStatus();
+        this.discountStatus = DiscountStatus.DISCOUNT_PROGRESS; // TODO 삭제
+        this.type = dto.getType();
+        this.description = dto.getDescription();
 
-        if (productRequest.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
-            this.deliveryFee = productRequest.getDeliveryFee();
-            this.specialDeliveryFee = productRequest.getSpecialDeliveryFee();
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.deliveryFee = dto.getDeliveryFee();
+            this.specialDeliveryFee = dto.getSpecialDeliveryFee();
         }
 
-        if (productRequest.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
-            this.refundFee = productRequest.getRefundFee();
-            this.specialRefundFee = productRequest.getSpecialRefundFee();
+        if (dto.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.refundFee = dto.getRefundFee();
+            this.specialRefundFee = dto.getSpecialRefundFee();
         }
     }
 
     public void setProduct(UpdateProductDTO dto) {
         this.name = dto.getName();
         this.deliveryType = dto.getDeliveryType();
+        this.deliveryCompany = dto.getDeliveryCompany();
         this.categoryId = dto.getCategoryId();
-        this.deliveryFee = dto.getDeliveryFee();
-        this.refundFee = dto.getRefundFee();
+        this.deliveryFeeType = dto.getDeliveryFeeType();
+        this.refundFeeType = dto.getRefundFeeType();
         this.marketPrice = dto.getMarketPrice();
         this.appSalesPrice = dto.getAppSalesPrice();
         this.discountPrice = dto.getDiscountPrice();
         this.weight = dto.getWeight();
+        this.isDeleted = false;
         this.productStatus = dto.getProductStatus();
         this.type = dto.getType();
+        this.description = dto.getDescription();
+
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.deliveryFee = dto.getDeliveryFee();
+            this.specialDeliveryFee = dto.getSpecialDeliveryFee();
+        }
+
+        if (dto.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+            this.refundFee = dto.getRefundFee();
+            this.specialRefundFee = dto.getSpecialRefundFee();
+        }
     }
 }
