@@ -41,11 +41,14 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Comment("배송비 타입")
     private DeliveryRefundType deliveryFeeType;
-    
+
     @ColumnDefault("'CHARGE_UNDER_30000'")
     @Enumerated(EnumType.STRING)
     @Comment("반송비 타입")
     private DeliveryRefundType refundFeeType;
+
+    @Column(columnDefinition = "TEXT")
+    private String description; // 상품 설명
 
     @Column
     private int deliveryFee; // 배송비
@@ -98,6 +101,7 @@ public class TemporaryProduct extends BaseEntity {
         this.productStatus = productRequest.getProductStatus();
         this.discountStatus = DiscountStatus.DISCOUNT_STOP;
         this.type = productRequest.getType();
+        this.description = productRequest.getDescription();
     }
 
     public void setProduct(CreateProductDTO productRequest) {
@@ -112,5 +116,6 @@ public class TemporaryProduct extends BaseEntity {
         this.weight = productRequest.getWeight();
         this.productStatus = productRequest.getProductStatus();
         this.type = productRequest.getType();
+        this.description = productRequest.getDescription();
     }
 }

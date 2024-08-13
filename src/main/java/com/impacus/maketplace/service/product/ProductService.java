@@ -16,7 +16,6 @@ import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
@@ -50,7 +49,6 @@ public class ProductService {
     private final ProductDetailInfoService productDetailInfoService;
     private final ReadSellerService readSellerService;
     private final AttachFileService attachFileService;
-    private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
     private final SubCategoryService subCategoryService;
     private final WishlistRepository wishlistRepository;
@@ -110,19 +108,6 @@ public class ProductService {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
                     }).toList();
-
-            // 5. Product description 저장
-            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, dto);
-
-            // 6. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            productDescriptionImageList
-                    .forEach(productDescriptionImage -> {
-                        try {
-                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, DirectoryConstants.PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-                        } catch (IOException e) {
-                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
-                        }
-                    });
 
             //7. Product option 저장
             List<ProductOption> newProductOptions = productOptionService.addProductOption(productId, dto.getProductOptions());
@@ -281,13 +266,6 @@ public class ProductService {
             // 2. ProductOption 삭제
             productOptionService.deleteAllProductionOptionByProductId(deleteProduct.getId());
 
-            // 3. ProductDescription 이미지 삭제
-            ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(productId);
-            attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-
-            // 4. ProductDescription 삭제
-            productDescriptionService.deleteProductDescription(productDescription);
-
             // 5. Product 대표 이미지 삭제
             attachFileService.deleteAttachFileByReferencedId(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
 
@@ -354,21 +332,6 @@ public class ProductService {
             // 6. Product 수정
             product.setProduct(dto);
             productRepository.save(product);
-
-            // 7. Product description 수정
-            ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(product.getId());
-            productDescription.setDescription(dto.getDescription());
-
-            // 8. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-            productDescriptionImageList
-                    .forEach(productDescriptionImage -> {
-                        try {
-                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, DirectoryConstants.PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-                        } catch (IOException e) {
-                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
-                        }
-                    });
 
             // 9. Product option 수정
             productOptionService.updateProductOptionList(productId, dto.getProductOptions());

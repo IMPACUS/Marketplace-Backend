@@ -5,9 +5,7 @@ import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -77,21 +75,8 @@ public class CreateProductDTO {
         return new Product(productNumber, sellerId, this);
     }
 
-    public ProductDescription toEntity(Long productId) {
-        return ProductDescription.builder()
-                .productId(productId)
-                .description(this.description)
-                .build();
-    }
-
     public TemporaryProduct toTemporaryEntity(Long sellerId) {
         return new TemporaryProduct(sellerId, this);
     }
 
-    public TemporaryProductDescription toTemporaryDescriptionEntity(Long temporaryProductId) {
-        return TemporaryProductDescription.builder()
-                .temporaryProductId(temporaryProductId)
-                .description(this.description)
-                .build();
-    }
 }

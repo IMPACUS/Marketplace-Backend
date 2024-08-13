@@ -40,7 +40,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
-    private final QProductDescription description = QProductDescription.productDescription;
     private final QSubCategory subCategory = QSubCategory.subCategory;
     private final QSeller seller = QSeller.seller;
     private final QAttachFile attachFile = QAttachFile.attachFile;
@@ -48,7 +47,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QWishlist wishlist = QWishlist.wishlist;
     private final QProductDeliveryTime productDeliveryTime = QProductDeliveryTime.productDeliveryTime;
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
-    private final QProductDescription productDescription = QProductDescription.productDescription;
     private final QProductClaimInfo productClaimInfo = QProductClaimInfo.productClaimInfo;
 
     @Override
@@ -187,14 +185,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
-        BooleanBuilder productOptionBuilder = new BooleanBuilder();
-        productOptionBuilder.and(description.productId.eq(product.id))
-                .and(productOption.isDeleted.eq(false));
-
         List<DetailedProductDTO> result = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
-                .leftJoin(description).on(productOptionBuilder)
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
@@ -211,7 +204,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         wishlist.id,
                                         product.deliveryFee,
                                         seller.marketName,
-                                        description.description,
+                                        product.description,
                                         Projections.constructor(
                                                 ProductDeliveryTimeDTO.class,
                                                 productDeliveryTime.minDays,
@@ -295,7 +288,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 queryFactory
                         .selectFrom(product)
                         .leftJoin(productDetailInfo).on(productDetailInfo.productId.eq(product.id))
-                        .leftJoin(productDescription).on(productDescription.productId.eq(product.id))
                         .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
                         .leftJoin(productOption).on(productOptionBuilder)
                         .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
@@ -316,7 +308,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                 product.weight,
                                                 product.type,
                                                 product.productStatus,
-                                                productDescription.description.as("description"),
+                                        product.description.as("description"),
                                                 Projections.constructor(
                                                         ProductDetailInfoDTO.class,
                                                         productDetailInfo

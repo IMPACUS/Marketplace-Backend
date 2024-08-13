@@ -12,7 +12,10 @@ import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
-import com.impacus.maketplace.entity.temporaryProduct.*;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductClaimInfo;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDeliveryTime;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
@@ -24,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,6 @@ public class TemporaryProductService {
 
     private final TemporaryProductRepository temporaryProductRepository;
     private final AttachFileService attachFileService;
-    private final TemporaryProductDescriptionService temporaryProductDescriptionService;
     private final TemporaryProductOptionService temporaryProductOptionService;
     private final TemporaryProductDetailInfoService temporaryProductDetailInfoService;
     private final ObjectCopyHelper objectCopyHelper;
@@ -117,23 +118,6 @@ public class TemporaryProductService {
                                 DirectoryConstants.TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
                                 temporaryProductId,
                                 ReferencedEntityType.TEMPORARY_PRODUCT);
-                    } catch (IOException e) {
-                        throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
-                    }
-                });
-
-        // 4. Product description 저장
-        TemporaryProductDescription temporaryProductDescription = temporaryProductDescriptionService.addTemporaryProductDescription(temporaryProductId, productRequest);
-
-        // 5. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-        productDescriptionImageList
-                .forEach(productDescriptionImage -> {
-                    try {
-                        attachFileService.uploadFileAndAddAttachFile(
-                                productDescriptionImage,
-                                DirectoryConstants.TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY,
-                                temporaryProductDescription.getId(),
-                                ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
                     } catch (IOException e) {
                         throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                     }
@@ -229,26 +213,6 @@ public class TemporaryProductService {
                         }
                     });
 
-            // 4. Product description 수정
-            TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
-            description.setDescription(dto.getDescription());
-
-            // 6. 상품 설명 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFileByReferencedId(description.getId(), ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION);
-            productDescriptionImageList.stream()
-                    .map(productDescriptionImage -> {
-                        try {
-                            return attachFileService.uploadFileAndAddAttachFile(
-                                    productDescriptionImage,
-                                    DirectoryConstants.TEMPORARY_PRODUCT_DESCRIPTION_IMAGE_DIRECTORY,
-                                    description.getId(),
-                                    ReferencedEntityType.TEMPORARY_PRODUCT_DESCRIPTION
-                            );
-                        } catch (IOException e) {
-                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
-                        }
-                    }).collect(Collectors.toList());
-
             //8. Product option 수정
             temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, dto.getProductOptions());
 
@@ -298,14 +262,7 @@ public class TemporaryProductService {
         // 2. TemporaryProductOption 삭제
         temporaryProductOptionService.deleteAllTemporaryProductionOptionByTemporaryProductId(temporaryProductId);
 
-        // 3. TemporaryProductDescription 이미지 삭제
-        TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
-        attachFileService.deleteAttachFileByReferencedId(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-
-        // 4. TemporaryProductDescription 삭제
-        temporaryProductDescriptionService.deleteTemporaryProductDescription(description);
-
-        // 5. TemporaryProduct의 대표 이미지 삭제
+        // 5. TemporaryProduct 의 대표 이미지 삭제
         attachFileService.deleteAttachFileByReferencedId(temporaryProductId, ReferencedEntityType.PRODUCT);
 
         // 6. 삭제
@@ -324,10 +281,6 @@ public class TemporaryProductService {
             TemporaryProductDTO dto = objectCopyHelper.copyObject(temporaryProduct, TemporaryProductDTO.class);
             Long temporaryProductId = temporaryProduct.getId();
 
-            // TemporaryProductDescription 값 가져오기
-            TemporaryProductDescription description = temporaryProductDescriptionService.findProductDescriptionByTemporaryProductId(temporaryProductId);
-            dto.setDescription(description.getDescription());
-
             // TemporaryProductOption 값 가져오기
             List<TemporaryProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
                     .stream()
@@ -335,7 +288,7 @@ public class TemporaryProductService {
                     .toList();
             dto.setTemporaryProductOptionDTO(options);
 
-            // TemporaryProductDescription 값 가져오기
+            // TemporaryProductDetailInfo 값 가져오기
             TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
             dto.setTemporaryDetailInfoDTO(objectCopyHelper.copyObject(detailInfo, TemporaryDetailInfoDTO.class));
 
@@ -344,7 +297,7 @@ public class TemporaryProductService {
             dto.setDeliveryTime(TemporaryProductDeliveryTimeDTO.toDTO(deliveryTime));
 
             // 대표이미지 데이터 가져오기
-            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(description.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
+            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(temporaryProduct.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
                     .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
                     .toList();
             dto.setProductImageList(attachFileDTOS);

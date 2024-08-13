@@ -100,6 +100,12 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductType type; // 상품 타입
 
+    @ColumnDefault("''")
+    @Column(nullable = false, columnDefinition = "TEXT")
+    @Comment("상품 설명")
+    private String description;
+
+
     public Product(String productNumber, Long sellerId, CreateProductDTO productRequest) {
         this.sellerId = sellerId;
         this.name = productRequest.getName();

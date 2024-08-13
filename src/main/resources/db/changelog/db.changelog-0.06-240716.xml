@@ -6,7 +6,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- product 생성 -->
-    <changeSet author="lchy0413" id="changelog-0.06.01-240716-3">
+    <changeSet author="lchy0413" id="changelog-0.06.01-240716-4">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="product_info"/>
@@ -74,6 +74,9 @@
             <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
                 <constraints nullable="false"/>
             </column>
+            <column name="description" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -104,6 +107,7 @@
         <setColumnRemarks tableName="product_info" columnName="special_refund_fee" remarks="특수 지역  반품비"/>
         <setColumnRemarks tableName="product_info" columnName="delivery_fee_type" remarks="배송비 타입"/>
         <setColumnRemarks tableName="product_info" columnName="refund_fee_type" remarks="반송비 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="description" remarks="상품 설명"/>
     </changeSet>
 
     <!-- product_claim_info 생성 -->
@@ -184,41 +188,6 @@
 
         <setColumnRemarks tableName="product_delivery_time" columnName="min_days" remarks="최소 배송 일수"/>
         <setColumnRemarks tableName="product_delivery_time" columnName="max_days" remarks="최대 배송 일수"/>
-    </changeSet>
-
-    <!-- product_description 생성 -->
-    <changeSet author="lchy0413" id="changelog-0.06.04-240716">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="product_description"/>
-            </not>
-        </preConditions>
-
-        <createTable tableName="product_description">
-            <column name="product_description_id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="product_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="description" type="TEXT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="create_at" type="TIMESTAMP">
-            </column>
-            <column name="modify_at" type="TIMESTAMP">
-            </column>
-            <column name="register_id" type="VARCHAR(255)">
-            </column>
-            <column name="modify_id" type="VARCHAR(255)">
-            </column>
-        </createTable>
-
-        <setColumnRemarks tableName="product_description" columnName="description" remarks="상품 설명"/>
     </changeSet>
 
     <!-- product_detail_info 생성 -->

@@ -78,4 +78,42 @@
         </addColumn>
     </changeSet>
 
+    <!-- 상품관련 description 테이블 삭제  -->
+    <changeSet author="lchy0413" id="changelog-0.12.04-240813">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="product_description"/>
+            <tableExists tableName="temporary_product_description"/>
+        </preConditions>
+        <dropTable tableName="product_description"/>
+        <dropTable tableName="temporary_product_description"/>
+    </changeSet>
+
+    <!-- product column 추가 (description)  -->
+    <changeSet author="lchy0413" id="changelog-0.12.05-240813-1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="temporary_product_info" columnName="description"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="temporary_product_info">
+            <column name="description" type="TEXT" defaultValue="''">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- temporary_product_info column 추가 (description)  -->
+    <changeSet author="lchy0413" id="changelog-0.12.06-240813">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="temporary_product_info" columnName="description"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="temporary_product_info">
+            <column name="description" type="TEXT" defaultValue="''">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
