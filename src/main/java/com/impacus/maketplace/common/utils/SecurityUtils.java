@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import security.CustomUserDetails;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -29,5 +30,11 @@ public class SecurityUtils {
         } catch (Exception ex) {
             return UserType.ROLE_NONE;
         }
+    }
+
+    public Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) return null;
+        return ((CustomUserDetails) authentication.getPrincipal()).getId();
     }
 }

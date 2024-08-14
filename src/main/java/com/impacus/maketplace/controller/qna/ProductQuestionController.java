@@ -26,7 +26,7 @@ public class ProductQuestionController {
     /**
      * 상품 문의 등록
      */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PreAuthorize("hasRole('CERTIFIED_USER')")
     @PostMapping
     public ApiResponseEntity<Boolean> addProductQuestion(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -46,11 +46,10 @@ public class ProductQuestionController {
     /**
      * 문의 내용 삭제
      */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PreAuthorize("hasAnyRole('CERTIFIED_USER', 'ADMIN', 'OWNER', 'PRINCIPAL_ADMIN')")
     @DeleteMapping("/{questionId}")
-    public ApiResponseEntity<Boolean> deleteProductQuestion(@PathVariable long questionId,
-                                                            @AuthenticationPrincipal CustomUserDetails user) {
-        productQuestionService.deleteProductQuestion(questionId, user.getId());
+    public ApiResponseEntity<Boolean> deleteProductQuestion(@PathVariable long questionId) {
+        productQuestionService.deleteProductQuestionById(questionId);
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 

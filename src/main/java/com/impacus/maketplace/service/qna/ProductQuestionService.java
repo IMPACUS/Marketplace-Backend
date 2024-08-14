@@ -38,7 +38,8 @@ public class ProductQuestionService {
      * 문의 삭제
      */
     @Transactional
-    public void deleteProductQuestion(long questionId, long userId) {
-        productQuestionRepository.deleteByIdAndUserId(questionId, userId);
+    public void deleteProductQuestionById(long questionId) {
+        productQuestionRepository.findById(questionId)
+                .ifPresent(productQuestionRepository::deleteWithAuthority);
     }
 }
