@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
 
@@ -43,6 +40,17 @@ public class ProductQuestionController {
                         .contents(dto.getContents())
                         .image(image)
                         .build());
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
+    }
+
+    /**
+     * 문의 내용 삭제
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @DeleteMapping("/{questionId}")
+    public ApiResponseEntity<Boolean> deleteProductQuestion(@PathVariable long questionId,
+                                                            @AuthenticationPrincipal CustomUserDetails user) {
+        productQuestionService.deleteProductQuestion(questionId, user.getId());
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 

@@ -33,4 +33,12 @@ public class ProductQuestionService {
                 dto.getContents(), attachFile.getId());
         productQuestionRepository.save(newQuestion);
     }
+
+    /**
+     * 문의 삭제
+     */
+    @Transactional
+    public void deleteProductQuestion(long questionId, long userId) {
+        productQuestionRepository.deleteByIdAndUserId(questionId, userId);
+    }
 }

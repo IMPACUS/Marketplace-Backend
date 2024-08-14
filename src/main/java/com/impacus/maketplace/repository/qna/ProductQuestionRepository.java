@@ -13,4 +13,6 @@ public interface ProductQuestionRepository extends JpaRepository<ProductQuestion
 
     Page<ProductQuestion> findByProductId(long productId, Pageable pageable);
 
+    void deleteByIdAndUserId(long id, long userId);
+
 }
