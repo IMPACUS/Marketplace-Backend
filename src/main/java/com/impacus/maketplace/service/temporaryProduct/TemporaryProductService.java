@@ -12,6 +12,7 @@ import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
+import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductClaimInfo;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDeliveryTime;
@@ -106,10 +107,10 @@ public class TemporaryProductService {
         Long temporaryProductId = newTemporaryProduct.getId();
 
         // 3. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-        productImageList
-                .forEach(productImage -> {
+        List<AttachFile> productImages = productImageList
+                .stream().map(productImage -> {
                     try {
-                        attachFileService.uploadFileAndAddAttachFile(
+                        return attachFileService.uploadFileAndAddAttachFile(
                                 productImage,
                                 DirectoryConstants.TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
                                 temporaryProductId,
@@ -117,7 +118,7 @@ public class TemporaryProductService {
                     } catch (IOException e) {
                         throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                     }
-                });
+                }).toList();
 
         // 6. Product option 저장
         temporaryProductOptionService.addTemporaryProductOption(temporaryProductId, productRequest.getProductOptions());
@@ -184,34 +185,33 @@ public class TemporaryProductService {
             temporaryProductRepository.save(temporaryProduct);
             Long temporaryProductId = temporaryProduct.getId();
 
-            // 3. 대표 이미지 저장 및 AttachFileGroup 과 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFileByReferencedId(temporaryProductId, ReferencedEntityType.TEMPORARY_PRODUCT);
+            // 3. Product option 수정
+            temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, dto.getProductOptions());
+
+            // 4.TemporaryProductDetailInfo 수정
+            TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
+            detailInfo.setTemporaryProductDetailInfo(dto.getProductDetail());
+
+            // 5. TemporaryProductDeliveryTime 수정
+            deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
+
+            // 6. TemporaryProductClaimInfo 수정
+            temporaryProductClaimService.updateTemporaryProductClaim(temporaryProductId, dto.getClaim());
+
+            // 7. 대표 이미지 저장 및 AttachFileGroup 과 연관 관계 매핑 객체 생성
+            attachFileService.deleteAttachFileByReferencedId(temporaryProduct.getId(), ReferencedEntityType.TEMPORARY_PRODUCT);
             productImageList
                     .forEach(productImage -> {
                         try {
                             attachFileService.uploadFileAndAddAttachFile(
                                     productImage,
                                     DirectoryConstants.TEMPORARY_PRODUCT_IMAGE_DIRECTORY,
-                                    temporaryProductId,
-                                    ReferencedEntityType.TEMPORARY_PRODUCT
-                            );
+                                    temporaryProduct.getId(),
+                                    ReferencedEntityType.TEMPORARY_PRODUCT);
                         } catch (IOException e) {
                             throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
                         }
                     });
-
-            // 4. Product option 수정
-            temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, dto.getProductOptions());
-
-            // 5.TemporaryProductDetailInfo 수정
-            TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
-            detailInfo.setTemporaryProductDetailInfo(dto.getProductDetail());
-
-            // 6. TemporaryProductDeliveryTime 수정
-            deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
-
-            // 7. TemporaryProductClaimInfo 수정
-            temporaryProductClaimService.updateTemporaryProductClaim(temporaryProductId, dto.getClaim());
 
             return SimpleTemporaryProductDTO.toDTO(temporaryProduct);
         } catch (Exception ex) {
@@ -284,7 +284,10 @@ public class TemporaryProductService {
             dto.setDeliveryTime(TemporaryProductDeliveryTimeDTO.toDTO(deliveryTime));
 
             // 대표이미지 데이터 가져오기
-            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(temporaryProduct.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION)
+            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(
+                            temporaryProduct.getId(),
+                            ReferencedEntityType.TEMPORARY_PRODUCT
+                    )
                     .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
                     .toList();
             dto.setProductImageList(attachFileDTOS);
