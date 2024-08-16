@@ -52,13 +52,21 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     private final QSelectedSellerDeliveryCompany selectedSellerDeliveryCompany = QSelectedSellerDeliveryCompany.selectedSellerDeliveryCompany;
 
     @Override
-    public Page<SimpleSellerEntryDTO> findAllSellerWithEntry(LocalDate startAt, LocalDate endAt, Pageable pageable, EntryStatus[] entryStatus) {
+    public Page<SimpleSellerEntryDTO> findAllSellerWithEntry(
+            LocalDate startAt,
+            LocalDate endAt,
+            Pageable pageable,
+            EntryStatus[] entryStatus,
+            String brandName
+    ) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(seller.isDeleted.eq(false));
-        builder.and(seller.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)));
+        builder.and(seller.isDeleted.eq(false))
+                .and(seller.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .and(checkIsContainBrandName(brandName));
         if (entryStatus != null) {
             builder.and(seller.entryStatus.in(Arrays.stream(entryStatus).toList()));
         }
+
 
         List<SimpleSellerEntryDTO> content = getSimpleSellerEntryDTO(builder);
         Long count = getSimpleSellerEntryDTOCount(builder);
@@ -67,27 +75,31 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
     @Override
     public DetailedSellerEntryDTO findDetailedSellerEntry(Long userId) {
-        DetailedSellerEntryDTO detailedSellerEntryDTO = queryFactory.select(
-                        new QDetailedSellerEntryDTO(
+        DetailedSellerEntryDTO detailedSellerEntryDTO = queryFactory
+                .select(
+                        Projections.fields(
+                                DetailedSellerEntryDTO.class,
                                 user.id,
                                 seller.marketName,
                                 seller.contactName,
                                 user.email,
-                                user.phoneNumber,
+                                user.phoneNumber.as("contactNumber"),
                                 sellerBusinessInfo.businessRegistrationNumber,
                                 sellerBusinessInfo.mailOrderBusinessReportNumber,
                                 sellerBusinessInfo.businessAddress,
                                 sellerAdjustmentInfo.bankCode,
                                 sellerAdjustmentInfo.accountName,
-                                sellerAdjustmentInfo.accountNumber
+                                sellerAdjustmentInfo.accountNumber,
+                                attachFile.attachFileName.as("logoImageUrl")
                         )
                 )
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(userId))
+                .innerJoin(attachFile).on(attachFile.id.eq(seller.logoImageId))
                 .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
                 .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
                 .where(seller.userId.eq(userId))
-                .fetch().get(0);
+                .fetchFirst();
 
         AttachFile businessRegistration = queryFactory.selectFrom(attachFile)
                 .innerJoin(seller).on(seller.userId.eq(userId))

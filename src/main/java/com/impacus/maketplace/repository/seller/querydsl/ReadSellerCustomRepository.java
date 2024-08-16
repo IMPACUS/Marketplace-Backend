@@ -11,7 +11,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReadSellerCustomRepository {
-    Page<SimpleSellerEntryDTO> findAllSellerWithEntry(LocalDate startAt, LocalDate endAt, Pageable pageable, EntryStatus[] entryStatus);
+    Page<SimpleSellerEntryDTO> findAllSellerWithEntry(
+            LocalDate startAt,
+            LocalDate endAt,
+            Pageable pageable,
+            EntryStatus[] entryStatus,
+            String brandName
+    );
 
     DetailedSellerEntryDTO findDetailedSellerEntry(Long userId);
 

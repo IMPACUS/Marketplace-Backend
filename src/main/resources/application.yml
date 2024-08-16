@@ -8,6 +8,9 @@ spring:
       dev:
         - key
         - mail
+      test:
+        - key
+        - mail
   servlet:
     multipart:
       max-file-size: 24MB

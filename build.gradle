@@ -92,6 +92,11 @@ def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
     main.java.srcDirs += [querydslDir]
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+    }
 }
 
 tasks.withType(JavaCompile) {
