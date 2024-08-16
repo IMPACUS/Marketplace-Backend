@@ -6,6 +6,7 @@ import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.qna.ProductQuestion;
 import com.impacus.maketplace.repository.qna.ProductQuestionRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.api.ProductInterface;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ProductQuestionService {
 
+    private final ProductInterface productInterface;
+
     private final ProductQuestionRepository productQuestionRepository;
 
     private final AttachFileService attachFileService;
@@ -26,6 +29,7 @@ public class ProductQuestionService {
      */
     @Transactional
     public void addProductQuestion(AddProductQuestionServiceDTO dto) {
+        productInterface.checkExistenceById(dto.getProductId());
         // 1. 첨부파일 업로드
         AttachFile attachFile = attachFileService.uploadFileAndAddAttachFile(dto.getImage(), DirectoryConstants.PRODUCT_QUESTION_DIRECTORY);
         // 2. 문의 entity 저장

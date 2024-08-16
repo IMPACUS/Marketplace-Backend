@@ -14,7 +14,8 @@ public class AddProductQuestionDTO {
 
     private Long orderId;
 
-    @Size(max = 500)
+    @NotNull
+    @Size(min = 5, max = 500)
     private String contents;
 
 }
