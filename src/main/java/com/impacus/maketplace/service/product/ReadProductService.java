@@ -17,6 +17,7 @@ import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.redis.service.RecentProductViewsService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.api.ProductInterface;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
@@ -33,20 +34,21 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ReadProductService {
+public class ReadProductService implements ProductInterface {
     private final ProductRepository productRepository;
     private final ReadSellerService readSellerService;
     private final AttachFileService attachFileService;
     private final SubCategoryService subCategoryService;
     private final RecentProductViewsService recentProductViewsService;
 
-    /**
-     * 전달받은 ProductRequest 의 유효성 검사를 하는 함수
-     *
-     * @param productImageList
-     * @param categoryId
-     * @param productDescriptionImageList
-     */
+    @Override
+    public void checkExistenceById(long productId) {
+        if (!productRepository.existsByIsDeletedFalseAndId(productId)) {
+            throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
+        }
+    }
+
+    @Override
     public void validateProductRequest(
             List<MultipartFile> productImageList,
             Long categoryId,
@@ -76,48 +78,18 @@ public class ReadProductService {
         }
     }
 
-    /**
-     * productId로 Product를 찾는 함수
-     *
-     * @param productId
-     * @return
-     */
+    @Override
     public Product findProductById(Long productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT));
-    }
-
-    /**
-     * productId로 삭제되지 않은 Product를 찾는 함수
-     *
-     * @param productId
-     * @return
-     */
-    public Product findProductByIdAndIsDeletedFalse(Long productId) {
         return productRepository.findByIsDeletedFalseAndId(productId)
                 .orElseThrow(() -> new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT));
     }
 
-    /**
-     * productIdList에 존재하는 모든 상품들이 userId인 판매자의 상품인지 확인하는 경우
-     * - true: 모두 판매자의 상품인 경우
-     * - false: 판매자가 등록하지 않은 상품이 존재하는 경우
-     *
-     * @param userId
-     * @param productIdList
-     * @return
-     */
+    @Override
     public boolean verifySellerProductIds(Long userId, List<Long> productIdList) {
         return productRepository.checkIsSellerProductIds(userId, productIdList);
     }
 
-    /**
-     * 전체 상품 조회하는 함수
-     *
-     * @param subCategoryId
-     * @param pageable
-     * @return
-     */
+    @Override
     public Slice<ProductForAppDTO> findProductByCategoryForApp(
             Long userId,
             Long subCategoryId,
@@ -134,12 +106,7 @@ public class ReadProductService {
         }
     }
 
-    /**
-     * 최근 본 상품 목록 조회 함수
-     *
-     * @param pageable
-     * @return
-     */
+    @Override
     public Slice<ProductForAppDTO> findProductForRecentViews(
             Long userId,
             Pageable pageable
@@ -152,18 +119,7 @@ public class ReadProductService {
         }
     }
 
-    /**
-     * 상품 조회 함수
-     * - 판매자인 경우, 판매자의 브랜드 등록 상품 조회
-     * - 관리자인 경우, 등록되어 있는 모든 상품 조회 가능
-     *
-     * @param userId
-     * @param keyword  검색어 (null/공백: 전체 반환, not null: keyword가 존재하는 데이터 반환)
-     * @param startAt
-     * @param endAt
-     * @param pageable
-     * @return
-     */
+    @Override
     public Page<ProductForWebDTO> findProductForWeb(
             Long userId,
             UserType userType,
@@ -200,12 +156,7 @@ public class ReadProductService {
         }
     }
 
-    /***
-     * 상품에 대한 전체 상세 정보를 조회하는 함수
-     *
-     * @param productId
-     * @return
-     */
+    @Override
     public DetailedProductDTO findDetailedProduct(Long userId, Long productId) {
         try {
             // 1. productId 존재확인
@@ -227,19 +178,14 @@ public class ReadProductService {
         }
     }
 
-    /**
-     * 웹에서 상품 전체 정보를 조회하는 함수
-     * - 판매자: 판매자의 브랜드가 등록한 상품만 조회 가능
-     * - 관리자: 모든 상품 조회 가능
-     *
-     * @param userId
-     * @param productId
-     * @return
-     */
+    @Override
     public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
         try {
             UserType userType = SecurityUtils.getCurrentUserType();
             Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? readSellerService.findSellerByUserId(userId).getId() : null;
+
+            // 존재하는 상품인지 확인상품
+            checkExistenceById(productId);
 
             // 1. 데이터 조회
             ProductDetailForWebDTO dto = productRepository.findProductDetailByProductId(sellerId, userType, productId);
