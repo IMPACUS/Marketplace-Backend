@@ -31,13 +31,15 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
     private final QAttachFileGroup attachFileGroup = QAttachFileGroup.attachFileGroup;
 
     @Override
-    public Slice<WishlistDetailDTO> findAllWishListByUserId(Long userId, Pageable pageable) {
-        List<WishlistDetailDTO> dtos = getWishlistDetailDTOs(userId);
+    public Slice<WishlistDetailDTO> findWishlistsByUserId(Long userId, Pageable pageable) {
+        // 1. 데이터 조회
+        List<WishlistDetailDTO> dtos = getWishlistDetailDTOs(userId, pageable);
 
+        // 2. 슬라이스 처리
         return PaginationUtils.toSlice(dtos, pageable);
     }
 
-    private List<WishlistDetailDTO> getWishlistDetailDTOs(Long userId) {
+    private List<WishlistDetailDTO> getWishlistDetailDTOs(Long userId, Pageable pageable) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(wishlist.productId))
                 .and(product.isDeleted.eq(false));
@@ -46,13 +48,25 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
 
+        // 1. 조건에 맞는 wishlist 리스트 조회
+        List<Long> wishlistIds = queryFactory
+                .select(wishlist.id)
+                .from(wishlist)
+                .where(wishlist.registerId.eq(userId.toString()))
+                .orderBy(wishlist.modifyAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        // 2. wishlistIds 조건에 맞는 장바구니 리스트 조회
         return queryFactory
                 .selectFrom(wishlist)
                 .innerJoin(product).on(productBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
-                .where(wishlist.registerId.eq(userId.toString()))
+                .orderBy(wishlist.modifyAt.desc())
+                .where(wishlist.id.in(wishlistIds))
                 .transform(
                         GroupBy.groupBy(wishlist.id).list(Projections.constructor(
                                 WishlistDetailDTO.class,

@@ -36,7 +36,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
 
     @Override
     public Slice<ShoppingBasketDetailDTO> findAllShoppingBasketByUserId(Long userId, Pageable pageable) {
-        // 1. 전체 데이터 조회
+        // 1. 데이터 조회
         List<ShoppingBasketDetailDTO> dtos = getShoppingBasketDetailDTOs(userId, pageable);
 
         // 2. 슬라이스 처리
