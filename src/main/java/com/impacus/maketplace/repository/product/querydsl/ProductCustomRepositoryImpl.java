@@ -259,8 +259,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             productIdIndexMap.put(productIds.get(i), i);
         }
 
+        // 1. 조건에 맞는 Product 조회
         List<ProductForAppDTO> products = findProducts(userId, productBuilder);
 
+        // 2. 최근 조회한 상품 순으로 정렬
         List<ProductForAppDTO> sortedProducts = products.stream()
                 .sorted(Comparator.comparingInt(product -> productIdIndexMap.get(product.getProductId())))
                 .toList();
@@ -438,7 +440,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
-        // 2. productIds 조건에 맞는 Product 리스트 조회
         return queryFactory
                 .selectFrom(product)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))

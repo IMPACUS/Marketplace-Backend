@@ -37,13 +37,13 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
     @Override
     public Slice<ShoppingBasketDetailDTO> findAllShoppingBasketByUserId(Long userId, Pageable pageable) {
         // 1. 전체 데이터 조회
-        List<ShoppingBasketDetailDTO> dtos = getShoppingBasketDetailDTOs(userId);
+        List<ShoppingBasketDetailDTO> dtos = getShoppingBasketDetailDTOs(userId, pageable);
 
         // 2. 슬라이스 처리
         return PaginationUtils.toSlice(dtos, pageable);
     }
 
-    private List<ShoppingBasketDetailDTO> getShoppingBasketDetailDTOs(Long userId) {
+    private List<ShoppingBasketDetailDTO> getShoppingBasketDetailDTOs(Long userId, Pageable pageable) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
@@ -56,6 +56,17 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
         productOptionBuilder.and(shoppingBasket.productOptionId.eq(productOption.id))
                 .and(productOption.isDeleted.eq(false));
 
+        // 1. 조건에 맞는 shopping basket 리스트 조회
+        List<Long> shoppingBasketIds = queryFactory
+                .select(shoppingBasket.id)
+                .from(shoppingBasket)
+                .where(shoppingBasket.userId.eq(userId))
+                .orderBy(shoppingBasket.modifyAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        // 2. shoppingBasketIds 조건에 맞는 장바구니 리스트 조회
         return queryFactory
                 .selectFrom(shoppingBasket)
                 .leftJoin(productOption).on(productOptionBuilder)
@@ -63,12 +74,14 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
-                .where(shoppingBasket.userId.eq(userId))
+                .where(shoppingBasket.id.in(shoppingBasketIds))
+                .orderBy(shoppingBasket.modifyAt.desc())
                 .transform(
                         GroupBy.groupBy(shoppingBasket.id).list(Projections.constructor(
                                         ShoppingBasketDetailDTO.class,
                                         shoppingBasket.id,
                                         shoppingBasket.quantity,
+                                        shoppingBasket.modifyAt,
                                         Projections.constructor(
                                                 ProductForAppDTO.class,
                                                 product.id,

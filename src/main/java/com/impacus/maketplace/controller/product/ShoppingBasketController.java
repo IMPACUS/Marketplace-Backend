@@ -89,7 +89,7 @@ public class ShoppingBasketController {
     @GetMapping("")
     public ApiResponseEntity<Slice<ShoppingBasketDetailDTO>> getShoppingBasket(
             @AuthenticationPrincipal CustomUserDetails user,
-            @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 15) Pageable pageable
     ) {
         Slice<ShoppingBasketDetailDTO> dto = shoppingBasketService.getAllShoppingBasket(user.getId(), pageable);
         return ApiResponseEntity
