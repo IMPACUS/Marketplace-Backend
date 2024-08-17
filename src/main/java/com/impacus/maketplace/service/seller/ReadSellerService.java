@@ -123,9 +123,10 @@ public class ReadSellerService {
     public Page<SimpleSellerEntryDTO> getSellerEntryList(LocalDate startAt,
                                                          LocalDate endAt,
                                                          EntryStatus[] entryStatus,
+                                                         String brandName,
                                                          Pageable pageable) {
         try {
-            return sellerRepository.findAllSellerWithEntry(startAt, endAt, pageable, entryStatus);
+            return sellerRepository.findAllSellerWithEntry(startAt, endAt, pageable, entryStatus, brandName);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

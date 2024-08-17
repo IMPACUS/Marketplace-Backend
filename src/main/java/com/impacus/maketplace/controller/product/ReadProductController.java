@@ -2,11 +2,11 @@ package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.product.request.CreateProductDTO;
-import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
-import com.impacus.maketplace.dto.product.response.*;
-import com.impacus.maketplace.service.product.ProductService;
-import jakarta.validation.Valid;
+import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
+import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.service.product.ReadProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,96 +15,23 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import security.CustomUserDetails;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/product")
-public class ProductController {
+public class ReadProductController {
 
-    private final ProductService productService;
-
-
-    /**
-     * 새로운 상품을 등록하는 API
-     *
-     * @param productImageList
-     * @param dto
-     * @return
-     */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
-            "or hasRole('ROLE_ADMIN') " +
-            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
-            "or hasRole('ROLE_OWNER')")
-    @PostMapping("")
-    public ApiResponseEntity<ProductDTO> addProduct(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO dto) {
-        ProductDTO productDTO = productService.addProduct(
-                user.getId(),
-                productImageList,
-                dto);
-        return ApiResponseEntity
-                .<ProductDTO>builder()
-                .data(productDTO)
-                .build();
-    }
-
-    /**
-     * 상품 다중 삭제 API
-     *
-     * @param productIdList
-     * @return
-     */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
-            "or hasRole('ROLE_ADMIN') " +
-            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
-            "or hasRole('ROLE_OWNER')")
-    @DeleteMapping("")
-    public ApiResponseEntity<Boolean> deleteAllProduct(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(name = "product-id") List<Long> productIdList
-    ) {
-        productService.deleteAllProduct(user.getId(), productIdList);
-        return ApiResponseEntity.simpleResult(HttpStatus.OK);
-    }
-
-    /**
-     * 등록된 상품을 수정하는 API
-     *
-     * @param productImageList
-     * @param dto
-     * @return
-     */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
-            "or hasRole('ROLE_ADMIN') " +
-            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
-            "or hasRole('ROLE_OWNER')")
-    @PutMapping("")
-    public ApiResponseEntity<ProductDTO> updateProduct(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @Valid @RequestPart(value = "product") UpdateProductDTO dto) {
-        ProductDTO productDTO = productService.updateProduct(
-                user.getId(),
-                productImageList,
-                dto
-        );
-        return ApiResponseEntity
-                .<ProductDTO>builder()
-                .data(productDTO)
-                .build();
-    }
+    private final ReadProductService productService;
 
     /**
      * 앱용 소비자가 전체 상품 조회 API

@@ -1,6 +1,5 @@
 package com.impacus.maketplace.controller.seller;
 
-import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -66,9 +65,12 @@ public class ReadSellerController {
             @RequestParam(value = "start-at") LocalDate startAt,
             @RequestParam(value = "end-at") LocalDate endAt,
             @RequestParam(value = "entry-status", required = false) EntryStatus[] entryStatus,
+            @RequestParam(value = "brand-name", required = false) String brandName,
             @PageableDefault(size = 6, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<SimpleSellerEntryDTO> entryDTOList = readSellerService.getSellerEntryList(startAt, endAt, entryStatus, pageable);
+        Page<SimpleSellerEntryDTO> entryDTOList = readSellerService.getSellerEntryList(
+                startAt, endAt, entryStatus, brandName, pageable
+        );
         return ApiResponseEntity.builder()
                 .data(entryDTOList)
                 .build();
