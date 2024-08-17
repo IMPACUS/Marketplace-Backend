@@ -114,7 +114,7 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public Page<ProductForWebDTO> findProductForWeb(
+    public Page<ProductForWebDTO> findProductsForWeb(
             Long userId,
             UserType userType,
             String keyword,
@@ -127,7 +127,7 @@ public class ReadProductService implements ProductInterface {
             Long sellerId = getSellerId(userId, userType);
 
             // 2. 상품 조회
-            return productRepository.findAllProduct(sellerId, keyword, startAt, endAt, pageable);
+            return productRepository.findProductsForWeb(sellerId, keyword, startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

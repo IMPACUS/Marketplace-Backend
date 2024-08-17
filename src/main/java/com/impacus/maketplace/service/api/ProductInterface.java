@@ -100,7 +100,7 @@ public interface ProductInterface {
      * @param pageable 페이지네이션 정보
      * @return 상품 리스트
      */
-    Page<ProductForWebDTO> findProductForWeb(
+    Page<ProductForWebDTO> findProductsForWeb(
             Long userId,
             UserType userType,
             String keyword,

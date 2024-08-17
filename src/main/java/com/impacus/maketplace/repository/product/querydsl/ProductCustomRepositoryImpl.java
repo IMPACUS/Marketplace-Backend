@@ -1,7 +1,9 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
+import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
@@ -16,6 +18,8 @@ import com.impacus.maketplace.entity.seller.QSeller;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +54,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProductClaimInfo productClaimInfo = QProductClaimInfo.productClaimInfo;
 
     @Override
-    public Page<ProductForWebDTO> findAllProduct(
+    public Page<ProductForWebDTO> findProductsForWeb(
             Long sellerId,
             String keyword,
             LocalDate startAt,
@@ -58,29 +62,49 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Pageable pageable
     ) {
         // 1. builder 생성
-        // - seller 값이 존재하는 경우에만 판매자 비교
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
 
+        // 1-1. seller 값이 존재하는 경우에만 판매자 비교
+        BooleanBuilder productBuilder = new BooleanBuilder();
+        productBuilder.and(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
                 .and(product.isDeleted.eq(false));
-
         if (sellerId != null) {
-            builder.and(product.sellerId.eq(sellerId));
+            productBuilder.and(product.sellerId.eq(sellerId));
         }
-
-        // 2. 전체 데이터 조회
-        List<ProductForWebDTO> duplicatedProducts = getProductDTO(builder);
-
-        // 3. 데이터 중복 제거 (set 사용하는 경우 중복 제거 필요)
-        List<ProductForWebDTO> products = removeDuplicatedProductsForWeb(duplicatedProducts);
-
-        // 4. 검색어 조회
+        // 1-2. 검색어 조회
         if (keyword != null && !keyword.isBlank()) {
-            products = filterProductForWebDTOByKeyword(keyword, products);
+            productBuilder.or(product.name.containsIgnoreCase(keyword)) // 검색 옵션: 상품명
+                    .or(product.productNumber.containsIgnoreCase(keyword)) // 검색 옵션: 상품 번호
+                    .or(DeliveryType.containsEnumValue(product.deliveryType, keyword)) // 검색 옵션: 배송 상태
+                    .or(ProductStatus.containsEnumValue(product.productStatus, keyword)) // 검색 옵션: 상품 상태
+                    .or(product.discountPrice.stringValue().containsIgnoreCase(keyword))  // 검색 옵션: 할인가
+                    .or(productOption.stock.sum().stringValue().containsIgnoreCase(keyword)); // 검색 옵션: 재고
+
+            productBuilder // 검색 옵션: 상품 옵션
+                    .or(Expressions.stringTemplate("concat({0}, '/', {1})", productOption.color, productOption.size)
+                            .containsIgnoreCase(keyword));
         }
 
-        // 5. 페이징 처리
-        return PaginationUtils.toPage(products, pageable);
+        BooleanBuilder productOptionBuilder = new BooleanBuilder();
+        productOptionBuilder.and(productOption.productId.eq(product.id))
+                .and(productOption.isDeleted.eq(false));
+
+        // 2. 조건에 맞는 데이터 조회
+        List<ProductForWebDTO> dtos = getProductForWebDTO(
+                productBuilder, productOptionBuilder, pageable
+        );
+
+        // 3. 전체 데이터 수 조회
+        int count = queryFactory
+                .select(product.id)
+                .from(product)
+                .leftJoin(productOption).on(productOptionBuilder)
+                .where(productBuilder)
+                .groupBy(product.id)
+                .orderBy(product.createAt.desc())
+                .fetch().size();
+
+        // 4. 페이징 처리
+        return PaginationUtils.toPage(dtos, pageable, count);
     }
 
     private List<ProductForWebDTO> removeDuplicatedProductsForWeb(List<ProductForWebDTO> products) {
@@ -115,7 +139,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             } else if (StringUtils.containsKeywordIgnoreCase(Long.toString(dto.getStock()), keyword)) { // 검색 옵션: 재고
                 content.add(dto);
             } else {
-                for (ProductOptionDTO productOptionDTO : dto.getOptions()) { // 검색 옵션: 상품 옵션
+                for (ProductOptionForWebDTO productOptionDTO : dto.getOptions()) { // 검색 옵션: 상품 옵션
                     if (productOptionDTO.getColor() != null && StringUtils.containsKeywordIgnoreCase(productOptionDTO.getColor(), keyword)
                             || (productOptionDTO.getSize() != null && StringUtils.containsKeywordIgnoreCase(productOptionDTO.getSize(), keyword))) {
                         content.add(dto);
@@ -129,22 +153,37 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
 
-    private List<ProductForWebDTO> getProductDTO(BooleanBuilder builder) {
+    private List<ProductForWebDTO> getProductForWebDTO(
+            BooleanBuilder productBuilder,
+            BooleanBuilder productOptionBuilder,
+            Pageable pageable
+    ) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
 
-        BooleanBuilder productOptionBuilder = new BooleanBuilder();
-        productOptionBuilder.and(productOption.productId.eq(product.id))
-                .and(productOption.isDeleted.eq(false));
+        // 1. 조건에 맞는 product id 리스트 조회
+        // 검색어와 상품 옵션 검색어 확인
+        List<Long> productIds = queryFactory
+                .select(product.id)
+                .from(product)
+                .leftJoin(productOption).on(productOptionBuilder)
+                .where(productBuilder)
+                .groupBy(product.id)
+                .orderBy(product.createAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
+        // 3. productIds 에 포함되는 상품 조회
         JPAQuery<Product> query = queryFactory
                 .selectFrom(product)
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .leftJoin(productOption).on(productOptionBuilder)
                 .groupBy(product.id, attachFile.id, productOption.id)
-                .where(builder);
+                .where(product.id.in(productIds))
+                .orderBy(product.createAt.desc());
 
         return query
                 .transform(
@@ -159,16 +198,16 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         product.productStatus,
                                         productOption.stock.sum(),
                                         product.createAt,
-                                        GroupBy.set(
+                                        GroupBy.list(
                                                 Projections.constructor(
-                                                        ProductOptionDTO.class,
+                                                        ProductOptionForWebDTO.class,
                                                         productOption.id,
                                                         productOption.color,
                                                         productOption.size
                                                 )
 
                                         ),
-                                        GroupBy.set(
+                                        GroupBy.list(
                                                 Projections.constructor(
                                                         AttachFileDTO.class,
                                                         attachFile.id,

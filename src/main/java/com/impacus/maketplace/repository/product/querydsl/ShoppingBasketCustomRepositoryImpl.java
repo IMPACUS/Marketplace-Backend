@@ -56,7 +56,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
         productOptionBuilder.and(shoppingBasket.productOptionId.eq(productOption.id))
                 .and(productOption.isDeleted.eq(false));
 
-        // 1. 조건에 맞는 shopping basket 리스트 조회
+        // 1. 조건에 맞는 장바구니 ID 리스트 조회
         List<Long> shoppingBasketIds = queryFactory
                 .select(shoppingBasket.id)
                 .from(shoppingBasket)
@@ -66,7 +66,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        // 2. shoppingBasketIds 조건에 맞는 장바구니 리스트 조회
+        // 2. shoppingBasketIds 에 포함되는 상품 조회
         return queryFactory
                 .selectFrom(shoppingBasket)
                 .leftJoin(productOption).on(productOptionBuilder)

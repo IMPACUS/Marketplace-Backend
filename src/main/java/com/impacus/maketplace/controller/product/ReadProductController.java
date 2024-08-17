@@ -64,13 +64,13 @@ public class ReadProductController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("/seller")
-    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductBySellerIdForWeb(
+    public ApiResponseEntity<Page<ProductForWebDTO>> getProductsBySellerIdForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+        Page<ProductForWebDTO> productDTOList = productService.findProductsForWeb(
                 user.getId(), UserType.ROLE_APPROVED_SELLER, keyword, startAt, endAt, pageable
         );
         return ApiResponseEntity
@@ -92,13 +92,13 @@ public class ReadProductController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_OWNER')")
     @GetMapping("/admin")
-    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
+    public ApiResponseEntity<Page<ProductForWebDTO>> getProductsForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+        Page<ProductForWebDTO> productDTOList = productService.findProductsForWeb(
                 user.getId(), UserType.ROLE_ADMIN, keyword, startAt, endAt, pageable
         );
         return ApiResponseEntity

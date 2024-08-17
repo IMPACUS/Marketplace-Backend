@@ -391,7 +391,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     private BooleanBuilder checkIsContainBrandName(String brandName) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (brandName != null && !brandName.isBlank()) {
-            booleanBuilder.and(seller.marketName.contains(brandName));
+            booleanBuilder.and(seller.marketName.containsIgnoreCase(brandName));
         }
 
         return booleanBuilder;
@@ -400,7 +400,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     private BooleanBuilder checkIsContainContactName(String contactName) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (contactName != null && !contactName.isBlank()) {
-            booleanBuilder.and(seller.contactName.contains(contactName));
+            booleanBuilder.and(seller.contactName.containsIgnoreCase(contactName));
         }
 
         return booleanBuilder;
@@ -464,5 +464,6 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
         return dto;
     }
+
 
 }

@@ -7,6 +7,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,8 +20,8 @@ public class ProductForWebDTO {
     private ProductStatus productStatus;
     private long stock;
     private LocalDateTime createAt;
-    private Set<ProductOptionDTO> options;
-    private Set<AttachFileDTO> productImageList;
+    private List<ProductOptionForWebDTO> options;
+    private List<AttachFileDTO> productImageList;
 
     @QueryProjection
     public ProductForWebDTO(
@@ -32,8 +33,8 @@ public class ProductForWebDTO {
             ProductStatus productStatus,
             long stock,
             LocalDateTime createAt,
-            Set<ProductOptionDTO> productOptionList,
-            Set<AttachFileDTO> productImageList
+            List<ProductOptionForWebDTO> productOptionList,
+            List<AttachFileDTO> productImageList
     ) {
         this.id = id;
         this.name = name;

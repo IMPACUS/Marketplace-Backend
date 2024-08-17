@@ -48,7 +48,7 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
                 .and(attachFileGroup.referencedId.eq(product.id));
 
-        // 1. 조건에 맞는 wishlist 리스트 조회
+        // 1. 조건에 맞는 wishlist ID 리스트 조회
         List<Long> wishlistIds = queryFactory
                 .select(wishlist.id)
                 .from(wishlist)
@@ -58,7 +58,7 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        // 2. wishlistIds 조건에 맞는 장바구니 리스트 조회
+        // 2. wishlistIds 에 포함되는 상품 조회
         return queryFactory
                 .selectFrom(wishlist)
                 .innerJoin(product).on(productBuilder)

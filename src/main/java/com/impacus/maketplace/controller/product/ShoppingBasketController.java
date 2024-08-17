@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -87,11 +86,11 @@ public class ShoppingBasketController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("")
-    public ApiResponseEntity<Slice<ShoppingBasketDetailDTO>> getShoppingBasket(
+    public ApiResponseEntity<Slice<ShoppingBasketDetailDTO>> getShoppingBaskets(
             @AuthenticationPrincipal CustomUserDetails user,
             @PageableDefault(size = 15) Pageable pageable
     ) {
-        Slice<ShoppingBasketDetailDTO> dto = shoppingBasketService.getAllShoppingBasket(user.getId(), pageable);
+        Slice<ShoppingBasketDetailDTO> dto = shoppingBasketService.getShoppingBaskets(user.getId(), pageable);
         return ApiResponseEntity
                 .<Slice<ShoppingBasketDetailDTO>>builder()
                 .data(dto)

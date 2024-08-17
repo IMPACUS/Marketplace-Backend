@@ -112,7 +112,7 @@ public class ShoppingBasketService {
      * @param pageable
      * @return
      */
-    public Slice<ShoppingBasketDetailDTO> getAllShoppingBasket(Long userId, Pageable pageable) {
+    public Slice<ShoppingBasketDetailDTO> getShoppingBaskets(Long userId, Pageable pageable) {
         try {
             return shoppingBasketRepository.findAllShoppingBasketByUserId(userId, pageable);
         } catch (Exception ex) {

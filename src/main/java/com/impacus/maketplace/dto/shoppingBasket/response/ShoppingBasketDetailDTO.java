@@ -25,7 +25,6 @@ public class ShoppingBasketDetailDTO {
             ProductForAppDTO product,
             ProductOptionDTO productOption
     ) {
-
         this.shoppingBasketId = shoppingBasketId;
         this.quantity = quantity;
         this.modifyAt = modifyAt;
