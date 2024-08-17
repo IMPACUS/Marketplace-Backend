@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet author="lchy0413" id="changelog-0.12.01-240818">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="seller" columnName="charge_percent"/>
+        </preConditions>
+        <dropNotNullConstraint tableName="seller" columnName="charge_percent"/>
+    </changeSet>
+
+</databaseChangeLog>

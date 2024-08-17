@@ -57,9 +57,9 @@ public class Seller extends BaseEntity {
     private boolean isDeleted; //
 
     @ColumnDefault("0")
-    @Column(nullable = false, name = "charge_percent")
+    @Column(name = "charge_percent")
     @Comment("수수료 비율")
-    private int chargePercent;
+    private Integer chargePercent;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -83,7 +83,6 @@ public class Seller extends BaseEntity {
         this.businessType = businessType;
         this.entryStatus = EntryStatus.REQUEST;
         this.isDeleted = false;
-        this.chargePercent = 0;
         this.sellerType = sellerType;
     }
 }
