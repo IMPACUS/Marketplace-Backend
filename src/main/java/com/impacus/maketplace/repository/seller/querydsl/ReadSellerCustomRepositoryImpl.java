@@ -90,7 +90,8 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 sellerAdjustmentInfo.bankCode,
                                 sellerAdjustmentInfo.accountName,
                                 sellerAdjustmentInfo.accountNumber,
-                                attachFile.attachFileName.as("logoImageUrl")
+                                attachFile.attachFileName.as("logoImageUrl"),
+                                seller.chargePercent
                         )
                 )
                 .from(seller)

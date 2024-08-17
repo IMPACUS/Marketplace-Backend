@@ -22,6 +22,7 @@ public class DetailedSellerEntryDTO {
     private String mailOrderBusinessReportUrl;
     private String bankBookUrl;
     private String logoImageUrl;
+    private Integer chargePercent;
 
     public void setBusinessRegistrationUrl(String businessRegistrationUrl) {
         this.businessRegistrationUrl = businessRegistrationUrl;
