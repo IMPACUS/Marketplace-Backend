@@ -71,16 +71,15 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             productBuilder.and(product.sellerId.eq(sellerId));
         }
         // 1-2. 검색어 조회
+        BooleanBuilder searchBuilder = new BooleanBuilder();
         if (keyword != null && !keyword.isBlank()) {
-            productBuilder.or(product.name.containsIgnoreCase(keyword)) // 검색 옵션: 상품명
+            searchBuilder.or(product.name.containsIgnoreCase(keyword)) // 검색 옵션: 상품명
                     .or(product.productNumber.containsIgnoreCase(keyword)) // 검색 옵션: 상품 번호
                     .or(DeliveryType.containsEnumValue(product.deliveryType, keyword)) // 검색 옵션: 배송 상태
                     .or(ProductStatus.containsEnumValue(product.productStatus, keyword)) // 검색 옵션: 상품 상태
-                    .or(product.discountPrice.stringValue().containsIgnoreCase(keyword))  // 검색 옵션: 할인가
-                    .or(productOption.stock.sum().stringValue().containsIgnoreCase(keyword)); // 검색 옵션: 재고
-
-            productBuilder // 검색 옵션: 상품 옵션
-                    .or(Expressions.stringTemplate("concat({0}, '/', {1})", productOption.color, productOption.size)
+                    .or(Expressions.stringTemplate("cast({0} as string)", product.discountPrice).contains(keyword))  // 검색 옵션: 할인가
+                    //.or(Expressions.stringTemplate("cast(sum({0}) as string)", productOption.stock).containsIgnoreCase(keyword)) // 검색 옵션: 재고
+                    .or(Expressions.stringTemplate("concat({0}, '/', {1})", productOption.color, productOption.size) // 검색 옵션: 상품 옵션
                             .containsIgnoreCase(keyword));
         }
 
@@ -90,7 +89,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         // 2. 조건에 맞는 데이터 조회
         List<ProductForWebDTO> dtos = getProductForWebDTO(
-                productBuilder, productOptionBuilder, pageable
+                productBuilder.and(searchBuilder), productOptionBuilder, pageable
         );
 
         // 3. 전체 데이터 수 조회
@@ -122,36 +121,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         return new ArrayList<>(productMap.values());
     }
-
-    private List<ProductForWebDTO> filterProductForWebDTOByKeyword(String keyword, List<ProductForWebDTO> products) {
-        List<ProductForWebDTO> content = new ArrayList<>();
-        for (ProductForWebDTO dto : products) {
-            if (StringUtils.containsKeywordIgnoreCase(dto.getName(), keyword)) { // 검색 옵션: 상품명
-                content.add(dto);
-            } else if (StringUtils.containsKeywordIgnoreCase(dto.getProductNumber(), keyword)) { // 검색 옵션: 상품 번호
-                content.add(dto);
-            } else if (StringUtils.containsKeywordIgnoreCase(dto.getDeliveryType().getValue(), keyword)) { // 검색 옵션: 배송 상태
-                content.add(dto);
-            } else if (StringUtils.containsKeywordIgnoreCase(dto.getProductStatus().getValue(), keyword)) { // 검색 옵션: 상품 상태
-                content.add(dto);
-            } else if (StringUtils.containsKeywordIgnoreCase(Integer.toString(dto.getPrice()), keyword)) { // 검색 옵션: 할인가
-                content.add(dto);
-            } else if (StringUtils.containsKeywordIgnoreCase(Long.toString(dto.getStock()), keyword)) { // 검색 옵션: 재고
-                content.add(dto);
-            } else {
-                for (ProductOptionForWebDTO productOptionDTO : dto.getOptions()) { // 검색 옵션: 상품 옵션
-                    if (productOptionDTO.getColor() != null && StringUtils.containsKeywordIgnoreCase(productOptionDTO.getColor(), keyword)
-                            || (productOptionDTO.getSize() != null && StringUtils.containsKeywordIgnoreCase(productOptionDTO.getSize(), keyword))) {
-                        content.add(dto);
-                        break;
-                    }
-                }
-            }
-        }
-
-        return content;
-    }
-
 
     private List<ProductForWebDTO> getProductForWebDTO(
             BooleanBuilder productBuilder,

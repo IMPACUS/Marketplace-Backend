@@ -5,6 +5,9 @@ import com.querydsl.core.types.dsl.EnumPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @RequiredArgsConstructor
 public enum DeliveryType {
@@ -15,12 +18,15 @@ public enum DeliveryType {
     private final String value;
 
     public static BooleanExpression containsEnumValue(EnumPath<DeliveryType> path, String keyword) {
+        List<DeliveryType> types = new ArrayList<>();
+
         if (DeliveryType.GENERAL_DELIVERY.getValue().contains(keyword)) {
-            return path.eq(DeliveryType.GENERAL_DELIVERY);
-        } else if (DeliveryType.PLUS_DELIVERY.getValue().contains(keyword)) {
-            return path.eq(DeliveryType.PLUS_DELIVERY);
-        } else {
-            return null;
+             types.add(DeliveryType.GENERAL_DELIVERY);
         }
+        if (DeliveryType.PLUS_DELIVERY.getValue().contains(keyword)) {
+            types.add(DeliveryType.PLUS_DELIVERY);
+        }
+
+        return path.in(types);
     }
 }

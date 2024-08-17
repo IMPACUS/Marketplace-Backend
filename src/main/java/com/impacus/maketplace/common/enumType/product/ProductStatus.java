@@ -6,6 +6,9 @@ import com.querydsl.core.types.dsl.EnumPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @RequiredArgsConstructor
 public enum ProductStatus {
@@ -17,15 +20,19 @@ public enum ProductStatus {
     private final String value;
 
     public static BooleanExpression containsEnumValue(EnumPath<ProductStatus> path, String keyword) {
+        List<ProductStatus> types = new ArrayList<>();
+
         if (ProductStatus.SALES_PROGRESS.getValue().contains(keyword)) {
-            return path.eq(ProductStatus.SALES_PROGRESS);
-        } else if (ProductStatus.SALES_STOP.getValue().contains(keyword)) {
-            return path.eq(ProductStatus.SALES_STOP);
-        } else if (ProductStatus.SOLD_OUT.getValue().contains(keyword)) {
-            return path.eq(ProductStatus.SOLD_OUT);
-        } else {
-            return null;
+            types.add(ProductStatus.SALES_PROGRESS);
         }
+        if (ProductStatus.SALES_STOP.getValue().contains(keyword)) {
+            types.add(ProductStatus.SALES_STOP);
+        }
+        if (ProductStatus.SOLD_OUT.getValue().contains(keyword)) {
+            types.add(ProductStatus.SOLD_OUT);
+        }
+
+        return path.in(types);
     }
 
 }
