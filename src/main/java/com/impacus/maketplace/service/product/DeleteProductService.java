@@ -22,7 +22,6 @@ public class DeleteProductService {
     private final ProductRepository productRepository;
     private final ProductOptionService productOptionService;
     private final AttachFileService attachFileService;
-    private final ProductDescriptionService productDescriptionService;
     private final WishlistRepository wishlistRepository;
     private final ReadProductService readProductService;
 

@@ -29,7 +29,6 @@ public class CreateProductController {
      * 새로운 상품을 등록하는 API
      *
      * @param productImageList
-     * @param productDescriptionImageList
      * @param dto
      * @return
      */
@@ -41,13 +40,13 @@ public class CreateProductController {
     public ApiResponseEntity<ProductDTO> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO dto) {
+            @Valid @RequestPart(value = "product") CreateProductDTO dto
+    ) {
         ProductDTO productDTO = createProductService.addProduct(
                 user.getId(),
                 productImageList,
-                dto,
-                productDescriptionImageList);
+                dto
+        );
         return ApiResponseEntity
                 .<ProductDTO>builder()
                 .data(productDTO)

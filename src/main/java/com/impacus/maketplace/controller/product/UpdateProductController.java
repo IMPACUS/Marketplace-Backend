@@ -29,7 +29,6 @@ public class UpdateProductController {
      * 등록된 상품을 수정하는 API
      *
      * @param productImageList
-     * @param productDescriptionImageList
      * @param dto
      * @return
      */
@@ -41,13 +40,12 @@ public class UpdateProductController {
     public ApiResponseEntity<ProductDTO> updateProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") UpdateProductDTO dto) {
+            @Valid @RequestPart(value = "product") UpdateProductDTO dto
+    ) {
         ProductDTO productDTO = updateProductService.updateProduct(
                 user.getId(),
                 productImageList,
-                dto,
-                productDescriptionImageList
+                dto
         );
         return ApiResponseEntity
                 .<ProductDTO>builder()

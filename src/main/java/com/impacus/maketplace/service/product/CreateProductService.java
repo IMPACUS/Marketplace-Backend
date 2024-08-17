@@ -35,7 +35,6 @@ public class CreateProductService {
     private final ProductDetailInfoService productDetailInfoService;
     private final ReadSellerService readSellerService;
     private final AttachFileService attachFileService;
-    private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
     private final ProductDeliveryTimeService deliveryTimeService;
     private final ProductClaimService productClaimService;

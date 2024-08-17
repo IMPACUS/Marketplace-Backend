@@ -35,7 +35,6 @@ public class UpdateProductService {
     private final ProductDetailInfoService productDetailInfoService;
     private final ReadSellerService readSellerService;
     private final AttachFileService attachFileService;
-    private final ProductDescriptionService productDescriptionService;
     private final ProductDeliveryTimeService deliveryTimeService;
     private final ProductClaimService productClaimService;
     private final ProductHistoryService productHistoryService;
@@ -47,7 +46,6 @@ public class UpdateProductService {
      * - 관리자: 모든 상품 수정 가능
      *
      * @param productImageList
-     * @param productDescriptionImageList
      * @return
      */
     @Transactional
@@ -59,7 +57,7 @@ public class UpdateProductService {
             Long productId = dto.getProductId();
 
             // 1. Product 찾기
-            Product product = findProductById(productId);
+            Product product = readProductService.findProductById(productId);
 
             // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
             // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
