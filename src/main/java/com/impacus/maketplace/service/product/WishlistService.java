@@ -47,7 +47,7 @@ public class WishlistService {
         Long productId = wishlistRequest.getProductId();
 
         // 1. productId가 존재하는지 확인
-        productService.findProductByIdAndIsDeletedFalse(productId);
+        productService.findProductById(productId);
 
         // 2. 요청한 유저의 Wishlist에 상품이 존재하는지 확인
         if (!findWishlistByProductIdAndUserId(productId, userId).isEmpty()) {
