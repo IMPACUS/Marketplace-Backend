@@ -66,6 +66,16 @@ public class Seller extends BaseEntity {
     @ColumnDefault("UNOFFICIAL_AGENT")
     private SellerType sellerType;
 
+    public void setEntryInformation(
+            EntryStatus entryStatus,
+            Integer chargePercent,
+            LocalDateTime entryApprovedAt
+    ) {
+        this.entryStatus = entryStatus;
+        this.chargePercent = chargePercent;
+        this.entryApprovedAt = entryApprovedAt;
+    }
+
     @Builder
     public Seller(Long userId,
                   String contactName,
