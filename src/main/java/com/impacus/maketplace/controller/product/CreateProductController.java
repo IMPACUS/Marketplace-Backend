@@ -26,7 +26,7 @@ public class CreateProductController {
     private final CreateProductService createProductService;
 
     /**
-     * 새로운 상품을 등록하는 API
+     * [관리자, 판매자] 새로운 상품을 등록하는 API
      *
      * @param productImageList
      * @param dto

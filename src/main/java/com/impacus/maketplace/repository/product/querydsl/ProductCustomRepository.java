@@ -21,7 +21,7 @@ public interface ProductCustomRepository {
 
     Slice<ProductForAppDTO> findAllProductBySubCategoryId(Long userId, Long subCategoryId, Pageable pageable);
 
-    Slice<ProductForAppDTO> findAllProductByProductIds(Long userId, List<Long> productIds, Pageable pageable);
+    Slice<ProductForAppDTO> findProductsByProductIds(Long userId, List<Long> productIds, Pageable pageable);
 
     ProductDetailForWebDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId);
 

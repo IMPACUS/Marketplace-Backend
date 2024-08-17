@@ -145,6 +145,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(productOption).on(productOptionBuilder)
                 .groupBy(product.id, attachFile.id, productOption.id)
                 .where(builder);
+
         return query
                 .transform(
                         GroupBy.groupBy(product.id).list(
@@ -243,7 +244,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findAllProductByProductIds(
+    public Slice<ProductForAppDTO> findProductsByProductIds(
             Long userId,
             List<Long> productIds,
             Pageable pageable
@@ -258,7 +259,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             productIdIndexMap.put(productIds.get(i), i);
         }
 
-        List<ProductForAppDTO> products = findAllProduct(productBuilder, userId);
+        List<ProductForAppDTO> products = findProducts(userId, productBuilder);
 
         List<ProductForAppDTO> sortedProducts = products.stream()
                 .sorted(Comparator.comparingInt(product -> productIdIndexMap.get(product.getProductId())))
@@ -387,25 +388,47 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Long subCategoryId,
             Pageable pageable
     ) {
+        // 1. 상품 리스트 조회
+        List<ProductForAppDTO> dtos = findProductsForApp(userId, subCategoryId, pageable);
+
+        // 3. 슬라이스 처리
+        return PaginationUtils.toSlice(dtos, pageable);
+    }
+
+    private List<ProductForAppDTO> findProductsForApp(
+            Long userId,
+            Long subCategoryId,
+            Pageable pageable
+    ) {
         BooleanBuilder productBuilder = new BooleanBuilder()
                 .and(product.isDeleted.eq(false));
-
         // 카테고리가 검색에 존재할 때만 검색
         if (subCategoryId != null) {
             productBuilder
                     .and(product.categoryId.eq(subCategoryId));
         }
 
-        // 1. 전체 조회
-        List<ProductForAppDTO> dtos = findAllProduct(productBuilder, userId);
+        // 1. 조건에 맞는 productId 리스트 조회
+        List<Long> productIds = queryFactory
+                .select(product.id)
+                .from(product)
+                .where(productBuilder)
+                .orderBy(product.createAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
 
-        // 2. 슬라이스 처리
-        return PaginationUtils.toSlice(dtos, pageable);
+        // 2. productIds 조건에 맞는 Product 리스트 조회
+        return findProducts(
+                userId,
+                new BooleanBuilder().and(product.id.in(productIds))
+        );
     }
 
-    public List<ProductForAppDTO> findAllProduct(
-            BooleanBuilder productBuilder,
-            Long userId
+
+    private List<ProductForAppDTO> findProducts(
+            Long userId,
+            BooleanBuilder productBuilder
     ) {
         BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
         attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
@@ -415,6 +438,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
+        // 2. productIds 조건에 맞는 Product 리스트 조회
         return queryFactory
                 .selectFrom(product)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))

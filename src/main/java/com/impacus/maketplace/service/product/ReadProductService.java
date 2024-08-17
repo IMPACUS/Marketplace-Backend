@@ -107,7 +107,7 @@ public class ReadProductService implements ProductInterface {
     ) {
         try {
             List<Long> productIds = recentProductViewsService.findProductIdsByUserId(userId, pageable);
-            return productRepository.findAllProductByProductIds(userId, productIds, pageable);
+            return productRepository.findProductsByProductIds(userId, productIds, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
