@@ -3,12 +3,13 @@ package com.impacus.maketplace.dto.product.response;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
+import com.impacus.maketplace.entity.product.ProductOption;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Data
 public class ProductForWebDTO {
@@ -31,9 +32,8 @@ public class ProductForWebDTO {
             String productNumber,
             DeliveryType deliveryType,
             ProductStatus productStatus,
-            long stock,
             LocalDateTime createAt,
-            List<ProductOptionForWebDTO> productOptionList,
+            List<ProductOption> productOptions,
             List<AttachFileDTO> productImageList
     ) {
         this.id = id;
@@ -42,9 +42,15 @@ public class ProductForWebDTO {
         this.productNumber = productNumber;
         this.deliveryType = deliveryType;
         this.productStatus = productStatus;
-        this.stock = stock;
         this.createAt = createAt;
-        this.options = productOptionList;
         this.productImageList = productImageList;
+        long stock = 0;
+        List<ProductOptionForWebDTO> options = new ArrayList<>();
+        for (ProductOption productOption : productOptions) {
+            stock += productOption.getStock();
+            options.add(new ProductOptionForWebDTO(productOption.getId(), productOption.getColor(), productOption.getSize()));
+        }
+        this.options = options;
+        this.stock = stock;
     }
 }

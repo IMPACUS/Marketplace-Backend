@@ -7,7 +7,6 @@ import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
@@ -19,7 +18,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -133,9 +131,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(productOption).on(productOptionBuilder)
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
-                .groupBy(product.id, productOption.id, attachFile.id)
-                .where(product.id.in(productIds));
-               // .orderBy(product.createAt.desc());
+                .groupBy(product.id, productOption.id)
+                .where(product.id.in(productIds))
+                .orderBy(product.createAt.desc());
         return query
                 .transform(
                         GroupBy.groupBy(product.id).list(
@@ -147,17 +145,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         product.productNumber,
                                         product.deliveryType,
                                         product.productStatus,
-                                        productOption.stock.sum(),
                                         product.createAt,
-                                        GroupBy.list(
-                                                Projections.constructor(
-                                                        ProductOptionForWebDTO.class,
-                                                        productOption.id,
-                                                        productOption.color,
-                                                        productOption.size
-                                                )
-
-                                        ),
+                                        GroupBy.list(productOption),
                                         GroupBy.list(
                                                 Projections.constructor(
                                                         AttachFileDTO.class,
