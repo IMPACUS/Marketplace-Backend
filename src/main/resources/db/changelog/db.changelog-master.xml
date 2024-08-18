@@ -17,6 +17,7 @@
     <include file="/db/changelog/db.changelog-0.10-240808.xml"/>
     <include file="/db/changelog/db.changelog-0.11-240808.xml"/>
     <include file="/db/changelog/db.changelog-0.12-240813.xml"/>
+    <include file="/db/changelog/db.changelog-0.12-240818.xml"/>
 
 </databaseChangeLog>
 

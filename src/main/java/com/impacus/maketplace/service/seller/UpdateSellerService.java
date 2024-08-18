@@ -89,10 +89,9 @@ public class UpdateSellerService {
             if (entryStatus == EntryStatus.APPROVE) {
                 entryApprovedAt = LocalDateTime.now();
             }
-            sellerRepository.updateSellerEntryStatusAndChargePercent(
-                    seller.getId(),
+            seller.setEntryInformation(
                     entryStatus,
-                    charge == null ? 0 : charge,
+                    charge,
                     entryApprovedAt
             );
 
@@ -110,7 +109,7 @@ public class UpdateSellerService {
                 emailService.sendMail(emailDto, MailType.SELLER_REJECT);
             }
 
-            sellerRepository.save(seller);
+        sellerRepository.save(seller);
 
             return true;
         } catch (Exception ex) {
