@@ -14,7 +14,7 @@ import java.util.Set;
 public class ProductForWebDTO {
     private Long id;
     private String name;
-    private int price;
+    private String price;
     private String productNumber;
     private DeliveryType deliveryType;
     private ProductStatus productStatus;
@@ -27,7 +27,7 @@ public class ProductForWebDTO {
     public ProductForWebDTO(
             Long id,
             String name,
-            int price,
+            String price,
             String productNumber,
             DeliveryType deliveryType,
             ProductStatus productStatus,

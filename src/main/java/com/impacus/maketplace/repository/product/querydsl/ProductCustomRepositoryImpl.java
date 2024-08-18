@@ -77,8 +77,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                     .or(product.productNumber.containsIgnoreCase(keyword)) // 검색 옵션: 상품 번호
                     .or(DeliveryType.containsEnumValue(product.deliveryType, keyword)) // 검색 옵션: 배송 상태
                     .or(ProductStatus.containsEnumValue(product.productStatus, keyword)) // 검색 옵션: 상품 상태
-                    .or(Expressions.stringTemplate("cast({0} as string)", product.discountPrice).contains(keyword))  // 검색 옵션: 할인가
-                    //.or(Expressions.stringTemplate("cast(sum({0}) as string)", productOption.stock).containsIgnoreCase(keyword)) // 검색 옵션: 재고
+                    .or(Expressions.stringTemplate("cast({0} as string)", product.appSalesPrice).contains(keyword))  // 검색 옵션: 할인가
+                    //.or(Expressions.stringTemplate("cast(sum({0}) as string)", productOption.stock).contains(keyword)) // 검색 옵션: 재고
                     .or(Expressions.stringTemplate("concat({0}, '/', {1})", productOption.color, productOption.size) // 검색 옵션: 상품 옵션
                             .containsIgnoreCase(keyword));
         }
@@ -97,29 +97,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .select(product.id)
                 .from(product)
                 .leftJoin(productOption).on(productOptionBuilder)
-                .where(productBuilder)
+                .where(productBuilder.and(searchBuilder))
                 .groupBy(product.id)
-                .orderBy(product.createAt.desc())
                 .fetch().size();
 
         // 4. 페이징 처리
         return PaginationUtils.toPage(dtos, pageable, count);
-    }
-
-    private List<ProductForWebDTO> removeDuplicatedProductsForWeb(List<ProductForWebDTO> products) {
-        // Using Stream API to remove duplicates
-        Map<Long, ProductForWebDTO> productMap = products.stream()
-                .collect(Collectors.toMap(
-                        ProductForWebDTO::getId,
-                        Function.identity(),
-                        (existing, replacement) -> {
-                            existing.getOptions().addAll(replacement.getOptions());
-                            existing.getProductImageList().addAll(replacement.getProductImageList());
-                            return existing;
-                        }
-                ));
-
-        return new ArrayList<>(productMap.values());
     }
 
     private List<ProductForWebDTO> getProductForWebDTO(
@@ -147,13 +130,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         // 3. productIds 에 포함되는 상품 조회
         JPAQuery<Product> query = queryFactory
                 .selectFrom(product)
+                .leftJoin(productOption).on(productOptionBuilder)
                 .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
                 .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
-                .leftJoin(productOption).on(productOptionBuilder)
-                .groupBy(product.id, attachFile.id, productOption.id)
-                .where(product.id.in(productIds))
-                .orderBy(product.createAt.desc());
-
+                .groupBy(product.id, productOption.id, attachFile.id)
+                .where(product.id.in(productIds));
+               // .orderBy(product.createAt.desc());
         return query
                 .transform(
                         GroupBy.groupBy(product.id).list(
@@ -161,7 +143,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         ProductForWebDTO.class,
                                         product.id,
                                         product.name,
-                                        product.appSalesPrice,
+                                        Expressions.stringTemplate("cast({0} as string)", product.appSalesPrice),
                                         product.productNumber,
                                         product.deliveryType,
                                         product.productStatus,
