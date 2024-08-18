@@ -1,38 +1,50 @@
 package com.impacus.maketplace.entity.order;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.common.enumType.order.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Getter
-@Builder
 @Table(name = "orders")
+@Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access =  AccessLevel.PROTECTED)
+@Builder
 public class Order extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_id")
-    private Long id; // 주문 아이디
+    @Column(name = "orders_id")
+    private Long id;
 
-    @JoinColumn(name = "user_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user; // 사용자
+    @Column(nullable = false)
+    private Long userId;    // 사용자 아이디
 
-    @Column(name = "total_production_cost")
-    private Integer totalProductCost; // 상품 총 가격
+    @Column(nullable = false)
+    private Integer productCount;   // 주문한 상품 총 수량
 
-    @Column(name = "delivery_fee")
-    private Integer deliveryFee; // 배송비
+    @Column(nullable = false)
+    private Long totalOrderAmount;  // 최종 주문 금액
 
-    @Column(name = "received_point")
-    private Integer receivedPoint;
+    @Column(nullable = false)
+    private Long totalDeliveryFee;  // 최종 배송비
 
-    @Column(name = "discount_amount")
-    private Integer discountAmount; // 할인 금액 => 쿠폰 할인 ex) 정액 할인, 정률 할인
+    @Column(nullable = false)
+    private Long totalCouponDiscount;   // 최종 쿠폰 할인 금액
 
-    @Column(name = "used_point")
-    private Integer usedPoint; // 사용한 포인트
+    @Column(nullable = false)
+    private Long totalGreenLabelPoints; // 최종 적용된 그린 라벨 포인트 금액
+
+    @Column(nullable = false)
+    private Long totalEcoDiscount;  // 최종 에코 할인 금액
+
+    @Column(nullable = false)
+    private Long totalCommissionFee;    // 최종 적용 수수료 비용
+
+    @Column(nullable = false)
+    @ColumnDefault("'PENDING'")
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;    // 결재 상태
 }

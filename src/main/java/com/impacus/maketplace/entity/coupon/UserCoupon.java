@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.coupon;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.annotation.ValidEnum;
+import com.impacus.maketplace.common.enumType.coupon.CouponSourceType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.entity.user.User;
 import jakarta.persistence.*;
@@ -43,6 +44,12 @@ public class UserCoupon extends BaseEntity {
     @Column(nullable = false)
     @ColumnDefault("'false'")
     private Boolean isUsed; // 쿠폰 사용 여부
+
+    @Column(nullable = false)
+    @ColumnDefault("'NONE'")
+    private CouponSourceType sourceType;
+
+    private Long sourceId;
 
     private LocalDate expiredAt;   // 쿠폰 만료 날짜
 
