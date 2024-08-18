@@ -11,4 +11,16 @@
         <dropNotNullConstraint tableName="seller" columnName="charge_percent"/>
     </changeSet>
 
+    <!-- product column 추가  -->
+    <changeSet author="lchy0413" id="changelog-0.12.02-240818">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="product_images"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="product_images" type="TEXT"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

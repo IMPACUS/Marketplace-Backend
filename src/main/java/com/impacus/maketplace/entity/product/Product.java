@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.product;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.converter.MapToJsonConverter;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
@@ -15,6 +16,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+
+import java.util.Map;
 
 @Entity
 @Getter
@@ -37,8 +40,13 @@ public class Product extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name; // 상품명
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String productNumber; // 상품 번호
+
+    @Convert(converter = MapToJsonConverter.class)
+    @Column(columnDefinition = "TEXT")
+    @Comment("상품 이미지")
+    private Map<Long, String> productImages;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

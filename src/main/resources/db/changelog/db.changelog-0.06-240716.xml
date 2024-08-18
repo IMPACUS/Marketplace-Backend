@@ -6,7 +6,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- product 생성 -->
-    <changeSet author="lchy0413" id="changelog-0.06.01-240716-5">
+    <changeSet author="lchy0413" id="changelog-0.06.01-240716-6">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="product_info"/>
@@ -24,7 +24,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="product_number" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
             <column name="delivery_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -80,6 +80,7 @@
             <column name="delivery_company" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="product_images" type="TEXT"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -111,6 +112,7 @@
         <setColumnRemarks tableName="product_info" columnName="delivery_fee_type" remarks="배송비 타입"/>
         <setColumnRemarks tableName="product_info" columnName="refund_fee_type" remarks="반송비 타입"/>
         <setColumnRemarks tableName="product_info" columnName="description" remarks="상품 설명"/>
+        <setColumnRemarks tableName="product_info" columnName="product_images" remarks="상품 이미지"/>
     </changeSet>
 
     <!-- product_claim_info 생성 -->
