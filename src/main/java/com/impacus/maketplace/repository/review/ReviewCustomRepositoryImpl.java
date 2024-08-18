@@ -4,7 +4,6 @@ import com.impacus.maketplace.dto.review.QReviewBuyerDTO;
 import com.impacus.maketplace.dto.review.ReviewBuyerDTO;
 import com.impacus.maketplace.dto.review.ReviewSellerDTO;
 import com.impacus.maketplace.entity.order.QOrder;
-import com.impacus.maketplace.entity.order.QPurchaseProduct;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductDetailInfo;
 import com.impacus.maketplace.entity.review.QReview;
@@ -29,7 +28,6 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     private final QUser userEntity = QUser.user;
     private final QOrder order = QOrder.order;
     private final QSeller seller = QSeller.seller;
-    private final QPurchaseProduct purchaseProduct = QPurchaseProduct.purchaseProduct;
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
     private final QProduct product = QProduct.product;
 
