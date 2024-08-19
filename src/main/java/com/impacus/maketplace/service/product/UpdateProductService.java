@@ -11,7 +11,6 @@ import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
-import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ public class UpdateProductService {
     private final ProductOptionService productOptionService;
     private final ProductDetailInfoService productDetailInfoService;
     private final ReadSellerService readSellerService;
-    private final AttachFileService attachFileService;
     private final ProductDeliveryTimeService deliveryTimeService;
     private final ProductClaimService productClaimService;
     private final ProductHistoryService productHistoryService;
@@ -74,7 +72,7 @@ public class UpdateProductService {
                     dto.getRefundFeeType()
             );
 
-            // 5. 상품 이력 저장 (조건에 부핪하는 경우)
+            // 5. 상품 이력 저장 (조건에 부합하는 경우)
             addProductHistoryInUpdateMode(product, dto, product.getProductImages());
 
             // 6. Product 수정
@@ -117,6 +115,39 @@ public class UpdateProductService {
         if (!newProduct.getName().equals(nowProduct.getName())) {
             ProductHistory productHistory = ProductHistory.toEntity(nowProduct.getId(), newProduct.getName(), productImages);
             productHistoryService.saveProductHistory(productHistory);
+        }
+    }
+
+    /**
+     * 등록된 상품 이미지 수정 함수
+     * - 판매자: 판매자의 브랜드인 상품만 수정가능
+     * - 관리자: 모든 상품 수정 가능
+     *
+     * @return
+     */
+    @Transactional
+    public void updateProductImages(Long userId, Long productId, List<String> productImages) {
+        try {
+            Product product = readProductService.findProductById(productId);
+
+            // 1. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
+            // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
+            UserType userType = SecurityUtils.getCurrentUserType();
+            if (userType == UserType.ROLE_APPROVED_SELLER) {
+                Seller seller = readSellerService.findSellerByUserId(userId);
+                if (!seller.getId().equals(product.getSellerId())) {
+                    throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
+                }
+            }
+
+            // 2. 이미지 업데이트
+            productRepository.updateProductImagesById(productId, productImages);
+
+            // 3. 상품 이력 저장
+            ProductHistory productHistory = ProductHistory.toEntity(product.getId(), product.getName(), productImages);
+            productHistoryService.saveProductHistory(productHistory);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
     }
 }

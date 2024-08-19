@@ -19,14 +19,14 @@
     </changeSet>
 
     <!-- product column 추가  -->
-    <changeSet author="lchy0413" id="changelog-0.12.03-240818">
+    <changeSet author="lchy0413" id="changelog-0.12.03-240818-2">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="product_info" columnName="product_images"/>
             </not>
         </preConditions>
         <addColumn tableName="product_info">
-            <column name="product_images" type="TEXT"/>
+            <column name="product_images" type="TEXT" defaultValue="[]"/>
         </addColumn>
     </changeSet>
 
