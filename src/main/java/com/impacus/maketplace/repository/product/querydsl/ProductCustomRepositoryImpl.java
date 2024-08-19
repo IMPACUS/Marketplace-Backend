@@ -108,10 +108,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             BooleanBuilder productOptionBuilder,
             Pageable pageable
     ) {
-        BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
-        attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
-                .and(attachFileGroup.referencedId.eq(product.id));
-
         // 1. 조건에 맞는 product id 리스트 조회
         // 검색어와 상품 옵션 검색어 확인
         List<Long> productIds = queryFactory
@@ -129,8 +125,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         JPAQuery<Product> query = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOptionBuilder)
-                .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
-                .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .groupBy(product.id, productOption.id)
                 .where(product.id.in(productIds))
                 .orderBy(product.createAt.desc());
@@ -147,13 +141,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         product.productStatus,
                                         product.createAt,
                                         GroupBy.list(productOption),
-                                        GroupBy.list(
-                                                Projections.constructor(
-                                                        AttachFileDTO.class,
-                                                        attachFile.id,
-                                                        attachFile.attachFileName
-                                                )
-                                        )
+                                        product.productImages
                                 )
                         )
                 );
