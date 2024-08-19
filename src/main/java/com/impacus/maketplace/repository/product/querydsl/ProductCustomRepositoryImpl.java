@@ -8,11 +8,10 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
-import com.impacus.maketplace.entity.common.QAttachFile;
-import com.impacus.maketplace.entity.common.QAttachFileGroup;
 import com.impacus.maketplace.entity.product.*;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -42,8 +41,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProductOption productOption = QProductOption.productOption;
     private final QSubCategory subCategory = QSubCategory.subCategory;
     private final QSeller seller = QSeller.seller;
-    private final QAttachFile attachFile = QAttachFile.attachFile;
-    private final QAttachFileGroup attachFileGroup = QAttachFileGroup.attachFileGroup;
     private final QWishlist wishlist = QWishlist.wishlist;
     private final QProductDeliveryTime productDeliveryTime = QProductDeliveryTime.productDeliveryTime;
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
@@ -74,7 +71,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                     .or(DeliveryType.containsEnumValue(product.deliveryType, keyword)) // 검색 옵션: 배송 상태
                     .or(ProductStatus.containsEnumValue(product.productStatus, keyword)) // 검색 옵션: 상품 상태
                     .or(Expressions.stringTemplate("cast({0} as string)", product.appSalesPrice).contains(keyword))  // 검색 옵션: 할인가
-                    //.or(Expressions.stringTemplate("cast(sum({0}) as string)", productOption.stock).contains(keyword)) // 검색 옵션: 재고
+                    .or(Expressions.stringTemplate("CAST(SUM({0}) AS string)", productOption.stock)
+                            .like("%" + keyword + "%")) // 검색 옵션: 재고
                     .or(Expressions.stringTemplate("concat({0}, '/', {1})", productOption.color, productOption.size) // 검색 옵션: 상품 옵션
                             .containsIgnoreCase(keyword));
         }
@@ -85,16 +83,18 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         // 2. 조건에 맞는 데이터 조회
         List<ProductForWebDTO> dtos = getProductForWebDTO(
-                productBuilder.and(searchBuilder), productOptionBuilder, pageable
+                productBuilder, productOptionBuilder, searchBuilder, pageable
         );
 
         // 3. 전체 데이터 수 조회
         int count = queryFactory
-                .select(product.id)
+                .selectDistinct(product.id, product.createAt)
                 .from(product)
                 .leftJoin(productOption).on(productOptionBuilder)
-                .where(productBuilder.and(searchBuilder))
-                .groupBy(product.id)
+                .where(productBuilder)
+                .groupBy(product.id, productOption.color, productOption.size)
+                .having(searchBuilder)
+                .orderBy(product.createAt.desc())
                 .fetch().size();
 
         // 4. 페이징 처리
@@ -104,20 +104,24 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private List<ProductForWebDTO> getProductForWebDTO(
             BooleanBuilder productBuilder,
             BooleanBuilder productOptionBuilder,
+            BooleanBuilder searchBuilder,
             Pageable pageable
     ) {
         // 1. 조건에 맞는 product id 리스트 조회
         // 검색어와 상품 옵션 검색어 확인
-        List<Long> productIds = queryFactory
-                .select(product.id)
+        List<Tuple> filteredProductIds = queryFactory
+                .selectDistinct(product.id, product.createAt)
                 .from(product)
                 .leftJoin(productOption).on(productOptionBuilder)
                 .where(productBuilder)
-                .groupBy(product.id)
+                .groupBy(product.id, productOption.color, productOption.size)
+                .having(searchBuilder)
                 .orderBy(product.createAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        List<Long> productIds = filteredProductIds.stream().map(x -> x.get(product.id)).toList();
 
         // 3. productIds 에 포함되는 상품 조회
         JPAQuery<Product> query = queryFactory
