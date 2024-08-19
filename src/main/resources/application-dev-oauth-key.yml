@@ -1,10 +1,10 @@
 spring:
   config:
     activate:
-      on-profile: local-key
+      on-profile: key
   security:
     oauth2:
-      authorized-redirect-uri: http://localhost:8080/auth/login/result
+      authorized-redirect-uri: http://localhost:3000/auth/login/result
       client:
         provider:
           apple:
@@ -34,7 +34,7 @@ spring:
             client-id: 11feba151c9000140c34efa5b250ab61
             client-secret: moqDsduMLshr4nuHasGPX9P993FwHjsS
             client-authentication-method: client_secret_post
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: https://back-dev.implace.kr/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-name: kakao
             scope:
@@ -44,7 +44,7 @@ spring:
             client-id: X6_FJgezg3PARLPaySoQ
             client-secret: NJN4y3oeUE
             client-authentication-method: client_secret_post
-            redirect-uri: http://localhost:8080/login/oauth2/code/naver
+            redirect-uri: https://back-dev.implace.kr/login/oauth2/code/naver
             authorization-grant-type: authorization_code
             client-name: Naver
             scope:
@@ -53,27 +53,10 @@ spring:
           google:
             client-id: 541349566703-2dk63jl717cr4aornkpgcmmi462ut9sk.apps.googleusercontent.com
             client-secret: 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
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            redirect-uri: https://back-dev.implace.kr/login/oauth2/code/google
             scope:
               - profile
               - email
-  cloud:
-    aws:
-      credentials:
-        access-key: AKIAXSSTZSMIL6XBC26R
-        secret-key: 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
-      region:
-        static: ap-northeast-2
-      s3:
-        bucket: dev-impacus-s3
-
-key:
-  aes:
-    secret-key: 36114567890121556789012326673001
-  jwt:
-    secret-key: 6B64DCA4E72F58EDIKU9AAB215FE76B64DCA4E72F58EDIKU9AAB215FE7
-    accesstoken-validity-in-min: 60
-    refreshtoken-validity-in-min: 20160
 apple:
   teamId: CML94Q2G94
   keyId: 66Y3WF7DG3
