@@ -177,7 +177,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                 ProductDeliveryTimeDTO.class,
                                                 productDeliveryTime.minDays,
                                                 productDeliveryTime.maxDays
-                                        )
+                                        ),
+                                        product.productImages
                                 )
                         )
                 );

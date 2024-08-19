@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
@@ -8,7 +7,6 @@ import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
@@ -151,11 +149,7 @@ public class ReadProductService implements ProductInterface {
             // 2. Product 세부 데이터 가져오기
             DetailedProductDTO detailedProductDTO = productRepository.findProductByProductId(userId, productId);
 
-            // 3. Product 대표 이미지 리스트 가져오기
-            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
-            detailedProductDTO.setProductImageList(attachFileDTOS);
-
-            // 4. 최근 본 상품 저장
+            // 3. 최근 본 상품 저장
             recentProductViewsService.addRecentProductView(userId, productId);
 
             return detailedProductDTO;
