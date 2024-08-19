@@ -1,7 +1,7 @@
 package com.impacus.maketplace.common.utils;
 
 import com.impacus.maketplace.common.constants.RegExpPatternConstants;
-import com.impacus.maketplace.common.enumType.OauthProviderType;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;

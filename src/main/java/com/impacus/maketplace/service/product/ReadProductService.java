@@ -58,12 +58,6 @@ public class ReadProductService implements ProductInterface {
             throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
 
-//        for (MultipartFile productImage : productImages) {
-//            if (productImage.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
-//                throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
-//            }
-//        }
-
         // 2. 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
             throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);

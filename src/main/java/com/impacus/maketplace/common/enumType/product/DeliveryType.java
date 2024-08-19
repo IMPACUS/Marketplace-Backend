@@ -1,4 +1,4 @@
-package com.impacus.maketplace.common.enumType;
+package com.impacus.maketplace.common.enumType.product;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.EnumPath;

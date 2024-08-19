@@ -1,6 +1,5 @@
 package com.impacus.maketplace.common.enumType.product;
 
-import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.EnumPath;
 import lombok.Getter;

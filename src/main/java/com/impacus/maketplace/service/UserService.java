@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.OauthProviderType;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;

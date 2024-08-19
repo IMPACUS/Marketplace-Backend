@@ -1,26 +1,28 @@
 package com.impacus.maketplace.controller;
 
-import com.impacus.maketplace.common.constants.DirectoryConstants;
+import com.impacus.maketplace.common.enumType.common.ImagePurpose;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.CloudFileUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/attach-file")
 public class AttachFileController {
+    private final AttachFileService attachFileService;
     private final CloudFileUploadService cloudFileUploadService;
 
     @PostMapping("")
     public ApiResponseEntity<String> addAttachFile(
+            @RequestParam(value = "image-purpose") ImagePurpose imagePurpose,
             @RequestPart(required = false, value = "image") MultipartFile file) {
-        URI result = cloudFileUploadService.uploadFile(file, Path.of(DirectoryConstants.EDITOR_IMAGE_DIRECTORY));
+        URI result = attachFileService.uploadImage(imagePurpose, file);
 
         return ApiResponseEntity
                 .<String>builder()

@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.product.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
