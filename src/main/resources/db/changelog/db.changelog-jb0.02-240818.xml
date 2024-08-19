@@ -5,7 +5,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!--delivey address entity add column orders_id-->
-    <changeSet id="changelog-jb-0.02-240818-01" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.02-240818-01-01" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="delivery_address" columnName="orders_id"/>
@@ -19,7 +19,7 @@
     </changeSet>
 
     <!-- prev table purchase_product drop -->
-    <changeSet id="changelog-jb-0.02-240818-04" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.02-240818-01-02" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="purchase_product"/>
         </preConditions>
@@ -27,7 +27,7 @@
     </changeSet>
 
     <!-- prev table orders drop -->
-    <changeSet id="changelog-jb-0.02-240818-02" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.02-240818-01-03" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="orders" columnName="delivery_fee"/>
         </preConditions>
@@ -35,7 +35,7 @@
     </changeSet>
 
     <!-- create table orders -->
-    <changeSet id="changelog-jb-0.02-240818-03" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.02-240818-01-04" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="orders"/>
@@ -76,7 +76,7 @@
     </changeSet>
 
     <!-- create table orders_product -->
-    <changeSet id="changelog-jb-0.02-240818-05" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.02-240818-01-05" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="order_products"/>
@@ -144,7 +144,7 @@
     </changeSet>
     
     <!-- drop orders_product_coupons -->
-    <changeSet id="changelog-jb-0.02-240818-06" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.02-240818-01-06" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="orders_product_coupons"/>
         </preConditions>
@@ -152,7 +152,7 @@
     </changeSet>
     
     <!-- update user_coupon table -->
-    <changeSet id="changelog-jb-0.02-240818-07" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.02-240818-01-07" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="user_coupon" columnName="source_type"/>
@@ -168,7 +168,7 @@
     </changeSet>
     
     <!-- drop table issued_coupon, issued_coupon_histroy, issued_coupon_triggers-->
-    <changeSet id="changelog-jb-0.02-240818-08" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.02-240818-01-08" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="issued_coupon"/>
             <tableExists tableName="issued_coupon_history"/>
