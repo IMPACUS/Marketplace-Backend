@@ -3,9 +3,9 @@ package com.impacus.maketplace.dto.product.response;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -26,6 +26,6 @@ public class ProductDetailForWebDTO {
     private ProductDetailInfoDTO productDetail;
     private ProductDeliveryTimeDTO deliveryTime;
     private Set<ProductOptionDTO> productOptions;
-    private Set<AttachFileDTO> productImageList;
+    private List<String> productImages;
     private ProductClaimInfoDTO claim;
 }

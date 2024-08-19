@@ -1,13 +1,11 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.common.QAttachFile;
@@ -247,10 +245,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             productBuilder.and(product.sellerId.eq(sellerId));
         }
 
-        BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
-        attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
-                .and(attachFileGroup.referencedId.eq(product.id));
-
         BooleanBuilder productOptionBuilder = new BooleanBuilder();
         productOptionBuilder.and(productOption.productId.eq(product.id))
                 .and(productOption.isDeleted.eq(false));
@@ -261,8 +255,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                         .leftJoin(productDetailInfo).on(productDetailInfo.productId.eq(product.id))
                         .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
                         .leftJoin(productOption).on(productOptionBuilder)
-                        .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
-                        .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                         .leftJoin(productClaimInfo).on(productClaimInfo.productId.eq(product.id))
                         .where(productBuilder)
                         .transform(GroupBy.groupBy(product.id).list(Projections.fields(
@@ -297,13 +289,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                                 productOption.size
                                                         )
                                                 ).as("productOptions"),
-                                                GroupBy.set(
-                                                        Projections.constructor(
-                                                                AttachFileDTO.class,
-                                                                attachFile.id,
-                                                                attachFile.attachFileName
-                                                        )
-                                                ).as("productImageList"),
+                                        product.productImages,
                                         Projections.constructor(
                                                 ProductClaimInfoDTO.class,
                                                 productClaimInfo.recallInfo,
@@ -328,7 +314,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                         Function.identity(),
                         (existing, replacement) -> {
                             existing.getProductOptions().addAll(replacement.getProductOptions());
-                            existing.getProductImageList().addAll(replacement.getProductImageList());
                             return existing;
                         }
                 ));
