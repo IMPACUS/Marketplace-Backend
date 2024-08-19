@@ -29,12 +29,12 @@ public class StringUtils {
     }
 
     /**
-     * YYMMddHHmmXXX 형식의 상품번호를 생성하는 함 (XXX: 랜덤 숫자)
+     * YYMMddHHmmssSSSXXX 형식의 상품번호를 생성하는 함 (XXX: 랜덤 숫자)
      *
      * @return
      */
     public static String getProductNumber() {
-        String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmm"));
+        String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmssSSS"));
         Random random = new Random(Long.parseLong(nowDate));
         int randomNumber = random.nextInt(999 - 100 + 1) + 100;
 
