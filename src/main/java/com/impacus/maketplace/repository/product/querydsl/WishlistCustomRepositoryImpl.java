@@ -1,11 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
-import com.impacus.maketplace.entity.common.QAttachFile;
-import com.impacus.maketplace.entity.common.QAttachFileGroup;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QWishlist;
 import com.impacus.maketplace.entity.seller.QSeller;
@@ -27,8 +23,6 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
     private final QWishlist wishlist = QWishlist.wishlist;
     private final QProduct product = QProduct.product;
     private final QSeller seller = QSeller.seller;
-    private final QAttachFile attachFile = QAttachFile.attachFile;
-    private final QAttachFileGroup attachFileGroup = QAttachFileGroup.attachFileGroup;
 
     @Override
     public Slice<WishlistDetailDTO> findWishlistsByUserId(Long userId, Pageable pageable) {
@@ -43,10 +37,6 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(wishlist.productId))
                 .and(product.isDeleted.eq(false));
-
-        BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
-        attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
-                .and(attachFileGroup.referencedId.eq(product.id));
 
         // 1. 조건에 맞는 wishlist ID 리스트 조회
         List<Long> wishlistIds = queryFactory
@@ -63,8 +53,6 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
                 .selectFrom(wishlist)
                 .innerJoin(product).on(productBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
-                .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
-                .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .orderBy(wishlist.modifyAt.desc())
                 .where(wishlist.id.in(wishlistIds))
                 .transform(
@@ -80,13 +68,7 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
                                 product.deliveryFee,
                                 product.type,
                                 product.createAt,
-                                GroupBy.list(Projections.list(Projections.constructor(
-                                                        AttachFileDTO.class,
-                                                        attachFile.id,
-                                                        attachFile.attachFileName
-                                                )
-                                        )
-                                )
+                                product.productImages
                         ))
                 );
     }

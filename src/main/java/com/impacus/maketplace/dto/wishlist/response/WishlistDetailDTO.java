@@ -27,7 +27,7 @@ public class WishlistDetailDTO {
             int deliveryFee,
             ProductType type,
             LocalDateTime createAt,
-            List<AttachFileDTO> productImageList
+            List<String> productImageList
     ) {
         this.wishlistId = wishlistId;
         this.product = new ProductForAppDTO(
@@ -37,7 +37,7 @@ public class WishlistDetailDTO {
                 appSalePrice,
                 deliveryType,
                 discountPrice,
-                productImageList,
+                productImageList.stream().map(AttachFileDTO::new).toList(),
                 wishlistId,
                 deliveryFee,
                 type,
