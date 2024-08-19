@@ -11,10 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -46,17 +43,15 @@ public class TemporaryProductController {
     /**
      * 임시 저장 상품 데이터를 등록 혹은 수정하는 API
      *
-     * @param productImageList
-     * @param productRequest
+     * @param dto
      * @return
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PutMapping("")
     public ApiResponseEntity<Object> addOrModifyTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "product") CreateProductDTO productRequest) {
-        SimpleTemporaryProductDTO simpleTemporaryProductDTO = temporaryProductService.addOrModifyTemporaryProduct(user.getId(), productImageList, productRequest);
+            @RequestBody CreateProductDTO dto) {
+        SimpleTemporaryProductDTO simpleTemporaryProductDTO = temporaryProductService.addOrModifyTemporaryProduct(user.getId(), dto);
         return ApiResponseEntity
                 .builder()
                 .data(simpleTemporaryProductDTO)

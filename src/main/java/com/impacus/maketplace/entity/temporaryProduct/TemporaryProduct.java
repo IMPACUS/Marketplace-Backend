@@ -1,10 +1,11 @@
 package com.impacus.maketplace.entity.temporaryProduct;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
@@ -12,6 +13,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -92,6 +95,11 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private DeliveryCompany deliveryCompany;
 
+    @Convert(converter = ListToJsonConverter.class)
+    @Column(columnDefinition = "TEXT")
+    @Comment("상품 이미지")
+    private List<String> productImages;
+
     public TemporaryProduct(Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;
         this.name = dto.getName();
@@ -108,6 +116,7 @@ public class TemporaryProduct extends BaseEntity {
         this.discountStatus = DiscountStatus.DISCOUNT_PROGRESS; // TODO 삭제
         this.type = dto.getType();
         this.description = dto.getDescription();
+        this.productImages = dto.getProductImages();
 
         if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
             this.deliveryFee = dto.getDeliveryFee();
@@ -134,6 +143,7 @@ public class TemporaryProduct extends BaseEntity {
         this.productStatus = dto.getProductStatus();
         this.type = dto.getType();
         this.description = dto.getDescription();
+        this.productImages = dto.getProductImages();
 
         if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
             this.deliveryFee = dto.getDeliveryFee();
