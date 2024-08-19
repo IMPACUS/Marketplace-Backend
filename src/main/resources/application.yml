@@ -1,14 +1,17 @@
 spring:
   profiles:
-    default: local
+    default: dev
     group:
       local:
+        - local-oauth-key
         - key
         - mail
       dev:
+        - dev-oauth-key
         - key
         - mail
       test:
+        - dev-oauth-key
         - key
         - mail
   servlet:

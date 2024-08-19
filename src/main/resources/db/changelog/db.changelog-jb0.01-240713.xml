@@ -5,7 +5,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- 쿠폰_유저 테이블 DROP -->
-    <changeSet id="changelog-jb0.01-240713-1-2" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-02-01" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <tableExists tableName="coupon_user"/>
         </preConditions>
@@ -14,8 +14,8 @@
 
 
     <!-- 이전 쿠폰 테이블 DROP -->
-    <changeSet id="changelog-jb0.01-240713-2" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240713-02-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="coupon" columnName="modify_id"/>
             <columnExists tableName="coupon" columnName="coupon_desc"/>
             <columnExists tableName="coupon" columnName="product_target"/>
@@ -27,7 +27,7 @@
     </changeSet>
 
     <!-- 새로운 쿠폰 테이블 생성 및 MOCK 쿠폰 추가 -->
-    <changeSet id="changelog-jb0.01-240713-3-2" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-02-03" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="coupon"/>
@@ -126,7 +126,7 @@
     </changeSet>
 
 
-    <changeSet id="changelog-jb0.01-240713-4-1" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-02-04" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="issued_coupon"/>
@@ -135,7 +135,7 @@
         </preConditions>
         <createTable tableName="issued_coupon">
             <column name="issued_coupon_id" type="BIGINT" autoIncrement="true">
-                <constraints unique="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false"/>
@@ -169,7 +169,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb0.01-240713-5-1" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-02-05" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="issued_coupon_history"/>
@@ -177,7 +177,7 @@
         </preConditions>
         <createTable tableName="issued_coupon_history">
             <column name="issued_coupon_history_id" type="BIGINT" autoIncrement="true">
-                <constraints unique="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="issued_coupon_id" type="BIGINT">
                 <constraints nullable="false"/>
@@ -199,7 +199,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb0.01-240713-6-1" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-02-06" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="issued_coupon_triggers"/>
@@ -207,7 +207,7 @@
         </preConditions>
         <createTable tableName="issued_coupon_triggers">
             <column name="issued_coupon_triggers_id" type="BIGINT" autoIncrement="true">
-                <constraints unique="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="issued_coupon_history_id" type="BIGINT">
                 <constraints nullable="false"/>
@@ -218,7 +218,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb0.01-240713-7" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240713-02-07" author="jeongbeom4693">
         <preConditions onFail="CONTINUE">
             <not>
                 <tableExists tableName="orders_product_coupons"/>
@@ -226,7 +226,7 @@
         </preConditions>
         <createTable tableName="orders_product_coupons">
             <column name="orders_product_coupons_id" type="BIGINT" autoIncrement="true">
-                <constraints unique="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="orders_product_id" type="BIGINT">
                 <constraints nullable="false"/>
@@ -237,7 +237,11 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb0.01-240721-1" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.01-240721-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="coupon" columnName="issue_standard_type"/>
+            <columnExists tableName="coupon" columnName="issue_standard_value"/>
+        </preConditions>
         <renameColumn tableName="coupon"
                       oldColumnName="issue_standard_type"
                       newColumnName="issue_condition_type"
@@ -252,8 +256,8 @@
         <dropDefaultValue tableName="coupon" columnName="issue_condition_value"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240722-1" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240722-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="coupon" columnName="is_deleted"/>
             </not>
@@ -266,22 +270,22 @@
         </addColumn>
     </changeSet>
     
-    <changeSet id="changelog-jb-0.01-240728" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240728-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="coupon" columnName="is_deleted"/>
         </preConditions>
         <addDefaultValue tableName="coupon" columnName="is_deleted" defaultValueBoolean="false"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.02-240728" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240728-02-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="issued_coupon" columnName="lock"/>
         </preConditions>
         <dropColumn tableName="issued_coupon" columnName="lock"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-02-1" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240728-02-03" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="issued_coupon"/>
             <not>
                 <tableExists tableName="user_coupon"/>
@@ -291,8 +295,8 @@
         <renameTable oldTableName="issued_coupon" newTableName="user_coupon"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-03-1" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240728-02-04" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="issued_coupon_history"/>
             <not>
                 <tableExists tableName="coupon_issuance_history"/>
@@ -301,7 +305,7 @@
         <dropTable tableName="issued_coupon_history"/>
         <createTable tableName="coupon_issuance_history">
             <column name="coupon_issuance_history_id" type="BIGINT" autoIncrement="true">
-                <constraints unique="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_coupon_id" type="BIGINT">
                 <constraints nullable="false"/>
@@ -323,8 +327,8 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-04-2" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240728-02-05" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <tableExists tableName="issued_coupon_triggers"/>
             <not>
                 <tableExists tableName="coupon_trigger"/>
@@ -333,7 +337,7 @@
         <dropTable tableName="issued_coupon_triggers"/>
         <createTable tableName="coupon_trigger">
             <column name="coupon_trigger_id" type="BIGINT" autoIncrement="true">
-                <constraints unique="true" nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="coupon_issuance_history_id" type="BIGINT">
                 <constraints nullable="false"/>
@@ -353,8 +357,8 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240728-05-1" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240728-02-06" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="orders_product_coupons" columnName="issued_coupon_id"/>
             <not>
                 <columnExists tableName="orders_product_coupons" columnName="user_coupon_id"/>
@@ -364,8 +368,8 @@
                       newColumnName="user_coupon_id"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240730-01-1" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240730-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="coupon_issuance_history" columnName="issued_at"/>
             <columnExists tableName="coupon_issuance_history" columnName="issued_coupon_id"/>
         </preConditions>
@@ -373,8 +377,8 @@
         <dropColumn tableName="coupon_issuance_history" columnName="issued_coupon_id"/>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240730-02" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240730-02-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">SELECT COUNT(*) FROM coupon_issuance_history WHERE coupon_issuance_history_id = 3</sqlCheck>
             <sqlCheck expectedResult="1">SELECT COUNT(*) FROM user_coupon WHERE user_coupon_id = 3</sqlCheck>
         </preConditions>
@@ -387,8 +391,8 @@
         </delete>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240730-03-1" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240730-02-03" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="1">SELECT COUNT(*) FROM coupon_issuance_history WHERE coupon_issuance_history_id = 6</sqlCheck>
             <sqlCheck expectedResult="1">SELECT COUNT(*) FROM user_coupon WHERE user_coupon_id = 6</sqlCheck>
         </preConditions>
@@ -401,8 +405,8 @@
         </delete>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240730-04" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240730-02-04" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="user_coupon" columnName="status"/>
             </not>
@@ -419,8 +423,8 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="changelog-jb-0.01-240830-01-1" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240730-02-05" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_coupon" columnName="available_downlad_at"/>
 
             <not>
@@ -431,8 +435,8 @@
                       newColumnName="available_download_at"/>
     </changeSet>
     
-    <changeSet id="changelog-jb-0.01-240804-01" author="jeongbeom4693">
-        <preConditions onFail="CONTINUE">
+    <changeSet id="changelog-jb0.01-240804-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_coupon" columnName="available_download_at"/>
             <columnExists tableName="user_coupon" columnName="expired_at"/>
             <sqlCheck expectedResult="2">

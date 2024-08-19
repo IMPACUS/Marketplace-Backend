@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!--delivey address entity add column orders_id-->
+    <changeSet id="changelog-jb0.02-240818-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="delivery_address" columnName="orders_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="delivery_address">
+            <column name="orders_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- prev table purchase_product drop -->
+    <changeSet id="changelog-jb0.02-240818-01-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="purchase_product"/>
+        </preConditions>
+        <dropTable tableName="purchase_product"/>
+    </changeSet>
+
+    <!-- prev table orders drop -->
+    <changeSet id="changelog-jb0.02-240818-01-03" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="orders" columnName="delivery_fee"/>
+        </preConditions>
+        <dropTable tableName="orders"/>
+    </changeSet>
+
+    <!-- create table orders -->
+    <changeSet id="changelog-jb0.02-240818-01-04" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="orders"/>
+            </not>
+        </preConditions>
+        <createTable tableName="orders">
+            <column name="orders_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_order_amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_delivery_fee" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_coupon_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_green_label_points" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_eco_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_commission_fee" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_status" type="CHAR(255)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- create table orders_product -->
+    <changeSet id="changelog-jb0.02-240818-01-05" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="order_products"/>
+            </not>
+        </preConditions>
+        <createTable tableName="order_products">
+            <column name="order_products_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="orders_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_option_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_price" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="green_label_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="individual_coupon_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_coupon_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_eco_product" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="eco_discount_type" type="CHAR(255)" defaultValue="AMOUNT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="eco_discount_amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shipping_fee" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="commission_percent" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_status" type="CHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="return_quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exchange_quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="idx_orders_id" tableName="order_products" unique="false">
+            <column name="orders_id"/>
+        </createIndex>
+        <createIndex indexName="idx_product_id" tableName="order_products" unique="false">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+    
+    <!-- drop orders_product_coupons -->
+    <changeSet id="changelog-jb0.02-240818-01-06" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="orders_product_coupons"/>
+        </preConditions>
+        <dropTable tableName="orders_product_coupons"/>
+    </changeSet>
+    
+    <!-- update user_coupon table -->
+    <changeSet id="changelog-jb0.02-240818-01-07" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_coupon" columnName="source_type"/>
+                <columnExists tableName="user_coupon" columnName="source_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="user_coupon">
+            <column name="source_type" type="CHAR(255)" defaultValue="NONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_id" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
+    
+    <!-- drop table issued_coupon, issued_coupon_histroy, issued_coupon_triggers-->
+    <changeSet id="changelog-jb0.02-240818-01-08" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="issued_coupon"/>
+            <tableExists tableName="issued_coupon_history"/>
+            <tableExists tableName="issued_coupon_triggers"/>
+        </preConditions>
+        <dropTable tableName="issued_coupon"/>
+        <dropTable tableName="issued_coupon_history"/>
+        <dropTable tableName="issued_coupon_triggers"/>
+    </changeSet>
+
+</databaseChangeLog>
