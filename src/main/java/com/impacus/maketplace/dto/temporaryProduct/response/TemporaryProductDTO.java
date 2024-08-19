@@ -1,8 +1,8 @@
 package com.impacus.maketplace.dto.temporaryProduct.response;
 
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
@@ -35,6 +35,7 @@ public class TemporaryProductDTO {
     private List<AttachFileDTO> productImageList;
     private TemporaryProductDeliveryTimeDTO deliveryTime;
     private ProductClaimInfoDTO claim;
+    private List<String> productImages;
 
     public void setDescription(String description) {
         this.description = description;

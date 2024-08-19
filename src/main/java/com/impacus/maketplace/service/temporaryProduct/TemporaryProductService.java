@@ -5,7 +5,6 @@ import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
@@ -235,15 +234,6 @@ public class TemporaryProductService {
             // TemporaryProductDeliveryTime 값 가져오기
             TemporaryProductDeliveryTime deliveryTime = deliveryTimeService.findTemporaryProductDeliveryTimeByTemporaryProductId(temporaryProductId);
             dto.setDeliveryTime(TemporaryProductDeliveryTimeDTO.toDTO(deliveryTime));
-
-            // 대표이미지 데이터 가져오기
-            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFile(
-                            temporaryProduct.getId(),
-                            ReferencedEntityType.TEMPORARY_PRODUCT
-                    )
-                    .stream().map(attachFile -> new AttachFileDTO(attachFile.getId(), attachFile.getAttachFileName()))
-                    .toList();
-            dto.setProductImageList(attachFileDTOS);
 
             // TemporaryClaimInfo 값 가져오기
             TemporaryProductClaimInfo claimInfo = temporaryProductClaimService.findTemporaryProductClaimByTemporaryProductId(temporaryProductId);
