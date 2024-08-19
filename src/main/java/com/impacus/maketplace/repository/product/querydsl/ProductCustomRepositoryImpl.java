@@ -1,8 +1,8 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -411,10 +411,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Long userId,
             BooleanBuilder productBuilder
     ) {
-        BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
-        attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
-                .and(attachFileGroup.referencedId.eq(product.id));
-
         BooleanBuilder wishlistBuilder = new BooleanBuilder();
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
@@ -422,8 +418,6 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         return queryFactory
                 .selectFrom(product)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
-                .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
-                .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .where(productBuilder)
                 .transform(
@@ -435,13 +429,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                         product.appSalesPrice,
                                         product.deliveryType,
                                         product.discountPrice,
-                                        GroupBy.list(Projections.list(Projections.constructor(
-                                                                AttachFileDTO.class,
-                                                                attachFile.id,
-                                                                attachFile.attachFileName
-                                                        )
-                                                )
-                                        ),
+                                product.productImages,
                                         wishlist.id,
                                         product.deliveryFee,
                                         product.type,
