@@ -1,7 +1,7 @@
 package com.impacus.maketplace.entity.product;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.converter.MapToJsonConverter;
+import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DeliveryType;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
@@ -17,7 +17,7 @@ import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import java.util.Map;
+import java.util.List;
 
 @Entity
 @Getter
@@ -43,10 +43,10 @@ public class Product extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String productNumber; // 상품 번호
 
-    @Convert(converter = MapToJsonConverter.class)
+    @Convert(converter = ListToJsonConverter.class)
     @Column(columnDefinition = "TEXT")
     @Comment("상품 이미지")
-    private Map<Long, String> productImages;
+    private List<String> productImages;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -137,6 +137,7 @@ public class Product extends BaseEntity {
         this.discountStatus = DiscountStatus.DISCOUNT_PROGRESS; // TODO 삭제
         this.type = dto.getType();
         this.description = dto.getDescription();
+        this.productImages = dto.getProductImages();
 
         if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
             this.deliveryFee = dto.getDeliveryFee();

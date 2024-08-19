@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
@@ -28,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -52,19 +50,19 @@ public class ReadProductService implements ProductInterface {
 
     @Override
     public void validateProductRequest(
-            List<MultipartFile> productImageList,
+            List<String> productImages,
             Long categoryId
     ) {
         // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
-        if (productImageList.size() > 5) {
+        if (productImages.size() > 5) {
             throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
 
-        for (MultipartFile productImage : productImageList) {
-            if (productImage.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
-            }
-        }
+//        for (MultipartFile productImage : productImages) {
+//            if (productImage.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
+//                throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+//            }
+//        }
 
         // 2. 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {

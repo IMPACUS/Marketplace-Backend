@@ -1,15 +1,11 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.constants.DirectoryConstants;
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
@@ -21,9 +17,7 @@ import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -45,13 +39,11 @@ public class UpdateProductService {
      * - 판매자: 판매자의 브랜드인 상품만 수정가능
      * - 관리자: 모든 상품 수정 가능
      *
-     * @param productImageList
      * @return
      */
     @Transactional
     public ProductDTO updateProduct(
             Long userId,
-            List<MultipartFile> productImageList,
             UpdateProductDTO dto) {
         try {
             Long productId = dto.getProductId();
@@ -71,7 +63,7 @@ public class UpdateProductService {
 
             // 3. productRequest 데이터 유효성 검사
             readProductService.validateProductRequest(
-                    productImageList, dto.getCategoryId()
+                    product.getProductImages(), dto.getCategoryId()
             );
             readProductService.validateDeliveryRefundFee(
                     dto.getDeliveryFee(),
@@ -82,19 +74,8 @@ public class UpdateProductService {
                     dto.getRefundFeeType()
             );
 
-            // 4. 대표 이미지 저장 및 AttachFileGroup에 연관 관계 매핑 객체 생성
-            attachFileService.deleteAttachFileByReferencedId(product.getId(), ReferencedEntityType.PRODUCT);
-            List<AttachFile> productImages = productImageList
-                    .stream().map(productImage -> {
-                        try {
-                            return attachFileService.uploadFileAndAddAttachFile(productImage, DirectoryConstants.PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
-                        } catch (IOException e) {
-                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
-                        }
-                    }).toList();
-
             // 5. 상품 이력 저장 (조건에 부핪하는 경우)
-            addProductHistoryInUpdateMode(product, dto, productImages);
+            addProductHistoryInUpdateMode(product, dto, product.getProductImages());
 
             // 6. Product 수정
             product.setProduct(dto);
@@ -130,7 +111,7 @@ public class UpdateProductService {
     public void addProductHistoryInUpdateMode(
             Product nowProduct,
             UpdateProductDTO newProduct,
-            List<AttachFile> productImages
+            List<String> productImages
     ) {
         // (상품 이미지가 변경된 경우) 상품 이력 저장
         if (!newProduct.getName().equals(nowProduct.getName())) {
