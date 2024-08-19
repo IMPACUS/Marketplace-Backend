@@ -101,7 +101,7 @@
 <!--    </changeSet>-->
 
     <!-- user_info 생성 -->
-    <changeSet id="changelog-0.11.04-240808" author="lchy0413">
+    <changeSet id="changelog-0.11.04-240808-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_info"/>
@@ -115,7 +115,7 @@
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="password" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
             <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
