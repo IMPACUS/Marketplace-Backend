@@ -15,7 +15,7 @@
     </changeSet>
 
     <!-- product column 추가  -->
-    <changeSet author="lchy0413" id="changelog-0.12.02-240813">
+    <changeSet author="lchy0413" id="changelog-0.12.02-240813-1">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="product_info" columnName="special_delivery_fee"/>
@@ -35,19 +35,19 @@
             </column>
         </addColumn>
         <addColumn tableName="product_info">
-            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
+            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
         <addColumn tableName="product_info">
-            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
+            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
     </changeSet>
 
     <!-- temporary_product column 추가  -->
-    <changeSet author="lchy0413" id="changelog-0.12.03-240813">
+    <changeSet author="lchy0413" id="changelog-0.12.03-240813-1">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="temporary_product_info" columnName="special_delivery_fee"/>
@@ -67,12 +67,12 @@
             </column>
         </addColumn>
         <addColumn tableName="temporary_product_info">
-            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
+            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
                 <constraints nullable="true"/>
             </column>
         </addColumn>
         <addColumn tableName="temporary_product_info">
-            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
+            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
                 <constraints nullable="true"/>
             </column>
         </addColumn>
@@ -117,28 +117,28 @@
     </changeSet>
 
     <!-- product column 추가 (delivery_company)  -->
-    <changeSet author="lchy0413" id="changelog-0.12.07-240813">
+    <changeSet author="lchy0413" id="changelog-0.12.07-240813-1">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="product_info" columnName="delivery_company"/>
             </not>
         </preConditions>
         <addColumn tableName="product_info">
-            <column name="delivery_company" type="VARCHAR(255)" defaultValue="'CJ'">
+            <column name="delivery_company" type="VARCHAR(255)" defaultValue="CJ">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
     </changeSet>
 
     <!-- temporary_product_info column 추가 (delivery_company)  -->
-    <changeSet author="lchy0413" id="changelog-0.12.08-240813">
+    <changeSet author="lchy0413" id="changelog-0.12.08-240813-1">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="temporary_product_info" columnName="delivery_company"/>
             </not>
         </preConditions>
         <addColumn tableName="temporary_product_info">
-            <column name="delivery_company" type="VARCHAR(255)" defaultValue="'CJ'">
+            <column name="delivery_company" type="VARCHAR(255)" defaultValue="CJ">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
