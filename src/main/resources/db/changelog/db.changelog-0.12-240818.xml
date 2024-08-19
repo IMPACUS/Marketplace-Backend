@@ -37,7 +37,12 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="changelog-0.12.05-240818" author="lchy0413">
+    <changeSet id="changelog-0.12.05-240818-2" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <dbms type="h2"/>
+            </not>
+        </preConditions>
         <sql>
             UPDATE product_history
             SET product_images_temp = (SELECT json_agg(value)
