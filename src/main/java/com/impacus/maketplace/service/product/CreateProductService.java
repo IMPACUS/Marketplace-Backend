@@ -79,7 +79,7 @@ public class CreateProductService {
             String productNumber = StringUtils.getProductNumber();
 
             // 3. Product 저장
-            // 배송비 & 반송비는 CHARGE_UNDER_30000일 때만 저장
+            // 배송비 & 반송비는 CHARGE_UNDER_30000 일 때만 저장
             Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
             Long productId = newProduct.getId();
 

@@ -190,16 +190,20 @@ public class AttachFileService {
      * @param file
      */
     public URI uploadImage(ImagePurpose imagePurpose, MultipartFile file) {
-        // 유효성 검사
-        switch (imagePurpose) {
-            case PRODUCT -> {
-                if (file.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
-                    throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+        try {
+            // 유효성 검사
+            switch (imagePurpose) {
+                case PRODUCT -> {
+                    if (file.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
+                        throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                    }
                 }
             }
-        }
 
-        // 업로드
-        return cloudFileUploadService.uploadFile(file, Path.of(imagePurpose.getDirectory()));
+            // 업로드
+            return cloudFileUploadService.uploadFile(file, Path.of(imagePurpose.getDirectory()));
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }
