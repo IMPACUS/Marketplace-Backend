@@ -11,4 +11,11 @@
         <dropNotNullConstraint tableName="seller" columnName="charge_percent"/>
     </changeSet>
 
+    <changeSet author="lchy0413" id="changelog-0.12.02-240818">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="user_info" columnName="password"/>
+        </preConditions>
+        <dropNotNullConstraint tableName="user_info" columnName="password"/>
+    </changeSet>
+
 </databaseChangeLog>
