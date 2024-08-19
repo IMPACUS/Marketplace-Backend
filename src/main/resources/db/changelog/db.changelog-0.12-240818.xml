@@ -18,4 +18,57 @@
         <dropNotNullConstraint tableName="user_info" columnName="password"/>
     </changeSet>
 
+    <!-- product column 추가  -->
+    <changeSet author="lchy0413" id="changelog-0.12.03-240818-2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="product_images"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="product_images" type="TEXT" defaultValue="[]"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.12.04-240818" author="lchy0413">
+        <!-- 임시 컬럼 추가 -->
+        <addColumn tableName="product_history">
+            <column name="product_images_temp" type="TEXT"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.12.05-240818-2" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <dbms type="h2"/>
+            </not>
+        </preConditions>
+        <sql>
+            UPDATE product_history
+            SET product_images_temp = (SELECT json_agg(value)
+                                       FROM json_each_text(product_images::json));
+        </sql>
+    </changeSet>
+
+    <changeSet id="changelog-0.12.06-240818" author="lchy0413">
+        <dropColumn tableName="product_history" columnName="product_images"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.12.07-240818" author="lchy0413">
+        <!-- 임시 컬럼 이름 변경 -->
+        <renameColumn tableName="product_history" oldColumnName="product_images_temp" newColumnName="product_images"/>
+    </changeSet>
+
+    <!-- temporary_product_info column 추가  -->
+    <changeSet author="lchy0413" id="changelog-0.12.08-240818">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="temporary_product_info" columnName="product_images"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="temporary_product_info">
+            <column name="product_images" type="TEXT" defaultValue="[]"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

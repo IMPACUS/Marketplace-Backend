@@ -10,7 +10,6 @@ import com.impacus.maketplace.entity.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,15 +32,13 @@ public interface ProductInterface {
     /**
      * ProductRequest 의 유효성 검사
      *
-     * @param productImageList            상품 이미지 리스트
-     * @param categoryId                  카테고리 ID
-     * @param productDescriptionImageList 상품 설명 이미지 리스트
+     * @param productImages 상품 이미지 리스트
+     * @param categoryId       카테고리 ID
      * @throws CustomException 유효하지 않는 경우, 예외 발생
      */
     void validateProductRequest(
-            List<MultipartFile> productImageList,
-            Long categoryId,
-            List<MultipartFile> productDescriptionImageList
+            List<String> productImages,
+            Long categoryId
     );
 
     /**
@@ -102,7 +99,7 @@ public interface ProductInterface {
      * @param pageable 페이지네이션 정보
      * @return 상품 리스트
      */
-    Page<ProductForWebDTO> findProductForWeb(
+    Page<ProductForWebDTO> findProductsForWeb(
             Long userId,
             UserType userType,
             String keyword,

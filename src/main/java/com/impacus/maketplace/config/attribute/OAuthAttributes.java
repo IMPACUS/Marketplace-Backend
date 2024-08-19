@@ -1,6 +1,6 @@
 package com.impacus.maketplace.config.attribute;
 
-import com.impacus.maketplace.common.enumType.OauthProviderType;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;

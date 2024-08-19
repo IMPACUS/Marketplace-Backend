@@ -20,4 +20,6 @@ public class DirectoryConstants {
 
     public static final String PROFILE_IMAGE_DIRECTORY = "profileImage";
 
+    public static final String EDITOR_IMAGE_DIRECTORY = "editorImage";
+
 }

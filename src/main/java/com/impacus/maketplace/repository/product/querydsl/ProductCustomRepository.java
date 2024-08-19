@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ProductCustomRepository {
-    Page<ProductForWebDTO> findAllProduct(Long sellerId, String keyword, LocalDate startAt, LocalDate endAt, Pageable pageable);
+    Page<ProductForWebDTO> findProductsForWeb(Long sellerId, String keyword, LocalDate startAt, LocalDate endAt, Pageable pageable);
 
     DetailedProductDTO findProductByProductId(Long userId, Long productId);
 
@@ -21,7 +21,7 @@ public interface ProductCustomRepository {
 
     Slice<ProductForAppDTO> findAllProductBySubCategoryId(Long userId, Long subCategoryId, Pageable pageable);
 
-    Slice<ProductForAppDTO> findAllProductByProductIds(Long userId, List<Long> productIds, Pageable pageable);
+    Slice<ProductForAppDTO> findProductsByProductIds(Long userId, List<Long> productIds, Pageable pageable);
 
     ProductDetailForWebDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId);
 

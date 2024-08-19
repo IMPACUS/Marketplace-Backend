@@ -1,7 +1,5 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.constants.DirectoryConstants;
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -9,10 +7,7 @@ import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.entity.product.ProductDescription;
-import com.impacus.maketplace.entity.product.ProductOption;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
@@ -23,10 +18,6 @@ import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +28,6 @@ public class CreateProductService {
     private final ProductDetailInfoService productDetailInfoService;
     private final ReadSellerService readSellerService;
     private final AttachFileService attachFileService;
-    private final ProductDescriptionService productDescriptionService;
     private final TemporaryProductService temporaryProductService;
     private final ProductDeliveryTimeService deliveryTimeService;
     private final ProductClaimService productClaimService;
@@ -55,9 +45,7 @@ public class CreateProductService {
     @Transactional
     public ProductDTO addProduct(
             Long userId,
-            List<MultipartFile> multiProductImages,
-            CreateProductDTO dto,
-            List<MultipartFile> productDescriptionImageList) {
+            CreateProductDTO dto) {
         try {
             // 0. 판매자 id 유효성 검사
             // 판매자: API 요청 시, 사용한 인증 정보의 userId를 통해 sellerId 반환
@@ -76,58 +64,44 @@ public class CreateProductService {
 
             // 1. productRequest 데이터 유효성 검사
             readProductService.validateProductRequest(
-                    multiProductImages, dto.getCategoryId(), productDescriptionImageList
+                    dto.getProductImages(), dto.getCategoryId()
+            );
+            readProductService.validateDeliveryRefundFee(
+                    dto.getDeliveryFee(),
+                    dto.getRefundFee(),
+                    dto.getSpecialDeliveryFee(),
+                    dto.getSpecialRefundFee(),
+                    dto.getDeliveryFeeType(),
+                    dto.getRefundFeeType()
             );
 
             // 2. 상풍 번호 생성
             String productNumber = StringUtils.getProductNumber();
 
             // 3. Product 저장
+            // 배송비 & 반송비는 CHARGE_UNDER_30000 일 때만 저장
             Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
             Long productId = newProduct.getId();
 
-            // 4. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            List<AttachFile> productImages = multiProductImages
-                    .stream().map(productImage -> {
-                        try {
-                            return attachFileService.uploadFileAndAddAttachFile(productImage, DirectoryConstants.PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
-                        } catch (IOException e) {
-                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
-                        }
-                    }).toList();
+            // 4. Product option 저장
+            productOptionService.addProductOption(productId, dto.getProductOptions());
 
-            // 5. Product description 저장
-            ProductDescription productDescription = productDescriptionService.addProductDescription(productId, dto);
-
-            // 6. 상품 설명 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            productDescriptionImageList
-                    .forEach(productDescriptionImage -> {
-                        try {
-                            attachFileService.uploadFileAndAddAttachFile(productDescriptionImage, DirectoryConstants.PRODUCT_DESCRIPTION_IMAGE_DIRECTORY, productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-                        } catch (IOException e) {
-                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
-                        }
-                    });
-
-            //7. Product option 저장
-            List<ProductOption> newProductOptions = productOptionService.addProductOption(productId, dto.getProductOptions());
-
-            // 8. Product detail 저장
+            // 5. Product detail 저장
             productDetailInfoService.addProductDetailInfo(productId, dto.getProductDetail());
 
-            // 9. ProductDeliveryTime 저장
+            // 6. ProductDeliveryTime 저장
             deliveryTimeService.addProductDeliveryTime(productId, dto.getDeliveryTime());
 
-            // 10. 상품 클레임 정보 저장
+            // 7. 상품 클레임 정보 저장
             productClaimService.addProductClaimInfo(productId, dto.getClaim());
 
-            // 11. TemporaryProduct 삭제
+            // 8. TemporaryProduct 삭제
             if (dto.isDoesUseTemporaryProduct()) {
                 temporaryProductService.deleteTemporaryProduct(userId);
             }
 
-            // 12. 상품 관련 이력 생성
-            addProductHistoryInCreateMode(newProduct, productImages);
+            // 9. 상품 관련 이력 생성
+            addProductHistoryInCreateMode(newProduct);
 
             return ProductDTO.toDTO(newProduct);
         } catch (Exception ex) {
@@ -139,15 +113,13 @@ public class CreateProductService {
      * 상품 관련 이력 생성 (상품 이력)
      *
      * @param product
-     * @param productImages
      */
     @Transactional
     public void addProductHistoryInCreateMode(
-            Product product,
-            List<AttachFile> productImages
+            Product product
     ) {
         // 1. 상품 이력 생성
-        ProductHistory productHistory = ProductHistory.toEntity(product, productImages);
+        ProductHistory productHistory = ProductHistory.toEntity(product);
         productHistoryService.saveProductHistory(productHistory);
     }
 }

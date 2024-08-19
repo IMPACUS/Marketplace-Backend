@@ -50,7 +50,8 @@ public class DetailedProductDTO {
                               int deliveryFee,
                               String brandName,
                               String description,
-                              ProductDeliveryTimeDTO deliveryTime
+                              ProductDeliveryTimeDTO deliveryTime,
+                              List<String> productImageList
     ) {
         this.id = id;
         this.name = name;
@@ -65,6 +66,7 @@ public class DetailedProductDTO {
         this.description = description;
         this.deliveryTime = deliveryTime;
         setOptionData(options);
+        this.productImageList = productImageList.stream().map(x -> new AttachFileDTO(x)).toList();
 
         this.averageRating = 5.0f;
         this.reviewCnt = 123L;

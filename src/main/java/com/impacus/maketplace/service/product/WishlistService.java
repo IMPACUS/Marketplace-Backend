@@ -106,9 +106,9 @@ public class WishlistService {
      * @param pageable
      * @return
      */
-    public Slice<WishlistDetailDTO> getAllWishlist(Long userId, Pageable pageable) {
+    public Slice<WishlistDetailDTO> getWishlists(Long userId, Pageable pageable) {
         try {
-            return wishlistRepository.findAllWishListByUserId(userId, pageable);
+            return wishlistRepository.findWishlistsByUserId(userId, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
