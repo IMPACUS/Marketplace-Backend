@@ -30,4 +30,28 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="changelog-0.12.04-240818" author="lchy0413">
+        <!-- 임시 컬럼 추가 -->
+        <addColumn tableName="product_history">
+            <column name="product_images_temp" type="TEXT"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.12.05-240818" author="lchy0413">
+        <sql>
+            UPDATE product_history
+            SET product_images_temp = (SELECT json_agg(value)
+                                       FROM json_each_text(product_images::json));
+        </sql>
+    </changeSet>
+
+    <changeSet id="changelog-0.12.06-240818" author="lchy0413">
+        <dropColumn tableName="product_history" columnName="product_images"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.12.07-240818" author="lchy0413">
+        <!-- 임시 컬럼 이름 변경 -->
+        <renameColumn tableName="product_history" oldColumnName="product_images_temp" newColumnName="product_images"/>
+    </changeSet>
+
 </databaseChangeLog>

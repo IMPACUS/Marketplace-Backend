@@ -1,7 +1,5 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.constants.DirectoryConstants;
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -9,7 +7,6 @@ import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
 import com.impacus.maketplace.entity.seller.Seller;
@@ -21,10 +18,6 @@ import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +45,6 @@ public class CreateProductService {
     @Transactional
     public ProductDTO addProduct(
             Long userId,
-            List<MultipartFile> multiProductImages,
             CreateProductDTO dto) {
         try {
             // 0. 판매자 id 유효성 검사
@@ -72,7 +64,7 @@ public class CreateProductService {
 
             // 1. productRequest 데이터 유효성 검사
             readProductService.validateProductRequest(
-                    multiProductImages, dto.getCategoryId()
+                    dto.getProductImages(), dto.getCategoryId()
             );
             readProductService.validateDeliveryRefundFee(
                     dto.getDeliveryFee(),
@@ -90,16 +82,6 @@ public class CreateProductService {
             // 배송비 & 반송비는 CHARGE_UNDER_30000일 때만 저장
             Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
             Long productId = newProduct.getId();
-
-            // 3. 대표 이미지 저장 및 AttachFileGroup 에 연관 관계 매핑 객체 생성
-            List<AttachFile> productImages = multiProductImages
-                    .stream().map(productImage -> {
-                        try {
-                            return attachFileService.uploadFileAndAddAttachFile(productImage, DirectoryConstants.PRODUCT_IMAGE_DIRECTORY, productId, ReferencedEntityType.PRODUCT);
-                        } catch (IOException e) {
-                            throw new CustomException(CommonErrorType.FAIL_TO_UPLOAD_FILE);
-                        }
-                    }).toList();
 
             // 4. Product option 저장
             productOptionService.addProductOption(productId, dto.getProductOptions());
@@ -119,7 +101,7 @@ public class CreateProductService {
             }
 
             // 9. 상품 관련 이력 생성
-            addProductHistoryInCreateMode(newProduct, productImages);
+            addProductHistoryInCreateMode(newProduct);
 
             return ProductDTO.toDTO(newProduct);
         } catch (Exception ex) {
@@ -131,15 +113,13 @@ public class CreateProductService {
      * 상품 관련 이력 생성 (상품 이력)
      *
      * @param product
-     * @param productImages
      */
     @Transactional
     public void addProductHistoryInCreateMode(
-            Product product,
-            List<AttachFile> productImages
+            Product product
     ) {
         // 1. 상품 이력 생성
-        ProductHistory productHistory = ProductHistory.toEntity(product, productImages);
+        ProductHistory productHistory = ProductHistory.toEntity(product);
         productHistoryService.saveProductHistory(productHistory);
     }
 }

@@ -86,6 +86,9 @@ public class CreateProductDTO {
     @ValidEnum(enumClass = ProductType.class)
     private ProductType type;
 
+    @NotNull
+    private List<String> productImages;
+
     public Product toEntity(String productNumber, Long sellerId) {
         return new Product(productNumber, sellerId, this);
     }
