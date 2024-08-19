@@ -1,13 +1,9 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
-import com.impacus.maketplace.entity.common.QAttachFile;
-import com.impacus.maketplace.entity.common.QAttachFileGroup;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
@@ -31,8 +27,6 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
     private final QSeller seller = QSeller.seller;
-    private final QAttachFile attachFile = QAttachFile.attachFile;
-    private final QAttachFileGroup attachFileGroup = QAttachFileGroup.attachFileGroup;
 
     @Override
     public Slice<ShoppingBasketDetailDTO> findAllShoppingBasketByUserId(Long userId, Pageable pageable) {
@@ -44,10 +38,6 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
     }
 
     private List<ShoppingBasketDetailDTO> getShoppingBasketDetailDTOs(Long userId, Pageable pageable) {
-        BooleanBuilder attachFileGroupBuilder = new BooleanBuilder();
-        attachFileGroupBuilder.and(attachFileGroup.referencedEntity.eq(ReferencedEntityType.PRODUCT))
-                .and(attachFileGroup.referencedId.eq(product.id));
-
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(productOption.productId))
                 .and(product.isDeleted.eq(false));
@@ -72,8 +62,6 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                 .leftJoin(productOption).on(productOptionBuilder)
                 .innerJoin(product).on(productBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
-                .leftJoin(attachFileGroup).on(attachFileGroupBuilder)
-                .leftJoin(attachFile).on(attachFile.id.eq(attachFileGroup.attachFileId))
                 .where(shoppingBasket.id.in(shoppingBasketIds))
                 .orderBy(shoppingBasket.modifyAt.desc())
                 .transform(
@@ -90,13 +78,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                                                 product.appSalesPrice,
                                                 product.deliveryType,
                                                 product.discountPrice,
-                                                GroupBy.list(Projections.list(Projections.constructor(
-                                                                        AttachFileDTO.class,
-                                                                        attachFile.id,
-                                                                        attachFile.attachFileName
-                                                                )
-                                                        )
-                                                ),
+                                                product.productImages,
                                                 product.deliveryFee,
                                                 product.type,
                                                 product.createAt
