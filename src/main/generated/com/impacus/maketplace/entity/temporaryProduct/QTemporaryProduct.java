@@ -1,0 +1,77 @@
+package com.impacus.maketplace.entity.temporaryProduct;
+
+import static com.querydsl.core.types.PathMetadataFactory.*;
+
+import com.querydsl.core.types.dsl.*;
+
+import com.querydsl.core.types.PathMetadata;
+import javax.annotation.processing.Generated;
+import com.querydsl.core.types.Path;
+
+
+/**
+ * QTemporaryProduct is a Querydsl query type for TemporaryProduct
+ */
+@Generated("com.querydsl.codegen.DefaultEntitySerializer")
+public class QTemporaryProduct extends EntityPathBase<TemporaryProduct> {
+
+    private static final long serialVersionUID = 1960395713L;
+
+    public static final QTemporaryProduct temporaryProduct = new QTemporaryProduct("temporaryProduct");
+
+    public final com.impacus.maketplace.common.QBaseEntity _super = new com.impacus.maketplace.common.QBaseEntity(this);
+
+    public final NumberPath<Integer> appSalesPrice = createNumber("appSalesPrice", Integer.class);
+
+    public final NumberPath<Long> categoryId = createNumber("categoryId", Long.class);
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
+
+    public final NumberPath<Integer> deliveryFee = createNumber("deliveryFee", Integer.class);
+
+    public final EnumPath<com.impacus.maketplace.common.enumType.DeliveryType> deliveryType = createEnum("deliveryType", com.impacus.maketplace.common.enumType.DeliveryType.class);
+
+    public final NumberPath<Integer> discountPrice = createNumber("discountPrice", Integer.class);
+
+    public final EnumPath<com.impacus.maketplace.common.enumType.DiscountStatus> discountStatus = createEnum("discountStatus", com.impacus.maketplace.common.enumType.DiscountStatus.class);
+
+    public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final NumberPath<Integer> marketPrice = createNumber("marketPrice", Integer.class);
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> modifyAt = _super.modifyAt;
+
+    //inherited
+    public final StringPath modifyId = _super.modifyId;
+
+    public final StringPath name = createString("name");
+
+    public final EnumPath<com.impacus.maketplace.common.enumType.product.ProductStatus> productStatus = createEnum("productStatus", com.impacus.maketplace.common.enumType.product.ProductStatus.class);
+
+    public final NumberPath<Integer> refundFee = createNumber("refundFee", Integer.class);
+
+    //inherited
+    public final StringPath registerId = _super.registerId;
+
+    public final NumberPath<Long> sellerId = createNumber("sellerId", Long.class);
+
+    public final EnumPath<com.impacus.maketplace.common.enumType.product.ProductType> type = createEnum("type", com.impacus.maketplace.common.enumType.product.ProductType.class);
+
+    public final NumberPath<Integer> weight = createNumber("weight", Integer.class);
+
+    public QTemporaryProduct(String variable) {
+        super(TemporaryProduct.class, forVariable(variable));
+    }
+
+    public QTemporaryProduct(Path<? extends TemporaryProduct> path) {
+        super(path.getType(), path.getMetadata());
+    }
+
+    public QTemporaryProduct(PathMetadata metadata) {
+        super(TemporaryProduct.class, metadata);
+    }
+
+}
+
