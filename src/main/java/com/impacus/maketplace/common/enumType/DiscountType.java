@@ -5,12 +5,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum DeliveryType {
-    GENERAL_DELIVERY(1, "일반 배송"),
-    PLUS_DELIVERY(2, "배송+"),
+public enum DiscountType {
 
-    NONE(100, "알수 없음");
+    PERCENT("%", "퍼센트 할인 방식"),
+    AMOUNT("원", "금액 할인 방식");
 
-    private final int code;
+    private final String code;
     private final String value;
 }

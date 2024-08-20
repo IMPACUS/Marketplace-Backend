@@ -34,7 +34,7 @@ public class ReadProductController {
     private final ReadProductService productService;
 
     /**
-     * 앱용 소비자가 전체 상품 조회 API
+     * [앱] 전체 상품 조회 API
      *
      * @param subCategoryId
      * @param pageable
@@ -54,7 +54,7 @@ public class ReadProductController {
     }
 
     /**
-     * 웹용 판매자 상품 전체 조회 API
+     * [판매자] 상품 전체 조회 API
      * - 판매자의 브랜드가 등록한 상품들만 조회 가능
      * @param user
      * @param startAt
@@ -64,13 +64,13 @@ public class ReadProductController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("/seller")
-    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductBySellerIdForWeb(
+    public ApiResponseEntity<Page<ProductForWebDTO>> getProductsBySellerIdForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+        Page<ProductForWebDTO> productDTOList = productService.findProductsForWeb(
                 user.getId(), UserType.ROLE_APPROVED_SELLER, keyword, startAt, endAt, pageable
         );
         return ApiResponseEntity
@@ -80,8 +80,7 @@ public class ReadProductController {
     }
 
     /**
-     * 웹용 판매자 상품 전체 조회 API
-     * - 판매자의 브랜드가 등록한 상품들만 조회 가능
+     * [관리자] 상품 전체 조회 API
      *
      * @param user
      * @param startAt
@@ -93,13 +92,13 @@ public class ReadProductController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_OWNER')")
     @GetMapping("/admin")
-    public ApiResponseEntity<Page<ProductForWebDTO>> getAllProductForWeb(
+    public ApiResponseEntity<Page<ProductForWebDTO>> getProductsForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductForWeb(
+        Page<ProductForWebDTO> productDTOList = productService.findProductsForWeb(
                 user.getId(), UserType.ROLE_ADMIN, keyword, startAt, endAt, pageable
         );
         return ApiResponseEntity
@@ -109,7 +108,7 @@ public class ReadProductController {
     }
 
     /**
-     * 앱용 소비자가 단일 상품 조회 API
+     * [앱] 단일 상품 조회 API
      *
      * @param productId
      * @return
@@ -127,7 +126,7 @@ public class ReadProductController {
     }
 
     /**
-     * 판매자용 단일 상품 조회 API
+     * [판매자] 단일 상품 조회 API
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
             "or hasRole('ROLE_ADMIN') " +
@@ -146,7 +145,7 @@ public class ReadProductController {
     }
 
     /**
-     * 최근 본 상품 목록 조회 API
+     * [앱] 최근 본 상품 목록 조회 API
      *
      * @param pageable
      * @return
@@ -155,7 +154,7 @@ public class ReadProductController {
     @GetMapping("/recent-views")
     public ApiResponseEntity<Slice<ProductForAppDTO>> getProductForRecentViews(
             @AuthenticationPrincipal CustomUserDetails user,
-            @PageableDefault(size = 15, direction = Sort.Direction.ASC, sort = "createAt") Pageable pageable) {
+            @PageableDefault(size = 15, direction = Sort.Direction.DESC, sort = "createAt") Pageable pageable) {
         Slice<ProductForAppDTO> productDTOList = productService.findProductForRecentViews(user.getId(), pageable);
         return ApiResponseEntity
                 .<Slice<ProductForAppDTO>>builder()

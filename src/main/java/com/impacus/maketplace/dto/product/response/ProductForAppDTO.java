@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.product.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
@@ -44,7 +44,7 @@ public class ProductForAppDTO {
             int appSalePrice,
             DeliveryType deliveryType,
             int discountPrice,
-            List<AttachFileDTO> productImageList,
+            List<String> productImages,
             Long wishlistId,
             int deliveryFee,
             ProductType type,
@@ -56,7 +56,7 @@ public class ProductForAppDTO {
         this.appSalePrice = appSalePrice;
         this.deliveryType = deliveryType;
         this.discountPrice = discountPrice;
-        this.productImageList = productImageList;
+        this.productImageList = productImages.stream().map(AttachFileDTO::new).toList();
         this.isExistedWishlist = wishlistId != null;
         this.isFreeShipping = deliveryFee == 0;
         this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
@@ -72,7 +72,7 @@ public class ProductForAppDTO {
             int appSalePrice,
             DeliveryType deliveryType,
             int discountPrice,
-            List<AttachFileDTO> productImageList,
+            List<String> productImages,
             int deliveryFee,
             ProductType type,
             LocalDateTime createAt
@@ -83,7 +83,7 @@ public class ProductForAppDTO {
         this.appSalePrice = appSalePrice;
         this.deliveryType = deliveryType;
         this.discountPrice = discountPrice;
-        this.productImageList = productImageList;
+        this.productImageList = productImages.stream().map(AttachFileDTO::new).toList();
         this.isExistedWishlist = null;
         this.isFreeShipping = deliveryFee == 0;
         this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);

@@ -1,13 +1,12 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.constants.FileSizeConstants;
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
@@ -26,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -50,29 +48,15 @@ public class ReadProductService implements ProductInterface {
 
     @Override
     public void validateProductRequest(
-            List<MultipartFile> productImageList,
-            Long categoryId,
-            List<MultipartFile> productDescriptionImageList
+            List<String> productImages,
+            Long categoryId
     ) {
         // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
-        if (productImageList.size() > 5) {
+        if (productImages.size() > 5) {
             throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
 
-        for (MultipartFile productImage : productImageList) {
-            if (productImage.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
-            }
-        }
-
-        // 2. 상품 설명 이미지 크기 확인
-        for (MultipartFile productImage : productDescriptionImageList) {
-            if (productImage.getSize() > FileSizeConstants.PRODUCT_DESCRIPTION_IMAGE_SIZE_LIMIT) {
-                throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
-            }
-        }
-
-        // 3. 상품 내부 데이터 확인
+        // 2. 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
             throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
         }
@@ -113,14 +97,14 @@ public class ReadProductService implements ProductInterface {
     ) {
         try {
             List<Long> productIds = recentProductViewsService.findProductIdsByUserId(userId, pageable);
-            return productRepository.findAllProductByProductIds(userId, productIds, pageable);
+            return productRepository.findProductsByProductIds(userId, productIds, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
     @Override
-    public Page<ProductForWebDTO> findProductForWeb(
+    public Page<ProductForWebDTO> findProductsForWeb(
             Long userId,
             UserType userType,
             String keyword,
@@ -133,7 +117,7 @@ public class ReadProductService implements ProductInterface {
             Long sellerId = getSellerId(userId, userType);
 
             // 2. 상품 조회
-            return productRepository.findAllProduct(sellerId, keyword, startAt, endAt, pageable);
+            return productRepository.findProductsForWeb(sellerId, keyword, startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -165,11 +149,7 @@ public class ReadProductService implements ProductInterface {
             // 2. Product 세부 데이터 가져오기
             DetailedProductDTO detailedProductDTO = productRepository.findProductByProductId(userId, productId);
 
-            // 3. Product 대표 이미지 리스트 가져오기
-            List<AttachFileDTO> attachFileDTOS = attachFileService.findAllAttachFileByReferencedId(productId, ReferencedEntityType.PRODUCT);
-            detailedProductDTO.setProductImageList(attachFileDTOS);
-
-            // 4. 최근 본 상품 저장
+            // 3. 최근 본 상품 저장
             recentProductViewsService.addRecentProductView(userId, productId);
 
             return detailedProductDTO;
@@ -198,6 +178,40 @@ public class ReadProductService implements ProductInterface {
             return dto;
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 배송비&반품비 유효성 검사 함수
+     * - CHARGE_UNDER_30000 일 때, 배송비 정보 혹은 반품비 정보가 null 일 수 없음.
+     *
+     * @param deliveryFee
+     * @param refundFee
+     * @param specialDeliveryFee
+     * @param specialRefundFee
+     * @param deliveryFeeType
+     * @param refundFeeType
+     */
+    public void validateDeliveryRefundFee(
+            Integer deliveryFee,
+            Integer refundFee,
+            Integer specialDeliveryFee,
+            Integer specialRefundFee,
+            DeliveryRefundType deliveryFeeType,
+            DeliveryRefundType refundFeeType
+    ) {
+        // 1. 배송비 정보 확인
+        if (deliveryFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (deliveryFee == null || specialDeliveryFee == null)) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
+                    "deliveryFeeType 가 CHARGE_UNDER_30000 일 때는 배송비 데이터가 null 이면 안됩니다.");
+
+        }
+
+        // 2. 반송비 정보 확인
+        if (refundFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (refundFee == null || specialRefundFee == null)) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
+                    "refundFeeType 가 CHARGE_UNDER_30000 일 때는 반송비 데이터가 null 이면 안됩니다.");
+
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.impacus.maketplace.dto.product.request;
 
 import com.impacus.maketplace.common.annotation.ValidEnum;
-import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.DeliveryCompany;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import jakarta.validation.constraints.NotBlank;
@@ -30,14 +32,27 @@ public class UpdateProductDTO {
     @ValidEnum(enumClass = DeliveryType.class)
     private DeliveryType deliveryType;
 
+    @ValidEnum(enumClass = DeliveryCompany.class)
+    private DeliveryCompany deliveryCompany;
+
     @NotNull
     private Long categoryId;
 
-    @NotNull
-    private int deliveryFee;
+    private Integer deliveryFee;
+
+    private Integer refundFee;
 
     @NotNull
-    private int refundFee;
+    @ValidEnum(enumClass = DeliveryRefundType.class)
+    private DeliveryRefundType deliveryFeeType;
+
+    @NotNull
+    @ValidEnum(enumClass = DeliveryRefundType.class)
+    private DeliveryRefundType refundFeeType;
+
+    private Integer specialDeliveryFee;
+
+    private Integer specialRefundFee;
 
     @NotNull
     private int marketPrice;
@@ -55,15 +70,15 @@ public class UpdateProductDTO {
     @NotNull
     private List<CreateProductOptionDTO> productOptions;
 
-    @ValidEnum(enumClass = ProductStatus.class)
-    private ProductStatus productStatus;
-
-    @ValidEnum(enumClass = ProductType.class)
-    private ProductType type;
-
     @NotNull
     private CreateProductDeliveryTimeDTO deliveryTime;
 
     @NotNull
     private CreateClaimInfoDTO claim;
+
+    @ValidEnum(enumClass = ProductStatus.class)
+    private ProductStatus productStatus;
+
+    @ValidEnum(enumClass = ProductType.class)
+    private ProductType type;
 }

@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -71,8 +70,8 @@ public class WishlistController {
     @GetMapping("")
     public ApiResponseEntity<Slice<WishlistDetailDTO>> getWishlist(
             @AuthenticationPrincipal CustomUserDetails user,
-            @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<WishlistDetailDTO> wishlistDetailDTOS = wishlistService.getAllWishlist(user.getId(), pageable);
+            @PageableDefault(size = 15) Pageable pageable) {
+        Slice<WishlistDetailDTO> wishlistDetailDTOS = wishlistService.getWishlists(user.getId(), pageable);
         return ApiResponseEntity
                 .<Slice<WishlistDetailDTO>>builder()
                 .data(wishlistDetailDTOS)

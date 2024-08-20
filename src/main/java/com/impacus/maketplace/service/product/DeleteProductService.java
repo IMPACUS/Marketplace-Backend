@@ -6,7 +6,6 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -23,7 +22,6 @@ public class DeleteProductService {
     private final ProductRepository productRepository;
     private final ProductOptionService productOptionService;
     private final AttachFileService attachFileService;
-    private final ProductDescriptionService productDescriptionService;
     private final WishlistRepository wishlistRepository;
     private final ReadProductService readProductService;
 
@@ -57,10 +55,8 @@ public class DeleteProductService {
     /**
      * Product 삭제하는 함수 (isDelete가 true로 변경)
      * 1. ProductOption 삭제
-     * 2. ProductDescription 이미지 삭제
-     * 3. ProductDescription 삭제
-     * 4. Product 대표 이미지 삭제
-     * 5. Product 삭제
+     * 2. Product 대표 이미지 삭제
+     * 3. Product 삭제
      *
      * @param productId
      */
@@ -73,20 +69,13 @@ public class DeleteProductService {
             // 2. ProductOption 삭제
             productOptionService.deleteAllProductionOptionByProductId(deleteProduct.getId());
 
-            // 3. ProductDescription 이미지 삭제
-            ProductDescription productDescription = productDescriptionService.findProductDescriptionByProductId(productId);
-            attachFileService.deleteAttachFileByReferencedId(productDescription.getId(), ReferencedEntityType.PRODUCT_DESCRIPTION);
-
-            // 4. ProductDescription 삭제
-            productDescriptionService.deleteProductDescription(productDescription);
-
-            // 5. Product 대표 이미지 삭제
+            // 3. Product 대표 이미지 삭제
             attachFileService.deleteAttachFileByReferencedId(deleteProduct.getId(), ReferencedEntityType.PRODUCT);
 
-            // 6. 찜 데이터 삭제
+            // 4. 찜 데이터 삭제
             wishlistRepository.deleteByProductId(productId);
 
-            // 2. 삭제
+            // 5. 삭제
             productRepository.deleteById(productId);
         } catch (Exception ex) {
             throw new CustomException(ex);

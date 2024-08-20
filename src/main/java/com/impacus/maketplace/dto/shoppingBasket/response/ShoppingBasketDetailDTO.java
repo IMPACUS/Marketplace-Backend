@@ -6,12 +6,14 @@ import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 public class ShoppingBasketDetailDTO {
     private Long shoppingBasketId;
     private Long quantity;
+    private LocalDateTime modifyAt;
     private ProductForAppDTO product;
     private ProductOptionDTO productOption;
 
@@ -19,12 +21,13 @@ public class ShoppingBasketDetailDTO {
     public ShoppingBasketDetailDTO(
             Long shoppingBasketId,
             Long quantity,
+            LocalDateTime modifyAt,
             ProductForAppDTO product,
             ProductOptionDTO productOption
     ) {
-
         this.shoppingBasketId = shoppingBasketId;
         this.quantity = quantity;
+        this.modifyAt = modifyAt;
         this.product = product;
         this.productOption = productOption;
     }

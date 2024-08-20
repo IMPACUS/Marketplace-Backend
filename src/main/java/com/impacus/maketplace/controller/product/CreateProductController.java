@@ -10,13 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -26,10 +23,8 @@ public class CreateProductController {
     private final CreateProductService createProductService;
 
     /**
-     * 새로운 상품을 등록하는 API
+     * [관리자, 판매자] 새로운 상품을 등록하는 API
      *
-     * @param productImageList
-     * @param productDescriptionImageList
      * @param dto
      * @return
      */
@@ -40,14 +35,12 @@ public class CreateProductController {
     @PostMapping("")
     public ApiResponseEntity<ProductDTO> addProduct(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart(value = "productImage", required = false) List<MultipartFile> productImageList,
-            @RequestPart(value = "productDescriptionImage", required = false) List<MultipartFile> productDescriptionImageList,
-            @Valid @RequestPart(value = "product") CreateProductDTO dto) {
+            @Valid @RequestBody CreateProductDTO dto
+    ) {
         ProductDTO productDTO = createProductService.addProduct(
                 user.getId(),
-                productImageList,
-                dto,
-                productDescriptionImageList);
+                dto
+        );
         return ApiResponseEntity
                 .<ProductDTO>builder()
                 .data(productDTO)

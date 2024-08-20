@@ -17,4 +17,8 @@ public class AttachFileDTO {
         this.id = id;
         this.fileURL = fileURL;
     }
+
+    public AttachFileDTO(String fileURL) {
+        this.fileURL = fileURL;
+    }
 }

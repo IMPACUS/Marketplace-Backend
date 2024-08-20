@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.seller.response;
 
 import com.impacus.maketplace.common.enumType.BankCode;
+import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +23,8 @@ public class DetailedSellerEntryDTO {
     private String mailOrderBusinessReportUrl;
     private String bankBookUrl;
     private String logoImageUrl;
+    private Integer chargePercent;
+    private EntryStatus entryStatus;
 
     public void setBusinessRegistrationUrl(String businessRegistrationUrl) {
         this.businessRegistrationUrl = businessRegistrationUrl;

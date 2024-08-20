@@ -1,13 +1,13 @@
 package com.impacus.maketplace.dto.product.request;
 
 import com.impacus.maketplace.common.annotation.ValidEnum;
-import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.DeliveryCompany;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.entity.product.ProductDescription;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDescription;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -36,14 +36,27 @@ public class CreateProductDTO {
     @ValidEnum(enumClass = DeliveryType.class)
     private DeliveryType deliveryType;
 
+    @ValidEnum(enumClass = DeliveryCompany.class)
+    private DeliveryCompany deliveryCompany;
+
     @NotNull
     private Long categoryId;
 
-    @NotNull
-    private int deliveryFee;
+    private Integer deliveryFee;
+
+    private Integer refundFee;
 
     @NotNull
-    private int refundFee;
+    @ValidEnum(enumClass = DeliveryRefundType.class)
+    private DeliveryRefundType deliveryFeeType;
+
+    @NotNull
+    @ValidEnum(enumClass = DeliveryRefundType.class)
+    private DeliveryRefundType refundFeeType;
+
+    private Integer specialDeliveryFee;
+
+    private Integer specialRefundFee;
 
     @NotNull
     private int marketPrice;
@@ -73,25 +86,15 @@ public class CreateProductDTO {
     @ValidEnum(enumClass = ProductType.class)
     private ProductType type;
 
+    @NotNull
+    private List<String> productImages;
+
     public Product toEntity(String productNumber, Long sellerId) {
         return new Product(productNumber, sellerId, this);
-    }
-
-    public ProductDescription toEntity(Long productId) {
-        return ProductDescription.builder()
-                .productId(productId)
-                .description(this.description)
-                .build();
     }
 
     public TemporaryProduct toTemporaryEntity(Long sellerId) {
         return new TemporaryProduct(sellerId, this);
     }
 
-    public TemporaryProductDescription toTemporaryDescriptionEntity(Long temporaryProductId) {
-        return TemporaryProductDescription.builder()
-                .temporaryProductId(temporaryProductId)
-                .description(this.description)
-                .build();
-    }
 }

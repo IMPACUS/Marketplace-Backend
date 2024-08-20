@@ -123,7 +123,7 @@
     </changeSet>
 
     <!--  temporary_product_info 생성  -->
-    <changeSet id="changelog-0.09.02-240729" author="lchy0413">
+    <changeSet id="changelog-0.09.02-240729-4" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="temporary_product_info"/>
@@ -156,6 +156,25 @@
             <column name="type" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
+            <column name="special_delivery_fee" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="special_refund_fee" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
+                <constraints nullable="true"/>
+            </column>
+            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
+                <constraints nullable="true"/>
+            </column>
+            <column name="description" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="delivery_company" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_images" type="TEXT"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -196,6 +215,10 @@
                           remarks="할인 상태"/>
         <setColumnRemarks tableName="temporary_product_info" columnName="type"
                           remarks="상품 타입"/>
+        <setColumnRemarks tableName="temporary_product_info" columnName="special_delivery_fee" remarks="특수 지역 배송비"/>
+        <setColumnRemarks tableName="temporary_product_info" columnName="special_refund_fee" remarks="특수 지역  반품비"/>
+        <setColumnRemarks tableName="temporary_product_info" columnName="delivery_fee_type" remarks="배송비 타입"/>
+        <setColumnRemarks tableName="temporary_product_info" columnName="refund_fee_type" remarks="반송비 타입"/>
     </changeSet>
 
     <!--  temporary_product_claim_info 생성  -->
@@ -285,48 +308,6 @@
                           remarks="최소 배송 일수"/>
         <setColumnRemarks tableName="temporary_product_delivery_time" columnName="max_days"
                           remarks="최대 배송 일수"/>
-    </changeSet>
-
-    <!--  temporary_product_description 생성  -->
-    <changeSet id="changelog-0.09.05-240729" author="lchy0413">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="temporary_product_description"/>
-            </not>
-        </preConditions>
-        <createTable tableName="temporary_product_description">
-            <!-- ID 컬럼 -->
-            <column name="temporary_product_description_id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-
-            <!-- 임시 상품 ID 컬럼 -->
-            <column name="temporary_product_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-
-            <!-- 상품 설명 컬럼 -->
-            <column name="description" type="TEXT">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="create_at" type="TIMESTAMP">
-            </column>
-            <column name="modify_at" type="TIMESTAMP">
-            </column>
-            <column name="register_id" type="VARCHAR(255)">
-            </column>
-            <column name="modify_id" type="VARCHAR(255)">
-            </column>
-        </createTable>
-
-        <!-- Column Remarks -->
-        <setColumnRemarks tableName="temporary_product_description" columnName="temporary_product_description_id"
-                          remarks="임시 상품 설명 ID"/>
-        <setColumnRemarks tableName="temporary_product_description" columnName="temporary_product_id"
-                          remarks="임시 상품 ID"/>
-        <setColumnRemarks tableName="temporary_product_description" columnName="description"
-                          remarks="상품 설명"/>
     </changeSet>
 
     <!--  temporary_product_detail_info 생성  -->

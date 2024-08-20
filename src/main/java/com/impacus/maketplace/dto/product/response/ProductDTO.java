@@ -2,7 +2,7 @@ package com.impacus.maketplace.dto.product.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.entity.product.Product;
 import lombok.Builder;
