@@ -1,27 +1,37 @@
 package com.impacus.maketplace.entity.address;
 
+import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor(access =  AccessLevel.PROTECTED)
 @Builder
-public class DeliveryAddress extends Address {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class DeliveryAddress extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "delivery_address_id")
     private Long id;
 
     @Column(nullable = false)
-    private Long ordersId;
+    private Long ordersId;  // 주문 아이디
 
-    @Builder
-    public DeliveryAddress(Long ordersId, String receiver, String connectNumber, String address, String detailAddress, String postalCode, String memo, Long id) {
-        super(receiver, connectNumber, address, detailAddress, postalCode, memo);
-        this.ordersId = ordersId;
-        this.id = id;
-    }
+    @Column(nullable = false)
+    private String receiver;    // 받는이
+
+    @Column(nullable = false)
+    private String postalCode;  // 우편 번호
+
+    @Column(nullable = false)
+    private String address;     // 주소지
+
+    @Column(nullable = false)
+    private String detailAddress;   // 상세 주소
+
+    private String connectNumber;   // 연락처
+
+    private String memo;    // 메모
 }
