@@ -10,6 +10,7 @@ import java.util.List;
 
 @Data
 public class OrderProductWithDetailsByCartDTO {
+    private Long productId; // 상품 id
     private String name; // 상품명
     private ProductStatus productStatus; // 상품 상태
     private ProductType type; // 상품 타입
@@ -29,7 +30,8 @@ public class OrderProductWithDetailsByCartDTO {
     private Long quantity; // 구매 수량
 
     @QueryProjection
-    public OrderProductWithDetailsByCartDTO(String name, ProductStatus productStatus, ProductType type, DiscountStatus discountStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, List<String> productImages, boolean productIsDeleted, String marketName, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionId, Long quantity) {
+    public OrderProductWithDetailsByCartDTO(Long productId, String name, ProductStatus productStatus, ProductType type, DiscountStatus discountStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, List<String> productImages, boolean productIsDeleted, String marketName, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionId, Long quantity) {
+        this.productId = productId;
         this.name = name;
         this.productStatus = productStatus;
         this.type = type;

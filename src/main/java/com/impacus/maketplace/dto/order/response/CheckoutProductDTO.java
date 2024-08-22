@@ -2,6 +2,7 @@ package com.impacus.maketplace.dto.order.response;
 
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsByCartDTO;
 import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsDTO;
 import lombok.Data;
 
@@ -36,6 +37,24 @@ public class CheckoutProductDTO {
         this.discountPrice = orderProductWithDetailsDTO.getDiscountPrice();
         if (!orderProductWithDetailsDTO.getProductImages().isEmpty()) {
             this.productImage = orderProductWithDetailsDTO.getProductImages().get(0);
+        }
+    }
+
+    public CheckoutProductDTO(OrderProductWithDetailsByCartDTO orderProductWithDetailsByCartDTO) {
+        this.productId = orderProductWithDetailsByCartDTO.getProductId();
+        this.name = orderProductWithDetailsByCartDTO.getName();
+        this.marketName = orderProductWithDetailsByCartDTO.getMarketName();
+        this.color = orderProductWithDetailsByCartDTO.getColor();
+        this.size = orderProductWithDetailsByCartDTO.getSize();
+        this.productOptionId = orderProductWithDetailsByCartDTO.getProductOptionId();
+        this.quantity = orderProductWithDetailsByCartDTO.getQuantity();
+        this.type = orderProductWithDetailsByCartDTO.getType();
+        this.discountStatus = orderProductWithDetailsByCartDTO.getDiscountStatus();
+        this.deliveryFee = orderProductWithDetailsByCartDTO.getDeliveryFee();
+        this.appSalesPrice = orderProductWithDetailsByCartDTO.getAppSalesPrice();
+        this.discountPrice = orderProductWithDetailsByCartDTO.getDiscountPrice();
+        if (!orderProductWithDetailsByCartDTO.getProductImages().isEmpty()) {
+            this.productImage = orderProductWithDetailsByCartDTO.getProductImages().get(0);
         }
     }
 }

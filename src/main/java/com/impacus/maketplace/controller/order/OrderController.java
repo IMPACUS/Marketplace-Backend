@@ -6,12 +6,10 @@ import com.impacus.maketplace.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import security.CustomUserDetails;
 
 import java.util.List;
 
@@ -27,7 +25,7 @@ public class OrderController {
      * 단일 상품 결제 페이지 이동
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("checkout_single")
+    @GetMapping("checkout-single")
     public ApiResponseEntity<CheckoutProductDTO> getCheckoutSingle(@RequestParam(name = "product-id") Long productId,
                                                                    @RequestParam(name = "product-option-id") Long productOptionId,
                                                                    @RequestParam(name = "quantity") Long quantity) {
@@ -45,10 +43,13 @@ public class OrderController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("checkout-cart")
-    public ApiResponseEntity<Void> getCheckoutCart(@AuthenticationPrincipal CustomUserDetails user,
-                                                   @RequestParam(name = "check-product-id-list") List<Long> productIdList) {
+    public ApiResponseEntity<List<CheckoutProductDTO>> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
 
-        orderService.getCheckoutCart(user.getId(), productIdList);
-        return null;
+        List<CheckoutProductDTO> response = orderService.getCheckoutCart(shoppingBasketIdList);
+
+        return ApiResponseEntity
+                .<List<CheckoutProductDTO>>builder()
+                .data(response)
+                .build();
     }
 }

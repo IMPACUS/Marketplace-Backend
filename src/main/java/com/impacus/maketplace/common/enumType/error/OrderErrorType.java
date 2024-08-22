@@ -11,9 +11,8 @@ public enum OrderErrorType implements ErrorType {
     DELETED_ORDER_PRODUCT("060_1_DELETED_ORDER_PRODUCT", "식제된 상품입니다."),
     SALE_STOP_ORDER_PRODUCT("060_2_SALE_STOP_ORDER_PRODUCT", "판매 중지된 상품입니다."),
     SOLD_OUT_ORDER_PRODUCT("060_3_SOLD_OUT_ORDER_PRODUCT", "품절된 상품입니다."),
-    DELETED_ORDER_PRODUCT_OPTION("060_4_DELETED_ORDER_PRODUCT_OPTION", "주문한 상품 옵션이 삭제되었습니다.");
-
-
+    DELETED_ORDER_PRODUCT_OPTION("060_4_DELETED_ORDER_PRODUCT_OPTION", "주문한 상품 옵션이 삭제되었습니다."),
+    NOT_FOUND_ORDER_PRODUCT("060_5_NOT_FOUND_ORDER_PRODUCT", "주문한 상품을 찾을 수 없습니다.");
 
 
     private final String code;
