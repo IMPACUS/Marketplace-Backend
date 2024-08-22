@@ -44,6 +44,8 @@ public class QDeliveryAddress extends EntityPathBase<DeliveryAddress> {
     //inherited
     public final StringPath modifyId = _super.modifyId;
 
+    public final NumberPath<Long> ordersId = createNumber("ordersId", Long.class);
+
     //inherited
     public final StringPath postalCode = _super.postalCode;
 

@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.userAlarm;
+package com.impacus.maketplace.entity.alarm.user;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -10,16 +10,22 @@ import com.querydsl.core.types.Path;
 
 
 /**
- * QOrderDeliveryAlarm is a Querydsl query type for OrderDeliveryAlarm
+ * QAlarmReview is a Querydsl query type for AlarmReview
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QOrderDeliveryAlarm extends EntityPathBase<OrderDeliveryAlarm> {
+public class QAlarmReview extends EntityPathBase<AlarmReview> {
 
-    private static final long serialVersionUID = -1260319676L;
+    private static final long serialVersionUID = 548873072L;
 
-    public static final QOrderDeliveryAlarm orderDeliveryAlarm = new QOrderDeliveryAlarm("orderDeliveryAlarm");
+    public static final QAlarmReview alarmReview = new QAlarmReview("alarmReview");
 
     public final QAlarm _super = new QAlarm(this);
+
+    //inherited
+    public final StringPath comment1 = _super.comment1;
+
+    //inherited
+    public final StringPath comment2 = _super.comment2;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
@@ -28,9 +34,6 @@ public class QOrderDeliveryAlarm extends EntityPathBase<OrderDeliveryAlarm> {
     public final BooleanPath email = _super.email;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
-
-    //inherited
-    public final BooleanPath isAlarm = _super.isAlarm;
 
     //inherited
     public final BooleanPath kakao = _super.kakao;
@@ -42,10 +45,13 @@ public class QOrderDeliveryAlarm extends EntityPathBase<OrderDeliveryAlarm> {
     public final StringPath modifyId = _super.modifyId;
 
     //inherited
-    public final StringPath registerId = _super.registerId;
+    public final BooleanPath msg = _super.msg;
 
     //inherited
-    public final BooleanPath sns = _super.sns;
+    public final BooleanPath push = _super.push;
+
+    //inherited
+    public final StringPath registerId = _super.registerId;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> time = _super.time;
@@ -53,16 +59,16 @@ public class QOrderDeliveryAlarm extends EntityPathBase<OrderDeliveryAlarm> {
     //inherited
     public final NumberPath<Long> userId = _super.userId;
 
-    public QOrderDeliveryAlarm(String variable) {
-        super(OrderDeliveryAlarm.class, forVariable(variable));
+    public QAlarmReview(String variable) {
+        super(AlarmReview.class, forVariable(variable));
     }
 
-    public QOrderDeliveryAlarm(Path<? extends OrderDeliveryAlarm> path) {
+    public QAlarmReview(Path<? extends AlarmReview> path) {
         super(path.getType(), path.getMetadata());
     }
 
-    public QOrderDeliveryAlarm(PathMetadata metadata) {
-        super(OrderDeliveryAlarm.class, metadata);
+    public QAlarmReview(PathMetadata metadata) {
+        super(AlarmReview.class, metadata);
     }
 
 }

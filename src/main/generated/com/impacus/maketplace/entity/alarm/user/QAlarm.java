@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.userAlarm;
+package com.impacus.maketplace.entity.alarm.user;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -15,18 +15,20 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultSupertypeSerializer")
 public class QAlarm extends EntityPathBase<Alarm> {
 
-    private static final long serialVersionUID = -2092320260L;
+    private static final long serialVersionUID = -493839880L;
 
     public static final QAlarm alarm = new QAlarm("alarm");
 
     public final com.impacus.maketplace.common.QBaseEntity _super = new com.impacus.maketplace.common.QBaseEntity(this);
 
+    public final StringPath comment1 = createString("comment1");
+
+    public final StringPath comment2 = createString("comment2");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
 
     public final BooleanPath email = createBoolean("email");
-
-    public final BooleanPath isAlarm = createBoolean("isAlarm");
 
     public final BooleanPath kakao = createBoolean("kakao");
 
@@ -36,10 +38,12 @@ public class QAlarm extends EntityPathBase<Alarm> {
     //inherited
     public final StringPath modifyId = _super.modifyId;
 
+    public final BooleanPath msg = createBoolean("msg");
+
+    public final BooleanPath push = createBoolean("push");
+
     //inherited
     public final StringPath registerId = _super.registerId;
-
-    public final BooleanPath sns = createBoolean("sns");
 
     public final DateTimePath<java.time.LocalDateTime> time = createDateTime("time", java.time.LocalDateTime.class);
 

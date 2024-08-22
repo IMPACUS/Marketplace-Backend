@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.userAlarm;
+package com.impacus.maketplace.entity.alarm.user;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -10,16 +10,22 @@ import com.querydsl.core.types.Path;
 
 
 /**
- * QReviewAlarm is a Querydsl query type for ReviewAlarm
+ * QAlarmServiceCenter is a Querydsl query type for AlarmServiceCenter
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QReviewAlarm extends EntityPathBase<ReviewAlarm> {
+public class QAlarmServiceCenter extends EntityPathBase<AlarmServiceCenter> {
 
-    private static final long serialVersionUID = 2072182084L;
+    private static final long serialVersionUID = -1138660270L;
 
-    public static final QReviewAlarm reviewAlarm = new QReviewAlarm("reviewAlarm");
+    public static final QAlarmServiceCenter alarmServiceCenter = new QAlarmServiceCenter("alarmServiceCenter");
 
     public final QAlarm _super = new QAlarm(this);
+
+    //inherited
+    public final StringPath comment1 = _super.comment1;
+
+    //inherited
+    public final StringPath comment2 = _super.comment2;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
@@ -28,9 +34,6 @@ public class QReviewAlarm extends EntityPathBase<ReviewAlarm> {
     public final BooleanPath email = _super.email;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
-
-    //inherited
-    public final BooleanPath isAlarm = _super.isAlarm;
 
     //inherited
     public final BooleanPath kakao = _super.kakao;
@@ -42,10 +45,13 @@ public class QReviewAlarm extends EntityPathBase<ReviewAlarm> {
     public final StringPath modifyId = _super.modifyId;
 
     //inherited
-    public final StringPath registerId = _super.registerId;
+    public final BooleanPath msg = _super.msg;
 
     //inherited
-    public final BooleanPath sns = _super.sns;
+    public final BooleanPath push = _super.push;
+
+    //inherited
+    public final StringPath registerId = _super.registerId;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> time = _super.time;
@@ -53,16 +59,16 @@ public class QReviewAlarm extends EntityPathBase<ReviewAlarm> {
     //inherited
     public final NumberPath<Long> userId = _super.userId;
 
-    public QReviewAlarm(String variable) {
-        super(ReviewAlarm.class, forVariable(variable));
+    public QAlarmServiceCenter(String variable) {
+        super(AlarmServiceCenter.class, forVariable(variable));
     }
 
-    public QReviewAlarm(Path<? extends ReviewAlarm> path) {
+    public QAlarmServiceCenter(Path<? extends AlarmServiceCenter> path) {
         super(path.getType(), path.getMetadata());
     }
 
-    public QReviewAlarm(PathMetadata metadata) {
-        super(ReviewAlarm.class, metadata);
+    public QAlarmServiceCenter(PathMetadata metadata) {
+        super(AlarmServiceCenter.class, metadata);
     }
 
 }

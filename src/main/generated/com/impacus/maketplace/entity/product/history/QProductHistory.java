@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -36,7 +37,7 @@ public class QProductHistory extends EntityPathBase<ProductHistory> {
 
     public final NumberPath<Long> productId = createNumber("productId", Long.class);
 
-    public final MapPath<Long, String, StringPath> productImages = this.<Long, String, StringPath>createMap("productImages", Long.class, String.class, StringPath.class);
+    public final ListPath<String, StringPath> productImages = this.<String, StringPath>createList("productImages", String.class, StringPath.class, PathInits.DIRECT2);
 
     //inherited
     public final StringPath registerId = _super.registerId;

@@ -13,8 +13,8 @@ public class QShoppingBasketDetailDTO extends ConstructorExpression<ShoppingBask
 
     private static final long serialVersionUID = 537429030L;
 
-    public QShoppingBasketDetailDTO(com.querydsl.core.types.Expression<Long> shoppingBasketId, com.querydsl.core.types.Expression<Long> quantity, com.querydsl.core.types.Expression<? extends com.impacus.maketplace.dto.product.response.ProductForAppDTO> product, com.querydsl.core.types.Expression<? extends com.impacus.maketplace.dto.product.response.ProductOptionDTO> productOption) {
-        super(ShoppingBasketDetailDTO.class, new Class<?>[]{long.class, long.class, com.impacus.maketplace.dto.product.response.ProductForAppDTO.class, com.impacus.maketplace.dto.product.response.ProductOptionDTO.class}, shoppingBasketId, quantity, product, productOption);
+    public QShoppingBasketDetailDTO(com.querydsl.core.types.Expression<Long> shoppingBasketId, com.querydsl.core.types.Expression<Long> quantity, com.querydsl.core.types.Expression<java.time.LocalDateTime> modifyAt, com.querydsl.core.types.Expression<? extends com.impacus.maketplace.dto.product.response.ProductForAppDTO> product, com.querydsl.core.types.Expression<? extends com.impacus.maketplace.dto.product.response.ProductOptionDTO> productOption) {
+        super(ShoppingBasketDetailDTO.class, new Class<?>[]{long.class, long.class, java.time.LocalDateTime.class, com.impacus.maketplace.dto.product.response.ProductForAppDTO.class, com.impacus.maketplace.dto.product.response.ProductOptionDTO.class}, shoppingBasketId, quantity, modifyAt, product, productOption);
     }
 
 }
