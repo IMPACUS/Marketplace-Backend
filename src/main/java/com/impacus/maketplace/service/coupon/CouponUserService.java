@@ -1,14 +1,18 @@
 package com.impacus.maketplace.service.coupon;
 
+import com.impacus.maketplace.common.enumType.coupon.CoverageType;
+import com.impacus.maketplace.common.enumType.coupon.ProductType;
+import com.impacus.maketplace.common.enumType.coupon.StandardType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.coupon.response.BrandCouponOverviewDTO;
-import com.impacus.maketplace.dto.coupon.response.UserCouponDownloadDTO;
-import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
+import com.impacus.maketplace.dto.coupon.request.ProductQuantityDTO;
+import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
-import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
+import com.impacus.maketplace.repository.coupon.querydsl.CouponProductRepository;
+import com.impacus.maketplace.repository.coupon.querydsl.dto.ProductPricingInfoDTO;
+import com.impacus.maketplace.repository.coupon.querydsl.dto.UserCouponInfoForCheckoutDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -24,9 +32,11 @@ public class CouponUserService {
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final CouponIssuanceService couponIssuanceService;
     private final UserCouponRepository userCouponRepository;
+    private final CouponProductRepository couponProductRepository;
 
     /**
      * 쿠폰함에서 사용자가 가지고 있는 쿠폰 리스트 조회
+     *
      * @param userId 사용자 id
      */
     public List<UserCouponOverviewDTO> getUserCouponOverviewList(Long userId) {
@@ -36,7 +46,8 @@ public class CouponUserService {
 
     /**
      * 사용자 쿠폰 등록하기
-     * @param userId 사용자 id
+     *
+     * @param userId     사용자 id
      * @param couponCode 쿠폰 코드
      */
     @Transactional
@@ -46,7 +57,8 @@ public class CouponUserService {
 
     /**
      * 쿠폰함에 있는 쿠폰 다운로드
-     * @param userId 사용자 id
+     *
+     * @param userId       사용자 id
      * @param userCouponId 사용자 쿠폰 id
      */
     @Transactional
@@ -96,11 +108,78 @@ public class CouponUserService {
 
     /**
      * 브랜드 쿠폰 받기 팝업창에서 쿠폰 다운로드
-     * @param userId 사용자 id
+     *
+     * @param userId   사용자 id
      * @param couponId 쿠폰 id
      */
     @Transactional
     public UserCouponDownloadDTO issueAndDownloadCoupon(Long userId, Long couponId) {
         return couponIssuanceService.issueAndDownloadCoupon(userId, couponId);
+    }
+
+    /**
+     * 사용 가능한 쿠폰 리스트 조회
+     * @param userId 사용자 아이디
+     * @param productQuantityDTOList 구매할 상품 id와 수량
+     */
+    public AvailableCouponsForCheckoutDTO findAvailableCouponsForCheckout(Long userId, List<ProductQuantityDTO> productQuantityDTOList) {
+
+        // 1. 주문한 상품의 id, 브랜드와 금액을 DTO List로 가져오기
+        List<ProductPricingInfoDTO> productPricingInfoDTOList = couponProductRepository.findProductPricingInfoList(productQuantityDTOList.stream().map(ProductQuantityDTO::getProductId).toList());
+
+        // 2. 사용자가 보유하고 있는 쿠폰 List 가져오기
+        List<UserCouponInfoForCheckoutDTO> userCouponInfoForCheckoutList = couponCustomRepositroy.findUserCouponInfoForCheckoutList(userId);
+
+        // 3. 수량 매핑해놓기
+        Map<Long, Integer> productQuantityMap = productQuantityDTOList.stream()
+                .collect(Collectors.toMap(ProductQuantityDTO::getProductId, ProductQuantityDTO::getQuantity));
+
+        // 4. 상풉별 적용 가능한 쿠폰들 DTO List 생성 (병렬처리 => parallelStream 추후 고려)
+        List<AvailableCouponsForProductDTO> availableCouponsForProductDTOList = productPricingInfoDTOList.stream()
+                .map(productPricingInfoDTO -> {
+                    List<AvailableCouponsDTO> list = userCouponInfoForCheckoutList.stream()
+                            .filter(coupon -> isValidCouponForProduct(coupon, productPricingInfoDTO, productQuantityMap.get(productPricingInfoDTO.getProductId())))
+                            .map(userCouponInfoForCheckoutDTO ->
+                                    new AvailableCouponsDTO(userCouponInfoForCheckoutDTO.getUserCouponId(),
+                                            userCouponInfoForCheckoutDTO.getCouponName(),
+                                            userCouponInfoForCheckoutDTO.getBenefitType(),
+                                            userCouponInfoForCheckoutDTO.getBenefitValue()))
+                            .toList();
+                    return new AvailableCouponsForProductDTO(productPricingInfoDTO.getProductId(), list);
+                })
+                .toList();
+
+        // 4. 전체 주문에 적용 가능한 쿠폰 List DTO 생성
+        int totalPrice = productPricingInfoDTOList.stream()
+                .mapToInt(product -> product.getAppSalesPrice() * productQuantityMap.getOrDefault(product.getProductId(), 0))
+                .sum();
+
+        List<AvailableCouponsDTO> availableCouponsForOrderDTOList = userCouponInfoForCheckoutList.stream()
+                .filter(coupon -> {
+                    if (coupon.getProductType() != ProductType.ALL) return false;
+                    if (coupon.getUseCoverageType() == CoverageType.BRAND) return false;
+                    return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalPrice;
+                })
+                .map(userCouponInfoForCheckoutDTO ->
+                        new AvailableCouponsDTO(userCouponInfoForCheckoutDTO.getUserCouponId(),
+                                userCouponInfoForCheckoutDTO.getCouponName(),
+                                userCouponInfoForCheckoutDTO.getBenefitType(),
+                                userCouponInfoForCheckoutDTO.getBenefitValue()))
+                .toList();
+
+        return new AvailableCouponsForCheckoutDTO(availableCouponsForProductDTOList, availableCouponsForOrderDTOList);
+    }
+    private boolean isValidCouponForProduct(UserCouponInfoForCheckoutDTO coupon, ProductPricingInfoDTO product, int quantity) {
+        // 타입 체크
+        if (coupon.getProductType() == ProductType.ECO_GREEN && product.getProductType() != com.impacus.maketplace.common.enumType.product.ProductType.GREEN_TAG) {
+            return false;
+        }
+        // 브랜드 체크
+        if (coupon.getUseCoverageType() == CoverageType.BRAND && !Objects.equals(product.getMarketName(), coupon.getUseCoverageSubCategoryName())) {
+            return false;
+        }
+        // 금액 체크
+        int totalProductPrice = product.getAppSalesPrice() * quantity;
+        return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalProductPrice;
     }
 }

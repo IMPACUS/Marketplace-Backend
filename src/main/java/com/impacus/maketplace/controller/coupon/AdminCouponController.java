@@ -4,7 +4,10 @@ import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.coupon.request.*;
-import com.impacus.maketplace.dto.coupon.response.*;
+import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponHIstoryDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
 import com.impacus.maketplace.service.coupon.CouponUserService;
@@ -18,9 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import security.CustomUserDetails;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,8 +29,8 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/coupon")
-public class CouponController {
+@RequestMapping("api/v1/coupon/admin")
+public class AdminCouponController {
 
     // 용어 정리
     // ADMIN이 새롭게 쿠폰 등록: Register
@@ -37,14 +38,13 @@ public class CouponController {
     // USER가 쿠폰을 사용: Redeem
 
     private final CouponAdminService couponAdminService;
-    private final CouponUserService couponService;
 
     /**
      * ADMIN: 쿠폰 등록 API
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PostMapping("/admin")
+    @PostMapping("")
     public ApiResponseEntity<Boolean> registerCounponForAdmin(@Valid @RequestBody CouponIssueDTO couponIssuedDto) {
         Coupon savedCoupon = couponAdminService.registerCoupon(couponIssuedDto);
 
@@ -71,7 +71,7 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PatchMapping("/admin")
+    @PatchMapping("")
     public ApiResponseEntity<Boolean> updateCoupon(@Valid @RequestBody CouponUpdateDTO couponUpdateDTO) {
         Coupon updateCoupon = couponAdminService.updateCoupon(couponUpdateDTO);
 
@@ -84,14 +84,14 @@ public class CouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
-    @GetMapping("/admin")
+    @GetMapping("")
     public ApiResponseEntity<CouponDetailDTO> getCouponDetail(@RequestParam(value = "coupon-id") Long id) {
 
-        CouponDetailDTO couponDetailDTO = couponAdminService.getCoupon(id);
+        CouponDetailDTO response = couponAdminService.getCoupon(id);
 
         return ApiResponseEntity
                 .<CouponDetailDTO>builder()
-                .data(couponDetailDTO)
+                .data(response)
                 .build();
     }
 
@@ -102,7 +102,7 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PatchMapping("/admin/status")
+    @PatchMapping("/status")
     public ApiResponseEntity<Boolean> changeCouponStatus(@Valid @RequestBody ChangeCouponStatusDTO changeCouponStatusDTO) {
 
         couponAdminService.changeStatus(changeCouponStatusDTO.getCouponIdList(), changeCouponStatusDTO.getStatus());
@@ -115,7 +115,7 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @DeleteMapping("/admin")
+    @DeleteMapping("")
     public ApiResponseEntity<Boolean> deleteCoupons(@Valid @RequestBody CouponIdListDTO couponIdListDTO) {
 
         // 1. 쿠폰 삭제하기
@@ -131,15 +131,15 @@ public class CouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
-    @GetMapping("/admin/list")
+    @GetMapping("/list")
     public ApiResponseEntity<Page<CouponListInfoDTO>> getCouponList(@RequestParam(name = "name", required = false) String name,
                                                                     @RequestParam(name = "status", required = false) CouponStatusType couponStatus,
                                                                     @PageableDefault(sort = "modifyAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<CouponListInfoDTO> couponListInfoDTOList = couponAdminService.getCouponListInfoList(name, couponStatus, pageable);
+        Page<CouponListInfoDTO> response = couponAdminService.getCouponListInfoList(name, couponStatus, pageable);
 
         return ApiResponseEntity
                 .<Page<CouponListInfoDTO>>builder()
-                .data(couponListInfoDTOList)
+                .data(response)
                 .build();
     }
 
@@ -148,14 +148,14 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @GetMapping("/admin/issue-coupon/info-list")
+    @GetMapping("/issue-coupon/info-list")
     public ApiResponseEntity<List<IssueCouponInfoDTO>> getIssueCouponInfoList() {
 
-        List<IssueCouponInfoDTO> issueCouponInfoList = couponAdminService.getIssueCouponInfoList();
+        List<IssueCouponInfoDTO> response = couponAdminService.getIssueCouponInfoList();
 
         return ApiResponseEntity
                 .<List<IssueCouponInfoDTO>>builder()
-                .data(issueCouponInfoList)
+                .data(response)
                 .build();
     }
 
@@ -165,7 +165,7 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PostMapping("/admin/issue-coupon/all-user")
+    @PostMapping("/issue-coupon/all-user")
     public ApiResponseEntity<Boolean> issueCouponAllUser(@Valid @RequestBody IssueCouponAllUserDTO issueCouponAllUserDTO) {
 
         couponAdminService.issueCouponAllUser(issueCouponAllUserDTO.getCouponId(), issueCouponAllUserDTO.getUserLevel());
@@ -178,7 +178,7 @@ public class CouponController {
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
-    @PostMapping("/admin/issue-coupon")
+    @PostMapping("/issue-coupon")
     public ApiResponseEntity<Boolean> issueCouponTargetUser(@Valid @RequestBody IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
 
         couponAdminService.issueCouponTargetUser(issueCouponTargetUserDTO);
@@ -192,98 +192,18 @@ public class CouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
-    @GetMapping("/admin/issue-coupon/history-list")
+    @GetMapping("/issue-coupon/history-list")
     public ApiResponseEntity<Page<IssueCouponHIstoryDTO>> getIssueCouponHistoryList(@RequestParam(name = "name", required = false) String name,
                                                                                     @RequestParam(name = "status", required = false) UserCouponStatus userCouponStatus,
                                                                                     @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
                                                                                     @RequestParam(name = "end-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
                                                                                     @PageableDefault(sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<IssueCouponHIstoryDTO> issueCouponHistoryList = couponAdminService.getIssueCouponHistoryList(name, userCouponStatus, startAt, endAt, pageable);
+        Page<IssueCouponHIstoryDTO> response = couponAdminService.getIssueCouponHistoryList(name, userCouponStatus, startAt, endAt, pageable);
 
         return ApiResponseEntity
                 .<Page<IssueCouponHIstoryDTO>>builder()
-                .data(issueCouponHistoryList)
-                .build();
-    }
-
-    /**
-     * APP: 쿠폰함 - 보유 쿠폰 List API
-     */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("/coupon-box/coupon-list")
-    public ApiResponseEntity<List<UserCouponOverviewDTO>> getUserCouponOverviewList(@AuthenticationPrincipal CustomUserDetails user) {
-
-        List<UserCouponOverviewDTO> userCouponOverviewList = couponService.getUserCouponOverviewList(user.getId());
-
-        return ApiResponseEntity
-                .<List<UserCouponOverviewDTO>>builder()
-                .data(userCouponOverviewList)
-                .build();
-    }
-
-    /**
-     * POSTMANE API 수정하기
-     * APP: 쿠폰함 - 쿠폰 등록하기
-     */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("/coupon-box/coupon")
-    public ApiResponseEntity<UserCouponOverviewDTO> registUserCoupon(@AuthenticationPrincipal CustomUserDetails user,
-                                                                     @Valid @RequestBody CouponCodeDTO registerUserCouponDTO) {
-
-        UserCouponOverviewDTO userCouponOverviewDTO = couponService.registerUserCoupon(user.getId(), registerUserCouponDTO.getCouponCode());
-
-        return ApiResponseEntity
-                .<UserCouponOverviewDTO>builder()
-                .data(userCouponOverviewDTO)
-                .build();
-    }
-
-    /**
-     * APP: 쿠폰함 - 쿠폰 다운로드
-     */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("/coupon-box/coupon/download")
-    public ApiResponseEntity<UserCouponDownloadDTO> downloadUserCoupon(@AuthenticationPrincipal CustomUserDetails user,
-                                                         @Valid @RequestBody UserCouponIdDTO couponIdDTO) {
-
-        UserCouponDownloadDTO userCouponDownloadDTO = couponService.downloadUserCoupon(user.getId(), couponIdDTO.getUserCouponId());
-
-        return ApiResponseEntity
-                .<UserCouponDownloadDTO>builder()
-                .data(userCouponDownloadDTO)
-                .build();
-    }
-
-    /**
-     * APP: 브랜드 쿠폰 받기 - 쿠폰 List API
-     */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("/brand-coupon/coupon-list")
-    public ApiResponseEntity<List<BrandCouponOverviewDTO>> getBrandCouponList(@AuthenticationPrincipal CustomUserDetails user,
-                                                                             @RequestParam(name = "brand-name") String brandName,
-                                                                             @RequestParam(name = "eco-product") Boolean isEcoProduct) {
-
-        List<BrandCouponOverviewDTO> brandCouponList = couponService.getBrandCouponList(user.getId(), brandName, isEcoProduct);
-
-        return ApiResponseEntity
-                .<List<BrandCouponOverviewDTO>>builder()
-                .data(brandCouponList)
-                .build();
-    }
-
-    /**
-     * APP: 브랜드 쿠폰 받기 - 쿠폰 다운 받기 API
-     */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("/brand-coupon/download")
-    public ApiResponseEntity<UserCouponDownloadDTO> issueAndDownloadCoupon(@AuthenticationPrincipal CustomUserDetails user,
-                                                                        @Valid @RequestBody CouponIdDTO couponDownloadDTO) {
-
-        UserCouponDownloadDTO userCouponDownloadDTO = couponService.issueAndDownloadCoupon(user.getId(), couponDownloadDTO.getCouponId());
-        return ApiResponseEntity
-                .<UserCouponDownloadDTO>builder()
-                .data(userCouponDownloadDTO)
+                .data(response)
                 .build();
     }
 

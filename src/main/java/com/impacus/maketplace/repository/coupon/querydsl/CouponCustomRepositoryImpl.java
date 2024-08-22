@@ -8,9 +8,12 @@ import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.QCoupon;
 import com.impacus.maketplace.entity.coupon.QUserCoupon;
 import com.impacus.maketplace.entity.user.QUser;
+import com.impacus.maketplace.repository.coupon.querydsl.dto.QUserCouponInfoForCheckoutDTO;
+import com.impacus.maketplace.repository.coupon.querydsl.dto.UserCouponInfoForCheckoutDTO;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.Temporal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -151,8 +154,8 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                         userCoupon.availableDownloadAt
                 ))
                 .from(userCoupon)
-                .where(userCoupon.userId.eq(userId))
                 .join(coupon).on(userCoupon.couponId.eq(coupon.id))
+                .where(userCoupon.userId.eq(userId))
                 .fetch();
     }
 
@@ -195,10 +198,37 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                         coupon.useCoverageSubCategoryName
                 ))
                 .from(coupon)
-                .where(eqAllOrIsEcoProduct(isEcoProduct), eqAllOrBrandName(brandName))
                 .leftJoin(userCoupon).on(userCoupon.couponId.eq(coupon.id))
-                .where(userCoupon.id.isNull())
+                .where(eqAllOrIsEcoProduct(isEcoProduct), eqAllOrBrandName(brandName), userCoupon.id.isNull())
                 .fetch();
+    }
+
+    @Override
+    public List<UserCouponInfoForCheckoutDTO> findUserCouponInfoForCheckoutList(Long userId) {
+        return queryFactory
+                .select(new QUserCouponInfoForCheckoutDTO(
+                        userCoupon.couponId,
+                        coupon.name,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useCoverageSubCategoryName,
+                        coupon.useStandardType,
+                        coupon.useStandardValue
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .where(userCoupon.userId.eq(userId), availableCouponStatus())
+                .fetch();
+
+    }
+    private BooleanExpression availableCouponStatus() {
+        return userCoupon.isDownload.eq(true).and(
+                userCoupon.isUsed.eq(false).and(
+                        userCoupon.expiredAt.goe(LocalDate.now())
+                )
+        );
     }
 
     private BooleanExpression eqAllOrIsEcoProduct(Boolean isEcoProduct) {
