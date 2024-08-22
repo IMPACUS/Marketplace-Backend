@@ -86,11 +86,11 @@ public class CouponUserService {
                 .build();
     }
 
+    // 쿼리 특징
+    // 1. CoverageType == ALL || (CoverageType == BRAND && useCoverageSubCategoryName == brandName)인 쿠폰 가져오기
+    // 2. 쿠폰 사용 범위가 ALL 또는 브랜드 이름으로 일치하는 쿠폰
+    // 3. 사용자가 소유하고 있지 않은 쿠폰
     public List<BrandCouponOverviewDTO> getBrandCouponList(Long userId, String brandName, Boolean isEcoProduct) {
-        // 쿼리 특징
-        // 1. CoverageType == ALL || (CoverageType == BRAND && useCoverageSubCategoryName == brandName)인 쿠폰 가져오기
-        // 2. 쿠폰 사용 범위가 ALL 또는 브랜드 이름으로 일치하는 쿠폰
-        // 3. 사용자가 소유하고 있지 않은 쿠폰
         return couponCustomRepositroy.findBrandCouponList(userId, brandName, isEcoProduct);
     }
 
