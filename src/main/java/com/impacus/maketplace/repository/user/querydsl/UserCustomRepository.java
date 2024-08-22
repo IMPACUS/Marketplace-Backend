@@ -5,7 +5,7 @@ import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 
 import java.util.List;
 
-public interface ReadUserCustomRepository {
+public interface UserCustomRepository {
     ReadUserSummaryDTO findUserSummaryByEmail(String email);
 
     /**
@@ -15,4 +15,6 @@ public interface ReadUserCustomRepository {
      * @return
      */
     List<Long> findUserIdByUserLevel(UserLevel userLevel);
+
+    void deleteConsumer(Long userId);
 }
