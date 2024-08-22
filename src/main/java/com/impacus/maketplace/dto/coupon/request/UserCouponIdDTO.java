@@ -6,7 +6,6 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class UserCouponIdDTO {
 
     @NotNull(message = "userCouponId는 필수 값입니다.")
