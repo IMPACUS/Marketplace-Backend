@@ -2,7 +2,7 @@ package com.impacus.maketplace.repository.user;
 
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.user.querydsl.ReadUserCustomRepository;
+import com.impacus.maketplace.repository.user.querydsl.UserCustomRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>, ReadUserCustomRepository {
+public interface UserRepository extends JpaRepository<User, Long>, UserCustomRepository {
 
     List<User> findByEmailLike(String emailWithPrefix);
 
