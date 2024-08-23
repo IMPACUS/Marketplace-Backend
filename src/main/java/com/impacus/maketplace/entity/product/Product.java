@@ -26,7 +26,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE product_info SET is_deleted = TRUE WHERE product_info_id = ?")
-@Where(clause = "is_deleted = false")
 public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
