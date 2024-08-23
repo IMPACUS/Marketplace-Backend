@@ -134,7 +134,7 @@ public class CouponUserService {
         Map<Long, Integer> productQuantityMap = productQuantityDTOList.stream()
                 .collect(Collectors.toMap(ProductQuantityDTO::getProductId, ProductQuantityDTO::getQuantity));
 
-        // 4. 상풉별 적용 가능한 쿠폰들 DTO List 생성 (병렬처리 => parallelStream 추후 고려)
+        // 4. 상품별 적용 가능한 쿠폰들 DTO List 생성 (병렬처리 => parallelStream 추후 고려)
         List<AvailableCouponsForProductDTO> availableCouponsForProductDTOList = productPricingInfoDTOList.stream()
                 .map(productPricingInfoDTO -> {
                     List<AvailableCouponsDTO> list = userCouponInfoForCheckoutList.stream()
@@ -170,14 +170,21 @@ public class CouponUserService {
         return new AvailableCouponsForCheckoutDTO(availableCouponsForProductDTOList, availableCouponsForOrderDTOList);
     }
     private boolean isValidCouponForProduct(UserCouponInfoForCheckoutDTO coupon, ProductPricingInfoDTO product, int quantity) {
-        // 타입 체크
+        // 타입 체크 (쿠폰: 에코 적용, 상품: 그린 태그가 아니면)
         if (coupon.getProductType() == ProductType.ECO_GREEN && product.getProductType() != com.impacus.maketplace.common.enumType.product.ProductType.GREEN_TAG) {
             return false;
         }
+
+        // 타입 체크 (쿠폰: 일반 상품, 상품: 일반 상품 아니면)
+        if (coupon.getProductType() == ProductType.BASIC && product.getProductType() != com.impacus.maketplace.common.enumType.product.ProductType.GENERAL) {
+            return false;
+        }
+
         // 브랜드 체크
         if (coupon.getUseCoverageType() == CoverageType.BRAND && !Objects.equals(product.getMarketName(), coupon.getUseCoverageSubCategoryName())) {
             return false;
         }
+
         // 금액 체크
         int totalProductPrice = product.getAppSalesPrice() * quantity;
         return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalProductPrice;

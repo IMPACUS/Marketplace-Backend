@@ -7,10 +7,10 @@ import java.util.List;
 @Data
 public class AvailableCouponsForProductDTO {
     private Long productId;
-    private List<AvailableCouponsDTO> availableCouponsDTOList;
+    private List<AvailableCouponsDTO> availableCouponsList;
 
-    public AvailableCouponsForProductDTO(Long productId, List<AvailableCouponsDTO> availableCouponsDTOList) {
+    public AvailableCouponsForProductDTO(Long productId, List<AvailableCouponsDTO> availableCouponsList) {
         this.productId = productId;
-        this.availableCouponsDTOList = availableCouponsDTOList;
+        this.availableCouponsList = availableCouponsList;
     }
 }
