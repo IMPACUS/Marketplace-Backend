@@ -12,7 +12,7 @@ public enum CouponErrorType implements ErrorType{
     INVALID_INPUT_BENEFIT_VALUE("040_1_BENEFIT_VALUE", "혜택 구분 항목에 잘못된 입력이 들어왔습니다."),
     INVALID_INPUT_FIRST_COUNT("040_2_FIRST_COUNT", "선착순 항목에 잘못된 입력이 들어왔습니다."),
     INVALID_INPUT_EXPIRE_TIME_DAYS("040_3_EXPIRE_TIME_DAYS", "사용 기간 항목에 잘못된 입력이 들어왔습니다."),
-    INVALID_INPUT_ISSUE_COVERAGE_SUB_CATEGORY_NAME("040_4_ISSUE_COVERAGE_SUB_CATEGORY_NAME", "발급 적용 범 항목에 잘못된 입력이 들어왔습니다."),
+    INVALID_INPUT_ISSUE_COVERAGE_SUB_CATEGORY_NAME("040_4_ISSUE_COVERAGE_SUB_CATEGORY_NAME", "발급 적용 항목에 잘못된 입력이 들어왔습니다."),
     INVALID_INPUT_USE_COVERAGE_SUB_CATEGORY_NAME("040_5_USE_COVERAGE_SUB_CATEGORY_NAME", "쿠폰 사용 범위 항목에 잘못된 입력이 들어왔습니다."),
     INVALID_INPUT_USE_STANDARD_VALUE("040_6_USE_STANDARD_VALUE", "쿠폰 사용가능 기준금액 항목에 잘못된 입력값이 들어왔습니다."),
     INVALID_INPUT_ISSUE_STANDARD_VALUE("040_7_ISSUE_STANDARD_VALUE", "쿠폰 발급 금액 기준 항목에 잘못된 입력값이 들어왔습니다."),

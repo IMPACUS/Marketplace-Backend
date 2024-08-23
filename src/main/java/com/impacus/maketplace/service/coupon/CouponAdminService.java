@@ -16,6 +16,7 @@ import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
+import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.repository.user.querydsl.ReadUserCustomRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CouponAdminService {
 
+    private final SellerRepository sellerRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
@@ -317,7 +319,7 @@ public class CouponAdminService {
         if (couponDTO.getIssueCoverageType().equals(CoverageType.BRAND)) {
             // 해당 브랜드 명이 존재하는지 확인
             if (couponDTO.getIssueCoverageSubCategoryName() == null ||
-                    !subCategoryRepository.existsByName(couponDTO.getIssueCoverageSubCategoryName())) {
+                    !sellerRepository.existsByMarketName(couponDTO.getIssueCoverageSubCategoryName())) {
                 log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 issueConverageSubCategoryName 값이 들어왔습니다. " +
                         "issueConverageSubCategoryName: {}", couponDTO.getIssueCoverageSubCategoryName());
                 throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_SUB_CATEGORY_NAME);
@@ -328,7 +330,7 @@ public class CouponAdminService {
         if (couponDTO.getUseCoverageType().equals(CoverageType.BRAND)) {
             // 해당 브랜드 명이 존재하는지 확인
             if (couponDTO.getUseCoverageSubCategoryName() == null ||
-                    !subCategoryRepository.existsByName(couponDTO.getUseCoverageSubCategoryName())) {
+                    !sellerRepository.existsByMarketName(couponDTO.getUseCoverageSubCategoryName())) {
                 log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 useCoverageSubCategoryName 값이 들어왔습니다. " +
                         "useCoverageSubCategoryName: {}", couponDTO.getUseCoverageSubCategoryName());
                 throw new CustomException(CouponErrorType.INVALID_INPUT_USE_COVERAGE_SUB_CATEGORY_NAME);

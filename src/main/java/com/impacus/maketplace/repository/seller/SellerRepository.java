@@ -42,4 +42,7 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSelle
     @Query("SELECT s.id AS id, s.marketName AS marketName" +
             " FROM Seller s WHERE s.isDeleted = false")
     List<SellerMarketNameViewsMapping> findMarketNames();
+
+    @Query("SELECT COUNT(s) > 0 FROM Seller s WHERE s.marketName = :marketName AND s.isDeleted = false")
+    boolean existsByMarketName(@Param("marketName") String marketName);
 }
