@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
-@Builder
 public class UserCoupon extends BaseEntity {
 
     @Id
@@ -57,6 +57,5 @@ public class UserCoupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @ValidEnum(enumClass = UserCouponStatus.class)
     private UserCouponStatus status;    // 발급된 쿠폰 상태
 }

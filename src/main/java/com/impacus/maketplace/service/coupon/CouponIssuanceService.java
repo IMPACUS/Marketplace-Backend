@@ -197,6 +197,8 @@ public class CouponIssuanceService {
                 .isDownload(false)
                 .downloadAt(null)
                 .isUsed(false)
+                .sourceType(CouponSourceType.NONE)
+                .sourceId(null)
                 .usedAt(null)
                 .expiredAt(expiredAt)
                 .status(UserCouponStatus.ISSUE_SUCCESS)
