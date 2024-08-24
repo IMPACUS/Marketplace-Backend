@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.13.01-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bundle_delivery_group"/>
+            </not>
+        </preConditions>
+        <createTable tableName="bundle_delivery_group">
+            <column name="bundle_delivery_group_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_used" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="delivery_fee_rule" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <setColumnRemarks tableName="bundle_delivery_group" columnName="delivery_fee_rule" remarks="배송비계산방식"/>
+    </changeSet>
+
+</databaseChangeLog>
