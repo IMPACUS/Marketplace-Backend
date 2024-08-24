@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.bundleDelivery.request.CreateBundleDeliveryGroupDTO;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDetailDTO;
+import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupProductDTO;
 import com.impacus.maketplace.entity.product.bundleDelivery.BundleDeliveryGroup;
 import com.impacus.maketplace.repository.product.bundleDelivery.BundleDeliveryGroupRepository;
 import com.impacus.maketplace.service.seller.ReadSellerService;
@@ -119,6 +120,28 @@ public class BundleDeliveryGroupService {
                     pageable,
                     sortBy,
                     direction
+            );
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 묶음 배송 그룹 페이지에서 상품 조회 함수
+     *
+     * @param groupId
+     * @param keyword
+     * @param pageable
+     * @return
+     */
+    public Page<BundleDeliveryGroupProductDTO> findProductsByDetailBundleDeliveryGroup(
+            Long groupId, String keyword, Pageable pageable
+    ) {
+        try {
+            return bundleDeliveryGroupRepository.findProductsByDetailBundleDeliveryGroup(
+                    groupId,
+                    keyword,
+                    pageable
             );
         } catch (Exception ex) {
             throw new CustomException(ex);

@@ -23,8 +23,6 @@ public class ProductForWebDTO {
     private List<ProductOptionForWebDTO> options;
     private List<String> productImages;
 
-    private long stock1;
-
     @QueryProjection
     public ProductForWebDTO(
             Long id,

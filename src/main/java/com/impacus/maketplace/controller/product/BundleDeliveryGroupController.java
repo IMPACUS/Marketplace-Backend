@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.bundleDelivery.request.CreateBundleDeliveryGroupDTO;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDetailDTO;
+import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupProductDTO;
 import com.impacus.maketplace.service.product.bundleDelivery.BundleDeliveryGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -89,7 +90,7 @@ public class BundleDeliveryGroupController {
     }
 
     /**
-     * [판매자] 묶음 배송 그룹을 삭제하는 API
+     * [판매자] 묶음 배송 그룹을 조회하는 API
      *
      * @param user
      * @return
@@ -119,6 +120,31 @@ public class BundleDeliveryGroupController {
         return ApiResponseEntity
                 .<Page<BundleDeliveryGroupDetailDTO>>builder()
                 .message("묶음 배송 그룹 조회 성공")
+                .data(result)
+                .build();
+    }
+
+    /**
+     * [판매자] 묶음 배송 그룹 페이지에서 상품 조회 API
+     *
+     * @param groupId
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @GetMapping("/{groupId}/products")
+    public ApiResponseEntity<Page<BundleDeliveryGroupProductDTO>> findProductsByDetailBundleDeliveryGroup(
+            @PathVariable("groupId") Long groupId,
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @PageableDefault(sort = "productId", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        Page<BundleDeliveryGroupProductDTO> result = bundleDeliveryGroupService.findProductsByDetailBundleDeliveryGroup(
+                groupId,
+                keyword,
+                pageable
+        );
+        return ApiResponseEntity
+                .<Page<BundleDeliveryGroupProductDTO>>builder()
+                .message("묶음 배송 그룹의 상품 조회 성공")
                 .data(result)
                 .build();
     }

@@ -49,7 +49,7 @@
         <setColumnRemarks tableName="bundle_delivery_group" columnName="delivery_fee_rule" remarks="배송비계산방식"/>
     </changeSet>
 
-    <changeSet id="changelog-0.13.02-240824" author="lchy0413">
+    <changeSet id="changelog-0.13.02-240824-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="product_info" columnName="sales_charge_percent"/>
@@ -61,7 +61,7 @@
             <column name="sales_charge_percent" type="INT"/>
         </addColumn>
         <addColumn tableName="product_info">
-            <column name="bundle_delivery_option" type="VARCHAR(255)" defaultValue="[]">
+            <column name="bundle_delivery_option" type="VARCHAR(255)" defaultValue="INDIVIDUAL_SHIPPING_ONLY">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
