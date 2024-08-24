@@ -118,6 +118,7 @@ public class Product extends BaseEntity {
     @ColumnDefault("'INDIVIDUAL_SHIPPING_ONLY'")
     @Comment("묶음배송대상상품옵션")
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private BundleDeliveryOption bundleDeliveryOption;
 
     @Comment("묶음배송그룹아이디")
