@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="changelog-0.13.01-240824" author="lchy0413">
+    <changeSet id="changelog-0.13.01-240824-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="bundle_delivery_group"/>
@@ -17,6 +17,10 @@
 
             <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
+            </column>
+
+            <column name="group_number" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
             </column>
 
             <column name="is_used" type="BOOLEAN">
