@@ -86,6 +86,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="bundle_delivery_group_id" type="BIGINT"/>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="create_at" type="TIMESTAMP">
             </column>

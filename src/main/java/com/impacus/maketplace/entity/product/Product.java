@@ -122,6 +122,9 @@ public class Product extends BaseEntity {
     @Comment("묶음배송그룹아이디")
     private Long bundleDeliveryGroupId;
 
+    @Version
+    private long version;
+
     public Product(String productNumber, Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;
         this.name = dto.getName();
