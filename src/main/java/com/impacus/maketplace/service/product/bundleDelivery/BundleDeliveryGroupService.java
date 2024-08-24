@@ -4,10 +4,13 @@ import com.impacus.maketplace.common.enumType.error.BundleDeliveryGroupErrorType
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.bundleDelivery.request.CreateBundleDeliveryGroupDTO;
+import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDetailDTO;
 import com.impacus.maketplace.entity.product.bundleDelivery.BundleDeliveryGroup;
 import com.impacus.maketplace.repository.product.bundleDelivery.BundleDeliveryGroupRepository;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,6 +90,36 @@ public class BundleDeliveryGroupService {
     public void deleteBundleDeliveryGroup(Long groupId) {
         try {
             bundleDeliveryGroupRepository.updateIsDeleteTrueById(groupId);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 묶음 배송 그룹 리스트 함수
+     *
+     * @param userId
+     * @param keyword
+     * @param pageable
+     * @return
+     */
+    public Page<BundleDeliveryGroupDetailDTO> findDetailBundleDeliveryGroups(
+            Long userId,
+            String keyword,
+            Pageable pageable,
+            String sortBy,
+            String direction
+    ) {
+        try {
+            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+
+            return bundleDeliveryGroupRepository.findDetailBundleDeliveryGroups(
+                    sellerId,
+                    keyword,
+                    pageable,
+                    sortBy,
+                    direction
+            );
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
