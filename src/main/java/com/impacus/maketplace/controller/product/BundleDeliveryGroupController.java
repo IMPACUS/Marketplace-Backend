@@ -1,9 +1,8 @@
 package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.product.request.CreateProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDTO;
-import com.impacus.maketplace.service.product.CreateProductService;
+import com.impacus.maketplace.dto.bundleDelivery.request.CreateBundleDeliveryGroupDTO;
+import com.impacus.maketplace.service.product.bundleDelivery.BundleDeliveryGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,9 +15,9 @@ import security.CustomUserDetails;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/product")
-public class CreateProductController {
-    private final CreateProductService createProductService;
+@RequestMapping("api/v1/bundle-delivery-group")
+public class BundleDeliveryGroupController {
+    private final BundleDeliveryGroupService bundleDeliveryGroupService;
 
     /**
      * [관리자, 판매자] 새로운 상품을 등록하는 API
@@ -26,22 +25,19 @@ public class CreateProductController {
      * @param dto
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
-            "or hasRole('ROLE_ADMIN') " +
-            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
-            "or hasRole('ROLE_OWNER')")
-    @PostMapping("")
-    public ApiResponseEntity<ProductDTO> addProduct(
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PostMapping()
+    public ApiResponseEntity<Void> addBundleDeliveryGroup(
             @AuthenticationPrincipal CustomUserDetails user,
-            @Valid @RequestBody CreateProductDTO dto
+            @Valid @RequestBody CreateBundleDeliveryGroupDTO dto
     ) {
-        ProductDTO productDTO = createProductService.addProduct(
+        bundleDeliveryGroupService.addBundleDeliveryGroup(
                 user.getId(),
                 dto
         );
         return ApiResponseEntity
-                .<ProductDTO>builder()
-                .data(productDTO)
+                .<Void>builder()
+                .message("묶음 배송 그룹 생성 성공")
                 .build();
     }
 }

@@ -76,7 +76,7 @@ public class CreateProductService {
             );
 
             // 2. 상풍 번호 생성
-            String productNumber = StringUtils.getProductNumber();
+            String productNumber = StringUtils.getRandomUniqueNumber();
 
             // 3. Product 저장
             // 배송비 & 반송비는 CHARGE_UNDER_30000 일 때만 저장

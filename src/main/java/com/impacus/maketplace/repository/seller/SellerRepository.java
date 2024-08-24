@@ -27,6 +27,8 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSelle
 
     boolean existsByUserId(Long userId);
 
+    boolean existsByIsDeletedFalseAndId(Long id);
+
     @Transactional
     @Modifying
     @Query("UPDATE Seller s " +
