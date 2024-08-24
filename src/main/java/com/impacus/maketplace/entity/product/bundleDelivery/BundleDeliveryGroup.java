@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.product.bundleDelivery;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.product.DeliveryFeeRule;
+import com.impacus.maketplace.dto.bundleDelivery.request.CreateBundleDeliveryGroupDTO;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -40,6 +41,12 @@ public class BundleDeliveryGroup extends BaseEntity {
     @Comment("삭제여부")
     @Column(nullable = false, name = "is_deleted")
     private Boolean isDeleted;
+
+    public void updateBundleDeliveryGroup(CreateBundleDeliveryGroupDTO dto) {
+        this.name = dto.getName();
+        this.isUsed = dto.getIsUsed();
+        this.deliveryFeeRule = dto.getDeliveryFeeRule();
+    }
 
     public BundleDeliveryGroup(
             String name,
