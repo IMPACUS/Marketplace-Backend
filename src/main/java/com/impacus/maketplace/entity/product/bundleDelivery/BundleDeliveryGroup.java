@@ -39,5 +39,20 @@ public class BundleDeliveryGroup extends BaseEntity {
 
     @Comment("삭제여부")
     @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted;
+    private Boolean isDeleted;
+
+    public BundleDeliveryGroup(
+            String name,
+            String groupNumber,
+            Long sellerId,
+            boolean isUsed,
+            DeliveryFeeRule deliveryFeeRule
+    ) {
+        this.name = name;
+        this.groupNumber = groupNumber;
+        this.sellerId = sellerId;
+        this.isUsed = isUsed;
+        this.deliveryFeeRule = deliveryFeeRule;
+        this.isDeleted = false;
+    }
 }

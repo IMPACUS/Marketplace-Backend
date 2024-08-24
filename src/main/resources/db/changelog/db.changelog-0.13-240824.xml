@@ -77,7 +77,7 @@
             </not>
         </preConditions>
         <addColumn tableName="product_info">
-            <column name="version" type="BIGINT">
+            <column name="version" type="BIGINT" defaultValue="0">
                 <constraints nullable="false"/>
             </column>
         </addColumn>

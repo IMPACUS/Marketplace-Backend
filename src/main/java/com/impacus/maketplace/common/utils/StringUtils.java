@@ -29,11 +29,11 @@ public class StringUtils {
     }
 
     /**
-     * YYMMddHHmmssSSSXXX 형식의 상품번호를 생성하는 함 (XXX: 랜덤 숫자)
+     * YYMMddHHmmssSSSXXX 형식의 중복허용하지 않는 번호 생성하는 함수 (XXX: 랜덤 숫자)
      *
-     * @return
+     * @return 랜덤 번호
      */
-    public static String getProductNumber() {
+    public static String getRandomUniqueNumber() {
         String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmssSSS"));
         Random random = new Random(Long.parseLong(nowDate));
         int randomNumber = random.nextInt(999 - 100 + 1) + 100;
