@@ -82,4 +82,15 @@
             </column>
         </addColumn>
     </changeSet>
+
+    <changeSet id="changelog-0.13.04-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="bundle_delivery_option_applied_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="bundle_delivery_option_applied_at" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
