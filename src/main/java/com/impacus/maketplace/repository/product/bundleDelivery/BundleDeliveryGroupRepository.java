@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface BundleDeliveryGroupRepository extends JpaRepository<BundleDeliveryGroup, Long> {
     Optional<BundleDeliveryGroup> findByIsDeletedFalseAndId(Long id);
+
+    boolean existsByNameAndSellerId(String name, Long sellerId);
 }

@@ -47,10 +47,12 @@ public class BundleDeliveryGroupController {
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PutMapping("/{groupId}")
     public ApiResponseEntity<Void> updateBundleDeliveryGroup(
+            @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable(value = "groupId") Long groupId,
             @Valid @RequestBody CreateBundleDeliveryGroupDTO dto
     ) {
         bundleDeliveryGroupService.updateBundleDeliveryGroup(
+                user.getId(),
                 groupId,
                 dto
         );

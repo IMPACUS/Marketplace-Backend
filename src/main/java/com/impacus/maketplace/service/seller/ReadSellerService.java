@@ -250,4 +250,14 @@ public class ReadSellerService {
             throw new CustomException(ex);
         }
     }
+
+    /**
+     * userId로 sellerId 찾는 함수
+     *
+     * @param userId
+     * @return
+     */
+    public Long findSellerIdByUserId(Long userId) {
+        return sellerRepository.findSellerIdByUserId(userId);
+    }
 }
