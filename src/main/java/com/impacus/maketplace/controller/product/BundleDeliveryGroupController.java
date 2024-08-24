@@ -61,4 +61,24 @@ public class BundleDeliveryGroupController {
                 .message("묶음 배송 그룹 수정 성공")
                 .build();
     }
+
+    /**
+     * [판매자] 묶음 배송 그룹을 삭제하는 API
+     *
+     * @param groupId
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @DeleteMapping("/{groupId}")
+    public ApiResponseEntity<Void> deleteBundleDeliveryGroup(
+            @PathVariable(value = "groupId") Long groupId
+    ) {
+        bundleDeliveryGroupService.deleteBundleDeliveryGroup(
+                groupId
+        );
+        return ApiResponseEntity
+                .<Void>builder()
+                .message("묶음 배송 그룹 삭제 성공")
+                .build();
+    }
 }
