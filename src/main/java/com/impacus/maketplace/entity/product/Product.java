@@ -4,10 +4,7 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
-import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
-import com.impacus.maketplace.common.enumType.product.ProductStatus;
-import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.common.enumType.product.*;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import jakarta.persistence.*;
@@ -114,6 +111,16 @@ public class Product extends BaseEntity {
     @Comment("상품 설명")
     private String description;
 
+    @Comment("판매 수수료")
+    private Integer salesChargePercent; // null 인 경우, 판매자의 수수료를 사용
+
+    @ColumnDefault("'INDIVIDUAL_SHIPPING_ONLY'")
+    @Comment("묶음배송대상상품옵션")
+    @Column(nullable = false)
+    private BundleDeliveryOption bundleDeliveryOption;
+
+    @Comment("묶음배송그룹아이디")
+    private Long bundleDeliveryGroupId;
 
     public Product(String productNumber, Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;
