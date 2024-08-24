@@ -32,4 +32,11 @@ public interface ProductOptionRepository extends JpaRepository<ProductOption, Lo
             @Param("size") String size,
             @Param("stock") Long stock
     );
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE ProductOption po SET po.isDeleted = true WHERE po.id in :ids")
+    int updateIsDeleteTrueByIds(
+            @Param("ids") List<Long> ids
+    );
 }
