@@ -1,6 +1,7 @@
 package com.impacus.maketplace.service.product.bundleDelivery;
 
 import com.impacus.maketplace.common.enumType.error.BundleDeliveryGroupErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.bundleDelivery.request.CreateBundleDeliveryGroupDTO;
@@ -143,6 +144,37 @@ public class BundleDeliveryGroupService {
                     keyword,
                     pageable
             );
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 묶음 배송 그룹에 속한 상품 삭제
+     * - 상품은 개별 배송으로 변경
+     * - 묶음 배송 그룹 아이디 null로 변경
+     * - 묶음 배송 상품 적용일은 null로 변경
+     *
+     * @param groupId
+     * @param productId
+     * @return
+     */
+    @Transactional
+    public void deleteProductFromBundleGroup(Long userId, Long groupId, Long productId) {
+        try {
+            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+
+            // 1. 업데이트
+            long result = bundleDeliveryGroupRepository.deleteProductFromBundleGroup(
+                    sellerId,
+                    groupId,
+                    productId
+            );
+
+            // 2. 업데이트된 쿼리가 존재하지 않는 경우,
+            if (result == 0) {
+                throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
+            }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

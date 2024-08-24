@@ -18,4 +18,6 @@ public interface BundleDeliveryGroupCustomRepository {
     Page<BundleDeliveryGroupProductDTO> findProductsByDetailBundleDeliveryGroup(
             Long groupId, String keyword, Pageable pageable
     );
+
+    long deleteProductFromBundleGroup(Long sellerId, Long groupId, Long productId);
 }
