@@ -159,6 +159,8 @@ public class Product extends BaseEntity {
             this.refundFee = dto.getRefundFee();
             this.specialRefundFee = dto.getSpecialRefundFee();
         }
+
+        this.bundleDeliveryOption = BundleDeliveryOption.INDIVIDUAL_SHIPPING_ONLY; // TODO 상품 등록 로직 추가 시, 삭제
     }
 
     public void setProduct(UpdateProductDTO dto) {
