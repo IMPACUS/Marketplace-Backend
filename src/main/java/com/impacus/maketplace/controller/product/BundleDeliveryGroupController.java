@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import security.CustomUserDetails;
 
 @RestController
@@ -20,7 +17,7 @@ public class BundleDeliveryGroupController {
     private final BundleDeliveryGroupService bundleDeliveryGroupService;
 
     /**
-     * [관리자, 판매자] 새로운 상품을 등록하는 API
+     * [관리자] 새로운 묶음 배송 그룹을 등록하는 API
      *
      * @param dto
      * @return
@@ -38,6 +35,28 @@ public class BundleDeliveryGroupController {
         return ApiResponseEntity
                 .<Void>builder()
                 .message("묶음 배송 그룹 생성 성공")
+                .build();
+    }
+
+    /**
+     * [판매자] 묶음 배송 그룹을 수정하는 API
+     *
+     * @param dto
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PutMapping("/{groupId}")
+    public ApiResponseEntity<Void> updateBundleDeliveryGroup(
+            @PathVariable(value = "groupId") Long groupId,
+            @Valid @RequestBody CreateBundleDeliveryGroupDTO dto
+    ) {
+        bundleDeliveryGroupService.updateBundleDeliveryGroup(
+                groupId,
+                dto
+        );
+        return ApiResponseEntity
+                .<Void>builder()
+                .message("묶음 배송 그룹 수정 성공")
                 .build();
     }
 }
