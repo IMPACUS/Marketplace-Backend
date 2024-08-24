@@ -33,7 +33,7 @@ public class BundleDeliveryGroupService {
 
             // 1. 유효성 검사
             readSellerService.checkSellerExistenceById(sellerId);
-            if (bundleDeliveryGroupRepository.existsByNameAndSellerId(dto.getName(), sellerId)) {
+            if (bundleDeliveryGroupRepository.existsByNameAndSellerIdAndIsDeletedFalse(dto.getName(), sellerId)) {
                 throw new CustomException(BundleDeliveryGroupErrorType.DUPLICATED_BUNDLE_DELIVERY_GROUP_NAME);
             }
 
@@ -65,7 +65,7 @@ public class BundleDeliveryGroupService {
             }
             BundleDeliveryGroup bundleDeliveryGroup = groupOptional.get();
             if (!bundleDeliveryGroup.getName().equals(dto.getName()) &&
-                    bundleDeliveryGroupRepository.existsByNameAndSellerId(dto.getName(), sellerId)) {
+                    bundleDeliveryGroupRepository.existsByNameAndSellerIdAndIsDeletedFalse(dto.getName(), sellerId)) {
                 throw new CustomException(BundleDeliveryGroupErrorType.DUPLICATED_BUNDLE_DELIVERY_GROUP_NAME);
             }
 
@@ -73,6 +73,20 @@ public class BundleDeliveryGroupService {
             bundleDeliveryGroup.updateBundleDeliveryGroup(dto);
 
             bundleDeliveryGroupRepository.save(bundleDeliveryGroup);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 묶음 배송 그룹 삭제
+     *
+     * @param groupId
+     */
+    @Transactional
+    public void deleteBundleDeliveryGroup(Long groupId) {
+        try {
+            bundleDeliveryGroupRepository.updateIsDeleteTrueById(groupId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
