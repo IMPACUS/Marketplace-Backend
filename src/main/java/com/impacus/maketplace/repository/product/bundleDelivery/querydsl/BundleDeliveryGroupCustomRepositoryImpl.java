@@ -2,6 +2,7 @@ package com.impacus.maketplace.repository.product.bundleDelivery.querydsl;
 
 import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDTO;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDetailDTO;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupProductDTO;
 import com.impacus.maketplace.entity.product.QProduct;
@@ -160,5 +161,46 @@ public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGr
                 .set(product.modifyId, currentAuditor)
                 .where(builder)
                 .execute();
+    }
+
+    @Override
+    public Page<BundleDeliveryGroupDTO> findBundleDeliveryGroupsBySeller(
+            Long sellerId,
+            String keyword,
+            Pageable pageable
+    ) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(bundleDeliveryGroup.isDeleted.eq(false))
+                .and(bundleDeliveryGroup.sellerId.eq(sellerId))
+                .and(bundleDeliveryGroup.isUsed.eq(true));
+
+        if (keyword != null && !keyword.isEmpty()) {
+            builder.and(bundleDeliveryGroup.name.containsIgnoreCase(keyword));
+        }
+
+        List<BundleDeliveryGroupDTO> result = queryFactory
+                .select(
+                        Projections.fields(
+                                BundleDeliveryGroupDTO.class,
+                                bundleDeliveryGroup.id.as("groupId"),
+                                bundleDeliveryGroup.groupNumber,
+                                bundleDeliveryGroup.name,
+                                bundleDeliveryGroup.deliveryFeeRule
+                        )
+                )
+                .from(bundleDeliveryGroup)
+                .where(builder)
+                .orderBy(bundleDeliveryGroup.id.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        int count = queryFactory
+                .select(bundleDeliveryGroup)
+                .from(bundleDeliveryGroup)
+                .where(builder)
+                .fetch().size();
+
+        return PaginationUtils.toPage(result, pageable, count);
     }
 }
