@@ -81,6 +81,11 @@
                 <constraints nullable="false"/>
             </column>
             <column name="product_images" type="TEXT"/>
+            <column name="sales_charge_percent" type="INT"/>
+            <column name="bundle_delivery_option" type="VARCHAR(255)" defaultValue="[]">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bundle_delivery_group_id" type="BIGINT"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -113,6 +118,9 @@
         <setColumnRemarks tableName="product_info" columnName="refund_fee_type" remarks="반송비 타입"/>
         <setColumnRemarks tableName="product_info" columnName="description" remarks="상품 설명"/>
         <setColumnRemarks tableName="product_info" columnName="product_images" remarks="상품 이미지"/>
+        <setColumnRemarks tableName="product_info" columnName="sales_charge_percent" remarks="반송비 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="bundle_delivery_option" remarks="묶음배송대상상품옵션"/>
+        <setColumnRemarks tableName="product_info" columnName="bundle_delivery_group_id" remarks="묶음배송그룹아이디"/>
     </changeSet>
 
     <!-- product_claim_info 생성 -->
