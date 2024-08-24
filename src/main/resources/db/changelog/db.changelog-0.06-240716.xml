@@ -6,7 +6,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- product 생성 -->
-    <changeSet author="lchy0413" id="changelog-0.06.01-240716-7">
+    <changeSet author="lchy0413" id="changelog-0.06.01-240716-8">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="product_info"/>
