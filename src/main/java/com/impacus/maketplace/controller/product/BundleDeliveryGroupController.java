@@ -148,4 +148,28 @@ public class BundleDeliveryGroupController {
                 .data(result)
                 .build();
     }
+
+    /**
+     * [판매자] 묶음 배송 그룹에 속한 상품 삭제 API
+     *
+     * @param groupId
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @DeleteMapping("/{groupId}/products/{productId}")
+    public ApiResponseEntity<Void> deleteProductFromBundleGroup(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("productId") Long productId
+    ) {
+        bundleDeliveryGroupService.deleteProductFromBundleGroup(
+                user.getId(),
+                groupId,
+                productId
+        );
+        return ApiResponseEntity
+                .<Void>builder()
+                .message("묶음 배송 그룹에 속한 상품 삭제 성공")
+                .build();
+    }
 }

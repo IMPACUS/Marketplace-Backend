@@ -14,16 +14,19 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGroupCustomRepository {
     private final JPAQueryFactory queryFactory;
+    private final AuditorAware<String> auditorProvider;
 
     private final QBundleDeliveryGroup bundleDeliveryGroup = QBundleDeliveryGroup.bundleDeliveryGroup;
     private final QProduct product = QProduct.product;
@@ -136,5 +139,26 @@ public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGr
                 .fetch().size();
 
         return PaginationUtils.toPage(result, pageable, count);
+    }
+
+    @Override
+    public long deleteProductFromBundleGroup(Long sellerId, Long groupId, Long productId) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(product.sellerId.eq(sellerId))
+                .and(product.bundleDeliveryGroupId.eq(groupId))
+                .and(product.id.eq(productId));
+
+        return queryFactory
+                .update(product)
+                .set(product.bundleDeliveryGroupId, (Long) null)
+                .set(product.bundleDeliveryOption, BundleDeliveryOption.INDIVIDUAL_SHIPPING_ONLY)
+                .set(product.bundleDeliveryOptionAppliedAt, (LocalDateTime) null)
+
+                .set(product.modifyAt, LocalDateTime.now())
+                .set(product.modifyId, currentAuditor)
+                .where(builder)
+                .execute();
     }
 }
