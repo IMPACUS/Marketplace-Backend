@@ -6,7 +6,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- product 생성 -->
-    <changeSet author="lchy0413" id="changelog-0.06.01-240716-8">
+    <changeSet author="lchy0413" id="changelog-0.06.01-240716-9">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="product_info"/>
@@ -89,6 +89,7 @@
             <column name="version" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column name="bundle_delivery_option_applied_at" type="TIMESTAMP"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -100,6 +101,8 @@
             </column>
         </createTable>
 
+        <setColumnRemarks tableName="product_info" columnName="bundle_delivery_option_applied_at"
+                          remarks="묶음 배송 대상 상품 옵션 적용 날짜"/>
         <setColumnRemarks tableName="product_info" columnName="seller_id" remarks="판매자 ID"/>
         <setColumnRemarks tableName="product_info" columnName="name" remarks="상품명"/>
         <setColumnRemarks tableName="product_info" columnName="product_number" remarks="상품 번호"/>

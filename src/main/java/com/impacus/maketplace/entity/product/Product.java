@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -121,6 +122,9 @@ public class Product extends BaseEntity {
 
     @Comment("묶음배송그룹아이디")
     private Long bundleDeliveryGroupId;
+
+    @Comment("묶음 배송 대상 상품 옵션 적용 날짜")
+    private LocalDateTime bundleDeliveryOptionAppliedAt;
 
     @Version
     private long version;
