@@ -1,10 +1,14 @@
 package com.impacus.maketplace.service.product.bundleDelivery;
 
 import com.impacus.maketplace.common.enumType.error.BundleDeliveryGroupErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.bundleDelivery.request.CreateBundleDeliveryGroupDTO;
+import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDTO;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDetailDTO;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupProductDTO;
 import com.impacus.maketplace.entity.product.bundleDelivery.BundleDeliveryGroup;
@@ -178,5 +182,42 @@ public class BundleDeliveryGroupService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * (상품 등록/수정용) 묶음 배송 그룹 목록 조회
+     * - 사용 상태인 데이터만 조회
+     *
+     * @param userId
+     * @param sellerId
+     * @param keyword
+     * @param pageable
+     * @return
+     */
+    public Page<BundleDeliveryGroupDTO> findBundleDeliveryGroupsBySeller(
+            Long userId,
+            Long sellerId,
+            String keyword,
+            Pageable pageable
+    ) {
+        try {
+            // 1. sellerId 조회
+            UserType userType = SecurityUtils.getCurrentUserType();
+            if (userType == UserType.ROLE_APPROVED_SELLER) {
+                sellerId = readSellerService.findSellerIdByUserId(userId);
+            } else {
+                if (sellerId == null) {
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "seller-id가 null일 수 없습니다.");
+                }
+            }
+
+            // 2. 묶음 배송 그룹 조회
+            return bundleDeliveryGroupRepository.findBundleDeliveryGroupsBySeller(
+                    sellerId, keyword, pageable
+            );
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+
     }
 }
