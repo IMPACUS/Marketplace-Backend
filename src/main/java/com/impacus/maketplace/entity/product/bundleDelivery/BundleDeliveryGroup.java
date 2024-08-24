@@ -25,6 +25,9 @@ public class BundleDeliveryGroup extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String groupNumber;
 
+    @Column(nullable = false)
+    private Long sellerId;
+
     @Comment("사용여부")
     @Column(nullable = false, name = "is_used")
     private boolean isUsed;
