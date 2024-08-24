@@ -31,4 +31,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
             @Param("id") Long id,
             @Param("productImages") List<String> productImages
     );
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Product p SET p.isDeleted = true WHERE p.id = :id")
+    int updateIsDeleteTrueById(
+            @Param("id") Long id
+    );
 }
