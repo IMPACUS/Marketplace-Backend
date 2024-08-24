@@ -9,7 +9,6 @@ import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
-import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
@@ -53,8 +52,7 @@ public class CreateProductService {
             UserType userType = SecurityUtils.getCurrentUserType();
             Long sellerId = null;
             if (userType == UserType.ROLE_APPROVED_SELLER) {
-                Seller seller = readSellerService.findSellerByUserId(userId);
-                sellerId = seller.getId();
+                sellerId = readSellerService.findSellerIdByUserId(userId);
             } else {
                 sellerId = dto.getSellerId();
                 if (sellerId == null || !readSellerService.existsSellerBySellerId(sellerId)) {

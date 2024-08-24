@@ -23,14 +23,19 @@ public class BundleDeliveryGroupService {
     /**
      * 묶음 배송 그룹 생성
      *
-     * @param sellerId 생성하는 판매자 아이디
+     * @param userId 생성하는 판매자 아이디
      * @param dto      묶음 배송 그룹 데이터
      */
     @Transactional
-    public void addBundleDeliveryGroup(Long sellerId, CreateBundleDeliveryGroupDTO dto) {
+    public void addBundleDeliveryGroup(Long userId, CreateBundleDeliveryGroupDTO dto) {
         try {
+            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+
             // 1. 유효성 검사
             readSellerService.checkSellerExistenceById(sellerId);
+            if (bundleDeliveryGroupRepository.existsByNameAndSellerId(dto.getName(), sellerId)) {
+                throw new CustomException(BundleDeliveryGroupErrorType.DUPLICATED_BUNDLE_DELIVERY_GROUP_NAME);
+            }
 
             // 2. 묶음 배송 그룹 생성
             String groupNumber = StringUtils.getRandomUniqueNumber();
@@ -49,16 +54,22 @@ public class BundleDeliveryGroupService {
      * @param dto     묶음 배송 그룹 데이터
      */
     @Transactional
-    public void updateBundleDeliveryGroup(Long groupId, CreateBundleDeliveryGroupDTO dto) {
+    public void updateBundleDeliveryGroup(Long userId, Long groupId, CreateBundleDeliveryGroupDTO dto) {
         try {
+            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+
             // 1. 유효성 검사
             Optional<BundleDeliveryGroup> groupOptional = bundleDeliveryGroupRepository.findById(groupId);
-            if (!groupOptional.isPresent()) {
+            if (groupOptional.isEmpty()) {
                 throw new CustomException(BundleDeliveryGroupErrorType.NOT_EXISTED_BUNDLE_DELIVERY_GROUP);
+            }
+            BundleDeliveryGroup bundleDeliveryGroup = groupOptional.get();
+            if (!bundleDeliveryGroup.getName().equals(dto.getName()) &&
+                    bundleDeliveryGroupRepository.existsByNameAndSellerId(dto.getName(), sellerId)) {
+                throw new CustomException(BundleDeliveryGroupErrorType.DUPLICATED_BUNDLE_DELIVERY_GROUP_NAME);
             }
 
             // 2. 수정
-            BundleDeliveryGroup bundleDeliveryGroup = groupOptional.get();
             bundleDeliveryGroup.updateBundleDeliveryGroup(dto);
 
             bundleDeliveryGroupRepository.save(bundleDeliveryGroup);
