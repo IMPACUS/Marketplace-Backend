@@ -3,7 +3,12 @@ package com.impacus.maketplace.service.order;
 import com.impacus.maketplace.common.enumType.error.OrderErrorType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.dto.order.response.CheckoutProductDTO;
+import com.impacus.maketplace.dto.order.response.OrderCheckoutCartDTO;
+import com.impacus.maketplace.dto.order.response.OrderCheckoutProductDTO;
+import com.impacus.maketplace.redis.service.OrderNumberService;
+import com.impacus.maketplace.repository.order.OrderRepositroy;
 import com.impacus.maketplace.repository.order.querydsl.OrderCustomRepository;
 import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsByCartDTO;
 import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsDTO;
@@ -21,6 +26,8 @@ import java.util.List;
 public class OrderService {
 
     private final OrderCustomRepository orderCustomRepository;
+    private final OrderRepositroy orderRepositroy;
+    private final OrderNumberService orderNumberService;
 
     /**
      * 단일 주문 상품 조회
@@ -28,7 +35,8 @@ public class OrderService {
      * @param productOptionId 주문 상품 option id
      * @param quantity        주문 수량
      */
-    public CheckoutProductDTO getCheckoutSingle(Long productId, Long productOptionId, Long quantity) {
+    @Transactional
+    public OrderCheckoutProductDTO getCheckoutSingle(Long productId, Long productOptionId, Long quantity) {
 
         // 1. 필요한 데이터 전부 가져오기
         OrderProductWithDetailsDTO orderProductWithDeatilsDTO = orderCustomRepository.findOrderProductWithDetails(productId, productOptionId);
@@ -39,15 +47,19 @@ public class OrderService {
         }
         validateCheckoutProduct(orderProductWithDeatilsDTO.isProductIsDeleted(), orderProductWithDeatilsDTO.isOptionIsDeleted(), orderProductWithDeatilsDTO.getProductStatus(), orderProductWithDeatilsDTO.getStock(), quantity);
 
+        // 3. 주문 번호 생성
+        String orderNumber = generateOrderNumber();
+
         // 3. 필요 데이터 DTO로 변환 후 내려주기
-        return new CheckoutProductDTO(orderProductWithDeatilsDTO, productId, productOptionId, quantity);
+        CheckoutProductDTO product = new CheckoutProductDTO(orderProductWithDeatilsDTO, productId, productOptionId, quantity);
+        return new OrderCheckoutProductDTO(orderNumber, product);
     }
 
     /**
      * 장바구나 id List를 이용해서 주문 상품 조회
      * @param shoppingBasketIdList 장바구니 id List
      */
-    public List<CheckoutProductDTO> getCheckoutCart(List<Long> shoppingBasketIdList) {
+    public OrderCheckoutCartDTO getCheckoutCart(List<Long> shoppingBasketIdList) {
 
         // 1. 필요한 모든 데이터 가져오기
         List<OrderProductWithDetailsByCartDTO> orderProductWithDetailsByCartDTOList = orderCustomRepository.findOrderProductWithDetailsByCart(shoppingBasketIdList);
@@ -63,9 +75,21 @@ public class OrderService {
                         orderProductWithDetailsByCartDTO.getStock(),
                         orderProductWithDetailsByCartDTO.getQuantity()));
 
-        return orderProductWithDetailsByCartDTOList.stream()
+        // 3. 주문 번호 생성
+        String orderNumber = generateOrderNumber();
+
+        List<CheckoutProductDTO> products = orderProductWithDetailsByCartDTOList.stream()
                 .map(CheckoutProductDTO::new)
                 .toList();
+        return new OrderCheckoutCartDTO(orderNumber, products);
+    }
+    private String generateOrderNumber() {
+        String orderNumber = orderNumberService.generateAndSaveOrderNumber();
+        while (orderRepositroy.existsByOrderNumber(orderNumber)) {
+            orderNumber = orderNumberService.generateAndSaveOrderNumber();
+        }
+
+        return orderNumber;
     }
 
     private void validateCheckoutProduct(boolean productIsDeleted, boolean productOptionIsDeleted, ProductStatus productStatus, Long stock, Long quantity) {

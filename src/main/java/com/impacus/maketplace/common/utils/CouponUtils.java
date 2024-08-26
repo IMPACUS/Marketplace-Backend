@@ -18,7 +18,7 @@ public class CouponUtils {
      * 기능 추가: DB를 통해 중복 검사
      * 추후 기능 확장 예정 (미리 여러 코드 생성해 놓은 뒤 전부 등록해놓고 사용)
      */
-    public String generateCode() {
+    public static String generateCode() {
         LocalDate today = LocalDate.now();
         final int CODE_LENGTH = 10; // 총 코드 길이
 

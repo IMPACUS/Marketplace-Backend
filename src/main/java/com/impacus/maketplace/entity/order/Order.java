@@ -22,6 +22,9 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private Long userId;    // 사용자 아이디
 
+    @Column(nullable = false, unique = true)
+    private String orderNumber;
+
     @Column(nullable = false)
     private Integer productCount;   // 주문한 상품 총 수량
 

@@ -40,7 +40,6 @@ public class CouponAdminService {
     private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final UserRepository userRepository;
-    private final CouponUtils couponUtils;
     private final CouponIssuanceService couponIssuanceService;
 
     /**
@@ -257,10 +256,10 @@ public class CouponAdminService {
 
         if (autoManualType.equals(AutoManualType.AUTO)) {
             // 2.1 자동 코드 생성 방식일 경우, 코드 생성
-            code = couponUtils.generateCode();
+            code = CouponUtils.generateCode();
             // 2.1.1 생성한 코드가 이미 발급한 코드와 중복된 경우, 재생성 반복
             while (couponRepository.existsByCode(code)) {
-                code = couponUtils.generateCode();
+                code = CouponUtils.generateCode();
             }
         } else {
             // 2.2 수동 코드 생성 방식일 경우, 길이 검증 및 문자 검증 후 중복 검사
