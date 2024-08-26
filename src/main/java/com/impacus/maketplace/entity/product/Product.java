@@ -37,31 +37,24 @@ public class Product extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String productNumber; // 상품 번호
 
-    @Convert(converter = ListToJsonConverter.class)
-    @Column(columnDefinition = "TEXT")
-    @Comment("상품 이미지")
-    private List<String> productImages;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private DeliveryType deliveryType; // 배송 타입
+    @Comment("배송 종류")
+    private DeliveryType deliveryType;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DeliveryCompany deliveryCompany;
+    @Column(nullable = false, name = "is_custom_product")
+    private boolean isCustomProduct;
 
     @Column(nullable = false)
     @ColumnDefault("1")
     private Long categoryId; // 카테고리 id
 
     @Column(nullable = false)
-    @ColumnDefault("'CHARGE_UNDER_30000'")
     @Enumerated(EnumType.STRING)
     @Comment("배송비 타입")
     private DeliveryRefundType deliveryFeeType;
 
     @Column(nullable = false)
-    @ColumnDefault("'CHARGE_UNDER_30000'")
     @Enumerated(EnumType.STRING)
     @Comment("반송비 타입")
     private DeliveryRefundType refundFeeType;
@@ -77,43 +70,8 @@ public class Product extends BaseEntity {
     private Integer specialRefundFee;
 
     @Column(nullable = false)
-    private int marketPrice; // 시중 판매가
-
-    @Column(nullable = false)
-    private int appSalesPrice; // 앱 판매가
-
-    @Column(nullable = false)
-    private int discountPrice; // 할인가
-
-    @Column(nullable = false)
-    private int weight; // 무게
-
-    @ColumnDefault("'false'")
-    @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted; // 삭제 여부
-
-    @ColumnDefault("'SALES_PROGRESS'")
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProductStatus productStatus; // 상품 상태
-
-    @ColumnDefault("'DISCOUNT_STOP'")
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DiscountStatus discountStatus; // 할인 상태
-
-    @ColumnDefault("'GENERAL'")
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ProductType type; // 상품 타입
-
-    @ColumnDefault("''")
-    @Column(nullable = false, columnDefinition = "TEXT")
-    @Comment("상품 설명")
-    private String description;
-
-    @Comment("판매 수수료")
-    private Integer salesChargePercent; // null 인 경우, 판매자의 수수료를 사용
+    private DeliveryCompany deliveryCompany;
 
     @ColumnDefault("'INDIVIDUAL_SHIPPING_ONLY'")
     @Comment("묶음배송대상상품옵션")
@@ -127,6 +85,46 @@ public class Product extends BaseEntity {
     @Comment("묶음 배송 대상 상품 옵션 적용 날짜")
     private LocalDateTime bundleDeliveryOptionAppliedAt;
 
+    @Convert(converter = ListToJsonConverter.class)
+    @Column(columnDefinition = "TEXT")
+    @Comment("상품 이미지")
+    private List<String> productImages;
+
+    @Column(nullable = false)
+    private int marketPrice; // 시중 판매가
+
+    @Column(nullable = false)
+    private int appSalesPrice; // 앱 판매가
+
+    @Column(nullable = false)
+    private int discountPrice; // 할인가
+
+    @Column(nullable = false)
+    private int weight; // 무게
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductStatus productStatus; // 상품 상태
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    @Comment("상품 설명")
+    private String description;
+
+    @ColumnDefault("'GENERAL'")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductType type; // 상품 타입
+
+    @Comment("판매 수수료")
+    private Integer salesChargePercent; // null 인 경우, 판매자의 수수료를 사용
+
+    @Column(nullable = false)
+    private DiscountStatus discountStatus;
+
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
+
     @Version
     private long version;
 
@@ -135,6 +133,7 @@ public class Product extends BaseEntity {
         this.name = dto.getName();
         this.productNumber = productNumber;
         this.deliveryType = dto.getDeliveryType();
+        this.isCustomProduct = dto.getIsCustomProduct();
         this.deliveryCompany = dto.getDeliveryCompany();
         this.categoryId = dto.getCategoryId();
         this.deliveryFeeType = dto.getDeliveryFeeType();
@@ -145,22 +144,37 @@ public class Product extends BaseEntity {
         this.weight = dto.getWeight();
         this.isDeleted = false;
         this.productStatus = dto.getProductStatus();
-        this.discountStatus = DiscountStatus.DISCOUNT_PROGRESS; // TODO 삭제
         this.type = dto.getType();
         this.description = dto.getDescription();
         this.productImages = dto.getProductImages();
 
-        if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.MANUAL) {
             this.deliveryFee = dto.getDeliveryFee();
             this.specialDeliveryFee = dto.getSpecialDeliveryFee();
         }
 
-        if (dto.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+        if (dto.getRefundFeeType() == DeliveryRefundType.MANUAL) {
             this.refundFee = dto.getRefundFee();
             this.specialRefundFee = dto.getSpecialRefundFee();
         }
 
-        this.bundleDeliveryOption = BundleDeliveryOption.INDIVIDUAL_SHIPPING_ONLY; // TODO 상품 등록 로직 추가 시, 삭제
+        this.salesChargePercent = dto.getSalesChargePercent();
+        this.bundleDeliveryGroupId = dto.getBundleDeliveryGroupId();
+        this.bundleDeliveryOption = dto.getBundleDeliveryOption();
+
+        if (this.bundleDeliveryOption == BundleDeliveryOption.BUNDLE_DELIVERY_AVAILABLE) {
+            this.bundleDeliveryOptionAppliedAt = LocalDateTime.now();
+        }
+
+        setDiscountStatus();
+    }
+
+    public void setDiscountStatus() {
+        if (this.appSalesPrice == this.discountPrice) {
+            this.discountStatus = DiscountStatus.DISCOUNT_PROGRESS;
+        } else {
+            this.discountStatus = DiscountStatus.DISCOUNT_STOP;
+        }
     }
 
     public void setProduct(UpdateProductDTO dto) {
@@ -178,14 +192,16 @@ public class Product extends BaseEntity {
         this.type = dto.getType();
         this.description = dto.getDescription();
 
-        if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.MANUAL) {
             this.deliveryFee = dto.getDeliveryFee();
             this.specialDeliveryFee = dto.getSpecialDeliveryFee();
         }
 
-        if (dto.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+        if (dto.getRefundFeeType() == DeliveryRefundType.MANUAL) {
             this.refundFee = dto.getRefundFee();
             this.specialRefundFee = dto.getSpecialRefundFee();
         }
+
+        setDiscountStatus();
     }
 }

@@ -60,9 +60,9 @@ public class UpdateProductService {
             }
 
             // 3. productRequest 데이터 유효성 검사
-            readProductService.validateProductRequest(
-                    product.getProductImages(), dto.getCategoryId()
-            );
+//            readProductService.validateProductRequest(
+//                    product.getProductImages(), dto.getCategoryId()
+//            ); // TODO 추후 수정
             readProductService.validateDeliveryRefundFee(
                     dto.getDeliveryFee(),
                     dto.getRefundFee(),
