@@ -93,6 +93,7 @@
             <column name="bundle_delivery_option_applied_at" type="TIMESTAMP"/>
         </addColumn>
     </changeSet>
+
     <changeSet id="changelog-0.13.05-240824" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -102,5 +103,21 @@
         <addColumn tableName="product_info">
             <column name="is_custom_product" type="BOOLEAN" defaultValue="false"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.13.06-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="product_info" columnName="delivery_fee_type"/>
+            <columnExists tableName="product_info" columnName="refund_fee_type"/>
+        </preConditions>
+        <update tableName="product_info">
+            <column name="delivery_fee_type" value="MANUAL"/>
+            <where>delivery_fee_type = 'CHARGE_UNDER_30000'</where>
+        </update>
+
+        <update tableName="product_info">
+            <column name="refund_fee_type" value="MANUAL"/>
+            <where>refund_fee_type = 'CHARGE_UNDER_30000'</where>
+        </update>
     </changeSet>
 </databaseChangeLog>
