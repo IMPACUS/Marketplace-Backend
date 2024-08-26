@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.api;
 
+import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
@@ -38,7 +39,10 @@ public interface ProductInterface {
      */
     void validateProductRequest(
             List<String> productImages,
-            Long categoryId
+            Long categoryId,
+            Long sellerId,
+            BundleDeliveryOption bundleDeliveryOption,
+            Long bundleDeliveryGroupId
     );
 
     /**

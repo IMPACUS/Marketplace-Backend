@@ -1,11 +1,9 @@
 package com.impacus.maketplace.dto.product.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
-import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
-import com.impacus.maketplace.common.enumType.product.ProductStatus;
-import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.common.enumType.product.*;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import jakarta.validation.constraints.NotBlank;
@@ -21,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductDTO {
+
     private Long sellerId;
 
     @NotNull
@@ -30,21 +29,15 @@ public class CreateProductDTO {
     @Size(max = 50)
     private String name;
 
-    @NotBlank
-    private String description;
-
     @ValidEnum(enumClass = DeliveryType.class)
     private DeliveryType deliveryType;
 
-    @ValidEnum(enumClass = DeliveryCompany.class)
-    private DeliveryCompany deliveryCompany;
+    @NotNull
+    @JsonProperty("isCustomProduct")
+    private Boolean isCustomProduct;
 
     @NotNull
     private Long categoryId;
-
-    private Integer deliveryFee;
-
-    private Integer refundFee;
 
     @NotNull
     @ValidEnum(enumClass = DeliveryRefundType.class)
@@ -54,19 +47,47 @@ public class CreateProductDTO {
     @ValidEnum(enumClass = DeliveryRefundType.class)
     private DeliveryRefundType refundFeeType;
 
+    private Integer deliveryFee;
+
+    private Integer refundFee;
+
     private Integer specialDeliveryFee;
 
     private Integer specialRefundFee;
 
+    @ValidEnum(enumClass = DeliveryCompany.class)
+    private DeliveryCompany deliveryCompany;
+
+    @ValidEnum(enumClass = BundleDeliveryOption.class)
+    private BundleDeliveryOption bundleDeliveryOption;
+
+    private Long bundleDeliveryGroupId;
+
     @NotNull
-    private int marketPrice;
-
-    private int appSalesPrice;
-
-    private int discountPrice;
+    private List<String> productImages;
 
     @NotNull
-    private int weight;
+    private Integer marketPrice;
+
+    @NotNull
+    private Integer appSalesPrice;
+
+    @NotNull
+    private Integer discountPrice;
+
+    @NotNull
+    private Integer weight;
+
+    @ValidEnum(enumClass = ProductStatus.class)
+    private ProductStatus productStatus;
+
+    @NotBlank
+    private String description;
+
+    @ValidEnum(enumClass = ProductType.class)
+    private ProductType type;
+
+    private Integer salesChargePercent;
 
     @NotNull
     private CreateProductDetailInfoDTO productDetail;
@@ -79,15 +100,6 @@ public class CreateProductDTO {
 
     @NotNull
     private CreateClaimInfoDTO claim;
-
-    @ValidEnum(enumClass = ProductStatus.class)
-    private ProductStatus productStatus;
-
-    @ValidEnum(enumClass = ProductType.class)
-    private ProductType type;
-
-    @NotNull
-    private List<String> productImages;
 
     public Product toEntity(String productNumber, Long sellerId) {
         return new Product(productNumber, sellerId, this);

@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.product;
 
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -52,16 +53,24 @@ public class UpdateProductService {
             // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
             // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
             UserType userType = SecurityUtils.getCurrentUserType();
+
             if (userType == UserType.ROLE_APPROVED_SELLER) {
-                Seller seller = readSellerService.findSellerByUserId(userId);
-                if (!seller.getId().equals(product.getSellerId())) {
+                Long sellerId = readSellerService.findSellerIdByUserId(userId);
+                if (!sellerId.equals(product.getSellerId())) {
                     throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
+                }
+                if (dto.getSalesChargePercent() != null) {
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "판매자는 판매 수수료를 수정할 수 없습니다.");
                 }
             }
 
             // 3. productRequest 데이터 유효성 검사
             readProductService.validateProductRequest(
-                    product.getProductImages(), dto.getCategoryId()
+                    product.getProductImages(),
+                    dto.getCategoryId(),
+                    product.getSellerId(),
+                    dto.getBundleDeliveryOption(),
+                    dto.getBundleDeliveryGroupId()
             );
             readProductService.validateDeliveryRefundFee(
                     dto.getDeliveryFee(),

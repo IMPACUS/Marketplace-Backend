@@ -1,11 +1,9 @@
 package com.impacus.maketplace.dto.product.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
-import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
-import com.impacus.maketplace.common.enumType.product.ProductStatus;
-import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.common.enumType.product.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,21 +24,15 @@ public class UpdateProductDTO {
     @Size(max = 50)
     private String name;
 
-    @NotBlank
-    private String description;
-
     @ValidEnum(enumClass = DeliveryType.class)
     private DeliveryType deliveryType;
 
-    @ValidEnum(enumClass = DeliveryCompany.class)
-    private DeliveryCompany deliveryCompany;
+    @NotNull
+    @JsonProperty("isCustomProduct")
+    private Boolean isCustomProduct;
 
     @NotNull
     private Long categoryId;
-
-    private Integer deliveryFee;
-
-    private Integer refundFee;
 
     @NotNull
     @ValidEnum(enumClass = DeliveryRefundType.class)
@@ -50,19 +42,44 @@ public class UpdateProductDTO {
     @ValidEnum(enumClass = DeliveryRefundType.class)
     private DeliveryRefundType refundFeeType;
 
+    private Integer deliveryFee;
+
+    private Integer refundFee;
+
     private Integer specialDeliveryFee;
 
     private Integer specialRefundFee;
 
+    @ValidEnum(enumClass = DeliveryCompany.class)
+    private DeliveryCompany deliveryCompany;
+
+    @ValidEnum(enumClass = BundleDeliveryOption.class)
+    private BundleDeliveryOption bundleDeliveryOption;
+
+    private Long bundleDeliveryGroupId;
+
     @NotNull
-    private int marketPrice;
-
-    private int appSalesPrice;
-
-    private int discountPrice;
+    private Integer marketPrice;
 
     @NotNull
-    private int weight;
+    private Integer appSalesPrice;
+
+    @NotNull
+    private Integer discountPrice;
+
+    @NotNull
+    private Integer weight;
+
+    @ValidEnum(enumClass = ProductStatus.class)
+    private ProductStatus productStatus;
+
+    @NotBlank
+    private String description;
+
+    @ValidEnum(enumClass = ProductType.class)
+    private ProductType type;
+
+    private Integer salesChargePercent;
 
     @NotNull
     private CreateProductDetailInfoDTO productDetail;
@@ -76,9 +93,4 @@ public class UpdateProductDTO {
     @NotNull
     private CreateClaimInfoDTO claim;
 
-    @ValidEnum(enumClass = ProductStatus.class)
-    private ProductStatus productStatus;
-
-    @ValidEnum(enumClass = ProductType.class)
-    private ProductType type;
 }

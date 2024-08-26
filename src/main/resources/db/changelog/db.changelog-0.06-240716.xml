@@ -6,7 +6,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!-- product 생성 -->
-    <changeSet author="lchy0413" id="changelog-0.06.01-240716-9">
+    <changeSet author="lchy0413" id="changelog-0.06.01-240716-10">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="product_info"/>
@@ -90,6 +90,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="bundle_delivery_option_applied_at" type="TIMESTAMP"/>
+            <column name="is_custom_product" type="BOOLEAN" defaultValue="false"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>

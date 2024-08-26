@@ -62,7 +62,11 @@ public class CreateProductService {
 
             // 1. productRequest 데이터 유효성 검사
             readProductService.validateProductRequest(
-                    dto.getProductImages(), dto.getCategoryId()
+                    dto.getProductImages(),
+                    dto.getCategoryId(),
+                    sellerId,
+                    dto.getBundleDeliveryOption(),
+                    dto.getBundleDeliveryGroupId()
             );
             readProductService.validateDeliveryRefundFee(
                     dto.getDeliveryFee(),
@@ -77,7 +81,7 @@ public class CreateProductService {
             String productNumber = StringUtils.getRandomUniqueNumber();
 
             // 3. Product 저장
-            // 배송비 & 반송비는 CHARGE_UNDER_30000 일 때만 저장
+            // 배송비 & 반송비는 MANUAL 일 때만 저장
             Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
             Long productId = newProduct.getId();
 
