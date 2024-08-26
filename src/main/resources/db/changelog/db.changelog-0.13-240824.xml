@@ -93,7 +93,6 @@
             <column name="bundle_delivery_option_applied_at" type="TIMESTAMP"/>
         </addColumn>
     </changeSet>
-
     <changeSet id="changelog-0.13.05-240824" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -104,5 +103,4 @@
             <column name="is_custom_product" type="BOOLEAN" defaultValue="false"/>
         </addColumn>
     </changeSet>
-
 </databaseChangeLog>
