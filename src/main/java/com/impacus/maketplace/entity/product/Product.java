@@ -119,6 +119,7 @@ public class Product extends BaseEntity {
     private Integer salesChargePercent; // null 인 경우, 판매자의 수수료를 사용
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private DiscountStatus discountStatus;
 
     @ColumnDefault("'false'")
@@ -162,11 +163,16 @@ public class Product extends BaseEntity {
         this.bundleDeliveryGroupId = dto.getBundleDeliveryGroupId();
         this.bundleDeliveryOption = dto.getBundleDeliveryOption();
 
+        setBundleDeliveryOptionAppliedAt();
+        setDiscountStatus();
+    }
+
+    public void setBundleDeliveryOptionAppliedAt() {
         if (this.bundleDeliveryOption == BundleDeliveryOption.BUNDLE_DELIVERY_AVAILABLE) {
             this.bundleDeliveryOptionAppliedAt = LocalDateTime.now();
+        } else {
+            this.bundleDeliveryOptionAppliedAt = null;
         }
-
-        setDiscountStatus();
     }
 
     public void setDiscountStatus() {
@@ -180,6 +186,7 @@ public class Product extends BaseEntity {
     public void setProduct(UpdateProductDTO dto) {
         this.name = dto.getName();
         this.deliveryType = dto.getDeliveryType();
+        this.isCustomProduct = dto.getIsCustomProduct();
         this.deliveryCompany = dto.getDeliveryCompany();
         this.categoryId = dto.getCategoryId();
         this.deliveryFeeType = dto.getDeliveryFeeType();
@@ -202,6 +209,11 @@ public class Product extends BaseEntity {
             this.specialRefundFee = dto.getSpecialRefundFee();
         }
 
+        this.salesChargePercent = dto.getSalesChargePercent();
+        this.bundleDeliveryGroupId = dto.getBundleDeliveryGroupId();
+        this.bundleDeliveryOption = dto.getBundleDeliveryOption();
+
+        setBundleDeliveryOptionAppliedAt();
         setDiscountStatus();
     }
 }

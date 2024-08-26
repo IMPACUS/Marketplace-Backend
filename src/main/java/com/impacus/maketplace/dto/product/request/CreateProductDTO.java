@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.product.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.product.*;
@@ -32,6 +33,7 @@ public class CreateProductDTO {
     private DeliveryType deliveryType;
 
     @NotNull
+    @JsonProperty("isCustomProduct")
     private Boolean isCustomProduct;
 
     @NotNull
@@ -65,14 +67,16 @@ public class CreateProductDTO {
     private List<String> productImages;
 
     @NotNull
-    private int marketPrice;
-
-    private int appSalesPrice;
-
-    private int discountPrice;
+    private Integer marketPrice;
 
     @NotNull
-    private int weight;
+    private Integer appSalesPrice;
+
+    @NotNull
+    private Integer discountPrice;
+
+    @NotNull
+    private Integer weight;
 
     @ValidEnum(enumClass = ProductStatus.class)
     private ProductStatus productStatus;
@@ -96,7 +100,7 @@ public class CreateProductDTO {
 
     @NotNull
     private CreateClaimInfoDTO claim;
-    
+
     public Product toEntity(String productNumber, Long sellerId) {
         return new Product(productNumber, sellerId, this);
     }
