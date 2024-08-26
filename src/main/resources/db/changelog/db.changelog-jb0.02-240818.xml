@@ -310,6 +310,24 @@
             </column>
         </createTable>
     </changeSet>
+    
+    <changeSet id="changelog-jb0.02-240826-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="orders" columnName="order_number"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="orders">
+            <column name="order_number" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </addColumn>
+        <createIndex tableName="orders" indexName="idx_order_number" unique="true">
+            <column name="order_number"/>
+        </createIndex>
+    </changeSet>
+    
+    
 
 
 </databaseChangeLog>
