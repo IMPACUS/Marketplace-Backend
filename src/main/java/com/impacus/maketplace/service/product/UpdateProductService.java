@@ -8,7 +8,6 @@ import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
@@ -48,13 +47,12 @@ public class UpdateProductService {
             boolean isOverwrite
     ) {
         try {
-            // 1. Product 찾기
+            // 1. Product 찾기 //TODO common을 사용하도록 수정
             Product product = readProductService.findProductById(productId);
 
             // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
             // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
             UserType userType = SecurityUtils.getCurrentUserType();
-
             if (userType == UserType.ROLE_APPROVED_SELLER) {
                 Long sellerId = readSellerService.findSellerIdByUserId(userId);
                 if (!sellerId.equals(product.getSellerId())) {
