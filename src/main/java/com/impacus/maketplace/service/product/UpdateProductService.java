@@ -43,10 +43,9 @@ public class UpdateProductService {
     @Transactional
     public ProductDTO updateProduct(
             Long userId,
+            Long productId,
             UpdateProductDTO dto) {
         try {
-            Long productId = dto.getProductId();
-
             // 1. Product 찾기
             Product product = readProductService.findProductById(productId);
 
