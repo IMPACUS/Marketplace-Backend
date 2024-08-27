@@ -2,6 +2,8 @@ package com.impacus.maketplace.controller.order;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.order.response.CheckoutProductDTO;
+import com.impacus.maketplace.dto.order.response.OrderCheckoutCartDTO;
+import com.impacus.maketplace.dto.order.response.OrderCheckoutProductDTO;
 import com.impacus.maketplace.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +28,14 @@ public class OrderController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("checkout-single")
-    public ApiResponseEntity<CheckoutProductDTO> getCheckoutSingle(@RequestParam(name = "product-id") Long productId,
+    public ApiResponseEntity<OrderCheckoutProductDTO> getCheckoutSingle(@RequestParam(name = "product-id") Long productId,
                                                                    @RequestParam(name = "product-option-id") Long productOptionId,
                                                                    @RequestParam(name = "quantity") Long quantity) {
 
-        CheckoutProductDTO response = orderService.getCheckoutSingle(productId, productOptionId, quantity);
+        OrderCheckoutProductDTO response = orderService.getCheckoutSingle(productId, productOptionId, quantity);
 
         return ApiResponseEntity
-                .<CheckoutProductDTO>builder()
+                .<OrderCheckoutProductDTO>builder()
                 .data(response)
                 .build();
     }
@@ -43,12 +45,12 @@ public class OrderController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("checkout-cart")
-    public ApiResponseEntity<List<CheckoutProductDTO>> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
+    public ApiResponseEntity<OrderCheckoutCartDTO> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
 
-        List<CheckoutProductDTO> response = orderService.getCheckoutCart(shoppingBasketIdList);
+        OrderCheckoutCartDTO response = orderService.getCheckoutCart(shoppingBasketIdList);
 
         return ApiResponseEntity
-                .<List<CheckoutProductDTO>>builder()
+                .<OrderCheckoutCartDTO>builder()
                 .data(response)
                 .build();
     }
