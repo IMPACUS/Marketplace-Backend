@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.*;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import jakarta.persistence.*;
@@ -129,10 +130,9 @@ public class Product extends BaseEntity {
     @Version
     private long version;
 
-    public Product(String productNumber, Long sellerId, CreateProductDTO dto) {
+    public Product(Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;
         this.name = dto.getName();
-        this.productNumber = productNumber;
         this.deliveryType = dto.getDeliveryType();
         this.isCustomProduct = dto.getIsCustomProduct();
         this.deliveryCompany = dto.getDeliveryCompany();
@@ -165,6 +165,13 @@ public class Product extends BaseEntity {
 
         setBundleDeliveryOptionAppliedAt();
         setDiscountStatus();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (productNumber == null) {
+            productNumber = StringUtils.generateUniqueNumber();
+        }
     }
 
     public void setBundleDeliveryOptionAppliedAt() {
