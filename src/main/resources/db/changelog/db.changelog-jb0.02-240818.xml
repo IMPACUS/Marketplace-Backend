@@ -393,5 +393,13 @@
         <sql>ALTER TABLE user_coupon ALTER COLUMN source_type TYPE VARCHAR(255);</sql>
     </changeSet>
 
+    <changeSet id="changelog-jb-0.02-240827-01-08" author="jeongbeom4693">
+        <sql>ALTER TABLE review ALTER COLUMN archive_at TYPE timestamp with time zone USING archive_at::timestamp with time zone;</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-09" author="jeongbeom4693">
+        <sql>ALTER TABLE review ALTER COLUMN create_at TYPE timestamp with time zone USING create_at::timestamp with time zone;</sql>
+    </changeSet>
+
 
 </databaseChangeLog>
