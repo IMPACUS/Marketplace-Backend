@@ -90,7 +90,7 @@ public class OrderService {
         }
         int attempt = 0;
         while (orderRepository.existsByOrderNumber(orderNumber)) {
-            if (attempt++ > 5) { // 예를 들어 최대 5번 시도
+            if (attempt++ > 5) { // 최대 5번 시도
                 throw new CustomException(OrderErrorType.FAILE_GENERATE_ORDER_NUMBER, "Exceeded maximum retry attempts for generating a unique order number.");
             }
             orderNumber = orderNumberService.generateAndSaveOrderNumber();
