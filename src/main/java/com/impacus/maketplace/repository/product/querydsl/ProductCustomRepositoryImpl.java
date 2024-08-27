@@ -262,37 +262,38 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                         .leftJoin(productClaimInfo).on(productClaimInfo.productId.eq(product.id))
                         .where(productBuilder)
                         .transform(GroupBy.groupBy(product.id).list(Projections.fields(
-                                                ProductDetailForWebDTO.class,
+                                        ProductDetailForWebDTO.class,
                                         product.id,
-                                                product.name,
-                                                product.categoryId,
-                                                product.deliveryType,
-                                                product.deliveryFee,
-                                                product.refundFee,
-                                                product.marketPrice,
-                                                product.appSalesPrice,
-                                                product.discountPrice,
-                                                product.weight,
-                                                product.type,
-                                                product.productStatus,
+                                        product.name,
+                                        product.categoryId,
+                                        product.deliveryType,
+                                        product.deliveryFee,
+                                        product.refundFee,
+                                        product.marketPrice,
+                                        product.appSalesPrice,
+                                        product.discountPrice,
+                                        product.weight,
+                                        product.type,
+                                        product.productStatus,
+                                        product.version,
                                         product.description.as("description"),
+                                        Projections.constructor(
+                                                ProductDetailInfoDTO.class,
+                                                productDetailInfo
+                                        ).as("productDetail"),
+                                        Projections.constructor(
+                                                ProductDeliveryTimeDTO.class,
+                                                productDeliveryTime.minDays,
+                                                productDeliveryTime.maxDays
+                                        ).as("deliveryTime"),
+                                        GroupBy.set(
                                                 Projections.constructor(
-                                                        ProductDetailInfoDTO.class,
-                                                        productDetailInfo
-                                                ).as("productDetail"),
-                                                Projections.constructor(
-                                                        ProductDeliveryTimeDTO.class,
-                                                        productDeliveryTime.minDays,
-                                                        productDeliveryTime.maxDays
-                                                ).as("deliveryTime"),
-                                                GroupBy.set(
-                                                        Projections.constructor(
-                                                                ProductOptionDTO.class,
-                                                                productOption.id,
-                                                                productOption.color,
-                                                                productOption.size
-                                                        )
-                                                ).as("productOptions"),
+                                                        ProductOptionDTO.class,
+                                                        productOption.id,
+                                                        productOption.color,
+                                                        productOption.size
+                                                )
+                                        ).as("productOptions"),
                                         product.productImages,
                                         Projections.constructor(
                                                 ProductClaimInfoDTO.class,

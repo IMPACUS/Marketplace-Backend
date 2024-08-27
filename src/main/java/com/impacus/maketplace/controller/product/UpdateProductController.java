@@ -66,7 +66,8 @@ public class UpdateProductController {
         ProductDTO productDTO = updateProductService.updateProduct(
                 user.getId(),
                 productId,
-                dto
+                dto,
+                false
         );
         return ApiResponseEntity
                 .<ProductDTO>builder()
@@ -93,7 +94,8 @@ public class UpdateProductController {
         ProductDTO productDTO = updateProductService.updateProduct(
                 user.getId(),
                 productId,
-                dto
+                dto,
+                true
         );
         return ApiResponseEntity
                 .<ProductDTO>builder()
