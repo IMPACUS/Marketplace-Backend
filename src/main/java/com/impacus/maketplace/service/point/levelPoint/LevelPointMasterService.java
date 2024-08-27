@@ -60,7 +60,7 @@ public class LevelPointMasterService {
         boolean hasReceivedLevelUpPoints = false;
         if (userLevel != UserLevel.ECO_VIP && userLevel.checkIsPossibleUpgrade(changedPoint)) {
             // 3-1. 등급 변동 후, 포인트 지급이 필요하다면 달성 포인트 지급
-            changedLevel = UserLevel.getUpgradeLevel(userLevel);
+            changedLevel = userLevel.getUpgradeLevel();
             hasReceivedLevelUpPoints = levelAchievementService.upgradeUserLevelAndAwardPoints(userId, changedLevel);
         }
 
@@ -120,7 +120,7 @@ public class LevelPointMasterService {
         UserLevel userLevel = levelPointMaster.getUserLevel();
         UserLevel changedLevel = userLevel;
         if (userLevel != UserLevel.BRONZE && userLevel.checkIsPossibleDowngrade(changedPoint)) {
-            changedLevel = UserLevel.getDowngradeLevel(userLevel);
+            changedLevel = userLevel.getDowngradeLevel();
 
             // 3-1 등급 상승으로 인해 그린 라벨 포인트를 경우, 달성 그린 라벨 포인트 반환 & 레벨 달성 상태 복구
             if (levelPointHistory.isHasReceivedLevelUpPoints()) {

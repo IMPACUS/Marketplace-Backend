@@ -18,16 +18,15 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
         show_sql: true
         format_sql: true
         use_sql_comments: true
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test;
-    username: sa
-    password:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/impacus_test?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
+    username: postgres
+    password: postgres
   task:
     execution:
       pool:

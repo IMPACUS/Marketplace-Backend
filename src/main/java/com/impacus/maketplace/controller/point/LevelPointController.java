@@ -24,7 +24,7 @@ public class LevelPointController {
      * @param user
      * @return
      */
-    @GetMapping("")
+    @GetMapping()
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     public ApiResponseEntity<LevelPointDTO> getLevelPointInformation(
             @AuthenticationPrincipal CustomUserDetails user
