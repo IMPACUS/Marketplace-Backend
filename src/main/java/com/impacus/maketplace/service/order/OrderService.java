@@ -3,12 +3,11 @@ package com.impacus.maketplace.service.order;
 import com.impacus.maketplace.common.enumType.error.OrderErrorType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.dto.order.response.CheckoutProductDTO;
 import com.impacus.maketplace.dto.order.response.OrderCheckoutCartDTO;
 import com.impacus.maketplace.dto.order.response.OrderCheckoutProductDTO;
 import com.impacus.maketplace.redis.service.OrderNumberService;
-import com.impacus.maketplace.repository.order.OrderRepositroy;
+import com.impacus.maketplace.repository.order.OrderRepository;
 import com.impacus.maketplace.repository.order.querydsl.OrderCustomRepository;
 import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsByCartDTO;
 import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsDTO;
@@ -26,7 +25,7 @@ import java.util.List;
 public class OrderService {
 
     private final OrderCustomRepository orderCustomRepository;
-    private final OrderRepositroy orderRepositroy;
+    private final OrderRepository orderRepository;
     private final OrderNumberService orderNumberService;
 
     /**
@@ -85,12 +84,24 @@ public class OrderService {
     }
     private String generateOrderNumber() {
         String orderNumber = orderNumberService.generateAndSaveOrderNumber();
-        while (orderRepositroy.existsByOrderNumber(orderNumber)) {
+        if (orderNumber == null) {
+            // 주문 번호 생성 실패 처리
+            throw new CustomException(OrderErrorType.FAILE_GENERATE_ORDER_NUMBER, "Failed to generate a unique order number.");
+        }
+        int attempt = 0;
+        while (orderRepository.existsByOrderNumber(orderNumber)) {
+            if (attempt++ > 5) { // 최대 5번 시도
+                throw new CustomException(OrderErrorType.FAILE_GENERATE_ORDER_NUMBER, "Exceeded maximum retry attempts for generating a unique order number.");
+            }
             orderNumber = orderNumberService.generateAndSaveOrderNumber();
+            if (orderNumber == null) {
+                throw new CustomException(OrderErrorType.FAILE_GENERATE_ORDER_NUMBER, "Failed to generate a unique order number on retry.");
+            }
         }
 
         return orderNumber;
     }
+
 
     private void validateCheckoutProduct(boolean productIsDeleted, boolean productOptionIsDeleted, ProductStatus productStatus, Long stock, Long quantity) {
 

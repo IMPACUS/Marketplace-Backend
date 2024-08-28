@@ -47,6 +47,7 @@ public class UserCoupon extends BaseEntity {
 
     @Column(nullable = false)
     @ColumnDefault("'NONE'")
+    @Enumerated(EnumType.STRING)
     private CouponSourceType sourceType;
 
     private Long sourceId;

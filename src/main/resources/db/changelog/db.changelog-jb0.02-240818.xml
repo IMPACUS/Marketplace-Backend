@@ -327,7 +327,79 @@
         </createIndex>
     </changeSet>
     
-    
+    <changeSet id="changelog-jb-0.02-240827-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="order_products" columnName="create_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="order_products">
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="order_products" columnName="eco_discount_type"/>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM information_schema.columns
+                    WHERE table_name = 'order_products'
+                    AND column_name = 'eco_discount_type'
+                    AND data_type = 'bpchar'  <!-- PostgreSQL의 char 타입은 'bpchar'로 나타납니다. -->
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <!-- Change data type to VARCHAR(255) for eco_discount_type field -->
+        <sql>ALTER TABLE order_products ALTER COLUMN eco_discount_type TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-03" author="jeongbeom4693">
+        <sql>ALTER TABLE order_products ALTER COLUMN eco_discount_type TYPE VARCHAR(255);</sql>
+        <sql>ALTER TABLE order_products ALTER COLUMN order_status TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+
+    <changeSet id="changelog-jb-0.02-240827-01-04" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="orders" columnName="create_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="orders">
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-05" author="jeongbeom4693">
+        <sql>ALTER TABLE orders ALTER COLUMN payment_status TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-06" author="jeongbeom4693">
+        <sql>ALTER TABLE user_coupon ALTER COLUMN source_type TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-08" author="jeongbeom4693">
+        <sql>ALTER TABLE review ALTER COLUMN archive_at TYPE timestamp with time zone USING archive_at::timestamp with time zone;</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-09" author="jeongbeom4693">
+        <sql>ALTER TABLE review ALTER COLUMN create_at TYPE timestamp with time zone USING create_at::timestamp with time zone;</sql>
+    </changeSet>
 
 
 </databaseChangeLog>
