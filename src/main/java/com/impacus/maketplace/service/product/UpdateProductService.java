@@ -1,10 +1,16 @@
 package com.impacus.maketplace.service.product;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
+import com.impacus.maketplace.dto.product.dto.CommonProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.entity.product.Product;
@@ -14,11 +20,8 @@ import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -42,20 +45,21 @@ public class UpdateProductService {
      */
     @Transactional
     public ProductDTO updateProduct(
-            Long userId,
-            Long productId,
-            UpdateProductDTO dto) {
+                Long userId,
+                Long productId,
+                UpdateProductDTO dto
+            ) {
         try {
             // 1. Product 찾기
-            Product product = readProductService.findProductById(productId);
+            CommonProductDTO savedProduct = productRepository.findProductByProductId(productId);
+            // id, sellerId, productImages, productNumber
 
             // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
             // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
             UserType userType = SecurityUtils.getCurrentUserType();
-
             if (userType == UserType.ROLE_APPROVED_SELLER) {
                 Long sellerId = readSellerService.findSellerIdByUserId(userId);
-                if (!sellerId.equals(product.getSellerId())) {
+                if (!sellerId.equals(savedProduct.getSellerId())) {
                     throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
                 }
                 if (dto.getSalesChargePercent() != null) {
@@ -65,9 +69,9 @@ public class UpdateProductService {
 
             // 3. productRequest 데이터 유효성 검사
             readProductService.validateProductRequest(
-                    product.getProductImages(),
+                    savedProduct.getProductImages(),
                     dto.getCategoryId(),
-                    product.getSellerId(),
+                    savedProduct.getSellerId(),
                     dto.getBundleDeliveryOption(),
                     dto.getBundleDeliveryGroupId()
             );
@@ -81,17 +85,17 @@ public class UpdateProductService {
             );
 
             // 5. 상품 이력 저장 (조건에 부합하는 경우)
-            addProductHistoryInUpdateMode(product, dto, product.getProductImages());
+            addProductHistoryInUpdateMode(savedProduct, dto, savedProduct.getProductImages());
 
             // 6. Product 수정
-            product.setProduct(dto);
-            productRepository.save(product);
+            Product changedProduct = savedProduct.toEntity(dto);
+            productRepository.save(changedProduct);
 
             // 7. Product option 수정
             productOptionService.updateProductOptionList(productId, dto.getProductOptions());
 
             // 8. Product detail 수정
-            ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(product.getId());
+            ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(savedProduct.getProductId());
             productDetailInfo.setProductDetailInfo(dto.getProductDetail());
 
             // 9. Product delivery time 수정
@@ -100,7 +104,7 @@ public class UpdateProductService {
             // 10. 상품 클레임 정보 수정
             productClaimService.updateProductClaimInfo(productId, dto.getClaim());
 
-            return ProductDTO.toDTO(product);
+            return ProductDTO.toDTO(savedProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -115,7 +119,7 @@ public class UpdateProductService {
      * @prarm newProduct
      */
     public void addProductHistoryInUpdateMode(
-            Product nowProduct,
+            CommonProductDTO nowProduct,
             UpdateProductDTO newProduct,
             List<String> productImages
     ) {

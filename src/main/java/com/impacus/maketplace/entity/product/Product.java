@@ -1,22 +1,35 @@
 package com.impacus.maketplace.entity.product;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
+
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
-import com.impacus.maketplace.common.enumType.product.*;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.product.dto.CommonProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -165,6 +178,15 @@ public class Product extends BaseEntity {
 
         setBundleDeliveryOptionAppliedAt();
         setDiscountStatus();
+    }
+
+    public Product (
+        CommonProductDTO dto
+    ) {
+        this.id = dto.getProductId();
+        this.sellerId = dto.getSellerId();
+        this.productNumber = dto.getProductNumber();
+        this.productImages = dto.getProductImages();
     }
 
     @PrePersist
