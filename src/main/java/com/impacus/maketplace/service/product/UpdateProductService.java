@@ -1,10 +1,5 @@
 package com.impacus.maketplace.service.product;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -20,8 +15,13 @@ import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,12 +47,12 @@ public class UpdateProductService {
     public ProductDTO updateProduct(
             Long userId,
             Long productId,
-            UpdateProductDTO dto
+            UpdateProductDTO dto,
+            boolean isOverwrite
     ) {
         try {
             // 1. Product 찾기
             CommonProductDTO savedProduct = productRepository.findProductByProductId(productId);
-            // id, sellerId, productImages, productNumber
 
             // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
             // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
@@ -104,7 +104,9 @@ public class UpdateProductService {
             // 10. 상품 클레임 정보 수정
             productClaimService.updateProductClaimInfo(productId, dto.getClaim());
 
-            return ProductDTO.toDTO(savedProduct);
+            return ProductDTO.toDTO(changedProduct);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            throw new CustomException(HttpStatus.CONFLICT, ProductErrorType.PRODUCT_CONCURRENT_MODIFICATION);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -125,7 +127,7 @@ public class UpdateProductService {
     ) {
         // (상품 이미지가 변경된 경우) 상품 이력 저장
         if (!newProduct.getName().equals(nowProduct.getName())) {
-            ProductHistory productHistory = ProductHistory.toEntity(nowProduct.getId(), newProduct.getName(), productImages);
+            ProductHistory productHistory = ProductHistory.toEntity(nowProduct.getProductId(), newProduct.getName(), productImages);
             productHistoryService.saveProductHistory(productHistory);
         }
     }

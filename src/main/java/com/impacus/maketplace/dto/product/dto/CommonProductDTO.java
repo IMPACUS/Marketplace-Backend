@@ -1,11 +1,11 @@
 package com.impacus.maketplace.dto.product.dto;
 
-import java.util.List;
-
+import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import com.impacus.maketplace.entity.product.Product;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor

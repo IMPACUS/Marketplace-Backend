@@ -10,7 +10,9 @@ public enum ProductErrorType implements ErrorType {
     INVALID_PRODUCT("011_INVALID_PRODUCT", "유효하지 않은 상품 데이터입니다."),
     NOT_EXISTED_PRODUCT("014_NOT_EXISTED_PRODUCT", "존재하지 않는 상품입니다."),
     NOT_EXISTED_TEMPORARY_PRODUCT("019_NOT_EXISTED_TEMPORARY_PRODUCT", "임시 저장 데이터가 존재하지 않습니다."),
-    NOT_EXISTED_PRODUCT_OPTION("021_NOT_EXISTED_PRODUCT_OPTION", "존재하지 않는 상품 옵션입니다");
+    NOT_EXISTED_PRODUCT_OPTION("021_NOT_EXISTED_PRODUCT_OPTION", "존재하지 않는 상품 옵션입니다"),
+    PRODUCT_CONCURRENT_MODIFICATION("002_PRODUCT_CONCURRENT_MODIFICATION", "상품 동시 수정으로 인해 수정 사항 반영에 실패하였습니다.");
+
 
     private final String code;
     private final String msg;

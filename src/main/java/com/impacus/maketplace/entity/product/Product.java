@@ -6,10 +6,10 @@ import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.*;
 import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.product.dto.CommonProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -129,6 +129,14 @@ public class Product extends BaseEntity {
 
     @Version
     private long version;
+
+    public Product(CommonProductDTO dto) {
+        this.id = dto.getProductId();
+        this.sellerId = dto.getSellerId();
+        this.name = dto.getName();
+        this.productNumber = dto.getProductNumber();
+        this.productImages = dto.getProductImages();
+    }
 
     public Product(Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;
