@@ -37,5 +37,5 @@ public class ProductDetailForWebDTO {
     private ProductDeliveryTimeDTO deliveryTime;
     private Set<ProductOptionDTO> productOptions;
     private ProductClaimInfoDTO claim;
-
+    private long version;
 }

@@ -17,8 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProductDTO {
+
     @NotNull
-    private Long productId;
+    private Integer version;
 
     @NotBlank
     @Size(max = 50)

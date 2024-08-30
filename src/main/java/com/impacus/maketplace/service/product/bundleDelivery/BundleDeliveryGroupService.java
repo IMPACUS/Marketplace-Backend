@@ -6,7 +6,6 @@ import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.bundleDelivery.request.CreateBundleDeliveryGroupDTO;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDTO;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDetailDTO;
@@ -47,8 +46,7 @@ public class BundleDeliveryGroupService {
             }
 
             // 2. 묶음 배송 그룹 생성
-            String groupNumber = StringUtils.getRandomUniqueNumber();
-            BundleDeliveryGroup bundleDeliveryGroup = dto.toEntity(sellerId, groupNumber);
+            BundleDeliveryGroup bundleDeliveryGroup = dto.toEntity(sellerId);
 
             bundleDeliveryGroupRepository.save(bundleDeliveryGroup);
         } catch (Exception ex) {

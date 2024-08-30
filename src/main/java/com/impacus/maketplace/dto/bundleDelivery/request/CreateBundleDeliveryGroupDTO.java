@@ -19,12 +19,10 @@ public class CreateBundleDeliveryGroupDTO {
     private DeliveryFeeRule deliveryFeeRule;
 
     public BundleDeliveryGroup toEntity(
-            Long sellerId,
-            String groupNumber
+            Long sellerId
     ) {
         return new BundleDeliveryGroup(
                 name,
-                groupNumber,
                 sellerId,
                 isUsed,
                 deliveryFeeRule
