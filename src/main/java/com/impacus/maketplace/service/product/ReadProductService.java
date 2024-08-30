@@ -1,8 +1,10 @@
 package com.impacus.maketplace.service.product;
 
+import com.impacus.maketplace.common.enumType.error.BundleDeliveryGroupErrorType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -15,7 +17,7 @@ import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.redis.service.RecentProductViewsService;
 import com.impacus.maketplace.repository.product.ProductRepository;
-import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.repository.product.bundleDelivery.BundleDeliveryGroupRepository;
 import com.impacus.maketplace.service.api.ProductInterface;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
@@ -35,9 +37,9 @@ import java.util.List;
 public class ReadProductService implements ProductInterface {
     private final ProductRepository productRepository;
     private final ReadSellerService readSellerService;
-    private final AttachFileService attachFileService;
     private final SubCategoryService subCategoryService;
     private final RecentProductViewsService recentProductViewsService;
+    private final BundleDeliveryGroupRepository bundleDeliveryGroupRepository;
 
     @Override
     public void checkExistenceById(long productId) {
@@ -49,7 +51,10 @@ public class ReadProductService implements ProductInterface {
     @Override
     public void validateProductRequest(
             List<String> productImages,
-            Long categoryId
+            Long categoryId,
+            Long sellerId,
+            BundleDeliveryOption bundleDeliveryOption,
+            Long bundleDeliveryGroupId
     ) {
         // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (productImages.size() > 5) {
@@ -59,6 +64,19 @@ public class ReadProductService implements ProductInterface {
         // 2. 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
             throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
+        }
+
+        // 3. 묶음 배송 그룹 데이터 확인
+        if (bundleDeliveryOption == BundleDeliveryOption.BUNDLE_DELIVERY_AVAILABLE) {
+            if (bundleDeliveryGroupId == null) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "개별 배송일 때는 묶음 배송 그룹 id가 Null이면 안됩니다.");
+            } else if (!bundleDeliveryGroupRepository.existsBySellerIdAndIdAndIsDeletedFalseAndIsUsedTrue(sellerId, bundleDeliveryGroupId)) {
+                throw new CustomException(BundleDeliveryGroupErrorType.NOT_EXISTED_BUNDLE_DELIVERY_GROUP);
+            }
+        } else {
+            if (bundleDeliveryGroupId != null) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "개별 배송일 때는 묶음 배송 그룹 id가 Null이여야 합니다.");
+            }
         }
     }
 
@@ -201,16 +219,16 @@ public class ReadProductService implements ProductInterface {
             DeliveryRefundType refundFeeType
     ) {
         // 1. 배송비 정보 확인
-        if (deliveryFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (deliveryFee == null || specialDeliveryFee == null)) {
+        if (deliveryFeeType == DeliveryRefundType.MANUAL && (deliveryFee == null || specialDeliveryFee == null)) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
-                    "deliveryFeeType 가 CHARGE_UNDER_30000 일 때는 배송비 데이터가 null 이면 안됩니다.");
+                    "deliveryFeeType 가 MANUAL 일 때는 배송비 데이터가 null 이면 안됩니다.");
 
         }
 
         // 2. 반송비 정보 확인
-        if (refundFeeType == DeliveryRefundType.CHARGE_UNDER_30000 && (refundFee == null || specialRefundFee == null)) {
+        if (refundFeeType == DeliveryRefundType.MANUAL && (refundFee == null || specialRefundFee == null)) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
-                    "refundFeeType 가 CHARGE_UNDER_30000 일 때는 반송비 데이터가 null 이면 안됩니다.");
+                    "refundFeeType 가 MANUAL 일 때는 반송비 데이터가 null 이면 안됩니다.");
 
         }
     }

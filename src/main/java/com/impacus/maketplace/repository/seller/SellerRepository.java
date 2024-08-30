@@ -27,6 +27,8 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSelle
 
     boolean existsByUserId(Long userId);
 
+    boolean existsByIsDeletedFalseAndId(Long id);
+
     @Transactional
     @Modifying
     @Query("UPDATE Seller s " +
@@ -42,4 +44,12 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSelle
     @Query("SELECT s.id AS id, s.marketName AS marketName" +
             " FROM Seller s WHERE s.isDeleted = false")
     List<SellerMarketNameViewsMapping> findMarketNames();
+
+    @Query("SELECT COUNT(s) > 0 FROM Seller s WHERE s.marketName = :marketName AND s.isDeleted = false")
+    boolean existsByMarketName(@Param("marketName") String marketName);
+
+    @Query("SELECT s.id" +
+            " FROM Seller s " +
+            "WHERE s.isDeleted = false AND s.userId = :userId")
+    Long findSellerIdByUserId(@Param("userId") Long userId);
 }

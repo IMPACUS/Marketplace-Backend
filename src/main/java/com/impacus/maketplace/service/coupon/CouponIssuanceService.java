@@ -2,7 +2,6 @@ package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
-import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.response.UserCouponDownloadDTO;
 import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
@@ -13,7 +12,6 @@ import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceHistoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
-import com.impacus.maketplace.repository.user.querydsl.ReadUserCustomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -199,6 +197,8 @@ public class CouponIssuanceService {
                 .isDownload(false)
                 .downloadAt(null)
                 .isUsed(false)
+                .sourceType(CouponSourceType.NONE)
+                .sourceId(null)
                 .usedAt(null)
                 .expiredAt(expiredAt)
                 .status(UserCouponStatus.ISSUE_SUCCESS)

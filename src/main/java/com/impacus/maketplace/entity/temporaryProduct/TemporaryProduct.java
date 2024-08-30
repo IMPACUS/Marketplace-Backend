@@ -40,13 +40,11 @@ public class TemporaryProduct extends BaseEntity {
 
     @Column
     private Long categoryId; // 2차 카테고리 id
-
-    @ColumnDefault("'CHARGE_UNDER_30000'")
+    
     @Enumerated(EnumType.STRING)
     @Comment("배송비 타입")
     private DeliveryRefundType deliveryFeeType;
 
-    @ColumnDefault("'CHARGE_UNDER_30000'")
     @Enumerated(EnumType.STRING)
     @Comment("반송비 타입")
     private DeliveryRefundType refundFeeType;
@@ -118,12 +116,12 @@ public class TemporaryProduct extends BaseEntity {
         this.description = dto.getDescription();
         this.productImages = dto.getProductImages();
 
-        if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.MANUAL) {
             this.deliveryFee = dto.getDeliveryFee();
             this.specialDeliveryFee = dto.getSpecialDeliveryFee();
         }
 
-        if (dto.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+        if (dto.getRefundFeeType() == DeliveryRefundType.MANUAL) {
             this.refundFee = dto.getRefundFee();
             this.specialRefundFee = dto.getSpecialRefundFee();
         }
@@ -145,12 +143,12 @@ public class TemporaryProduct extends BaseEntity {
         this.description = dto.getDescription();
         this.productImages = dto.getProductImages();
 
-        if (dto.getDeliveryFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.MANUAL) {
             this.deliveryFee = dto.getDeliveryFee();
             this.specialDeliveryFee = dto.getSpecialDeliveryFee();
         }
 
-        if (dto.getRefundFeeType() == DeliveryRefundType.CHARGE_UNDER_30000) {
+        if (dto.getRefundFeeType() == DeliveryRefundType.MANUAL) {
             this.refundFee = dto.getRefundFee();
             this.specialRefundFee = dto.getSpecialRefundFee();
         }

@@ -6,7 +6,6 @@ import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.service.product.CreateProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import security.CustomUserDetails;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/product")

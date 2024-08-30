@@ -153,13 +153,24 @@ public class ReadSellerService {
     }
 
     /**
-     * 존재하는 sellerId인지 확인하는 함수
+     * Seller가 존재하는지 확인하는 함수
+     *
+     * @param sellerId
+     */
+    public void checkSellerExistenceById(Long sellerId) {
+        if (!existsSellerBySellerId(sellerId)) {
+            throw new CustomException(SellerErrorType.NOT_EXISTED_SELLER);
+        }
+    }
+
+    /**
+     * 존재하는 sellerId 인지 확인하는 함수
      *
      * @param sellerId
      * @return
      */
     public boolean existsSellerBySellerId(Long sellerId) {
-        return sellerRepository.existsById(sellerId);
+        return sellerRepository.existsByIsDeletedFalseAndId(sellerId);
     }
 
     /**
@@ -238,5 +249,15 @@ public class ReadSellerService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * userId로 sellerId 찾는 함수
+     *
+     * @param userId
+     * @return
+     */
+    public Long findSellerIdByUserId(Long userId) {
+        return sellerRepository.findSellerIdByUserId(userId);
     }
 }

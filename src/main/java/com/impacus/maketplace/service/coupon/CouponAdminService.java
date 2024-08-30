@@ -6,7 +6,10 @@ import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
-import com.impacus.maketplace.dto.coupon.request.*;
+import com.impacus.maketplace.dto.coupon.request.CouponDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponIssueDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
+import com.impacus.maketplace.dto.coupon.request.IssueCouponTargetUserDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponHIstoryDTO;
@@ -16,8 +19,8 @@ import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
+import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
-import com.impacus.maketplace.repository.user.querydsl.ReadUserCustomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,11 +37,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CouponAdminService {
 
+    private final SellerRepository sellerRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final UserRepository userRepository;
-    private final CouponUtils couponUtils;
     private final CouponIssuanceService couponIssuanceService;
 
     /**
@@ -255,10 +258,10 @@ public class CouponAdminService {
 
         if (autoManualType.equals(AutoManualType.AUTO)) {
             // 2.1 자동 코드 생성 방식일 경우, 코드 생성
-            code = couponUtils.generateCode();
+            code = CouponUtils.generateCode();
             // 2.1.1 생성한 코드가 이미 발급한 코드와 중복된 경우, 재생성 반복
             while (couponRepository.existsByCode(code)) {
-                code = couponUtils.generateCode();
+                code = CouponUtils.generateCode();
             }
         } else {
             // 2.2 수동 코드 생성 방식일 경우, 길이 검증 및 문자 검증 후 중복 검사
@@ -317,7 +320,7 @@ public class CouponAdminService {
         if (couponDTO.getIssueCoverageType().equals(CoverageType.BRAND)) {
             // 해당 브랜드 명이 존재하는지 확인
             if (couponDTO.getIssueCoverageSubCategoryName() == null ||
-                    !subCategoryRepository.existsByName(couponDTO.getIssueCoverageSubCategoryName())) {
+                    !sellerRepository.existsByMarketName(couponDTO.getIssueCoverageSubCategoryName())) {
                 log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 issueConverageSubCategoryName 값이 들어왔습니다. " +
                         "issueConverageSubCategoryName: {}", couponDTO.getIssueCoverageSubCategoryName());
                 throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_SUB_CATEGORY_NAME);
@@ -328,7 +331,7 @@ public class CouponAdminService {
         if (couponDTO.getUseCoverageType().equals(CoverageType.BRAND)) {
             // 해당 브랜드 명이 존재하는지 확인
             if (couponDTO.getUseCoverageSubCategoryName() == null ||
-                    !subCategoryRepository.existsByName(couponDTO.getUseCoverageSubCategoryName())) {
+                    !sellerRepository.existsByMarketName(couponDTO.getUseCoverageSubCategoryName())) {
                 log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 useCoverageSubCategoryName 값이 들어왔습니다. " +
                         "useCoverageSubCategoryName: {}", couponDTO.getUseCoverageSubCategoryName());
                 throw new CustomException(CouponErrorType.INVALID_INPUT_USE_COVERAGE_SUB_CATEGORY_NAME);

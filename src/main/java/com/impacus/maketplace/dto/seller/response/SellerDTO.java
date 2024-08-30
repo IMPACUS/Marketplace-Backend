@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class SellerDTO {
-    private Long id;
+    private Long sellerId;
 
     private String brandName;
 

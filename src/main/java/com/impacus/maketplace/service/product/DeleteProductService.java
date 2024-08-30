@@ -76,7 +76,7 @@ public class DeleteProductService {
             wishlistRepository.deleteByProductId(productId);
 
             // 5. 삭제
-            productRepository.deleteById(productId);
+            productRepository.updateIsDeleteTrueById(productId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DiscountStatus {
     DISCOUNT_PROGRESS(1, "할인 진행중"),
-    DISCOUNT_STOP(2, "할인 중지"),
-
-    NONE(100, "알수 없음");
+    DISCOUNT_STOP(2, "할인 중지");
 
     private final int code;
     private final String value;

@@ -353,7 +353,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         return queryFactory
                 .select(Projections.fields(
                         SellerDTO.class,
-                        seller.id,
+                        seller.id.as("sellerId"),
                         seller.marketName.as("brandName"),
                         seller.contactName,
                         user.email,

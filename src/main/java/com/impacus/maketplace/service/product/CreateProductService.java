@@ -9,7 +9,6 @@ import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
-import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
@@ -53,8 +52,7 @@ public class CreateProductService {
             UserType userType = SecurityUtils.getCurrentUserType();
             Long sellerId = null;
             if (userType == UserType.ROLE_APPROVED_SELLER) {
-                Seller seller = readSellerService.findSellerByUserId(userId);
-                sellerId = seller.getId();
+                sellerId = readSellerService.findSellerIdByUserId(userId);
             } else {
                 sellerId = dto.getSellerId();
                 if (sellerId == null || !readSellerService.existsSellerBySellerId(sellerId)) {
@@ -64,7 +62,11 @@ public class CreateProductService {
 
             // 1. productRequest 데이터 유효성 검사
             readProductService.validateProductRequest(
-                    dto.getProductImages(), dto.getCategoryId()
+                    dto.getProductImages(),
+                    dto.getCategoryId(),
+                    sellerId,
+                    dto.getBundleDeliveryOption(),
+                    dto.getBundleDeliveryGroupId()
             );
             readProductService.validateDeliveryRefundFee(
                     dto.getDeliveryFee(),
@@ -76,10 +78,10 @@ public class CreateProductService {
             );
 
             // 2. 상풍 번호 생성
-            String productNumber = StringUtils.getProductNumber();
+            String productNumber = StringUtils.getRandomUniqueNumber();
 
             // 3. Product 저장
-            // 배송비 & 반송비는 CHARGE_UNDER_30000 일 때만 저장
+            // 배송비 & 반송비는 MANUAL 일 때만 저장
             Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
             Long productId = newProduct.getId();
 

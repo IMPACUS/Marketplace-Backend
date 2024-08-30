@@ -89,7 +89,7 @@ public class ProductOptionService {
         List<Long> productOptionIds = productOptions.stream().map(ProductOption::getId).toList();
 
         shoppingBasketRepository.deleteByProductOptionId(productOptionIds);
-        productOptionRepository.deleteAllById(productOptionIds);
+        productOptionRepository.updateIsDeleteTrueByIds(productOptionIds);
     }
 
     /**
