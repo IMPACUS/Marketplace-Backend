@@ -1,6 +1,6 @@
 spring:
   profiles:
-    default: local
+    default: test
     group:
       local:
         - local-oauth-key
