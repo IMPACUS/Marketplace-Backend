@@ -15,6 +15,7 @@ import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -35,6 +36,7 @@ public class UpdateProductService {
     private final ProductClaimService productClaimService;
     private final ProductHistoryService productHistoryService;
     private final ReadProductService readProductService;
+    private final EntityManager entityManager;
 
     /**
      * 등록된 상품 정보 수정 함수
@@ -56,57 +58,21 @@ public class UpdateProductService {
 
             // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
             // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
-            UserType userType = SecurityUtils.getCurrentUserType();
-            if (userType == UserType.ROLE_APPROVED_SELLER) {
-                Long sellerId = readSellerService.findSellerIdByUserId(userId);
-                if (!sellerId.equals(savedProduct.getSellerId())) {
-                    throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
-                }
-                if (dto.getSalesChargePercent() != null) {
-                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "판매자는 판매 수수료를 수정할 수 없습니다.");
-                }
-            }
+            validateUserAccess(userId, savedProduct, dto);
 
-            // 3. productRequest 데이터 유효성 검사
-            readProductService.validateProductRequest(
-                    savedProduct.getProductImages(),
-                    dto.getCategoryId(),
-                    savedProduct.getSellerId(),
-                    dto.getBundleDeliveryOption(),
-                    dto.getBundleDeliveryGroupId()
-            );
-            readProductService.validateDeliveryRefundFee(
-                    dto.getDeliveryFee(),
-                    dto.getRefundFee(),
-                    dto.getSpecialDeliveryFee(),
-                    dto.getSpecialRefundFee(),
-                    dto.getDeliveryFeeType(),
-                    dto.getRefundFeeType()
-            );
+            // 3. productRequest 유효성 검사
+            validateProductRequest(dto, savedProduct);
 
-            // 5. 상품 이력 저장 (조건에 부합하는 경우)
+            // 4. 상품 이력 저장 (조건에 부합하는 경우)
             addProductHistoryInUpdateMode(savedProduct, dto, savedProduct.getProductImages());
 
-            // 6. Product 수정
-            Product changedProduct = savedProduct.toEntity(dto);
-            if (isOverwrite) {
-                // 6-1. 덮어씌기를 허용하는 경우 낙관적 락 에러가 나지 않도록 version 수동 증가 시킴
-                changedProduct.setVersion(savedProduct.getVersion());
-            }
-            productRepository.save(changedProduct);
+            // 5. Product 수정
+            Product changedProduct = applyProductChanges(savedProduct, dto, isOverwrite);
 
-            // 7. Product option 수정
-            productOptionService.updateProductOptionList(productId, dto.getProductOptions());
+            entityManager.flush();
 
-            // 8. Product detail 수정
-            ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(savedProduct.getProductId());
-            productDetailInfo.setProductDetailInfo(dto.getProductDetail());
-
-            // 9. Product delivery time 수정
-            deliveryTimeService.updateProductDeliveryTime(productId, dto.getDeliveryTime());
-
-            // 10. 상품 클레임 정보 수정
-            productClaimService.updateProductClaimInfo(productId, dto.getClaim());
+            // 6. 연관된 Product 정보 수정
+            updateProductRelatedInfo(productId, dto);
 
             return ProductDTO.toDTO(changedProduct);
         } catch (ObjectOptimisticLockingFailureException ex) {
@@ -117,13 +83,62 @@ public class UpdateProductService {
     }
 
     /**
+     * 상품에 사용자가 접근 가능 확인
+     *
+     * @param userId
+     * @param savedProduct
+     * @param dto
+     */
+    private void validateUserAccess(Long userId, CommonProductDTO savedProduct, UpdateProductDTO dto) {
+        // 현재 사용자의 유형을 가져옴
+        UserType userType = SecurityUtils.getCurrentUserType();
+        if (userType == UserType.ROLE_APPROVED_SELLER) {
+            // 판매자일 경우, 본인의 상품인지 확인
+            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+            if (!sellerId.equals(savedProduct.getSellerId())) {
+                throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
+            }
+            // 판매자는 판매 수수료를 수정할 수 없음
+            if (dto.getSalesChargePercent() != null) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "판매자는 판매 수수료를 수정할 수 없습니다.");
+            }
+        }
+    }
+
+    /**
+     * 상품 수정 요청 데이터 유효성 검사
+     *
+     * @param dto
+     * @param savedProduct
+     */
+    private void validateProductRequest(UpdateProductDTO dto, CommonProductDTO savedProduct) {
+        // 상품 이미지, 카테고리, 묶음 배송 그룹 유효성 검사
+        readProductService.validateProductRequest(
+                savedProduct.getProductImages(),
+                dto.getCategoryId(),
+                savedProduct.getSellerId(),
+                dto.getBundleDeliveryOption(),
+                dto.getBundleDeliveryGroupId()
+        );
+        // 배송 및 환불 수수료 유효성 검사
+        readProductService.validateDeliveryRefundFee(
+                dto.getDeliveryFee(),
+                dto.getRefundFee(),
+                dto.getSpecialDeliveryFee(),
+                dto.getSpecialRefundFee(),
+                dto.getDeliveryFeeType(),
+                dto.getRefundFeeType()
+        );
+    }
+
+    /**
      * 상품 이력 생성
      *
      * @param nowProduct    현재 DB에 저장된 상품
      * @param newProduct    변경 예정 상품 정보
      * @param productImages 변경된 상품 이미지
-     * @prarm newProduct
      */
+    @Transactional
     public void addProductHistoryInUpdateMode(
             CommonProductDTO nowProduct,
             UpdateProductDTO newProduct,
@@ -134,6 +149,47 @@ public class UpdateProductService {
             ProductHistory productHistory = ProductHistory.toEntity(nowProduct.getProductId(), newProduct.getName(), productImages);
             productHistoryService.saveProductHistory(productHistory);
         }
+    }
+
+    /**
+     * 상품 수정
+     *
+     * @param savedProduct
+     * @param dto
+     * @param isOverwrite
+     * @return
+     */
+    @Transactional
+    public Product applyProductChanges(CommonProductDTO savedProduct, UpdateProductDTO dto, boolean isOverwrite) {
+        // Product 수정 사항 적용
+        Product changedProduct = savedProduct.toEntity(dto);
+        if (isOverwrite) {
+            // 덮어씌기를 허용하는 경우, 낙관적 락 에러가 나지 않도록 version 수동 증가
+            changedProduct.setVersion(savedProduct.getVersion());
+        }
+        return productRepository.save(changedProduct);
+    }
+
+    /**
+     * 상품 연관 관계 데이터 수정
+     *
+     * @param productId
+     * @param dto
+     */
+    @Transactional
+    public void updateProductRelatedInfo(Long productId, UpdateProductDTO dto) {
+        // 상품 옵션
+        productOptionService.updateProductOptionList(productId, dto.getProductOptions());
+
+        // 상품 상세 정보
+        ProductDetailInfo productDetailInfo = productDetailInfoService.findProductDetailInfoByProductId(productId);
+        productDetailInfo.setProductDetailInfo(dto.getProductDetail());
+
+        // 상품 배송 시간
+        deliveryTimeService.updateProductDeliveryTime(productId, dto.getDeliveryTime());
+
+        // 상품 클레임 정보
+        productClaimService.updateProductClaimInfo(productId, dto.getClaim());
     }
 
     /**
