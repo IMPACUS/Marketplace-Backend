@@ -89,6 +89,10 @@ public class UpdateProductService {
 
             // 6. Product 수정
             Product changedProduct = savedProduct.toEntity(dto);
+            if (isOverwrite) {
+                // 6-1. 덮어씌기를 허용하는 경우 낙관적 락 에러가 나지 않도록 version 수동 증가 시킴
+                changedProduct.setVersion(savedProduct.getVersion());
+            }
             productRepository.save(changedProduct);
 
             // 7. Product option 수정

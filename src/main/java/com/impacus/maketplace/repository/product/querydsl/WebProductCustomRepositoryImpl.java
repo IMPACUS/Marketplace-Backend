@@ -1,21 +1,14 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
-import org.springframework.stereotype.Repository;
-
 import com.impacus.maketplace.dto.product.dto.CommonProductDTO;
 import com.impacus.maketplace.entity.category.QSubCategory;
-import com.impacus.maketplace.entity.product.QProduct;
-import com.impacus.maketplace.entity.product.QProductClaimInfo;
-import com.impacus.maketplace.entity.product.QProductDeliveryTime;
-import com.impacus.maketplace.entity.product.QProductDetailInfo;
-import com.impacus.maketplace.entity.product.QProductOption;
-import com.impacus.maketplace.entity.product.QWishlist;
+import com.impacus.maketplace.entity.product.*;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
@@ -44,7 +37,8 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
                                 product.name,
                                 product.sellerId,
                                 product.productNumber,
-                                product.productImages                             
+                                product.productImages,
+                                product.version
                         )
                 )
                 .from(product)

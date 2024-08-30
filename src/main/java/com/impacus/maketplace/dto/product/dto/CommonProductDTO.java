@@ -15,6 +15,7 @@ public class CommonProductDTO {
     private String name;
     private String productNumber;
     private List<String> productImages;
+    private long version;
 
     public Product toEntity(UpdateProductDTO dto) {
         Product changedProduct = new Product(this);

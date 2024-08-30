@@ -130,6 +130,10 @@ public class Product extends BaseEntity {
     @Version
     private long version;
 
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
     public Product(CommonProductDTO dto) {
         this.id = dto.getProductId();
         this.sellerId = dto.getSellerId();
