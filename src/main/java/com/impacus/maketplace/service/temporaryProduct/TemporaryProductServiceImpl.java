@@ -71,17 +71,29 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
 
     @Override
     public void addOrModifyBasicTemporaryProduct(Long userId, BasicStepProductDTO dto) {
+        try {
 
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     @Override
     public void addOrModifyTemporaryProductOptions(Long userId, OptionStepProductDTO dto) {
+        try {
 
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     @Override
     public void addOrModifyTemporaryProductDetails(Long userId, DetailStepProductDTO dto) {
+        try {
 
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 
     /**
