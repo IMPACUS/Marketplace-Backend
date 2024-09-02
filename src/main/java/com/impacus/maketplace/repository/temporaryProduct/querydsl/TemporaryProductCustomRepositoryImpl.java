@@ -2,7 +2,7 @@ package com.impacus.maketplace.repository.temporaryProduct.querydsl;
 
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
-import com.impacus.maketplace.dto.product.request.DetailStepProductDTO;
+import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDetailInfo;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -68,6 +68,23 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
                 .set(temporaryProductDetail.qualityAssuranceStandards, dto.getQualityAssuranceStandards())
                 .set(temporaryProductDetail.asManager, dto.getManufacturer())
                 .set(temporaryProductDetail.contactNumber, dto.getContactNumber())
+
+                .set(temporaryProduct.modifyAt, LocalDateTime.now())
+                .set(temporaryProduct.modifyId, currentAuditor)
+                .where(temporaryProductDetail.temporaryProductId.eq(temporaryProductId))
+                .execute();
+    }
+
+    @Override
+    public void updateTemporaryProductAtOptions(Long temporaryProductId, OptionStepProductDTO dto) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        queryFactory
+                .update(temporaryProduct)
+                .set(temporaryProduct.weight, dto.getWeight())
+                .set(temporaryProduct.productStatus, dto.getProductStatus())
+                .set(temporaryProduct.description, dto.getDescription())
+                .set(temporaryProduct.type, dto.getType())
 
                 .set(temporaryProduct.modifyAt, LocalDateTime.now())
                 .set(temporaryProduct.modifyId, currentAuditor)

@@ -2,12 +2,9 @@ package com.impacus.maketplace.service.temporaryProduct;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
-import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
-import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.*;
 import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
@@ -18,13 +15,11 @@ import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
-import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +63,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Transactional
-    private void addTemporaryProductAtBasic(BasicStepProductDTO dto) {
+    public void addTemporaryProductAtBasic(BasicStepProductDTO dto) {
         validateProductRequest(dto.getProductImages(), dto);
 
         // 상품 생성
@@ -85,7 +80,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Transactional
-    private void updateTemporaryProductAtBasic(String registerId, BasicStepProductDTO dto) {
+    public void updateTemporaryProductAtBasic(String registerId, BasicStepProductDTO dto) {
         validateProductRequest(dto.getProductImages(), dto);
         Long temporaryProductId = temporaryProductRepository.findIdByRegisterId(registerId);
 
@@ -115,7 +110,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Transactional
-    private void addTemporaryProductAtOptions(OptionStepProductDTO dto) {
+    public void addTemporaryProductAtOptions(OptionStepProductDTO dto) {
         // 상품 생성
         TemporaryProduct temporaryProduct = dto.toEntity();
         temporaryProductRepository.save(temporaryProduct);
@@ -131,10 +126,11 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Transactional
-    private void updateTemporaryProductAtOptions(String registerId, OptionStepProductDTO dto) {
+    public void updateTemporaryProductAtOptions(String registerId, OptionStepProductDTO dto) {
         Long temporaryProductId = temporaryProductRepository.findIdByRegisterId(registerId);
 
         // 상품 수정
+        temporaryProductRepository.updateTemporaryProductAtOptions(temporaryProductId, dto);
 
         // 상품 옵션 수정
         temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, dto.getProductOptions());
@@ -159,7 +155,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Transactional
-    private void addTemporaryProductAtDetails(DetailStepProductDTO dto) {
+    public void addTemporaryProductAtDetails(DetailStepProductDTO dto) {
         TemporaryProduct newTemporaryProduct = dto.toEntity();
         temporaryProductRepository.save(newTemporaryProduct);
         Long temporaryProductId = newTemporaryProduct.getId();
@@ -175,7 +171,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Transactional
-    private void updateTemporaryProductAtDetails(String registerId, DetailStepProductDTO dto) {
+    public void updateTemporaryProductAtDetails(String registerId, DetailStepProductDTO dto) {
         Long temporaryProductId = temporaryProductRepository.findIdByRegisterId(registerId);
 
         // 상품 상세 수정
