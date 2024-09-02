@@ -53,6 +53,9 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
     @Override
     public void updateTemporaryProductDetail(Long temporaryProductId, CreateProductDetailInfoDTO dto) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+        if (dto == null) {
+            dto = new CreateProductDetailInfoDTO();
+        }
 
         queryFactory
                 .update(temporaryProductDetail)
@@ -69,8 +72,8 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
                 .set(temporaryProductDetail.asManager, dto.getManufacturer())
                 .set(temporaryProductDetail.contactNumber, dto.getContactNumber())
 
-                .set(temporaryProduct.modifyAt, LocalDateTime.now())
-                .set(temporaryProduct.modifyId, currentAuditor)
+                .set(temporaryProductDetail.modifyAt, LocalDateTime.now())
+                .set(temporaryProductDetail.modifyId, currentAuditor)
                 .where(temporaryProductDetail.temporaryProductId.eq(temporaryProductId))
                 .execute();
     }
@@ -88,7 +91,7 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
 
                 .set(temporaryProduct.modifyAt, LocalDateTime.now())
                 .set(temporaryProduct.modifyId, currentAuditor)
-                .where(temporaryProductDetail.temporaryProductId.eq(temporaryProductId))
+                .where(temporaryProduct.id.eq(temporaryProductId))
                 .execute();
     }
 }

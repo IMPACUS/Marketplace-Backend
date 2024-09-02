@@ -52,7 +52,7 @@ public class TemporaryProductController {
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PutMapping()
+    @PutMapping("/basic")
     public ApiResponseEntity<Void> addOrModifyBasicTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody BasicStepProductDTO dto
@@ -75,7 +75,7 @@ public class TemporaryProductController {
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PutMapping("basic")
+    @PutMapping("/options")
     public ApiResponseEntity<Void> addOrModifyTemporaryProductOption(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody OptionStepProductDTO dto
@@ -98,7 +98,7 @@ public class TemporaryProductController {
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PutMapping("options")
+    @PutMapping("/details")
     public ApiResponseEntity<Void> addOrModifyTemporaryProductDetail(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody DetailStepProductDTO dto
@@ -114,7 +114,7 @@ public class TemporaryProductController {
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @GetMapping("details")
+    @GetMapping()
     public ApiResponseEntity<TemporaryProductDTO> getTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user) {
         TemporaryProductDTO dto = temporaryProductService.findTemporaryProduct(user.getId());

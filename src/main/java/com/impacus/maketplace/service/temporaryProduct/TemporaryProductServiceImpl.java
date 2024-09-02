@@ -167,7 +167,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         temporaryProductClaimService.addTemporaryProductClaim(temporaryProductId, dto.getClaim());
 
         // 상품 관련 연관 테이블 생성 (배송 지연 시간)
-        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, null);
+        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, new CreateProductDeliveryTimeDTO());
     }
 
     @Transactional
