@@ -166,41 +166,45 @@
             </column>
             <column name="modify_id" type="VARCHAR(255)">
             </column>
+            <column name="sales_charge_percent" type="INT"/>
+            <column name="bundle_delivery_option" type="VARCHAR(255)"/>
+            <column name="bundle_delivery_group_id" type="BIGINT"/>
+            <column name="is_custom_product" type="BOOLEAN" defaultValue="false"/>
         </createTable>
 
         <!-- Adding column remarks -->
-        <setColumnRemarks tableName="temporary_product_info" columnName="temporary_product_info_id"
+        <setColumnRemarks tableName="temporary_product" columnName="temporary_product_id"
                           remarks="임시 상품 정보 ID"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="seller_id"
+        <setColumnRemarks tableName="temporary_product" columnName="seller_id"
                           remarks="판매자 ID"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="name"
+        <setColumnRemarks tableName="temporary_product" columnName="name"
                           remarks="상품명"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="delivery_type"
+        <setColumnRemarks tableName="temporary_product" columnName="delivery_type"
                           remarks="배송 타입"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="category_id"
+        <setColumnRemarks tableName="temporary_product" columnName="category_id"
                           remarks="2차 카테고리 ID"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="delivery_fee"
+        <setColumnRemarks tableName="temporary_product" columnName="delivery_fee"
                           remarks="배송비"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="refund_fee"
+        <setColumnRemarks tableName="temporary_product" columnName="refund_fee"
                           remarks="반송비"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="market_price"
+        <setColumnRemarks tableName="temporary_product" columnName="market_price"
                           remarks="시중 판매가"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="app_sales_price"
+        <setColumnRemarks tableName="temporary_product" columnName="app_sales_price"
                           remarks="앱 판매가"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="discount_price"
+        <setColumnRemarks tableName="temporary_product" columnName="discount_price"
                           remarks="할인가"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="weight"
+        <setColumnRemarks tableName="temporary_product" columnName="weight"
                           remarks="무게"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="product_status"
+        <setColumnRemarks tableName="temporary_product" columnName="product_status"
                           remarks="상품 상태"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="discount_status"
+        <setColumnRemarks tableName="temporary_product" columnName="discount_status"
                           remarks="할인 상태"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="type"
+        <setColumnRemarks tableName="temporary_product" columnName="type"
                           remarks="상품 타입"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="special_delivery_fee" remarks="특수 지역 배송비"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="special_refund_fee" remarks="특수 지역  반품비"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="delivery_fee_type" remarks="배송비 타입"/>
-        <setColumnRemarks tableName="temporary_product_info" columnName="refund_fee_type" remarks="반송비 타입"/>
+        <setColumnRemarks tableName="temporary_product" columnName="special_delivery_fee" remarks="특수 지역 배송비"/>
+        <setColumnRemarks tableName="temporary_product" columnName="special_refund_fee" remarks="특수 지역  반품비"/>
+        <setColumnRemarks tableName="temporary_product" columnName="delivery_fee_type" remarks="배송비 타입"/>
+        <setColumnRemarks tableName="temporary_product" columnName="refund_fee_type" remarks="반송비 타입"/>
     </changeSet>
 
     <!--  temporary_product_claim_info 생성  -->

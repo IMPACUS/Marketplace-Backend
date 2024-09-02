@@ -38,7 +38,6 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     private final SubCategoryService subCategoryService;
     private final TemporaryProductDeliveryTimeService deliveryTimeService;
     private final TemporaryProductClaimService temporaryProductClaimService;
-    private final ReadSellerService readSellerService;
 
     @Override
     public IsExistedTemporaryProductDTO checkIsExistedTemporaryProduct(Long userId) {
@@ -51,6 +50,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Override
+    @Transactional
     public void addOrModifyTemporaryProductAtBasic(Long userId, BasicStepProductDTO dto) {
         try {
             // 1. 임시 저장 상품이 존재하는지 확인
@@ -67,7 +67,10 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         }
     }
 
+    @Transactional
     private void addTemporaryProductAtBasic(BasicStepProductDTO dto) {
+        validateProductRequest(dto.getProductImages(), dto);
+
         // 상품 생성
         TemporaryProduct temporaryProduct = dto.toEntity();
         temporaryProductRepository.save(temporaryProduct);
@@ -81,10 +84,20 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         temporaryProductClaimService.addTemporaryProductClaim(temporaryProductId, new CreateClaimInfoDTO());
     }
 
+    @Transactional
     private void updateTemporaryProductAtBasic(String registerId, BasicStepProductDTO dto) {
+        validateProductRequest(dto.getProductImages(), dto);
+        Long temporaryProductId = temporaryProductRepository.findIdByRegisterId(registerId);
+
+        // 상품 수정
+        temporaryProductRepository.updateTemporaryProduct(temporaryProductId, dto);
+
+        // 배송 지연 시간 수정
+        deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
     }
 
     @Override
+    @Transactional
     public void addOrModifyTemporaryProductAtOptions(Long userId, OptionStepProductDTO dto) {
         try {
             // 1. 임시 저장 상품이 존재하는지 확인
@@ -101,6 +114,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         }
     }
 
+    @Transactional
     private void addTemporaryProductAtOptions(OptionStepProductDTO dto) {
         // 상품 생성
         TemporaryProduct temporaryProduct = dto.toEntity();
@@ -116,10 +130,12 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, new CreateProductDeliveryTimeDTO());
     }
 
+    @Transactional
     private void updateTemporaryProductAtOptions(String registerId, OptionStepProductDTO dto) {
     }
 
     @Override
+    @Transactional
     public void addOrModifyTemporaryProductAtDetails(Long userId, DetailStepProductDTO dto) {
         try {
             // 1. 임시 저장 상품이 존재하는지 확인
@@ -136,6 +152,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         }
     }
 
+    @Transactional
     private void addTemporaryProductAtDetails(DetailStepProductDTO dto) {
         TemporaryProduct newTemporaryProduct = dto.toEntity();
         temporaryProductRepository.save(newTemporaryProduct);
@@ -151,33 +168,8 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, null);
     }
 
-    private void updateTemporaryProductAtDetails(String registerId, DetailStepProductDTO dto) {
-    }
-
-    /**
-     * 새로운 임시 저장 상품 데이터 저장 함수
-     *
-     * @param dto
-     * @return
-     */
     @Transactional
-    public void addTemporaryProduct(
-            Long sellerId,
-            CreateProductDTO dto
-    ) {
-        // 1. dto 데이터 유효성 검사
-        validateProductRequest(dto.getProductImages(), dto);
-
-        // 2. Product 저장
-        TemporaryProduct newTemporaryProduct = temporaryProductRepository.save(dto.toTemporaryEntity());
-        Long temporaryProductId = newTemporaryProduct.getId();
-
-        // 6. Product option 저장
-        // 7. Product detail 저장
-
-        // 8. 배송 지연 시간 저장
-
-        // 9. 상품 클레임 정보 저장
+    private void updateTemporaryProductAtDetails(String registerId, DetailStepProductDTO dto) {
     }
 
     /**
@@ -188,7 +180,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
      */
     private void validateProductRequest(
             List<String> productImageList,
-            CreateProductDTO productRequest
+            BasicStepProductDTO productRequest
     ) {
         Long subCategoryId = productRequest.getCategoryId();
 
@@ -215,9 +207,6 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
             TemporaryProduct temporaryProduct,
             CreateProductDTO dto) {
         try {
-            // 1. productRequest 데이터 유효성 검사
-            validateProductRequest(dto.getProductImages(), dto);
-
             // 2. Product 수정
             temporaryProduct.setProduct(dto);
             temporaryProductRepository.save(temporaryProduct);
