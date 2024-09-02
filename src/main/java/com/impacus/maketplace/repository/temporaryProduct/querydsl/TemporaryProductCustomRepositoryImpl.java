@@ -1,7 +1,10 @@
 package com.impacus.maketplace.repository.temporaryProduct.querydsl;
 
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
+import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
+import com.impacus.maketplace.dto.product.request.DetailStepProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProduct;
+import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDetailInfo;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -16,6 +19,7 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
     private final AuditorAware<String> auditorProvider;
 
     private final QTemporaryProduct temporaryProduct = QTemporaryProduct.temporaryProduct;
+    private final QTemporaryProductDetailInfo temporaryProductDetail = QTemporaryProductDetailInfo.temporaryProductDetailInfo;
 
     @Override
     public void updateTemporaryProduct(Long temporaryProductId, BasicStepProductDTO dto) {
@@ -42,6 +46,32 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
 
                 .set(temporaryProduct.modifyAt, LocalDateTime.now())
                 .set(temporaryProduct.modifyId, currentAuditor)
+                .where(temporaryProduct.id.eq(temporaryProductId))
+                .execute();
+    }
+
+    @Override
+    public void updateTemporaryProductDetail(Long temporaryProductId, CreateProductDetailInfoDTO dto) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        queryFactory
+                .update(temporaryProductDetail)
+                .set(temporaryProductDetail.productType, dto.getProductType())
+                .set(temporaryProductDetail.productMaterial, dto.getProductMaterial())
+                .set(temporaryProductDetail.productColor, dto.getProductColor())
+                .set(temporaryProductDetail.productSize, dto.getProductSize())
+                .set(temporaryProductDetail.dateOfManufacture, dto.getDateOfManufacture())
+                .set(temporaryProductDetail.washingPrecautions, dto.getWashingPrecautions())
+                .set(temporaryProductDetail.countryOfManufacture, dto.getCountryOfManufacture())
+                .set(temporaryProductDetail.manufacturer, dto.getManufacturer())
+                .set(temporaryProductDetail.importer, dto.getImporter())
+                .set(temporaryProductDetail.qualityAssuranceStandards, dto.getQualityAssuranceStandards())
+                .set(temporaryProductDetail.asManager, dto.getManufacturer())
+                .set(temporaryProductDetail.contactNumber, dto.getContactNumber())
+
+                .set(temporaryProduct.modifyAt, LocalDateTime.now())
+                .set(temporaryProduct.modifyId, currentAuditor)
+                .where(temporaryProductDetail.temporaryProductId.eq(temporaryProductId))
                 .execute();
     }
 }

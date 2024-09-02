@@ -132,6 +132,12 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
 
     @Transactional
     private void updateTemporaryProductAtOptions(String registerId, OptionStepProductDTO dto) {
+        Long temporaryProductId = temporaryProductRepository.findIdByRegisterId(registerId);
+
+        // 상품 수정
+
+        // 상품 옵션 수정
+        temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, dto.getProductOptions());
     }
 
     @Override
@@ -170,6 +176,13 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
 
     @Transactional
     private void updateTemporaryProductAtDetails(String registerId, DetailStepProductDTO dto) {
+        Long temporaryProductId = temporaryProductRepository.findIdByRegisterId(registerId);
+
+        // 상품 상세 수정
+        temporaryProductRepository.updateTemporaryProductDetail(temporaryProductId, dto.getProductDetail());
+
+        // 상품 클레임 정보 수정
+        temporaryProductClaimService.updateTemporaryProductClaim(temporaryProductId, dto.getClaim());
     }
 
     /**
@@ -192,40 +205,6 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         // 2. 카테고리 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
         if (!subCategoryService.existsBySubCategoryId(subCategoryId)) {
             throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
-        }
-    }
-
-    /**
-     * 등록된 임시 상품 정보를 수정하는 API
-     *
-     * @param temporaryProduct
-     * @param dto
-     * @return
-     */
-    @Transactional
-    public void updateTemporaryProduct(
-            TemporaryProduct temporaryProduct,
-            CreateProductDTO dto) {
-        try {
-            // 2. Product 수정
-            temporaryProduct.setProduct(dto);
-            temporaryProductRepository.save(temporaryProduct);
-            Long temporaryProductId = temporaryProduct.getId();
-
-            // 3. Product option 수정
-            temporaryProductOptionService.initializeTemporaryProductionOption(temporaryProductId, dto.getProductOptions());
-
-            // 4.TemporaryProductDetailInfo 수정
-            TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
-            detailInfo.setTemporaryProductDetailInfo(dto.getProductDetail());
-
-            // 5. TemporaryProductDeliveryTime 수정
-            deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
-
-            // 6. TemporaryProductClaimInfo 수정
-            temporaryProductClaimService.updateTemporaryProductClaim(temporaryProductId, dto.getClaim());
-        } catch (Exception ex) {
-            throw new CustomException(ex);
         }
     }
 
