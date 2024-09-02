@@ -175,8 +175,6 @@
         <!-- Adding column remarks -->
         <setColumnRemarks tableName="temporary_product" columnName="temporary_product_id"
                           remarks="임시 상품 정보 ID"/>
-        <setColumnRemarks tableName="temporary_product" columnName="seller_id"
-                          remarks="판매자 ID"/>
         <setColumnRemarks tableName="temporary_product" columnName="name"
                           remarks="상품명"/>
         <setColumnRemarks tableName="temporary_product" columnName="delivery_type"
@@ -197,8 +195,6 @@
                           remarks="무게"/>
         <setColumnRemarks tableName="temporary_product" columnName="product_status"
                           remarks="상품 상태"/>
-        <setColumnRemarks tableName="temporary_product" columnName="discount_status"
-                          remarks="할인 상태"/>
         <setColumnRemarks tableName="temporary_product" columnName="type"
                           remarks="상품 타입"/>
         <setColumnRemarks tableName="temporary_product" columnName="special_delivery_fee" remarks="특수 지역 배송비"/>
