@@ -23,7 +23,7 @@ public interface TemporaryProductService {
      * @param userId 상품을 등록하거나 수정하는 사용자의 ID
      * @param dto    기본 상품 데이터가 포함된 DTO 객체
      */
-    void addOrModifyBasicTemporaryProduct(Long userId, BasicStepProductDTO dto);
+    void addOrModifyTemporaryProductAtBasic(Long userId, BasicStepProductDTO dto);
 
     /**
      * 임시 저장된 상품의 옵션 데이터를 추가하거나 수정
@@ -31,7 +31,7 @@ public interface TemporaryProductService {
      * @param userId 상품 옵션을 등록하거나 수정하는 사용자의 ID
      * @param dto    상품 옵션 데이터가 포함된 DTO 객체
      */
-    void addOrModifyTemporaryProductOptions(Long userId, OptionStepProductDTO dto);
+    void addOrModifyTemporaryProductAtOptions(Long userId, OptionStepProductDTO dto);
 
     /**
      * 임시 저장된 상품의 상세 데이터를 추가하거나 수정
@@ -39,7 +39,7 @@ public interface TemporaryProductService {
      * @param userId 상품 상세 정보를 등록하거나 수정하는 사용자의 ID
      * @param dto    상품 상세 정보가 포함된 DTO 객체
      */
-    void addOrModifyTemporaryProductDetails(Long userId, DetailStepProductDTO dto);
+    void addOrModifyTemporaryProductAtDetails(Long userId, DetailStepProductDTO dto);
 
     /**
      * userId로 TemporaryProduct 조회

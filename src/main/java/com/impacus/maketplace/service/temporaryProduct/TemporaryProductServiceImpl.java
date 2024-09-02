@@ -2,9 +2,12 @@ package com.impacus.maketplace.service.temporaryProduct;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.DetailStepProductDTO;
@@ -18,6 +21,7 @@ import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
+import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +41,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     private final SubCategoryService subCategoryService;
     private final TemporaryProductDeliveryTimeService deliveryTimeService;
     private final TemporaryProductClaimService temporaryProductClaimService;
+    private final ReadSellerService readSellerService;
 
     @Override
     public IsExistedTemporaryProductDTO checkIsExistedTemporaryProduct(Long userId) {
@@ -48,52 +53,90 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         }
     }
 
-    @Transactional
-    public void addOrModifyTemporaryProduct(
-            Long userId,
-            CreateProductDTO productRequest
-    ) {
+    @Override
+    public void addOrModifyTemporaryProductAtBasic(Long userId, BasicStepProductDTO dto) {
         try {
             // 1. 임시 저장 상품이 존재하는지 확인
-            Optional<TemporaryProduct> optionalData = temporaryProductRepository.findByRegisterId(userId.toString());
-            if (optionalData.isPresent()) {
+            String registerId = userId.toString();
+            if (temporaryProductRepository.existsByRegisterId(registerId)) {
                 // 임시 저장 상품 수정
-                TemporaryProduct temporaryProduct = optionalData.get();
-                updateTemporaryProduct(temporaryProduct, productRequest);
+                updateTemporaryProductAtBasic(registerId, dto);
             } else {
                 // 임시 저장 상품 저장
-                addTemporaryProduct(userId, productRequest);
+                addTemporaryProductAtBasic(userId, dto);
             }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
-    @Override
-    public void addOrModifyBasicTemporaryProduct(Long userId, BasicStepProductDTO dto) {
-        try {
+    private void addTemporaryProductAtBasic(Long userId, BasicStepProductDTO dto) {
+        //TemporaryProduct
+        //ProductOption
+        //DetailInfo
+        //DeliveryTime
+        //ClaimInfo
+    }
 
+    private void updateTemporaryProductAtBasic(String registerId, BasicStepProductDTO dto) {
+    }
+
+    @Override
+    public void addOrModifyTemporaryProductAtOptions(Long userId, OptionStepProductDTO dto) {
+        try {
+            // 1. 임시 저장 상품이 존재하는지 확인
+            String registerId = userId.toString();
+            if (temporaryProductRepository.existsByRegisterId(registerId)) {
+                // 임시 저장 상품 수정
+                updateTemporaryProductAtOptions(registerId, dto);
+            } else {
+                // 임시 저장 상품 저장
+                addTemporaryProductAtOptions(userId, dto);
+            }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
-    @Override
-    public void addOrModifyTemporaryProductOptions(Long userId, OptionStepProductDTO dto) {
-        try {
+    private void addTemporaryProductAtOptions(Long userId, OptionStepProductDTO dto) {
+    }
 
+    private void updateTemporaryProductAtOptions(String registerId, OptionStepProductDTO dto) {
+    }
+
+    @Override
+    public void addOrModifyTemporaryProductAtDetails(Long userId, DetailStepProductDTO dto) {
+        try {
+            // 1. 임시 저장 상품이 존재하는지 확인
+            String registerId = userId.toString();
+            if (temporaryProductRepository.existsByRegisterId(registerId)) {
+                // 임시 저장 상품 수정
+                updateTemporaryProductAtDetails(registerId, dto);
+            } else {
+                // 임시 저장 상품 저장
+                addTemporaryProductAtDetails(userId, dto);
+            }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
-    @Override
-    public void addOrModifyTemporaryProductDetails(Long userId, DetailStepProductDTO dto) {
-        try {
+    private void addTemporaryProductAtDetails(Long userId, DetailStepProductDTO dto) {
+        TemporaryProduct newTemporaryProduct = new TemporaryProduct();
+        temporaryProductRepository.save(newTemporaryProduct);
+        Long temporaryProductId = newTemporaryProduct.getId();
 
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+        // 상품 상세 정보 저장
+        temporaryProductDetailInfoService.addTemporaryProductDetailInfo(temporaryProductId, dto.getProductDetail());
+
+        // 상품 클레임 정보 저장
+        temporaryProductClaimService.addTemporaryProductClaim(temporaryProductId, dto.getClaim());
+
+        // 상품 관련 연관 테이블 생성 (배송 지연 시간)
+        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, null);
+    }
+
+    private void updateTemporaryProductAtDetails(String registerId, DetailStepProductDTO dto) {
     }
 
     /**
@@ -111,20 +154,18 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         validateProductRequest(dto.getProductImages(), dto);
 
         // 2. Product 저장
-        TemporaryProduct newTemporaryProduct = temporaryProductRepository.save(dto.toTemporaryEntity(sellerId));
+        TemporaryProduct newTemporaryProduct = temporaryProductRepository.save(dto.toTemporaryEntity());
         Long temporaryProductId = newTemporaryProduct.getId();
 
         // 6. Product option 저장
         temporaryProductOptionService.addTemporaryProductOption(temporaryProductId, dto.getProductOptions());
 
         // 7. Product detail 저장
-        temporaryProductDetailInfoService.addTemporaryProductDetailInfo(temporaryProductId, dto.getProductDetail());
 
         // 8. 배송 지연 시간 저장
         deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
 
         // 9. 상품 클레임 정보 저장
-        temporaryProductClaimService.addTemporaryProductClaim(temporaryProductId, dto.getClaim());
     }
 
     /**
@@ -135,7 +176,8 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
      */
     private void validateProductRequest(
             List<String> productImageList,
-            CreateProductDTO productRequest) {
+            CreateProductDTO productRequest
+    ) {
         Long subCategoryId = productRequest.getCategoryId();
 
         // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
@@ -215,6 +257,8 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
             TemporaryProduct temporaryProduct = findTemporaryProductByUserId(userId);
             TemporaryProductDTO dto = objectCopyHelper.copyObject(temporaryProduct, TemporaryProductDTO.class);
             Long temporaryProductId = temporaryProduct.getId();
+
+            // TODO 존재하는 카테고리인지 확인하고, 존재하지 않는 카테고리이면 null 처리
 
             // TemporaryProductOption 값 가져오기
             List<TemporaryProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)

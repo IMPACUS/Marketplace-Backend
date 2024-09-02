@@ -57,7 +57,7 @@ public class TemporaryProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody BasicStepProductDTO dto
     ) {
-        temporaryProductService.addOrModifyBasicTemporaryProduct(user.getId(), dto);
+        temporaryProductService.addOrModifyTemporaryProductAtBasic(user.getId(), dto);
         return ApiResponseEntity
                 .<Void>builder()
                 .message("임시 상품 등록 혹은 수정 성공")
@@ -80,7 +80,7 @@ public class TemporaryProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody OptionStepProductDTO dto
     ) {
-        temporaryProductService.addOrModifyTemporaryProductOptions(user.getId(), dto);
+        temporaryProductService.addOrModifyTemporaryProductAtOptions(user.getId(), dto);
         return ApiResponseEntity
                 .<Void>builder()
                 .message("임시 상품 등록 혹은 수정 성공")
@@ -103,7 +103,7 @@ public class TemporaryProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody DetailStepProductDTO dto
     ) {
-        temporaryProductService.addOrModifyTemporaryProductDetails(user.getId(), dto);
+        temporaryProductService.addOrModifyTemporaryProductAtDetails(user.getId(), dto);
         return ApiResponseEntity
                 .<Void>builder()
                 .message("임시 상품 등록 혹은 수정 성공")

@@ -20,6 +20,10 @@ public class TemporaryProductDeliveryTimeService {
      * @param dto
      */
     public void addTemporaryProductDeliveryTime(Long temporaryProductId, CreateProductDeliveryTimeDTO dto) {
+        if (dto == null) {
+            deliveryTimeRepository.save(new TemporaryProductDeliveryTime(temporaryProductId));
+        }
+
         deliveryTimeRepository.save(dto.toTemporaryEntity(temporaryProductId));
     }
 
@@ -39,7 +43,7 @@ public class TemporaryProductDeliveryTimeService {
     }
 
     /**
-     * temporaryProductId로 TemporaryProductDeliveryTime를 조회하는 함수
+     * temporaryProductId로 TemporaryProductDeliveryTime 를 조회하는 함수
      *
      * @param temporaryProductId
      * @return
