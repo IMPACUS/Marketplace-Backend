@@ -60,19 +60,25 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
                 updateTemporaryProductAtBasic(registerId, dto);
             } else {
                 // 임시 저장 상품 저장
-                addTemporaryProductAtBasic(userId, dto);
+                addTemporaryProductAtBasic(dto);
             }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
-    private void addTemporaryProductAtBasic(Long userId, BasicStepProductDTO dto) {
-        //TemporaryProduct
-        //ProductOption
-        //DetailInfo
-        //DeliveryTime
-        //ClaimInfo
+    private void addTemporaryProductAtBasic(BasicStepProductDTO dto) {
+        // 상품 생성
+        TemporaryProduct temporaryProduct = dto.toEntity();
+        temporaryProductRepository.save(temporaryProduct);
+        Long temporaryProductId = temporaryProduct.getId();
+
+        // 배송 지연 시간 생성
+        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
+
+        // 상품 관련 연관 테이블 생성 (상품 상세 ,상품 클레임 정보, 배송 지연 시간)
+        temporaryProductDetailInfoService.addTemporaryProductDetailInfo(temporaryProductId, new CreateProductDetailInfoDTO());
+        temporaryProductClaimService.addTemporaryProductClaim(temporaryProductId, new CreateClaimInfoDTO());
     }
 
     private void updateTemporaryProductAtBasic(String registerId, BasicStepProductDTO dto) {
@@ -170,7 +176,6 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         // 7. Product detail 저장
 
         // 8. 배송 지연 시간 저장
-        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
 
         // 9. 상품 클레임 정보 저장
     }

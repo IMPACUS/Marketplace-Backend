@@ -145,8 +145,6 @@
             <column name="weight" type="INT"/>
             <column name="product_status" type="VARCHAR(255)" defaultValue="'SALES_PROGRESS'">
             </column>
-            <column name="discount_status" type="VARCHAR(255)" defaultValue="'DISCOUNT_STOP'">
-            </column>
             <column name="type" type="VARCHAR(255)">
             </column>
             <column name="special_delivery_fee" type="INT">
