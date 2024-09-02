@@ -1,17 +1,26 @@
 package com.impacus.maketplace.dto.product.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.product.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Set;
 
-@Data
+@Getter
+@NoArgsConstructor
 public class ProductDetailForWebDTO {
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long id;
+
     private String name;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String productNumber;
+
     private DeliveryType deliveryType;
     private Boolean isCustomProduct;
     private Long categoryId;
@@ -37,5 +46,19 @@ public class ProductDetailForWebDTO {
     private ProductDeliveryTimeDTO deliveryTime;
     private Set<ProductOptionDTO> productOptions;
     private ProductClaimInfoDTO claim;
-    private long version;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long version;
+
+    public void setProductOption(Set<ProductOptionDTO> productOptions) {
+        this.productOptions = productOptions;
+    }
+
+    public void updateCategoryIdNull() {
+        this.categoryId = null;
+    }
+
+    public void updateBundleDeliveryGroupId() {
+        this.bundleDeliveryGroupId = null;
+    }
 }

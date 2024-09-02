@@ -2,36 +2,38 @@ package com.impacus.maketplace.service.temporaryProduct;
 
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
+import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.*;
-import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
-import com.impacus.maketplace.dto.temporaryProduct.response.*;
+import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductClaimInfo;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDeliveryTime;
-import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
+import com.impacus.maketplace.repository.product.bundleDelivery.BundleDeliveryGroupRepository;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
-import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.category.SubCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TemporaryProductServiceImpl implements TemporaryProductService {
     private final TemporaryProductRepository temporaryProductRepository;
-    private final AttachFileService attachFileService;
     private final TemporaryProductOptionService temporaryProductOptionService;
     private final TemporaryProductDetailInfoService temporaryProductDetailInfoService;
     private final ObjectCopyHelper objectCopyHelper;
     private final SubCategoryService subCategoryService;
     private final TemporaryProductDeliveryTimeService deliveryTimeService;
     private final TemporaryProductClaimService temporaryProductClaimService;
+    private final BundleDeliveryGroupRepository bundleDeliveryGroupRepository;
 
     @Override
     public IsExistedTemporaryProductDTO checkIsExistedTemporaryProduct(Long userId) {
@@ -227,32 +229,26 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Override
-    public TemporaryProductDTO findTemporaryProduct(Long userId) {
+    public ProductDetailForWebDTO findTemporaryProduct(Long userId) {
         try {
-            TemporaryProduct temporaryProduct = findTemporaryProductByUserId(userId);
-            TemporaryProductDTO dto = objectCopyHelper.copyObject(temporaryProduct, TemporaryProductDTO.class);
-            Long temporaryProductId = temporaryProduct.getId();
+            UserType userType = SecurityUtils.getCurrentUserType();
+            ProductDetailForWebDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
+            Long temporaryProductId = dto.getId();
 
-            // TODO 존재하는 카테고리인지 확인하고, 존재하지 않는 카테고리이면 null 처리
+            // categoryId와 bundleDeliveryGroupId가 존재하는지 확인
+            if (dto.getCategoryId() != null && !subCategoryService.existsBySubCategoryId(dto.getCategoryId())) {
+                dto.updateCategoryIdNull();
+            }
+            if (dto.getBundleDeliveryGroupId() != null && userType != UserType.ROLE_APPROVED_SELLER) {
+                dto.updateBundleDeliveryGroupId();
+            }
 
             // TemporaryProductOption 값 가져오기
-            List<TemporaryProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
+            Set<ProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
                     .stream()
-                    .map(option -> objectCopyHelper.copyObject(option, TemporaryProductOptionDTO.class))
-                    .toList();
-            dto.setTemporaryProductOptionDTO(options);
-
-            // TemporaryProductDetailInfo 값 가져오기
-            TemporaryProductDetailInfo detailInfo = temporaryProductDetailInfoService.findTemporaryProductDetailInfoByProductId(temporaryProductId);
-            dto.setTemporaryDetailInfoDTO(objectCopyHelper.copyObject(detailInfo, TemporaryDetailInfoDTO.class));
-
-            // TemporaryProductDeliveryTime 값 가져오기
-            TemporaryProductDeliveryTime deliveryTime = deliveryTimeService.findTemporaryProductDeliveryTimeByTemporaryProductId(temporaryProductId);
-            dto.setDeliveryTime(TemporaryProductDeliveryTimeDTO.toDTO(deliveryTime));
-
-            // TemporaryClaimInfo 값 가져오기
-            TemporaryProductClaimInfo claimInfo = temporaryProductClaimService.findTemporaryProductClaimByTemporaryProductId(temporaryProductId);
-            dto.setClaim(objectCopyHelper.copyObject(claimInfo, ProductClaimInfoDTO.class));
+                    .map(option -> objectCopyHelper.copyObject(option, ProductOptionDTO.class))
+                    .collect(Collectors.toSet());
+            dto.setProductOption(options);
 
             return dto;
         } catch (Exception ex) {

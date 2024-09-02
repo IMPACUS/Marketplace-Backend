@@ -3,10 +3,15 @@ package com.impacus.maketplace.repository.temporaryProduct.querydsl;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
+import com.impacus.maketplace.dto.product.response.ProductDeliveryTimeDTO;
+import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.ProductDetailInfoDTO;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductClaimInfo;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDeliveryTime;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDetailInfo;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -118,5 +123,60 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
                 .delete(claimInfo)
                 .where(claimInfo.temporaryProductId.eq(temporaryProductId))
                 .execute();
+    }
+
+    @Override
+    public ProductDetailForWebDTO findDetailIdByRegisterId(String registerId) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                ProductDetailForWebDTO.class,
+                                temporaryProduct.id,
+                                temporaryProduct.name,
+                                temporaryProduct.categoryId,
+                                temporaryProduct.deliveryType,
+                                temporaryProduct.isCustomProduct,
+                                temporaryProduct.deliveryFeeType,
+                                temporaryProduct.refundFeeType,
+                                temporaryProduct.deliveryFee,
+                                temporaryProduct.refundFee,
+                                temporaryProduct.specialDeliveryFee,
+                                temporaryProduct.specialRefundFee,
+                                temporaryProduct.deliveryCompany,
+                                temporaryProduct.bundleDeliveryOption,
+                                temporaryProduct.bundleDeliveryGroupId,
+                                temporaryProduct.salesChargePercent,
+                                temporaryProduct.marketPrice,
+                                temporaryProduct.appSalesPrice,
+                                temporaryProduct.discountPrice,
+                                temporaryProduct.weight,
+                                temporaryProduct.type,
+                                temporaryProduct.productStatus,
+                                temporaryProduct.description,
+                                Projections.constructor(
+                                        ProductDetailInfoDTO.class,
+                                        temporaryProductDetail
+                                ).as("productDetail"),
+                                Projections.constructor(
+                                        ProductDeliveryTimeDTO.class,
+                                        deliveryTime.minDays,
+                                        deliveryTime.maxDays
+                                ).as("deliveryTime"),
+                                temporaryProduct.productImages,
+                                Projections.constructor(
+                                        ProductClaimInfoDTO.class,
+                                        claimInfo.recallInfo,
+                                        claimInfo.claimCost,
+                                        claimInfo.claimPolicyGuild,
+                                        claimInfo.claimContactInfo
+                                ).as("claim")
+                        )
+                )
+                .from(temporaryProduct)
+                .leftJoin(temporaryProductDetail).on(temporaryProductDetail.temporaryProductId.eq(temporaryProduct.id))
+                .leftJoin(deliveryTime).on(deliveryTime.temporaryProductId.eq(temporaryProduct.id))
+                .leftJoin(claimInfo).on(claimInfo.temporaryProductId.eq(temporaryProduct.id))
+                .where(temporaryProduct.registerId.eq(registerId))
+                .fetchOne();
     }
 }

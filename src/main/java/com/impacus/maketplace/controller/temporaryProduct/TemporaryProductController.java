@@ -4,8 +4,8 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.DetailStepProductDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
+import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
-import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -115,11 +115,11 @@ public class TemporaryProductController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
     @GetMapping()
-    public ApiResponseEntity<TemporaryProductDTO> getTemporaryProduct(
+    public ApiResponseEntity<ProductDetailForWebDTO> getTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user) {
-        TemporaryProductDTO dto = temporaryProductService.findTemporaryProduct(user.getId());
+        ProductDetailForWebDTO dto = temporaryProductService.findTemporaryProduct(user.getId());
         return ApiResponseEntity
-                .<TemporaryProductDTO>builder()
+                .<ProductDetailForWebDTO>builder()
                 .data(dto)
                 .build();
     }
@@ -138,5 +138,4 @@ public class TemporaryProductController {
                 .message("임시 상품 데이터 삭제")
                 .build();
     }
-
 }
