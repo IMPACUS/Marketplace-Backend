@@ -5,10 +5,8 @@ import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductClaimInfo;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class CreateClaimInfoDTO {
     @NotBlank
@@ -22,6 +20,13 @@ public class CreateClaimInfoDTO {
 
     @NotBlank
     private String claimContactInfo;
+
+    public CreateClaimInfoDTO() {
+        this.recallInfo = "";
+        this.claimCost = "";
+        this.claimPolicyGuild = "";
+        this.claimContactInfo = "";
+    }
 
     public ProductClaimInfo toEntity(Long productId) {
         return new ProductClaimInfo(

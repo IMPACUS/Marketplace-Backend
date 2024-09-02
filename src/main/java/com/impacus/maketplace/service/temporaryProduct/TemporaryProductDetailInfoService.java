@@ -19,11 +19,15 @@ public class TemporaryProductDetailInfoService {
      * ProductDetailRequest를 TemporaryProductDetailInfo로 저장하는 함수
      *
      * @param temporaryProductId
-     * @param productDetail
+     * @param dto
      */
     @Transactional
-    public void addTemporaryProductDetailInfo(Long temporaryProductId, CreateProductDetailInfoDTO productDetail) {
-        TemporaryProductDetailInfo newTemporaryProductDetailInfo = productDetail.toTemporaryEntity(temporaryProductId);
+    public void addTemporaryProductDetailInfo(Long temporaryProductId, CreateProductDetailInfoDTO dto) {
+        if (dto == null) {
+            dto = new CreateProductDetailInfoDTO();
+        }
+
+        TemporaryProductDetailInfo newTemporaryProductDetailInfo = dto.toTemporaryEntity(temporaryProductId);
         temporaryProductDetailInfoRepository.save(newTemporaryProductDetailInfo);
 
     }

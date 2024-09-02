@@ -20,6 +20,10 @@ public class TemporaryProductDeliveryTimeService {
      * @param dto
      */
     public void addTemporaryProductDeliveryTime(Long temporaryProductId, CreateProductDeliveryTimeDTO dto) {
+        if (dto == null) {
+            dto = new CreateProductDeliveryTimeDTO();
+        }
+
         deliveryTimeRepository.save(dto.toTemporaryEntity(temporaryProductId));
     }
 
@@ -30,6 +34,10 @@ public class TemporaryProductDeliveryTimeService {
      * @param dto
      */
     public void updateTemporaryProductDeliveryTime(Long temporaryProductId, CreateProductDeliveryTimeDTO dto) {
+        if (dto == null) {
+            dto = new CreateProductDeliveryTimeDTO();
+        }
+
         int minDays = dto.getMinDays() == null ? 0 : dto.getMinDays();
         int maxDays = dto.getMaxDays() == null ? 0 : dto.getMaxDays();
 
@@ -39,7 +47,7 @@ public class TemporaryProductDeliveryTimeService {
     }
 
     /**
-     * temporaryProductId로 TemporaryProductDeliveryTime를 조회하는 함수
+     * temporaryProductId로 TemporaryProductDeliveryTime 를 조회하는 함수
      *
      * @param temporaryProductId
      * @return

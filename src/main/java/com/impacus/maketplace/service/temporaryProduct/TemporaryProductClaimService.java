@@ -20,6 +20,10 @@ public class TemporaryProductClaimService {
      * @param dto
      */
     public void addTemporaryProductClaim(Long temporaryProductId, CreateClaimInfoDTO dto) {
+        if (dto == null) {
+            dto = new CreateClaimInfoDTO();
+        }
+
         TemporaryProductClaimInfo claimInfo = dto.toTemporaryEntity(temporaryProductId);
         temporaryProductClaimRepository.save(claimInfo);
     }
@@ -31,6 +35,10 @@ public class TemporaryProductClaimService {
      * @param dto
      */
     public void updateTemporaryProductClaim(Long temporaryProductId, CreateClaimInfoDTO dto) {
+        if (dto == null) {
+            dto = new CreateClaimInfoDTO();
+        }
+
         temporaryProductClaimRepository.updateTemporaryProductClaim(
                 temporaryProductId,
                 dto.getRecallInfo(),

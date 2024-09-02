@@ -4,11 +4,10 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
-import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
-import com.impacus.maketplace.common.enumType.product.ProductStatus;
-import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.common.enumType.product.*;
+import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
+import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -19,20 +18,20 @@ import java.util.List;
 @Entity
 @Getter
 @Builder
-@Table(name = "temporary_product_info")
+@Table(name = "temporary_product")
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class TemporaryProduct extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "temporary_product_info_id")
+    @Column(name = "temporary_product_id")
     private Long id;
-
-    @Column(nullable = false, unique = true)
-    private Long sellerId; // 판매자 id
 
     @Column(length = 50)
     private String name; // 상품명
+
+    @Column(name = "is_custom_product")
+    private boolean isCustomProduct;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -81,15 +80,9 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus; // 상품 상태
 
-    @ColumnDefault("'DISCOUNT_STOP'")
-    @Column
-    @Enumerated(EnumType.STRING)
-    private DiscountStatus discountStatus; // TODO 삭제 필요
-
     @Enumerated(EnumType.STRING)
     private ProductType type; // 상품 타입
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DeliveryCompany deliveryCompany;
 
@@ -98,8 +91,52 @@ public class TemporaryProduct extends BaseEntity {
     @Comment("상품 이미지")
     private List<String> productImages;
 
-    public TemporaryProduct(Long sellerId, CreateProductDTO dto) {
-        this.sellerId = sellerId;
+    @Comment("판매 수수료")
+    private Integer salesChargePercent;
+
+    @ColumnDefault("'INDIVIDUAL_SHIPPING_ONLY'")
+    @Comment("묶음배송대상상품옵션")
+    @Enumerated(EnumType.STRING)
+    private BundleDeliveryOption bundleDeliveryOption;
+
+    @Comment("묶음배송그룹아이디")
+    private Long bundleDeliveryGroupId;
+
+    public TemporaryProduct(OptionStepProductDTO dto) {
+        this.weight = dto.getWeight();
+        this.productStatus = dto.getProductStatus();
+        this.description = dto.getDescription();
+        this.type = dto.getType();
+    }
+
+    public TemporaryProduct(BasicStepProductDTO dto) {
+        this.name = dto.getName();
+        this.deliveryType = dto.getDeliveryType();
+        this.isCustomProduct = dto.getIsCustomProduct();
+        this.categoryId = dto.getCategoryId();
+        this.salesChargePercent = dto.getSalesChargePercent();
+        this.deliveryFeeType = dto.getDeliveryFeeType();
+        this.refundFeeType = dto.getRefundFeeType();
+        if (dto.getDeliveryFeeType() == DeliveryRefundType.MANUAL) {
+            this.deliveryFee = dto.getDeliveryFee();
+            this.specialDeliveryFee = dto.getSpecialDeliveryFee();
+        }
+
+        if (dto.getRefundFeeType() == DeliveryRefundType.MANUAL) {
+            this.refundFee = dto.getRefundFee();
+            this.specialRefundFee = dto.getSpecialRefundFee();
+        }
+
+        this.deliveryCompany = dto.getDeliveryCompany();
+        this.bundleDeliveryOption = dto.getBundleDeliveryOption();
+        this.bundleDeliveryGroupId = dto.getBundleDeliveryGroupId();
+        this.productImages = dto.getProductImages();
+        this.marketPrice = dto.getMarketPrice();
+        this.appSalesPrice = dto.getAppSalesPrice();
+        this.discountPrice = dto.getDiscountPrice();
+    }
+
+    public TemporaryProduct(CreateProductDTO dto) {
         this.name = dto.getName();
         this.deliveryType = dto.getDeliveryType();
         this.deliveryCompany = dto.getDeliveryCompany();
@@ -111,7 +148,6 @@ public class TemporaryProduct extends BaseEntity {
         this.discountPrice = dto.getDiscountPrice();
         this.weight = dto.getWeight();
         this.productStatus = dto.getProductStatus();
-        this.discountStatus = DiscountStatus.DISCOUNT_PROGRESS; // TODO 삭제
         this.type = dto.getType();
         this.description = dto.getDescription();
         this.productImages = dto.getProductImages();
