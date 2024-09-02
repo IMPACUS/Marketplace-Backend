@@ -94,12 +94,7 @@ public class TemporaryProduct extends BaseEntity {
     @Comment("상품 이미지")
     private List<String> productImages;
 
-    public TemporaryProduct(Long sellerId) {
-        this.sellerId = sellerId;
-    }
-
-    public TemporaryProduct(Long sellerId, CreateProductDTO dto) {
-        this.sellerId = sellerId;
+    public TemporaryProduct(CreateProductDTO dto) {
         this.name = dto.getName();
         this.deliveryType = dto.getDeliveryType();
         this.deliveryCompany = dto.getDeliveryCompany();

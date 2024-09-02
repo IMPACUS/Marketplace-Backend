@@ -105,8 +105,8 @@ public class CreateProductDTO {
         return new Product(sellerId, this);
     }
 
-    public TemporaryProduct toTemporaryEntity(Long sellerId) {
-        return new TemporaryProduct(sellerId, this);
+    public TemporaryProduct toTemporaryEntity() {
+        return new TemporaryProduct(this);
     }
 
 }
