@@ -124,4 +124,19 @@ public class TemporaryProductController {
                 .build();
     }
 
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @DeleteMapping()
+    public ApiResponseEntity<Void> deleteTemporaryProduct(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        temporaryProductService.deleteTemporaryProduct(user.getId());
+        return ApiResponseEntity
+                .<Void>builder()
+                .message("임시 상품 데이터 삭제")
+                .build();
+    }
+
 }

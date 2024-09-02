@@ -4,6 +4,8 @@ import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProduct;
+import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductClaimInfo;
+import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDeliveryTime;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDetailInfo;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,9 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
     private final AuditorAware<String> auditorProvider;
 
     private final QTemporaryProduct temporaryProduct = QTemporaryProduct.temporaryProduct;
+    private final QTemporaryProductClaimInfo claimInfo = QTemporaryProductClaimInfo.temporaryProductClaimInfo;
     private final QTemporaryProductDetailInfo temporaryProductDetail = QTemporaryProductDetailInfo.temporaryProductDetailInfo;
+    private final QTemporaryProductDeliveryTime deliveryTime = QTemporaryProductDeliveryTime.temporaryProductDeliveryTime;
 
     @Override
     public void updateTemporaryProduct(Long temporaryProductId, BasicStepProductDTO dto) {
@@ -92,6 +96,27 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
                 .set(temporaryProduct.modifyAt, LocalDateTime.now())
                 .set(temporaryProduct.modifyId, currentAuditor)
                 .where(temporaryProduct.id.eq(temporaryProductId))
+                .execute();
+    }
+
+    @Override
+    public void deleteRelationEntityById(Long temporaryProductId) {
+        // 배송 지연 시간
+        queryFactory
+                .delete(deliveryTime)
+                .where(deliveryTime.temporaryProductId.eq(temporaryProductId))
+                .execute();
+
+        // 상품 상세
+        queryFactory
+                .delete(temporaryProductDetail)
+                .where(temporaryProductDetail.temporaryProductId.eq(temporaryProductId))
+                .execute();
+
+        // 상품 클레임 정보
+        queryFactory
+                .delete(claimInfo)
+                .where(claimInfo.temporaryProductId.eq(temporaryProductId))
                 .execute();
     }
 }

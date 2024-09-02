@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
-import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -220,8 +219,8 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         // 2. TemporaryProductOption 삭제
         temporaryProductOptionService.deleteAllTemporaryProductionOptionByTemporaryProductId(temporaryProductId);
 
-        // 3. TemporaryProduct 의 대표 이미지 삭제
-        attachFileService.deleteAttachFileByReferencedId(temporaryProductId, ReferencedEntityType.PRODUCT);
+        // 배송지연시간, 상품 클레임 정보, 상품 상세 정보 삭제
+        temporaryProductRepository.deleteRelationEntityById(temporaryProductId);
 
         // 4. 삭제
         temporaryProductRepository.deleteById(temporaryProductId);

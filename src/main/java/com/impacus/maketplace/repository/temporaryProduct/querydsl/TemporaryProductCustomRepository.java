@@ -12,4 +12,6 @@ public interface TemporaryProductCustomRepository  {
     void updateTemporaryProductDetail(Long temporaryProductId, CreateProductDetailInfoDTO dto);
 
     void updateTemporaryProductAtOptions(Long temporaryProductId, OptionStepProductDTO dto);
+
+    void deleteRelationEntityById(Long temporaryProductId);
 }
