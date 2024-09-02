@@ -19,17 +19,14 @@ import java.util.List;
 @Entity
 @Getter
 @Builder
-@Table(name = "temporary_product_info")
+@Table(name = "temporary_product")
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class TemporaryProduct extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "temporary_product_info_id")
+    @Column(name = "temporary_product_id")
     private Long id;
-
-    @Column(nullable = false, unique = true)
-    private Long sellerId; // 판매자 id
 
     @Column(length = 50)
     private String name; // 상품명
@@ -89,7 +86,6 @@ public class TemporaryProduct extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductType type; // 상품 타입
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DeliveryCompany deliveryCompany;
 
@@ -97,6 +93,10 @@ public class TemporaryProduct extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     @Comment("상품 이미지")
     private List<String> productImages;
+
+    public TemporaryProduct(Long sellerId) {
+        this.sellerId = sellerId;
+    }
 
     public TemporaryProduct(Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;

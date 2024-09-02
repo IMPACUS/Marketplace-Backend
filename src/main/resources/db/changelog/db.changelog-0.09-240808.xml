@@ -123,22 +123,18 @@
     </changeSet>
 
     <!--  temporary_product_info 생성  -->
-    <changeSet id="changelog-0.09.02-240729-4" author="lchy0413">
+    <changeSet id="changelog-0.09.02-240729-5" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="temporary_product_info"/>
+                <tableExists tableName="temporary_product"/>
             </not>
         </preConditions>
-        <createTable tableName="temporary_product_info">
-            <column name="temporary_product_info_id" type="BIGINT" autoIncrement="true">
+        <createTable tableName="temporary_product">
+            <column name="temporary_product_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="seller_id" type="BIGINT">
-                <constraints nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(50)"/>
             <column name="delivery_type" type="VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
             <column name="category_id" type="BIGINT"/>
             <column name="delivery_fee" type="INT"/>
@@ -148,36 +144,24 @@
             <column name="discount_price" type="INT"/>
             <column name="weight" type="INT"/>
             <column name="product_status" type="VARCHAR(255)" defaultValue="'SALES_PROGRESS'">
-                <constraints nullable="true"/>
             </column>
             <column name="discount_status" type="VARCHAR(255)" defaultValue="'DISCOUNT_STOP'">
-                <constraints nullable="true"/>
             </column>
             <column name="type" type="VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
             <column name="special_delivery_fee" type="INT">
-                <constraints nullable="true"/>
             </column>
             <column name="special_refund_fee" type="INT">
-                <constraints nullable="true"/>
             </column>
             <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
-                <constraints nullable="true"/>
             </column>
             <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="'CHARGE_UNDER_30000'">
-                <constraints nullable="true"/>
             </column>
             <column name="description" type="TEXT">
-                <constraints nullable="true"/>
             </column>
-            <column name="delivery_company" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
+            <column name="delivery_company" type="VARCHAR(255)" />
             <column name="product_images" type="TEXT"/>
-
-            <column name="create_at" type="TIMESTAMP">
-            </column>
+            <column name="create_at" type="TIMESTAMP" />
             <column name="modify_at" type="TIMESTAMP">
             </column>
             <column name="register_id" type="VARCHAR(255)">
