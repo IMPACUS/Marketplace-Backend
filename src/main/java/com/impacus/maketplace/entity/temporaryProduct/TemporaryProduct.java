@@ -9,6 +9,7 @@ import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
+import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -93,6 +94,13 @@ public class TemporaryProduct extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     @Comment("상품 이미지")
     private List<String> productImages;
+
+    public TemporaryProduct(OptionStepProductDTO dto) {
+        this.weight = dto.getWeight();
+        this.productStatus = dto.getProductStatus();
+        this.description = dto.getDescription();
+        this.type = dto.getType();
+    }
 
     public TemporaryProduct(CreateProductDTO dto) {
         this.name = dto.getName();

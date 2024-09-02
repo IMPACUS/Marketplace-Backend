@@ -8,10 +8,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.SecurityUtils;
-import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
-import com.impacus.maketplace.dto.product.request.CreateProductDTO;
-import com.impacus.maketplace.dto.product.request.DetailStepProductDTO;
-import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
+import com.impacus.maketplace.dto.product.request.*;
 import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.*;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
@@ -91,14 +88,26 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
                 updateTemporaryProductAtOptions(registerId, dto);
             } else {
                 // 임시 저장 상품 저장
-                addTemporaryProductAtOptions(userId, dto);
+                addTemporaryProductAtOptions(dto);
             }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
-    private void addTemporaryProductAtOptions(Long userId, OptionStepProductDTO dto) {
+    private void addTemporaryProductAtOptions(OptionStepProductDTO dto) {
+        // 상품 생성
+        TemporaryProduct temporaryProduct = dto.toEntity();
+        temporaryProductRepository.save(temporaryProduct);
+        Long temporaryProductId = temporaryProduct.getId();
+
+        // 상품 옵션 생성
+        temporaryProductOptionService.addTemporaryProductOption(temporaryProductId, dto.getProductOptions());
+
+        // 상품 관련 연관 테이블 생성 (상품 상세 ,상품 클레임 정보, 배송 지연 시간)
+        temporaryProductDetailInfoService.addTemporaryProductDetailInfo(temporaryProductId, new CreateProductDetailInfoDTO());
+        temporaryProductClaimService.addTemporaryProductClaim(temporaryProductId, new CreateClaimInfoDTO());
+        deliveryTimeService.addTemporaryProductDeliveryTime(temporaryProductId, new CreateProductDeliveryTimeDTO());
     }
 
     private void updateTemporaryProductAtOptions(String registerId, OptionStepProductDTO dto) {
@@ -114,15 +123,15 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
                 updateTemporaryProductAtDetails(registerId, dto);
             } else {
                 // 임시 저장 상품 저장
-                addTemporaryProductAtDetails(userId, dto);
+                addTemporaryProductAtDetails(dto);
             }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
-    private void addTemporaryProductAtDetails(Long userId, DetailStepProductDTO dto) {
-        TemporaryProduct newTemporaryProduct = new TemporaryProduct();
+    private void addTemporaryProductAtDetails(DetailStepProductDTO dto) {
+        TemporaryProduct newTemporaryProduct = dto.toEntity();
         temporaryProductRepository.save(newTemporaryProduct);
         Long temporaryProductId = newTemporaryProduct.getId();
 
@@ -158,8 +167,6 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         Long temporaryProductId = newTemporaryProduct.getId();
 
         // 6. Product option 저장
-        temporaryProductOptionService.addTemporaryProductOption(temporaryProductId, dto.getProductOptions());
-
         // 7. Product detail 저장
 
         // 8. 배송 지연 시간 저장

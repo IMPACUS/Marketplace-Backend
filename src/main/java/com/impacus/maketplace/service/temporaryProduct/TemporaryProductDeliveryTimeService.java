@@ -20,10 +20,6 @@ public class TemporaryProductDeliveryTimeService {
      * @param dto
      */
     public void addTemporaryProductDeliveryTime(Long temporaryProductId, CreateProductDeliveryTimeDTO dto) {
-        if (dto == null) {
-            deliveryTimeRepository.save(new TemporaryProductDeliveryTime(temporaryProductId));
-        }
-
         deliveryTimeRepository.save(dto.toTemporaryEntity(temporaryProductId));
     }
 
