@@ -16,29 +16,29 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public abstract class Alarm extends BaseEntity {
     @Column(nullable = false)
-    private Long userId;
+    protected Long userId;
 
     @Column(nullable = false)
     @Comment("카카오 알람 여부")
-    private boolean kakao;
+    protected boolean kakao;
 
     @Column(nullable = false)
     @Comment("이메일 알람 여부")
-    private boolean email;
+    protected boolean email;
 
     @Column(nullable = false)
     @Comment("SNS 알람 여부")
-    private boolean msg;
+    protected boolean msg;
 
     @Column(nullable = false)
     @Comment("PUSH 알람 여부")
-    private boolean push;
+    protected boolean push;
 
     @Column
     @Comment("알림 멘트1")
-    private String comment1;
+    protected String comment1;
 
     @Column(columnDefinition = "text")
     @Comment("알림 멘트2")
-    private String comment2;
+    protected String comment2;
 }
