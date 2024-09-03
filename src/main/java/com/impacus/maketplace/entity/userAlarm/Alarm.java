@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.userAlarm;
+package com.impacus.maketplace.entity.alarm.user;
 
 import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.Column;
@@ -16,24 +16,29 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public abstract class Alarm extends BaseEntity {
     @Column(nullable = false)
-    private Long userId;
-
-    @Column(nullable = false)
-    @Comment("전체 알람 설정 여부")
-    private boolean isAlarm;
+    protected Long userId;
 
     @Column(nullable = false)
     @Comment("카카오 알람 여부")
-    private boolean kakao;
+    protected boolean kakao;
 
     @Column(nullable = false)
     @Comment("이메일 알람 여부")
-    private boolean email;
+    protected boolean email;
 
     @Column(nullable = false)
     @Comment("SNS 알람 여부")
-    private boolean sns;
+    protected boolean msg;
 
-    @Comment("알람 시간 여부")
-    private LocalDateTime time;
+    @Column(nullable = false)
+    @Comment("PUSH 알람 여부")
+    protected boolean push;
+
+    @Column
+    @Comment("알림 멘트1")
+    protected String comment1;
+
+    @Column(columnDefinition = "text")
+    @Comment("알림 멘트2")
+    protected String comment2;
 }
