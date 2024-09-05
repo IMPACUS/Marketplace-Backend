@@ -66,15 +66,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         // 1-2. 검색어 조회
         BooleanBuilder searchBuilder = new BooleanBuilder();
         if (keyword != null && !keyword.isBlank()) {
-            searchBuilder.or(product.name.containsIgnoreCase(keyword)) // 검색 옵션: 상품명
-                    .or(product.productNumber.containsIgnoreCase(keyword)) // 검색 옵션: 상품 번호
-                    .or(DeliveryType.containsEnumValue(product.deliveryType, keyword)) // 검색 옵션: 배송 상태
-                    .or(ProductStatus.containsEnumValue(product.productStatus, keyword)) // 검색 옵션: 상품 상태
-                    .or(Expressions.stringTemplate("cast({0} as string)", product.appSalesPrice).contains(keyword))  // 검색 옵션: 할인가
-                    .or(Expressions.stringTemplate("CAST(SUM({0}) AS string)", productOption.stock)
-                            .like("%" + keyword + "%")) // 검색 옵션: 재고
-                    .or(Expressions.stringTemplate("concat({0}, '/', {1})", productOption.color, productOption.size) // 검색 옵션: 상품 옵션
-                            .containsIgnoreCase(keyword));
+            searchBuilder.or(product.name.containsIgnoreCase(keyword)); // 검색 옵션: 상품명;
         }
 
         BooleanBuilder productOptionBuilder = new BooleanBuilder();

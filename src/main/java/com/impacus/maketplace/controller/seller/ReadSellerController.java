@@ -166,7 +166,7 @@ public class ReadSellerController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @GetMapping("")
+    @GetMapping()
     public ApiResponseEntity<Page<SellerDTO>> getSellers(
             @PageableDefault(size = 15, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "brand-name", required = false) String brandName,

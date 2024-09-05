@@ -122,20 +122,34 @@ public class ReadProductService implements ProductInterface {
         }
     }
 
+    public Page<ProductForWebDTO> findProductsForWebFromSeller(
+        Long userId,
+        String keyword,
+        LocalDate startAt,
+        LocalDate endAt,
+        Pageable pageable
+    ) {
+        Long sellerId = getSellerId(userId, UserType.ROLE_APPROVED_SELLER);
+
+        return findProductsForWeb(
+            sellerId,
+            keyword,
+            startAt,
+            endAt,
+            pageable
+        );
+    }
+
     @Override
     public Page<ProductForWebDTO> findProductsForWeb(
-            Long userId,
-            UserType userType,
+            Long sellerId,
             String keyword,
             LocalDate startAt,
             LocalDate endAt,
             Pageable pageable
     ) {
         try {
-            // 1. seller id 조회 (관리자인 경우 null)
-            Long sellerId = getSellerId(userId, userType);
-
-            // 2. 상품 조회
+            // 상품 조회
             return productRepository.findProductsForWeb(sellerId, keyword, startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);

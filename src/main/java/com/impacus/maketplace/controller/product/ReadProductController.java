@@ -71,36 +71,8 @@ public class ReadProductController {
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductsForWeb(
-                user.getId(), UserType.ROLE_APPROVED_SELLER, keyword, startAt, endAt, pageable
-        );
-        return ApiResponseEntity
-                .<Page<ProductForWebDTO>>builder()
-                .data(productDTOList)
-                .build();
-    }
-
-    /**
-     * [관리자] 상품 전체 조회 API
-     *
-     * @param user
-     * @param startAt
-     * @param endAt
-     * @param pageable
-     * @return
-     */
-    @PreAuthorize("hasRole('ROLE_ADMIN') " +
-            "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
-            "or hasRole('ROLE_OWNER')")
-    @GetMapping("/admin")
-    public ApiResponseEntity<Page<ProductForWebDTO>> getProductsForWeb(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-            @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
-            @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductsForWeb(
-                user.getId(), UserType.ROLE_ADMIN, keyword, startAt, endAt, pageable
+        Page<ProductForWebDTO> productDTOList = productService.findProductsForWebFromSeller(
+                user.getId(), keyword, startAt, endAt, pageable
         );
         return ApiResponseEntity
                 .<Page<ProductForWebDTO>>builder()

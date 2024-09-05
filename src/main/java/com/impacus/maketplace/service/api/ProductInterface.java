@@ -106,7 +106,6 @@ public interface ProductInterface {
      */
     Page<ProductForWebDTO> findProductsForWeb(
             Long userId,
-            UserType userType,
             String keyword,
             LocalDate startAt,
             LocalDate endAt,
