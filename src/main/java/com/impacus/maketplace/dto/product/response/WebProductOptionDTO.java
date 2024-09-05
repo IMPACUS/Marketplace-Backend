@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @EqualsAndHashCode()
-public class ProductOptionForWebDTO {
+public class WebProductOptionDTO {
     private Long productOptionId;
     private String color;
     private String size;
     private String name;
 
     @QueryProjection
-    public ProductOptionForWebDTO(Long productOptionId, String color, String size) {
+    public WebProductOptionDTO(Long productOptionId, String color, String size) {
         this.productOptionId = productOptionId;
         this.color = color;
         this.size = size;

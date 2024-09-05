@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.bundleDelivery.response;
 
 import com.impacus.maketplace.common.enumType.product.DeliveryFeeRule;
-import com.impacus.maketplace.dto.product.response.ProductOptionForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductOptionDTO;
 import com.impacus.maketplace.entity.product.ProductOption;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ public class BundleDeliveryGroupProductDTO {
     private List<String> productImages;
     private DeliveryFeeRule deliveryFeeRule;
     private LocalDateTime bundleDeliveryOptionAppliedAt;
-    private List<ProductOptionForWebDTO> options;
+    private List<WebProductOptionDTO> options;
 
     public BundleDeliveryGroupProductDTO(
             Long productId,
@@ -33,9 +33,9 @@ public class BundleDeliveryGroupProductDTO {
         this.productImages = productImages;
         this.deliveryFeeRule = deliveryFeeRule;
         this.bundleDeliveryOptionAppliedAt = bundleDeliveryOptionAppliedAt;
-        List<ProductOptionForWebDTO> options = new ArrayList<>();
+        List<WebProductOptionDTO> options = new ArrayList<>();
         for (ProductOption productOption : productOptions) {
-            options.add(new ProductOptionForWebDTO(productOption.getId(), productOption.getColor(), productOption.getSize()));
+            options.add(new WebProductOptionDTO(productOption.getId(), productOption.getColor(), productOption.getSize()));
         }
 
         this.options = options;

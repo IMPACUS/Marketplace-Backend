@@ -5,7 +5,7 @@ import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
 import com.impacus.maketplace.dto.product.response.ProductDeliveryTimeDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailInfoDTO;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductClaimInfo;
@@ -126,11 +126,11 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
     }
 
     @Override
-    public ProductDetailForWebDTO findDetailIdByRegisterId(String registerId) {
+    public WebProductDetailDTO findDetailIdByRegisterId(String registerId) {
         return queryFactory
                 .select(
                         Projections.fields(
-                                ProductDetailForWebDTO.class,
+                                WebProductDetailDTO.class,
                                 temporaryProduct.id,
                                 temporaryProduct.name,
                                 temporaryProduct.categoryId,

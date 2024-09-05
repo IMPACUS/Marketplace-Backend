@@ -1,8 +1,6 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
-import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
@@ -47,7 +45,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProductClaimInfo productClaimInfo = QProductClaimInfo.productClaimInfo;
 
     @Override
-    public Page<ProductForWebDTO> findProductsForWeb(
+    public Page<WebProductTableDetailDTO> findProductDetailsForWeb(
             Long sellerId,
             String keyword,
             LocalDate startAt,
@@ -55,14 +53,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Pageable pageable
     ) {
         // 1. builder 생성
-
         // 1-1. seller 값이 존재하는 경우에만 판매자 비교
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
-                .and(product.isDeleted.eq(false));
-        if (sellerId != null) {
-            productBuilder.and(product.sellerId.eq(sellerId));
-        }
+                .and(product.isDeleted.eq(false))
+                .and(product.sellerId.eq(sellerId));
+
         // 1-2. 검색어 조회
         BooleanBuilder searchBuilder = new BooleanBuilder();
         if (keyword != null && !keyword.isBlank()) {
@@ -74,7 +70,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .and(productOption.isDeleted.eq(false));
 
         // 2. 조건에 맞는 데이터 조회
-        List<ProductForWebDTO> dtos = getProductForWebDTO(
+        List<WebProductTableDetailDTO> dtos = getProductForWebDTO(
                 productBuilder, productOptionBuilder, searchBuilder, pageable
         );
 
@@ -93,7 +89,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         return PaginationUtils.toPage(dtos, pageable, count);
     }
 
-    private List<ProductForWebDTO> getProductForWebDTO(
+    private List<WebProductTableDetailDTO> getProductForWebDTO(
             BooleanBuilder productBuilder,
             BooleanBuilder productOptionBuilder,
             BooleanBuilder searchBuilder,
@@ -126,7 +122,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .transform(
                         GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
-                                        ProductForWebDTO.class,
+                                        WebProductTableDetailDTO.class,
                                         product.id,
                                         product.name,
                                         Expressions.stringTemplate("cast({0} as string)", product.appSalesPrice),
@@ -233,7 +229,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public ProductDetailForWebDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId) {
+    public WebProductDetailDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(productId))
                 .and(product.isDeleted.eq(false));
@@ -245,7 +241,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         productOptionBuilder.and(productOption.productId.eq(product.id))
                 .and(productOption.isDeleted.eq(false));
 
-        List<ProductDetailForWebDTO> duplicatedProducts =
+        List<WebProductDetailDTO> duplicatedProducts =
                 queryFactory
                         .selectFrom(product)
                         .leftJoin(productDetailInfo).on(productDetailInfo.productId.eq(product.id))
@@ -254,7 +250,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                         .leftJoin(productClaimInfo).on(productClaimInfo.productId.eq(product.id))
                         .where(productBuilder)
                         .transform(GroupBy.groupBy(product.id).list(Projections.fields(
-                                        ProductDetailForWebDTO.class,
+                                        WebProductDetailDTO.class,
                                         product.id,
                                         product.name,
                                         product.categoryId,
@@ -306,16 +302,16 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         );
 
-        List<ProductDetailForWebDTO> products = removeDuplicatedProductDetailsForWeb(duplicatedProducts);
+        List<WebProductDetailDTO> products = removeDuplicatedProductDetailsForWeb(duplicatedProducts);
 
         return products.isEmpty() ? null : products.get(0);
     }
 
-    private List<ProductDetailForWebDTO> removeDuplicatedProductDetailsForWeb(List<ProductDetailForWebDTO> products) {
+    private List<WebProductDetailDTO> removeDuplicatedProductDetailsForWeb(List<WebProductDetailDTO> products) {
         // Using Stream API to remove duplicates
-        Map<Long, ProductDetailForWebDTO> productMap = products.stream()
+        Map<Long, WebProductDetailDTO> productMap = products.stream()
                 .collect(Collectors.toMap(
-                        ProductDetailForWebDTO::getId,
+                        WebProductDetailDTO::getId,
                         Function.identity(),
                         (existing, replacement) -> {
                             existing.getProductOptions().addAll(replacement.getProductOptions());

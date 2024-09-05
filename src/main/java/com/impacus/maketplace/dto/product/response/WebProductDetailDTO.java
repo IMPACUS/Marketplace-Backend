@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Getter
 @NoArgsConstructor
-public class ProductDetailForWebDTO {
+public class WebProductDetailDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long id;

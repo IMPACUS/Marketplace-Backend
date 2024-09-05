@@ -1,12 +1,11 @@
 package com.impacus.maketplace.controller.product;
 
-import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDTO;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductTableDetailDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.dto.product.response.WebProductDTO;
 import com.impacus.maketplace.service.product.ReadProductService;
 import com.impacus.maketplace.service.product.bundleDelivery.BundleDeliveryGroupService;
@@ -65,17 +64,17 @@ public class ReadProductController {
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("/seller")
-    public ApiResponseEntity<Page<ProductForWebDTO>> getProductsBySellerIdForWeb(
+    public ApiResponseEntity<Page<WebProductTableDetailDTO>> getProductsBySellerIdForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "start-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(name = "end-at") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @PageableDefault(sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ProductForWebDTO> productDTOList = productService.findProductsForWebFromSeller(
+        Page<WebProductTableDetailDTO> productDTOList = productService.findProductsForWebFromSeller(
                 user.getId(), keyword, startAt, endAt, pageable
         );
         return ApiResponseEntity
-                .<Page<ProductForWebDTO>>builder()
+                .<Page<WebProductTableDetailDTO>>builder()
                 .data(productDTOList)
                 .build();
     }
@@ -106,13 +105,13 @@ public class ReadProductController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
     @GetMapping("/details/{productId}")
-    public ApiResponseEntity<ProductDetailForWebDTO> getProductForWeb(
+    public ApiResponseEntity<WebProductDetailDTO> getProductForWeb(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable(name = "productId") Long productId
     ) {
-        ProductDetailForWebDTO productDetailDTO = productService.findProductDetailForWeb(user.getId(), productId);
+        WebProductDetailDTO productDetailDTO = productService.findProductDetailForWeb(user.getId(), productId);
         return ApiResponseEntity
-                .<ProductDetailForWebDTO>builder()
+                .<WebProductDetailDTO>builder()
                 .data(productDetailDTO)
                 .build();
     }

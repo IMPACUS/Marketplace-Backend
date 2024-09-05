@@ -1,12 +1,12 @@
 package com.impacus.maketplace.service.api;
 
 import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
-import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductTableDTO;
+import com.impacus.maketplace.dto.product.response.WebProductTableDetailDTO;
 import com.impacus.maketplace.dto.product.response.WebProductDTO;
 import com.impacus.maketplace.entity.product.Product;
 import org.springframework.data.domain.Page;
@@ -93,7 +93,7 @@ public interface ProductInterface {
     );
 
     /**
-     * [판매자/관리자] 전체 상품 조회
+     * [판매자/관리자] 상품 목록 페이지 조회
      * - 판매자인 경우, 판매자의 브랜드 등록 상품 조회
      * - 관리자인 경우, 등록되어 있는 모든 상품 조회
      *
@@ -104,7 +104,7 @@ public interface ProductInterface {
      * @param pageable 페이지네이션 정보
      * @return 상품 리스트
      */
-    Page<ProductForWebDTO> findProductsForWeb(
+    Page<WebProductTableDetailDTO> findProductDetailsForWeb(
             Long userId,
             String keyword,
             LocalDate startAt,
@@ -123,15 +123,13 @@ public interface ProductInterface {
 
     /**
      * [판매자/관리자] 상품 전체 정보를 조회하는 함수
-     * - 판매자: 판매자의 브랜드가 등록한 상품만 조회 가능
-     * - 관리자: 모든 상품 조회 가능
      *
      * @param userId    사용자 ID
      * @param productId 상품 ID
      * @return 상품
      * @throws CustomException 존재하지 않은 경우, 예외 발생
      */
-    ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId);
+    WebProductDetailDTO findProductDetailForWeb(Long userId, Long productId);
 
     /**
      * [판매자/관리자] 상품의 간략한 정보를 조회하는 함수
@@ -143,4 +141,21 @@ public interface ProductInterface {
      * @return
      */
     WebProductDTO findProductByProductId(Long userId, Long productId);
+
+    /**
+     * [관리자] 상품 등록 목록  조회
+     *
+     * @param keyword  검색어 (null/공백: 전체 반환, not null: keyword가 존재하는 데이터 반환)
+     * @param startAt  조회할 기간의 시작 날짜 (해당 날짜 이후에 등록된 상품 조회)
+     * @param endAt    조회할 기간의 종료 날짜 (해당 날짜 이전에 등록된 상품 조회)
+     * @param pageable 페이지네이션 정보
+     * @return 상품 리스트
+     */
+    Page<WebProductTableDTO> findProductsForWeb(
+        Long sellerId,
+        String keyword,
+        LocalDate startAt,
+        LocalDate endAt,
+        Pageable pageable
+    );
 }
