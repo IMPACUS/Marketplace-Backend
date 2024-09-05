@@ -150,7 +150,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public DetailedProductDTO findProductByProductId(Long userId, Long productId) {
+    public DetailedProductDTO findDetailedProductByProductId(Long userId, Long productId) {
         BooleanBuilder wishlistBuilder = new BooleanBuilder();
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));

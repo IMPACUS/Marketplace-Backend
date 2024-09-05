@@ -7,6 +7,7 @@ import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDTO;
 import com.impacus.maketplace.service.product.ReadProductService;
 import com.impacus.maketplace.service.product.bundleDelivery.BundleDeliveryGroupService;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class ReadProductController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("")
+    @GetMapping()
     public ApiResponseEntity<Slice<ProductForAppDTO>> getAllProductForApp(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
@@ -190,6 +191,27 @@ public class ReadProductController {
                 .message("(상품 등록/수정용) 묶음 배송 그룹 목록 조회")
                 .data(result)
                 .build();
+    }
+
+    /**
+     * [판매자/관리자] 상품 단건 조회
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+        "or hasRole('ROLE_ADMIN') " +
+        "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+        "or hasRole('ROLE_OWNER')")
+    @GetMapping("{productId}")
+    public ApiResponseEntity<WebProductDTO> findProductByProductId(
+        @AuthenticationPrincipal CustomUserDetails user,
+        @PathVariable("productId") Long productId) {
+        WebProductDTO dto = productService.findProductByProductId(user.getId(), productId);
+        return ApiResponseEntity
+            .<WebProductDTO>builder()
+            .data(dto)
+            .message("상품 단건 조회 성공")
+            .build();
     }
 
 }

@@ -7,6 +7,7 @@ import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDTO;
 import com.impacus.maketplace.entity.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -133,4 +134,14 @@ public interface ProductInterface {
      */
     ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId);
 
+    /**
+     * [판매자/관리자] 상품의 간략한 정보를 조회하는 함수
+     * - 판매자: 판매자의 브랜드가 등록한 상품만 조회 가능
+     * - 관리자: 모든 상품 조회 가능
+     *
+     * @param userId    사용자 ID
+     * @param productId 상품 ID
+     * @return
+     */
+    WebProductDTO findProductByProductId(Long userId, Long productId);
 }
