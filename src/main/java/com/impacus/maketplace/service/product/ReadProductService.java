@@ -13,6 +13,7 @@ import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
 import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.redis.service.RecentProductViewsService;
@@ -165,7 +166,7 @@ public class ReadProductService implements ProductInterface {
             findProductById(productId);
 
             // 2. Product 세부 데이터 가져오기
-            DetailedProductDTO detailedProductDTO = productRepository.findProductByProductId(userId, productId);
+            DetailedProductDTO detailedProductDTO = productRepository.findDetailedProductByProductId(userId, productId);
 
             // 3. 최근 본 상품 저장
             recentProductViewsService.addRecentProductView(userId, productId);
@@ -191,6 +192,23 @@ public class ReadProductService implements ProductInterface {
             // 2. 판매자의 상품인지 확인
             if (dto == null) {
                 throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
+            }
+
+            return dto;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    @Override
+    public WebProductDTO findProductByProductId(Long userId, Long productId) {
+        try {
+            UserType userType = SecurityUtils.getCurrentUserType();
+            Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? readSellerService.findSellerByUserId(userId).getId() : null;
+
+            WebProductDTO dto = productRepository.findProductByProductId(userType, sellerId, productId);
+            if(dto == null){
+                throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
             }
 
             return dto;

@@ -15,7 +15,7 @@ import java.util.List;
 public interface ProductCustomRepository {
     Page<ProductForWebDTO> findProductsForWeb(Long sellerId, String keyword, LocalDate startAt, LocalDate endAt, Pageable pageable);
 
-    DetailedProductDTO findProductByProductId(Long userId, Long productId);
+    DetailedProductDTO findDetailedProductByProductId(Long userId, Long productId);
 
     boolean existsBySuperCategoryId(Long superCategoryId);
 
