@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ProductForWebDTO {
+public class WebProductTableDetailDTO {
     private Long id;
     private String name;
     private String price;
@@ -20,11 +20,11 @@ public class ProductForWebDTO {
     private ProductStatus productStatus;
     private long stock;
     private LocalDateTime createAt;
-    private List<ProductOptionForWebDTO> options;
+    private List<WebProductOptionDTO> options;
     private List<String> productImages;
 
     @QueryProjection
-    public ProductForWebDTO(
+    public WebProductTableDetailDTO(
             Long id,
             String name,
             String price,
@@ -44,10 +44,10 @@ public class ProductForWebDTO {
         this.createAt = createAt;
         this.productImages = productImages;
         long stock = 0;
-        List<ProductOptionForWebDTO> options = new ArrayList<>();
+        List<WebProductOptionDTO> options = new ArrayList<>();
         for (ProductOption productOption : productOptions) {
             stock += productOption.getStock();
-            options.add(new ProductOptionForWebDTO(productOption.getId(), productOption.getColor(), productOption.getSize()));
+            options.add(new WebProductOptionDTO(productOption.getId(), productOption.getColor(), productOption.getSize()));
         }
         this.options = options;
         this.stock = stock;

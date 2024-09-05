@@ -3,7 +3,7 @@ package com.impacus.maketplace.repository.temporaryProduct.querydsl;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -16,5 +16,5 @@ public interface TemporaryProductCustomRepository  {
 
     void deleteRelationEntityById(Long temporaryProductId);
 
-    ProductDetailForWebDTO findDetailIdByRegisterId(String string);
+    WebProductDetailDTO findDetailIdByRegisterId(String string);
 }

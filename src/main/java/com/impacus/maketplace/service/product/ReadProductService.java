@@ -10,9 +10,10 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductTableDTO;
+import com.impacus.maketplace.dto.product.response.WebProductTableDetailDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
 import com.impacus.maketplace.dto.product.response.WebProductDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.seller.Seller;
@@ -122,7 +123,7 @@ public class ReadProductService implements ProductInterface {
         }
     }
 
-    public Page<ProductForWebDTO> findProductsForWebFromSeller(
+    public Page<WebProductTableDetailDTO> findProductsForWebFromSeller(
         Long userId,
         String keyword,
         LocalDate startAt,
@@ -131,7 +132,7 @@ public class ReadProductService implements ProductInterface {
     ) {
         Long sellerId = getSellerId(userId, UserType.ROLE_APPROVED_SELLER);
 
-        return findProductsForWeb(
+        return findProductDetailsForWeb(
             sellerId,
             keyword,
             startAt,
@@ -141,7 +142,7 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public Page<ProductForWebDTO> findProductsForWeb(
+    public Page<WebProductTableDetailDTO> findProductDetailsForWeb(
             Long sellerId,
             String keyword,
             LocalDate startAt,
@@ -150,7 +151,7 @@ public class ReadProductService implements ProductInterface {
     ) {
         try {
             // 상품 조회
-            return productRepository.findProductsForWeb(sellerId, keyword, startAt, endAt, pageable);
+            return productRepository.findProductDetailsForWeb(sellerId, keyword, startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -192,7 +193,7 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
+    public WebProductDetailDTO findProductDetailForWeb(Long userId, Long productId) {
         try {
             UserType userType = SecurityUtils.getCurrentUserType();
             Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? readSellerService.findSellerByUserId(userId).getId() : null;
@@ -201,7 +202,7 @@ public class ReadProductService implements ProductInterface {
             checkExistenceById(productId);
 
             // 1. 데이터 조회
-            ProductDetailForWebDTO dto = productRepository.findProductDetailByProductId(sellerId, userType, productId);
+            WebProductDetailDTO dto = productRepository.findProductDetailByProductId(sellerId, userType, productId);
 
             // 2. 판매자의 상품인지 확인
             if (dto == null) {
@@ -226,6 +227,22 @@ public class ReadProductService implements ProductInterface {
             }
 
             return dto;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    @Override
+    public Page<WebProductTableDTO> findProductsForWeb(
+        Long sellerId,
+        String keyword,
+        LocalDate startAt,
+        LocalDate endAt,
+        Pageable pageable
+    ) {
+        try {
+            // 상품 조회
+            return productRepository.findProductsForWeb(sellerId, keyword, startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
