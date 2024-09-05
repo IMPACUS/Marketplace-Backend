@@ -1,13 +1,13 @@
-package com.impacus.maketplace.repository.order.querydsl;
+package com.impacus.maketplace.repository.payment.checkout;
 
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
 import com.impacus.maketplace.entity.seller.QSeller;
-import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsByCartDTO;
-import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsDTO;
-import com.impacus.maketplace.repository.order.querydsl.dto.QOrderProductWithDetailsByCartDTO;
-import com.impacus.maketplace.repository.order.querydsl.dto.QOrderProductWithDetailsDTO;
+import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsByCartDTO;
+import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsDTO;
+import com.impacus.maketplace.repository.checkout.dto.QCheckoutProductWithDetailsByCartDTO;
+import com.impacus.maketplace.repository.checkout.dto.QCheckoutProductWithDetailsDTO;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class OrderCustomRepositoryImpl implements OrderCustomRepository {
+public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
 
     private final JPAQueryFactory queryFactory;
     private final QProduct product = QProduct.product;
@@ -26,9 +26,9 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
     private final QShoppingBasket shoppingBasket = QShoppingBasket.shoppingBasket;
 
     @Override
-    public OrderProductWithDetailsDTO findOrderProductWithDetails(Long productId, Long productOptionId) {
+    public CheckoutProductWithDetailsDTO findCheckoutProductWithDetails(Long productId, Long productOptionId) {
         return queryFactory
-                .select(new QOrderProductWithDetailsDTO(
+                .select(new QCheckoutProductWithDetailsDTO(
                         product.name,
                         product.productStatus,
                         product.type,
@@ -52,9 +52,9 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
     }
 
     @Override
-    public List<OrderProductWithDetailsByCartDTO> findOrderProductWithDetailsByCart(List<Long> shoppingBasketIdList) {
+    public List<CheckoutProductWithDetailsByCartDTO> findCheckoutProductWithDetailsByCart(List<Long> shoppingBasketIdList) {
         return queryFactory
-                .select(new QOrderProductWithDetailsByCartDTO(
+                .select(new QCheckoutProductWithDetailsByCartDTO(
                         product.id,
                         product.name,
                         product.productStatus,
