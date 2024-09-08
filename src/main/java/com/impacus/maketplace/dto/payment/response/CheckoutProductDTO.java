@@ -1,9 +1,9 @@
-package com.impacus.maketplace.dto.order.response;
+package com.impacus.maketplace.dto.payment.response;
 
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
-import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsByCartDTO;
-import com.impacus.maketplace.repository.order.querydsl.dto.OrderProductWithDetailsDTO;
+import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsByCartDTO;
+import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsDTO;
 import lombok.Data;
 
 @Data
@@ -22,25 +22,25 @@ public class CheckoutProductDTO {
     private int discountPrice; // 할인가
     private String productImage; // 대표 이미지
 
-    public CheckoutProductDTO(OrderProductWithDetailsDTO orderProductWithDetailsDTO, Long productId, Long productOptionId, Long quantity) {
+    public CheckoutProductDTO(CheckoutProductWithDetailsDTO checkoutProductWithDetailsDTO, Long productId, Long productOptionId, Long quantity) {
         this.productId = productId;
-        this.name = orderProductWithDetailsDTO.getName();
-        this.marketName = orderProductWithDetailsDTO.getMarketName();
-        this.color = orderProductWithDetailsDTO.getColor();
-        this.size = orderProductWithDetailsDTO.getSize();
+        this.name = checkoutProductWithDetailsDTO.getName();
+        this.marketName = checkoutProductWithDetailsDTO.getMarketName();
+        this.color = checkoutProductWithDetailsDTO.getColor();
+        this.size = checkoutProductWithDetailsDTO.getSize();
         this.productOptionId = productOptionId;
         this.quantity = quantity;
-        this.type = orderProductWithDetailsDTO.getType();
-        this.discountStatus = orderProductWithDetailsDTO.getDiscountStatus();
-        this.deliveryFee = orderProductWithDetailsDTO.getDeliveryFee();
-        this.appSalesPrice = orderProductWithDetailsDTO.getAppSalesPrice();
-        this.discountPrice = orderProductWithDetailsDTO.getDiscountPrice();
-        if (!orderProductWithDetailsDTO.getProductImages().isEmpty()) {
-            this.productImage = orderProductWithDetailsDTO.getProductImages().get(0);
+        this.type = checkoutProductWithDetailsDTO.getType();
+        this.discountStatus = checkoutProductWithDetailsDTO.getDiscountStatus();
+        this.deliveryFee = checkoutProductWithDetailsDTO.getDeliveryFee();
+        this.appSalesPrice = checkoutProductWithDetailsDTO.getAppSalesPrice();
+        this.discountPrice = checkoutProductWithDetailsDTO.getDiscountPrice();
+        if (!checkoutProductWithDetailsDTO.getProductImages().isEmpty()) {
+            this.productImage = checkoutProductWithDetailsDTO.getProductImages().get(0);
         }
     }
 
-    public CheckoutProductDTO(OrderProductWithDetailsByCartDTO orderProductWithDetailsByCartDTO) {
+    public CheckoutProductDTO(CheckoutProductWithDetailsByCartDTO orderProductWithDetailsByCartDTO) {
         this.productId = orderProductWithDetailsByCartDTO.getProductId();
         this.name = orderProductWithDetailsByCartDTO.getName();
         this.marketName = orderProductWithDetailsByCartDTO.getMarketName();
