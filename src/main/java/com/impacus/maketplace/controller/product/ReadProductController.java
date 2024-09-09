@@ -2,7 +2,7 @@ package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDTO;
-import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
+import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.impacus.maketplace.dto.product.response.WebProductTableDetailDTO;
 import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
@@ -87,12 +87,12 @@ public class ReadProductController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/product-info")
-    public ApiResponseEntity<DetailedProductDTO> getProductForApp(
+    public ApiResponseEntity<AppProductDTO> getProductForApp(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "product-id") Long productId) {
-        DetailedProductDTO detailedProductDTO = productService.findDetailedProduct(user.getId(), productId);
+        AppProductDTO detailedProductDTO = productService.findDetailedProduct(user.getId(), productId);
         return ApiResponseEntity
-                .<DetailedProductDTO>builder()
+                .<AppProductDTO>builder()
                 .data(detailedProductDTO)
                 .build();
     }

@@ -138,12 +138,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public DetailedProductDTO findDetailedProductByProductId(Long userId, Long productId) {
+    public AppProductDTO findProductByProductIdForApp(Long userId, Long productId) {
         BooleanBuilder wishlistBuilder = new BooleanBuilder();
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
-        List<DetailedProductDTO> result = queryFactory
+        List<AppProductDTO> result = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
@@ -152,7 +152,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
-                                        DetailedProductDTO.class,
+                                        AppProductDTO.class,
                                         product.id,
                                         product.name,
                                         product.appSalesPrice,
@@ -168,7 +168,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                 productDeliveryTime.minDays,
                                                 productDeliveryTime.maxDays
                                         ),
-                                        product.productImages
+                                        product.productImages,
+                                        product.sellerId
                                 )
                         )
                 );
@@ -177,7 +178,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
         }
 
-        DetailedProductDTO productDTO = result.get(0);
+        AppProductDTO productDTO = result.get(0);
 
         Long wishlistCnt = queryFactory.select(count(wishlist))
                 .from(wishlist)

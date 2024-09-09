@@ -2,12 +2,8 @@ package com.impacus.maketplace.service.api;
 
 import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
-import com.impacus.maketplace.dto.product.response.WebProductTableDTO;
-import com.impacus.maketplace.dto.product.response.WebProductTableDetailDTO;
-import com.impacus.maketplace.dto.product.response.WebProductDTO;
+import com.impacus.maketplace.dto.product.response.*;
+import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.impacus.maketplace.entity.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -119,7 +115,7 @@ public interface ProductInterface {
      * @return 상품
      * @throws CustomException 존재하지 않은 경우, 예외 발생
      */
-    DetailedProductDTO findDetailedProduct(Long userId, Long productId);
+    AppProductDTO findDetailedProduct(Long userId, Long productId);
 
     /**
      * [판매자/관리자] 상품 전체 정보를 조회하는 함수

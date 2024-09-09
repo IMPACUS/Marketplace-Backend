@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class DetailedProductDTO {
+public class AppProductDTO {
     private Long id;
+    private Long sellerId;
     private String name;
     private List<AttachFileDTO> productImageList;
 
@@ -40,18 +41,19 @@ public class DetailedProductDTO {
 
 
     @QueryProjection
-    public DetailedProductDTO(Long id,
-                              String name,
-                              int appSalePrice,
-                              int discountPrice,
-                              ProductType type,
-                              List<ProductOption> options,
-                              Long wishlistId,
-                              int deliveryFee,
-                              String brandName,
-                              String description,
-                              ProductDeliveryTimeDTO deliveryTime,
-                              List<String> productImageList
+    public AppProductDTO(Long id,
+                         String name,
+                         int appSalePrice,
+                         int discountPrice,
+                         ProductType type,
+                         List<ProductOption> options,
+                         Long wishlistId,
+                         int deliveryFee,
+                         String brandName,
+                         String description,
+                         ProductDeliveryTimeDTO deliveryTime,
+                         List<String> productImages,
+                         Long sellerId
     ) {
         this.id = id;
         this.name = name;
@@ -66,8 +68,10 @@ public class DetailedProductDTO {
         this.description = description;
         this.deliveryTime = deliveryTime;
         setOptionData(options);
-        this.productImageList = productImageList.stream().map(x -> new AttachFileDTO(x)).toList();
+        this.productImageList = productImages.stream().map(x -> new AttachFileDTO(x)).toList();
+        this.sellerId = sellerId;
 
+        // TODO 관련 기능 개발 완료 되면 연결
         this.averageRating = 5.0f;
         this.reviewCnt = 123L;
         this.maxEarnablePoints = 100;
