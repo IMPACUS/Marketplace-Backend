@@ -2,7 +2,7 @@ package com.impacus.maketplace.dto.wishlist.response;
 
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
+import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class WishlistDetailDTO {
     private Long wishlistId;
-    private ProductForAppDTO product;
+    private AppProductDTO product;
 
     @QueryProjection
     public WishlistDetailDTO(
@@ -29,7 +29,7 @@ public class WishlistDetailDTO {
             List<String> productImageList
     ) {
         this.wishlistId = wishlistId;
-        this.product = new ProductForAppDTO(
+        this.product = new AppProductDTO(
                 productId,
                 name,
                 brandName,

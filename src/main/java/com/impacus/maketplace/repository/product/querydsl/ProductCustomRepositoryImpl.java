@@ -208,7 +208,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findProductsByProductIds(
+    public Slice<AppProductDTO> findProductsByProductIds(
             Long userId,
             List<Long> productIds,
             Pageable pageable
@@ -224,10 +224,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         }
 
         // 1. 조건에 맞는 Product 조회
-        List<ProductForAppDTO> products = findProducts(userId, productBuilder);
+        List<AppProductDTO> products = findProducts(userId, productBuilder);
 
         // 2. 최근 조회한 상품 순으로 정렬
-        List<ProductForAppDTO> sortedProducts = products.stream()
+        List<AppProductDTO> sortedProducts = products.stream()
                 .sorted(Comparator.comparingInt(product -> productIdIndexMap.get(product.getProductId())))
                 .toList();
 
@@ -345,19 +345,19 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findAllProductBySubCategoryId(
+    public Slice<AppProductDTO> findAllProductBySubCategoryId(
             Long userId,
             Long subCategoryId,
             Pageable pageable
     ) {
         // 1. 상품 리스트 조회
-        List<ProductForAppDTO> dtos = findProductsForApp(userId, subCategoryId, pageable);
+        List<AppProductDTO> dtos = findProductsForApp(userId, subCategoryId, pageable);
 
         // 3. 슬라이스 처리
         return PaginationUtils.toSlice(dtos, pageable);
     }
 
-    private List<ProductForAppDTO> findProductsForApp(
+    private List<AppProductDTO> findProductsForApp(
             Long userId,
             Long subCategoryId,
             Pageable pageable
@@ -388,7 +388,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
 
-    private List<ProductForAppDTO> findProducts(
+    private List<AppProductDTO> findProducts(
             Long userId,
             BooleanBuilder productBuilder
     ) {
@@ -403,7 +403,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .where(productBuilder)
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
-                                ProductForAppDTO.class,
+                                AppProductDTO.class,
                                 product.id,
                                         product.name,
                                         seller.marketName,

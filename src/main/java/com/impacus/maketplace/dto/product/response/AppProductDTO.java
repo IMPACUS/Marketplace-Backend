@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
-public class ProductForAppDTO {
+public class AppProductDTO {
     private Long productId;
     private String name;
     private List<AttachFileDTO> productImageList;
@@ -37,7 +37,7 @@ public class ProductForAppDTO {
 
 
     @QueryProjection
-    public ProductForAppDTO(
+    public AppProductDTO(
             Long productId,
             String name,
             String brandName,
@@ -65,7 +65,7 @@ public class ProductForAppDTO {
     }
 
     @QueryProjection
-    public ProductForAppDTO(
+    public AppProductDTO(
             Long productId,
             String name,
             String brandName,
