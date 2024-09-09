@@ -1,6 +1,8 @@
 package com.impacus.maketplace.dto.product.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
@@ -27,7 +29,7 @@ public class AppProductDTO {
     private boolean isExistedWishlist; //  찜 여부
     @JsonProperty("isFreeShipping")
     private boolean isFreeShipping; // 무료 배송 여부
-    private int deliveryFee; // 배송비
+    private Integer deliveryFee; // 배송비
     private String brandName;
     private String description;
     @JsonProperty("isOutOfStock")
@@ -53,7 +55,9 @@ public class AppProductDTO {
                          String description,
                          ProductDeliveryTimeDTO deliveryTime,
                          List<String> productImages,
-                         Long sellerId
+                         Long sellerId,
+                         DeliveryRefundType deliveryFeeType,
+                         Integer sellerDeliveryFee
     ) {
         this.id = id;
         this.name = name;
@@ -62,14 +66,23 @@ public class AppProductDTO {
         this.type = type;
         this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
         this.isExistedWishlist = wishlistId != null;
-        this.isFreeShipping = deliveryFee == 0;
-        this.deliveryFee = deliveryFee;
         this.brandName = brandName;
         this.description = description;
         this.deliveryTime = deliveryTime;
         setOptionData(options);
         this.productImageList = productImages.stream().map(x -> new AttachFileDTO(x)).toList();
         this.sellerId = sellerId;
+
+        if (deliveryFeeType == DeliveryRefundType.FREE_SHIPPING) {
+            this.isFreeShipping = true;
+            this.deliveryFee = 0;
+        } else if (deliveryFeeType == DeliveryRefundType.STORE_DEFAULT) {
+            this.isFreeShipping = sellerDeliveryFee == 0;
+            this.deliveryFee = sellerDeliveryFee;
+        } else {
+            this.isFreeShipping = deliveryFee == 0;
+            this.deliveryFee = deliveryFee;
+        }
 
         // TODO 관련 기능 개발 완료 되면 연결
         this.averageRating = 5.0f;
