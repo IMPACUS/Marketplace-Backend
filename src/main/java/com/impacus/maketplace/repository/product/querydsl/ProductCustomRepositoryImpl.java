@@ -8,6 +8,10 @@ import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.product.*;
 import com.impacus.maketplace.entity.seller.QSeller;
+import com.impacus.maketplace.entity.seller.delivery.QSelectedSellerDeliveryAddress;
+import com.impacus.maketplace.entity.seller.delivery.QSellerDeliveryAddress;
+import com.impacus.maketplace.entity.seller.deliveryCompany.QSelectedSellerDeliveryCompany;
+import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupBy;
@@ -43,6 +47,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProductDeliveryTime productDeliveryTime = QProductDeliveryTime.productDeliveryTime;
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
     private final QProductClaimInfo productClaimInfo = QProductClaimInfo.productClaimInfo;
+    private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
 
     @Override
     public Page<WebProductTableDetailDTO> findProductDetailsForWeb(
@@ -148,6 +153,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
@@ -169,7 +175,9 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                 productDeliveryTime.maxDays
                                         ),
                                         product.productImages,
-                                        product.sellerId
+                                        product.sellerId,
+                                        product.deliveryFeeType,
+                                        sellerDeliveryCompany.generalDeliveryFee
                                 )
                         )
                 );
