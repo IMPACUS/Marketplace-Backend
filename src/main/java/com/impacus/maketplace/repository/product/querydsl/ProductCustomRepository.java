@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.user.UserType;
-import com.impacus.maketplace.dto.product.response.AppProductDTO;
+import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.WebProductTableDetailDTO;
 import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
@@ -15,7 +15,7 @@ import java.util.List;
 public interface ProductCustomRepository {
     Page<WebProductTableDetailDTO> findProductDetailsForWeb(Long sellerId, String keyword, LocalDate startAt, LocalDate endAt, Pageable pageable);
 
-    AppProductDTO findProductByProductIdForApp(Long userId, Long productId);
+    AppProductDetailDTO findProductByProductIdForApp(Long userId, Long productId);
 
     boolean existsBySuperCategoryId(Long superCategoryId);
 

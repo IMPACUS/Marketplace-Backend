@@ -2,7 +2,6 @@ package com.impacus.maketplace.dto.product.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.utils.CalculatorUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class AppProductDTO {
+public class AppProductDetailDTO {
     private Long id;
     private Long sellerId;
     private String name;
@@ -43,21 +42,21 @@ public class AppProductDTO {
 
 
     @QueryProjection
-    public AppProductDTO(Long id,
-                         String name,
-                         int appSalePrice,
-                         int discountPrice,
-                         ProductType type,
-                         List<ProductOption> options,
-                         Long wishlistId,
-                         int deliveryFee,
-                         String brandName,
-                         String description,
-                         ProductDeliveryTimeDTO deliveryTime,
-                         List<String> productImages,
-                         Long sellerId,
-                         DeliveryRefundType deliveryFeeType,
-                         Integer sellerDeliveryFee
+    public AppProductDetailDTO(Long id,
+                               String name,
+                               int appSalePrice,
+                               int discountPrice,
+                               ProductType type,
+                               List<ProductOption> options,
+                               Long wishlistId,
+                               int deliveryFee,
+                               String brandName,
+                               String description,
+                               ProductDeliveryTimeDTO deliveryTime,
+                               List<String> productImages,
+                               Long sellerId,
+                               DeliveryRefundType deliveryFeeType,
+                               Integer sellerDeliveryFee
     ) {
         this.id = id;
         this.name = name;

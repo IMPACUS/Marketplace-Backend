@@ -8,9 +8,6 @@ import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.product.*;
 import com.impacus.maketplace.entity.seller.QSeller;
-import com.impacus.maketplace.entity.seller.delivery.QSelectedSellerDeliveryAddress;
-import com.impacus.maketplace.entity.seller.delivery.QSellerDeliveryAddress;
-import com.impacus.maketplace.entity.seller.deliveryCompany.QSelectedSellerDeliveryCompany;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
@@ -143,12 +140,12 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public AppProductDTO findProductByProductIdForApp(Long userId, Long productId) {
+    public AppProductDetailDTO findProductByProductIdForApp(Long userId, Long productId) {
         BooleanBuilder wishlistBuilder = new BooleanBuilder();
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
-        List<AppProductDTO> result = queryFactory
+        List<AppProductDetailDTO> result = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
@@ -158,7 +155,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
-                                        AppProductDTO.class,
+                                        AppProductDetailDTO.class,
                                         product.id,
                                         product.name,
                                         product.appSalesPrice,
@@ -186,7 +183,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
         }
 
-        AppProductDTO productDTO = result.get(0);
+        AppProductDetailDTO productDTO = result.get(0);
 
         Long wishlistCnt = queryFactory.select(count(wishlist))
                 .from(wishlist)
