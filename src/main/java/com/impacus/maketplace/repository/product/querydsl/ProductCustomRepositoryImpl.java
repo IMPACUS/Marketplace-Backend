@@ -399,22 +399,25 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         return queryFactory
                 .selectFrom(product)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .where(productBuilder)
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
                                 AppProductDTO.class,
                                 product.id,
-                                        product.name,
-                                        seller.marketName,
-                                        product.appSalesPrice,
-                                        product.deliveryType,
-                                        product.discountPrice,
+                                product.name,
+                                seller.marketName,
+                                product.appSalesPrice,
+                                product.deliveryType,
+                                product.discountPrice,
                                 product.productImages,
-                                        wishlist.id,
-                                        product.deliveryFee,
-                                        product.type,
-                                        product.createAt
+                                wishlist.id,
+                                product.deliveryFee,
+                                product.type,
+                                product.createAt,
+                                product.deliveryFeeType,
+                                sellerDeliveryCompany.generalDeliveryFee
 
                                 )
                         )
