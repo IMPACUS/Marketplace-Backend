@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.wishlist.response;
 
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.dto.product.response.AppProductDTO;
@@ -26,7 +27,9 @@ public class WishlistDetailDTO {
             int deliveryFee,
             ProductType type,
             LocalDateTime createAt,
-            List<String> productImageList
+            List<String> productImages,
+            DeliveryRefundType deliveryFeeType,
+            Integer sellerDeliveryFee
     ) {
         this.wishlistId = wishlistId;
         this.product = new AppProductDTO(
@@ -36,11 +39,13 @@ public class WishlistDetailDTO {
                 appSalePrice,
                 deliveryType,
                 discountPrice,
-                productImageList,
+                productImages,
                 wishlistId,
                 deliveryFee,
                 type,
-                createAt
+                createAt,
+                deliveryFeeType,
+                sellerDeliveryFee
         );
     }
 }

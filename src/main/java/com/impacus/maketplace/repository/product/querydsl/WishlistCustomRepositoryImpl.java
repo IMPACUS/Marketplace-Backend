@@ -5,6 +5,7 @@ import com.impacus.maketplace.dto.wishlist.response.WishlistDetailDTO;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QWishlist;
 import com.impacus.maketplace.entity.seller.QSeller;
+import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
@@ -23,6 +24,7 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
     private final QWishlist wishlist = QWishlist.wishlist;
     private final QProduct product = QProduct.product;
     private final QSeller seller = QSeller.seller;
+    private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
 
     @Override
     public Slice<WishlistDetailDTO> findWishlistsByUserId(Long userId, Pageable pageable) {
@@ -53,6 +55,7 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
                 .selectFrom(wishlist)
                 .innerJoin(product).on(productBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .orderBy(wishlist.modifyAt.desc())
                 .where(wishlist.id.in(wishlistIds))
                 .transform(
@@ -68,7 +71,9 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
                                 product.deliveryFee,
                                 product.type,
                                 product.createAt,
-                                product.productImages
+                                product.productImages,
+                                product.deliveryFeeType,
+                                sellerDeliveryCompany.generalDeliveryFee
                         ))
                 );
     }
