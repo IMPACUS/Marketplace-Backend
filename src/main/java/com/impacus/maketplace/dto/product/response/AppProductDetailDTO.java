@@ -38,7 +38,7 @@ public class AppProductDetailDTO {
     private float averageRating; // 평균 평점
     private Long reviewCnt;
     private Long wishlistCnt;
-    private int maxEarnablePoints; // 최대 적림 포인트
+    private int maxEarnablePoints; // 최대 적립 포인트
 
 
     @QueryProjection
