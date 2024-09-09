@@ -2,11 +2,8 @@ package com.impacus.maketplace.controller.product;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDTO;
-import com.impacus.maketplace.dto.product.response.AppProductDTO;
-import com.impacus.maketplace.dto.product.response.WebProductTableDetailDTO;
-import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
-import com.impacus.maketplace.dto.product.response.WebProductDTO;
+import com.impacus.maketplace.dto.product.response.*;
+import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
 import com.impacus.maketplace.service.product.ReadProductService;
 import com.impacus.maketplace.service.product.bundleDelivery.BundleDeliveryGroupService;
 import lombok.RequiredArgsConstructor;
@@ -87,12 +84,12 @@ public class ReadProductController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/product-info")
-    public ApiResponseEntity<AppProductDTO> getProductForApp(
+    public ApiResponseEntity<AppProductDetailDTO> getProductForApp(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "product-id") Long productId) {
-        AppProductDTO detailedProductDTO = productService.findDetailedProduct(user.getId(), productId);
+        AppProductDetailDTO detailedProductDTO = productService.findDetailedProduct(user.getId(), productId);
         return ApiResponseEntity
-                .<AppProductDTO>builder()
+                .<AppProductDetailDTO>builder()
                 .data(detailedProductDTO)
                 .build();
     }

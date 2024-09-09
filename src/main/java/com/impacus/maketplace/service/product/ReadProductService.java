@@ -10,7 +10,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.response.*;
-import com.impacus.maketplace.dto.product.response.AppProductDTO;
+import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.redis.service.RecentProductViewsService;
@@ -171,13 +171,13 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public AppProductDTO findDetailedProduct(Long userId, Long productId) {
+    public AppProductDetailDTO findDetailedProduct(Long userId, Long productId) {
         try {
             // 1. productId 존재확인
             findProductById(productId);
 
             // 2. Product 세부 데이터 가져오기
-            AppProductDTO detailedProductDTO = productRepository.findProductByProductIdForApp(userId, productId);
+            AppProductDetailDTO detailedProductDTO = productRepository.findProductByProductIdForApp(userId, productId);
 
             // 3. 최근 본 상품 저장
             recentProductViewsService.addRecentProductView(userId, productId);
