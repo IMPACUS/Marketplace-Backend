@@ -39,13 +39,13 @@ public class ReadProductController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping()
-    public ApiResponseEntity<Slice<ProductForAppDTO>> getAllProductForApp(
+    public ApiResponseEntity<Slice<AppProductDTO>> getAllProductForApp(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "sub-category-id", required = false) Long subCategoryId,
             @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<ProductForAppDTO> productDTOList = productService.findProductByCategoryForApp(user.getId(), subCategoryId, pageable);
+        Slice<AppProductDTO> productDTOList = productService.findProductByCategoryForApp(user.getId(), subCategoryId, pageable);
         return ApiResponseEntity
-                .<Slice<ProductForAppDTO>>builder()
+                .<Slice<AppProductDTO>>builder()
                 .data(productDTOList)
                 .build();
     }
@@ -121,12 +121,12 @@ public class ReadProductController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/recent-views")
-    public ApiResponseEntity<Slice<ProductForAppDTO>> getProductForRecentViews(
+    public ApiResponseEntity<Slice<AppProductDTO>> getProductForRecentViews(
             @AuthenticationPrincipal CustomUserDetails user,
             @PageableDefault(size = 15, direction = Sort.Direction.DESC, sort = "createAt") Pageable pageable) {
-        Slice<ProductForAppDTO> productDTOList = productService.findProductForRecentViews(user.getId(), pageable);
+        Slice<AppProductDTO> productDTOList = productService.findProductForRecentViews(user.getId(), pageable);
         return ApiResponseEntity
-                .<Slice<ProductForAppDTO>>builder()
+                .<Slice<AppProductDTO>>builder()
                 .data(productDTOList)
                 .build();
     }

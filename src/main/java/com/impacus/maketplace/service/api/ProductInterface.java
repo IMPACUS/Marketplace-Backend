@@ -70,7 +70,7 @@ public interface ProductInterface {
      * @param pageable      페이지네이션 정보
      * @return 상품 리스트
      */
-    Slice<ProductForAppDTO> findProductByCategoryForApp(
+    Slice<AppProductDTO> findProductByCategoryForApp(
             Long userId,
             Long subCategoryId,
             Pageable pageable
@@ -83,7 +83,7 @@ public interface ProductInterface {
      * @param pageable 페이지네이션 정보
      * @return 상품 리스트
      */
-    Slice<ProductForAppDTO> findProductForRecentViews(
+    Slice<AppProductDTO> findProductForRecentViews(
             Long userId,
             Pageable pageable
     );

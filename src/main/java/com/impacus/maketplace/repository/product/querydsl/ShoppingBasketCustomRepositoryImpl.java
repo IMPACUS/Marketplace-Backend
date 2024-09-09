@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.utils.PaginationUtils;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
+import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
 import com.impacus.maketplace.entity.product.QProduct;
@@ -71,7 +71,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                                         shoppingBasket.quantity,
                                         shoppingBasket.modifyAt,
                                         Projections.constructor(
-                                                ProductForAppDTO.class,
+                                                AppProductDTO.class,
                                                 product.id,
                                                 product.name,
                                                 seller.marketName,

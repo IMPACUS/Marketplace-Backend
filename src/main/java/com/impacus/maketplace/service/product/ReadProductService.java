@@ -90,7 +90,7 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findProductByCategoryForApp(
+    public Slice<AppProductDTO> findProductByCategoryForApp(
             Long userId,
             Long subCategoryId,
             Pageable pageable
@@ -107,7 +107,7 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findProductForRecentViews(
+    public Slice<AppProductDTO> findProductForRecentViews(
             Long userId,
             Pageable pageable
     ) {

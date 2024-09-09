@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.shoppingBasket.response;
 
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
+import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
@@ -14,7 +14,7 @@ public class ShoppingBasketDetailDTO {
     private Long shoppingBasketId;
     private Long quantity;
     private LocalDateTime modifyAt;
-    private ProductForAppDTO product;
+    private AppProductDTO product;
     private ProductOptionDTO productOption;
 
     @QueryProjection
@@ -22,7 +22,7 @@ public class ShoppingBasketDetailDTO {
             Long shoppingBasketId,
             Long quantity,
             LocalDateTime modifyAt,
-            ProductForAppDTO product,
+            AppProductDTO product,
             ProductOptionDTO productOption
     ) {
         this.shoppingBasketId = shoppingBasketId;
