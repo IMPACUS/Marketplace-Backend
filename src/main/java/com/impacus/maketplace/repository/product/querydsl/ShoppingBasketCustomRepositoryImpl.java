@@ -8,6 +8,7 @@ import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
 import com.impacus.maketplace.entity.seller.QSeller;
+import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
@@ -27,6 +28,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
     private final QSeller seller = QSeller.seller;
+    private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
 
     @Override
     public Slice<ShoppingBasketDetailDTO> findAllShoppingBasketByUserId(Long userId, Pageable pageable) {
@@ -62,6 +64,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                 .leftJoin(productOption).on(productOptionBuilder)
                 .innerJoin(product).on(productBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .where(shoppingBasket.id.in(shoppingBasketIds))
                 .orderBy(shoppingBasket.modifyAt.desc())
                 .transform(
@@ -81,7 +84,9 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                                                 product.productImages,
                                                 product.deliveryFee,
                                                 product.type,
-                                                product.createAt
+                                                product.createAt,
+                                                product.deliveryFeeType,
+                                                sellerDeliveryCompany.generalDeliveryFee
                                         ),
                                         Projections.constructor(
                                                 ProductOptionDTO.class,

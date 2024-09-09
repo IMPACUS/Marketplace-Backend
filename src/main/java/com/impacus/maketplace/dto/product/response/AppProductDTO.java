@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.product.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.utils.CalculatorUtils;
@@ -48,7 +49,9 @@ public class AppProductDTO {
             Long wishlistId,
             int deliveryFee,
             ProductType type,
-            LocalDateTime createAt
+            LocalDateTime createAt,
+            DeliveryRefundType deliveryFeeType,
+            Integer sellerDeliveryFee
     ) {
         this.productId = productId;
         this.name = name;
@@ -58,10 +61,12 @@ public class AppProductDTO {
         this.discountPrice = discountPrice;
         this.productImageList = productImages.stream().map(AttachFileDTO::new).toList();
         this.isExistedWishlist = wishlistId != null;
-        this.isFreeShipping = deliveryFee == 0;
         this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
         this.type = type;
         this.createAt = createAt;
+
+        setIsFreeShipping(deliveryFee, deliveryFeeType, sellerDeliveryFee);
+
     }
 
     @QueryProjection
@@ -75,7 +80,9 @@ public class AppProductDTO {
             List<String> productImages,
             int deliveryFee,
             ProductType type,
-            LocalDateTime createAt
+            LocalDateTime createAt,
+            DeliveryRefundType deliveryFeeType,
+            Integer sellerDeliveryFee
     ) {
         this.productId = productId;
         this.name = name;
@@ -89,5 +96,21 @@ public class AppProductDTO {
         this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
         this.type = type;
         this.createAt = createAt;
+
+        setIsFreeShipping(deliveryFee, deliveryFeeType, sellerDeliveryFee);
+    }
+
+    private void setIsFreeShipping(
+            int deliveryFee,
+            DeliveryRefundType deliveryFeeType,
+            Integer sellerDeliveryFee
+    ) {
+        if (deliveryFeeType == DeliveryRefundType.FREE_SHIPPING) {
+            this.isFreeShipping = true;
+        } else if (deliveryFeeType == DeliveryRefundType.STORE_DEFAULT) {
+            this.isFreeShipping = sellerDeliveryFee == 0;
+        } else {
+            this.isFreeShipping = deliveryFee == 0;
+        }
     }
 }
