@@ -48,6 +48,7 @@ public class CreateProductService {
             // 0. 판매자 id 유효성 검사
             // 판매자: API 요청 시, 사용한 인증 정보의 userId를 통해 sellerId 반환
             // 관리자: dto 에 sellerId 존재하는지 확인 후, 존재하는 sellerId 인지 확인
+            // TODO 관리자인 경우 sellerId가 인증된 사용자인지 확인
             UserType userType = SecurityUtils.getCurrentUserType();
             Long sellerId = null;
             if (userType == UserType.ROLE_APPROVED_SELLER) {

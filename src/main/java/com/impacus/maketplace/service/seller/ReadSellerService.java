@@ -243,7 +243,7 @@ public class ReadSellerService {
      * @param sellerId 조회할 판매자 아이디
      * @return
      */
-    public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
+    public SimpleSellerFromAdminDTO getSellerInformationFroWeb(Long sellerId) {
         try {
             return sellerRepository.getSellerInformation(sellerId);
         } catch (Exception ex) {
@@ -259,5 +259,18 @@ public class ReadSellerService {
      */
     public Long findSellerIdByUserId(Long userId) {
         return sellerRepository.findSellerIdByUserId(userId);
+    }
+
+    /**
+     * [앱] 상품 조회 페이지에서 판매자 아이디를 조회하는 함수
+     * @param sellerId
+     * @return
+     */
+    public AppSellerDTO getSellerInformationForApp(Long sellerId) {
+        try {
+            return sellerRepository.getSellerInformationForApp(sellerId);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }
