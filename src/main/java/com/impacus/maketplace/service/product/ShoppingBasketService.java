@@ -111,13 +111,12 @@ public class ShoppingBasketService {
      * 장바구니 데이터 조회하는 함수
      *
      * @param userId
-     * @param pageable
      * @return
      */
-    public List<ShoppingBasketDTO> getShoppingBaskets(Long userId, Pageable pageable) {
+    public List<ShoppingBasketDTO> getShoppingBaskets(Long userId) {
         try {
             // 장바구니 상품 조회
-            List<ProductShoppingBasketDTO> products = shoppingBasketRepository.findAllShoppingBasketByUserId(userId, pageable);
+            List<ProductShoppingBasketDTO> products = shoppingBasketRepository.findAllShoppingBasketByUserId(userId);
 
             // 묶음 배송 상품끼리 묶기
             List<ShoppingBasketDTO> shoppingBaskets = new ArrayList<>();

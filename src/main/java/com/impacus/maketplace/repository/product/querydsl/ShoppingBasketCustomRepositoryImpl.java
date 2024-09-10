@@ -3,10 +3,12 @@ package com.impacus.maketplace.repository.product.querydsl;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.shoppingBasket.response.ProductShoppingBasketDTO;
 import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDTO;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
+import com.impacus.maketplace.entity.product.bundleDelivery.QBundleDeliveryGroup;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
@@ -29,17 +31,14 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
     private final QProductOption productOption = QProductOption.productOption;
     private final QSeller seller = QSeller.seller;
     private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
+    private final QBundleDeliveryGroup bundleDeliveryGroup = QBundleDeliveryGroup.bundleDeliveryGroup;
 
     @Override
-    public Slice<ShoppingBasketDTO> findAllShoppingBasketByUserId(Long userId, Pageable pageable) {
-        // 1. 데이터 조회
-        List<ShoppingBasketDTO> dtos = getShoppingBasketDetailDTOs(userId, pageable);
-
-        // 2. 슬라이스 처리
-        return PaginationUtils.toSlice(dtos, pageable);
+    public List<ProductShoppingBasketDTO> findAllShoppingBasketByUserId(Long userId) {
+        return getShoppingBasketDetailDTOs(userId);
     }
 
-    private List<ShoppingBasketDTO> getShoppingBasketDetailDTOs(Long userId, Pageable pageable) {
+    private List<ProductShoppingBasketDTO> getShoppingBasketDetailDTOs(Long userId) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(productOption.productId))
                 .and(product.isDeleted.eq(false));
@@ -48,52 +47,41 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
         productOptionBuilder.and(shoppingBasket.productOptionId.eq(productOption.id))
                 .and(productOption.isDeleted.eq(false));
 
-        // 1. 조건에 맞는 장바구니 ID 리스트 조회
-        List<Long> shoppingBasketIds = queryFactory
-                .select(shoppingBasket.id)
-                .from(shoppingBasket)
-                .where(shoppingBasket.userId.eq(userId))
-                .orderBy(shoppingBasket.modifyAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1)
-                .fetch();
-
-        // 2. shoppingBasketIds 에 포함되는 상품 조회
         return queryFactory
                 .selectFrom(shoppingBasket)
                 .leftJoin(productOption).on(productOptionBuilder)
                 .innerJoin(product).on(productBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
-                .where(shoppingBasket.id.in(shoppingBasketIds))
+                .leftJoin(bundleDeliveryGroup).on(product.bundleDeliveryGroupId.isNotNull().and(bundleDeliveryGroup.id.eq(product.bundleDeliveryGroupId)))
+                .where(shoppingBasket.userId.eq(userId))
                 .orderBy(shoppingBasket.modifyAt.desc())
                 .transform(
-                        GroupBy.groupBy(shoppingBasket.id).list(Projections.constructor(
-                                        ShoppingBasketDTO.class,
-                                        shoppingBasket.id,
-                                        shoppingBasket.quantity,
-                                        shoppingBasket.modifyAt,
+                        GroupBy.groupBy(shoppingBasket.id)
+                                .list(
                                         Projections.constructor(
-                                                AppProductDTO.class,
-                                                product.id,
-                                                product.name,
-                                                seller.marketName,
-                                                product.appSalesPrice,
-                                                product.deliveryType,
-                                                product.discountPrice,
-                                                product.productImages,
-                                                product.deliveryFee,
-                                                product.type,
-                                                product.createAt,
-                                                product.deliveryFeeType,
-                                                sellerDeliveryCompany.generalDeliveryFee
-                                        ),
+                                        ProductShoppingBasketDTO.class,
+                                        shoppingBasket.id,
+                                        product.id,
+                                        product.name,
+                                        product.productImages,
+                                        seller.marketName,
+                                        product.deliveryFee,
                                         Projections.constructor(
                                                 ProductOptionDTO.class,
                                                 productOption.id,
                                                 productOption.color,
                                                 productOption.size
-                                        )
+                                        ),
+                                        product.deliveryType,
+                                        product.type,
+                                        product.discountPrice,
+                                        product.bundleDeliveryGroupId,
+                                        product.deliveryFeeType,
+                                        sellerDeliveryCompany.generalDeliveryFee,
+                                        shoppingBasket.quantity,
+                                        shoppingBasket.modifyAt,
+                                        bundleDeliveryGroup.deliveryFeeRule
                                 )
                         )
                 );
