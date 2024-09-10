@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!--    nullable="true" 로 변경-->
+    <changeSet author="lchy0413" id="changelog-0.12.01-240813">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="product_info" columnName="delivery_fee"/>
+            <columnExists tableName="product_info" columnName="refund_fee"/>
+        </preConditions>
+        <dropNotNullConstraint tableName="product_info" columnName="delivery_fee"/>
+        <dropNotNullConstraint tableName="product_info" columnName="refund_fee"/>
+    </changeSet>
+
+    <!-- product column 추가  -->
+    <changeSet author="lchy0413" id="changelog-0.12.02-240813-1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="special_delivery_fee"/>
+                <columnExists tableName="product_info" columnName="special_refund_fee"/>
+                <columnExists tableName="product_info" columnName="special_delivery_fee"/>
+                <columnExists tableName="product_info" columnName="special_refund_fee"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="special_delivery_fee" type="INT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="product_info">
+            <column name="special_refund_fee" type="INT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="product_info">
+            <column name="delivery_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="product_info">
+            <column name="refund_fee_type" type="VARCHAR(255)" defaultValue="CHARGE_UNDER_30000">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- 상품관련 description 테이블 삭제  -->
+    <changeSet author="lchy0413" id="changelog-0.12.04-240813">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="product_description"/>
+            <tableExists tableName="temporary_product_description"/>
+        </preConditions>
+        <dropTable tableName="product_description"/>
+        <dropTable tableName="temporary_product_description"/>
+    </changeSet>
+
+    <!-- product column 추가 (description)  -->
+    <changeSet author="lchy0413" id="changelog-0.12.05-240813-2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="description"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="description" type="TEXT" defaultValue="''">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- product column 추가 (delivery_company)  -->
+    <changeSet author="lchy0413" id="changelog-0.12.07-240813-1">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="delivery_company"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="delivery_company" type="VARCHAR(255)" defaultValue="CJ">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

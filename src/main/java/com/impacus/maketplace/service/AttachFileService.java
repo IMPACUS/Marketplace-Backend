@@ -1,20 +1,24 @@
 package com.impacus.maketplace.service;
 
+import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.enumType.common.ImagePurpose;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.common.AttachFileGroup;
 import com.impacus.maketplace.repository.AttachFileRepository;
-import com.impacus.maketplace.service.aws.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +28,7 @@ import java.util.stream.Collectors;
 public class AttachFileService {
 
     private final AttachFileRepository attachFileRepository;
-    private final S3Service s3Service;
+    private final CloudFileUploadService cloudFileUploadService;
     private final AttachFileGroupService attachFileGroupService;
 
     /**
@@ -35,15 +39,15 @@ public class AttachFileService {
      * @return
      */
     @Transactional
-    public AttachFile uploadFileAndAddAttachFile(MultipartFile file, String directoryPath) throws IOException {
-        String fileName = s3Service.uploadFileInS3(file, directoryPath);
+    public AttachFile uploadFileAndAddAttachFile(MultipartFile file, String directoryPath) {
+        String fileName = cloudFileUploadService.uploadFile(file, Path.of(directoryPath)).toString();
 
         // 1. AttachFile 저장
         AttachFile newAttachFile = AttachFile.builder()
                 .attachFileName(fileName)
                 .attachFileSize(file.getSize())
                 .originalFileName(file.getOriginalFilename())
-                .attachFileExt(StringUtils.getFileExtension(file.getOriginalFilename()).orElse(null))
+                .attachFileExt(StringUtils.getFilenameExtension(file.getOriginalFilename()))
                 .build();
         attachFileRepository.save(newAttachFile);
 
@@ -59,14 +63,14 @@ public class AttachFileService {
      */
     @Transactional
     public AttachFile uploadFileAndAddAttachFile(MultipartFile file, String directoryPath, Long referencedId, ReferencedEntityType entityType) throws IOException {
-        String fileName = s3Service.uploadFileInS3(file, directoryPath);
+        String fileName = cloudFileUploadService.uploadFile(file, Path.of(directoryPath)).toString();
 
         // 1. AttachFile 저장
         AttachFile newAttachFile = AttachFile.builder()
                 .attachFileName(fileName)
                 .attachFileSize(file.getSize())
                 .originalFileName(file.getOriginalFilename())
-                .attachFileExt(StringUtils.getFileExtension(file.getOriginalFilename()).orElse(null))
+                .attachFileExt(StringUtils.getFilenameExtension(file.getOriginalFilename()))
                 .build();
         attachFileRepository.save(newAttachFile);
 
@@ -109,7 +113,7 @@ public class AttachFileService {
 
         // 3. S3에 파일 삭제
         for (AttachFile file : attachFileList) {
-            s3Service.deleteFileInS3(file.getAttachFileName());
+            cloudFileUploadService.deleteFile(file.getAttachFileName());
         }
 
         // 4. AttachFileGroup 삭제
@@ -127,7 +131,7 @@ public class AttachFileService {
     public void deleteAttachFile(Long attachFileId) {
         AttachFile file = findAttachFileById(attachFileId);
 
-        s3Service.deleteFileInS3(file.getAttachFileName());
+        cloudFileUploadService.deleteFile(file.getAttachFileName());
         attachFileRepository.delete(file);
     }
 
@@ -160,14 +164,14 @@ public class AttachFileService {
      * @param changedFile
      * @param directoryPath
      */
-    public void updateAttachFile(Long attachFileId, MultipartFile changedFile, String directoryPath) throws IOException {
+    public void updateAttachFile(Long attachFileId, MultipartFile changedFile, String directoryPath) {
         AttachFile file = findAttachFileById(attachFileId);
 
         // 1. 업로드된 파일 삭제
-        s3Service.deleteFileInS3(file.getAttachFileName());
+        cloudFileUploadService.deleteFile(file.getAttachFileName());
 
         // 2. s3 업로드
-        String fileName = s3Service.uploadFileInS3(changedFile, directoryPath);
+        String fileName = cloudFileUploadService.uploadFile(changedFile, Path.of(directoryPath)).toString();
 
         // 3. 업데이트
         attachFileRepository.updateFileInfo(
@@ -175,7 +179,31 @@ public class AttachFileService {
                 fileName,
                 changedFile.getSize(),
                 changedFile.getOriginalFilename(),
-                StringUtils.getFileExtension(changedFile.getOriginalFilename()).orElse(null)
+                StringUtils.getFilenameExtension(changedFile.getOriginalFilename())
         );
+    }
+
+    /**
+     * AttachFile에 저장하지 않고, 이미지 업로드하는 함수
+     *
+     * @param imagePurpose
+     * @param file
+     */
+    public URI uploadImage(ImagePurpose imagePurpose, MultipartFile file) {
+        try {
+            // 유효성 검사
+            switch (imagePurpose) {
+                case PRODUCT -> {
+                    if (file.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
+                        throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                    }
+                }
+            }
+
+            // 업로드
+            return cloudFileUploadService.uploadFile(file, Path.of(imagePurpose.getDirectory()));
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

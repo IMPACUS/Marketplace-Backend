@@ -1,9 +1,9 @@
 package com.impacus.maketplace.dto.wishlist.response;
 
-import com.impacus.maketplace.common.enumType.DeliveryType;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
-import com.impacus.maketplace.dto.common.response.AttachFileDTO;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
+import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 public class WishlistDetailDTO {
     private Long wishlistId;
-    private ProductForAppDTO product;
+    private AppProductDTO product;
 
     @QueryProjection
     public WishlistDetailDTO(
@@ -27,21 +27,25 @@ public class WishlistDetailDTO {
             int deliveryFee,
             ProductType type,
             LocalDateTime createAt,
-            List<AttachFileDTO> productImageList
+            List<String> productImages,
+            DeliveryRefundType deliveryFeeType,
+            Integer sellerDeliveryFee
     ) {
         this.wishlistId = wishlistId;
-        this.product = new ProductForAppDTO(
+        this.product = new AppProductDTO(
                 productId,
                 name,
                 brandName,
                 appSalePrice,
                 deliveryType,
                 discountPrice,
-                productImageList,
+                productImages,
                 wishlistId,
                 deliveryFee,
                 type,
-                createAt
+                createAt,
+                deliveryFeeType,
+                sellerDeliveryFee
         );
     }
 }

@@ -5,14 +5,14 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="changelog-0.01.01-240518" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="is_cert_bank"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="is_cert_bank"/>
     </changeSet>
 
     <changeSet id="changelog-0.01.02-240518" author="lchy0413">
-        <preConditions onFail="CONTINUE">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="is_withdrawn"/>
         </preConditions>
         <dropColumn tableName="user_info" columnName="is_withdrawn"/>

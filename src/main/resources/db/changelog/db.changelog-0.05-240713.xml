@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <!-- brand 생성 -->
+  <changeSet author="lchy0413" id="changelog-0.05.01-240713">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="brand"/>
+      </not>
+    </preConditions>
+
+    <createTable tableName="brand">
+      <column autoIncrement="true" name="brand_id" type="BIGINT">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="introduction" type="TEXT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="seller_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="opening_time" type="TIME">
+        <constraints nullable="false"/>
+      </column>
+      <column name="closing_time" type="TIME">
+        <constraints nullable="false"/>
+      </column>
+      <column name="business_day" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="breaking_time" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="create_at" type="TIMESTAMP">
+      </column>
+      <column name="modify_at" type="TIMESTAMP">
+      </column>
+      <column name="register_id" type="VARCHAR(255)">
+      </column>
+      <column name="modify_id" type="VARCHAR(255)">
+      </column>
+    </createTable>
+
+    <setColumnRemarks columnName="introduction" remarks="쇼핑몰 소개" tableName="brand"/>
+    <setColumnRemarks columnName="opening_time" remarks="영업 시작 시간" tableName="brand"/>
+    <setColumnRemarks columnName="closing_time" remarks="영업 마무리 시간" tableName="brand"/>
+    <setColumnRemarks columnName="business_day" remarks="영업 일자" tableName="brand"/>
+    <setColumnRemarks columnName="breaking_time" remarks="점심 시간" tableName="brand"/>
+  </changeSet>
+
+  <!-- seller_delivery_address 생성 -->
+  <changeSet author="lchy0413" id="changelog-0.05.02-240713">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="seller_delivery_address"/>
+      </not>
+    </preConditions>
+
+    <createTable tableName="seller_delivery_address">
+      <column name="seller_delivery_address_id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="seller_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="general_address" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="general_detail_address" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="general_business_name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refund_address" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refund_detail_address" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refund_business_name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refund_account_number" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refund_account_name" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refund_bank_code" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="create_at" type="TIMESTAMP">
+      </column>
+      <column name="modify_at" type="TIMESTAMP">
+      </column>
+      <column name="register_id" type="VARCHAR(255)">
+      </column>
+      <column name="modify_id" type="VARCHAR(255)">
+      </column>
+    </createTable>
+
+    <setColumnRemarks tableName="seller_delivery_address" columnName="general_address" remarks="일반 주소지"/>
+    <setColumnRemarks tableName="seller_delivery_address" columnName="general_detail_address" remarks="일반 상세 주소"/>
+    <setColumnRemarks tableName="seller_delivery_address" columnName="general_business_name" remarks="일반 상호명"/>
+    <setColumnRemarks tableName="seller_delivery_address" columnName="refund_address" remarks="반품 주소지"/>
+    <setColumnRemarks tableName="seller_delivery_address" columnName="refund_detail_address" remarks="반품 상세 주소지"/>
+    <setColumnRemarks tableName="seller_delivery_address" columnName="refund_business_name" remarks="반품 상호명"/>
+    <setColumnRemarks tableName="seller_delivery_address" columnName="refund_account_number" remarks="반품 배송비 계좌"/>
+    <setColumnRemarks tableName="seller_delivery_address" columnName="refund_account_name" remarks="반품 배송비 예금주명"/>
+    <setColumnRemarks tableName="seller_delivery_address" columnName="refund_bank_code" remarks="반품 계좌 은행"/>
+  </changeSet>
+
+  <!-- selected_seller_delivery_address 생성 -->
+  <changeSet author="lchy0413" id="changelog-0.05.03-240713">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="selected_seller_delivery_address"/>
+      </not>
+    </preConditions>
+
+    <createTable tableName="selected_seller_delivery_address">
+      <column name="selected_seller_delivery_address_id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="seller_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="seller_delivery_address_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="create_at" type="TIMESTAMP">
+      </column>
+      <column name="modify_at" type="TIMESTAMP">
+      </column>
+      <column name="register_id" type="VARCHAR(255)">
+      </column>
+      <column name="modify_id" type="VARCHAR(255)">
+      </column>
+    </createTable>
+  </changeSet>
+
+  <!-- seller_delivery_company 생성 -->
+  <changeSet author="lchy0413" id="changelog-0.05.04-240713">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="seller_delivery_company"/>
+      </not>
+    </preConditions>
+
+    <createTable tableName="seller_delivery_company">
+      <column name="seller_delivery_company_id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="seller_id" type="BIGINT">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="general_delivery_fee" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="general_special_delivery_fee" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refund_delivery_fee" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="refund_special_delivery_fee" type="INT">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="create_at" type="TIMESTAMP">
+      </column>
+      <column name="modify_at" type="TIMESTAMP">
+      </column>
+      <column name="register_id" type="VARCHAR(255)">
+      </column>
+      <column name="modify_id" type="VARCHAR(255)">
+      </column>
+    </createTable>
+
+    <setColumnRemarks tableName="seller_delivery_company" columnName="general_delivery_fee" remarks="일반 배송비"/>
+    <setColumnRemarks tableName="seller_delivery_company" columnName="general_special_delivery_fee" remarks="일반 특수 배송비"/>
+    <setColumnRemarks tableName="seller_delivery_company" columnName="refund_delivery_fee" remarks="반품 배송비"/>
+    <setColumnRemarks tableName="seller_delivery_company" columnName="refund_special_delivery_fee" remarks="반품 특수 배송비"/>
+  </changeSet>
+
+  <!-- selected_seller_delivery_company 생성 -->
+  <changeSet author="lchy0413" id="changelog-0.05.05-240713">
+
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="selected_seller_delivery_company"/>
+      </not>
+    </preConditions>
+
+    <createTable tableName="selected_seller_delivery_company">
+      <column name="selected_seller_delivery_company_id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="seller_delivery_company_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="delivery_company" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="display_order" type="INT">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="create_at" type="TIMESTAMP">
+      </column>
+      <column name="modify_at" type="TIMESTAMP">
+      </column>
+      <column name="register_id" type="VARCHAR(255)">
+      </column>
+      <column name="modify_id" type="VARCHAR(255)">
+      </column>
+    </createTable>
+
+    <setColumnRemarks tableName="selected_seller_delivery_company" columnName="delivery_company" remarks="택배사"/>
+    <setColumnRemarks tableName="selected_seller_delivery_company" columnName="display_order" remarks="순서"/>
+  </changeSet>
+
+</databaseChangeLog>

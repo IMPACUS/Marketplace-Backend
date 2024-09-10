@@ -55,7 +55,7 @@ public class RecentProductViewsService {
     }
 
     public List<Long> findProductIdsByUserId(Long userId, Pageable pageable) {
-        Slice<RecentProductViewsMapping> productViewsMappings = recentProductViewsRepository.findByUserIdOrderByCreateAt(userId, pageable);
+        Slice<RecentProductViewsMapping> productViewsMappings = recentProductViewsRepository.findByUserIdOrderByCreateAtDesc(userId, pageable);
         return productViewsMappings.stream().map(
                 RecentProductViewsMapping::getProductId
         ).toList();

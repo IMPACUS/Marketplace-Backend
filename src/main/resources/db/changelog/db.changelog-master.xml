@@ -6,6 +6,22 @@
 
     <include file="/db/changelog/db.changelog-0.01-240518.xml"/>
     <include file="/db/changelog/db.changelog-0.02-240525.xml"/>
+    <include file="/db/changelog/db.changelog-0.03-240701.xml"/>
+    <include file="/db/changelog/db.changelog-0.04-240702.xml"/>
+    <include file="/db/changelog/db.changelog-0.05-240713.xml"/>
+    <include file="/db/changelog/db.changelog-0.06-240716.xml"/>
+    <include file="/db/changelog/db.changelog-0.07-240726.xml"/>
+    <include file="/db/changelog/db.changelog-0.08-240729.xml"/>
+    <include file="/db/changelog/db.changelog-jb0.01-240713.xml"/>
+    <include file="/db/changelog/db.changelog-0.09-240808.xml"/>
+    <include file="/db/changelog/db.changelog-0.10-240808.xml"/>
+    <include file="/db/changelog/db.changelog-0.11-240808.xml"/>
+    <include file="/db/changelog/db.changelog-0.12-240813.xml"/>
+    <include file="/db/changelog/db.changelog-0.12-240818.xml"/>
+    <include file="/db/changelog/db.changelog-jb0.02-240818.xml"/>
+    <include file="/db/changelog/db.changelog-0.13-240824.xml"/>
+    <include file="/db/changelog/db.changelog-jb0.03-240905.xml"/>
+
 
 </databaseChangeLog>
 

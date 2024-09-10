@@ -1,11 +1,14 @@
 package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.CreateShoppingBasketDTO;
-import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
+import com.impacus.maketplace.dto.shoppingBasket.response.ProductShoppingBasketDTO;
+import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDTO;
 import com.impacus.maketplace.entity.product.ShoppingBasket;
+import com.impacus.maketplace.repository.product.ProductOptionRepository;
 import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +16,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,6 +27,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ShoppingBasketService {
     private final ShoppingBasketRepository shoppingBasketRepository;
+    private final ProductOptionRepository productOptionRepository;
 
     /**
      * 장바구니에 상품을 추가하는 함수
@@ -46,6 +52,11 @@ public class ShoppingBasketService {
                         shoppingBasket.getQuantity() + dto.getQuantity()
                 );
             } else {
+                // 존재하는 ProductOption 인지 확인
+                if (!productOptionRepository.existsByIsDeletedFalseAndId(dto.getProductOptionId())) {
+                    throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT_OPTION);
+                }
+
                 ShoppingBasket shoppingBasket = dto.toEntity(userId);
                 shoppingBasketRepository.save(shoppingBasket);
             }
@@ -109,12 +120,34 @@ public class ShoppingBasketService {
      * 장바구니 데이터 조회하는 함수
      *
      * @param userId
-     * @param pageable
      * @return
      */
-    public Slice<ShoppingBasketDetailDTO> getAllShoppingBasket(Long userId, Pageable pageable) {
+    public List<ShoppingBasketDTO> getShoppingBaskets(Long userId) {
         try {
-            return shoppingBasketRepository.findAllShoppingBasketByUserId(userId, pageable);
+            // 장바구니 상품 조회
+            List<ProductShoppingBasketDTO> products = shoppingBasketRepository.findAllShoppingBasketByUserId(userId);
+
+            // 묶음 배송 상품끼리 묶기
+            List<ShoppingBasketDTO> shoppingBaskets = new ArrayList<>();
+            HashMap<Long, Integer> groupIdMapper = new HashMap<>(); // 그룹 아이디: shoppingBaskets 의 index 매퍼
+
+            for (ProductShoppingBasketDTO product : products) {
+                Long groupId = product.getGroupId();
+
+                if (groupId == null) { // 개별 배송인 경우
+                    shoppingBaskets.add(new ShoppingBasketDTO(product));
+                } else { // 묶음 배송인 경우
+                    if (!groupIdMapper.containsKey(groupId)) {
+                        shoppingBaskets.add(new ShoppingBasketDTO(groupId, product.getDeliveryFeeRule()));
+                        groupIdMapper.put(groupId, shoppingBaskets.size()-1);
+                    }
+
+                    int index = groupIdMapper.get(groupId);
+                    shoppingBaskets.get(index).getProducts().add(product);
+                }
+            }
+
+            return shoppingBaskets;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

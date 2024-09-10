@@ -1,21 +1,49 @@
 package com.impacus.maketplace.common.utils;
 
-import com.impacus.maketplace.common.enumType.OauthProviderType;
+import com.impacus.maketplace.common.constants.RegExpPatternConstants;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.Random;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Component
 public class StringUtils {
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
+    private static final String COUNTER_KEY = "unique_id_counter";
+    private static final String DATE_KEY = "unique_id_date";
 
-    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\\d~!@#$%^&*()+|=]{8,16}$";
+    private static StringRedisTemplate redisTemplate;
+
+    @Autowired
+    public StringUtils(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
+    /**
+     * 고유번호 생성하는 함수
+     * - 날짜가 변경될 때마다 카운터 초기화
+     *
+     * @return 고유번호
+     */
+    public static String generateUniqueNumber() {
+        String currentDate = dateFormat.format(new Date());
+        String storedDate = redisTemplate.opsForValue().get(DATE_KEY);
+
+        if (!currentDate.equals(storedDate)) {
+            redisTemplate.opsForValue().set(DATE_KEY, currentDate);
+            redisTemplate.opsForValue().set(COUNTER_KEY, "0");
+        }
+
+        Long counter = redisTemplate.opsForValue().increment(COUNTER_KEY);
+        return currentDate + String.format("%05d", counter);
+    }
 
     public static Boolean checkPasswordValidation(String password) {
-        return password.matches(PASSWORD_PATTERN);
+        return password.matches(RegExpPatternConstants.PASSWORD_PATTERN);
     }
 
     public static String createStrEmail(String email, OauthProviderType oauthProviderType) {
@@ -31,35 +59,10 @@ public class StringUtils {
     }
 
     /**
-     * 파일명에서 파일 확장자를 찾는 함수
-     *
-     * @param filename
-     * @return
-     */
-    public static Optional<String> getFileExtension(String filename) {
-        return Optional.ofNullable(filename)
-                .filter(f -> f.contains("."))
-                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
-    }
-
-    /**
-     * YYMMddHHmmXXX 형식의 상품번호를 생성하는 함 (XXX: 랜덤 숫자)
-     *
-     * @return
-     */
-    public static String getProductNumber() {
-        String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmm"));
-        Random random = new Random(Long.parseLong(nowDate));
-        int randomNumber = random.nextInt(999 - 100 + 1) + 100;
-        
-        return nowDate + randomNumber;
-    }
-
-    /**
      * String 타입의 number 가 들어오면 구분[,] 넣어주기
      * ex ) String number = 4000;
      *
-     * @return 4,000
+     * @return 4, 000
      */
 
     public static String convertNumberFormat(String number) {
@@ -68,15 +71,31 @@ public class StringUtils {
         return decimalFormat.format(Integer.parseInt(number));
 
     }
+
     public static boolean isNotBlank(String param) {
 
         if (param != null) {
             param = param.trim();
-            if (param.equals("") && param.length() != 0){
+            if (param.equals("") && param.length() != 0) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * 대소문자 상관없이 keyword가 존재하는지 확인하는 함수
+     *
+     * @param str     keyword가 존재하는지 확인하려는 문자열
+     * @param keyword
+     * @return
+     */
+    public static boolean containsKeywordIgnoreCase(String str, String keyword) {
+        if (str == null) {
+            return false;
+        }
+
+        return str.toLowerCase().contains(keyword.toLowerCase());
     }
 
 }

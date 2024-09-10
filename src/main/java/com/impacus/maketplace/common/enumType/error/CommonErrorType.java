@@ -26,12 +26,10 @@ public enum CommonErrorType implements ErrorType {
     INVALID_REQUEST_DATA("018_INVALID_REQUEST_DATA", "유효하지 않은 데이터에 대한 요청입니다."),
     NOT_EXISTED_SHOPPING_CART("019_NOT_EXISTED_SHOPPING_CART", "장바구니 데이터가 존재하지 않습니다."),
     FAIL_TO_APPLE_LOGIN("020_FAIL_TO_APPLE_LOGIN", "apple 로그인에 실패하셨습니다."),
+    FAIL_TO_CONVERT_MAP("021_FAIL_TO_CONVERT_MAP", "map 변환하는데 실패하셨습니다."),
     INVALID_THUMBNAIL("024_INVALID_THUMBNAIL", "유효하지 않은 데이터에 대한 요청입니다."),
     NOT_ACTIVE_EMAIL("026_NOT_ACTIVE_EMAIL", "휴면 회원 입니다."),
-    NOT_EXISTED_POINT_MASTER("030_NOT_EXISTED_POINT_MASTER", "존재하지 않는 POINT 데이터 입니다."),
-    INVALID_POINT_MANAGE("031_INVALID_POINT_MANAGE", "유효하지 않은 포인트 입니다."),
     FAIL_TO_SEND_EMAIL("32_FAIL_TO_SEND_EMAIL", "이메일 전송에 실패하였습니다."),
-    NOT_EXISTED_SELLER("33_NOT_EXISTED_SELLER", "존재하지 않는 사용자 입니다."),
     INVALID_ALARM("043_INVALID_ALARM", "유효하지 않는 알림 타입입니다."),
     INVALID_ID("044_INVALID_ID", "유효하지 않은 ID 입니다."),
 
@@ -40,6 +38,8 @@ public enum CommonErrorType implements ErrorType {
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN("102_EXPIRED_TOKEN", "만료된 토큰입니다."),
+    LOGGED_OUT_TOKEN("103_LOGGED_OUT_TOKEN", "로그아웃된 토큰입니다."),
+
 
     // 403
     ACCESS_DENIED_ACCOUNT("301_ACCESS_DENIED_ACCOUNT", "접근 권한이 없는 요청입니다.");

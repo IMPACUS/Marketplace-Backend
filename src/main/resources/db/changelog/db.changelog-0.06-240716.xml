@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- product 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.01-240716-10">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_info"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="product_info">
+            <column name="product_info_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="seller_id" type="BIGINT" defaultValue="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_number" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="delivery_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="BIGINT" defaultValue="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delivery_fee" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="refund_fee" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="market_price" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="app_sales_price" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discount_price" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_status" type="VARCHAR(255)" defaultValue="'SALES_PROGRESS'">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discount_status" type="VARCHAR(255)" defaultValue="'DISCOUNT_STOP'">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)" defaultValue="'GENERAL'">
+                <constraints nullable="false"/>
+            </column>
+            <column name="special_delivery_fee" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="special_refund_fee" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="delivery_fee_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refund_fee_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delivery_company" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_images" type="TEXT"/>
+            <column name="sales_charge_percent" type="INT"/>
+            <column name="bundle_delivery_option" type="VARCHAR(255)" defaultValue="[]">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bundle_delivery_group_id" type="BIGINT"/>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bundle_delivery_option_applied_at" type="TIMESTAMP"/>
+            <column name="is_custom_product" type="BOOLEAN" defaultValue="false"/>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="product_info" columnName="bundle_delivery_option_applied_at"
+                          remarks="묶음 배송 대상 상품 옵션 적용 날짜"/>
+        <setColumnRemarks tableName="product_info" columnName="seller_id" remarks="판매자 ID"/>
+        <setColumnRemarks tableName="product_info" columnName="name" remarks="상품명"/>
+        <setColumnRemarks tableName="product_info" columnName="product_number" remarks="상품 번호"/>
+        <setColumnRemarks tableName="product_info" columnName="delivery_type" remarks="배송 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="category_id" remarks="카테고리 ID"/>
+        <setColumnRemarks tableName="product_info" columnName="delivery_fee" remarks="배송비"/>
+        <setColumnRemarks tableName="product_info" columnName="refund_fee" remarks="반송비"/>
+        <setColumnRemarks tableName="product_info" columnName="market_price" remarks="시중 판매가"/>
+        <setColumnRemarks tableName="product_info" columnName="app_sales_price" remarks="앱 판매가"/>
+        <setColumnRemarks tableName="product_info" columnName="discount_price" remarks="할인가"/>
+        <setColumnRemarks tableName="product_info" columnName="weight" remarks="무게"/>
+        <setColumnRemarks tableName="product_info" columnName="is_deleted" remarks="삭제 여부"/>
+        <setColumnRemarks tableName="product_info" columnName="product_status" remarks="상품 상태"/>
+        <setColumnRemarks tableName="product_info" columnName="discount_status" remarks="할인 상태"/>
+        <setColumnRemarks tableName="product_info" columnName="type" remarks="상품 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="special_delivery_fee" remarks="특수 지역 배송비"/>
+        <setColumnRemarks tableName="product_info" columnName="special_refund_fee" remarks="특수 지역  반품비"/>
+        <setColumnRemarks tableName="product_info" columnName="delivery_fee_type" remarks="배송비 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="refund_fee_type" remarks="반송비 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="description" remarks="상품 설명"/>
+        <setColumnRemarks tableName="product_info" columnName="product_images" remarks="상품 이미지"/>
+        <setColumnRemarks tableName="product_info" columnName="sales_charge_percent" remarks="반송비 타입"/>
+        <setColumnRemarks tableName="product_info" columnName="bundle_delivery_option" remarks="묶음배송대상상품옵션"/>
+        <setColumnRemarks tableName="product_info" columnName="bundle_delivery_group_id" remarks="묶음배송그룹아이디"/>
+    </changeSet>
+
+    <!-- product_claim_info 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.02-240716">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_claim_info"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="product_claim_info">
+            <column name="product_claim_info_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recall_info" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="claim_cost" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="claim_policy_guild" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="claim_contact_info" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="product_claim_info" columnName="recall_info" remarks="상품 회수 목록"/>
+        <setColumnRemarks tableName="product_claim_info" columnName="claim_cost" remarks="클레임 비용"/>
+        <setColumnRemarks tableName="product_claim_info" columnName="claim_policy_guild" remarks="클레임 정책 안내"/>
+        <setColumnRemarks tableName="product_claim_info" columnName="claim_contact_info" remarks="클레임 문의처"/>
+    </changeSet>
+
+    <!-- product_delivery_time 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.03-240716">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_delivery_time"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="product_delivery_time">
+            <column name="product_delivery_time_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="min_days" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_days" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="product_delivery_time" columnName="min_days" remarks="최소 배송 일수"/>
+        <setColumnRemarks tableName="product_delivery_time" columnName="max_days" remarks="최대 배송 일수"/>
+    </changeSet>
+
+    <!-- product_detail_info 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.05-240716">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_detail_info"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="product_detail_info">
+            <column name="product_detail_info_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_material" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_color" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_size" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_of_manufacture" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="washing_precautions" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country_of_manufacture" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="manufacturer" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="importer" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quality_assurance_standards" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="as_manager" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contact_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Set column remarks using setColumnRemarks -->
+        <setColumnRemarks tableName="product_detail_info" columnName="product_type" remarks="상품 종류"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="product_material" remarks="상품 재료"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="product_color" remarks="상품 색상"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="product_size" remarks="상품 사이즈"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="date_of_manufacture" remarks="제조일"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="washing_precautions" remarks="세탁 시 주의사항"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="country_of_manufacture" remarks="제조국"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="manufacturer" remarks="제조자"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="importer" remarks="수입자"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="quality_assurance_standards" remarks="품질보증기준"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="as_manager" remarks="A/S 책임자"/>
+        <setColumnRemarks tableName="product_detail_info" columnName="contact_number" remarks="전화번호"/>
+
+    </changeSet>
+
+    <!-- product_option 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.06-240716">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_option"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="product_option">
+            <column name="product_option_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="color" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="size" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stock" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Set column remarks using setColumnRemarks -->
+        <setColumnRemarks tableName="product_option" columnName="color" remarks="색"/>
+        <setColumnRemarks tableName="product_option" columnName="size" remarks="크기"/>
+        <setColumnRemarks tableName="product_option" columnName="stock" remarks="재고"/>
+        <setColumnRemarks tableName="product_option" columnName="is_deleted" remarks="삭제 여부"/>
+
+    </changeSet>
+
+    <!-- shopping_basket 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.07-240716">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="shopping_basket"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="shopping_basket">
+            <column name="shopping_basket_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_option_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Set column remarks using setColumnRemarks -->
+        <setColumnRemarks tableName="shopping_basket" columnName="product_option_id" remarks="상품 옵션 ID"/>
+        <setColumnRemarks tableName="shopping_basket" columnName="user_id" remarks="사용자 ID"/>
+        <setColumnRemarks tableName="shopping_basket" columnName="quantity" remarks="수량"/>
+        <setColumnRemarks tableName="shopping_basket" columnName="is_deleted" remarks="삭제 여부"/>
+    </changeSet>
+
+    <!-- wishlist 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.08-240716">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="wishlist"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="wishlist">
+            <column name="wishlist_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <!-- Set column remarks using setColumnRemarks -->
+        <setColumnRemarks tableName="wishlist" columnName="product_id" remarks="상품 ID"/>
+        <setColumnRemarks tableName="wishlist" columnName="is_deleted" remarks="삭제 여부"/>
+
+    </changeSet>
+
+    <!-- product_history 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.09-240716">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_history"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="product_history">
+            <column name="product_history_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_images" type="TEXT"/>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="product_history" columnName="name" remarks="상품명"/>
+        <setColumnRemarks tableName="product_history" columnName="product_images" remarks="상품 이미지"/>
+    </changeSet>
+
+    <!-- product_option_history 생성 -->
+    <changeSet author="lchy0413" id="changelog-0.06.10-240716">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_option_history"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="product_option_history">
+            <column name="product_option_history_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_option_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="color" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="size" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+
+        <setColumnRemarks tableName="product_option_history" columnName="color" remarks="색"/>
+        <setColumnRemarks tableName="product_option_history" columnName="size" remarks="크기"/>
+    </changeSet>
+
+
+</databaseChangeLog>

@@ -1,17 +1,23 @@
 package com.impacus.maketplace.config.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.impacus.maketplace.common.constants.HeaderConstants;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.error.response.ErrorDTO;
 import com.impacus.maketplace.redis.service.BlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -19,6 +25,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,22 +36,50 @@ public class JwtFilter extends GenericFilterBean {
     private final BlacklistService blacklistService;
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-        FilterChain filterChain) throws IOException, ServletException, CustomException {
+    public void doFilter(
+            ServletRequest servletRequest,
+            ServletResponse servletResponse,
+            FilterChain filterChain
+    ) throws IOException, CustomException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
         String jwtAccessToken = parseBearerToken(httpServletRequest);
-        String requestURI = httpServletRequest.getRequestURI();
 
-        if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateToken(jwtAccessToken) == TokenErrorType.NONE) {
-            if (!checkIsLogout(jwtAccessToken)) {
-                Authentication authentication = tokenProvider.getAuthentication(jwtAccessToken);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            if (StringUtils.hasText(jwtAccessToken)) {
+                TokenErrorType tokenError = tokenProvider.validateToken(jwtAccessToken);
+
+                switch (tokenError) {
+                    case NONE:
+                        if (!checkIsLogout(jwtAccessToken)) {
+                            Authentication authentication = tokenProvider.getAuthentication(jwtAccessToken);
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        } else {
+                            throw new CustomException(CommonErrorType.LOGGED_OUT_TOKEN);
+                        }
+                        break;
+                    case EXPIRED_TOKEN:
+                        throw new CustomException(CommonErrorType.EXPIRED_TOKEN);
+                    default:
+                        throw new CustomException(CommonErrorType.EXPIRED_TOKEN);
+                }
             }
-        } else {
-            log.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
+            filterChain.doFilter(servletRequest, servletResponse);
+        } catch (CustomException e) {
+            setErrorResponse(httpServletResponse, e.getErrorType());
         }
+    }
 
-        filterChain.doFilter(servletRequest, servletResponse);
+    private void setErrorResponse(HttpServletResponse response, ErrorType errorType) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+        ErrorDTO errorDTO = ErrorDTO.toDTO(errorType);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String errorJson = objectMapper.writeValueAsString(errorDTO);
+        response.getWriter().write(errorJson);
     }
 
     /**
@@ -54,8 +89,7 @@ public class JwtFilter extends GenericFilterBean {
      * @return
      */
     private boolean checkIsLogout(String accessToken) {
-        boolean result = blacklistService.existsBlacklistByAccessToken(accessToken);
-        return result;
+        return blacklistService.existsBlacklistByAccessToken(accessToken);
     }
 
     /**

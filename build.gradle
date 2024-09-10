@@ -1,7 +1,14 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.0.12'
-    id 'io.spring.dependency-management' version '1.1.3'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2023.0.3'
+        mavenBom 'io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1'
+    }
 }
 
 group = 'com.impacus'
@@ -28,13 +35,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    implementation 'commons-io:commons-io:2.6'
-    implementation 'javax.xml.bind:jaxb-api:2.3.0'
-    implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.30.1'
-    implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.70'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
 
     // mail
-    implementation 'org.springframework.boot:spring-boot-starter-mail:3.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 
@@ -42,9 +46,10 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 
     // jwt
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+    def jjwtVersion = '0.11.5'
+    implementation "io.jsonwebtoken:jjwt-api:$jjwtVersion"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:$jjwtVersion"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:$jjwtVersion"
 
     //oauth
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
@@ -53,15 +58,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     //postgresql
-    implementation 'org.postgresql:postgresql:42.5.1'
+    implementation 'org.postgresql:postgresql'
 
     // gson
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson'
 
     // aws s3
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-    implementation 'com.amazonaws:aws-java-sdk:1.12.529'
-    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
     // QueryDsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
@@ -73,14 +76,12 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
 
     // test
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.rest-assured:rest-assured:5.2.0")
+    testImplementation 'io.rest-assured:rest-assured'
 
     // liquibase
-    implementation 'org.liquibase:liquibase-core:4.27.0'
+    implementation 'org.liquibase:liquibase-core'
 
-    // Redisson
-//    implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 }
 
 tasks.named('test') {
@@ -91,6 +92,11 @@ def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
     main.java.srcDirs += [querydslDir]
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+    }
 }
 
 tasks.withType(JavaCompile) {

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+<!--    &lt;!&ndash; issued_coupon 생성 &ndash;&gt;-->
+<!--    <changeSet id="changelog-0.11.01-240808" author="lchy0413">-->
+<!--        <preConditions onFail="MARK_RAN">-->
+<!--            <not>-->
+<!--                <tableExists tableName="issued_coupon"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+<!--        <createTable tableName="issued_coupon">-->
+<!--            <column name="issued_coupon_id" type="BIGINT">-->
+<!--                <constraints primaryKey="true" nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="user_id" type="BIGINT">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="coupon_id" type="BIGINT">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="lock" type="BOOLEAN">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="available_download_at" type="TIMESTAMP">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="is_download" type="BOOLEAN">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="download_at" type="TIMESTAMP"/>-->
+<!--            <column name="is_used" type="BOOLEAN">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="used_at" type="TIMESTAMP"/>-->
+<!--            <column name="expired_at" type="TIMESTAMP"/>-->
+<!--            <column name="available_downlad_at" type="TIMESTAMP(6)">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+
+<!--            <column name="create_at" type="TIMESTAMP"/>-->
+<!--            <column name="modify_at" type="TIMESTAMP"/>-->
+<!--            <column name="register_id" type="VARCHAR(255)"/>-->
+<!--            <column name="modify_id" type="VARCHAR(255)"/>-->
+<!--        </createTable>-->
+<!--    </changeSet>-->
+
+<!--    &lt;!&ndash; issued_coupon_history 생성 &ndash;&gt;-->
+<!--    <changeSet id="changelog-0.11.02-240808" author="lchy0413">-->
+<!--        <preConditions onFail="MARK_RAN">-->
+<!--            <not>-->
+<!--                <tableExists tableName="issued_coupon_history"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+<!--        <createTable tableName="issued_coupon_history">-->
+<!--            <column name="issued_coupon_history_id" type="BIGINT">-->
+<!--                <constraints primaryKey="true" nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="issued_coupon_id" type="BIGINT">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="trigger_type" type="VARCHAR(255)">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="issued_at" type="DATE">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+
+<!--            <column name="create_at" type="TIMESTAMP"/>-->
+<!--            <column name="modify_at" type="TIMESTAMP"/>-->
+<!--            <column name="register_id" type="VARCHAR(255)"/>-->
+<!--            <column name="modify_id" type="VARCHAR(255)"/>-->
+<!--        </createTable>-->
+<!--    </changeSet>-->
+
+<!--    &lt;!&ndash; issued_coupon_triggers 생성 &ndash;&gt;-->
+<!--    <changeSet id="changelog-0.11.03-240808" author="lchy0413">-->
+<!--        <preConditions onFail="MARK_RAN">-->
+<!--            <not>-->
+<!--                <tableExists tableName="issued_coupon_triggers"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+<!--        <createTable tableName="issued_coupon_triggers">-->
+<!--            <column name="id" type="BIGINT">-->
+<!--                <constraints primaryKey="true" nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="issued_coupon_history_id" type="BIGINT">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+<!--            <column name="trigger_id" type="BIGINT">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
+
+<!--            <column name="create_at" type="TIMESTAMP"/>-->
+<!--            <column name="modify_at" type="TIMESTAMP"/>-->
+<!--            <column name="register_id" type="VARCHAR(255)"/>-->
+<!--            <column name="modify_id" type="VARCHAR(255)"/>-->
+<!--        </createTable>-->
+<!--    </changeSet>-->
+
+    <!-- user_info 생성 -->
+    <changeSet id="changelog-0.11.04-240808-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user_info"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user_info">
+            <column name="user_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id_name" type="VARCHAR(255)"/>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="jumin1" type="VARCHAR(255)"/>
+            <column name="jumin2" type="VARCHAR(255)"/>
+            <column name="phone_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profile_image_id" type="BIGINT"/>
+            <column name="recent_login_at" type="TIMESTAMP"/>
+            <column name="is_cert_email" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="is_cert_phone" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="cert_email_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="cert_phone_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false"/>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+
+        </createTable>
+
+        <!-- Column Remarks -->
+        <setColumnRemarks tableName="user_info" columnName="user_id" remarks="회원 ID"/>
+        <setColumnRemarks tableName="user_info" columnName="email" remarks="이메일"/>
+        <setColumnRemarks tableName="user_info" columnName="password" remarks="비밀번호"/>
+        <setColumnRemarks tableName="user_info" columnName="name" remarks="이름"/>
+        <setColumnRemarks tableName="user_info" columnName="user_id_name" remarks="회원 아이디"/>
+        <setColumnRemarks tableName="user_info" columnName="type" remarks="사용자 타입"/>
+        <setColumnRemarks tableName="user_info" columnName="jumin1" remarks="주민 번호 앞자리"/>
+        <setColumnRemarks tableName="user_info" columnName="jumin2" remarks="주민 번호 뒷자리"/>
+        <setColumnRemarks tableName="user_info" columnName="phone_number" remarks="전화번호"/>
+        <setColumnRemarks tableName="user_info" columnName="profile_image_id" remarks="프로필 이미지 아이디"/>
+        <setColumnRemarks tableName="user_info" columnName="recent_login_at" remarks="최근 로그인 일자"/>
+        <setColumnRemarks tableName="user_info" columnName="is_cert_email" remarks="이메일 동의 여부"/>
+        <setColumnRemarks tableName="user_info" columnName="is_cert_phone" remarks="휴대전화 동의 여부"/>
+        <setColumnRemarks tableName="user_info" columnName="cert_email_at" remarks="이메일 동의 날짜"/>
+        <setColumnRemarks tableName="user_info" columnName="cert_phone_at" remarks="휴대전화 동의 날짜"/>
+        <setColumnRemarks tableName="user_info" columnName="is_deleted" remarks="삭제 여부"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.11.05-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="orders" foreignKeyName="user_id"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint
+                constraintName="FK_orders_user_info"
+                baseTableName="orders"
+                baseColumnNames="user_id"
+                referencedTableName="user_info"
+                referencedColumnNames="user_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.11.06-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="purchase_product" foreignKeyName="order_id"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint
+                constraintName="FK_purchase_product_orders"
+                baseTableName="purchase_product"
+                baseColumnNames="order_id"
+                referencedTableName="orders"
+                referencedColumnNames="order_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.11.07-240808" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="purchase_product"
+                                            foreignKeyName="product_detail_info_id"/>
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint
+                constraintName="FK_purchase_product_product_detail_info"
+                baseTableName="purchase_product"
+                baseColumnNames="product_detail_info_id"
+                referencedTableName="product_detail_info"
+                referencedColumnNames="product_detail_info_id"/>
+    </changeSet>
+
+</databaseChangeLog>

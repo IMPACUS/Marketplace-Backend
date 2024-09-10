@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    default: local
+    group:
+      local:
+        - local-oauth-key
+        - key
+        - mail
+      dev:
+        - dev-oauth-key
+        - key
+        - mail
+      test:
+        - dev-oauth-key
+        - key
+        - mail
+  servlet:
+    multipart:
+      max-file-size: 24MB
+      max-request-size: 30MB
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+logging:
+  level:
+    org.apache.http: DEBUG
+    httpclient.wire: DEBUG

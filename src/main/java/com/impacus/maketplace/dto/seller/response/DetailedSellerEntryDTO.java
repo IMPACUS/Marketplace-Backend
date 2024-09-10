@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.seller.response;
 
 import com.impacus.maketplace.common.enumType.BankCode;
-import com.querydsl.core.annotations.QueryProjection;
+import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,33 +22,9 @@ public class DetailedSellerEntryDTO {
     private String businessRegistrationUrl;
     private String mailOrderBusinessReportUrl;
     private String bankBookUrl;
-
-    @QueryProjection
-    public DetailedSellerEntryDTO(
-            Long id,
-            String marketName,
-            String contactName,
-            String email,
-            String contactNumber,
-            String businessRegistrationNumber,
-            String mailOrderBusinessReportNumber,
-            String businessAddress,
-            BankCode bankCode,
-            String accountName,
-            String accountNumber
-    ) {
-        this.id = id;
-        this.marketName = marketName;
-        this.contactName = contactName;
-        this.email = email;
-        this.contactNumber = contactNumber;
-        this.businessRegistrationNumber = businessRegistrationNumber;
-        this.mailOrderBusinessReportNumber = mailOrderBusinessReportNumber;
-        this.businessAddress = businessAddress;
-        this.bankCode = bankCode;
-        this.accountName = accountName;
-        this.accountNumber = accountNumber;
-    }
+    private String logoImageUrl;
+    private Integer chargePercent;
+    private EntryStatus entryStatus;
 
     public void setBusinessRegistrationUrl(String businessRegistrationUrl) {
         this.businessRegistrationUrl = businessRegistrationUrl;

@@ -31,4 +31,8 @@ public class CategoryDetailDTO {
 
         return true;
     }
+
+    public void setSubCategories(List<SubCategoryDetailDTO> subCategories) {
+        this.subCategories = subCategories;
+    }
 }

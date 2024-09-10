@@ -1,5 +1,7 @@
 package security;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,6 +45,19 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
                 .build();
     }
 
+    public static CustomUserDetails create(AdminInfo admin) {
+        UserType adminType = UserType.getAdminRole(admin.getAccountType());
+        List<GrantedAuthority> authorities = Collections.
+                singletonList(new SimpleGrantedAuthority(adminType.name()));
+
+        return CustomUserDetails.builder()
+                .id(admin.getId())
+                .email(admin.getAdminIdName())
+                .password(admin.getPassword())
+                .authorities(authorities)
+                .build();
+    }
+
     public static CustomUserDetails create(User user, Map<String, Object> attributes) {
         CustomUserDetails userDetails = CustomUserDetails.create(user);
         userDetails.setAttributes(attributes);
@@ -56,7 +71,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     public Long getId() {
         return this.id;
     }
-
+    
     @Override
     public String getUsername() {
         return email;
@@ -91,6 +106,4 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     public boolean isEnabled() {
         return true;
     }
-
-
 }

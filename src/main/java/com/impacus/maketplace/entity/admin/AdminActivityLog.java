@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.admin;
 
+import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,14 +13,14 @@ import java.time.ZonedDateTime;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class AdminActivityLog {
+public class AdminActivityLog extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "admin_id")
+    private Long adminId;
 
     @Column(name = "crtDate")
     private ZonedDateTime crtDate;

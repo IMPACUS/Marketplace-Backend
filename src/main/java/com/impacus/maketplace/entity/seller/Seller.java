@@ -3,13 +3,17 @@ package com.impacus.maketplace.entity.seller;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.enumType.seller.SellerType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "seller_info")
+@Table(name = "seller")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Seller extends BaseEntity {
@@ -23,10 +27,15 @@ public class Seller extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private EntryStatus entryStatus; // 입점 상태
+    @Comment("입점 상태")
+    private EntryStatus entryStatus;
+
+    @Comment("입점 날짜")
+    private LocalDateTime entryApprovedAt;
 
     @Column(nullable = false)
-    private String contactName; // 판매 담당자 이름
+    @Comment("판매 담당자 이름")
+    private String contactName;
 
     @Column(nullable = false)
     private String marketName;
@@ -34,19 +43,38 @@ public class Seller extends BaseEntity {
     @Column(nullable = false)
     private Long logoImageId;
 
-    private String customerServiceNumber; // 고객센터 전화 번호
+    @Comment("고객센터 전화 번호")
+    private String customerServiceNumber;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private BusinessType businessType; // 사업자 구분
+    @Comment("사업자 구분")
+    private BusinessType businessType;
 
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted; // 삭제 여부
+    @Comment("삭제 여부")
+    private boolean isDeleted; //
 
     @ColumnDefault("0")
-    @Column(nullable = false, name = "charge_percent")
-    private int chargePercent; // 수수료 비율
+    @Column(name = "charge_percent")
+    @Comment("수수료 비율")
+    private Integer chargePercent;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @ColumnDefault("UNOFFICIAL_AGENT")
+    private SellerType sellerType;
+
+    public void setEntryInformation(
+            EntryStatus entryStatus,
+            Integer chargePercent,
+            LocalDateTime entryApprovedAt
+    ) {
+        this.entryStatus = entryStatus;
+        this.chargePercent = chargePercent;
+        this.entryApprovedAt = entryApprovedAt;
+    }
 
     @Builder
     public Seller(Long userId,
@@ -54,7 +82,9 @@ public class Seller extends BaseEntity {
                   String marketName,
                   Long logoImageId,
                   String customerServiceNumber,
-                  BusinessType businessType) {
+                  BusinessType businessType,
+                  SellerType sellerType
+    ) {
         this.userId = userId;
         this.contactName = contactName;
         this.marketName = marketName;
@@ -63,6 +93,6 @@ public class Seller extends BaseEntity {
         this.businessType = businessType;
         this.entryStatus = EntryStatus.REQUEST;
         this.isDeleted = false;
-        this.chargePercent = 0;
+        this.sellerType = sellerType;
     }
 }

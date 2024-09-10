@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -45,6 +47,7 @@ public class ProductDeliveryTimeService {
      * @return
      */
     public ProductDeliveryTime findProductDeliveryTimeByProductId(Long productId) {
-        return deliveryTimeRepository.findByProductId(productId).get(0);
+        List<ProductDeliveryTime> deliveryTimes = deliveryTimeRepository.findByProductId(productId);
+        return deliveryTimes.isEmpty() ? null : deliveryTimes.get(0);
     }
 }

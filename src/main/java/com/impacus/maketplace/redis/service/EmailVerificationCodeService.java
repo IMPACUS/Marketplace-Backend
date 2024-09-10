@@ -1,12 +1,10 @@
 package com.impacus.maketplace.redis.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.impacus.maketplace.redis.entity.EmailVerificationCode;
 import com.impacus.maketplace.redis.repository.EmailVerificationCodeRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,6 +53,7 @@ public class EmailVerificationCodeService {
      * emailVerificationCode 삭제하는 함수
      * @param emailVerificationCode
      */
+    @Transactional
     public void deleteEmailVerificationCode(EmailVerificationCode emailVerificationCode) {
         emailAuthenticationNumberRepository.delete(emailVerificationCode);
     }

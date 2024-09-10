@@ -1,17 +1,23 @@
 package com.impacus.maketplace.service.auth;
 
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
+import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.redis.service.BlacklistService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
@@ -23,6 +29,8 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final UserService userService;
     private final BlacklistService blacklistService;
+    private final PasswordEncoder passwordEncoder;
+    private final GreenLabelPointAllocationService greenLabelPointAllocationService;
 
     private final static String AUTHENTICATION_HEADER_TYPE = "Bearer";
 
@@ -51,6 +59,15 @@ public class AuthService {
             // 3. JWT 토큰 재발급
             TokenInfoVO tokenInfoVO = tokenProvider.createToken(authentication);
 
+            // 4. 소비자인 경우 출석 포인트 지급
+            if (user.getType() == UserType.ROLE_CERTIFIED_USER) {
+                greenLabelPointAllocationService.payGreenLabelPoint(
+                        user.getId(),
+                        PointType.CHECK,
+                        PointType.CHECK.getAllocatedPoints()
+                );
+            }
+
             return new UserDTO(user, tokenInfoVO);
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -71,5 +88,34 @@ public class AuthService {
         }
 
         blacklistService.saveBlacklist(accessToken, expiration);
+    }
+
+    /**
+     * 사용자에게 저장된 비밀번호와 동일한지 확인하는 함수
+     *
+     * @param userType
+     * @param password
+     * @return
+     */
+    public CheckMatchedPasswordDTO checkIsPasswordMatch(Long userId, UserType userType, String password) {
+        try {
+            // 1. 비밀번호 유효성 검사
+            if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
+                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+            }
+
+            // 2. 일치하는지 확인
+            User user = userService.findUserById(userId);
+            switch (userType) {
+                case ROLE_APPROVED_SELLER -> {
+                    boolean isPasswordMatch = passwordEncoder.matches(password, user.getPassword());
+                    return CheckMatchedPasswordDTO.toDTO(isPasswordMatch);
+                }
+            }
+
+            return CheckMatchedPasswordDTO.toDTO(false);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

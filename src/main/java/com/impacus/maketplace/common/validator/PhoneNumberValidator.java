@@ -12,6 +12,6 @@ public class PhoneNumberValidator implements ConstraintValidator<ValidPhoneNumbe
         if (value == null) {
             return false;
         }
-        return value.matches(RegExpPatternConstants.PHONE_NUMBER_PATTEN);
+        return value.matches(RegExpPatternConstants.PHONE_NUMBER_PATTERN);
     }
 }

@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -26,6 +26,7 @@ public class SellerBusinessInfo extends BaseEntity {
 
     @Column(nullable = false)
     @Convert(converter = AES256ToStringConverter.class)
+    @Comment("대표 이메일")
     private String representativeContact;
 
     @Column(nullable = false)
@@ -34,29 +35,32 @@ public class SellerBusinessInfo extends BaseEntity {
 
     @Column(nullable = false)
     @Convert(converter = AES256ToStringConverter.class)
-    private String businessRegistrationNumber; // 사업자 등록증 번호
+    @Comment("사업자 등록증 번호")
+    private String businessRegistrationNumber;
 
     @Column(nullable = false)
     @Convert(converter = AES256ToStringConverter.class)
-    private String businessCondition; // 업태
+    @Comment("업태")
+    private String businessCondition;
 
     @Column(nullable = false)
     @Convert(converter = AES256ToStringConverter.class)
-    private String businessAddress; // 사업자 등록 주소
+    @Comment("사업자 등록 주소")
+    private String businessAddress;
 
     @Column(nullable = false)
     @Convert(converter = AES256ToStringConverter.class)
-    private String businessEmail; // 이메일 (fax 확인용)
+    @Comment("이메일 (fax 확인용)")
+    private String businessEmail;
 
     @Column(nullable = false)
-    private Long copyBusinessRegistrationCertificateId; // 사업자 등록증 사본 이미지 id
+    @Comment("사업자 등록증 사본 이미지 id")
+    private Long copyBusinessRegistrationCertificateId;
 
-    private Long copyMainOrderBusinessReportCardId; // 통신 판매업 신고증 id
+    @Comment("통신 판매업 신고증 id")
+    private Long copyMainOrderBusinessReportCardId;
 
     @Convert(converter = AES256ToStringConverter.class)
-    private String mailOrderBusinessReportNumber; // 통신 판매업 번호
-
-    @ColumnDefault("'false'")
-    @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted; // 삭제 여부
+    @Comment("통신 판매업 번호")
+    private String mailOrderBusinessReportNumber;
 }

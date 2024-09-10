@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: key
+  cloud:
+    aws:
+      credentials:
+        access-key: AKIAXSSTZSMIL6XBC26R
+        secret-key: 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
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: dev-impacus-s3
+
+key:
+  aes:
+    secret-key: 36114567890121556789012326673001
+  jwt:
+    secret-key: 6B64DCA4E72F58EDIKU9AAB215FE76B64DCA4E72F58EDIKU9AAB215FE7
+    accesstoken-validity-in-min: 60
+    refreshtoken-validity-in-min: 20160

@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.Where;
 
 @Entity
@@ -12,8 +12,6 @@ import org.hibernate.annotations.Where;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE product_option SET is_deleted = true WHERE product_option_id = ?")
-@Where(clause = "is_deleted = false")
 public class ProductOption extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,17 +22,33 @@ public class ProductOption extends BaseEntity {
     private Long productId;
 
     @Column(nullable = false)
-    private String color; // 색
+    @Comment("색")
+    private String color;
 
     @Column(nullable = false)
-    private String size; // 크기
+    @Comment("크기")
+    private String size;
 
     @Column(nullable = false)
-    private Long stock; // 재고
+    @Comment("재고")
+    private Long stock;
 
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
-    private boolean isDeleted; // 삭제 여부
+    @Comment("삭제 여부")
+    private boolean isDeleted;
+
+    // PostLoad 를 위해서 관리되는 데이터
+    @Transient
+    private String previousColor;
+    @Transient
+    private String previousSize;
+
+    @PostLoad
+    public void storePreviousState() {
+        this.previousColor = this.color;
+        this.previousSize = this.size;
+    }
 
     public void setColor(String color) {
         this.color = color;

@@ -15,6 +15,8 @@ public class EmailVerificationCode {
 
     @Indexed
     private String email;
+    
+    @Indexed
     private String code;
 
     public EmailVerificationCode(String email, String code) {

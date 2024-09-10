@@ -1,44 +1,51 @@
 package com.impacus.maketplace.entity.address;
 
-import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
-@Table(name = "my_delivery_address")
-@NoArgsConstructor
-public class MyDeliveryAddress extends Address {
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class MyDeliveryAddress extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "my_delivery_address_id")
     private Long id;
 
-    /**
-     * 외래키 제약조건 제거
-     * 소프트 삭제를 통해 삭제된 사용자의 배송지를 조회하기 위해 외래키 제약조건을 제거합니다.
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User user;
+    @Column(nullable = false)
+    private Long userId;    // 사용자 아이디
 
-    @Builder
-    public MyDeliveryAddress(String receiver, String connectNumber, String address, String detailAddress, String postalCode, String memo, Long id, User user) {
-        super(receiver, connectNumber, address, detailAddress, postalCode, memo);
-        this.id = id;
-        this.user = user;
-    }
+    @Column(nullable = false)
+    @ColumnDefault("'배송지1'")
+    private String name;    // 배송지 이름
 
-    public DeliveryAddress toDeliveryAddress() {
-        return DeliveryAddress.builder()
-                .receiver(this.getReceiver())
-                .connectNumber(this.getConnectNumber())
-                .address(this.getAddress())
-                .detailAddress(this.getDetailAddress())
-                .postalCode(this.getPostalCode())
-                .memo(this.getMemo())
-                .build();
+    @Column(nullable = false)
+    private String receiver;    // 받는이
+
+    @Column(nullable = false)
+    private String postalCode;  // 우편 번호
+
+    @Column(nullable = false)
+    private String address; // 주소
+
+    @Column(nullable = false)
+    private String detailAddress;   // 메모
+
+    private String connectNumber;   // 연락처
+
+    private String memo;    // 메모
+
+    public void updateAddress(String receiver, String postalCode, String address, String detailAddress, String connectNumber, String memo) {
+        this.receiver = receiver;
+        this.postalCode = postalCode;
+        this.address = address;
+        this.detailAddress = detailAddress;
+        this.connectNumber = connectNumber;
+        this.memo = memo;
     }
 }

@@ -32,10 +32,11 @@ public class CategoryController {
      * @param superCategoryRequest
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PostMapping("/super-category")
     public ApiResponseEntity<SuperCategoryDTO> addSuperCategory(
             @Valid @RequestBody CreateSuperCategoryDTO superCategoryRequest) {
+
         SuperCategoryDTO superCategoryDTO = superCategoryService.addSuperCategory(superCategoryRequest);
         return ApiResponseEntity
                 .<SuperCategoryDTO>builder()
@@ -50,7 +51,7 @@ public class CategoryController {
      * @param subCategoryRequest
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PostMapping("sub-category")
     public ApiResponseEntity<SubCategoryDTO> addSubCategory(
             @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
@@ -68,7 +69,7 @@ public class CategoryController {
      * @param categoryNameRequest
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PutMapping("super-category")
     public ApiResponseEntity<Boolean> updateSuperCategory(
             @Valid @RequestBody ChangeCategoryNameDTO categoryNameRequest) {
@@ -84,7 +85,7 @@ public class CategoryController {
      * @param subCategoryRequest
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PutMapping("sub-category/{categoryId}")
     public ApiResponseEntity<SubCategoryDTO> updateSubCategory(
             @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
@@ -96,9 +97,26 @@ public class CategoryController {
                 .build();
     }
 
+    /**
+     * 전체 카테고리 조회 API
+     * @return
+     */
     @GetMapping("")
     public ApiResponseEntity<List<CategoryDetailDTO>> getAllCategory() {
-        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory();
+        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(false);
+        return ApiResponseEntity
+                .<List<CategoryDetailDTO>>builder()
+                .data(categoryDTOs)
+                .build();
+    }
+
+    /**
+     * 상품 등록/수정용 전체 카테고리 조회 API (상품 등록/수정용인 경우 브랜드 데이터가 제외됨)
+     * @return
+     */
+    @GetMapping("/no-brand")
+    public ApiResponseEntity<List<CategoryDetailDTO>> getAllCategoryForProduct() {
+        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(true);
         return ApiResponseEntity
                 .<List<CategoryDetailDTO>>builder()
                 .data(categoryDTOs)
@@ -110,7 +128,7 @@ public class CategoryController {
      *
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @DeleteMapping("sub-category")
     public ApiResponseEntity<Boolean> deleteSubCategory(
             @RequestParam(name = "sub-category-id") List<Long> subCategoryIdList) {
@@ -126,7 +144,7 @@ public class CategoryController {
      *
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @DeleteMapping("super-category")
     public ApiResponseEntity<Boolean> deleteSuperCategory(
             @RequestParam(name = "super-category-id") List<Long> superCategoryIdList) {

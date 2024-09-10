@@ -3,14 +3,13 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.CreateShoppingBasketDTO;
-import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
+import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDTO;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,7 +34,7 @@ public class ShoppingBasketController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("")
+    @PostMapping
     public ApiResponseEntity<Boolean> addShoppingBasket(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CreateShoppingBasketDTO shoppingBasketRequest) {
@@ -53,7 +52,7 @@ public class ShoppingBasketController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @DeleteMapping("")
+    @DeleteMapping
     public ApiResponseEntity<Boolean> deleteShoppingBasket(@RequestParam(name = "shopping-basket-id") List<Long> shoppingBasketList) {
         shoppingBasketService.deleteAllShoppingBasket(shoppingBasketList);
         return ApiResponseEntity
@@ -69,7 +68,7 @@ public class ShoppingBasketController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PutMapping("")
+    @PutMapping
     public ApiResponseEntity<Boolean> updateShoppingBasket(
             @Valid @RequestBody ChangeShoppingBasketQuantityDTO shoppingBasketRequest) {
         Boolean result = shoppingBasketService.updateShoppingBasket(shoppingBasketRequest);
@@ -86,14 +85,13 @@ public class ShoppingBasketController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("")
-    public ApiResponseEntity<Slice<ShoppingBasketDetailDTO>> getShoppingBasket(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PageableDefault(size = 15, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable
+    @GetMapping
+    public ApiResponseEntity<List<ShoppingBasketDTO>> getShoppingBaskets(
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
-        Slice<ShoppingBasketDetailDTO> dto = shoppingBasketService.getAllShoppingBasket(user.getId(), pageable);
+        List<ShoppingBasketDTO> dto = shoppingBasketService.getShoppingBaskets(user.getId());
         return ApiResponseEntity
-                .<Slice<ShoppingBasketDetailDTO>>builder()
+                .<List<ShoppingBasketDTO>>builder()
                 .data(dto)
                 .build();
     }
