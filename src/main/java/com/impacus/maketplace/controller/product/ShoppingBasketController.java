@@ -87,10 +87,9 @@ public class ShoppingBasketController {
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping
     public ApiResponseEntity<List<ShoppingBasketDTO>> getShoppingBaskets(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PageableDefault(size = 15) Pageable pageable
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
-        List<ShoppingBasketDTO> dto = shoppingBasketService.getShoppingBaskets(user.getId(), pageable);
+        List<ShoppingBasketDTO> dto = shoppingBasketService.getShoppingBaskets(user.getId());
         return ApiResponseEntity
                 .<List<ShoppingBasketDTO>>builder()
                 .data(dto)
