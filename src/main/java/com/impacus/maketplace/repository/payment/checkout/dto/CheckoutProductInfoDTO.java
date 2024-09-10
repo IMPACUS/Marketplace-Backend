@@ -1,15 +1,18 @@
 package com.impacus.maketplace.repository.payment.checkout.dto;
 
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
 @Data
-public class PaymentProductInfoDTO {
+public class CheckoutProductInfoDTO {
     private Long productId; // 상품 id
     private Long sellerId;  // 판매자 id
+    private String marketName; // 판매자 브랜드 이름
     private Integer chargePercent;  // 수수료 비율
     private String name; // 상품명
+    private ProductType productType;    // 상품 타입
     private ProductStatus productStatus; // 상품 상태
     private int appSalesPrice; // 앱 판매가
     private int discountPrice; // 할인가
@@ -23,11 +26,14 @@ public class PaymentProductInfoDTO {
     private Long productOptionHistoryId;    // 상품 옵션 history id
 
     @QueryProjection
-    public PaymentProductInfoDTO(Long productId, Long sellerId, Integer chargePercent, String name, ProductStatus productStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, boolean productIsDeleted, Long productOptionId, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionHistoryId) {
+
+    public CheckoutProductInfoDTO(Long productId, Long sellerId, String marketName, Integer chargePercent, String name, ProductType productType, ProductStatus productStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, boolean productIsDeleted, Long productOptionId, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionHistoryId) {
         this.productId = productId;
         this.sellerId = sellerId;
+        this.marketName = marketName;
         this.chargePercent = chargePercent;
         this.name = name;
+        this.productType = productType;
         this.productStatus = productStatus;
         this.appSalesPrice = appSalesPrice;
         this.discountPrice = discountPrice;

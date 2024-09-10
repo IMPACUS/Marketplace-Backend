@@ -22,7 +22,6 @@ import java.util.List;
 public class CheckoutController {
 
     private final CheckoutService checkoutService;
-    private final PaymentService paymentService;
 
     /**
      * 단일 상품 결제 페이지 이동

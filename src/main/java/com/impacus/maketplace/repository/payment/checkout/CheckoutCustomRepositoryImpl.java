@@ -102,13 +102,15 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
      * 추후 카드 등록 관련 로직 추가시 수정
      */
     @Override
-    public PaymentProductInfoDTO getPaymentProductInfo(Long productId, Long productOptionId, Long sellerId, Boolean usedRegisteredCard, Long registeredCardId) {
+    public CheckoutProductInfoDTO getPaymentProductInfo(Long productId, Long productOptionId, Long sellerId, Boolean usedRegisteredCard, Long registeredCardId) {
         return queryFactory
-                .select(new QPaymentProductInfoDTO(
+                .select(new QCheckoutProductInfoDTO(
                         product.id,
                         seller.id,
+                        seller.marketName,
                         seller.chargePercent,
                         product.name,
+                        product.type,
                         product.productStatus,
                         product.appSalesPrice,
                         product.discountPrice,

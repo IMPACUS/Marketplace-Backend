@@ -1,21 +1,24 @@
 package com.impacus.maketplace.service.payment.checkout;
 
 import com.impacus.maketplace.common.enumType.error.OrderErrorType;
+import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
 import com.impacus.maketplace.repository.payment.checkout.CheckoutCustomRepository;
 import com.impacus.maketplace.repository.payment.checkout.dto.BuyerInfoDTO;
+import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInfoDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsByCartDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsDTO;
-import com.impacus.maketplace.repository.payment.checkout.dto.PaymentProductInfoDTO;
+import com.impacus.maketplace.service.coupon.CouponUserService;
+import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +28,8 @@ import java.util.List;
 public class CheckoutService {
 
     private final CheckoutCustomRepository checkoutCustomRepository;
+    private final CouponUserService couponUserService;
+    private final GreenLabelPointAllocationService greenLabelPointAllocationService;
 
     /**
      * 단일 주문 상품 조회
@@ -35,7 +40,6 @@ public class CheckoutService {
      */
     @Transactional
     public CheckoutProductDTO getCheckoutSingle(Long productId, Long productOptionId, Long quantity) {
-
 
         // 1. 필요한 데이터 전부 가져오기
         CheckoutProductWithDetailsDTO checkoutProductWithDeatilsDTO = checkoutCustomRepository.findCheckoutProductWithDetails(productId, productOptionId);
@@ -78,6 +82,8 @@ public class CheckoutService {
 
     /**
      * 결제 처리 준비
+     * Refactoring:
+     * 1. 쿠폰 검증 로직 수정(전체 쿠폰 가져온 뒤 쿠폰 서비스 이용)
      */
     @Transactional
     public void checkoutSingle(Long userId, CheckoutSingleDTO checkoutSingleDTO) {
@@ -85,7 +91,7 @@ public class CheckoutService {
         BuyerInfoDTO buyerInfoDTO = checkoutCustomRepository.getBuyerInfo(userId);
 
         // 2. 필요한 정보 가져오기
-        PaymentProductInfoDTO paymentProductInfoDTO = checkoutCustomRepository.getPaymentProductInfo(
+        CheckoutProductInfoDTO checkoutProductInfoDTO = checkoutCustomRepository.getPaymentProductInfo(
                 checkoutSingleDTO.getPaymentProductInfo().getProductId(),
                 checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(),
                 checkoutSingleDTO.getPaymentProductInfo().getSellerId(),
@@ -94,23 +100,24 @@ public class CheckoutService {
         );
 
         // 3. validateCheckoutProduct
-        validateCheckoutProduct(paymentProductInfoDTO.isProductIsDeleted(), paymentProductInfoDTO.isOptionIsDeleted(), paymentProductInfoDTO.getProductStatus(), paymentProductInfoDTO.getStock(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
+        validateCheckoutProduct(checkoutProductInfoDTO.isProductIsDeleted(), checkoutProductInfoDTO.isOptionIsDeleted(), checkoutProductInfoDTO.getProductStatus(), checkoutProductInfoDTO.getStock(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
 
         // 4. validateDiscount
-        List<Long> usedUserCouponIds = new ArrayList<>(checkoutSingleDTO.getAppliedCommonUserCouponIds());
-        usedUserCouponIds.addAll(checkoutSingleDTO.getPaymentProductInfo().getAppliedUserCouponIds());
-        validateDiscount(userId, usedUserCouponIds, checkoutSingleDTO.getPointAmount());
-        // 4. address, paymentEvent, paymentOrder 저장
+        couponUserService.validateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getApplieCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
+        Long totalPrice = checkoutProductInfoDTO.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
+        couponUserService.validateCouponsForOrder(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice);
 
-        // 5. Response DTO 반환
-    }
+        GreenLabelPointDTO greenLabelPointInformation = greenLabelPointAllocationService.getGreenLabelPointInformation(userId);
+        if (greenLabelPointInformation.getGreenLabelPoint() < checkoutSingleDTO.getPointAmount()) {
+            throw new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
+        }
 
-    private void validateDiscount(Long userId, List<Long> usedUserCouponIds, Long pointAmount) {
+        // 5. address, paymentEvent, paymentOrder 저장
 
+        // 6. Response DTO 반환
     }
 
     private void validateCheckoutProduct(boolean productIsDeleted, boolean productOptionIsDeleted, ProductStatus productStatus, Long stock, Long quantity) {
-
         // 1. 상품이 삭제 되었는지
         if (productIsDeleted) {
             throw new CustomException(OrderErrorType.DELETED_ORDER_PRODUCT);
