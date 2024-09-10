@@ -147,7 +147,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         List<AppProductDetailDTO> result = queryFactory
                 .selectFrom(product)
-                .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(productOption).on(productOption.productId.eq(product.id).and(productOption.isDeleted.eq(false)))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
