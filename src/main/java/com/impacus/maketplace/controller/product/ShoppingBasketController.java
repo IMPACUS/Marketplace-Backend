@@ -3,7 +3,7 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.CreateShoppingBasketDTO;
-import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
+import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDTO;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class ShoppingBasketController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("")
+    @PostMapping
     public ApiResponseEntity<Boolean> addShoppingBasket(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CreateShoppingBasketDTO shoppingBasketRequest) {
@@ -52,7 +52,7 @@ public class ShoppingBasketController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @DeleteMapping("")
+    @DeleteMapping
     public ApiResponseEntity<Boolean> deleteShoppingBasket(@RequestParam(name = "shopping-basket-id") List<Long> shoppingBasketList) {
         shoppingBasketService.deleteAllShoppingBasket(shoppingBasketList);
         return ApiResponseEntity
@@ -68,7 +68,7 @@ public class ShoppingBasketController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PutMapping("")
+    @PutMapping
     public ApiResponseEntity<Boolean> updateShoppingBasket(
             @Valid @RequestBody ChangeShoppingBasketQuantityDTO shoppingBasketRequest) {
         Boolean result = shoppingBasketService.updateShoppingBasket(shoppingBasketRequest);
@@ -85,14 +85,14 @@ public class ShoppingBasketController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("")
-    public ApiResponseEntity<Slice<ShoppingBasketDetailDTO>> getShoppingBaskets(
+    @GetMapping
+    public ApiResponseEntity<List<ShoppingBasketDTO>> getShoppingBaskets(
             @AuthenticationPrincipal CustomUserDetails user,
             @PageableDefault(size = 15) Pageable pageable
     ) {
-        Slice<ShoppingBasketDetailDTO> dto = shoppingBasketService.getShoppingBaskets(user.getId(), pageable);
+        List<ShoppingBasketDTO> dto = shoppingBasketService.getShoppingBaskets(user.getId(), pageable);
         return ApiResponseEntity
-                .<Slice<ShoppingBasketDetailDTO>>builder()
+                .<List<ShoppingBasketDTO>>builder()
                 .data(dto)
                 .build();
     }

@@ -4,7 +4,8 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
 import com.impacus.maketplace.dto.shoppingBasket.request.CreateShoppingBasketDTO;
-import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
+import com.impacus.maketplace.dto.shoppingBasket.response.ProductShoppingBasketDTO;
+import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDTO;
 import com.impacus.maketplace.entity.product.ShoppingBasket;
 import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -112,9 +114,14 @@ public class ShoppingBasketService {
      * @param pageable
      * @return
      */
-    public Slice<ShoppingBasketDetailDTO> getShoppingBaskets(Long userId, Pageable pageable) {
+    public List<ShoppingBasketDTO> getShoppingBaskets(Long userId, Pageable pageable) {
         try {
-            return shoppingBasketRepository.findAllShoppingBasketByUserId(userId, pageable);
+            // 장바구니 상품 조회
+            List<ProductShoppingBasketDTO> products = shoppingBasketRepository.findAllShoppingBasketByUserId(userId, pageable);
+
+            // 묶음 배송 상품끼리 묶기
+            List<ShoppingBasketDTO> shoppingBaskets = new ArrayList<>();
+            return shoppingBaskets;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
