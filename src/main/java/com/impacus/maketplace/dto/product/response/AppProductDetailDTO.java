@@ -3,7 +3,7 @@ package com.impacus.maketplace.dto.product.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
-import com.impacus.maketplace.common.utils.CalculatorUtils;
+import com.impacus.maketplace.common.utils.ProductUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.querydsl.core.annotations.QueryProjection;
@@ -63,25 +63,16 @@ public class AppProductDetailDTO {
         this.appSalePrice = appSalePrice;
         this.discountPrice = discountPrice;
         this.type = type;
-        this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
+        this.discountRate = ProductUtils.calculateDiscountRate(appSalePrice, discountPrice);
         this.isExistedWishlist = wishlistId != null;
         this.brandName = brandName;
         this.description = description;
         this.deliveryTime = deliveryTime;
         setOptionData(options);
-        this.productImageList = productImages.stream().map(x -> new AttachFileDTO(x)).toList();
+        this.productImageList = productImages.stream().map(AttachFileDTO::new).toList();
         this.sellerId = sellerId;
-
-        if (deliveryFeeType == DeliveryRefundType.FREE_SHIPPING) {
-            this.isFreeShipping = true;
-            this.deliveryFee = 0;
-        } else if (deliveryFeeType == DeliveryRefundType.STORE_DEFAULT) {
-            this.isFreeShipping = sellerDeliveryFee == 0;
-            this.deliveryFee = sellerDeliveryFee;
-        } else {
-            this.isFreeShipping = deliveryFee == 0;
-            this.deliveryFee = deliveryFee;
-        }
+        this.isFreeShipping = ProductUtils.checkIsFreeShipping(deliveryFee, deliveryFeeType, sellerDeliveryFee);
+        this.deliveryFee = ProductUtils.getProductDeliveryFee(deliveryFee, deliveryFeeType, sellerDeliveryFee);
 
         // TODO 관련 기능 개발 완료 되면 연결
         this.averageRating = 5.0f;

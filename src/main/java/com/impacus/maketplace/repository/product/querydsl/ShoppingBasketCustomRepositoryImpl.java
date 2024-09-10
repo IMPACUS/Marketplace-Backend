@@ -3,7 +3,7 @@ package com.impacus.maketplace.repository.product.querydsl;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
-import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDetailDTO;
+import com.impacus.maketplace.dto.shoppingBasket.response.ShoppingBasketDTO;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
@@ -31,15 +31,15 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
     private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
 
     @Override
-    public Slice<ShoppingBasketDetailDTO> findAllShoppingBasketByUserId(Long userId, Pageable pageable) {
+    public Slice<ShoppingBasketDTO> findAllShoppingBasketByUserId(Long userId, Pageable pageable) {
         // 1. 데이터 조회
-        List<ShoppingBasketDetailDTO> dtos = getShoppingBasketDetailDTOs(userId, pageable);
+        List<ShoppingBasketDTO> dtos = getShoppingBasketDetailDTOs(userId, pageable);
 
         // 2. 슬라이스 처리
         return PaginationUtils.toSlice(dtos, pageable);
     }
 
-    private List<ShoppingBasketDetailDTO> getShoppingBasketDetailDTOs(Long userId, Pageable pageable) {
+    private List<ShoppingBasketDTO> getShoppingBasketDetailDTOs(Long userId, Pageable pageable) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(productOption.productId))
                 .and(product.isDeleted.eq(false));
@@ -69,7 +69,7 @@ public class ShoppingBasketCustomRepositoryImpl implements ShoppingBasketCustomR
                 .orderBy(shoppingBasket.modifyAt.desc())
                 .transform(
                         GroupBy.groupBy(shoppingBasket.id).list(Projections.constructor(
-                                        ShoppingBasketDetailDTO.class,
+                                        ShoppingBasketDTO.class,
                                         shoppingBasket.id,
                                         shoppingBasket.quantity,
                                         shoppingBasket.modifyAt,
