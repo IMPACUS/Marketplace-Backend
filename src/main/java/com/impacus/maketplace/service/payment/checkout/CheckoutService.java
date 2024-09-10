@@ -3,15 +3,19 @@ package com.impacus.maketplace.service.payment.checkout;
 import com.impacus.maketplace.common.enumType.error.OrderErrorType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
 import com.impacus.maketplace.repository.payment.checkout.CheckoutCustomRepository;
+import com.impacus.maketplace.repository.payment.checkout.dto.BuyerInfoDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsByCartDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsDTO;
+import com.impacus.maketplace.repository.payment.checkout.dto.PaymentProductInfoDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +28,7 @@ public class CheckoutService {
 
     /**
      * 단일 주문 상품 조회
+     *
      * @param productId       주문 상품 id
      * @param productOptionId 주문 상품 option id
      * @param quantity        주문 수량
@@ -47,6 +52,7 @@ public class CheckoutService {
 
     /**
      * 장바구나 id List를 이용해서 주문 상품 조회
+     *
      * @param shoppingBasketIdList 장바구니 id List
      */
     public List<CheckoutProductDTO> getCheckoutCart(List<Long> shoppingBasketIdList) {
@@ -68,6 +74,39 @@ public class CheckoutService {
         return checkoutProductWithDetailsByCartDTOList.stream()
                 .map(CheckoutProductDTO::new)
                 .toList();
+    }
+
+    /**
+     * 결제 처리 준비
+     */
+    @Transactional
+    public void checkoutSingle(Long userId, CheckoutSingleDTO checkoutSingleDTO) {
+        // 1. 필요한 사용자 정보 가져오기
+        BuyerInfoDTO buyerInfoDTO = checkoutCustomRepository.getBuyerInfo(userId);
+
+        // 2. 필요한 정보 가져오기
+        PaymentProductInfoDTO paymentProductInfoDTO = checkoutCustomRepository.getPaymentProductInfo(
+                checkoutSingleDTO.getPaymentProductInfo().getProductId(),
+                checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(),
+                checkoutSingleDTO.getPaymentProductInfo().getSellerId(),
+                checkoutSingleDTO.getUsedRegisteredCard(),
+                checkoutSingleDTO.getRegisteredCardId()
+        );
+
+        // 3. validateCheckoutProduct
+        validateCheckoutProduct(paymentProductInfoDTO.isProductIsDeleted(), paymentProductInfoDTO.isOptionIsDeleted(), paymentProductInfoDTO.getProductStatus(), paymentProductInfoDTO.getStock(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
+
+        // 4. validateDiscount
+        List<Long> usedUserCouponIds = new ArrayList<>(checkoutSingleDTO.getAppliedCommonUserCouponIds());
+        usedUserCouponIds.addAll(checkoutSingleDTO.getPaymentProductInfo().getAppliedUserCouponIds());
+        validateDiscount(userId, usedUserCouponIds, checkoutSingleDTO.getPointAmount());
+        // 4. address, paymentEvent, paymentOrder 저장
+
+        // 5. Response DTO 반환
+    }
+
+    private void validateDiscount(Long userId, List<Long> usedUserCouponIds, Long pointAmount) {
+
     }
 
     private void validateCheckoutProduct(boolean productIsDeleted, boolean productOptionIsDeleted, ProductStatus productStatus, Long stock, Long quantity) {

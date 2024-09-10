@@ -2,15 +2,16 @@ package com.impacus.maketplace.controller.payment;
 
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
+import com.impacus.maketplace.service.payment.PaymentService;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import security.CustomUserDetails;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
 public class CheckoutController {
 
     private final CheckoutService checkoutService;
+    private final PaymentService paymentService;
 
     /**
      * 단일 상품 결제 페이지 이동
@@ -52,5 +54,23 @@ public class CheckoutController {
                 .<List<CheckoutProductDTO>>builder()
                 .data(response)
                 .build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("checkout-single")
+    public ApiResponseEntity<Void> checkoutSingle(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutSingleDTO checkoutSingleDTO) {
+        checkoutService.checkoutSingle(user.getId(), checkoutSingleDTO);
+
+        return ApiResponseEntity
+                .<Void>builder()
+                .data(null)
+                .build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("checkout-cart")
+    public ApiResponseEntity<Void> checkoutCart() {
+
+        return null;
     }
 }

@@ -61,7 +61,7 @@ public class PaymentEvent extends BaseEntity {
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 포함)
      */
     public Long getTotalDiscountedAmountWithCommission() {
-        return getTotalAmount() - getTotalCommissionFee();
+        return getTotalDiscountedAmount() - getTotalCommissionFee();
     }
 
 
