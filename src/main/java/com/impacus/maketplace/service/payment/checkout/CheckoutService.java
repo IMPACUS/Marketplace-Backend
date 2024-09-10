@@ -4,9 +4,12 @@ import com.impacus.maketplace.common.enumType.error.OrderErrorType;
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
+import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
+import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.checkout.CheckoutCustomRepository;
 import com.impacus.maketplace.repository.payment.checkout.dto.BuyerInfoDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInfoDTO;
@@ -30,6 +33,7 @@ public class CheckoutService {
     private final CheckoutCustomRepository checkoutCustomRepository;
     private final CouponUserService couponUserService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
+    private final PaymentEventRepository paymentEventRepository;
 
     /**
      * 단일 주문 상품 조회
@@ -112,9 +116,40 @@ public class CheckoutService {
             throw new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
         }
 
-        // 5. address, paymentEvent, paymentOrder 저장
+        // 5. order_id 및 payment_id 생성
+        String orderId = getOrderId();
+        String paymentId;
+        try {
+            paymentId = OrderUtils.generatePaymentKey(checkoutSingleDTO);
+        } catch (Exception e) {
+            LogUtils.error(this.getClass().toString(), "Fail to generate payment id caused over threshold count", e);
+            throw new CustomException(PaymentErrorType.FAIL_GENERATE_PAYMENT_ID);
+        }
 
-        // 6. Response DTO 반환
+        // 6. address, paymentEvent, paymentOrder 저장
+
+        // 7. Response DTO 반환
+    }
+
+    /**
+     * 주문 id 생성
+     * required: 재시도 로직 수정 필요
+     */
+    private String getOrderId() {
+
+        int count = 1;
+        String orderId = OrderUtils.generateOrderNumber();
+
+        while (paymentEventRepository.existsByOrderId(orderId)) {
+            if (count == 5) {
+                LogUtils.writeInfoLog(this.getClass().toString(), "Fail to generate order id caused over threshold count");
+                throw new CustomException(PaymentErrorType.FAIL_GENERATE_ORDER_ID);
+            }
+            orderId = OrderUtils.generateOrderNumber();
+            count++;
+        }
+
+        return orderId;
     }
 
     private void validateCheckoutProduct(boolean productIsDeleted, boolean productOptionIsDeleted, ProductStatus productStatus, Long stock, Long quantity) {
