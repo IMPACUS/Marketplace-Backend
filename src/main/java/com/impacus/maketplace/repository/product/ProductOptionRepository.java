@@ -39,4 +39,6 @@ public interface ProductOptionRepository extends JpaRepository<ProductOption, Lo
     int updateIsDeleteTrueByIds(
             @Param("ids") List<Long> ids
     );
+
+    boolean existsByIsDeletedFalseAndId(Long productOptionId);
 }

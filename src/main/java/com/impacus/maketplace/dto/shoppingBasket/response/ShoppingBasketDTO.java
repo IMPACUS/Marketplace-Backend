@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -20,4 +22,18 @@ public class ShoppingBasketDTO {
     private Long groupId; // 묶음 배송 그룹 아이디
     private DeliveryFeeRule deliveryFeeRule;
     private List<ProductShoppingBasketDTO> products;
+
+    public ShoppingBasketDTO(
+            Long groupId,
+            DeliveryFeeRule deliveryFeeRule
+    ) {
+        this.groupId = groupId;
+        this.deliveryFeeRule = deliveryFeeRule;
+        this.products = new ArrayList<>();
+
+    }
+
+    public ShoppingBasketDTO (ProductShoppingBasketDTO product) {
+        this.products = List.of(product);
+    }
 }
