@@ -21,12 +21,14 @@ public class SellerBusinessInfo extends BaseEntity {
     @Column(nullable = false, unique = true)
     private Long sellerId;
 
+
     @Column(nullable = false)
+    @Comment("대표명")
     private String representativeName;
 
     @Column(nullable = false)
     @Convert(converter = AES256ToStringConverter.class)
-    @Comment("대표 이메일")
+    @Comment("대표 연락처")
     private String representativeContact;
 
     @Column(nullable = false)
@@ -50,7 +52,7 @@ public class SellerBusinessInfo extends BaseEntity {
 
     @Column(nullable = false)
     @Convert(converter = AES256ToStringConverter.class)
-    @Comment("이메일 (fax 확인용)")
+    @Comment("이메일 (fax 확인용), 대표 이메일")
     private String businessEmail;
 
     @Column(nullable = false)
