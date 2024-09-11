@@ -17,7 +17,7 @@ public class DeliveryAddress extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long ordersId;  // 주문 아이디
+    private Long paymentEventId;  // 결제 이벤트 id
 
     @Column(nullable = false)
     private String receiver;    // 받는이

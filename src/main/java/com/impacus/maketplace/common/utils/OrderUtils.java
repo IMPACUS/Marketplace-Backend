@@ -49,4 +49,8 @@ public class OrderUtils {
         UUID paymentKey = UUID.nameUUIDFromBytes(bytes);
         return paymentKey.toString();
     }
+
+    public static String generateOrderName(String mainName, Long count, Integer totalOrderItemCount) {
+        return String.format("%s %d개", mainName, count) + (totalOrderItemCount != 1 ? String.format(" 포함 총 %d건", totalOrderItemCount) : "");
+    }
 }

@@ -248,6 +248,8 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
         return queryFactory
                 .select(new QValidateUserCouponForProductDTO(
                         userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
                         coupon.productType,
                         coupon.useCoverageType,
                         coupon.useCoverageSubCategoryName,
@@ -265,6 +267,8 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
         return queryFactory
                 .select(new QValidateUserCouponForOrderDTO(
                         userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
                         coupon.productType,
                         coupon.useCoverageType,
                         coupon.useStandardType,

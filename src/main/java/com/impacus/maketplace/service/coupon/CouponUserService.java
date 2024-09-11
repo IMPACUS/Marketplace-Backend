@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.coupon;
 
+import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.common.enumType.coupon.CoverageType;
 import com.impacus.maketplace.common.enumType.coupon.ProductType;
 import com.impacus.maketplace.common.enumType.coupon.StandardType;
@@ -172,9 +173,9 @@ public class CouponUserService {
     }
 
     /**
-     * 상품에 대한 쿠폰 적용 유효성 검증
+     * 상품에 대한 쿠폰 적용 유효성 검증 후 총 금액 가져오기
      */
-    public void validateCouponsForProduct(Long userId, List<Long> usedUserCouponIds, com.impacus.maketplace.common.enumType.product.ProductType productType, String marketName, int appSalesPrice, Long quantity) {
+    public Long getAmountAfterValidateCouponsForProduct(Long userId, List<Long> usedUserCouponIds, com.impacus.maketplace.common.enumType.product.ProductType productType, String marketName, int appSalesPrice, Long quantity) {
         // 1. 쿠폰 리스트 가져오기
         List<ValidateUserCouponForProductDTO> coupons = couponCustomRepositroy.findUserCouponInfoForValidateForProductByIds(userId, usedUserCouponIds);
 
@@ -188,8 +189,18 @@ public class CouponUserService {
                 throw new CustomException(CouponErrorType.INVALID_APPLIED_USER_COUPON);
             }
         });
+
+        return coupons.stream()
+                .mapToLong(coupon ->
+                        coupon.getBenefitType().equals(BenefitType.PERCENTAGE) ?
+                                (appSalesPrice * quantity) * coupon.getBenefitValue() / 100 : coupon.getBenefitValue())
+                .sum();
     }
-    public void validateCouponsForOrder(Long userId, List<Long> usedUserCouponsIds, Long totalPrice) {
+
+    /**
+     * 주문 대한 쿠폰 적용 유효성 검증 후 총 금액 가져오기
+     */
+    public Long getAmountAfterValidateCouponsForOrder(Long userId, List<Long> usedUserCouponsIds, Long totalPrice) {
         // 1. 쿠폰 리스트 가져오기
         List<ValidateUserCouponForOrderDTO> coupons = couponCustomRepositroy.findUserCouponInfoForValidateForOrderByIds(userId, usedUserCouponsIds);
 
@@ -204,6 +215,11 @@ public class CouponUserService {
             }
         });
 
+        return coupons.stream()
+                .mapToLong(coupon ->
+                        coupon.getBenefitType().equals(BenefitType.PERCENTAGE) ?
+                                totalPrice * coupon.getBenefitValue() / 100 : coupon.getBenefitValue())
+                .sum();
     }
     private boolean validateCouponForOrder(ValidateUserCouponForOrderDTO coupon, Long totalPrice) {
         // 타입 체크

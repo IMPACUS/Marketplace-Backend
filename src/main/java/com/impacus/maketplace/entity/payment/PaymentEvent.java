@@ -1,13 +1,12 @@
 package com.impacus.maketplace.entity.payment;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.enumType.PaymentMethod;
+import com.impacus.maketplace.common.enumType.payment.PaymentMethod;
 import com.impacus.maketplace.common.enumType.payment.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -34,7 +33,7 @@ public class PaymentEvent extends BaseEntity {
     @ColumnDefault(value = "'false'")
     private Boolean isPaymentDone;  // 결제 완료 여부
 
-    private String paymentKey;  // PSP에서 생성한 결제 식별자
+    private String paymentKey;  // 멱득성을 보장하기 위한 키
 
     @Column(unique = true)
     private String orderId;     // 주문 식별자
