@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.14.01-240907" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="alarm_order_delivery"/>
+                <tableExists tableName="alarm_brand_shop"/>
+                <tableExists tableName="alarm_shopping_benefits"/>
+                <tableExists tableName="alarm_service_center"/>
+                <tableExists tableName="alarm_restock"/>
+                <tableExists tableName="alarm_review"/>
+            </not>
+        </preConditions>
+        <renameTable oldTableName="order_delivery_alarm" newTableName="alarm_order_delivery"/>
+        <renameTable oldTableName="brand_shop_alarm" newTableName="alarm_brand_shop"/>
+        <renameTable oldTableName="shopping_benefits_alarm" newTableName="alarm_shopping_benefits"/>
+        <renameTable oldTableName="service_center_alarm" newTableName="alarm_service_center"/>
+        <renameTable oldTableName="restock_alarm" newTableName="alarm_restock"/>
+        <renameTable oldTableName="review_alarm" newTableName="alarm_review"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.02-240907" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="alarm_order_delivery" columnName="alarm_order_delivery_id"/>
+                <columnExists tableName="alarm_brand_shop" columnName="alarm_brand_shop_id"/>
+                <columnExists tableName="alarm_shopping_benefits" columnName="alarm_shopping_benefits_id"/>
+                <columnExists tableName="alarm_service_center" columnName="alarm_service_center_id"/>
+                <columnExists tableName="alarm_restock" columnName="alarm_restock_id"/>
+                <columnExists tableName="alarm_review" columnName="alarm_review_id"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="alarm_review" oldColumnName="review_alarm_id" newColumnName="alarm_review_id"/>
+        <renameColumn tableName="alarm_restock" oldColumnName="restock_alarm_id" newColumnName="alarm_restock_id"/>
+        <renameColumn tableName="alarm_service_center" oldColumnName="service_center_alarm_id"
+                      newColumnName="alarm_service_center_id"/>
+        <renameColumn tableName="alarm_shopping_benefits" oldColumnName="shopping_benefits_alarm_id"
+                      newColumnName="alarm_shopping_benefits_id"/>
+        <renameColumn tableName="alarm_brand_shop" oldColumnName="brand_shop_alarm_id"
+                      newColumnName="alarm_brand_shop_id"/>
+        <renameColumn tableName="alarm_order_delivery" oldColumnName="order_delivery_alarm_id"
+                      newColumnName="alarm_order_delivery_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.03-240907" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="alarm_order_delivery" columnName="content"/>
+                <columnExists tableName="alarm_brand_shop" columnName="content"/>
+                <columnExists tableName="alarm_shopping_benefits" columnName="content"/>
+                <columnExists tableName="alarm_service_center" columnName="content"/>
+                <columnExists tableName="alarm_restock" columnName="content"/>
+                <columnExists tableName="alarm_review" columnName="content"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="alarm_order_delivery">
+            <column name="content" type="varchar" remarks="COMPLETE(결제완료), DELIVERY(배송), CANCEL(반품/교환/주문취소)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="alarm_brand_shop">
+            <column name="content" type="varchar" remarks="BRAND_SHOP_NEWS(찜한 제품의 브랜드 샵 소식)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="alarm_shopping_benefits">
+            <column name="content" type="varchar"
+                    remarks="ADVERTISEMENT(광고), COUPON_EXTINCTION(쿠폰 소멸), DORMANCY_INFORMATION(휴면 안내)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="alarm_service_center">
+            <column name="content" type="varchar" remarks="SERVICE_CENTER(고객센터)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="alarm_review">
+            <column name="content" type="varchar" remarks="REVIEW(리뷰), SERVICE_EVALUATION(서비스 평가)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="alarm_restock">
+            <column name="content" type="varchar" remarks="RESTOCK(재입고)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.04-240907" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="alarm_order_delivery" columnName="comment1"/>
+                <columnExists tableName="alarm_order_delivery" columnName="comment2"/>
+                <columnExists tableName="alarm_brand_shop" columnName="comment1"/>
+                <columnExists tableName="alarm_brand_shop" columnName="comment2"/>
+                <columnExists tableName="alarm_shopping_benefits" columnName="comment1"/>
+                <columnExists tableName="alarm_shopping_benefits" columnName="comment2"/>
+                <columnExists tableName="alarm_service_center" columnName="comment1"/>
+                <columnExists tableName="alarm_service_center" columnName="comment2"/>
+                <columnExists tableName="alarm_restock" columnName="comment1"/>
+                <columnExists tableName="alarm_restock" columnName="comment2"/>
+                <columnExists tableName="alarm_review" columnName="comment1"/>
+                <columnExists tableName="alarm_review" columnName="comment2"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="alarm_order_delivery">
+            <column name="comment1" type="varchar" remarks="인사말"/>
+            <column name="comment2" type="text" remarks="상세말"/>
+        </addColumn>
+        <addColumn tableName="alarm_brand_shop">
+            <column name="comment1" type="varchar" remarks="인사말"/>
+            <column name="comment2" type="text" remarks="상세말"/>
+        </addColumn>
+        <addColumn tableName="alarm_shopping_benefits">
+            <column name="comment1" type="varchar" remarks="인사말"/>
+            <column name="comment2" type="text" remarks="상세말"/>
+        </addColumn>
+        <addColumn tableName="alarm_service_center">
+            <column name="comment1" type="varchar" remarks="인사말"/>
+            <column name="comment2" type="text" remarks="상세말"/>
+        </addColumn>
+        <addColumn tableName="alarm_review">
+            <column name="comment1" type="varchar" remarks="인사말"/>
+            <column name="comment2" type="text" remarks="상세말"/>
+        </addColumn>
+        <addColumn tableName="alarm_restock">
+            <column name="comment1" type="varchar" remarks="인사말"/>
+            <column name="comment2" type="text" remarks="상세말"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.05-240907" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="alarm_order_delivery" columnName="msg"/>
+                <columnExists tableName="alarm_order_delivery" columnName="push"/>
+                <columnExists tableName="alarm_brand_shop" columnName="msg"/>
+                <columnExists tableName="alarm_brand_shop" columnName="push"/>
+                <columnExists tableName="alarm_shopping_benefits" columnName="msg"/>
+                <columnExists tableName="alarm_shopping_benefits" columnName="push"/>
+                <columnExists tableName="alarm_service_center" columnName="msg"/>
+                <columnExists tableName="alarm_service_center" columnName="push"/>
+                <columnExists tableName="alarm_restock" columnName="msg"/>
+                <columnExists tableName="alarm_restock" columnName="push"/>
+                <columnExists tableName="alarm_review" columnName="msg"/>
+                <columnExists tableName="alarm_review" columnName="push"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="alarm_review" oldColumnName="is_alarm" newColumnName="msg"/>
+        <renameColumn tableName="alarm_review" oldColumnName="sns" newColumnName="push"/>
+        <renameColumn tableName="alarm_restock" oldColumnName="is_alarm" newColumnName="msg"/>
+        <renameColumn tableName="alarm_restock" oldColumnName="sns" newColumnName="push"/>
+        <renameColumn tableName="alarm_service_center" oldColumnName="is_alarm" newColumnName="msg"/>
+        <renameColumn tableName="alarm_service_center" oldColumnName="sns" newColumnName="push"/>
+        <renameColumn tableName="alarm_shopping_benefits" oldColumnName="is_alarm" newColumnName="msg"/>
+        <renameColumn tableName="alarm_shopping_benefits" oldColumnName="sns" newColumnName="push"/>
+        <renameColumn tableName="alarm_brand_shop" oldColumnName="is_alarm" newColumnName="msg"/>
+        <renameColumn tableName="alarm_brand_shop" oldColumnName="sns" newColumnName="push"/>
+        <renameColumn tableName="alarm_order_delivery" oldColumnName="is_alarm" newColumnName="msg"/>
+        <renameColumn tableName="alarm_order_delivery" oldColumnName="sns" newColumnName="push"/>
+
+        <setColumnRemarks tableName="alarm_review" columnName="msg" remarks="메세지 알람 여부"/>
+        <setColumnRemarks tableName="alarm_review" columnName="push" remarks="push 알람 여부"/>
+        <setColumnRemarks tableName="alarm_restock" columnName="msg" remarks="메세지 알람 여부"/>
+        <setColumnRemarks tableName="alarm_restock" columnName="push" remarks="push 알람 여부"/>
+        <setColumnRemarks tableName="alarm_service_center" columnName="msg" remarks="메세지 알람 여부"/>
+        <setColumnRemarks tableName="alarm_service_center" columnName="push" remarks="push 알람 여부"/>
+        <setColumnRemarks tableName="alarm_shopping_benefits" columnName="msg" remarks="메세지 알람 여부"/>
+        <setColumnRemarks tableName="alarm_shopping_benefits" columnName="push" remarks="push 알람 여부"/>
+        <setColumnRemarks tableName="alarm_brand_shop" columnName="msg" remarks="메세지 알람 여부"/>
+        <setColumnRemarks tableName="alarm_brand_shop" columnName="push" remarks="push 알람 여부"/>
+        <setColumnRemarks tableName="alarm_order_delivery" columnName="msg" remarks="메세지 알람 여부"/>
+        <setColumnRemarks tableName="alarm_order_delivery" columnName="push" remarks="push 알람 여부"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.06-240907" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="alarm_order_delivery" columnName="time"/>
+            <columnExists tableName="alarm_brand_shop" columnName="time"/>
+            <columnExists tableName="alarm_shopping_benefits" columnName="time"/>
+            <columnExists tableName="alarm_service_center" columnName="time"/>
+            <columnExists tableName="alarm_restock" columnName="time"/>
+            <columnExists tableName="alarm_review" columnName="time"/>
+        </preConditions>
+        <dropColumn tableName="alarm_review" columnName="time"/>
+        <dropColumn tableName="alarm_restock" columnName="time"/>
+        <dropColumn tableName="alarm_service_center" columnName="time"/>
+        <dropColumn tableName="alarm_shopping_benefits" columnName="time"/>
+        <dropColumn tableName="alarm_brand_shop" columnName="time"/>
+        <dropColumn tableName="alarm_order_delivery" columnName="time"/>
+    </changeSet>
+</databaseChangeLog>
