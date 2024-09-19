@@ -10,7 +10,9 @@ import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.config.PaymentConfig;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
+import com.impacus.maketplace.dto.payment.response.CheckoutCustomerDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
+import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
 import com.impacus.maketplace.entity.address.DeliveryAddress;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
@@ -27,7 +29,6 @@ import com.impacus.maketplace.service.coupon.CouponUserService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,9 +102,10 @@ public class CheckoutService {
      * 결제 처리 준비
      * Refactoring:
      * 1. 쿠폰 검증 로직 수정(전체 쿠폰 가져온 뒤 쿠폰 서비스 이용)
+     * 2. 중복된 쿠폰 사용 검증 로직 추가
      */
     @Transactional
-    public void checkoutSingle(Long userId, CheckoutSingleDTO checkoutSingleDTO) {
+    public PaymentSingleDTO checkoutSingle(Long userId, CheckoutSingleDTO checkoutSingleDTO) {
         // 1. 필요한 사용자 정보 가져오기
         BuyerInfoDTO buyerInfoDTO = checkoutCustomRepository.getBuyerInfo(userId);
 
@@ -120,7 +122,7 @@ public class CheckoutService {
         validateCheckoutProduct(checkoutProductInfoDTO.isProductIsDeleted(), checkoutProductInfoDTO.isOptionIsDeleted(), checkoutProductInfoDTO.getProductStatus(), checkoutProductInfoDTO.getStock(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
 
         // 4. validateDiscount
-        Long amountCouponDiscountForProduct = couponUserService.getAmountAfterValidateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getApplieCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
+        Long amountCouponDiscountForProduct = couponUserService.getAmountAfterValidateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
         Long totalPrice = checkoutProductInfoDTO.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
         Long amountCouponDistcountForOrder = couponUserService.getAmountAfterValidateCouponsForOrder(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice);
 
@@ -139,6 +141,8 @@ public class CheckoutService {
             throw new CustomException(PaymentErrorType.FAIL_GENERATE_PAYMENT_ID);
         }
 
+        String orderName = OrderUtils.generateOrderName(checkoutProductInfoDTO.getName(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), 1);
+
         // 6. PaymentEvent, PaymentOrder, DeliveyAddress 저장
         PaymentEvent paymentEvent = PaymentEvent.builder()
                 .buyerId(userId)
@@ -146,7 +150,7 @@ public class CheckoutService {
                 .paymentKey(paymentKey)
                 .orderId(orderId)
                 .type(PaymentType.NORMAL)   // 추후 수정
-                .orderName(OrderUtils.generateOrderName(checkoutProductInfoDTO.getName(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), 1))
+                .orderName(orderName)
                 .method(checkoutSingleDTO.getMethod())
                 .build();
 
@@ -172,6 +176,8 @@ public class CheckoutService {
                 .threshold(5)
                 .build();
 
+        paymentEvent.getPaymentOrders().add(paymentOrder);
+
         paymentOrderRepository.save(paymentOrder);
 
         DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfoDTO().toEntity(paymentEvent.getId());
@@ -179,6 +185,21 @@ public class CheckoutService {
         deliveryAddressRepository.save(deliveryAddress);
 
         // 7. Response DTO 반환
+        CheckoutCustomerDTO checkoutCustomerDTO = new CheckoutCustomerDTO(
+                buyerInfoDTO.getUserId(), buyerInfoDTO.getName(), buyerInfoDTO.getPhoneNumber(), buyerInfoDTO.getEmail(),
+                checkoutSingleDTO.getAddressInfoDTO().getAddress(), checkoutSingleDTO.getAddressInfoDTO().getDetailAddress(), checkoutSingleDTO.getAddressInfoDTO().getPostalCode()
+        );
+
+        return PaymentSingleDTO.builder()
+                .storeId(paymentConfig.getStoreId())
+                .paymentKey(paymentKey)
+                .orderName(orderName)
+                .totalDiscountedAmount(paymentEvent.getTotalDiscountedAmount())
+                .currency("KRW")
+                .channelKey(paymentConfig.getChannelKeyByPaymentMethod(paymentEvent.getMethod()))
+                .paymentMethod(paymentEvent.getMethod())
+                .customer(checkoutCustomerDTO)
+                .build();
     }
 
     /**

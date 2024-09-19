@@ -26,7 +26,6 @@ public class CheckoutProductInfoDTO {
     private Long productOptionHistoryId;    // 상품 옵션 history id
 
     @QueryProjection
-
     public CheckoutProductInfoDTO(Long productId, Long sellerId, String marketName, Integer chargePercent, String name, ProductType productType, ProductStatus productStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, boolean productIsDeleted, Long productOptionId, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionHistoryId) {
         this.productId = productId;
         this.sellerId = sellerId;

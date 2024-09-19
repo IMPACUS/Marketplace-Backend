@@ -4,7 +4,7 @@ package com.impacus.maketplace.controller.payment;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
-import com.impacus.maketplace.service.payment.PaymentService;
+import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,14 +55,17 @@ public class CheckoutController {
                 .build();
     }
 
+    /**
+     * 결제하기 처리 (단일 상품 구매) - 전처리 단계
+     */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("checkout-single")
-    public ApiResponseEntity<Void> checkoutSingle(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutSingleDTO checkoutSingleDTO) {
-        checkoutService.checkoutSingle(user.getId(), checkoutSingleDTO);
+    public ApiResponseEntity<PaymentSingleDTO> checkoutSingle(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutSingleDTO checkoutSingleDTO) {
+        PaymentSingleDTO response = checkoutService.checkoutSingle(user.getId(), checkoutSingleDTO);
 
         return ApiResponseEntity
-                .<Void>builder()
-                .data(null)
+                .<PaymentSingleDTO>builder()
+                .data(response)
                 .build();
     }
 
