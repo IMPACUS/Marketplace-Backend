@@ -1,8 +1,6 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
-import com.impacus.maketplace.common.enumType.product.DeliveryType;
-import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
@@ -10,6 +8,7 @@ import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.product.*;
 import com.impacus.maketplace.entity.seller.QSeller;
+import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupBy;
@@ -45,9 +44,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProductDeliveryTime productDeliveryTime = QProductDeliveryTime.productDeliveryTime;
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
     private final QProductClaimInfo productClaimInfo = QProductClaimInfo.productClaimInfo;
+    private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
 
     @Override
-    public Page<ProductForWebDTO> findProductsForWeb(
+    public Page<WebProductTableDetailDTO> findProductDetailsForWeb(
             Long sellerId,
             String keyword,
             LocalDate startAt,
@@ -55,26 +55,16 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Pageable pageable
     ) {
         // 1. builder 생성
-
         // 1-1. seller 값이 존재하는 경우에만 판매자 비교
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
-                .and(product.isDeleted.eq(false));
-        if (sellerId != null) {
-            productBuilder.and(product.sellerId.eq(sellerId));
-        }
+                .and(product.isDeleted.eq(false))
+                .and(product.sellerId.eq(sellerId));
+
         // 1-2. 검색어 조회
         BooleanBuilder searchBuilder = new BooleanBuilder();
         if (keyword != null && !keyword.isBlank()) {
-            searchBuilder.or(product.name.containsIgnoreCase(keyword)) // 검색 옵션: 상품명
-                    .or(product.productNumber.containsIgnoreCase(keyword)) // 검색 옵션: 상품 번호
-                    .or(DeliveryType.containsEnumValue(product.deliveryType, keyword)) // 검색 옵션: 배송 상태
-                    .or(ProductStatus.containsEnumValue(product.productStatus, keyword)) // 검색 옵션: 상품 상태
-                    .or(Expressions.stringTemplate("cast({0} as string)", product.appSalesPrice).contains(keyword))  // 검색 옵션: 할인가
-                    .or(Expressions.stringTemplate("CAST(SUM({0}) AS string)", productOption.stock)
-                            .like("%" + keyword + "%")) // 검색 옵션: 재고
-                    .or(Expressions.stringTemplate("concat({0}, '/', {1})", productOption.color, productOption.size) // 검색 옵션: 상품 옵션
-                            .containsIgnoreCase(keyword));
+            searchBuilder.or(product.name.containsIgnoreCase(keyword)); // 검색 옵션: 상품명;
         }
 
         BooleanBuilder productOptionBuilder = new BooleanBuilder();
@@ -82,7 +72,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .and(productOption.isDeleted.eq(false));
 
         // 2. 조건에 맞는 데이터 조회
-        List<ProductForWebDTO> dtos = getProductForWebDTO(
+        List<WebProductTableDetailDTO> dtos = getProductForWebDTO(
                 productBuilder, productOptionBuilder, searchBuilder, pageable
         );
 
@@ -101,7 +91,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         return PaginationUtils.toPage(dtos, pageable, count);
     }
 
-    private List<ProductForWebDTO> getProductForWebDTO(
+    private List<WebProductTableDetailDTO> getProductForWebDTO(
             BooleanBuilder productBuilder,
             BooleanBuilder productOptionBuilder,
             BooleanBuilder searchBuilder,
@@ -134,7 +124,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .transform(
                         GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
-                                        ProductForWebDTO.class,
+                                        WebProductTableDetailDTO.class,
                                         product.id,
                                         product.name,
                                         Expressions.stringTemplate("cast({0} as string)", product.appSalesPrice),
@@ -150,21 +140,22 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public DetailedProductDTO findProductByProductId(Long userId, Long productId) {
+    public AppProductDetailDTO findProductByProductIdForApp(Long userId, Long productId) {
         BooleanBuilder wishlistBuilder = new BooleanBuilder();
         wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
                 .and(wishlist.productId.eq(product.id));
 
-        List<DetailedProductDTO> result = queryFactory
+        List<AppProductDetailDTO> result = queryFactory
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOption.productId.eq(product.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
-                                        DetailedProductDTO.class,
+                                        AppProductDetailDTO.class,
                                         product.id,
                                         product.name,
                                         product.appSalesPrice,
@@ -180,7 +171,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                 productDeliveryTime.minDays,
                                                 productDeliveryTime.maxDays
                                         ),
-                                        product.productImages
+                                        product.productImages,
+                                        product.sellerId,
+                                        product.deliveryFeeType,
+                                        sellerDeliveryCompany.generalDeliveryFee
                                 )
                         )
                 );
@@ -189,7 +183,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
         }
 
-        DetailedProductDTO productDTO = result.get(0);
+        AppProductDetailDTO productDTO = result.get(0);
 
         Long wishlistCnt = queryFactory.select(count(wishlist))
                 .from(wishlist)
@@ -214,7 +208,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findProductsByProductIds(
+    public Slice<AppProductDTO> findProductsByProductIds(
             Long userId,
             List<Long> productIds,
             Pageable pageable
@@ -230,10 +224,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         }
 
         // 1. 조건에 맞는 Product 조회
-        List<ProductForAppDTO> products = findProducts(userId, productBuilder);
+        List<AppProductDTO> products = findProducts(userId, productBuilder);
 
         // 2. 최근 조회한 상품 순으로 정렬
-        List<ProductForAppDTO> sortedProducts = products.stream()
+        List<AppProductDTO> sortedProducts = products.stream()
                 .sorted(Comparator.comparingInt(product -> productIdIndexMap.get(product.getProductId())))
                 .toList();
 
@@ -241,7 +235,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public ProductDetailForWebDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId) {
+    public WebProductDetailDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(productId))
                 .and(product.isDeleted.eq(false));
@@ -253,7 +247,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         productOptionBuilder.and(productOption.productId.eq(product.id))
                 .and(productOption.isDeleted.eq(false));
 
-        List<ProductDetailForWebDTO> duplicatedProducts =
+        List<WebProductDetailDTO> duplicatedProducts =
                 queryFactory
                         .selectFrom(product)
                         .leftJoin(productDetailInfo).on(productDetailInfo.productId.eq(product.id))
@@ -262,7 +256,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                         .leftJoin(productClaimInfo).on(productClaimInfo.productId.eq(product.id))
                         .where(productBuilder)
                         .transform(GroupBy.groupBy(product.id).list(Projections.fields(
-                                        ProductDetailForWebDTO.class,
+                                        WebProductDetailDTO.class,
                                         product.id,
                                         product.name,
                                         product.categoryId,
@@ -314,16 +308,16 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         );
 
-        List<ProductDetailForWebDTO> products = removeDuplicatedProductDetailsForWeb(duplicatedProducts);
+        List<WebProductDetailDTO> products = removeDuplicatedProductDetailsForWeb(duplicatedProducts);
 
         return products.isEmpty() ? null : products.get(0);
     }
 
-    private List<ProductDetailForWebDTO> removeDuplicatedProductDetailsForWeb(List<ProductDetailForWebDTO> products) {
+    private List<WebProductDetailDTO> removeDuplicatedProductDetailsForWeb(List<WebProductDetailDTO> products) {
         // Using Stream API to remove duplicates
-        Map<Long, ProductDetailForWebDTO> productMap = products.stream()
+        Map<Long, WebProductDetailDTO> productMap = products.stream()
                 .collect(Collectors.toMap(
-                        ProductDetailForWebDTO::getId,
+                        WebProductDetailDTO::getId,
                         Function.identity(),
                         (existing, replacement) -> {
                             existing.getProductOptions().addAll(replacement.getProductOptions());
@@ -351,19 +345,19 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findAllProductBySubCategoryId(
+    public Slice<AppProductDTO> findAllProductBySubCategoryId(
             Long userId,
             Long subCategoryId,
             Pageable pageable
     ) {
         // 1. 상품 리스트 조회
-        List<ProductForAppDTO> dtos = findProductsForApp(userId, subCategoryId, pageable);
+        List<AppProductDTO> dtos = findProductsForApp(userId, subCategoryId, pageable);
 
         // 3. 슬라이스 처리
         return PaginationUtils.toSlice(dtos, pageable);
     }
 
-    private List<ProductForAppDTO> findProductsForApp(
+    private List<AppProductDTO> findProductsForApp(
             Long userId,
             Long subCategoryId,
             Pageable pageable
@@ -394,7 +388,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
 
-    private List<ProductForAppDTO> findProducts(
+    private List<AppProductDTO> findProducts(
             Long userId,
             BooleanBuilder productBuilder
     ) {
@@ -405,22 +399,25 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         return queryFactory
                 .selectFrom(product)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .where(productBuilder)
                 .transform(
                         GroupBy.groupBy(product.id).list(Projections.constructor(
-                                ProductForAppDTO.class,
+                                AppProductDTO.class,
                                 product.id,
-                                        product.name,
-                                        seller.marketName,
-                                        product.appSalesPrice,
-                                        product.deliveryType,
-                                        product.discountPrice,
+                                product.name,
+                                seller.marketName,
+                                product.appSalesPrice,
+                                product.deliveryType,
+                                product.discountPrice,
                                 product.productImages,
-                                        wishlist.id,
-                                        product.deliveryFee,
-                                        product.type,
-                                        product.createAt
+                                wishlist.id,
+                                product.deliveryFee,
+                                product.type,
+                                product.createAt,
+                                product.deliveryFeeType,
+                                sellerDeliveryCompany.generalDeliveryFee
 
                                 )
                         )

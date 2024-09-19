@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SimpleShoppingBasketDTO {
+public class CommonShoppingBasketDTO {
     private Long id;
     private Long productOptionId;
     private Long quantity;
 
-    public static SimpleShoppingBasketDTO toDTO(ShoppingBasket shoppingBasket) {
-        return SimpleShoppingBasketDTO.builder()
+    public static CommonShoppingBasketDTO toDTO(ShoppingBasket shoppingBasket) {
+        return CommonShoppingBasketDTO.builder()
                 .id(shoppingBasket.getId())
                 .productOptionId(shoppingBasket.getProductOptionId())
                 .quantity(shoppingBasket.getQuantity())

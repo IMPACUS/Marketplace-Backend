@@ -1,9 +1,10 @@
 package com.impacus.maketplace.dto.product.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
-import com.impacus.maketplace.common.utils.CalculatorUtils;
+import com.impacus.maketplace.common.utils.ProductUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
 @Data
 @Builder
 @AllArgsConstructor
-public class ProductForAppDTO {
+public class AppProductDTO {
     private Long productId;
     private String name;
     private List<AttachFileDTO> productImageList;
@@ -37,7 +38,7 @@ public class ProductForAppDTO {
 
 
     @QueryProjection
-    public ProductForAppDTO(
+    public AppProductDTO(
             Long productId,
             String name,
             String brandName,
@@ -48,7 +49,9 @@ public class ProductForAppDTO {
             Long wishlistId,
             int deliveryFee,
             ProductType type,
-            LocalDateTime createAt
+            LocalDateTime createAt,
+            DeliveryRefundType deliveryFeeType,
+            Integer sellerDeliveryFee
     ) {
         this.productId = productId;
         this.name = name;
@@ -58,14 +61,14 @@ public class ProductForAppDTO {
         this.discountPrice = discountPrice;
         this.productImageList = productImages.stream().map(AttachFileDTO::new).toList();
         this.isExistedWishlist = wishlistId != null;
-        this.isFreeShipping = deliveryFee == 0;
-        this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
+        this.discountRate = ProductUtils.calculateDiscountRate(appSalePrice, discountPrice);
         this.type = type;
         this.createAt = createAt;
+        this.isFreeShipping = ProductUtils.checkIsFreeShipping(deliveryFee, deliveryFeeType, sellerDeliveryFee);
     }
 
     @QueryProjection
-    public ProductForAppDTO(
+    public AppProductDTO(
             Long productId,
             String name,
             String brandName,
@@ -75,7 +78,9 @@ public class ProductForAppDTO {
             List<String> productImages,
             int deliveryFee,
             ProductType type,
-            LocalDateTime createAt
+            LocalDateTime createAt,
+            DeliveryRefundType deliveryFeeType,
+            Integer sellerDeliveryFee
     ) {
         this.productId = productId;
         this.name = name;
@@ -85,9 +90,10 @@ public class ProductForAppDTO {
         this.discountPrice = discountPrice;
         this.productImageList = productImages.stream().map(AttachFileDTO::new).toList();
         this.isExistedWishlist = null;
-        this.isFreeShipping = deliveryFee == 0;
-        this.discountRate = CalculatorUtils.calculateDiscountRate(appSalePrice, discountPrice);
+        this.isFreeShipping = ProductUtils.checkIsFreeShipping(deliveryFee, deliveryFeeType, sellerDeliveryFee);
+        this.discountRate = ProductUtils.calculateDiscountRate(appSalePrice, discountPrice);
         this.type = type;
         this.createAt = createAt;
     }
+
 }

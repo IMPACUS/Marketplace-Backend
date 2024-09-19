@@ -28,4 +28,6 @@ public interface ReadSellerCustomRepository {
     Page<SellerDTO> getSellers(Pageable pageable, String brandName, String contactName, UserStatus status);
 
     SimpleSellerFromAdminDTO getSellerInformation(Long sellerId);
+
+    AppSellerDTO getSellerInformationForApp(Long sellerId);
 }
