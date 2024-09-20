@@ -32,7 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -102,10 +105,16 @@ public class CheckoutService {
      * 결제 처리 준비
      * Refactoring:
      * 1. 쿠폰 검증 로직 수정(전체 쿠폰 가져온 뒤 쿠폰 서비스 이용)
-     * 2. 중복된 쿠폰 사용 검증 로직 추가
      */
     @Transactional
     public PaymentSingleDTO checkoutSingle(Long userId, CheckoutSingleDTO checkoutSingleDTO) {
+        // 0. 중복 쿠폰 사용 체크
+        List<Long> allCouponIds = new ArrayList<>();
+        allCouponIds.addAll(checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds());
+        allCouponIds.addAll(checkoutSingleDTO.getAppliedCommonUserCouponIds());
+
+        validateDuplicatedCoupon(allCouponIds);
+
         // 1. 필요한 사용자 정보 가져오기
         BuyerInfoDTO buyerInfoDTO = checkoutCustomRepository.getBuyerInfo(userId);
 
@@ -192,7 +201,7 @@ public class CheckoutService {
 
         return PaymentSingleDTO.builder()
                 .storeId(paymentConfig.getStoreId())
-                .paymentKey(paymentKey)
+                .paymentKey(orderId)
                 .orderName(orderName)
                 .totalDiscountedAmount(paymentEvent.getTotalDiscountedAmount())
                 .currency("KRW")
@@ -200,6 +209,16 @@ public class CheckoutService {
                 .paymentMethod(paymentEvent.getMethod())
                 .customer(checkoutCustomerDTO)
                 .build();
+    }
+
+    private static void validateDuplicatedCoupon(List<Long> allCouponIds) {
+        Set<Long> uniqueCouponIds = new HashSet<>();
+
+        for (Long id : allCouponIds) {
+            if (!uniqueCouponIds.add(id)) {
+                throw new CustomException(PaymentErrorType.DUPLICATE_USE_USER_COUPON);
+            }
+        }
     }
 
     /**
