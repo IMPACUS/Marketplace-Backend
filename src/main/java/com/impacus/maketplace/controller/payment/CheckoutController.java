@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.payment;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
+import com.impacus.maketplace.dto.payment.response.CheckoutCartProductsDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
@@ -45,12 +46,16 @@ public class CheckoutController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("checkout-cart")
-    public ApiResponseEntity<List<CheckoutProductDTO>> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
+    public ApiResponseEntity<CheckoutCartProductsDTO> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
 
-        List<CheckoutProductDTO> response = checkoutService.getCheckoutCart(shoppingBasketIdList);
+        List<CheckoutProductDTO> products = checkoutService.getCheckoutCart(shoppingBasketIdList);
+        CheckoutCartProductsDTO response = CheckoutCartProductsDTO.builder()
+                .products(products)
+                .shoppingBasketIdList(shoppingBasketIdList)
+                .build();
 
         return ApiResponseEntity
-                .<List<CheckoutProductDTO>>builder()
+                .<CheckoutCartProductsDTO>builder()
                 .data(response)
                 .build();
     }
@@ -71,7 +76,7 @@ public class CheckoutController {
 
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("checkout-cart")
-    public ApiResponseEntity<Void> checkoutCart() {
+    public ApiResponseEntity<Void> checkoutCart(@AuthenticationPrincipal CustomUserDetails user, @RequestBody ) {
 
         return null;
     }
