@@ -5,10 +5,11 @@ import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.*;
+import com.impacus.maketplace.common.utils.StringUtils;
+import com.impacus.maketplace.dto.product.dto.CommonProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -20,7 +21,7 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "product_info")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor()
 public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -129,10 +130,21 @@ public class Product extends BaseEntity {
     @Version
     private long version;
 
-    public Product(String productNumber, Long sellerId, CreateProductDTO dto) {
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+    public Product(CommonProductDTO dto) {
+        this.id = dto.getProductId();
+        this.sellerId = dto.getSellerId();
+        this.name = dto.getName();
+        this.productNumber = dto.getProductNumber();
+        this.productImages = dto.getProductImages();
+    }
+
+    public Product(Long sellerId, CreateProductDTO dto) {
         this.sellerId = sellerId;
         this.name = dto.getName();
-        this.productNumber = productNumber;
         this.deliveryType = dto.getDeliveryType();
         this.isCustomProduct = dto.getIsCustomProduct();
         this.deliveryCompany = dto.getDeliveryCompany();
@@ -167,6 +179,13 @@ public class Product extends BaseEntity {
         setDiscountStatus();
     }
 
+    @PrePersist
+    public void prePersist() {
+        if (productNumber == null) {
+            productNumber = StringUtils.generateUniqueNumber();
+        }
+    }
+
     public void setBundleDeliveryOptionAppliedAt() {
         if (this.bundleDeliveryOption == BundleDeliveryOption.BUNDLE_DELIVERY_AVAILABLE) {
             this.bundleDeliveryOptionAppliedAt = LocalDateTime.now();
@@ -184,6 +203,7 @@ public class Product extends BaseEntity {
     }
 
     public void setProduct(UpdateProductDTO dto) {
+        this.version = dto.getVersion();
         this.name = dto.getName();
         this.deliveryType = dto.getDeliveryType();
         this.isCustomProduct = dto.getIsCustomProduct();

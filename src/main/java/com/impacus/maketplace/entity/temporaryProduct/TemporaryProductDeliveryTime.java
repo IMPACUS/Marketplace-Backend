@@ -24,4 +24,10 @@ public class TemporaryProductDeliveryTime extends DeliveryTime {
         super(minDays, maxDays);
         this.temporaryProductId = temporaryProductId;
     }
+
+    public TemporaryProductDeliveryTime(
+            Long temporaryProductId
+    ) {
+        this(temporaryProductId, 0, 0);
+    }
 }

@@ -26,7 +26,7 @@ public class TemporaryProductDTO {
     private int marketPrice;
     private int appSalesPrice;
     private int discountPrice;
-    private int weight;
+    private Integer weight;
     private ProductStatus productStatus;
     private ProductType type;
     private String description;

@@ -101,12 +101,12 @@ public class CreateProductDTO {
     @NotNull
     private CreateClaimInfoDTO claim;
 
-    public Product toEntity(String productNumber, Long sellerId) {
-        return new Product(productNumber, sellerId, this);
+    public Product toEntity(Long sellerId) {
+        return new Product(sellerId, this);
     }
 
-    public TemporaryProduct toTemporaryEntity(Long sellerId) {
-        return new TemporaryProduct(sellerId, this);
+    public TemporaryProduct toTemporaryEntity() {
+        return new TemporaryProduct(this);
     }
 
 }

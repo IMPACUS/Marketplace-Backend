@@ -4,7 +4,6 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.entity.product.Product;
@@ -77,12 +76,9 @@ public class CreateProductService {
                     dto.getRefundFeeType()
             );
 
-            // 2. 상풍 번호 생성
-            String productNumber = StringUtils.getRandomUniqueNumber();
-
             // 3. Product 저장
             // 배송비 & 반송비는 MANUAL 일 때만 저장
-            Product newProduct = productRepository.save(dto.toEntity(productNumber, sellerId));
+            Product newProduct = productRepository.save(dto.toEntity(sellerId));
             Long productId = newProduct.getId();
 
             // 4. Product option 저장

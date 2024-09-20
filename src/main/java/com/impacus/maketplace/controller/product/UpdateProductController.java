@@ -57,14 +57,45 @@ public class UpdateProductController {
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PutMapping("")
+    @PutMapping("/{productId}")
     public ApiResponseEntity<ProductDTO> updateProduct(
             @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable("productId") Long productId,
             @Valid @RequestBody UpdateProductDTO dto
     ) {
         ProductDTO productDTO = updateProductService.updateProduct(
                 user.getId(),
-                dto
+                productId,
+                dto,
+                false
+        );
+        return ApiResponseEntity
+                .<ProductDTO>builder()
+                .data(productDTO)
+                .build();
+    }
+
+    /**
+     * 등록된 상품을 수정하는 API
+     *
+     * @param dto
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @PutMapping("/{productId}/overwrite")
+    public ApiResponseEntity<ProductDTO> updateProductInForce(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable("productId") Long productId,
+            @Valid @RequestBody UpdateProductDTO dto
+    ) {
+        ProductDTO productDTO = updateProductService.updateProduct(
+                user.getId(),
+                productId,
+                dto,
+                true
         );
         return ApiResponseEntity
                 .<ProductDTO>builder()

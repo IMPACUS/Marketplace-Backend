@@ -120,4 +120,11 @@
             <where>refund_fee_type = 'CHARGE_UNDER_30000'</where>
         </update>
     </changeSet>
+
+    <changeSet id="changelog-0.13.07-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="temporary_product_info" />
+        </preConditions>
+        <dropTable tableName="temporary_product_info" />
+    </changeSet>
 </databaseChangeLog>

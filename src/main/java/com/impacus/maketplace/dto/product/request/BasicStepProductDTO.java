@@ -3,24 +3,19 @@ package com.impacus.maketplace.dto.product.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
-import com.impacus.maketplace.common.enumType.product.*;
+import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
+import com.impacus.maketplace.common.enumType.product.DeliveryType;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class UpdateProductDTO {
-
-    @NotNull
-    private Integer version;
-
+@Getter
+public class BasicStepProductDTO {
     @NotBlank
     @Size(max = 50)
     private String name;
@@ -34,6 +29,8 @@ public class UpdateProductDTO {
 
     @NotNull
     private Long categoryId;
+
+    private Integer salesChargePercent;
 
     @NotNull
     @ValidEnum(enumClass = DeliveryRefundType.class)
@@ -60,6 +57,12 @@ public class UpdateProductDTO {
     private Long bundleDeliveryGroupId;
 
     @NotNull
+    private CreateProductDeliveryTimeDTO deliveryTime;
+
+    @NotNull
+    private List<String> productImages;
+
+    @NotNull
     private Integer marketPrice;
 
     @NotNull
@@ -68,30 +71,7 @@ public class UpdateProductDTO {
     @NotNull
     private Integer discountPrice;
 
-    @NotNull
-    private Integer weight;
-
-    @ValidEnum(enumClass = ProductStatus.class)
-    private ProductStatus productStatus;
-
-    @NotBlank
-    private String description;
-
-    @ValidEnum(enumClass = ProductType.class)
-    private ProductType type;
-
-    private Integer salesChargePercent;
-
-    @NotNull
-    private CreateProductDetailInfoDTO productDetail;
-
-    @NotNull
-    private List<CreateProductOptionDTO> productOptions;
-
-    @NotNull
-    private CreateProductDeliveryTimeDTO deliveryTime;
-
-    @NotNull
-    private CreateClaimInfoDTO claim;
-
+    public TemporaryProduct toEntity() {
+        return new TemporaryProduct(this);
+    }
 }

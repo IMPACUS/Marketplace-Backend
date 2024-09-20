@@ -2,15 +2,45 @@ package com.impacus.maketplace.common.utils;
 
 import com.impacus.maketplace.common.constants.RegExpPatternConstants;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Random;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Component
 public class StringUtils {
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
+    private static final String COUNTER_KEY = "unique_id_counter";
+    private static final String DATE_KEY = "unique_id_date";
+
+    private static StringRedisTemplate redisTemplate;
+
+    @Autowired
+    public StringUtils(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
+    /**
+     * 고유번호 생성하는 함수
+     * - 날짜가 변경될 때마다 카운터 초기화
+     *
+     * @return 고유번호
+     */
+    public static String generateUniqueNumber() {
+        String currentDate = dateFormat.format(new Date());
+        String storedDate = redisTemplate.opsForValue().get(DATE_KEY);
+
+        if (!currentDate.equals(storedDate)) {
+            redisTemplate.opsForValue().set(DATE_KEY, currentDate);
+            redisTemplate.opsForValue().set(COUNTER_KEY, "0");
+        }
+
+        Long counter = redisTemplate.opsForValue().increment(COUNTER_KEY);
+        return currentDate + String.format("%05d", counter);
+    }
 
     public static Boolean checkPasswordValidation(String password) {
         return password.matches(RegExpPatternConstants.PASSWORD_PATTERN);
@@ -26,19 +56,6 @@ public class StringUtils {
         }
 
         return token;
-    }
-
-    /**
-     * YYMMddHHmmssSSSXXX 형식의 중복허용하지 않는 번호 생성하는 함수 (XXX: 랜덤 숫자)
-     *
-     * @return 랜덤 번호
-     */
-    public static String getRandomUniqueNumber() {
-        String nowDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmssSSS"));
-        Random random = new Random(Long.parseLong(nowDate));
-        int randomNumber = random.nextInt(999 - 100 + 1) + 100;
-
-        return nowDate + randomNumber;
     }
 
     /**
