@@ -4,6 +4,8 @@ import com.impacus.maketplace.common.enumType.payment.PaymentMethod;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class PaymentCartDTO {
@@ -16,4 +18,5 @@ public class PaymentCartDTO {
     private String channelKey;      // 채널 키 - 스마트로, 카카오 페이
     private PaymentMethod paymentMethod;       // 결제 수단
     private CheckoutCustomerDTO customer;   // 고객 정보
+    private List<Long> shoppingBasketIdList;    // 장바구니 id List
 }

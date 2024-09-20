@@ -2,9 +2,11 @@ package com.impacus.maketplace.controller.payment;
 
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.payment.request.CheckoutCartDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutCartProductsDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
+import com.impacus.maketplace.dto.payment.response.PaymentCartDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
 import lombok.RequiredArgsConstructor;
@@ -76,7 +78,9 @@ public class CheckoutController {
 
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("checkout-cart")
-    public ApiResponseEntity<Void> checkoutCart(@AuthenticationPrincipal CustomUserDetails user, @RequestBody ) {
+    public ApiResponseEntity<PaymentCartDTO> checkoutCart(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutCartDTO checkoutCartDTO) {
+
+        checkoutService.checkoutCart(user.getId(), checkoutCartDTO);
 
         return null;
     }

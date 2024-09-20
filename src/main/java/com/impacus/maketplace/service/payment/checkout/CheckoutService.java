@@ -9,9 +9,11 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.config.PaymentConfig;
+import com.impacus.maketplace.dto.payment.request.CheckoutCartDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutCustomerDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
+import com.impacus.maketplace.dto.payment.response.PaymentCartDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
 import com.impacus.maketplace.entity.address.DeliveryAddress;
@@ -36,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -102,23 +105,23 @@ public class CheckoutService {
     }
 
     /**
-     * 결제 처리 준비
+     * 결제 처리 준비 (단일 상품 구매)
      * Refactoring:
      * 1. 쿠폰 검증 로직 수정(전체 쿠폰 가져온 뒤 쿠폰 서비스 이용)
      */
     @Transactional
     public PaymentSingleDTO checkoutSingle(Long userId, CheckoutSingleDTO checkoutSingleDTO) {
-        // 0. 중복 쿠폰 사용 체크
+        // 1. 중복 쿠폰 사용 체크
         List<Long> allCouponIds = new ArrayList<>();
         allCouponIds.addAll(checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds());
         allCouponIds.addAll(checkoutSingleDTO.getAppliedCommonUserCouponIds());
 
         validateDuplicatedCoupon(allCouponIds);
 
-        // 1. 필요한 사용자 정보 가져오기
+        // 2. 필요한 사용자 정보 가져오기
         BuyerInfoDTO buyerInfoDTO = checkoutCustomRepository.getBuyerInfo(userId);
 
-        // 2. 필요한 정보 가져오기
+        // 3. 필요한 정보 가져오기
         CheckoutProductInfoDTO checkoutProductInfoDTO = checkoutCustomRepository.getPaymentProductInfo(
                 checkoutSingleDTO.getPaymentProductInfo().getProductId(),
                 checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(),
@@ -127,10 +130,10 @@ public class CheckoutService {
                 checkoutSingleDTO.getRegisteredCardId()
         );
 
-        // 3. validateCheckoutProduct
+        // 4. validateCheckoutProduct
         validateCheckoutProduct(checkoutProductInfoDTO.isProductIsDeleted(), checkoutProductInfoDTO.isOptionIsDeleted(), checkoutProductInfoDTO.getProductStatus(), checkoutProductInfoDTO.getStock(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
 
-        // 4. validateDiscount
+        // 5. validateDiscount
         Long amountCouponDiscountForProduct = couponUserService.getAmountAfterValidateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
         Long totalPrice = checkoutProductInfoDTO.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
         Long amountCouponDistcountForOrder = couponUserService.getAmountAfterValidateCouponsForOrder(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice);
@@ -140,7 +143,7 @@ public class CheckoutService {
             throw new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
         }
 
-        // 5. order_id 및 payment_id 생성
+        // 6. order_id 및 payment_id 생성
         String orderId = getOrderId();
         String paymentKey;
         try {
@@ -152,7 +155,7 @@ public class CheckoutService {
 
         String orderName = OrderUtils.generateOrderName(checkoutProductInfoDTO.getName(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), 1);
 
-        // 6. PaymentEvent, PaymentOrder, DeliveyAddress 저장
+        // 7. PaymentEvent, PaymentOrder, DeliveyAddress 저장
         PaymentEvent paymentEvent = PaymentEvent.builder()
                 .buyerId(userId)
                 .isPaymentDone(false)
@@ -193,7 +196,7 @@ public class CheckoutService {
 
         deliveryAddressRepository.save(deliveryAddress);
 
-        // 7. Response DTO 반환
+        // 8. Response DTO 반환
         CheckoutCustomerDTO checkoutCustomerDTO = new CheckoutCustomerDTO(
                 buyerInfoDTO.getUserId(), buyerInfoDTO.getName(), buyerInfoDTO.getPhoneNumber(), buyerInfoDTO.getEmail(),
                 checkoutSingleDTO.getAddressInfoDTO().getAddress(), checkoutSingleDTO.getAddressInfoDTO().getDetailAddress(), checkoutSingleDTO.getAddressInfoDTO().getPostalCode()
@@ -209,6 +212,37 @@ public class CheckoutService {
                 .paymentMethod(paymentEvent.getMethod())
                 .customer(checkoutCustomerDTO)
                 .build();
+    }
+
+    /**
+     * 결제 처리 준비 (장바구니 상품 구매)
+     * Refactoring:
+     * 1. 쿠폰 검증 로직 수정(전체 쿠폰 가져온 뒤 쿠폰 서비스 이용)
+     */
+    @Transactional
+    public PaymentCartDTO checkoutCart(Long userId, CheckoutCartDTO checkoutCartDTO) {
+
+        // 1. 중복 쿠폰 사용 체크
+        List<Long> allCouponIds = new ArrayList<>();
+        allCouponIds.addAll(checkoutCartDTO.getAppliedCommonUserCouponIds());
+        allCouponIds.addAll(
+                checkoutCartDTO.getPaymentProductInfos().stream()
+                        .flatMap(paymentProductInfoDTO -> paymentProductInfoDTO.getAppliedCouponForProductIds().stream())
+                        .toList()
+        );
+
+        validateDuplicatedCoupon(allCouponIds);
+
+        // 2. 필요한 사용자 정보 가져오기
+
+        // 3. 필요한 정보 가져오기
+        // 4. validateCheckoutProduct
+        // 5. validateDiscount
+        // 6. order_id 및 payment_id 생성
+        // 7. PaymentEvent, PaymentOrder, DeliveyAddress 저장
+        // 8. Response DTO 반환
+
+        return null;
     }
 
     private static void validateDuplicatedCoupon(List<Long> allCouponIds) {

@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CheckoutCartDTO {
+    private List<Long> shoppingBasketIdList;    // 장바구니 id List
     private List<PaymentProductInfoDTO> paymentProductInfos;   // 결제 상품 정보
     private AddressInfoDTO addressInfoDTO;  // 결제시 입력한 주소지
     private List<Long> appliedCommonUserCouponIds;  // 전체 주문에 적용된 사용자 쿠폰 리스트
