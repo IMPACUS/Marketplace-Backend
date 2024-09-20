@@ -9,6 +9,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.config.PaymentConfig;
+import com.impacus.maketplace.dto.payment.CheckoutCartProductInfoDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutCartDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutCustomerDTO;
@@ -38,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -234,10 +234,27 @@ public class CheckoutService {
         validateDuplicatedCoupon(allCouponIds);
 
         // 2. 필요한 사용자 정보 가져오기
+        BuyerInfoDTO buyerInfo = checkoutCustomRepository.getBuyerInfo(userId);
 
         // 3. 필요한 정보 가져오기
+        List<CheckoutCartProductInfoDTO> checkoutCartProductInfoDTOList = checkoutCartDTO.getPaymentProductInfos().stream().map(paymentProductInfoDTO -> {
+                    CheckoutProductInfoDTO checkoutProductInfoDTO = checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId());
+                    return CheckoutCartProductInfoDTO.builder()
+                            .checkoutProductInfoDTO(checkoutProductInfoDTO)
+                            .quantity(paymentProductInfoDTO.getQuantity())
+                            .appliedCouponForProductIds(paymentProductInfoDTO.getAppliedCouponForProductIds())
+                            .build();
+                }
+        ).toList();
+
         // 4. validateCheckoutProduct
+        checkoutCartProductInfoDTOList.forEach(checkoutCartProductInfoDTO ->
+                validateCheckoutProduct(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().isProductIsDeleted(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().isOptionIsDeleted(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductStatus(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getStock(), checkoutCartProductInfoDTO.getQuantity())
+        );
+
         // 5. validateDiscount
+
+
         // 6. order_id 및 payment_id 생성
         // 7. PaymentEvent, PaymentOrder, DeliveyAddress 저장
         // 8. Response DTO 반환
