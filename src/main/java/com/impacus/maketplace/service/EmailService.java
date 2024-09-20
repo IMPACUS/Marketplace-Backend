@@ -43,6 +43,7 @@ public class EmailService {
         try {
             MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             msgHelper.setTo(emailDto.getReceiveEmail());
+            msgHelper.setFrom("support@implace.com");
             msgHelper.setSubject(mailType.getSubject());
             msgHelper.setText(setContext(authNumber, mailType.getTemplate()), true);
             javaMailSender.send(mimeMessage);

@@ -1,12 +1,16 @@
 package com.impacus.maketplace.service.alarm.user;
 
-import com.impacus.maketplace.common.enumType.error.UpdateAlarmErrorType;
+import com.impacus.maketplace.common.enumType.MailType;
+import com.impacus.maketplace.common.enumType.error.AlarmErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.alarm.user.add.*;
 import com.impacus.maketplace.dto.alarm.user.update.*;
 import com.impacus.maketplace.entity.alarm.user.*;
 import com.impacus.maketplace.entity.alarm.user.enums.*;
 import com.impacus.maketplace.repository.alarm.user.*;
+import com.impacus.maketplace.service.EmailService;
+import com.impacus.maketplace.service.alarm.user.enums.AlarmEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +27,7 @@ public class AlarmService {
     private final AlarmRestockRepository alarmRestockRepository;
     private final AlarmReviewRepository alarmReviewRepository;
     private final AlarmServiceCenterRepository alarmServiceCenterRepository;
+    private final EmailService emailService;
 
     public void add(Object saveDto, Long userId) {
         if (saveDto instanceof AddOrderDeliveryDto) {
@@ -77,56 +82,64 @@ public class AlarmService {
         if (updateDto instanceof UpdateBrandShopDto) {
             UpdateBrandShopDto updateBrandShopDto = (UpdateBrandShopDto) updateDto;
             Optional<AlarmBrandShop> byId = alarmBrandShopRepository.findById(id);
-            if (byId.isEmpty()) throw new CustomException(UpdateAlarmErrorType.INVALID_ALARM_ID);
+            if (byId.isEmpty()) throw new CustomException(AlarmErrorType.INVALID_ALARM_ID);
 
             AlarmBrandShop alarmBrandShop = byId.get();
-            if (alarmBrandShop.getUserId() != userId) throw new CustomException(UpdateAlarmErrorType.INVALID_USER_ID);
+            if (alarmBrandShop.getUserId() != userId) throw new CustomException(AlarmErrorType.INVALID_USER_ID);
             alarmBrandShop.updateAlarm(updateBrandShopDto);
         } else if (updateDto instanceof UpdateOrderDeliveryDto) {
             UpdateOrderDeliveryDto updateOrderDeliveryDto = (UpdateOrderDeliveryDto) updateDto;
             Optional<AlarmOrderDelivery> byId = alarmOrderDeliveryRepository.findById(id);
-            if (byId.isEmpty()) throw new CustomException(UpdateAlarmErrorType.INVALID_ALARM_ID);
+            if (byId.isEmpty()) throw new CustomException(AlarmErrorType.INVALID_ALARM_ID);
 
             AlarmOrderDelivery alarmOrderDelivery = byId.get();
             if (alarmOrderDelivery.getUserId() != userId)
-                throw new CustomException(UpdateAlarmErrorType.INVALID_USER_ID);
+                throw new CustomException(AlarmErrorType.INVALID_USER_ID);
             alarmOrderDelivery.updateAlarm(updateOrderDeliveryDto);
         } else if (updateDto instanceof UpdateRestockDto) {
             UpdateRestockDto updateRestockDto = (UpdateRestockDto) updateDto;
             Optional<AlarmRestock> byId = alarmRestockRepository.findById(id);
-            if (byId.isEmpty()) throw new CustomException(UpdateAlarmErrorType.INVALID_ALARM_ID);
+            if (byId.isEmpty()) throw new CustomException(AlarmErrorType.INVALID_ALARM_ID);
 
             AlarmRestock alarmRestock = byId.get();
-            if (alarmRestock.getUserId() != userId) throw new CustomException(UpdateAlarmErrorType.INVALID_USER_ID);
+            if (alarmRestock.getUserId() != userId) throw new CustomException(AlarmErrorType.INVALID_USER_ID);
             alarmRestock.updateAlarm(updateRestockDto);
         } else if (updateDto instanceof UpdateReviewDto) {
             UpdateReviewDto updateReviewDto = (UpdateReviewDto) updateDto;
             Optional<AlarmReview> byId = alarmReviewRepository.findById(id);
-            if (byId.isEmpty()) throw new CustomException(UpdateAlarmErrorType.INVALID_ALARM_ID);
+            if (byId.isEmpty()) throw new CustomException(AlarmErrorType.INVALID_ALARM_ID);
 
             AlarmReview alarmReview = byId.get();
-            if (alarmReview.getUserId() != userId) throw new CustomException(UpdateAlarmErrorType.INVALID_USER_ID);
+            if (alarmReview.getUserId() != userId) throw new CustomException(AlarmErrorType.INVALID_USER_ID);
             alarmReview.updateAlarm(updateReviewDto);
         } else if (updateDto instanceof UpdateShoppingBenefitsDto) {
             UpdateShoppingBenefitsDto updateShoppingBenefitsDto = (UpdateShoppingBenefitsDto) updateDto;
             Optional<AlarmShoppingBenefits> byId = alarmShoppingBenefitsRepository.findById(id);
-            if (byId.isEmpty()) throw new CustomException(UpdateAlarmErrorType.INVALID_ALARM_ID);
+            if (byId.isEmpty()) throw new CustomException(AlarmErrorType.INVALID_ALARM_ID);
 
             AlarmShoppingBenefits alarmShoppingBenefits = byId.get();
             if (alarmShoppingBenefits.getUserId() != userId)
-                throw new CustomException(UpdateAlarmErrorType.INVALID_USER_ID);
+                throw new CustomException(AlarmErrorType.INVALID_USER_ID);
             alarmShoppingBenefits.updateAlarm(updateShoppingBenefitsDto);
         } else if (updateDto instanceof UpdateServiceCenterDto) {
             UpdateServiceCenterDto updateServiceCenterDto = (UpdateServiceCenterDto) updateDto;
             Optional<AlarmServiceCenter> byId = alarmServiceCenterRepository.findById(id);
-            if (byId.isEmpty()) throw new CustomException(UpdateAlarmErrorType.INVALID_ALARM_ID);
+            if (byId.isEmpty()) throw new CustomException(AlarmErrorType.INVALID_ALARM_ID);
 
             AlarmServiceCenter alarmServiceCenter = byId.get();
             if (alarmServiceCenter.getUserId() != userId)
-                throw new CustomException(UpdateAlarmErrorType.INVALID_USER_ID);
+                throw new CustomException(AlarmErrorType.INVALID_USER_ID);
             alarmServiceCenter.updateAlarm(updateServiceCenterDto);
         } else {
             throw new IllegalArgumentException("존재하지 않는 Dto입니다.");
         }
+    }
+
+    public void sendMail(String receiver, AlarmEnum alarmEnum) {
+        EmailDto emailDto = EmailDto.builder()
+                .receiveEmail(receiver)
+                .build();
+        emailService.sendMail(emailDto, MailType.selectAlarm(alarmEnum));
+
     }
 }
