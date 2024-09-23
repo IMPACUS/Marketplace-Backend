@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.request.ProductQuantityDTO;
 import com.impacus.maketplace.dto.coupon.response.*;
+import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
@@ -22,9 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -173,9 +172,9 @@ public class CouponUserService {
     }
 
     /**
-     * 상품에 대한 쿠폰 적용 유효성 검증 후 총 금액 가져오기
+     * 상품에 대한 쿠폰 적용 유효성 검증 후 필요한 정보 가져오기
      */
-    public Long getAmountAfterValidateCouponsForProduct(Long userId, List<Long> usedUserCouponIds, com.impacus.maketplace.common.enumType.product.ProductType productType, String marketName, int appSalesPrice, Long quantity) {
+    public List<PaymentCouponDTO> getAmountAfterValidateCouponsForProduct(Long userId, List<Long> usedUserCouponIds, com.impacus.maketplace.common.enumType.product.ProductType productType, String marketName, int appSalesPrice, Long quantity) {
         // 1. 쿠폰 리스트 가져오기
         List<ValidateUserCouponForProductDTO> coupons = couponCustomRepositroy.findUserCouponInfoForValidateForProductByIds(userId, usedUserCouponIds);
 
@@ -190,17 +189,18 @@ public class CouponUserService {
             }
         });
 
-        return coupons.stream()
-                .mapToLong(coupon ->
-                        coupon.getBenefitType().equals(BenefitType.PERCENTAGE) ?
-                                (appSalesPrice * quantity) * coupon.getBenefitValue() / 100 : coupon.getBenefitValue())
-                .sum();
+        List<PaymentCouponDTO> list = new ArrayList<>();
+        coupons.forEach(coupon -> {
+            list.add(new PaymentCouponDTO(coupon.getBenefitType(), coupon.getBenefitValue()));
+        });
+
+        return list;
     }
 
     /**
-     * 주문 대한 쿠폰 적용 유효성 검증 후 총 금액 가져오기
+     * 주문 대한 쿠폰 적용 유효성 검증 후 필요한 정보 가져오기
      */
-    public Long getAmountAfterValidateCouponsForOrder(Long userId, List<Long> usedUserCouponsIds, Long totalPrice) {
+    public List<PaymentCouponDTO> getAmountAfterValidateCouponsForOrder(Long userId, List<Long> usedUserCouponsIds, Long totalPrice) {
         // 1. 쿠폰 리스트 가져오기
         List<ValidateUserCouponForOrderDTO> coupons = couponCustomRepositroy.findUserCouponInfoForValidateForOrderByIds(userId, usedUserCouponsIds);
 
@@ -215,11 +215,12 @@ public class CouponUserService {
             }
         });
 
-        return coupons.stream()
-                .mapToLong(coupon ->
-                        coupon.getBenefitType().equals(BenefitType.PERCENTAGE) ?
-                                totalPrice * coupon.getBenefitValue() / 100 : coupon.getBenefitValue())
-                .sum();
+        List<PaymentCouponDTO> list = new ArrayList<>();
+        coupons.forEach(coupon -> {
+            list.add(new PaymentCouponDTO(coupon.getBenefitType(), coupon.getBenefitValue()));
+        });
+
+        return list;
     }
     private boolean validateCouponForOrder(ValidateUserCouponForOrderDTO coupon, Long totalPrice) {
         // 타입 체크

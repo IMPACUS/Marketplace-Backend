@@ -41,9 +41,9 @@ public class OrderUtils {
         return date + randomChars.toString();
     }
 
-    public static String generatePaymentKey(CheckoutSingleDTO checkoutSingleDTO) throws JsonProcessingException {
+    public static String generatePaymentKey(Object object) throws JsonProcessingException {
         // 객체를 JSON 문자열로 직렬화
-        String serializedData = objectMapper.writeValueAsString(checkoutSingleDTO);
+        String serializedData = objectMapper.writeValueAsString(object);
         // JSON 문자열의 바이트 배열을 사용하여 UUID 생성
         byte[] bytes = serializedData.getBytes(StandardCharsets.UTF_8);
         UUID paymentKey = UUID.nameUUIDFromBytes(bytes);
