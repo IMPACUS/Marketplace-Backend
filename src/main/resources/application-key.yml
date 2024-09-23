@@ -19,3 +19,6 @@ key:
     secret-key: 6B64DCA4E72F58EDIKU9AAB215FE76B64DCA4E72F58EDIKU9AAB215FE7
     accesstoken-validity-in-min: 60
     refreshtoken-validity-in-min: 20160
+  bizgo:
+    id: impa_om_06y1yv55
+    pw: 23670UA10010XGPG71X9

@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="changelog-0.14.01-240907" author="sda0523">
+    <changeSet id="changelog-0.14.01-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="alarm_order_delivery"/>
@@ -13,6 +13,7 @@
                 <tableExists tableName="alarm_service_center"/>
                 <tableExists tableName="alarm_restock"/>
                 <tableExists tableName="alarm_review"/>
+                <tableExists tableName="email_history"/>
             </not>
         </preConditions>
         <renameTable oldTableName="order_delivery_alarm" newTableName="alarm_order_delivery"/>
@@ -21,9 +22,10 @@
         <renameTable oldTableName="service_center_alarm" newTableName="alarm_service_center"/>
         <renameTable oldTableName="restock_alarm" newTableName="alarm_restock"/>
         <renameTable oldTableName="review_alarm" newTableName="alarm_review"/>
+        <renameTable oldTableName="email_history" newTableName="history_email"/>
     </changeSet>
 
-    <changeSet id="changelog-0.14.02-240907" author="sda0523">
+    <changeSet id="changelog-0.14.02-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="alarm_order_delivery" columnName="alarm_order_delivery_id"/>
@@ -46,7 +48,7 @@
                       newColumnName="alarm_order_delivery_id"/>
     </changeSet>
 
-    <changeSet id="changelog-0.14.03-240907" author="sda0523">
+    <changeSet id="changelog-0.14.03-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="alarm_order_delivery" columnName="content"/>
@@ -90,7 +92,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="changelog-0.14.04-240907" author="sda0523">
+    <changeSet id="changelog-0.14.04-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="alarm_order_delivery" columnName="comment1"/>
@@ -133,7 +135,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="changelog-0.14.05-240907" author="sda0523">
+    <changeSet id="changelog-0.14.05-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="alarm_order_delivery" columnName="msg"/>
@@ -177,7 +179,7 @@
         <setColumnRemarks tableName="alarm_order_delivery" columnName="push" remarks="push 알람 여부"/>
     </changeSet>
 
-    <changeSet id="changelog-0.14.06-240907" author="sda0523">
+    <changeSet id="changelog-0.14.06-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="alarm_order_delivery" columnName="time"/>
             <columnExists tableName="alarm_brand_shop" columnName="time"/>
@@ -193,4 +195,26 @@
         <dropColumn tableName="alarm_brand_shop" columnName="time"/>
         <dropColumn tableName="alarm_order_delivery" columnName="time"/>
     </changeSet>
+
+    <changeSet id="changelog-0.14.07-240924" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bizgo_token"/>
+            </not>
+        </preConditions>
+        <createTable tableName="bizgo_token">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

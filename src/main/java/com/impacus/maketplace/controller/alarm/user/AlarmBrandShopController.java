@@ -54,10 +54,9 @@ public class AlarmBrandShopController {
     }
 
     @PutMapping("mail")
-    public ApiResponseEntity<?> mailTest(@RequestParam("aa") Integer a) {
-        if(a == 1)
-        alarmService.sendMail("sindong942@naver.com", AlarmEnum.BRAND_SHOP);
-        else         alarmService.sendMail("sindong942@naver.com", AlarmEnum.ORDER_DELIVERY);
+    public ApiResponseEntity<?> mailTest(@RequestParam("msg") String msg, @RequestParam("phone") String phone) {
+        alarmService.sendMsg(msg, phone);
+
         return ApiResponseEntity.builder()
                 .message("메일 전송")
                 .build();
