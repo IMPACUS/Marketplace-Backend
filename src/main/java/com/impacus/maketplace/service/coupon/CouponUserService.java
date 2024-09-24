@@ -191,7 +191,7 @@ public class CouponUserService {
 
         List<PaymentCouponDTO> list = new ArrayList<>();
         coupons.forEach(coupon -> {
-            list.add(new PaymentCouponDTO(coupon.getBenefitType(), coupon.getBenefitValue()));
+            list.add(new PaymentCouponDTO(coupon.getUserCouponId(), coupon.getBenefitType(), coupon.getBenefitValue()));
         });
 
         return list;
@@ -217,7 +217,7 @@ public class CouponUserService {
 
         List<PaymentCouponDTO> list = new ArrayList<>();
         coupons.forEach(coupon -> {
-            list.add(new PaymentCouponDTO(coupon.getBenefitType(), coupon.getBenefitValue()));
+            list.add(new PaymentCouponDTO(coupon.getUserCouponId(), coupon.getBenefitType(), coupon.getBenefitValue()));
         });
 
         return list;

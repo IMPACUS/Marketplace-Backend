@@ -176,7 +176,7 @@ public class CheckoutService {
                 .amount((long) checkoutProductInfoDTO.getAppSalesPrice())
                 .ecoDiscount((long) (checkoutProductInfoDTO.getAppSalesPrice() - checkoutProductInfoDTO.getDiscountPrice()))
                 .greenLabelDiscount(checkoutSingleDTO.getPointAmount())
-                .couponDiscount(amountCouponDiscountForProduct + amountCouponDistcountForOrder)
+                //.couponDiscount(amountCouponDiscountForProduct + amountCouponDistcountForOrder)
                 .commissionPercent(checkoutProductInfoDTO.getChargePercent())
                 .status(PaymentOrderStatus.NOT_STARTED)
                 .ledgerUpdated(false)
@@ -255,13 +255,13 @@ public class CheckoutService {
         );
 
         // 5. validateDiscount
-        Long amountCouponDiscountForProduct = checkoutCartProductInfoDTOList.stream().mapToLong(checkoutCartProductInfoDTO ->
-                couponUserService.getAmountAfterValidateCouponsForProduct(userId, checkoutCartProductInfoDTO.getAppliedCouponForProductIds(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductType(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getMarketName(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getAppSalesPrice(), checkoutCartProductInfoDTO.getQuantity())
-        ).sum();
+//        Long amountCouponDiscountForProduct = checkoutCartProductInfoDTOList.stream().mapToLong(checkoutCartProductInfoDTO ->
+//                couponUserService.getAmountAfterValidateCouponsForProduct(userId, checkoutCartProductInfoDTO.getAppliedCouponForProductIds(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductType(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getMarketName(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getAppSalesPrice(), checkoutCartProductInfoDTO.getQuantity())
+//        ).sum();
         Long totalPrice = checkoutCartProductInfoDTOList.stream().mapToLong(chekcoutCartProductInfoDTO ->
                 chekcoutCartProductInfoDTO.getCheckoutProductInfoDTO().getAppSalesPrice() * chekcoutCartProductInfoDTO.getQuantity()
         ).sum();
-        Long amountCouponDistcountForOrder = couponUserService.getAmountAfterValidateCouponsForOrder(userId, checkoutCartDTO.getAppliedCommonUserCouponIds(), totalPrice);
+//        Long amountCouponDistcountForOrder = couponUserService.getAmountAfterValidateCouponsForOrder(userId, checkoutCartDTO.getAppliedCommonUserCouponIds(), totalPrice);
 
         // 6. order_id 및 payment_id 생성
         String orderId = getOrderId();

@@ -38,13 +38,12 @@ public class DiscountService {
 
             if (paymentCoupons != null) {
                 for (PaymentCouponDTO paymentCoupon : paymentCoupons) {
+                    BigDecimal benefitValue = BigDecimal.valueOf(paymentCoupon.getBenefitValue());
                     if (paymentCoupon.getBenefitType() == BenefitType.AMOUNT) {
                         // 정액 할인
-                        BigDecimal benefitValue = BigDecimal.valueOf(paymentCoupon.getBenefitValue());
                         discountAmount = discountAmount.add(benefitValue);
                     } else {
                         // 정률 할인
-                        BigDecimal benefitValue = BigDecimal.valueOf(paymentCoupon.getBenefitValue());
                         BigDecimal discount = productPrice.multiply(benefitValue);
 
                         // 100으로 나누고 소수점 이하 버림
