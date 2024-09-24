@@ -110,9 +110,11 @@ public class S3Service implements CloudFileUploadService {
 
     @Override
     public boolean deleteFile(String fileKey) {
+        URI uri = URI.create(fileKey);
+
         amazonS3Client.deleteObject(builder -> builder
                 .bucket(s3BucketName)
-                .key(fileKey));
+                .key(uri.getPath().substring(1, uri.getPath().length())));
         return true;
     }
 }

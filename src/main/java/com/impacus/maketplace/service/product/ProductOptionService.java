@@ -65,7 +65,6 @@ public class ProductOptionService {
      * @return
      */
     public List<ProductOption> findProductOptionByProductId(Long productId) {
-
         return productOptionRepository.findByProductId(productId);
     }
 
@@ -90,7 +89,7 @@ public class ProductOptionService {
         List<Long> productOptionIds = productOptions.stream().map(ProductOption::getId).toList();
 
         shoppingBasketRepository.deleteByProductOptionId(productOptionIds);
-        productOptionRepository.deleteAllById(productOptionIds);
+        productOptionRepository.updateIsDeleteTrueByIds(productOptionIds);
     }
 
     /**

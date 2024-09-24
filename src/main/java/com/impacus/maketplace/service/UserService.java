@@ -1,9 +1,9 @@
 package com.impacus.maketplace.service;
 
-import com.impacus.maketplace.common.enumType.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -470,5 +470,23 @@ public class UserService {
     public CheckExistedEmailDTO checkExistedEmailForSeller(String email) {
         boolean isExited = existUserByEmail(email);
         return CheckExistedEmailDTO.toDTO(isExited);
+    }
+
+    /**
+     * [앱 개발 테스트를 위해 추가한 함수] 사용자 삭제 함수
+     *
+     * @param email
+     */
+    @Transactional
+    public void deleteConsumer(String email) {
+        List<User> userList = findUsersByEmailAboutAllProvider(email);
+        if (userList.isEmpty()) {
+            throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
+        }
+
+        // 삭제
+        // User, UserConsent, UserRole, UserStatusInfo
+        // GreenLabelPoint, GreenLabelPointAllocation, LevelAchievement, LevelPointMaster
+        userRepository.deleteConsumer(userList.get(0).getId());
     }
 }

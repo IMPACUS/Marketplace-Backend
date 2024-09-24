@@ -90,7 +90,9 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 sellerAdjustmentInfo.bankCode,
                                 sellerAdjustmentInfo.accountName,
                                 sellerAdjustmentInfo.accountNumber,
-                                attachFile.attachFileName.as("logoImageUrl")
+                                attachFile.attachFileName.as("logoImageUrl"),
+                                seller.chargePercent,
+                                seller.entryStatus
                         )
                 )
                 .from(seller)
@@ -351,7 +353,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         return queryFactory
                 .select(Projections.fields(
                         SellerDTO.class,
-                        seller.id,
+                        seller.id.as("sellerId"),
                         seller.marketName.as("brandName"),
                         seller.contactName,
                         user.email,
@@ -391,7 +393,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     private BooleanBuilder checkIsContainBrandName(String brandName) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (brandName != null && !brandName.isBlank()) {
-            booleanBuilder.and(seller.marketName.contains(brandName));
+            booleanBuilder.and(seller.marketName.containsIgnoreCase(brandName));
         }
 
         return booleanBuilder;
@@ -400,7 +402,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     private BooleanBuilder checkIsContainContactName(String contactName) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (contactName != null && !contactName.isBlank()) {
-            booleanBuilder.and(seller.contactName.contains(contactName));
+            booleanBuilder.and(seller.contactName.containsIgnoreCase(contactName));
         }
 
         return booleanBuilder;
@@ -464,5 +466,30 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
         return dto;
     }
+
+    @Override
+    public AppSellerDTO getSellerInformationForApp(Long sellerId) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                AppSellerDTO.class,
+                                seller.id.as("sellerId"),
+                                seller.marketName,
+                                seller.contactName,
+                                seller.customerServiceNumber,
+                                sellerBusinessInfo.businessEmail,
+                                brand.businessDay,
+                                brand.openingTime,
+                                brand.closingTime,
+                                brand.breakingTime
+                        )
+                )
+                .from(seller)
+                .leftJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .leftJoin(brand).on(brand.sellerId.eq(seller.id))
+                .where(seller.id.eq(sellerId))
+                .fetchOne();
+    }
+
 
 }

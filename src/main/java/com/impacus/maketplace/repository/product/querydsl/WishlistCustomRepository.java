@@ -5,5 +5,5 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 public interface WishlistCustomRepository {
-    Slice<WishlistDetailDTO> findAllWishListByUserId(Long userId, Pageable pageable);
+    Slice<WishlistDetailDTO> findWishlistsByUserId(Long userId, Pageable pageable);
 }

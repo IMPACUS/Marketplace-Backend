@@ -28,14 +28,14 @@ public enum UserLevel {
      *
      * @return
      */
-    public static UserLevel getUpgradeLevel(UserLevel userLevel) {
-        return switch (userLevel) {
+    public UserLevel getUpgradeLevel() {
+        return switch (this) {
             case NONE -> UserLevel.BRONZE;
             case BRONZE -> UserLevel.ROOKIE;
             case ROOKIE -> UserLevel.SILVER;
             case SILVER -> UserLevel.GOLD;
             case GOLD -> UserLevel.ECO_VIP;
-            default -> throw new CustomException(CommonErrorType.UNKNOWN, "등급 변동을 할 수 없는 레벨입니다.");
+            default -> null;
         };
     }
 
@@ -44,8 +44,8 @@ public enum UserLevel {
      *
      * @return
      */
-    public static UserLevel getDowngradeLevel(UserLevel userLevel) {
-        return switch (userLevel) {
+    public UserLevel getDowngradeLevel() {
+        return switch (this) {
             case BRONZE, ROOKIE -> UserLevel.BRONZE;
             case SILVER -> UserLevel.ROOKIE;
             case GOLD -> UserLevel.SILVER;

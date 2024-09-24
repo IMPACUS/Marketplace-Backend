@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!--delivey address entity add column orders_id-->
+    <changeSet id="changelog-jb0.02-240818-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="delivery_address" columnName="orders_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="delivery_address">
+            <column name="orders_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- prev table purchase_product drop -->
+    <changeSet id="changelog-jb0.02-240818-01-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="purchase_product"/>
+        </preConditions>
+        <dropTable tableName="purchase_product"/>
+    </changeSet>
+
+    <!-- prev table orders drop -->
+    <changeSet id="changelog-jb0.02-240818-01-03" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="orders" columnName="delivery_fee"/>
+        </preConditions>
+        <dropTable tableName="orders"/>
+    </changeSet>
+
+    <!-- create table orders -->
+    <changeSet id="changelog-jb0.02-240818-01-04" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="orders"/>
+            </not>
+        </preConditions>
+        <createTable tableName="orders">
+            <column name="orders_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_order_amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_delivery_fee" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_coupon_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_green_label_points" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_eco_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_commission_fee" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_status" type="CHAR(255)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.02-240818-01-04-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="orders" columnName="payment_status"/>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM information_schema.columns
+                    WHERE table_name = 'orders' AND column_name = 'payment_status'
+                    AND data_type = 'char'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <!-- Change data type to VARCHAR(255) -->
+        <sql>ALTER TABLE orders ALTER COLUMN payment_status TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+    <!-- create table orders_product -->
+    <changeSet id="changelog-jb0.02-240818-01-05" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="order_products"/>
+            </not>
+        </preConditions>
+        <createTable tableName="order_products">
+            <column name="order_products_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="orders_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_option_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_price" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="green_label_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="individual_coupon_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_coupon_discount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_eco_product" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="eco_discount_type" type="CHAR(255)" defaultValue="AMOUNT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="eco_discount_amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shipping_fee" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="commission_percent" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_status" type="CHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="return_quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="exchange_quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="idx_orders_id" tableName="order_products" unique="false">
+            <column name="orders_id"/>
+        </createIndex>
+        <createIndex indexName="idx_product_id" tableName="order_products" unique="false">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.02-240818-01-05-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="order_products" columnName="eco_discount_type"/>
+                <columnExists tableName="order_products" columnName="order_status"/>
+                <sqlCheck expectedResult="2">
+                    SELECT COUNT(*) FROM information_schema.columns
+                    WHERE table_name = 'order_products'
+                    AND column_name IN ('eco_discount_type', 'order_status')
+                    AND data_type = 'char'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <!-- Change data type to VARCHAR(255) for both fields -->
+        <sql>ALTER TABLE order_products ALTER COLUMN eco_discount_type TYPE VARCHAR(255);</sql>
+        <sql>ALTER TABLE order_products ALTER COLUMN order_status TYPE VARCHAR(255);</sql>
+    </changeSet>
+    
+    <!-- drop orders_product_coupons -->
+    <changeSet id="changelog-jb0.02-240818-01-06" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="orders_product_coupons"/>
+        </preConditions>
+        <dropTable tableName="orders_product_coupons"/>
+    </changeSet>
+    
+    <!-- update user_coupon table -->
+    <changeSet id="changelog-jb0.02-240818-01-07" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_coupon" columnName="source_type"/>
+                <columnExists tableName="user_coupon" columnName="source_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="user_coupon">
+            <column name="source_type" type="CHAR(255)" defaultValue="NONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_id" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.02-240818-01-07-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="user_coupon" columnName="source_type"/>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM information_schema.columns
+                    WHERE table_name = 'user_coupon'
+                    AND column_name = 'source_type'
+                    AND data_type = 'char'
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <!-- Change data type to VARCHAR(255) -->
+        <sql>ALTER TABLE user_coupon ALTER COLUMN source_type TYPE VARCHAR(255);</sql>
+    </changeSet>
+    
+    <!-- drop table issued_coupon, issued_coupon_histroy, issued_coupon_triggers-->
+    <changeSet id="changelog-jb0.02-240818-01-08" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="issued_coupon"/>
+            <tableExists tableName="issued_coupon_history"/>
+            <tableExists tableName="issued_coupon_triggers"/>
+        </preConditions>
+        <dropTable tableName="issued_coupon"/>
+        <dropTable tableName="issued_coupon_history"/>
+        <dropTable tableName="issued_coupon_triggers"/>
+    </changeSet>
+
+    <!-- drop prev table my_delivery_address and create new my_delivery_address-->
+    <changeSet id="changelog-jb0.02-240819-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="my_delivery_address" columnName="name"/>
+            </not>
+        </preConditions>
+        <dropTable tableName="my_delivery_address"/>
+        <createTable tableName="my_delivery_address">
+            <column name="my_delivery_address_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)" defaultValue="배송지1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="receiver" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postal_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="detail_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="connect_number" type="VARCHAR(255)"/>
+            <column name="memo" type="VARCHAR(255)"/>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- drop prev table delivery_address and create new delivery_address -->
+    <changeSet id="changelog-jb0.02-240819-01-02" author="jeongbeom4693">
+        <preConditions>
+            <columnExists tableName="delivery_address" columnName="id"/>
+        </preConditions>
+        <dropTable tableName="delivery_address"/>
+        <createTable tableName="delivery_address">
+            <column name="delivery_address_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="orders_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="receiver" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postal_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="detail_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="connect_number" type="VARCHAR(255)"/>
+            <column name="memo" type="VARCHAR(255)"/>
+
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </createTable>
+    </changeSet>
+    
+    <changeSet id="changelog-jb0.02-240826-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="orders" columnName="order_number"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="orders">
+            <column name="order_number" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </addColumn>
+        <createIndex tableName="orders" indexName="idx_order_number" unique="true">
+            <column name="order_number"/>
+        </createIndex>
+    </changeSet>
+    
+    <changeSet id="changelog-jb-0.02-240827-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="order_products" columnName="create_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="order_products">
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="order_products" columnName="eco_discount_type"/>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM information_schema.columns
+                    WHERE table_name = 'order_products'
+                    AND column_name = 'eco_discount_type'
+                    AND data_type = 'bpchar'  <!-- PostgreSQL의 char 타입은 'bpchar'로 나타납니다. -->
+                </sqlCheck>
+            </and>
+        </preConditions>
+        <!-- Change data type to VARCHAR(255) for eco_discount_type field -->
+        <sql>ALTER TABLE order_products ALTER COLUMN eco_discount_type TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-03" author="jeongbeom4693">
+        <sql>ALTER TABLE order_products ALTER COLUMN eco_discount_type TYPE VARCHAR(255);</sql>
+        <sql>ALTER TABLE order_products ALTER COLUMN order_status TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+
+    <changeSet id="changelog-jb-0.02-240827-01-04" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="orders" columnName="create_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="orders">
+            <column name="create_at" type="TIMESTAMP">
+            </column>
+            <column name="modify_at" type="TIMESTAMP">
+            </column>
+            <column name="register_id" type="VARCHAR(255)">
+            </column>
+            <column name="modify_id" type="VARCHAR(255)">
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-05" author="jeongbeom4693">
+        <sql>ALTER TABLE orders ALTER COLUMN payment_status TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-06" author="jeongbeom4693">
+        <sql>ALTER TABLE user_coupon ALTER COLUMN source_type TYPE VARCHAR(255);</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-08" author="jeongbeom4693">
+        <sql>ALTER TABLE review ALTER COLUMN archive_at TYPE timestamp with time zone USING archive_at::timestamp with time zone;</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb-0.02-240827-01-09" author="jeongbeom4693">
+        <sql>ALTER TABLE review ALTER COLUMN create_at TYPE timestamp with time zone USING create_at::timestamp with time zone;</sql>
+    </changeSet>
+
+
+</databaseChangeLog>

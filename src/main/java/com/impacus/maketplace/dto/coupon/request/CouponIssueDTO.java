@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class CouponIssueDTO implements CouponDTO {
 
     @NotNull(message = "쿠폰 이름은 필수값 입니다.")

@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class CouponUpdateDTO implements CouponDTO {
 
     @NotNull(message = "쿠폰 id는 필수값 입니다.")

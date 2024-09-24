@@ -23,4 +23,6 @@ public class DirectoryConstants {
     // 상품 문의
     public static final String PRODUCT_QUESTION_DIRECTORY = "productQuestion";
 
+    public static final String EDITOR_IMAGE_DIRECTORY = "editorImage";
+
 }

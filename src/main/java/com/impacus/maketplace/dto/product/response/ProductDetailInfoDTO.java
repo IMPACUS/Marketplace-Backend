@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.product.response;
 
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
+import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -33,6 +34,21 @@ public class ProductDetailInfoDTO {
     private String contactNumber; // 전화번호
 
     public ProductDetailInfoDTO(ProductDetailInfo productDetailInfo) {
+        this.productType = productDetailInfo.getProductType();
+        this.productMaterial = productDetailInfo.getProductMaterial();
+        this.productColor = productDetailInfo.getProductColor();
+        this.productSize = productDetailInfo.getProductSize();
+        this.dateOfManufacture = productDetailInfo.getDateOfManufacture();
+        this.washingPrecautions = productDetailInfo.getWashingPrecautions();
+        this.countryOfManufacture = productDetailInfo.getCountryOfManufacture();
+        this.manufacturer = productDetailInfo.getManufacturer();
+        this.importer = productDetailInfo.getImporter();
+        this.qualityAssuranceStandards = productDetailInfo.getQualityAssuranceStandards();
+        this.asManager = productDetailInfo.getAsManager();
+        this.contactNumber = productDetailInfo.getContactNumber();
+    }
+
+    public ProductDetailInfoDTO(TemporaryProductDetailInfo productDetailInfo) {
         this.productType = productDetailInfo.getProductType();
         this.productMaterial = productDetailInfo.getProductMaterial();
         this.productColor = productDetailInfo.getProductColor();

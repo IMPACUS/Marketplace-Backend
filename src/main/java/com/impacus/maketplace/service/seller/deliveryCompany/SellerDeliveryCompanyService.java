@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service.seller.deliveryCompany;
 
+import com.impacus.maketplace.common.enumType.error.SellerErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.seller.deliveryCompany.SellerDeliveryCompany;
 import com.impacus.maketplace.repository.seller.deliveryCompany.SellerDeliveryCompanyRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +22,16 @@ public class SellerDeliveryCompanyService {
     @Transactional
     public void saveSellerDeliveryCompany(SellerDeliveryCompany company) {
         sellerDeliveryCompanyRepository.save(company);
+    }
+
+
+    /**
+     * sellerId로 SellerDeliveryCompany 조회하는 함수
+     *
+     * @param sellerId
+     */
+    public SellerDeliveryCompany findSellerDeliveryCompanyBySellerId(Long sellerId) {
+        return sellerDeliveryCompanyRepository.findBySellerId(sellerId)
+                .orElseThrow(() -> new CustomException(SellerErrorType.NOT_EXISTED_SELLER));
     }
 }

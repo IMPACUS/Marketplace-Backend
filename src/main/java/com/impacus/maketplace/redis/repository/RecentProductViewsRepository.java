@@ -17,5 +17,5 @@ public interface RecentProductViewsRepository extends JpaRepository<RecentProduc
 
     List<RecentProductViews> findByUserIdOrderByCreateAtAsc(Long userId);
 
-    Slice<RecentProductViewsMapping> findByUserIdOrderByCreateAt(Long userId, Pageable pageable);
+    Slice<RecentProductViewsMapping> findByUserIdOrderByCreateAtDesc(Long userId, Pageable pageable);
 }

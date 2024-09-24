@@ -1,7 +1,10 @@
 package com.impacus.maketplace.service;
 
+import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.enumType.common.ImagePurpose;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
@@ -14,6 +17,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -177,5 +181,29 @@ public class AttachFileService {
                 changedFile.getOriginalFilename(),
                 StringUtils.getFilenameExtension(changedFile.getOriginalFilename())
         );
+    }
+
+    /**
+     * AttachFile에 저장하지 않고, 이미지 업로드하는 함수
+     *
+     * @param imagePurpose
+     * @param file
+     */
+    public URI uploadImage(ImagePurpose imagePurpose, MultipartFile file) {
+        try {
+            // 유효성 검사
+            switch (imagePurpose) {
+                case PRODUCT -> {
+                    if (file.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
+                        throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                    }
+                }
+            }
+
+            // 업로드
+            return cloudFileUploadService.uploadFile(file, Path.of(imagePurpose.getDirectory()));
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

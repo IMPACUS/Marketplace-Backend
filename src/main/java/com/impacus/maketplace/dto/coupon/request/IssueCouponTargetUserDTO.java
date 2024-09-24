@@ -8,7 +8,6 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class IssueCouponTargetUserDTO {
 
     @NotBlank(message = "지급할 사용자의 이메일이 들어오지 않았습니다.")

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.13.01-240824-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bundle_delivery_group"/>
+            </not>
+        </preConditions>
+        <createTable tableName="bundle_delivery_group">
+            <column name="bundle_delivery_group_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="seller_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="group_number" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="is_used" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="delivery_fee_rule" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <setColumnRemarks tableName="bundle_delivery_group" columnName="delivery_fee_rule" remarks="배송비계산방식"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.13.02-240824-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="sales_charge_percent"/>
+                <columnExists tableName="product_info" columnName="bundle_delivery_option"/>
+                <columnExists tableName="product_info" columnName="bundle_delivery_group_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="sales_charge_percent" type="INT"/>
+        </addColumn>
+        <addColumn tableName="product_info">
+            <column name="bundle_delivery_option" type="VARCHAR(255)" defaultValue="INDIVIDUAL_SHIPPING_ONLY">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="product_info">
+            <column name="bundle_delivery_group_id" type="BIGINT"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.13.03-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="version"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="version" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.13.04-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="bundle_delivery_option_applied_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="bundle_delivery_option_applied_at" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.13.05-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_info" columnName="is_custom_product"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_info">
+            <column name="is_custom_product" type="BOOLEAN" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.13.06-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="product_info" columnName="delivery_fee_type"/>
+            <columnExists tableName="product_info" columnName="refund_fee_type"/>
+        </preConditions>
+        <update tableName="product_info">
+            <column name="delivery_fee_type" value="MANUAL"/>
+            <where>delivery_fee_type = 'CHARGE_UNDER_30000'</where>
+        </update>
+
+        <update tableName="product_info">
+            <column name="refund_fee_type" value="MANUAL"/>
+            <where>refund_fee_type = 'CHARGE_UNDER_30000'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="changelog-0.13.07-240824" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="temporary_product_info" />
+        </preConditions>
+        <dropTable tableName="temporary_product_info" />
+    </changeSet>
+</databaseChangeLog>

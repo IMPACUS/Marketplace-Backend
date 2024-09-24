@@ -3,8 +3,6 @@ package com.impacus.maketplace.repository.review;
 import com.impacus.maketplace.dto.review.QReviewBuyerDTO;
 import com.impacus.maketplace.dto.review.ReviewBuyerDTO;
 import com.impacus.maketplace.dto.review.ReviewSellerDTO;
-import com.impacus.maketplace.entity.order.QOrder;
-import com.impacus.maketplace.entity.order.QPurchaseProduct;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductDetailInfo;
 import com.impacus.maketplace.entity.review.QReview;
@@ -27,9 +25,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QReview review = QReview.review;
     private final QUser userEntity = QUser.user;
-    private final QOrder order = QOrder.order;
+//    private final QOrder order = QOrder.order;
     private final QSeller seller = QSeller.seller;
-    private final QPurchaseProduct purchaseProduct = QPurchaseProduct.purchaseProduct;
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
     private final QProduct product = QProduct.product;
 
@@ -180,8 +177,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                         )
                 ).from(review)
                 .join(userEntity).on(review.buyerId.eq(userEntity.id))
-                .join(order).on(review.orderId.eq(order.id))
-                .join(product).on(order.id.eq(product.id))
+//                .join(order).on(review.orderId.eq(order.id))
+//                .join(product).on(order.id.eq(product.id))
                 .join(productDetailInfo).on(product.id.eq(productDetailInfo.productId))
                 .where(builder)
                 .fetchOne();

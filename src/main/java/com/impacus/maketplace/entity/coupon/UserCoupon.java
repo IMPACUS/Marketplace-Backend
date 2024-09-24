@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.coupon;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.annotation.ValidEnum;
+import com.impacus.maketplace.common.enumType.coupon.CouponSourceType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.entity.user.User;
 import jakarta.persistence.*;
@@ -13,9 +14,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
-@Builder
 public class UserCoupon extends BaseEntity {
 
     @Id
@@ -50,6 +51,5 @@ public class UserCoupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @ValidEnum(enumClass = UserCouponStatus.class)
     private UserCouponStatus status;    // 발급된 쿠폰 상태
 }

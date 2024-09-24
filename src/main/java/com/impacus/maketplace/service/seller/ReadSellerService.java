@@ -153,13 +153,24 @@ public class ReadSellerService {
     }
 
     /**
-     * 존재하는 sellerId인지 확인하는 함수
+     * Seller가 존재하는지 확인하는 함수
+     *
+     * @param sellerId
+     */
+    public void checkSellerExistenceById(Long sellerId) {
+        if (!existsSellerBySellerId(sellerId)) {
+            throw new CustomException(SellerErrorType.NOT_EXISTED_SELLER);
+        }
+    }
+
+    /**
+     * 존재하는 sellerId 인지 확인하는 함수
      *
      * @param sellerId
      * @return
      */
     public boolean existsSellerBySellerId(Long sellerId) {
-        return sellerRepository.existsById(sellerId);
+        return sellerRepository.existsByIsDeletedFalseAndId(sellerId);
     }
 
     /**
@@ -232,9 +243,32 @@ public class ReadSellerService {
      * @param sellerId 조회할 판매자 아이디
      * @return
      */
-    public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
+    public SimpleSellerFromAdminDTO getSellerInformationFroWeb(Long sellerId) {
         try {
             return sellerRepository.getSellerInformation(sellerId);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * userId로 sellerId 찾는 함수
+     *
+     * @param userId
+     * @return
+     */
+    public Long findSellerIdByUserId(Long userId) {
+        return sellerRepository.findSellerIdByUserId(userId);
+    }
+
+    /**
+     * [앱] 상품 조회 페이지에서 판매자 아이디를 조회하는 함수
+     * @param sellerId
+     * @return
+     */
+    public AppSellerDTO getSellerInformationForApp(Long sellerId) {
+        try {
+            return sellerRepository.getSellerInformationForApp(sellerId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
