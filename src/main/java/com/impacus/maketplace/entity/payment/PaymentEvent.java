@@ -1,16 +1,16 @@
 package com.impacus.maketplace.entity.payment;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.enumType.PaymentMethod;
+import com.impacus.maketplace.common.enumType.payment.PaymentMethod;
 import com.impacus.maketplace.common.enumType.payment.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class PaymentEvent extends BaseEntity {
     @ColumnDefault(value = "'false'")
     private Boolean isPaymentDone;  // 결제 완료 여부
 
-    private String paymentKey;  // PSP에서 생성한 결제 식별자
+    private String paymentKey;  // 멱득성을 보장하기 위한 키
 
     @Column(unique = true)
     private String orderId;     // 주문 식별자
@@ -55,13 +55,14 @@ public class PaymentEvent extends BaseEntity {
     private LocalDateTime approvedAt;   // 결제 승인 시각
 
     @Transient
-    private List<PaymentOrder> paymentOrders;
+    @Builder.Default
+    private List<PaymentOrder> paymentOrders = new ArrayList<>();
 
     /**
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 포함)
      */
     public Long getTotalDiscountedAmountWithCommission() {
-        return getTotalAmount() - getTotalCommissionFee();
+        return getTotalDiscountedAmount() - getTotalCommissionFee();
     }
 
 

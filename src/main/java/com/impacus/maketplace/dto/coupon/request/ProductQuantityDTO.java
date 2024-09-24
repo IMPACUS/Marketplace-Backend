@@ -8,5 +8,5 @@ public class ProductQuantityDTO {
     @NotNull
     private Long productId;
     @NotNull
-    private Integer quantity;
+    private Long quantity;
 }

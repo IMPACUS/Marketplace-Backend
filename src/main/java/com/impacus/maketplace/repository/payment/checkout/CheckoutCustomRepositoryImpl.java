@@ -3,11 +3,10 @@ package com.impacus.maketplace.repository.payment.checkout;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
+import com.impacus.maketplace.entity.product.history.QProductOptionHistory;
 import com.impacus.maketplace.entity.seller.QSeller;
-import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsByCartDTO;
-import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsDTO;
-import com.impacus.maketplace.repository.payment.checkout.dto.QCheckoutProductWithDetailsByCartDTO;
-import com.impacus.maketplace.repository.payment.checkout.dto.QCheckoutProductWithDetailsDTO;
+import com.impacus.maketplace.entity.user.QUser;
+import com.impacus.maketplace.repository.payment.checkout.dto.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -19,11 +18,13 @@ import java.util.List;
 public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
 
     private final JPAQueryFactory queryFactory;
-    private final QProduct product = QProduct.product;
 
+    private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
+    private final QProductOptionHistory productOptionHistory = QProductOptionHistory.productOptionHistory;
     private final QSeller seller = QSeller.seller;
     private final QShoppingBasket shoppingBasket = QShoppingBasket.shoppingBasket;
+    private final QUser user = QUser.user;
 
     @Override
     public CheckoutProductWithDetailsDTO findCheckoutProductWithDetails(Long productId, Long productOptionId) {
@@ -38,6 +39,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                         product.deliveryFee,
                         product.productImages,
                         product.isDeleted,
+                        seller.id,
                         seller.marketName,
                         productOption.color,
                         productOption.size,
@@ -65,6 +67,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                         product.deliveryFee,
                         product.productImages,
                         product.isDeleted,
+                        seller.id,
                         seller.marketName,
                         productOption.color,
                         productOption.size,
@@ -79,5 +82,52 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                 .join(seller).on(seller.id.eq(product.sellerId))
                 .where(shoppingBasket.id.in(shoppingBasketIdList))
                 .fetch();
+    }
+
+    @Override
+    public BuyerInfoDTO getBuyerInfo(Long userId) {
+        return queryFactory
+                .select(new QBuyerInfoDTO(
+                        user.id,
+                        user.email,
+                        user.name,
+                        user.phoneNumber
+                ))
+                .from(user)
+                .where(user.id.eq(userId))
+                .fetchOne();
+    }
+
+    /**
+     * 추후 카드 등록 관련 로직 추가시 수정
+     */
+    @Override
+    public CheckoutProductInfoDTO getPaymentProductInfo(Long productId, Long productOptionId, Long sellerId, Boolean usedRegisteredCard, Long registeredCardId) {
+        return queryFactory
+                .select(new QCheckoutProductInfoDTO(
+                        product.id,
+                        seller.id,
+                        seller.marketName,
+                        seller.chargePercent,
+                        product.name,
+                        product.type,
+                        product.productStatus,
+                        product.appSalesPrice,
+                        product.discountPrice,
+                        product.deliveryFee,
+                        product.isDeleted,
+                        productOption.id,
+                        productOption.color,
+                        productOption.size,
+                        productOption.stock,
+                        productOption.isDeleted,
+                        productOptionHistory.id
+                ))
+                .from(product)
+                .join(seller).on(seller.id.eq(sellerId))
+                .join(productOption).on(productOption.id.eq(productOptionId))
+                .join(productOptionHistory).on(productOptionHistory.productOptionId.eq(productOptionId))
+                .where(product.id.eq(productId))
+                .fetchOne();
     }
 }
