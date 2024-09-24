@@ -43,6 +43,7 @@ public class DiscountService {
                         // 정액 할인
                         discountAmount = discountAmount.add(benefitValue);
                     } else {
+                        if (benefitValue.compareTo(BigDecimal.ZERO) == 0) continue;
                         // 정률 할인
                         BigDecimal discount = productPrice.multiply(benefitValue);
 

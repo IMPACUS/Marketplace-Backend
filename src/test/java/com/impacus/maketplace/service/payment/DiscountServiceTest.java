@@ -2,15 +2,18 @@ package com.impacus.maketplace.service.payment;
 
 import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -100,5 +103,101 @@ class DiscountServiceTest {
     }
 
 
-    // 여러 상품에 대한 테스트 케이스 작성
+    @Test
+    @DisplayName("[정상 케이스] 여러 상품에 대하여 각각 적용한 1개의 AMOUNT 쿠폰 할인이 올바르게 계산되다.")
+    void testCalculateProductDiscountsSingleCouponAmount_success() {
+        // given
+        Map<Long, Long> productTotalPrices = new HashMap<>();
+        for (long i = 0L; i < 3; i++) {
+            Long productId = i;
+            Long totalPrice = 1999 * (i + 1);
+            productTotalPrices.put(productId, totalPrice);
+        }
+
+        List<Long> benefitValues = new ArrayList<>();
+        Map<Long, List<PaymentCouponDTO>> productCoupons = new HashMap<>();
+        for (long i = 0L; i < 3; i++) {
+            Long userCouponId = i;
+            BenefitType benefitType = BenefitType.AMOUNT;
+            Long benefitValue = 1000 * i;
+            List<PaymentCouponDTO> list = new ArrayList<>();
+            list.add(new PaymentCouponDTO(userCouponId, benefitType, benefitValue));
+            productCoupons.put(i, list);
+            benefitValues.add(benefitValue);
+        }
+
+        // when
+        Map<Long, Long> discounts = discountService.calculateProductCouponDiscounts(productTotalPrices, productCoupons);
+
+        // then
+        for (long i = 0L; i < 3; i++) {
+            int idx = Integer.parseInt(String.valueOf(i));
+            assertThat(discounts.get(i)).isEqualTo(benefitValues.get(idx));
+        }
+    }
+
+    @Test
+    @DisplayName("[정상 케이스] 여러 상품에 대하여 각각 적용한 1개의 PERCENT 쿠폰 할인이 올바르게 계산되다.")
+    void testCalculateProductDiscountsSingleCouponPercent_success() {
+        // given
+        Map<Long, Long> productTotalPrices = new HashMap<>();
+        for (long i = 0L; i < 3; i++) {
+            Long productId = i;
+            Long totalPrice = 1999 * (i + 1);
+            productTotalPrices.put(productId, totalPrice);
+        }
+
+        Map<Long, List<PaymentCouponDTO>> productCoupons = new HashMap<>();
+        for (long i = 0L; i < 3; i++) {
+            Long userCouponId = i;
+            BenefitType benefitType = BenefitType.PERCENTAGE;
+            Long benefitValue = 10L * (i + 1);
+            List<PaymentCouponDTO> list = new ArrayList<>();
+            list.add(new PaymentCouponDTO(userCouponId, benefitType, benefitValue));
+            productCoupons.put(i, list);
+        }
+
+        // when
+        Map<Long, Long> discounts = discountService.calculateProductCouponDiscounts(productTotalPrices, productCoupons);
+
+        // then
+        for (long i = 0L; i < 3; i++) {
+            BigDecimal totalPrice = BigDecimal.valueOf(1999 * (i + 1));
+            BigDecimal benefitValue = BigDecimal.valueOf(10 * (i + 1));
+            assertThat(discounts.get(i)).isEqualTo(totalPrice.multiply(benefitValue).divide(BigDecimal.valueOf(100L), 0, RoundingMode.FLOOR).longValue());
+        }
+    }
+
+    @Test
+    @DisplayName("[정상 케이스] 여러 상품에 대하여 각각 적용한 2개의 AMOUNT, PERCENT 쿠폰 할인이 올바르게 계산되다.")
+    void testCalculateProductDiscountsMultipleCoupon_success() {
+        // given
+        Map<Long, Long> productTotalPrices = new HashMap<>();
+        for (long i = 0L; i < 3; i++) {
+            Long productId = i;
+            Long totalPrice = 1999 * (i + 1);
+            productTotalPrices.put(productId, totalPrice);
+        }
+
+        Map<Long, List<PaymentCouponDTO>> productCoupons = new HashMap<>();
+        for (long i = 0L; i < 6; i += 2) {
+            List<PaymentCouponDTO> list = new ArrayList<>();
+            list.add(new PaymentCouponDTO(i, BenefitType.AMOUNT, 500L));
+            list.add(new PaymentCouponDTO(i + 1, BenefitType.PERCENTAGE, 10L));
+            productCoupons.put(i / 2, list);
+        }
+
+        // when
+        Map<Long, Long> discounts = discountService.calculateProductCouponDiscounts(productTotalPrices, productCoupons);
+
+
+        // then
+        for (long i = 0L; i < 3; i++) {
+            BigDecimal totalPrice = BigDecimal.valueOf(1999 * (i + 1));
+            BigDecimal amountDiscountPrice = BigDecimal.valueOf(500L);
+            BigDecimal percentDiscountPrice = BigDecimal.valueOf(10L);
+            assertThat(discounts.get(i)).isEqualTo(amountDiscountPrice.add(
+                    totalPrice.multiply(percentDiscountPrice).divide(BigDecimal.valueOf(100L), 0, RoundingMode.FLOOR)).longValue());
+        }
+    }
 }

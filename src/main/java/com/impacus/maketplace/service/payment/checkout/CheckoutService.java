@@ -263,6 +263,8 @@ public class CheckoutService {
         ).sum();
 //        Long amountCouponDistcountForOrder = couponUserService.getAmountAfterValidateCouponsForOrder(userId, checkoutCartDTO.getAppliedCommonUserCouponIds(), totalPrice);
 
+        // 입력으로 프론트에서 계산한 값과 일치하는지 확인하는 로직 추가
+
         // 6. order_id 및 payment_id 생성
         String orderId = getOrderId();
         String paymentKey;
