@@ -52,7 +52,11 @@ public enum CouponErrorType implements ErrorType{
     // 쿠폰 다운로드 조건
     INVALID_DOWNLOAD_EVENT_COUPON("047_INVALID_DOWNLOAD_EVENT_COUPON", "이벤트형 쿠폰은 다운로드 받을 수 없습니다."),
     INVALID_DOWNLOAD_PERSISTENCE_COUPON("047_1_INVALID_DOWNLOAD_PERSISTENCE_COUPON", "지속형 쿠폰은 다운로드 받을 수 없습니다."),
-    ALREADY_ISSUED_COUPON("047_2_ALREADY_ISSUED_COUPON", "이미 발급 받은 쿠폰입니다.");
+    ALREADY_ISSUED_COUPON("047_2_ALREADY_ISSUED_COUPON", "이미 발급 받은 쿠폰입니다."),
+
+    // 쿠폰 사용 조건
+    INVALID_ACCESS_USER_COUPON("048_1_INVALID_ACCESS_USER_COUPON", "사용할 수 없는 사용자 쿠폰을 적용하고 있습니다."),
+    INVALID_APPLIED_USER_COUPON("048_2_INVALID_APPLIED_USER_COUPON", "쿠폰 적용이 잘못되었습니다.");
 
     private final String code;
     private final String msg;
