@@ -21,7 +21,10 @@ public class ProductQuestion extends BaseEntity {
     @Column(nullable = false)
     private Long productId;
 
-    private Long orderId;
+    /**
+     * 주문 PK
+     */
+    private Long paymentEventId;
 
     @Column(nullable = false)
     private Long userId;
@@ -30,9 +33,14 @@ public class ProductQuestion extends BaseEntity {
 
     private Long attachFileId;
 
-    public ProductQuestion(Long productId, Long orderId, Long userId, String contents, Long attachFileId) {
+    private String userName;
+
+    @Column(nullable = false)
+    private Long sellerId;
+
+    public ProductQuestion(Long productId, Long paymentEventId, Long userId, String contents, Long attachFileId) {
         this.productId = productId;
-        this.orderId = orderId;
+        this.paymentEventId = paymentEventId;
         this.userId = userId;
         this.contents = contents;
         this.attachFileId = attachFileId;

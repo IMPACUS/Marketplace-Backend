@@ -1,11 +1,17 @@
 package com.impacus.maketplace.controller.qna;
 
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.qna.AddProductQuestionServiceDTO;
 import com.impacus.maketplace.dto.qna.request.AddProductQuestionDTO;
+import com.impacus.maketplace.dto.qna.request.GetProductsParams;
+import com.impacus.maketplace.dto.qna.response.SellerProductQuestionResponseDTO;
 import com.impacus.maketplace.service.qna.ProductQuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -51,6 +57,18 @@ public class ProductQuestionController {
     public ApiResponseEntity<Boolean> deleteProductQuestion(@PathVariable long questionId) {
         productQuestionService.deleteProductQuestionById(questionId);
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('APPROVED_SELLER')")
+    @GetMapping
+    public ApiResponseEntity<Page<SellerProductQuestionResponseDTO>> getQuestions(
+            @AuthenticationPrincipal CustomUserDetails user, @Valid GetProductsParams params, Pageable pageable) {
+        if (params.getStartDate() != null
+                && params.getEndDate() != null
+                && params.getEndDate().isBefore(params.getStartDate())) {
+            throw new CustomException(CommonErrorType.INVALID_END_DATE);
+        }
+        return ApiResponseEntity.of(productQuestionService.getProducts(user.getId(), params, pageable));
     }
 
 }
