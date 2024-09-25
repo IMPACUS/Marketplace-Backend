@@ -15,6 +15,8 @@ public class DiscountService {
 
     // 단일 상품 구매시 개별 상품 쿠폰 할인 계산
     public Long calculateProductCouponDiscount(Long productId, Long productPrice, List<PaymentCouponDTO> productCoupons) {
+        if (productCoupons == null) return 0L;
+
         Map<Long, Long> productPrices = Collections.singletonMap(productId, productPrice);
         Map<Long, List<PaymentCouponDTO>> productCouponsMap = Collections.singletonMap(productId, productCoupons);
         Map<Long, Long> discount = calculateProductCouponDiscounts(productPrices, productCouponsMap);
@@ -49,8 +51,8 @@ public class DiscountService {
                         // 정률 할인
                         BigDecimal discount = productPrice.multiply(benefitValue);
 
-                        // 100으로 나누고 소수점 이하 버림
-                        BigDecimal discountAmountPerCoupon = discount.divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR);
+                        // 100으로 나누고 소수점 이하 반올림
+                        BigDecimal discountAmountPerCoupon = discount.divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);
 
                         totalDiscountAmount = totalDiscountAmount.add(discountAmountPerCoupon);
                     }
@@ -69,6 +71,8 @@ public class DiscountService {
 
     // 단일 상품 구매시 주문 전체 쿠폰 할인 계산
     public Long calculateOrderCouponDiscount(Long productId, Long productPrice, List<PaymentCouponDTO> orderCoupons) {
+        if (orderCoupons == null || orderCoupons.isEmpty()) return 0L;
+
         Map<Long, Long> productPrices = Collections.singletonMap(productId, productPrice);
         Map<Long, Long> discount = calculateOrderCouponDiscounts(productPrice, productPrices, orderCoupons);
         return discount.get(productId);
@@ -82,6 +86,11 @@ public class DiscountService {
         Set<Long> productIds = productPrices.keySet();
         BigDecimal totalOrderPriceBD = BigDecimal.valueOf(totalOrderPrice);
 
+        if (orderCoupons == null || orderCoupons.isEmpty()) {
+            productIds.forEach(id -> orderCouponDiscounts.put(id, 0L));
+            return orderCouponDiscounts;
+        }
+
         for (PaymentCouponDTO coupon : orderCoupons) {
             BigDecimal allocatedDiscountAmount = BigDecimal.ZERO;
             BigDecimal couponBenefitValue = BigDecimal.valueOf(coupon.getBenefitValue());
@@ -93,17 +102,14 @@ public class DiscountService {
                     Long productPriceLong = productPrices.get(productId);
                     BigDecimal productPrice = BigDecimal.valueOf(productPriceLong);
 
-                    // 상품 가격이 전체 주문 가격에서 차지하는 비율 계산
-                    BigDecimal productProportion = productPrice.divide(totalOrderPriceBD, 4, RoundingMode.FLOOR);
-
-                    // 해당 상품에 적용될 할인 금액 계산
-                    BigDecimal productDiscount = couponBenefitValue.multiply(productProportion);
-                    BigDecimal productDiscountInteger = productDiscount.setScale(0, RoundingMode.FLOOR);
+                    // 할인 금액 계산 (곱셈 후 나눗셈)
+                    BigDecimal productDiscount = couponBenefitValue.multiply(productPrice)
+                            .divide(totalOrderPriceBD, 0, RoundingMode.HALF_UP);
 
                     // 할인 금액 누적
-                    orderCouponDiscounts.merge(productId, productDiscountInteger.longValue(), Long::sum);
+                    orderCouponDiscounts.merge(productId, productDiscount.longValue(), Long::sum);
 
-                    allocatedDiscountAmount = allocatedDiscountAmount.add(productDiscountInteger);
+                    allocatedDiscountAmount = allocatedDiscountAmount.add(productDiscount);
                     lastProductId = productId;
                 }
 
@@ -120,7 +126,7 @@ public class DiscountService {
 
                     // 해당 상품에 적용될 할인 금액 계산
                     BigDecimal discount = productPrice.multiply(couponBenefitValue);
-                    BigDecimal productDiscountInteger = discount.divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR);
+                    BigDecimal productDiscountInteger = discount.divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);
 
                     // 할인 금액 누적
                     orderCouponDiscounts.merge(productId, productDiscountInteger.longValue(), Long::sum);
@@ -131,7 +137,7 @@ public class DiscountService {
 
                 // 총 할인 금액 계산
                 BigDecimal totalExpectedDiscount = totalOrderPriceBD.multiply(couponBenefitValue)
-                        .divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR);
+                        .divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);
 
                 // 할인 금액 조정 (소수점 처리로 인한 오차 보정)
                 if (totalExpectedDiscount.compareTo(allocatedDiscountAmount) != 0) {
