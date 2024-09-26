@@ -755,4 +755,156 @@ class DiscountServiceTest {
             assertThat(actualDiscounts).isEqualTo(expectedDiscounts);
         }
     }
+
+    @Nested
+    @DisplayName("Point Test")
+    class Point {
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 0원의 포인트 금액이 올바르게 처리되다.")
+        void calculatePointDiscountZero_success() {
+            // given
+            Long productId = 1L;
+            Long productPrice = 1999L;
+
+            Map<Long, Long> productPrices = new LinkedHashMap<>();
+
+            productPrices.put(productId, productPrice);
+
+            // when
+            Map<Long, Long> result = discountService.calculatePointDiscount(productPrice, productPrices, 0L);
+
+            // then
+            assertThat(result.get(productId)).isEqualTo(0L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 포인트 금액이 올바르게 처리되다.")
+        void calculatePointDiscountSingle_success() {
+            // given
+            Long productId = 1L;
+            Long productPrice = 1999L;
+
+            Map<Long, Long> productPrices = new LinkedHashMap<>();
+
+            productPrices.put(productId, productPrice);
+
+            // when
+            Map<Long, Long> result = discountService.calculatePointDiscount(productPrice, productPrices, 1000L);
+
+            // then
+            assertThat(result.get(productId)).isEqualTo(1000L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 포인트 금액이 앱 할인액을 초과한 경우 포인트 금액과 동일하게 계산되다.")
+        void calculatePointDiscountOver_success() {
+            // given
+            Long productId = 1L;
+            Long productPrice = 500L;
+
+            Map<Long, Long> productPrices = new LinkedHashMap<>();
+
+            productPrices.put(productId, productPrice);
+
+            // when
+            Map<Long, Long> result = discountService.calculatePointDiscount(productPrice, productPrices, 1000L);
+
+            // then
+            assertThat(result.get(productId)).isEqualTo(1000L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 여러 개의 상품 주문에 대해 포인트 금액이 올바르게 처리되다.")
+        void calculatePointDiscountMultiple_success() {
+            // given
+            Long productId1 = 1L;
+            Long productId2 = 2L;
+            Long productId3 = 3L;
+
+            Long productPrice1 = 1999L;
+            Long productPrice2 = 3998L;
+            Long productPrice3 = 5997L;
+
+            Long totalOrderPrice = productPrice1 + productPrice2 + productPrice3;
+
+            Map<Long, Long> productPrices = new LinkedHashMap<>();
+            productPrices.put(productId1, productPrice1);
+            productPrices.put(productId2, productPrice2);
+            productPrices.put(productId3, productPrice3);
+
+            // when
+            Map<Long, Long> result = discountService.calculatePointDiscount(totalOrderPrice, productPrices, 600L);
+
+            // then
+            assertThat(result.get(1L)).isEqualTo(100L);
+            assertThat(result.get(2L)).isEqualTo(200L);
+            assertThat(result.get(3L)).isEqualTo(300L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 여러 개의 상품 주문에 대해 포인트 금액의 반올림 작업이 올바르게 동작한다.")
+        void calculatePointDiscountMultipleHalfUp_success() {
+            // given
+            Long productId1 = 1L;
+            Long productId2 = 2L;
+            Long productId3 = 3L;
+
+            Long productPrice1 = 1999L;
+            Long productPrice2 = 3888L;
+            Long productPrice3 = 5999L;
+
+            Long totalOrderPrice = productPrice1 + productPrice2 + productPrice3;    // 11886
+
+            Map<Long, Long> productPrices = new LinkedHashMap<>();
+            productPrices.put(productId1, productPrice1);
+            productPrices.put(productId2, productPrice2);
+            productPrices.put(productId3, productPrice3);
+
+            // when
+            Map<Long, Long> result = discountService.calculatePointDiscount(totalOrderPrice, productPrices, 1000L);
+
+            // then
+            assertThat(result.get(1L)).isEqualTo(168);   // 1000 * 1999 / 11886 ≈ 168.1810 -> 168 (반올림)
+            assertThat(result.get(2L)).isEqualTo(327);  // 1000 * 3888 / 11886 ≈ 327.1075 -> 327 (반올림)
+
+            // 1000 * 5999 / 11886 ≈ 504.7114 -> 505 (반올림)
+            // 현재까지 적용된 할인 금액: 168 + 327 + 505 = 1000
+            assertThat(result.get(3L)).isEqualTo(505);
+            assertThat(result.get(1L) + result.get(2L) + result.get(3L)).isEqualTo(1000L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 여러 개의 상품 주문에 대해 포인트 금액의 조정 작업이 올바르게 동작한다.")
+        void calculatePointDiscountMultipleReconcile_success() {
+            // given
+            Long productId1 = 1L;
+            Long productId2 = 2L;
+            Long productId3 = 3L;
+
+            Long productPrice1 = 3333L;
+            Long productPrice2 = 3333L;
+            Long productPrice3 = 3334L;
+
+            Long totalOrderPrice = productPrice1 + productPrice2 + productPrice3; // 10000
+
+            Map<Long, Long> productPrices = new LinkedHashMap<>();
+            productPrices.put(productId1, productPrice1);
+            productPrices.put(productId2, productPrice2);
+            productPrices.put(productId3, productPrice3);
+
+            // when
+            Map<Long, Long> result = discountService.calculatePointDiscount(totalOrderPrice, productPrices, 1000L);
+
+            // then
+            assertThat(result.get(1L)).isEqualTo(333L); // 3333 * 1000 / 10000 = 333.3 -> 333 (반올림)
+            assertThat(result.get(2L)).isEqualTo(333L); // 3333 * 1000 / 10000 = 333.3 -> 333 (반올림)
+            // 3334 * 1000 / 10000 = 333.4 -> 333(반올림)
+            // 현재까지 적용된 할인 금액: 333 + 333 + 333 = 999
+            // 조정 작업이 필요한 금액: 1000 - 999 = 1
+            // 따라서 마지막 상품의 할인 금액에 추가: 333 + 1 = 334원
+            assertThat(result.get(3L)).isEqualTo(334L);
+            assertThat(result.get(1L) + result.get(2L) + result.get(3L)).isEqualTo(1000L);
+        }
+    }
 }
