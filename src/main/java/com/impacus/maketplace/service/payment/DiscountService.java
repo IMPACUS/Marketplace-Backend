@@ -1,6 +1,8 @@
 package com.impacus.maketplace.service.payment;
 
 import com.impacus.maketplace.common.enumType.coupon.BenefitType;
+import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
 import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
 import com.impacus.maketplace.dto.payment.ProductPricingDTO;
@@ -196,7 +198,100 @@ public class DiscountService {
             Map<Long, Long> productCouponDiscounts,
             Map<Long, Long> orderCouponDiscounts,
             Map<Long, Long> pointDiscounts) {
-        // 구현 내용
-        return null;
+
+        Set<Long> productIds = productPricingInfo.keySet();
+
+        Map<Long, DiscountInfoDTO> finalDiscountInfo = new HashMap<>();
+        Map<Long, DiscountInfoDTO> eligibleDiscounts = new HashMap<>();
+        long remainingPointAmount = 0L;
+
+        // 첫 번째 반복문: 할인 정보 생성 및 초기 조정
+        for (Long productId : productIds) {
+            ProductPricingDTO productPricing = productPricingInfo.get(productId);
+            Long productCouponDiscount = productCouponDiscounts.getOrDefault(productId, 0L);
+            Long orderCouponDiscount = orderCouponDiscounts.getOrDefault(productId, 0L);
+            Long pointDiscount = pointDiscounts.getOrDefault(productId, 0L);
+
+            DiscountInfoDTO discountInfo = DiscountInfoDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(productPricing.getAppSalesPrice())
+                    .ecoDiscountAmount(productPricing.getEcoDiscountAmount())
+                    .productCouponDiscountAmount(productCouponDiscount)
+                    .orderCouponDiscountAmount(orderCouponDiscount)
+                    .pointDiscountAmount(pointDiscount)
+                    .build();
+
+            if (discountInfo.isNegativeAmount()) {
+                // 포인트 할인 조정 및 남은 포인트 금액 누적
+                long unallocatedPoint = discountInfo.reconcilePointDiscountAmount();
+                remainingPointAmount += unallocatedPoint;
+            } else {
+                eligibleDiscounts.put(productId, discountInfo);
+            }
+            finalDiscountInfo.put(productId, discountInfo);
+        }
+
+        if (eligibleDiscounts.isEmpty() && remainingPointAmount > 0) {
+            throw new CustomException(PaymentErrorType.INVALID_USE_POINT);
+        }
+
+        // 포인트 할인 재분배 조정 작업
+        while (!eligibleDiscounts.isEmpty() && remainingPointAmount > 0) {
+            Set<Long> currentEligibleProductIds = new HashSet<>(eligibleDiscounts.keySet());
+
+            BigDecimal remainingPointBD = BigDecimal.valueOf(remainingPointAmount);
+            BigDecimal individualPoint = remainingPointBD.divide(BigDecimal.valueOf(eligibleDiscounts.size()), 0, RoundingMode.HALF_UP);
+            BigDecimal totalAllocatedPoint = BigDecimal.ZERO;
+            BigDecimal unallocatedPointAmount = BigDecimal.ZERO;
+            Long lastEligibleProductId = null;
+
+            List<Long> productsToRemove = new ArrayList<>();
+
+            for (Long productId : currentEligibleProductIds) {
+                DiscountInfoDTO discountInfoDTO = eligibleDiscounts.get(productId);
+
+                discountInfoDTO.addPointDiscountAmount(individualPoint.longValue());
+                totalAllocatedPoint = totalAllocatedPoint.add(individualPoint);
+
+                if (discountInfoDTO.isNegativeAmount()) {
+                    long unallocatedPoint = discountInfoDTO.reconcilePointDiscountAmount();
+                    unallocatedPointAmount = unallocatedPointAmount.add(BigDecimal.valueOf(unallocatedPoint));
+                    productsToRemove.add(productId);
+                } else {
+                    lastEligibleProductId = productId;
+                }
+            }
+
+            // 제거할 상품 ID 처리
+            for (Long productId : productsToRemove) {
+                eligibleDiscounts.remove(productId);
+            }
+
+            // 조정 작업
+            if (remainingPointBD.compareTo(totalAllocatedPoint) != 0) {
+                if (lastEligibleProductId == null) {
+                    throw new CustomException(PaymentErrorType.INVALID_USE_POINT);
+                }
+                BigDecimal difference = remainingPointBD.subtract(totalAllocatedPoint);
+                DiscountInfoDTO discountInfoDTO = eligibleDiscounts.get(lastEligibleProductId);
+                discountInfoDTO.addPointDiscountAmount(difference.longValue());
+
+                if (discountInfoDTO.isNegativeAmount()) {
+                    long unallocatedPoint = discountInfoDTO.reconcilePointDiscountAmount();
+                    unallocatedPointAmount = unallocatedPointAmount.add(BigDecimal.valueOf(unallocatedPoint));
+                    eligibleDiscounts.remove(lastEligibleProductId);
+                    lastEligibleProductId = null; // 상품이 제거되었음을 표시
+                }
+            }
+
+            // 남은 포인트 금액 갱신
+            remainingPointAmount = unallocatedPointAmount.longValue();
+        }
+
+        if (remainingPointAmount > 0) {
+            throw new CustomException(PaymentErrorType.INVALID_USE_POINT);
+        }
+
+        return finalDiscountInfo;
     }
 }

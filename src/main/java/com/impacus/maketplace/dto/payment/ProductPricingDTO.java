@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class ProductPricingDTO {
     private Long productId;
-    private Long originalPrice;       // 상품 원가
+    private Long appSalesPrice;       // 앱 판매가
     private Long ecoDiscountAmount;   // 에코 할인 금액
     private Long priceAfterEcoDiscount; // 에코 할인 적용 후 가격
 }

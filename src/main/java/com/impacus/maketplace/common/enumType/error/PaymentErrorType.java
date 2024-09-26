@@ -14,7 +14,8 @@ public enum PaymentErrorType implements ErrorType {
     NOT_FOUND_CHANNEL_KEY("091_1_NOT_FOUND_CHANNEL_KEY", "채널 키를 찾을 수 없습니다."),
     NOT_FOUND_ORDER_ID("091_2_NOT_FOUND_ORDER_ID", "주문 번호를 찾을 수 없습니다."),
 
-    DUPLICATE_USE_USER_COUPON("092_1_DUPLICATE_USE_USER_COUPON", "쿠폰은 하나의 상품 혹은 주문에만 적용할 수 있습니다.");
+    DUPLICATE_USE_USER_COUPON("092_1_DUPLICATE_USE_USER_COUPON", "쿠폰은 하나의 상품 혹은 주문에만 적용할 수 있습니다."),
+    INVALID_USE_POINT("092_2_INVALID_USE_POINT", "잘못된 포인트 사용을 시도했습니다.");
 
     private final String code;
     private final String msg;
