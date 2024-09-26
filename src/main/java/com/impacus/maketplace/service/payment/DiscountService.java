@@ -152,8 +152,42 @@ public class DiscountService {
 
     // 포인트 할인 계산 및 상품별 분배
     public Map<Long, Long> calculatePointDiscount(Long totalOrderPrice, Map<Long, Long> productPrices, Long usedPointAmount) {
-        // 구현 내용
-        return null;
+
+        Map<Long, Long> pointDiscounts = new HashMap<>();
+        Set<Long> productIds = productPrices.keySet();
+        BigDecimal totalOrderPriceBD = BigDecimal.valueOf(totalOrderPrice);
+
+        if (usedPointAmount == 0L) {
+            productIds.forEach(id -> pointDiscounts.put(id, 0L));
+            return pointDiscounts;
+        }
+
+        Long lastProductId = null;
+        BigDecimal allocatedDiscountAmount = BigDecimal.ZERO;
+        BigDecimal usedPointAmountBD = BigDecimal.valueOf(usedPointAmount);
+        for (Long productId : productIds) {
+            Long productPriceLong = productPrices.get(productId);
+            BigDecimal productPrice = BigDecimal.valueOf(productPriceLong);
+
+            BigDecimal productDiscount = usedPointAmountBD.multiply(productPrice)
+                    .divide(totalOrderPriceBD, 0, RoundingMode.HALF_UP);
+
+            // 할인 금액 저장
+            pointDiscounts.put(productId, productDiscount.longValue());
+
+            // 적용된 할인 금액 누적
+            allocatedDiscountAmount = allocatedDiscountAmount.add(productDiscount);
+
+            lastProductId = productId;
+        }
+
+        // 할인 금액 조정 (소수점 처리로 인한 오차 보정)
+        if (usedPointAmountBD.compareTo(allocatedDiscountAmount) != 0) {
+            BigDecimal difference = usedPointAmountBD.subtract(allocatedDiscountAmount);
+            pointDiscounts.merge(lastProductId, difference.longValue(), Long::sum);
+        }
+
+        return pointDiscounts;
     }
 
     // 할인 금액 조정 및 최종 할인 정보 생성
