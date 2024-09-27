@@ -15,17 +15,21 @@ import com.impacus.maketplace.repository.alarm.user.*;
 import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.alarm.user.dto.BizgoTokenDto;
 import com.impacus.maketplace.service.alarm.user.enums.AlarmEnum;
+import com.impacus.maketplace.service.alarm.user.enums.AlarmKakaoEnum;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +39,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class AlarmService {
     private final AlarmBrandShopRepository alarmBrandShopRepository;
@@ -50,6 +55,8 @@ public class AlarmService {
     private String bizgoId;
     @Value("${key.bizgo.pw}")
     private String bizgoPw;
+    @Value("${key.bizgo.sender-key}")
+    private String senderKey;
 
     public void add(Object saveDto, Long userId) {
         if (saveDto instanceof AddOrderDeliveryDto) {
@@ -162,10 +169,14 @@ public class AlarmService {
                 .receiveEmail(receiver)
                 .build();
         emailService.sendMail(emailDto, MailType.selectAlarm(alarmEnum));
-
     }
 
     public void sendMsg(String msg, String phone) {
+        String token = this.getToken();
+        this.generateMsg(token, msg, phone);
+    }
+
+    private String getToken() {
         Optional<BizgoToken> optional = bizgoRepository.latestToken();
         String token = "";
         if (optional.isEmpty()) {
@@ -177,7 +188,7 @@ public class AlarmService {
             boolean isExpired = expiredDate.isBefore(LocalDateTime.now());
             if (isExpired) token = this.generateToken();
         }
-        this.generateMsg(token, msg, phone);
+        return token;
     }
 
     private String generateToken() {
@@ -208,8 +219,14 @@ public class AlarmService {
 
     private void generateMsg(String token, String msg, String phone) {
         String url = "https://omni.ibapi.kr/v1/send/sms";
-        int bytes = msg.getBytes(StandardCharsets.UTF_8).length;
-        if (bytes > 90) url = "https://omni.ibapi.kr/v1/send/mms";
+        int bytes = 0;
+        try {
+            bytes = msg.getBytes("EUC-KR").length;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        if (bytes >= 2000) throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.MSG_LIMIT_EXCEED);
+        else if (bytes > 87) url = "https://omni.ibapi.kr/v1/send/mms";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -218,20 +235,69 @@ public class AlarmService {
 
         JSONObject requestBody = new JSONObject();
         requestBody.put("from", "01071644471");
-        requestBody.put("to", "01088417145");
-        requestBody.put("text", "메시지 내용");
+        requestBody.put("to", phone);
+        requestBody.put("text", msg);
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("전송 성공 :" + response.getBody());
-            } else {
-                System.out.println("전송실패 : " + response.getBody());
-            }
+            if (!response.getStatusCode().is2xxSuccessful())
+                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.MSG_ERROR);
         } catch (Exception e) {
-            System.out.println("e = " + e);
+            log.error("문자 전송 에러 : {}", e);
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, BizgoErrorType.MSG_ERROR);
+        }
+    }
+
+    public void sendKakao(String phone, AlarmKakaoEnum kakaoEnum, String name, String itemName, String orderNum, String courier, String invoice) {
+        if (!StringUtils.hasText(name)) throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_NAME);
+        String template = kakaoEnum.getTemplate().replace("#{홍길동}", name);
+        String kakao = kakaoEnum.name();
+
+        if (kakao.equals("CANCEL")) {
+            if (!StringUtils.hasText(itemName))
+                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ITEM_NAME);
+            if (!StringUtils.hasText(orderNum))
+                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ORDER_NUM);
+            if (!StringUtils.hasText(courier))
+                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_COURIER);
+            if (!StringUtils.hasText(invoice))
+                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_INVOICE);
+            template = template.replace("#{상품명}", itemName).replace("#{주문번호}", orderNum).replace("#{택배사}", courier).replace("#{송장번호}", invoice);
+        } else if (kakao.equals("RESTOCK") || kakao.equals("REVIEW")) {
+            if (!StringUtils.hasText(itemName))
+                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ITEM_NAME);
+            template = template.replace("#{상품명}", itemName);
+        }
+        String token = this.getToken();
+        this.generateKakao(token, phone, kakaoEnum.getCode(), template);
+    }
+
+    private void generateKakao(String token, String phone, String code, String template) {
+        String url = "https://omni.ibapi.kr/v1/send/alimtalk";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(token);
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("senderKey", senderKey);
+        requestBody.put("msgType", "AT");
+        requestBody.put("to", phone);
+        requestBody.put("templateCode", code);
+        requestBody.put("text", template);
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            if (!response.getStatusCode().is2xxSuccessful())
+                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_ERROR);
+        } catch (Exception e) {
+            log.error("카톡 전송 에러 : {}", e);
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, BizgoErrorType.KAKAO_ERROR);
         }
     }
 }
