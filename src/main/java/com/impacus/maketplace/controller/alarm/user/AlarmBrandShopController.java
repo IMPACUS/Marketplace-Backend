@@ -5,6 +5,7 @@ import com.impacus.maketplace.dto.alarm.user.get.GetBrandShopDto;
 import com.impacus.maketplace.dto.alarm.user.add.*;
 import com.impacus.maketplace.dto.alarm.user.update.UpdateBrandShopDto;
 import com.impacus.maketplace.entity.alarm.user.enums.BrandShopEnum;
+import com.impacus.maketplace.service.alarm.user.AlarmSendService;
 import com.impacus.maketplace.service.alarm.user.AlarmService;
 import com.impacus.maketplace.service.alarm.user.enums.AlarmEnum;
 import com.impacus.maketplace.service.alarm.user.enums.AlarmKakaoEnum;
@@ -21,6 +22,7 @@ import security.CustomUserDetails;
 @RequestMapping("api/v1/alarm/brand-shop")
 public class AlarmBrandShopController {
     private final AlarmService alarmService;
+    private final AlarmSendService alarmSendService;
 
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("")
@@ -54,9 +56,9 @@ public class AlarmBrandShopController {
                 .build();
     }
 
-    @PutMapping("mail")
+    @PostMapping("mail")
     public ApiResponseEntity<?> mailTest(@RequestParam("a") String a,@RequestParam("b") String b,@RequestParam("c") String c,@RequestParam("d") String d,@RequestParam("e") String e) {
-        alarmService.sendKakao("01088417145", AlarmKakaoEnum.CANCEL, a, b, c, d, e);
+        alarmSendService.sendKakao("01088417145", AlarmKakaoEnum.CANCEL, a, b, c, d, e);
 
         return ApiResponseEntity.builder()
                 .message("메일 전송")

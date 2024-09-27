@@ -16,7 +16,9 @@ public enum BizgoErrorType implements ErrorType {
     KAKAO_NO_ITEM_NAME("008_KAKAO_NO_ITEM_NAME", "상품명 전송 필수입니다."),
     KAKAO_NO_ORDER_NUM("009_ KAKAO_NO_ORDER_NUM", "주문번호 전송 필수입니다."),
     KAKAO_NO_COURIER("010_KAKAO_NO_COURIER", "택배사 전송 필수입니다."),
-    KAKAO_NO_INVOICE("011_KAKAO_NO_INVOICE", "송장번호 전송 필수입니다.");
+    KAKAO_NO_INVOICE("011_KAKAO_NO_INVOICE", "송장번호 전송 필수입니다."),
+    FCM_ERROR("012_FCM_ERROR", "push 메세지 전송 실패입니다.");
+
     private final String code;
     private final String msg;
 }

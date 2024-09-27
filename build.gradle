@@ -81,6 +81,9 @@ dependencies {
     // liquibase
     implementation 'org.liquibase:liquibase-core'
 
+    // fcm
+    implementation 'com.google.firebase:firebase-admin:9.3.0'
+
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 }
 
