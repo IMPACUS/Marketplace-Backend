@@ -1,7 +1,11 @@
 package com.impacus.maketplace.service.payment;
 
 import com.impacus.maketplace.common.enumType.coupon.BenefitType;
+import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
 import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
+import com.impacus.maketplace.dto.payment.ProductPricingDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,7 +17,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("[비즈니스 로직] - 할인 금액 계산")
@@ -905,6 +910,672 @@ class DiscountServiceTest {
             // 따라서 마지막 상품의 할인 금액에 추가: 333 + 1 = 334원
             assertThat(result.get(3L)).isEqualTo(334L);
             assertThat(result.get(1L) + result.get(2L) + result.get(3L)).isEqualTo(1000L);
+        }
+    }
+
+    @Nested
+    @DisplayName("Reconcile Test")
+    class Reconcile {
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 모든 할인을 적용하지 않았을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountsNone_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(0L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 0L);
+            orderCouponDiscounts.put(productId, 0L);
+            pointDiscounts.put(productId, 0L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(1000L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 에코 할인만을 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountsEco_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 0L);
+            orderCouponDiscounts.put(productId, 0L);
+            pointDiscounts.put(productId, 0L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(900L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 상품 쿠폰 할인만을 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountsProductCoupon_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(0L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 100L);
+            orderCouponDiscounts.put(productId, 0L);
+            pointDiscounts.put(productId, 0L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(900L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 주문 쿠폰 할인만을 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountsOrderCoupon_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(0L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 0L);
+            orderCouponDiscounts.put(productId, 100L);
+            pointDiscounts.put(productId, 0L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(900L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 포인트 할인만을 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountsPoint_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(0L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 0L);
+            orderCouponDiscounts.put(productId, 0L);
+            pointDiscounts.put(productId, 100L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(900L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 상품 쿠폰과 주문 쿠폰을 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountsCoupons_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(0L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 100L);
+            orderCouponDiscounts.put(productId, 100L);
+            pointDiscounts.put(productId, 0L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(800L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 상품 쿠폰과 포인트를 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountsProductCouponAndPoint_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(0L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 100L);
+            orderCouponDiscounts.put(productId, 0L);
+            pointDiscounts.put(productId, 100L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(800L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 주문 쿠폰과 포인트를 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountsOrderCouponAndPoint_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(0L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 0L);
+            orderCouponDiscounts.put(productId, 100L);
+            pointDiscounts.put(productId, 100L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(800L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 1개의 상품 주문에 대해 모든 할인을 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountAllDiscounts_success() {
+            // given
+            Long productId = 1L;
+            ProductPricingDTO productPricingDTO = ProductPricingDTO.builder()
+                    .productId(productId)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+
+            productPricingInfo.put(productId, productPricingDTO);
+            productCouponDiscounts.put(productId, 100L);
+            orderCouponDiscounts.put(productId, 100L);
+            pointDiscounts.put(productId, 100L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(productId).getAppSalesPrice()).isEqualTo(1000L);
+            assertThat(result.get(productId).getEcoDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getProductCouponDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getOrderCouponDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getPointDiscountAmount()).isEqualTo(100L);
+            assertThat(result.get(productId).getFinalAmount()).isEqualTo(600L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 2개의 상품 주문에 대해 모든 할인을 적용했을 때 올바르게 적용되다.")
+        void reconcileDiscountAmountDoubleAllDiscounts_success() {
+            // given
+            ProductPricingDTO productPricingDTO1 = ProductPricingDTO.builder()
+                    .productId(1L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
+                    .productId(2L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            productPricingInfo.put(1L, productPricingDTO1);
+            productPricingInfo.put(2L, productPricingDTO2);
+
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            productCouponDiscounts.put(1L, 100L);
+            productCouponDiscounts.put(2L, 100L);
+
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            orderCouponDiscounts.put(1L, 100L);
+            orderCouponDiscounts.put(2L, 100L);
+
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+            pointDiscounts.put(1L, 100L);
+            pointDiscounts.put(2L, 100L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            for (long id = 1L; id < 3L; id++) {
+                assertThat(result.get(id).getAppSalesPrice()).isEqualTo(1000L);
+                assertThat(result.get(id).getEcoDiscountAmount()).isEqualTo(100L);
+                assertThat(result.get(id).getProductCouponDiscountAmount()).isEqualTo(100L);
+                assertThat(result.get(id).getOrderCouponDiscountAmount()).isEqualTo(100L);
+                assertThat(result.get(id).getPointDiscountAmount()).isEqualTo(100L);
+                assertThat(result.get(id).getFinalAmount()).isEqualTo(600L);
+            }
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 2개의 상품 주문에 대해 모든 할인을 적용했을 때 포인트 조정 작업이 올바르게 적용되다.")
+        void reconcileDiscountAmountDoubleAllDiscountsPointReconcile_success() {
+            // given
+            ProductPricingDTO productPricingDTO1 = ProductPricingDTO.builder()
+                    .productId(1L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
+                    .productId(2L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            productPricingInfo.put(1L, productPricingDTO1);
+            productPricingInfo.put(2L, productPricingDTO2);
+
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            productCouponDiscounts.put(1L, 500L);
+            productCouponDiscounts.put(2L, 100L);
+
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            orderCouponDiscounts.put(1L, 500L);
+            orderCouponDiscounts.put(2L, 100L);
+
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+            pointDiscounts.put(1L, 100L);
+            pointDiscounts.put(2L, 100L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(1L).getFinalAmount()).isEqualTo(0L);
+            assertThat(result.get(1L).getPointDiscountAmount()).isEqualTo(0L);
+            assertThat(result.get(2L).getPointDiscountAmount()).isEqualTo(200L);
+        }
+
+        @Test
+        @DisplayName("[오류 케이스] 2개의 상품 주문에 대해 모든 할인을 적용했을 때 포인트가 남는다면 예외를 발생시킨다")
+        void reconcileDiscountAmountDoubleAllDiscountsPointReconcile_INVALID_POINT() {
+            // given
+            ProductPricingDTO productPricingDTO1 = ProductPricingDTO.builder()
+                    .productId(1L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
+                    .productId(2L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            productPricingInfo.put(1L, productPricingDTO1);
+            productPricingInfo.put(2L, productPricingDTO2);
+
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            productCouponDiscounts.put(1L, 500L);
+            productCouponDiscounts.put(2L, 500L);
+
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            orderCouponDiscounts.put(1L, 500L);
+            orderCouponDiscounts.put(2L, 500L);
+
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+            pointDiscounts.put(1L, 100L);
+            pointDiscounts.put(2L, 100L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.INVALID_USE_POINT);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 2개의 상품 주문에 대해 모든 할인을 적용했을 때 전체 주문 금액과 동일한 경우 올바르게 처리되다.")
+        void reconcileDiscountAmountDoubleAllDiscountsTotalAmountZero_success() {
+            // given
+            ProductPricingDTO productPricingDTO1 = ProductPricingDTO.builder()
+                    .productId(1L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
+                    .productId(2L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            productPricingInfo.put(1L, productPricingDTO1);
+            productPricingInfo.put(2L, productPricingDTO2);
+
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            productCouponDiscounts.put(1L, 600L);
+            productCouponDiscounts.put(2L, 400L);
+
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            orderCouponDiscounts.put(1L, 400L);
+            orderCouponDiscounts.put(2L, 300L);
+
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+            pointDiscounts.put(1L, 200L);
+            pointDiscounts.put(2L, 0L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(1L).getFinalAmount()).isEqualTo(0L);
+            assertThat(result.get(2L).getFinalAmount()).isEqualTo(0L);
+            assertThat(result.get(2L).getPointDiscountAmount()).isEqualTo(200L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 3개 이상의 상품 주문에 대해 모든 할인을 적용했을 경우 올바르게 적용되다.")
+        void reconcileDiscountAmountMultipleAllDiscounts_success() {
+            // given
+            ProductPricingDTO productPricingDTO1 = ProductPricingDTO.builder()
+                    .productId(1L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
+                    .productId(2L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO productPricingDTO3 = ProductPricingDTO.builder()
+                    .productId(3L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            productPricingInfo.put(1L, productPricingDTO1);
+            productPricingInfo.put(2L, productPricingDTO2);
+            productPricingInfo.put(3L, productPricingDTO3);
+
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            productCouponDiscounts.put(1L, 100L);
+            productCouponDiscounts.put(2L, 100L);
+            productCouponDiscounts.put(3L, 100L);
+
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            orderCouponDiscounts.put(1L, 100L);
+            orderCouponDiscounts.put(2L, 100L);
+            orderCouponDiscounts.put(3L, 100L);
+
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+            pointDiscounts.put(1L, 100L);
+            pointDiscounts.put(2L, 100L);
+            pointDiscounts.put(3L, 100L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            assertThat(result.get(1L).getFinalAmount()).isEqualTo(600L);
+            assertThat(result.get(2L).getFinalAmount()).isEqualTo(600L);
+            assertThat(result.get(3L).getFinalAmount()).isEqualTo(600L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 3개 이상의 상품 주문에 대해 모든 할인을 적용했을 경우 포인트 조정 작업이 올바르게 적용되다.")
+        void reconcileDiscountAmountMultipleAllDiscountsReconcile_success() {
+            // given
+            ProductPricingDTO productPricingDTO1 = ProductPricingDTO.builder()
+                    .productId(1L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
+                    .productId(2L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO productPricingDTO3 = ProductPricingDTO.builder()
+                    .productId(3L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            productPricingInfo.put(1L, productPricingDTO1);
+            productPricingInfo.put(2L, productPricingDTO2);
+            productPricingInfo.put(3L, productPricingDTO3);
+
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            productCouponDiscounts.put(1L, 600L);
+            productCouponDiscounts.put(2L, 300L);
+            productCouponDiscounts.put(3L, 100L);
+
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            orderCouponDiscounts.put(1L, 600L);
+            orderCouponDiscounts.put(2L, 200L);
+            orderCouponDiscounts.put(3L, 100L);
+
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+            pointDiscounts.put(1L, 300L);
+            pointDiscounts.put(2L, 300L);
+            pointDiscounts.put(3L, 300L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+            // then
+            // 상품 1: appSalesPrice 1000 - ecoDiscount 100 - productCoupon 600 - orderCoupon 600 - pointDiscount 0 = 음수 => 최종 금액 0
+            assertThat(result.get(1L).getFinalAmount()).isEqualTo(0L);
+            // 상품 2: appSalesPrice 1000 - ecoDiscount 100 - productCoupon 300 - orderCoupon 200 - pointDiscount 300 + 100 = 0 => 최종 금액 0
+            assertThat(result.get(2L).getFinalAmount()).isEqualTo(0L);
+            // 상품 3: appSalesPrice 1000 - ecoDiscount 100 - productCoupon 100 - orderCoupon 100 - pointDiscount 500 = 200 => 최종 금액 200
+            assertThat(result.get(3L).getFinalAmount()).isEqualTo(200L);
+            assertThat(result.get(3L).getPointDiscountAmount()).isEqualTo(500L);
+        }
+
+        @Test
+        @DisplayName("[정상 케이스] 포인트 재분배 과정에서 남은 포인트가 균등 분배되지 않을 때 조정 작업이 올바르게 수행된다.")
+        void reconcileDiscountAmountPointRedistributionRounding_success() {
+            // given
+            ProductPricingDTO product1 = ProductPricingDTO.builder()
+                    .productId(1L)
+                    .appSalesPrice(1000L)
+                    .ecoDiscountAmount(100L)
+                    .build();
+
+            ProductPricingDTO product2 = ProductPricingDTO.builder()
+                    .productId(2L)
+                    .appSalesPrice(800L)
+                    .ecoDiscountAmount(50L)
+                    .build();
+
+            ProductPricingDTO product3 = ProductPricingDTO.builder()
+                    .productId(3L)
+                    .appSalesPrice(2000L)
+                    .ecoDiscountAmount(200L)
+                    .build();
+
+            ProductPricingDTO product4 = ProductPricingDTO.builder()
+                    .productId(4L)
+                    .appSalesPrice(500L)
+                    .ecoDiscountAmount(50L)
+                    .build();
+
+            Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
+            productPricingInfo.put(1L, product1);
+            productPricingInfo.put(2L, product2);
+            productPricingInfo.put(3L, product3);
+            productPricingInfo.put(4L, product4);
+
+            Map<Long, Long> productCouponDiscounts = new HashMap<>();
+            productCouponDiscounts.put(1L, 300L);
+            productCouponDiscounts.put(2L, 200L);
+            productCouponDiscounts.put(3L, 400L);
+            productCouponDiscounts.put(4L, 100L);
+
+            Map<Long, Long> orderCouponDiscounts = new HashMap<>();
+            orderCouponDiscounts.put(1L, 100L);
+            orderCouponDiscounts.put(2L, 100L);
+            orderCouponDiscounts.put(3L, 100L);
+            orderCouponDiscounts.put(4L, 50L);
+
+            Map<Long, Long> pointDiscounts = new HashMap<>();
+            pointDiscounts.put(1L, 1000L); // 상품 1에서 포인트 할인 초과 발생
+            pointDiscounts.put(2L, 300L);
+            pointDiscounts.put(3L, 400L);
+            pointDiscounts.put(4L, 200L);
+
+            // when
+            Map<Long, DiscountInfoDTO> result = discountService.reconcileDiscountAmounts(
+                    productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+
+
+            // 상품 1
+            // 금액 계산: 1000 - 100 - 300 - 100 - 1000 = -500
+            // 남은 포인트: 500
+            // 1차 재분배: 500 / 3 ≈ 166.66666 -> 167 (반올림)
+            // 167 * 3 = 501 -> -1원 조정 작업 실행 => 1차 조정 작업 후 마지막 상품에 +1원
+            // 상품 2
+            // 금액 계산: 800 - 50 - 200 - 100 - 300 = 150
+            // 1차 재분배 후 금액 계산: 150 - 167 = -17 -> 0원으로 계산
+            // 450원 포인트 금액 적용 후 17원 재분배
+            // 상품 3
+            // 금액 계산: 2000 - 200 - 400 - 100 - 400 = 900
+            // 1차 재분배 후 금액 계산: 900 - 167 = 733원
+            // 2차 재분배 후 금액 계산: 733 - 83 = 650원
+            // 650원 포인트 적용
+            // 상품 4
+            // 금액 계산: 500 - 50 - 100 - 50 - 200 = 100
+            // 1차 재분배 후 금액 계산: 100 - 167 + 1 = -66원 -> 0원으로 계산
+            // 300원 포인트 금액 적용 후 재분배
+            // 2차 조정 금액: (-66) + (-17) = -83
+
+            // then
+            assertThat(result.get(1L).getFinalAmount()).isEqualTo(0L);
+            assertThat(result.get(1L).getPointDiscountAmount()).isEqualTo(500L); // 최대 적용 가능 포인트 할인
+
+            assertThat(result.get(2L).getFinalAmount()).isEqualTo(0);
+            assertThat(result.get(2L).getPointDiscountAmount()).isEqualTo(450L);
+
+            assertThat(result.get(3L).getFinalAmount()).isEqualTo(650L);
+            assertThat(result.get(3L).getPointDiscountAmount()).isEqualTo(650L);
+
+            assertThat(result.get(4L).getFinalAmount()).isEqualTo(0L);
+            assertThat(result.get(4L).getPointDiscountAmount()).isEqualTo(300L);
         }
     }
 }

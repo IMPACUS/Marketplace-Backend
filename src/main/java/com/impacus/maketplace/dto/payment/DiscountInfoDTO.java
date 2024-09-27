@@ -39,12 +39,13 @@ public class DiscountInfoDTO {
             pointDiscountAmount -= absDiscountedAmount;
             return absDiscountedAmount;
         } else {
+            long remain = pointDiscountAmount;
             pointDiscountAmount = 0L;
-            return pointDiscountAmount;
+            return remain;
         }
     }
 
-    public Long getFinalAmoun() {
+    public Long getFinalAmount() {
         Long discountedAMount = getDiscountedAmount();
 
         if (discountedAMount < 0) return 0L;
