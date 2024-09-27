@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static com.impacus.maketplace.entity.qna.QAnswer.answer;
 import static com.impacus.maketplace.entity.qna.QProductQuestion.productQuestion;
 
 @Repository
@@ -45,7 +46,9 @@ public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCusto
             expression.and(productQuestion.createAt.lt(spec.getEndDate().plusDays(1).atStartOfDay()));
         }
 
-        // TODO : answered 조건
+        if (spec.getAnswered() != null) {
+            expression.and(spec.getAnswered() ? answer.questionId.isNotNull() : answer.questionId.isNull());
+        }
 
         if (StringUtils.isNotBlank(spec.getAuthorId())) {
             List<User> users = userRepository.findByEmailLike(spec.getAuthorId());
@@ -62,7 +65,9 @@ public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCusto
         }
 
         List<ProductQuestion> contents = jpaQueryFactory
-                .selectFrom(productQuestion)
+                .select(productQuestion)
+                .from(productQuestion)
+                .leftJoin(answer).on(answer.questionId.eq(productQuestion.id))
                 .where(expression)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
