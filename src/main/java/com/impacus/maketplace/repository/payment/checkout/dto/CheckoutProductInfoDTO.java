@@ -1,54 +1,48 @@
 package com.impacus.maketplace.repository.payment.checkout.dto;
 
-import com.impacus.maketplace.common.enumType.DiscountStatus;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class CheckoutProductWithDetailsByCartDTO {
+public class CheckoutProductInfoDTO {
     private Long productId; // 상품 id
+    private Long sellerId;  // 판매자 id
+    private String marketName; // 판매자 브랜드 이름
+    private Integer chargePercent;  // 수수료 비율
     private String name; // 상품명
+    private ProductType productType;    // 상품 타입
     private ProductStatus productStatus; // 상품 상태
-    private ProductType type; // 상품 타입
-    private DiscountStatus discountStatus; // 할인 상태
     private int appSalesPrice; // 앱 판매가
     private int discountPrice; // 할인가
     private Integer deliveryFee; // 배송비
-    private List<String> productImages; // 이미지 리스트
     private boolean productIsDeleted; // 삭제 여부
-    private Long sellerId;  // 판매자 id
-    private String marketName; // 브랜드명, 마켓명
+    private Long productOptionId;   // 상품 option id
     private String color;   // 색상
     private String size;    // 크기
     private Long stock; // 재고 수량
     private boolean optionIsDeleted;    // 옵션 삭제 여부
-    // CheckoutProductWithDetailsDTO 추가된 필드
-    private Long productOptionId;   // 상품 옵션 id
-    private Long quantity; // 구매 수량
+    private Long productOptionHistoryId;    // 상품 옵션 history id
 
     @QueryProjection
-    public CheckoutProductWithDetailsByCartDTO(Long productId, String name, ProductStatus productStatus, ProductType type, DiscountStatus discountStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, List<String> productImages, boolean productIsDeleted, Long sellerId, String marketName, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionId, Long quantity) {
+    public CheckoutProductInfoDTO(Long productId, Long sellerId, String marketName, Integer chargePercent, String name, ProductType productType, ProductStatus productStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, boolean productIsDeleted, Long productOptionId, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionHistoryId) {
         this.productId = productId;
+        this.sellerId = sellerId;
+        this.marketName = marketName;
+        this.chargePercent = chargePercent;
         this.name = name;
+        this.productType = productType;
         this.productStatus = productStatus;
-        this.type = type;
-        this.discountStatus = discountStatus;
         this.appSalesPrice = appSalesPrice;
         this.discountPrice = discountPrice;
         this.deliveryFee = deliveryFee;
-        this.productImages = productImages;
         this.productIsDeleted = productIsDeleted;
-        this.sellerId = sellerId;
-        this.marketName = marketName;
+        this.productOptionId = productOptionId;
         this.color = color;
         this.size = size;
         this.stock = stock;
         this.optionIsDeleted = optionIsDeleted;
-        this.productOptionId = productOptionId;
-        this.quantity = quantity;
+        this.productOptionHistoryId = productOptionHistoryId;
     }
 }

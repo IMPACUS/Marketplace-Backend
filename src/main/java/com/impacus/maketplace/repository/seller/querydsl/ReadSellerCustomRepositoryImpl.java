@@ -477,7 +477,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 seller.marketName,
                                 seller.contactName,
                                 seller.customerServiceNumber,
-                                sellerBusinessInfo.representativeContact,
+                                sellerBusinessInfo.businessEmail,
                                 brand.businessDay,
                                 brand.openingTime,
                                 brand.closingTime,

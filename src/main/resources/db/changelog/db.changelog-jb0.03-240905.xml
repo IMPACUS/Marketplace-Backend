@@ -218,4 +218,17 @@
         </preConditions>
         <renameColumn tableName="payment_orders" oldColumnName="commision_percent" newColumnName="commission_percent"/>
     </changeSet>
+
+    <changeSet id="changelog-jb0.03-240911-10-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="delivery_address" columnName="orders_id"/>
+        </preConditions>
+        <renameColumn tableName="delivery_address" oldColumnName="orders_id" newColumnName="payment_event_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.03-240911-11-01" author="jeongbeom4693">
+        <sql>ALTER TABLE payment_orders ALTER COLUMN quantity TYPE BIGINT;</sql>
+    </changeSet>
+
+
 </databaseChangeLog>

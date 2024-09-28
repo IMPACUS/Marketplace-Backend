@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.coupon;
 
+import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.common.enumType.coupon.CoverageType;
 import com.impacus.maketplace.common.enumType.coupon.ProductType;
 import com.impacus.maketplace.common.enumType.coupon.StandardType;
@@ -7,23 +8,23 @@ import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.request.ProductQuantityDTO;
 import com.impacus.maketplace.dto.coupon.response.*;
+import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponProductRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.ProductPricingInfoDTO;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.UserCouponInfoForCheckoutDTO;
+import com.impacus.maketplace.repository.coupon.querydsl.dto.ValidateUserCouponForOrderDTO;
+import com.impacus.maketplace.repository.coupon.querydsl.dto.ValidateUserCouponForProductDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -131,14 +132,14 @@ public class CouponUserService {
         List<UserCouponInfoForCheckoutDTO> userCouponInfoForCheckoutList = couponCustomRepositroy.findUserCouponInfoForCheckoutList(userId);
 
         // 3. 수량 매핑해놓기
-        Map<Long, Integer> productQuantityMap = productQuantityDTOList.stream()
+        Map<Long, Long> productQuantityMap = productQuantityDTOList.stream()
                 .collect(Collectors.toMap(ProductQuantityDTO::getProductId, ProductQuantityDTO::getQuantity));
 
         // 4. 상품별 적용 가능한 쿠폰들 DTO List 생성 (병렬처리 => parallelStream 추후 고려)
         List<AvailableCouponsForProductDTO> availableCouponsForProductDTOList = productPricingInfoDTOList.stream()
                 .map(productPricingInfoDTO -> {
                     List<AvailableCouponsDTO> list = userCouponInfoForCheckoutList.stream()
-                            .filter(coupon -> isValidCouponForProduct(coupon, productPricingInfoDTO, productQuantityMap.get(productPricingInfoDTO.getProductId())))
+                            .filter(coupon -> validateCouponForProduct(new ValidateUserCouponForProductDTO(coupon), productPricingInfoDTO.getProductType(), productPricingInfoDTO.getMarketName(), productPricingInfoDTO.getAppSalesPrice(), productQuantityMap.get(productPricingInfoDTO.getProductId())))
                             .map(userCouponInfoForCheckoutDTO ->
                                     new AvailableCouponsDTO(userCouponInfoForCheckoutDTO.getUserCouponId(),
                                             userCouponInfoForCheckoutDTO.getCouponName(),
@@ -150,8 +151,8 @@ public class CouponUserService {
                 .toList();
 
         // 4. 전체 주문에 적용 가능한 쿠폰 List DTO 생성
-        int totalPrice = productPricingInfoDTOList.stream()
-                .mapToInt(product -> product.getAppSalesPrice() * productQuantityMap.getOrDefault(product.getProductId(), 0))
+        Long totalPrice = productPricingInfoDTOList.stream()
+                .mapToLong(product -> product.getAppSalesPrice() * productQuantityMap.getOrDefault(product.getProductId(), 0L))
                 .sum();
 
         List<AvailableCouponsDTO> availableCouponsForOrderDTOList = userCouponInfoForCheckoutList.stream()
@@ -169,24 +170,89 @@ public class CouponUserService {
 
         return new AvailableCouponsForCheckoutDTO(availableCouponsForProductDTOList, availableCouponsForOrderDTOList);
     }
-    private boolean isValidCouponForProduct(UserCouponInfoForCheckoutDTO coupon, ProductPricingInfoDTO product, int quantity) {
-        // 타입 체크 (쿠폰: 에코 적용, 상품: 그린 태그가 아니면)
-        if (coupon.getProductType() == ProductType.ECO_GREEN && product.getProductType() != com.impacus.maketplace.common.enumType.product.ProductType.GREEN_TAG) {
+
+    /**
+     * 상품에 대한 쿠폰 적용 유효성 검증 후 필요한 정보 가져오기
+     */
+    public List<PaymentCouponDTO> getAmountAfterValidateCouponsForProduct(Long userId, List<Long> usedUserCouponIds, com.impacus.maketplace.common.enumType.product.ProductType productType, String marketName, int appSalesPrice, Long quantity) {
+        // 1. 쿠폰 리스트 가져오기
+        List<ValidateUserCouponForProductDTO> coupons = couponCustomRepositroy.findUserCouponInfoForValidateForProductByIds(userId, usedUserCouponIds);
+
+        if (coupons.size() != usedUserCouponIds.size()) {
+            throw new CustomException(CouponErrorType.INVALID_ACCESS_USER_COUPON);
+        }
+
+        // 2. 쿠폰 하나씩 검증
+        coupons.forEach(coupon -> {
+            if (!validateCouponForProduct(coupon, productType, marketName, appSalesPrice, quantity)) {
+                throw new CustomException(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+            }
+        });
+
+        List<PaymentCouponDTO> list = new ArrayList<>();
+        coupons.forEach(coupon -> {
+            list.add(new PaymentCouponDTO(coupon.getUserCouponId(), coupon.getBenefitType(), coupon.getBenefitValue()));
+        });
+
+        return list;
+    }
+
+    /**
+     * 주문 대한 쿠폰 적용 유효성 검증 후 필요한 정보 가져오기
+     */
+    public List<PaymentCouponDTO> getAmountAfterValidateCouponsForOrder(Long userId, List<Long> usedUserCouponsIds, Long totalPrice) {
+        // 1. 쿠폰 리스트 가져오기
+        List<ValidateUserCouponForOrderDTO> coupons = couponCustomRepositroy.findUserCouponInfoForValidateForOrderByIds(userId, usedUserCouponsIds);
+
+        if (coupons.size() != usedUserCouponsIds.size()) {
+            throw new CustomException(CouponErrorType.INVALID_ACCESS_USER_COUPON);
+        }
+
+        // 2. 쿠폰 하나씩 검증
+        coupons.forEach(coupon -> {
+            if (!validateCouponForOrder(coupon, totalPrice)) {
+                throw new CustomException(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+            }
+        });
+
+        List<PaymentCouponDTO> list = new ArrayList<>();
+        coupons.forEach(coupon -> {
+            list.add(new PaymentCouponDTO(coupon.getUserCouponId(), coupon.getBenefitType(), coupon.getBenefitValue()));
+        });
+
+        return list;
+    }
+    private boolean validateCouponForOrder(ValidateUserCouponForOrderDTO coupon, Long totalPrice) {
+        // 타입 체크
+        if (coupon.getProductType() != ProductType.ALL) {
             return false;
         }
 
-        // 타입 체크 (쿠폰: 일반 상품, 상품: 일반 상품 아니면)
-        if (coupon.getProductType() == ProductType.BASIC && product.getProductType() != com.impacus.maketplace.common.enumType.product.ProductType.GENERAL) {
-            return false;
-        }
-
-        // 브랜드 체크
-        if (coupon.getUseCoverageType() == CoverageType.BRAND && !Objects.equals(product.getMarketName(), coupon.getUseCoverageSubCategoryName())) {
+        if (coupon.getUseCoverageType() != CoverageType.ALL) {
             return false;
         }
 
         // 금액 체크
-        int totalProductPrice = product.getAppSalesPrice() * quantity;
+        return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalPrice;
+    }
+    private boolean validateCouponForProduct(ValidateUserCouponForProductDTO coupon, com.impacus.maketplace.common.enumType.product.ProductType productType, String marketName, int appSalesPrice, Long quantity) {
+        // 타입 체크 (쿠폰: 에코 적용, 상품: 그린 태그가 아니면)
+        if (coupon.getProductType() == ProductType.ECO_GREEN && productType != com.impacus.maketplace.common.enumType.product.ProductType.GREEN_TAG) {
+            return false;
+        }
+
+        // 타입 체크 (쿠폰: 일반 상품, 상품: 일반 상품 아니면)
+        if (coupon.getProductType() == ProductType.BASIC && productType != com.impacus.maketplace.common.enumType.product.ProductType.GENERAL) {
+            return false;
+        }
+
+        // 브랜드 체크
+        if (coupon.getUseCoverageType() == CoverageType.BRAND && !Objects.equals(marketName, coupon.getUseCoverageSubCategoryName())) {
+            return false;
+        }
+
+        // 금액 체크
+        Long totalProductPrice = appSalesPrice * quantity;
         return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalProductPrice;
     }
 }
