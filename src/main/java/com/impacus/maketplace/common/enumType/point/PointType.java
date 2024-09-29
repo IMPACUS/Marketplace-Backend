@@ -20,7 +20,8 @@ public enum PointType {
     REVIEW(11, "리뷰 작성", 200L),
     SHARE_APP(12, "앱 공유", 200L),
     SHARE_PRODUCT(13, "상품 공유", 200L),
-    SNS_TAG(14, "SNS 태그", 1000L);
+    SNS_TAG(14, "SNS 태그", 1000L),
+    ECO_VIP_QUARTERLY_POINT(15, "ECO VIP 레벨 정기 포인트 지급", 50000L);
 
     private final int code;
     private final String value;
