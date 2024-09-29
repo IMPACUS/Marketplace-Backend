@@ -83,7 +83,7 @@ public class UserController {
      * [관리자] 소비자 회원 검색 목록 조회
      */
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     public ApiResponseEntity<Page<WebUserDTO>> getUsers(
             @PageableDefault(size = 6, sort = "registerAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "user-name", required = false) String userName,

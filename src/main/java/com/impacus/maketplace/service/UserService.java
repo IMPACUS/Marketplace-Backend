@@ -154,10 +154,6 @@ public class UserService {
             // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
-
-                if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
-                    changeUserStatus(user, UserStatus.BLOCKED);
-                }
                 throw new CustomException(CommonErrorType.WRONG_PASSWORD);
             } else {
                 loginFailAttemptService.resetLoginFailAttempt(user);
@@ -211,10 +207,6 @@ public class UserService {
 //            // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
 //            if (!passwordEncoder.matches(password, admin.getPassword())) {
 //                LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(admin);
-//
-//                if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
-//                    changeUserStatus(user, UserStatus.BLOCKED);
-//                }
 //                throw new CustomException(CommonErrorType.WRONG_PASSWORD);
 //            } else {
 //                loginFailAttemptService.resetLoginFailAttempt(user);
@@ -255,7 +247,6 @@ public class UserService {
 
         UserStatusInfo userStatusInfo = userStatusInfoService.findUserStatusInfoByUserId(user.getId());
         switch (userStatusInfo.getStatus()) {
-            case BLOCKED -> throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
             case DEACTIVATED -> throw new CustomException(UserErrorType.DEACTIVATED_USER);
             case SUSPENDED -> throw new CustomException(UserErrorType.SUSPENDED_USER);
         }
@@ -320,8 +311,8 @@ public class UserService {
     @Transactional(noRollbackFor = CustomException.class)
     public void changeUserStatus(User user, UserStatus userStatus) {
         switch (userStatus) {
-            case BLOCKED: {
-                userStatusInfoService.updateUserStatus(user.getId(), UserStatus.BLOCKED, "로그인 시도 가능 횟수 초과");
+            case SUSPENDED: {
+                userStatusInfoService.updateUserStatus(user.getId(), UserStatus.SUSPENDED, "로그인 시도 가능 횟수 초과");
             }
             break;
         }

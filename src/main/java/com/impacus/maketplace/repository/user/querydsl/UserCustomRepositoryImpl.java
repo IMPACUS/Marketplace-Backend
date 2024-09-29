@@ -140,7 +140,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             builder.and(user.name.containsIgnoreCase(userName));
         }
         if (phoneNumber != null && !phoneNumber.isBlank()) {
-            builder.and(user.phoneNumber.contains(phoneNumber));
+            builder.and(user.phoneNumber.eq(phoneNumber)); // TODO 본인 인증 API 연결 시, 핸드폰 뒷자리 4자리만 검색하도록 변경
+        }
+        if (oauthProviderType != null) {
+            builder.and(user.email.contains(oauthProviderType.name()));
+        }
+        if (status != null) {
+            builder.and(userStatusInfo.status.eq(status));
         }
 
         // 데이터 검색
@@ -159,6 +165,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 )
                 .from(user)
                 .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
                 .where(builder)
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
