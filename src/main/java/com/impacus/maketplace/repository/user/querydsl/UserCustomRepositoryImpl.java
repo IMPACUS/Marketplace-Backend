@@ -1,8 +1,12 @@
 package com.impacus.maketplace.repository.user.querydsl;
 
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
+import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
@@ -18,14 +22,19 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final JPAQueryFactory queryFactory;
+
     private final QUser user = QUser.user;
     private final QLevelPointMaster levelPointMaster = QLevelPointMaster.levelPointMaster;
     private final QGreenLabelPoint greenLabelPoint = QGreenLabelPoint.greenLabelPoint1;
@@ -110,5 +119,59 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         queryFactory.delete(levelAchievement)
                 .where(levelAchievement.userId.eq(userId))
                 .execute();
+    }
+
+    @Override
+    public Page<WebUserDTO> getUsers(
+            Pageable pageable,
+            String userName,
+            String phoneNumber,
+            LocalDate startAt,
+            LocalDate endAt,
+            OauthProviderType oauthProviderType,
+            UserStatus status
+    ) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 필터링
+        builder.and(user.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .and(user.type.in(new UserType[]{UserType.ROLE_CERTIFIED_USER, UserType.ROLE_DEACTIVATED_USER}));
+        if (userName != null && !userName.isBlank()) {
+            builder.and(user.name.containsIgnoreCase(userName));
+        }
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            builder.and(user.phoneNumber.contains(phoneNumber));
+        }
+
+        // 데이터 검색
+        List<WebUserDTO> dtos = queryFactory
+                .select(
+                        Projections.fields(
+                                WebUserDTO.class,
+                                user.id.as("userId"),
+                                user.name,
+                                user.email,
+                                user.phoneNumber,
+                                levelPointMaster.userLevel,
+                                user.createAt.as("registerAt"),
+                                user.recentLoginAt
+                        )
+                )
+                .from(user)
+                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .where(builder)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+
+        long count = queryFactory
+                .select(
+                        user.id.count()
+                )
+                .from(user)
+                .where(builder)
+                .fetchOne();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
     }
 }

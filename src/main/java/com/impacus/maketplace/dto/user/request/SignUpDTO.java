@@ -2,7 +2,6 @@ package com.impacus.maketplace.dto.user.request;
 
 import com.impacus.maketplace.common.annotation.ValidBirthDate;
 import com.impacus.maketplace.common.annotation.ValidPhoneNumber;
-import com.impacus.maketplace.dto.address.AddressAddOrUpdateRequest;
 import com.impacus.maketplace.dto.paymentMethod.request.CreatePaymentMethodDTO;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,9 +31,6 @@ public class SignUpDTO {
     @NotBlank
     @ValidBirthDate
     private String birthDate;
-
-    @NotNull
-    private List<AddressAddOrUpdateRequest> addresses;
 
     @NotNull
     private List<CreatePaymentMethodDTO> paymentMethods;

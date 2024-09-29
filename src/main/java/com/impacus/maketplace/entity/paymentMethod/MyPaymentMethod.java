@@ -6,7 +6,7 @@ import com.impacus.maketplace.common.enumType.CreditCardCompany;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+//@Entity
 @Getter
 @Builder
 @AllArgsConstructor
