@@ -152,14 +152,14 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         // 데이터 검색
         List<WebUserDTO> dtos = queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 WebUserDTO.class,
-                                user.id.as("userId"),
+                                user.id,
                                 user.name,
                                 user.email,
                                 user.phoneNumber,
                                 levelPointMaster.userLevel,
-                                user.createAt.as("registerAt"),
+                                user.createAt,
                                 user.recentLoginAt
                         )
                 )
@@ -167,6 +167,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
                 .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
                 .where(builder)
+                .orderBy(user.createAt.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
@@ -176,6 +177,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                         user.id.count()
                 )
                 .from(user)
+                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
                 .where(builder)
                 .fetchOne();
 
