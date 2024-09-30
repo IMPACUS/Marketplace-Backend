@@ -230,5 +230,30 @@
         <sql>ALTER TABLE payment_orders ALTER COLUMN quantity TYPE BIGINT;</sql>
     </changeSet>
 
+    <changeSet id="changelog-jb0.03-240930-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_event_coupons" columnName="is_used"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="payment_event_coupons">
+            <column name="is_used" type="Boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.03-240930-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_order_coupons" columnName="is_used"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="payment_order_coupons">
+            <column name="is_used" type="Boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>
