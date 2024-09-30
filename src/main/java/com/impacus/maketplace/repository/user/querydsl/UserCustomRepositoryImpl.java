@@ -7,6 +7,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
+import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
@@ -183,5 +184,33 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .fetchOne();
 
         return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    @Override
+    public WebUserDetailDTO getUser(Long userId) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                WebUserDetailDTO.class,
+                                user.id,
+                                attachFile.attachFileName.as("profileImageUrl"),
+                                user.email,
+                                user.password,
+                                user.name,
+                                user.phoneNumber,
+                                user.createAt.as("registerAt"),
+                                levelPointMaster.userLevel,
+                                levelPointMaster.levelPoint,
+                                greenLabelPoint.greenLabelPoint,
+                                userStatusInfo.status.as("userStatus")
+                        )
+                )
+                .from(user)
+                .leftJoin(attachFile).on(attachFile.id.eq(user.profileImageId))
+                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
+                .innerJoin(greenLabelPoint).on(greenLabelPoint.userId.eq(userId))
+                .where(user.id.eq(userId))
+                .fetchFirst();
     }
 }

@@ -8,6 +8,7 @@ import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
+import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.user.WebUserService;
 import jakarta.validation.Valid;
@@ -80,10 +81,10 @@ public class UserController {
     }
 
     /**
-     * [관리자] 소비자 회원 검색 목록 조회
+     * [관리자] 소비자 회원 검색 목록 조회 API
      */
     @GetMapping
-    //@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     public ApiResponseEntity<Page<WebUserDTO>> getUsers(
             @PageableDefault(size = 6, sort = "registerAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "user-name", required = false) String userName,
@@ -95,7 +96,22 @@ public class UserController {
     ) {
         Page<WebUserDTO> result = readUserService.getUsers(pageable, userName, phoneNumber, startAt, endAt, oauthProviderType, status);
         return ApiResponseEntity.<Page<WebUserDTO>>builder()
-                .message("소비자 회원 검색 목록 조회 성공")
+                .message("회원 검색 목록 조회 성공")
+                .data(result)
+                .build();
+    }
+
+    /**
+     * [관리자] 회원님의 정보 관리 API
+     */
+    @GetMapping("/{userId}")
+    //@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    public ApiResponseEntity<WebUserDetailDTO> getUser(
+            @PathVariable(name = "userId") Long userId
+    ) {
+        WebUserDetailDTO result = readUserService.getUser(userId);
+        return ApiResponseEntity.<WebUserDetailDTO>builder()
+                .message("회원님의 정보 관리 성공")
                 .data(result)
                 .build();
     }

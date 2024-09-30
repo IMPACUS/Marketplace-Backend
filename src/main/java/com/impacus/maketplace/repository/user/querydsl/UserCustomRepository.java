@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
+import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -33,4 +34,6 @@ public interface UserCustomRepository {
             OauthProviderType oauthProviderType,
             UserStatus status
     );
+
+    WebUserDetailDTO getUser(Long userId);
 }

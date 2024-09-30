@@ -1,10 +1,12 @@
 package com.impacus.maketplace.service.user;
 
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
+import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -57,6 +59,25 @@ public class WebUserService {
     ) {
         try {
             return userRepository.getUsers(pageable, userName, phoneNumber, startAt, endAt, oauthProviderType, status);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 회원 정보 상세 조회 조회
+     *
+     * @return
+     */
+    public WebUserDetailDTO getUser(Long userId) {
+        try {
+            WebUserDetailDTO dto = userRepository.getUser(userId);
+            if (dto == null) {
+                throw new CustomException(UserErrorType.NOT_EXISTED_USER);
+            }
+
+            dto.updateLoginInfo();
+            return dto;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
