@@ -19,4 +19,19 @@
         </update>
     </changeSet>
 
+    <changeSet id="changelog-0.14.02" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="green_label_point_history" columnName="level_point"/>
+                <columnExists tableName="green_label_point_history" columnName="green_label_point"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="green_label_point_history">
+            <column name="level_point" type="BIGINT" defaultValue="0"/>
+        </addColumn>
+        <addColumn tableName="green_label_point_history">
+            <column name="green_label_point" type="BIGINT" defaultValue="0"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
