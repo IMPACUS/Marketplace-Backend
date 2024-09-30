@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
@@ -21,6 +22,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -105,7 +107,7 @@ public class UserController {
      * [관리자] 회원님의 정보 관리 API
      */
     @GetMapping("/{userId}")
-    //@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     public ApiResponseEntity<WebUserDetailDTO> getUser(
             @PathVariable(name = "userId") Long userId
     ) {
@@ -113,6 +115,22 @@ public class UserController {
         return ApiResponseEntity.<WebUserDetailDTO>builder()
                 .message("회원님의 정보 관리 성공")
                 .data(result)
+                .build();
+    }
+
+    /**
+     * [관리자] 소비자 정보 변경 API
+     */
+    @PatchMapping("/{userId}")
+    //@PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    public ApiResponseEntity<Void> updateUser(
+            @PathVariable(name = "userId") Long userId,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+            @Valid @RequestPart(value = "user") UpdateUserDTO dto
+    ) {
+        readUserService.updateUser(userId, profileImage, dto);
+        return ApiResponseEntity.<Void>builder()
+                .message("소비자 정보 변경 성공")
                 .build();
     }
 }

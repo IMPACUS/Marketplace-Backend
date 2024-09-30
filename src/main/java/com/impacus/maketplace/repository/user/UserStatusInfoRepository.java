@@ -21,4 +21,7 @@ public interface UserStatusInfoRepository extends JpaRepository<UserStatusInfo, 
             @Param("status") UserStatus status,
             @Param("statusReason") String statusReason
     );
+
+    @Query("SELECT u.status FROM UserStatusInfo u WHERE u.userId = :userId")
+    Optional<UserStatus> findProfileImageIdByUserId(@Param("userId") Long userId);
 }

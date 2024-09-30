@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
@@ -23,11 +24,13 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -35,6 +38,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final JPAQueryFactory queryFactory;
+    private final AuditorAware<String> auditorProvider;
 
     private final QUser user = QUser.user;
     private final QLevelPointMaster levelPointMaster = QLevelPointMaster.levelPointMaster;
@@ -192,7 +196,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .select(
                         Projections.fields(
                                 WebUserDetailDTO.class,
-                                user.id,
+                                user.id.as("userId"),
                                 attachFile.attachFileName.as("profileImageUrl"),
                                 user.email,
                                 user.password,
@@ -212,5 +216,28 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .innerJoin(greenLabelPoint).on(greenLabelPoint.userId.eq(userId))
                 .where(user.id.eq(userId))
                 .fetchFirst();
+    }
+
+    @Override
+    public long updateUser(Long userId, UpdateUserDTO dto, Long profileImageId) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        long result = queryFactory.update(user)
+                .set(user.profileImageId, profileImageId)
+                .set(user.modifyAt, LocalDateTime.now())
+                .set(user.modifyId, currentAuditor)
+                .where(user.id.eq(userId))
+                .execute();
+
+        queryFactory.update(userStatusInfo)
+                .set(userStatusInfo.status, dto.getUserStatus())
+                .set(userStatusInfo.statusReason, "관리자에 의한 회원 상태 변경")
+
+                .set(userStatusInfo.modifyAt, LocalDateTime.now())
+                .set(userStatusInfo.modifyId, currentAuditor)
+                .where(userStatusInfo.userId.eq(userId))
+                .execute();
+
+        return result;
     }
 }

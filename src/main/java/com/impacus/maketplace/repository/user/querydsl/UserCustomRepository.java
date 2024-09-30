@@ -3,6 +3,7 @@ package com.impacus.maketplace.repository.user.querydsl;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
@@ -36,4 +37,6 @@ public interface UserCustomRepository {
     );
 
     WebUserDetailDTO getUser(Long userId);
+
+    long updateUser(Long userId, UpdateUserDTO dto, Long profileImageId);
 }
