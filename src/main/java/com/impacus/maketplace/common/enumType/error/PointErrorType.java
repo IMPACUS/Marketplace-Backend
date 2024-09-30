@@ -13,4 +13,4 @@ public enum PointErrorType implements ErrorType{
     private final String code;
     private final String msg;
 
-    }
+}

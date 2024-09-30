@@ -1,17 +1,23 @@
 package com.impacus.maketplace.service.user;
 
 import com.impacus.maketplace.common.constants.DirectoryConstants;
+import com.impacus.maketplace.common.enumType.error.PointErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
+import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
+import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
+import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.repository.user.UserStatusInfoRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
+import com.impacus.maketplace.service.point.levelPoint.LevelPointMasterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +35,9 @@ public class WebUserService {
     private final UserRepository userRepository;
     private final AttachFileService attachFileService;
     private final UserStatusInfoRepository userStatusInfoRepository;
+    private final LevelPointMasterService levelPointMasterService;
+    private final GreenLabelPointAllocationService greenLabelPointAllocationService;
+    private final GreenLabelPointRepository greenLabelPointRepository;
 
     /**
      * 이메일로 사용자 프로필 검색하는 함수
@@ -136,6 +145,48 @@ public class WebUserService {
             if (userStatusOptional.get() != dto.getUserStatus()) {
 
             }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 포인트&쿠폰 지급 함수
+     *
+     * @param userId
+     * @param dto
+     */
+    @Transactional
+    public void issueUserReward(Long userId, UserRewardDTO dto) {
+        try {
+            if (!userRepository.existsById(userId)) {
+                throw new CustomException(UserErrorType.NOT_EXISTED_USER);
+            }
+
+            // 레벨 포인트 지급
+            if (dto.getLevelPoint() != null) {
+                long currentLevelPoint = levelPointMasterService.findLevelPointMasterByUserId(userId).getLevelPoint();
+                long changedLevelPoint = dto.getLevelPoint() - currentLevelPoint;
+                if (changedLevelPoint < 1) {
+                    throw new CustomException(PointErrorType.INVALID_POINT, "지급할 레벨 포인트가 현재 보유한 포인트보다 작을 수 없습니다.");
+                }
+
+                levelPointMasterService.payLevelPoint(userId, PointType.ADMIN_PROVIDE, changedLevelPoint);
+            }
+
+            // 그린 라벨 포인트 지급
+            if (dto.getGreenLabelPoint() != null) {
+                long currentGreenLabelPoint = greenLabelPointRepository.findGreenLabelPointByUserId(userId);
+                long changedGreenLabelPoint = dto.getGreenLabelPoint() - currentGreenLabelPoint;
+                if (changedGreenLabelPoint < 1) {
+                    throw new CustomException(PointErrorType.INVALID_POINT, "지급할 가용 포인트가 현재 보유한 포인트보다 작을 수 없습니다.");
+                }
+
+                greenLabelPointAllocationService.payGreenLabelPoint(userId, PointType.ADMIN_PROVIDE, changedGreenLabelPoint);
+            }
+
+            // TODO [함수 전달 받은 후 연결] 쿠폰 지급
+
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

@@ -7,6 +7,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
+import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
@@ -122,7 +123,7 @@ public class UserController {
      * [관리자] 소비자 정보 변경 API
      */
     @PatchMapping("/{userId}")
-    //@PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     public ApiResponseEntity<Void> updateUser(
             @PathVariable(name = "userId") Long userId,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
@@ -131,6 +132,21 @@ public class UserController {
         readUserService.updateUser(userId, profileImage, dto);
         return ApiResponseEntity.<Void>builder()
                 .message("소비자 정보 변경 성공")
+                .build();
+    }
+
+    /**
+     * [관리자] 포인트/쿠폰 지급 API
+     */
+    @PatchMapping("/{userId}/reward")
+    @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    public ApiResponseEntity<Void> issueUserReward(
+            @PathVariable(name = "userId") Long userId,
+            @Valid @RequestBody UserRewardDTO dto
+    ) {
+        readUserService.issueUserReward(userId, dto);
+        return ApiResponseEntity.<Void>builder()
+                .message("포인트/쿠폰 지급 성공")
                 .build();
     }
 }
