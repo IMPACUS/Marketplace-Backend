@@ -16,6 +16,7 @@ import java.util.List;
 public class CouponApiService {
 
     private final CouponApiRepository couponApiRepository;
+    private final CouponIssuanceService couponIssuanceService;
 
     /**
      * 쿠폰 이름 및 금액 정보 가져오기
@@ -23,5 +24,10 @@ public class CouponApiService {
      */
     public List<CouponNameDTO> getCouponNames() {
         return couponApiRepository.getCouponNames();
+    }
+
+    @Transactional
+    public void issueCouponUser(Long userId, Long couponId) {
+        couponIssuanceService.issueCouponTargetUserByAdmin(couponId, userId);
     }
 }
