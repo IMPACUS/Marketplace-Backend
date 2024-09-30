@@ -30,5 +30,4 @@ public interface CouponCustomRepositroy {
     List<ValidateUserCouponForProductDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds);
 
     List<ValidateUserCouponForOrderDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds);
-
 }
