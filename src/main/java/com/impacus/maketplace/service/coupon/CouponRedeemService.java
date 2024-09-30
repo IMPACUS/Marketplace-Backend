@@ -1,8 +1,5 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.ProductType;
-import com.impacus.maketplace.common.enumType.coupon.StandardType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
@@ -59,6 +56,9 @@ public class CouponRedeemService {
      */
     @Transactional
     public void registPaymentEventCoupons(Long paymentEventId, List<Long> userCouponIds) {
+        // 0. userCouponIds이 null일 경우 바로 동작 종료
+        if (userCouponIds == null) return;
+
         // 1. PaymentEventCoupon 엔티티 전부 생성
         List<PaymentEventCoupon> paymentEventCoupons = userCouponIds.stream().map(userCouponId ->
                         PaymentEventCoupon.builder()
@@ -78,6 +78,9 @@ public class CouponRedeemService {
      */
     @Transactional
     public void registPaymentOrderCoupons(Long paymentOrderId, List<Long> userCouponIds) {
+        // 0. userCouponIds이 null일 경우 바로 동작 종료
+        if (userCouponIds == null) return;
+
         // 1. PaymentOrderCoupon 엔티티 전부 생성
         List<PaymentOrderCoupon> paymentOrderCoupons = userCouponIds.stream().map(userCouponId ->
                         PaymentOrderCoupon.builder()

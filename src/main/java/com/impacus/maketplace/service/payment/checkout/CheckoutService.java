@@ -148,6 +148,8 @@ public class CheckoutService {
         Long discountOrderCoupon = discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder);
         Long discountPoint = discountService.calculatePointDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, checkoutSingleDTO.getPointAmount());
 
+        // !로직 추가: 프론트에서 계산한 할인된 가격과 백엔드에서 계산한 할인된 가격 비교
+
         // 6. order_id 및 payment_id 생성
         String orderId = getOrderId();
         String paymentKey;
@@ -171,7 +173,7 @@ public class CheckoutService {
                 .method(checkoutSingleDTO.getMethod())
                 .build();
 
-        paymentEventRepository.save(paymentEvent);
+        paymentEvent = paymentEventRepository.save(paymentEvent);
 
         PaymentOrder paymentOrder = PaymentOrder.builder()
                 .paymentEventId(paymentEvent.getId())
@@ -195,7 +197,7 @@ public class CheckoutService {
 
         paymentEvent.getPaymentOrders().add(paymentOrder);
 
-        paymentOrderRepository.save(paymentOrder);
+        paymentOrder = paymentOrderRepository.save(paymentOrder);
 
         DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfoDTO().toEntity(paymentEvent.getId());
 
