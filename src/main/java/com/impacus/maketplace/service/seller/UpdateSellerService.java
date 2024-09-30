@@ -286,8 +286,7 @@ public class UpdateSellerService {
             }
 
             // 2. 판매자 로그인 정보 변경
-            String encodedPassword = userService.encodePassword(dto.getNewPassword());
-            sellerRepository.updateLoginInformationByUserId(userId, dto, encodedPassword);
+            sellerRepository.updateLoginInformationByUserId(userId, dto, dto.getNewPassword());
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

@@ -5,7 +5,9 @@ import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Builder
 @AllArgsConstructor
 public class UserDTO {

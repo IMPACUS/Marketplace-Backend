@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.14.01" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="user_info" columnName="password"/>
+            <columnExists tableName="admin_info" columnName="password"/>
+        </preConditions>
+        <update tableName="user_info">
+            <column name="password"
+                    value="aZlhsKE44rY/YnTlsTANnQ=="/>
+        </update>
+        <update tableName="admin_info">
+            <column name="password"
+                    value="aZlhsKE44rY/YnTlsTANnQ=="/>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>

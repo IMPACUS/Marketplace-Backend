@@ -85,7 +85,7 @@ public class UserService {
 
             // 3. User&UserStatus 생성 및 저장
             User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
-                    encodePassword(password),
+                    password,
                     signUpRequest.getName());
             userRepository.save(user);
             userStatusInfoService.addUserStatusInfo(user.getId());
@@ -152,7 +152,7 @@ public class UserService {
             // 3. 비밀번호 확인
             // 3-1. 틀린 경우: 틀린 횟수 추가
             // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
-            if (!passwordEncoder.matches(password, user.getPassword())) {
+            if (!passwordEncoder.matches(password, encodePassword(user.getPassword()))) {
                 LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
                 throw new CustomException(CommonErrorType.WRONG_PASSWORD);
             } else {
@@ -205,7 +205,7 @@ public class UserService {
 //            // 3. 비밀번호 확인
 //            // 3-1. 틀린 경우: 틀린 횟수 추가
 //            // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
-//            if (!passwordEncoder.matches(password, admin.getPassword())) {
+//            if (!passwordEncoder.matches(password, encodePassword(admin.getPassword()))) {
 //                LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(admin);
 //                throw new CustomException(CommonErrorType.WRONG_PASSWORD);
 //            } else {

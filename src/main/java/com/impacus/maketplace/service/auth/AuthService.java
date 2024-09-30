@@ -108,7 +108,7 @@ public class AuthService {
             User user = userService.findUserById(userId);
             switch (userType) {
                 case ROLE_APPROVED_SELLER -> {
-                    boolean isPasswordMatch = passwordEncoder.matches(password, user.getPassword());
+                    boolean isPasswordMatch = passwordEncoder.matches(password, passwordEncoder.encode(user.getPassword()));
                     return CheckMatchedPasswordDTO.toDTO(isPasswordMatch);
                 }
             }

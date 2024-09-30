@@ -2,9 +2,9 @@ package com.impacus.maketplace.service.oauth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationException;
 import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
@@ -102,7 +102,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 oAuth2User.getAttributes());
         User user = saveOrUpdate(attributes);
         httpSession.setAttribute("user", new SessionUser(user));
-        return CustomUserDetails.create(user, oAuth2User.getAttributes());
+        return CustomUserDetails.toEntity(user, oAuth2User.getAttributes());
     }
 
     public User saveOrUpdate(OAuthAttributes attributes)
