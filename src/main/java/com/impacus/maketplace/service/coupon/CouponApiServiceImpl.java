@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponApiRepository;
+import com.impacus.maketplace.service.api.CouponApiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CouponApiService {
+public class CouponApiServiceImpl implements CouponApiService {
 
     private final CouponApiRepository couponApiRepository;
     private final CouponIssuanceService couponIssuanceService;
