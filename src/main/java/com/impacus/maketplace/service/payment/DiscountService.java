@@ -152,12 +152,20 @@ public class DiscountService {
         return orderCouponDiscounts;
     }
 
+    public Long calculatePointDiscount(Long productId, Long totalPrice, Long usedPointAmount) {
+        if (usedPointAmount == 0L) return 0L;
+
+        Map<Long, Long> productPrices = Collections.singletonMap(productId, totalPrice);
+        Map<Long, Long> discount = calculatePointDiscounts(totalPrice, productPrices, usedPointAmount);
+        return discount.get(productId);
+    }
+
     // 포인트 할인 계산 및 상품별 분배
-    public Map<Long, Long> calculatePointDiscount(Long totalOrderPrice, Map<Long, Long> productPrices, Long usedPointAmount) {
+    public Map<Long, Long> calculatePointDiscounts(Long totalPrice, Map<Long, Long> productPrices, Long usedPointAmount) {
 
         Map<Long, Long> pointDiscounts = new HashMap<>();
         Set<Long> productIds = productPrices.keySet();
-        BigDecimal totalOrderPriceBD = BigDecimal.valueOf(totalOrderPrice);
+        BigDecimal totalOrderPriceBD = BigDecimal.valueOf(totalPrice);
 
         if (usedPointAmount == 0L) {
             productIds.forEach(id -> pointDiscounts.put(id, 0L));

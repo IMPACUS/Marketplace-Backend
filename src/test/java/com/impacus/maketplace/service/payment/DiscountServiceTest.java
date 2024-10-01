@@ -777,7 +777,7 @@ class DiscountServiceTest {
             productPrices.put(productId, productPrice);
 
             // when
-            Map<Long, Long> result = discountService.calculatePointDiscount(productPrice, productPrices, 0L);
+            Map<Long, Long> result = discountService.calculatePointDiscounts(productPrice, productPrices, 0L);
 
             // then
             assertThat(result.get(productId)).isEqualTo(0L);
@@ -795,7 +795,7 @@ class DiscountServiceTest {
             productPrices.put(productId, productPrice);
 
             // when
-            Map<Long, Long> result = discountService.calculatePointDiscount(productPrice, productPrices, 1000L);
+            Map<Long, Long> result = discountService.calculatePointDiscounts(productPrice, productPrices, 1000L);
 
             // then
             assertThat(result.get(productId)).isEqualTo(1000L);
@@ -813,7 +813,7 @@ class DiscountServiceTest {
             productPrices.put(productId, productPrice);
 
             // when
-            Map<Long, Long> result = discountService.calculatePointDiscount(productPrice, productPrices, 1000L);
+            Map<Long, Long> result = discountService.calculatePointDiscounts(productPrice, productPrices, 1000L);
 
             // then
             assertThat(result.get(productId)).isEqualTo(1000L);
@@ -839,7 +839,7 @@ class DiscountServiceTest {
             productPrices.put(productId3, productPrice3);
 
             // when
-            Map<Long, Long> result = discountService.calculatePointDiscount(totalOrderPrice, productPrices, 600L);
+            Map<Long, Long> result = discountService.calculatePointDiscounts(totalOrderPrice, productPrices, 600L);
 
             // then
             assertThat(result.get(1L)).isEqualTo(100L);
@@ -867,7 +867,7 @@ class DiscountServiceTest {
             productPrices.put(productId3, productPrice3);
 
             // when
-            Map<Long, Long> result = discountService.calculatePointDiscount(totalOrderPrice, productPrices, 1000L);
+            Map<Long, Long> result = discountService.calculatePointDiscounts(totalOrderPrice, productPrices, 1000L);
 
             // then
             assertThat(result.get(1L)).isEqualTo(168);   // 1000 * 1999 / 11886 ≈ 168.1810 -> 168 (반올림)
@@ -899,7 +899,7 @@ class DiscountServiceTest {
             productPrices.put(productId3, productPrice3);
 
             // when
-            Map<Long, Long> result = discountService.calculatePointDiscount(totalOrderPrice, productPrices, 1000L);
+            Map<Long, Long> result = discountService.calculatePointDiscounts(totalOrderPrice, productPrices, 1000L);
 
             // then
             assertThat(result.get(1L)).isEqualTo(333L); // 3333 * 1000 / 10000 = 333.3 -> 333 (반올림)

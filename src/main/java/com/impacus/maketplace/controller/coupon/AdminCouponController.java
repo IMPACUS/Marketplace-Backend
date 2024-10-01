@@ -10,7 +10,6 @@ import com.impacus.maketplace.dto.coupon.response.IssueCouponHIstoryDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
-import com.impacus.maketplace.service.coupon.CouponUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
