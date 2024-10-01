@@ -234,9 +234,13 @@ public class CouponAdminService {
                 .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
 
         // 2. 쿠폰 지급
-        couponIssuanceService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user);
+        couponIssuanceService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user.getId());
     }
 
+
+    /**
+     * 쿠폰 이름과 쿠폰 발급 상태에 따라 쿠폰 발급 이력 조회 (페이지네이션)
+     */
     public Page<IssueCouponHIstoryDTO> getIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
 
         // 1. 입력값 검증(날짜 검증)
