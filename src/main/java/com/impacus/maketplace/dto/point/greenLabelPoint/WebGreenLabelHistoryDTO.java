@@ -15,6 +15,7 @@ public class WebGreenLabelHistoryDTO {
     private String provider;        // 공급자
     private String issueCondition;  // 지급 조건
     private long point;           // 포인트
+    private Long userId;
     private String email;           // 아이디
     private String name;            // 성함
     private RewardPointStatus status;   // 발급 상태
@@ -25,6 +26,7 @@ public class WebGreenLabelHistoryDTO {
             Long historyId,
             PointType pointType,
             long point,
+            Long userId,
             String email,
             String name,
             LocalDateTime createdAt
@@ -33,6 +35,7 @@ public class WebGreenLabelHistoryDTO {
         this.provider = "아임플레이스";
         this.issueCondition = pointType.getValue();
         this.point = point;
+        this.userId = userId;
         this.email = email.split("_")[1];
         this.name = name;
         this.status = RewardPointStatus.COMPLETED;

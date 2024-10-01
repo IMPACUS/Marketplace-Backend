@@ -99,6 +99,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
                                 history.id,
                                 history.pointType,
                                 history.tradeAmount,
+                                user.id,
                                 user.email,
                                 user.name,
                                 history.createAt
