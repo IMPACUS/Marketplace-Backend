@@ -15,6 +15,7 @@ import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHi
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
+import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ public class GreenLabelPointAllocationService {
     private final GreenLabelPointRepository greenLabelPointRepository;
     private final GreenLabelPointHistoryRepository historyRepository;
     private final GreenLabelPointHistoryRelationRepository relationRepository;
+    private final LevelPointMasterRepository levelPointMasterRepository;
 
     /**
      * 그린 라벨 포인트를 지급하는 함수
@@ -68,7 +70,9 @@ public class GreenLabelPointAllocationService {
                     pointType,
                     PointStatus.GRANT,
                     tradePoint,
-                    0L
+                    0L,
+                    changedPoint,
+                    levelPointMasterRepository.findLevelPointByUserId(userId)
             );
             allocationRepository.save(allocation);
             historyRepository.save(history);
@@ -131,7 +135,9 @@ public class GreenLabelPointAllocationService {
                 type,
                 PointStatus.USE,
                 tradePoint,
-                changedPoint < 0 ? changedPoint : 0L
+                changedPoint < 0 ? changedPoint : 0L,
+                changedPoint < 0 ? 0 : changedPoint,
+                levelPointMasterRepository.findLevelPointByUserId(userId)
         );
         historyRepository.save(history);
 

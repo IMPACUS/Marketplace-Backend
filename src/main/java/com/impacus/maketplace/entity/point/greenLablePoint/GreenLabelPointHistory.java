@@ -52,7 +52,8 @@ public class GreenLabelPointHistory extends BaseEntity {
             PointStatus pointStatus,
             Long tradeAmount,
             Long unappliedPoint,
-            long greenLabelPoint
+            long greenLabelPoint,
+            long levelPoint
     ) {
         this.userId = userId;
         this.pointType = pointType;
@@ -60,6 +61,7 @@ public class GreenLabelPointHistory extends BaseEntity {
         this.tradeAmount = tradeAmount;
         this.unappliedPoint = unappliedPoint;
         this.greenLabelPoint = greenLabelPoint;
+        this.levelPoint = levelPoint;
     }
 
     public static GreenLabelPointHistory of(
@@ -68,10 +70,11 @@ public class GreenLabelPointHistory extends BaseEntity {
             PointStatus pointStatus,
             Long tradeAmount,
             Long unappliedPoint,
-            long greenLabelPoint
+            long greenLabelPoint,
+            long levelPoint
     ) {
         return new GreenLabelPointHistory(
-                userId, pointType, pointStatus, tradeAmount, unappliedPoint, greenLabelPoint
+                userId, pointType, pointStatus, tradeAmount, unappliedPoint, greenLabelPoint, levelPoint
         );
     }
 }

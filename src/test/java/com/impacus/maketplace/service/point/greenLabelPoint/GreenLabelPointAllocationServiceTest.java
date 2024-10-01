@@ -13,6 +13,7 @@ import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHi
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
+import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,8 @@ class GreenLabelPointAllocationServiceTest {
     private GreenLabelPointHistoryRepository historyRepository;
     @Mock
     private GreenLabelPointHistoryRelationRepository relationRepository;
+    @Mock
+    private LevelPointMasterRepository levelPointMasterRepository;
 
     @Test
     @DisplayName("[정상 케이스] 그린 라벨 포인트 지급한다.")
@@ -57,6 +60,7 @@ class GreenLabelPointAllocationServiceTest {
         when(allocationRepository.save(any(GreenLabelPointAllocation.class))).thenReturn(null);
         when(historyRepository.save(any(GreenLabelPointHistory.class))).thenReturn(null);
         when(relationRepository.save(any(GreenLabelPointHistoryRelation.class))).thenReturn(null);
+        when(levelPointMasterRepository.findLevelPointByUserId(userId)).thenReturn(0L);
         boolean result = allocationService.payGreenLabelPoint(userId, pointType, tradePoint);
 
         // then
@@ -149,6 +153,8 @@ class GreenLabelPointAllocationServiceTest {
                 type,
                 PointStatus.USE,
                 usedPoints * (-1),
+                0L,
+                100L,
                 0L
         );
 
@@ -158,6 +164,7 @@ class GreenLabelPointAllocationServiceTest {
         when(historyRepository.save(any(GreenLabelPointHistory.class)))
                 .thenReturn(history);
         when(relationRepository.save(any(GreenLabelPointHistoryRelation.class))).thenReturn(null);
+        when(levelPointMasterRepository.findLevelPointByUserId(userId)).thenReturn(0L);
         Long historyId = allocationService.deductPoints(userId, type, usedPoints, allowsNegativeBalance);
 
         // then

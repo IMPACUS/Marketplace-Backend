@@ -13,6 +13,7 @@ import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
+import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.repository.user.UserStatusInfoRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -38,6 +39,7 @@ public class WebUserService {
     private final LevelPointMasterService levelPointMasterService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final GreenLabelPointRepository greenLabelPointRepository;
+    private final LevelPointMasterRepository levelPointMasterRepository;
 
     /**
      * 이메일로 사용자 프로필 검색하는 함수
@@ -165,7 +167,7 @@ public class WebUserService {
 
             // 레벨 포인트 지급
             if (dto.getLevelPoint() != null) {
-                long currentLevelPoint = levelPointMasterService.findLevelPointMasterByUserId(userId).getLevelPoint();
+                long currentLevelPoint = levelPointMasterRepository.findLevelPointByUserId(userId);
                 long changedLevelPoint = dto.getLevelPoint() - currentLevelPoint;
                 if (changedLevelPoint < 1) {
                     throw new CustomException(PointErrorType.INVALID_POINT, "지급할 레벨 포인트가 현재 보유한 포인트보다 작을 수 없습니다.");
