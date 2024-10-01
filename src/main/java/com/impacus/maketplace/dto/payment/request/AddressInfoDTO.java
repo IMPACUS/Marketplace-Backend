@@ -1,12 +1,10 @@
 package com.impacus.maketplace.dto.payment.request;
 
 import com.impacus.maketplace.entity.address.DeliveryAddress;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AddressInfoDTO {
