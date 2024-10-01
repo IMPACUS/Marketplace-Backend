@@ -12,5 +12,5 @@ public class UserRewardDTO {
     @Min(1)
     private Long greenLabelPoint;
 
-    //TODO 쿠폰 지급 필요 데이터 추가
+    private Long couponId;
 }

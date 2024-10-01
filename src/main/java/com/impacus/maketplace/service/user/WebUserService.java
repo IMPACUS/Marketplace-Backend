@@ -17,6 +17,7 @@ import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterReposi
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.repository.user.UserStatusInfoRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.coupon.CouponApiServiceImpl;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.point.levelPoint.LevelPointMasterService;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class WebUserService {
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final GreenLabelPointRepository greenLabelPointRepository;
     private final LevelPointMasterRepository levelPointMasterRepository;
+    private final CouponApiServiceImpl couponApiService;
 
     /**
      * 이메일로 사용자 프로필 검색하는 함수
@@ -186,8 +188,11 @@ public class WebUserService {
 
                 greenLabelPointAllocationService.payGreenLabelPoint(userId, PointType.ADMIN_PROVIDE, changedGreenLabelPoint);
             }
-
-            // TODO [함수 전달 받은 후 연결] 쿠폰 지급
+            
+            // 쿠폰 지급
+            if (dto.getCouponId() != null) {
+                couponApiService.issueCouponUser(userId, dto.getCouponId());
+            }
 
         } catch (Exception ex) {
             throw new CustomException(ex);
