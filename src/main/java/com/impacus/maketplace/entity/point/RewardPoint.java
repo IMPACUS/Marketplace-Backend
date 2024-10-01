@@ -57,4 +57,8 @@ public class RewardPoint extends BaseEntity {
     public static RewardPoint from(RewardPointType rewardPointType) {
         return new RewardPoint(rewardPointType);
     }
+
+    public void incrementIssueQuantity() {
+        this.issueQuantity++;
+    }
 }
