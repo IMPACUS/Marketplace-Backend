@@ -42,5 +42,19 @@ public class RewardPoint extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
+    @Column(nullable = false)
     private Duration expirationPeriod;
+
+    public RewardPoint(RewardPointType rewardPointType) {
+        this.rewardPointType = rewardPointType;
+        this.status = RewardPointStatus.COMPLETED;
+        this.issueQuantity = 0;
+        this.grantMethod = rewardPointType.getGrantMethod();
+        this.isDeleted = false;
+        this.expirationPeriod = rewardPointType.getExpirationPeriod();
+    }
+
+    public static RewardPoint from(RewardPointType rewardPointType) {
+        return new RewardPoint(rewardPointType);
+    }
 }
