@@ -40,8 +40,13 @@ public class GreenLabelPointAllocation extends BaseEntity {
     @Comment("지급 포인트")
     private Long allocatedPoint;
 
+    @Comment("포인트 소멸 시작일")
     @Column(nullable = false)
     private LocalDateTime expiredAt;
+
+    @Comment("최근 포인트 소멸일")
+    @Column(nullable = true)
+    private LocalDateTime lastExpiredAt;
 
     public GreenLabelPointAllocation(
             Long userId,

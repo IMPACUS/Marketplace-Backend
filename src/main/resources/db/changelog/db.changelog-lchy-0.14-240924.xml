@@ -74,4 +74,19 @@
         <setColumnRemarks tableName="reward_point" columnName="expiration_period" remarks="지급 수"/>
     </changeSet>
 
+    <changeSet id="changelog-0.14.04" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="level_point_master" columnName="last_expired_at"/>
+                <columnExists tableName="green_label_point_allocation" columnName="last_expired_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="level_point_master">
+            <column name="last_expired_at" type="TIMESTAMP"/>
+        </addColumn>
+        <addColumn tableName="green_label_point_allocation">
+            <column name="last_expired_at" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
