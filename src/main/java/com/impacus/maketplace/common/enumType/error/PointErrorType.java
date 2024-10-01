@@ -9,8 +9,8 @@ public enum PointErrorType implements ErrorType{
     INVALID_POINT("001_INVALID_POINT_MANAGE", "유효하지 않은 포인트 입니다."),
     INVALID_POINT_TYPE("002_INVALID_POINT_TYPE", "유효하지 않는 포인트 타입입니다."),
     INVALID_USER_LEVEL("080_INVALID_USER_LEVEL", "유효하지 않는 유저 레벨입니다."),
-    INVALID_SELECTED_LEVEL_TARGET("081_INVALID_SELECTED_LEVEL_TARGET", "유효하지 않는 등급 대상입니다.");
-
+    INVALID_SELECTED_LEVEL_TARGET("081_INVALID_SELECTED_LEVEL_TARGET", "유효하지 않는 등급 대상입니다."),
+    NOT_EXISTED_REWARD_POINT_ID("003_NOT_EXISTED_REWARD_POINT_ID", "존재하지 않는 포인트 리워드 아이디 입니다.");
 
     private final String code;
     private final String msg;

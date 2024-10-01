@@ -10,10 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +34,21 @@ public class RewardPointController {
         return ApiResponseEntity.<Page<RewardPointDTO>>builder()
                 .message("포인트 리워드 목록 조회 성공")
                 .data(result)
+                .build();
+    }
+
+    /**
+     * [관리자] 포인트 리워드의 발급 상태 변경  API
+     */
+    @PatchMapping
+    @PreAuthorize(" hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    public ApiResponseEntity<Void> updateRewardPointStatus(
+            @RequestParam(value = "reward-point-ids") List<Long> rewardPointIds,
+            @RequestParam(value = "status") RewardPointStatus status
+    ) {
+        rewardPointService.updateRewardPointStatus(rewardPointIds, status);
+        return ApiResponseEntity.<Void>builder()
+                .message("포인트 리워드의 발급 상태 변경 성공")
                 .build();
     }
 }

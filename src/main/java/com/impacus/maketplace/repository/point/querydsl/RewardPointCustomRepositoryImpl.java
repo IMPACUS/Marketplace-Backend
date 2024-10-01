@@ -13,16 +13,19 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class RewardPointCustomRepositoryImpl implements RewardPointCustomRepository {
     private final JPAQueryFactory queryFactory;
+    private final AuditorAware<String> auditorProvider;
 
     private final QRewardPoint rewardPoint = QRewardPoint.rewardPoint;
 
@@ -72,5 +75,19 @@ public class RewardPointCustomRepositoryImpl implements RewardPointCustomReposit
                 .fetchFirst();
 
         return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    @Override
+    public long updateRewardPointStatus(List<Long> rewardPointIds, RewardPointStatus status) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        return queryFactory
+                .update(rewardPoint)
+                .set(rewardPoint.status, status)
+                .set(rewardPoint.modifyAt, LocalDateTime.now())
+                .set(rewardPoint.modifyId, currentAuditor)
+                .where(rewardPoint.id.in(rewardPointIds)
+                        .and(rewardPoint.status.ne(RewardPointStatus.COMPLETED)))
+                .execute();
     }
 }
