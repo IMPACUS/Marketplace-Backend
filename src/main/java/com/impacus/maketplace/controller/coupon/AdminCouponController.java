@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.coupon;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
@@ -10,6 +11,7 @@ import com.impacus.maketplace.dto.coupon.response.IssueCouponHIstoryDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
+import com.impacus.maketplace.service.coupon.CouponApiServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,7 @@ public class AdminCouponController {
     // USER가 쿠폰을 사용: Redeem
 
     private final CouponAdminService couponAdminService;
+    private final CouponApiServiceImpl couponApiService;
 
     /**
      * ADMIN: 쿠폰 등록 API
@@ -202,6 +205,22 @@ public class AdminCouponController {
 
         return ApiResponseEntity
                 .<Page<IssueCouponHIstoryDTO>>builder()
+                .data(response)
+                .build();
+    }
+
+    /**
+     * ADMIN: 회원 포인트&쿠폰 지급::쿠폰명 조회 API
+     */
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
+            "or hasRole('ROLE_ADMIN')")
+    @GetMapping("/names")
+    public ApiResponseEntity<List<CouponNameDTO>> getCouponNames() {
+        List<CouponNameDTO> response = couponApiService.getCouponNames();
+
+        return ApiResponseEntity
+                .<List<CouponNameDTO>>builder()
                 .data(response)
                 .build();
     }
