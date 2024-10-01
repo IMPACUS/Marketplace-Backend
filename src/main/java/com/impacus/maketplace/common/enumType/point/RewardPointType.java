@@ -1,9 +1,13 @@
 package com.impacus.maketplace.common.enumType.point;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.EnumPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
@@ -23,4 +27,16 @@ public enum RewardPointType {
     private final Long allocatedPoints; // 지급 포인트가 고정이 아닌 경우 null
     private final Duration expirationPeriod;
     private final GrantMethod grantMethod;
+
+    public static BooleanExpression containsEnumValue(EnumPath<RewardPointType> path, String keyword) {
+        List<RewardPointType> types = new ArrayList<>();
+
+        for (RewardPointType type : RewardPointType.values()) {
+            if (type.getValue().contains(keyword)) {
+                types.add(type);
+            }
+        }
+
+        return path.in(types);
+    }
 }

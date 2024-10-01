@@ -47,7 +47,7 @@ public class RewardPoint extends BaseEntity {
 
     public RewardPoint(RewardPointType rewardPointType) {
         this.rewardPointType = rewardPointType;
-        this.status = RewardPointStatus.COMPLETED;
+        this.status = RewardPointStatus.ISSUING;
         this.issueQuantity = 0;
         this.grantMethod = rewardPointType.getGrantMethod();
         this.isDeleted = false;

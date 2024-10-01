@@ -2,6 +2,7 @@ package com.impacus.maketplace.repository.point;
 
 import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.entity.point.RewardPoint;
+import com.impacus.maketplace.repository.point.querydsl.RewardPointCustomRepository;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RewardPointRepository extends JpaRepository<RewardPoint, Long> {
+public interface RewardPointRepository extends JpaRepository<RewardPoint, Long>, RewardPointCustomRepository {
 
     @Query("select rp.rewardPointType FROM RewardPoint rp")
     List<RewardPointType> findRewardPointType();
