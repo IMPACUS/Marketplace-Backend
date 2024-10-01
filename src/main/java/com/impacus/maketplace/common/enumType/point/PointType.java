@@ -38,6 +38,31 @@ public enum PointType {
      */
     private final RewardPointType rewardPointType;
 
+    public static List<PointType> getManualPointType() {
+        List<PointType> pointTypes = new ArrayList<>();
+
+        List<RewardPointType> manualRewardPointTypes = RewardPointType.getManualRewardPointTypes();
+        for (PointType pointType : PointType.values()) {
+            if (pointType.getRewardPointType() != null && manualRewardPointTypes.contains(pointType.getRewardPointType())) {
+                pointTypes.add(pointType);
+            }
+        }
+
+        return pointTypes;
+    }
+
+    public static BooleanExpression inEnumValue(EnumPath<PointType> path, RewardPointStatus rewardPointStatus) {
+        List<PointType> manualPointTypes = PointType.getManualPointType();
+
+        if (rewardPointStatus == RewardPointStatus.MANUAL) {
+            return path.in(manualPointTypes);
+        } else if (rewardPointStatus == RewardPointStatus.COMPLETED) {
+            return path.notIn(manualPointTypes);
+        }
+
+        return path.in(new ArrayList<>());
+    }
+
     public static BooleanExpression containsEnumValue(EnumPath<PointType> path, String keyword) {
         List<PointType> types = new ArrayList<>();
 

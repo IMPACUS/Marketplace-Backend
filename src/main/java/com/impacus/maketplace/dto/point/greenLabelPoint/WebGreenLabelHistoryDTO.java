@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.point.greenLabelPoint;
 
+import com.impacus.maketplace.common.enumType.point.GrantMethod;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.querydsl.core.annotations.QueryProjection;
@@ -39,6 +40,10 @@ public class WebGreenLabelHistoryDTO {
         this.email = email.split("_")[1];
         this.name = name;
         this.status = RewardPointStatus.COMPLETED;
+        if (pointType.getRewardPointType() != null && pointType.getRewardPointType().getGrantMethod() == GrantMethod.MANUAL) {
+            this.status = RewardPointStatus.MANUAL;
+        }
+
         this.createdAt = createdAt;
     }
 }

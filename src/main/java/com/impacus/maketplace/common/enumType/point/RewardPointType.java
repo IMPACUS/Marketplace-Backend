@@ -28,6 +28,17 @@ public enum RewardPointType {
     private final Duration expirationPeriod;
     private final GrantMethod grantMethod;
 
+    public static List<RewardPointType> getManualRewardPointTypes() {
+        List<RewardPointType> result = new ArrayList<>();
+        for (RewardPointType rewardPointType : RewardPointType.values()) {
+            if (rewardPointType.getGrantMethod() == GrantMethod.MANUAL) {
+                result.add(rewardPointType);
+            }
+        }
+
+        return result;
+    }
+
     public static BooleanExpression containsEnumValue(EnumPath<RewardPointType> path, String keyword) {
         List<RewardPointType> types = new ArrayList<>();
 

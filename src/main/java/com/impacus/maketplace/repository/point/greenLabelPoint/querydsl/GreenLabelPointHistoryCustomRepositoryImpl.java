@@ -1,7 +1,10 @@
 package com.impacus.maketplace.repository.point.greenLabelPoint.querydsl;
 
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.point.PointStatus;
+import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
@@ -88,9 +91,16 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
         if (keyword != null && !keyword.isBlank()) {
             builder.and(user.email.containsIgnoreCase(keyword));
         }
-//        if(status != null) {
-//            builder.and()
-//        }
+        if (status != null) {
+            switch (status) {
+                case FAILED, MANUAL, COMPLETED -> {
+                    builder.and(PointType.inEnumValue(history.pointType, status));
+                }
+                default -> {
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "status 데이터가 유효하지 않습니다.");
+                }
+            }
+        }
 
         // 2. 데이터 조회
         List<WebGreenLabelHistoryDTO> dtos = queryFactory
