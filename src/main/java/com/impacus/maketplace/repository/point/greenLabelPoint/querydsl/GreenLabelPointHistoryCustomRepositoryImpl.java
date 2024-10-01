@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointHistory;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointHistoryRelation;
@@ -117,6 +118,43 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
                 .select(history.id.count())
                 .from(history)
                 .innerJoin(user).on(user.id.eq(history.userId))
+                .where(builder)
+                .fetchFirst();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    @Override
+    public Page<WebGreenLabelHistoryDetailDTO> getGreenLabelPointHistoryDetailsForWeb(Long userId, Pageable pageable) {
+        // 1. 검색어 필터링
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(history.userId.eq(userId));
+
+        // 2. 조회
+        // TODO 주문 번호 조회하는 쿼리 추가
+        List<WebGreenLabelHistoryDetailDTO> dtos = queryFactory
+                .select(
+                        Projections.constructor(
+                                WebGreenLabelHistoryDetailDTO.class,
+                                history.id,
+                                history.greenLabelPoint,
+                                history.levelPoint,
+                                history.pointType,
+                                history.tradeAmount,
+                                history.createAt,
+                                history.pointStatus
+                        )
+                )
+                .from(history)
+                .where(builder)
+                .orderBy(history.createAt.desc())
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+
+        long count = queryFactory
+                .select(history.id.count())
+                .from(history)
                 .where(builder)
                 .fetchFirst();
 

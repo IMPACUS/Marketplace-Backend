@@ -14,7 +14,7 @@ public class WebGreenLabelHistoryDTO {
     private Long historyId;         // 포인트 지급 아이디
     private String provider;        // 공급자
     private String issueCondition;  // 지급 조건
-    private long point;           // 포인트
+    private long tradeAmount;           // 포인트
     private Long userId;
     private String email;           // 아이디
     private String name;            // 성함
@@ -25,7 +25,7 @@ public class WebGreenLabelHistoryDTO {
     public WebGreenLabelHistoryDTO(
             Long historyId,
             PointType pointType,
-            long point,
+            long tradeAmount,
             Long userId,
             String email,
             String name,
@@ -34,7 +34,7 @@ public class WebGreenLabelHistoryDTO {
         this.historyId = historyId;
         this.provider = "아임플레이스";
         this.issueCondition = pointType.getValue();
-        this.point = point;
+        this.tradeAmount = tradeAmount;
         this.userId = userId;
         this.email = email.split("_")[1];
         this.name = name;

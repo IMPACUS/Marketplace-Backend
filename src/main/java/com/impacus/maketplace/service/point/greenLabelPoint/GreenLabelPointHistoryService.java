@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -54,6 +55,14 @@ public class GreenLabelPointHistoryService {
     ) {
         try {
             return greenLabelPointHistoryRepository.getGreenLabelPointHistoriesForWeb(pageable, keyword, status, startAt, endAt);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    public Page<WebGreenLabelHistoryDetailDTO> getGreenLabelPointHistoryDetailsForWeb(Long userId, Pageable pageable) {
+        try {
+            return greenLabelPointHistoryRepository.getGreenLabelPointHistoryDetailsForWeb(userId, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
