@@ -3,6 +3,7 @@ package com.impacus.maketplace.service;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -170,7 +171,7 @@ public class UserService {
                 greenLabelPointAllocationService.payGreenLabelPoint(
                         user.getId(),
                         PointType.CHECK,
-                        PointType.CHECK.getAllocatedPoints()
+                        RewardPointType.CHECK.getAllocatedPoints()
                 );
             }
 

@@ -34,4 +34,44 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="changelog-0.14.03-2" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="reward_point"/>
+            </not>
+        </preConditions>
+        <createTable tableName="reward_point">
+            <column name="reward_point_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="reward_point_type" type="VARCHAR(255)">
+                <constraints unique="true" nullable="true"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issue_quantity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grant_method" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiration_period" type="NUMERIC(21,0)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <setColumnRemarks tableName="reward_point" columnName="issue_quantity" remarks="지급 수"/>
+        <setColumnRemarks tableName="reward_point" columnName="grant_method" remarks="발급 상태"/>
+        <setColumnRemarks tableName="reward_point" columnName="expiration_period" remarks="지급 수"/>
+    </changeSet>
+
 </databaseChangeLog>

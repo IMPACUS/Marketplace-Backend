@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationException;
@@ -125,7 +126,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 greenLabelPointAllocationService.payGreenLabelPoint(
                         user.getId(),
                         PointType.CHECK,
-                        PointType.CHECK.getAllocatedPoints()
+                        RewardPointType.CHECK.getAllocatedPoints()
                 );
             }
         } else {
