@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.enumType.error.PointErrorType;
 import com.impacus.maketplace.common.enumType.point.*;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
-import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.entity.point.RewardPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistory;
@@ -220,7 +220,7 @@ public class GreenLabelPointAllocationService {
      * @param userId
      * @return
      */
-    public GreenLabelPointDTO getGreenLabelPointInformation(Long userId) {
+    public AppGreenLabelPointDTO getGreenLabelPointInformation(Long userId) {
         try {
             return allocationRepository.findPointInformationByUserId(userId);
         } catch (Exception ex) {

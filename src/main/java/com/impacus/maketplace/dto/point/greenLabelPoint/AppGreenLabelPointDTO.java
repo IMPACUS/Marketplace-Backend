@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class GreenLabelPointDTO {
+public class AppGreenLabelPointDTO {
     private Long greenLabelPoint;
     private Long pointsExpiringIn30Days;
 
-    public static GreenLabelPointDTO toDTO(Long greenLabelPoint, Long pointsExpiringIn30Days) {
-        return new GreenLabelPointDTO(greenLabelPoint, pointsExpiringIn30Days);
+    public static AppGreenLabelPointDTO toDTO(Long greenLabelPoint, Long pointsExpiringIn30Days) {
+        return new AppGreenLabelPointDTO(greenLabelPoint, pointsExpiringIn30Days);
     }
 }

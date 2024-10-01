@@ -1,19 +1,26 @@
 package com.impacus.maketplace.repository.point.greenLabelPoint.querydsl;
 
 import com.impacus.maketplace.common.enumType.point.PointStatus;
+import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
+import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointHistory;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointHistoryRelation;
+import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -24,6 +31,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
     private final QGreenLabelPointHistory history = QGreenLabelPointHistory.greenLabelPointHistory;
     private final QGreenLabelPointHistoryRelation relation = QGreenLabelPointHistoryRelation.greenLabelPointHistoryRelation;
     private final QGreenLabelPointAllocation allocation = QGreenLabelPointAllocation.greenLabelPointAllocation;
+    private final QUser user = QUser.user;
 
 
     @Override
@@ -61,5 +69,56 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
         }
 
         return new SliceImpl<>(dtos, pageable, hasNext);
+    }
+
+    @Override
+    public Page<WebGreenLabelHistoryDTO> getGreenLabelPointHistoriesForWeb(
+            Pageable pageable,
+            String keyword,
+            RewardPointStatus status,
+            LocalDate startAt,
+            LocalDate endAt
+    ) {
+
+        // 1. 검색어 필터링
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(history.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)));
+
+        if (keyword != null && !keyword.isBlank()) {
+            builder.and(user.email.containsIgnoreCase(keyword));
+        }
+//        if(status != null) {
+//            builder.and()
+//        }
+
+        // 2. 데이터 조회
+        List<WebGreenLabelHistoryDTO> dtos = queryFactory
+                .select(
+                        Projections.constructor(
+                                WebGreenLabelHistoryDTO.class,
+                                history.id,
+                                history.pointType,
+                                history.tradeAmount,
+                                user.email,
+                                user.name,
+                                history.createAt
+                        )
+                )
+                .from(history)
+                .innerJoin(user).on(user.id.eq(history.userId))
+                .where(builder)
+                .orderBy(history.createAt.desc())
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+
+        long count = queryFactory
+                .select(history.id.count())
+                .from(history)
+                .innerJoin(user).on(user.id.eq(history.userId))
+                .where(builder)
+                .fetchFirst();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
     }
 }
