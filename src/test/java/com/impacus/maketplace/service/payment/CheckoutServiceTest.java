@@ -13,7 +13,7 @@ import com.impacus.maketplace.dto.payment.request.AddressInfoDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.request.PaymentProductInfoDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
-import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.entity.address.DeliveryAddress;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
@@ -30,13 +30,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,7 +113,7 @@ public class CheckoutServiceTest {
         CheckoutProductInfoDTO checkoutProductInfoDTO = getCheckoutProductInfoDTO(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId());
         List<PaymentCouponDTO> paymentCouponsForProduct = new ArrayList<>();
         List<PaymentCouponDTO> paymentCouponsForOrder = new ArrayList<>();
-        GreenLabelPointDTO greenLabelPointDTO = getGreenLabelPointDTO(0L, 0L);
+        AppGreenLabelPointDTO greenLabelPointDTO = getGreenLabelPointDTO(0L, 0L);
 
         Long totalPrice = checkoutProductInfoDTO.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
         Long ecoDiscount = (long)checkoutProductInfoDTO.getAppSalesPrice() - checkoutProductInfoDTO.getDiscountPrice();
@@ -191,8 +194,9 @@ public class CheckoutServiceTest {
                 .method(method)
                 .build();
     }
-    private GreenLabelPointDTO getGreenLabelPointDTO(Long greenLabelPoint, Long pointsExpiringIn30Days) {
-        return new GreenLabelPointDTO(greenLabelPoint, pointsExpiringIn30Days);
+
+    private AppGreenLabelPointDTO getGreenLabelPointDTO(Long greenLabelPoint, Long pointsExpiringIn30Days) {
+        return new AppGreenLabelPointDTO(greenLabelPoint, pointsExpiringIn30Days);
     }
     private PaymentCouponDTO getPaymentCouponDTO(Long userCouponId, BenefitType benefitType, Long benefitValue) {
         return new PaymentCouponDTO(userCouponId, benefitType, benefitValue);
