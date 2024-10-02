@@ -45,6 +45,17 @@ public class DiscountInfoDTO {
         }
     }
 
+    public Long getFinalCouponDiscount() {
+        if (productCouponDiscountAmount + orderCouponDiscountAmount > getEcoDiscountedAmount())
+            return getEcoDiscountedAmount();
+
+        return productCouponDiscountAmount + orderCouponDiscountAmount;
+    }
+
+    public Long getEcoDiscountedAmount() {
+        return appSalesPrice - ecoDiscountAmount;
+    }
+
     public Long getFinalAmount() {
         Long discountedAMount = getDiscountedAmount();
 

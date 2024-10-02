@@ -160,6 +160,9 @@ public class CheckoutServiceTest {
         assertThat(result.getStoreId()).isEqualTo(paymentConfig.getStoreId());
         assertThat(result.getTotalDiscountedAmount()).isEqualTo(totalPrice);
     }
+
+
+
     private PaymentOrder getPaymentOrder(Long paymentEventId, Long sellerId, Long productId, Long productOptionHistoryId, Long quantity, Long amount, Long ecoDiscount, Long discountPoint, Long couponDiscount, Integer commissionPercent) {
         return PaymentOrder.builder()
                 .id(1L)
@@ -245,6 +248,6 @@ public class CheckoutServiceTest {
                 .memo(null)
                 .build();
 
-        return new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, pointAmount, method, false, null);
+        return new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, pointAmount, method, false, null, null);
     }
 }
