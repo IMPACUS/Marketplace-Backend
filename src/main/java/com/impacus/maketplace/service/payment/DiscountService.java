@@ -199,6 +199,15 @@ public class DiscountService {
 
         return pointDiscounts;
     }
+    public DiscountInfoDTO reconcileDiscountAmount(ProductPricingDTO productPricingDTO, Long productCouponDiscount, Long orderCouponDiscount, Long pointDiscount) {
+        Map<Long, ProductPricingDTO> productPricingInfo = Collections.singletonMap(productPricingDTO.getProductId(), productPricingDTO);
+        Map<Long, Long> productCouponDiscounts = Collections.singletonMap(productPricingDTO.getProductId(), productCouponDiscount);
+        Map<Long, Long> orderCouponDiscounts = Collections.singletonMap(productPricingDTO.getProductId(), orderCouponDiscount);
+        Map<Long, Long> pointDiscounts = Collections.singletonMap(productPricingDTO.getProductId(), pointDiscount);
+
+        Map<Long, DiscountInfoDTO> discountInfo = reconcileDiscountAmounts(productPricingInfo, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
+        return discountInfo.get(productPricingDTO.getProductId());
+    }
 
     // 할인 금액 조정 및 최종 할인 정보 생성
     public Map<Long, DiscountInfoDTO> reconcileDiscountAmounts(

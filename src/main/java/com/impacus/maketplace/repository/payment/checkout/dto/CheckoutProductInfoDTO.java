@@ -45,4 +45,8 @@ public class CheckoutProductInfoDTO {
         this.optionIsDeleted = optionIsDeleted;
         this.productOptionHistoryId = productOptionHistoryId;
     }
+
+    public Long getEcoDiscount() {
+        return (long) appSalesPrice - discountPrice;
+    }
 }

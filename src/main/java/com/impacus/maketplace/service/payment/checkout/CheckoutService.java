@@ -10,7 +10,9 @@ import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.config.PaymentConfig;
 import com.impacus.maketplace.dto.payment.CheckoutCartProductInfoDTO;
+import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
 import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
+import com.impacus.maketplace.dto.payment.ProductPricingDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutCartDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutCustomerDTO;
@@ -37,10 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -147,13 +146,24 @@ public class CheckoutService {
         }
 
         Long ecoDiscount = (long) (checkoutProductInfoDTO.getAppSalesPrice() - checkoutProductInfoDTO.getDiscountPrice());
-        Long discountProductCoupon = discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct);
-        Long discountOrderCoupon = discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder);
-        Long discountPoint = discountService.calculatePointDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, checkoutSingleDTO.getPointAmount());
+        Long productCouponDiscount = discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct);
+        Long orderCouponDiscount = discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder);
+        Long pointDiscount = discountService.calculatePointDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, checkoutSingleDTO.getPointAmount());
 
-        // !로직 추가: 프론트에서 계산한 할인된 가격과 백엔드에서 계산한 할인된 가격 비교
+        ProductPricingDTO productPricing = ProductPricingDTO.builder()
+                .productId(checkoutProductInfoDTO.getProductId())
+                .appSalesPrice((long) checkoutProductInfoDTO.getAppSalesPrice())
+                .ecoDiscountAmount(checkoutProductInfoDTO.getEcoDiscount())
+                .build();
 
-        // 6. order_id 및 payment_id 생성
+        DiscountInfoDTO discountInfo = discountService.reconcileDiscountAmount(productPricing, productCouponDiscount, orderCouponDiscount, pointDiscount);
+
+        // 6. 최종 결제 금액 비교
+        if (!discountInfo.getFinalAmount().equals(checkoutSingleDTO.getCalculatedTotalAmount())) {
+            throw new CustomException(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
+        }
+
+        // 7. order_id 및 payment_id 생성
         String orderId = getOrderId();
         String paymentKey;
         try {
@@ -165,7 +175,7 @@ public class CheckoutService {
 
         String orderName = OrderUtils.generateOrderName(checkoutProductInfoDTO.getName(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), 1);
 
-        // 7. PaymentEvent, PaymentOrder, DeliveyAddress 저장
+        // 8. PaymentEvent, PaymentOrder, DeliveyAddress 저장
         PaymentEvent paymentEvent = PaymentEvent.builder()
                 .buyerId(userId)
                 .isPaymentDone(false)
@@ -187,8 +197,8 @@ public class CheckoutService {
                 .orderId(orderId)
                 .amount((long) checkoutProductInfoDTO.getAppSalesPrice())
                 .ecoDiscount(ecoDiscount)
-                .greenLabelDiscount(discountPoint)
-                .couponDiscount(discountProductCoupon + discountOrderCoupon)
+                .greenLabelDiscount(pointDiscount)
+                .couponDiscount(productCouponDiscount + orderCouponDiscount)
                 .commissionPercent(checkoutProductInfoDTO.getChargePercent())
                 .status(PaymentOrderStatus.NOT_STARTED)
                 .ledgerUpdated(false)
@@ -206,13 +216,13 @@ public class CheckoutService {
 
         deliveryAddressRepository.save(deliveryAddress);
 
-        // 7.1 PaymentEventCoupon 및 PaymentOrderCoupon에 등록 후 사용 처리를 false로 처리
+        // 9. PaymentEventCoupon 및 PaymentOrderCoupon에 등록 후 사용 처리를 false로 처리
         List<Long> paymentEventCouponIds = paymentCouponsForProduct.stream().map(PaymentCouponDTO::getUserCouponId).toList();
         couponRedeemService.registPaymentEventCoupons(paymentEvent.getId(), paymentEventCouponIds);
         List<Long> paymentOrderCouponIds = paymentCouponsForOrder.stream().map(PaymentCouponDTO::getUserCouponId).toList();
         couponRedeemService.registPaymentOrderCoupons(paymentOrder.getId(), paymentOrderCouponIds);
 
-        // 8. Response DTO 반환
+        // 10. Response DTO 반환
         CheckoutCustomerDTO checkoutCustomerDTO = new CheckoutCustomerDTO(
                 buyerInfoDTO.getUserId(), buyerInfoDTO.getName(), buyerInfoDTO.getPhoneNumber(), buyerInfoDTO.getEmail(),
                 checkoutSingleDTO.getAddressInfoDTO().getAddress(), checkoutSingleDTO.getAddressInfoDTO().getDetailAddress(), checkoutSingleDTO.getAddressInfoDTO().getPostalCode()
