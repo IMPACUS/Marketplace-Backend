@@ -147,6 +147,51 @@ public class LevelPointMasterService {
     }
 
     /**
+     * 레벨 포인트를 차감하는 함수
+     * - 차감할 포인트 만큼 레벨 포인트를 차감하고, 차감한 이력을 [레벨 포인트 이력]에 저장
+     * - 차감할 포인트가 보유한 포인트보다 적은 경우, 보유한 포인트 만큼만 차감.
+     *
+     * @param userId     레벨 포인트를 차감할 사용자 아아디
+     * @param pointType  포인트 이력 타입
+     * @param levelPoint 차감할 포인트 (양수)
+     */
+    @Transactional
+    public void deductLevelPoint(Long userId, PointType pointType, Long levelPoint) {
+        LevelPointMaster levelPointMaster = findLevelPointMasterByUserId(userId);
+
+        // 1. 포인트 차감
+        Long tradePoint = levelPoint * (-1);
+        Long changedPoint = levelPointMaster.getLevelPoint() + tradePoint;
+
+        // 2. 포인트 만료일 업데이트
+        LocalDateTime changedExpiredAt = LocalDateTime.now().plusMonths(6);
+
+        // 3. 등급 변동이 존재하는지 확인
+        UserLevel userLevel = levelPointMaster.getUserLevel();
+        UserLevel changedLevel = userLevel;
+        if (userLevel != UserLevel.BRONZE && userLevel.checkIsPossibleDowngrade(changedPoint)) {
+            changedLevel = userLevel.getDowngradeLevel();
+        }
+
+        // 4. 변경된 레벨 포인트, 등급 저장
+        levelPointMasterRepository.updateLevelPointAndExpiredAt(
+                changedPoint < 0 ? 0L : changedPoint,
+                changedLevel,
+                changedExpiredAt,
+                userId
+        );
+
+        // 5. 레벨 포인트 이력 저장
+        levelPointHistoryService.saveLevelPointHistory(
+                userId,
+                pointType,
+                PointStatus.RETURN,
+                tradePoint,
+                false
+        );
+    }
+
+    /**
      * 사용자의 레벨 포인트 정보 조회하는 함수
      *
      * @param userId

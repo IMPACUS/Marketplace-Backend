@@ -20,7 +20,8 @@ public enum RewardPointType {
     PURCHASE_GREEN_TAG_PRODUCT(6, "그린 라벨 상품 구매", 150L, Duration.ofDays(6 * 30), GrantMethod.AUTO),
     PURCHASE_GENERAL_PRODUCT(7, "일반 상품 구매", 50L, Duration.ofDays(6 * 30), GrantMethod.AUTO),
     COUPON(7, "쿠폰 포인트 지급", null, Duration.ofDays(6 * 30), GrantMethod.MANUAL),
-    ADMIN_PROVIDE(8, "관리자에 의한 포인트 지급", null, Duration.ofDays(6 * 30), GrantMethod.MANUAL);
+    ADMIN_PROVIDE(8, "관리자에 의한 포인트 지급", null, Duration.ofDays(6 * 30), GrantMethod.MANUAL),
+    UPGRADE_LEVEL(9, "사용자 레벨 상승", null, Duration.ofDays(6 * 30), GrantMethod.MANUAL);
 
     private final int code;
     private final String value;
