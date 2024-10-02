@@ -8,7 +8,9 @@ import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.config.PaymentConfig;
+import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
 import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
+import com.impacus.maketplace.dto.payment.ProductPricingDTO;
 import com.impacus.maketplace.dto.payment.request.AddressInfoDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.request.PaymentProductInfoDTO;
@@ -106,11 +108,13 @@ public class CheckoutServiceTest {
         List<Long> appliedCouponForProductIds = new ArrayList<>();
         List<Long> appliedCommonUserCouponIds = new ArrayList<>();
         Long pointAmount = 0L;
+        int appSalesPrice = 10000;
+        int discountPrice = 10000;
         PaymentMethod method = PaymentMethod.CARD;
-        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, pointAmount, method);
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, pointAmount, method, (long) discountPrice);
 
         BuyerInfoDTO buyerInfoDTO = getBuyerInfoDTO(userId);
-        CheckoutProductInfoDTO checkoutProductInfoDTO = getCheckoutProductInfoDTO(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId());
+        CheckoutProductInfoDTO checkoutProductInfoDTO = getCheckoutProductInfoDTO(checkoutSingleDTO.getPaymentProductInfo().getProductId(), appSalesPrice, discountPrice, checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId());
         List<PaymentCouponDTO> paymentCouponsForProduct = new ArrayList<>();
         List<PaymentCouponDTO> paymentCouponsForOrder = new ArrayList<>();
         AppGreenLabelPointDTO greenLabelPointDTO = getGreenLabelPointDTO(0L, 0L);
@@ -121,6 +125,13 @@ public class CheckoutServiceTest {
         Long discountOrderCoupon = 0L;
         Long couponDiscount = discountProductCoupon + discountOrderCoupon;
         Long discountPoint = 0L;
+        DiscountInfoDTO discountInfo = DiscountInfoDTO.builder()
+                .appSalesPrice((long)appSalesPrice)
+                .ecoDiscountAmount(0L)
+                .productCouponDiscountAmount(0L)
+                .orderCouponDiscountAmount(0L)
+                .pointDiscountAmount(0L)
+                .build();
 
         try (MockedStatic<OrderUtils> orderUtilsMockedStatic = Mockito.mockStatic(OrderUtils.class)) {
             orderUtilsMockedStatic.when(OrderUtils::generateOrderNumber)
@@ -147,6 +158,7 @@ public class CheckoutServiceTest {
         when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(0L);
         when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);
         when(discountService.calculatePointDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, checkoutSingleDTO.getPointAmount())).thenReturn(0L);
+        when(discountService.reconcileDiscountAmount(any(ProductPricingDTO.class), any(Long.class), any(Long.class), any(Long.class))).thenReturn(discountInfo);
         when(paymentEventRepository.save(any(PaymentEvent.class))).thenReturn(paymentEvent);
         when(paymentOrderRepository.save(any(PaymentOrder.class))).thenReturn(paymentOrder);
         when(deliveryAddressRepository.save(any(DeliveryAddress.class))).thenReturn(deliveryAddress);
@@ -204,7 +216,7 @@ public class CheckoutServiceTest {
     private PaymentCouponDTO getPaymentCouponDTO(Long userCouponId, BenefitType benefitType, Long benefitValue) {
         return new PaymentCouponDTO(userCouponId, benefitType, benefitValue);
     }
-    private CheckoutProductInfoDTO getCheckoutProductInfoDTO(Long productId, Long productOptionId, Long sellerId, Boolean usedRegisteredCard, Long registeredCardId) {
+    private CheckoutProductInfoDTO getCheckoutProductInfoDTO(Long productId, int appSalesPrice, int discountPrice, Long productOptionId, Long sellerId) {
         return new CheckoutProductInfoDTO(
                 productId,
                 sellerId,
@@ -213,8 +225,8 @@ public class CheckoutServiceTest {
                 "상품명 이름",
                 ProductType.GENERAL,
                 ProductStatus.SALES_PROGRESS,
-                10000,
-                10000,
+                appSalesPrice,
+                discountPrice,
                 0,
                 false,
                 productOptionId,
@@ -229,7 +241,7 @@ public class CheckoutServiceTest {
         return new BuyerInfoDTO(userId, "email@mm.mm", "구매자 정보", "000-0000-0000");
     }
 
-    private CheckoutSingleDTO getCheckoutSingleDTO(List<Long> appliedCouponForProductIds, List<Long> appliedCommonUserCouponIds, Long pointAmount, PaymentMethod method) {
+    private CheckoutSingleDTO getCheckoutSingleDTO(List<Long> appliedCouponForProductIds, List<Long> appliedCommonUserCouponIds, Long pointAmount, PaymentMethod method, Long calculatedTotalAmount) {
         PaymentProductInfoDTO paymentProductInfoDTO = PaymentProductInfoDTO.builder()
                 .productId(1L)
                 .productOptionId(1L)
@@ -248,6 +260,6 @@ public class CheckoutServiceTest {
                 .memo(null)
                 .build();
 
-        return new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, pointAmount, method, false, null, null);
+        return new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, pointAmount, method, false, null, calculatedTotalAmount);
     }
 }
