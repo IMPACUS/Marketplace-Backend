@@ -2,7 +2,7 @@ package com.impacus.maketplace.repository.point.greenLabelPoint.querydsl;
 
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
-import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
@@ -65,7 +65,7 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
     }
 
     @Override
-    public GreenLabelPointDTO findPointInformationByUserId(Long userId) {
+    public AppGreenLabelPointDTO findPointInformationByUserId(Long userId) {
         // 1. 그린 라벨 포인트 조회
         Long point = queryFactory
                 .select(greenLabelPoint.greenLabelPoint)
@@ -84,7 +84,7 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
                 .where(allocationBuilder)
                 .fetchOne();
 
-        return GreenLabelPointDTO.toDTO(point, pointsExpiringIn30Days);
+        return AppGreenLabelPointDTO.toDTO(point, pointsExpiringIn30Days);
     }
 
     @Override

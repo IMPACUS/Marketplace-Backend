@@ -1,8 +1,14 @@
 package com.impacus.maketplace.repository.user.querydsl;
 
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
+import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
+import com.impacus.maketplace.dto.user.response.WebUserDTO;
+import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
@@ -18,14 +24,22 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
 public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final JPAQueryFactory queryFactory;
+    private final AuditorAware<String> auditorProvider;
+
     private final QUser user = QUser.user;
     private final QLevelPointMaster levelPointMaster = QLevelPointMaster.levelPointMaster;
     private final QGreenLabelPoint greenLabelPoint = QGreenLabelPoint.greenLabelPoint1;
@@ -110,5 +124,120 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         queryFactory.delete(levelAchievement)
                 .where(levelAchievement.userId.eq(userId))
                 .execute();
+    }
+
+    @Override
+    public Page<WebUserDTO> getUsers(
+            Pageable pageable,
+            String userName,
+            String phoneNumber,
+            LocalDate startAt,
+            LocalDate endAt,
+            OauthProviderType oauthProviderType,
+            UserStatus status
+    ) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 필터링
+        builder.and(user.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .and(user.type.in(new UserType[]{UserType.ROLE_CERTIFIED_USER, UserType.ROLE_DEACTIVATED_USER}));
+        if (userName != null && !userName.isBlank()) {
+            builder.and(user.name.containsIgnoreCase(userName));
+        }
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            builder.and(user.phoneNumber.eq(phoneNumber)); // TODO 본인 인증 API 연결 시, 핸드폰 뒷자리 4자리만 검색하도록 변경
+        }
+        if (oauthProviderType != null) {
+            builder.and(user.email.contains(oauthProviderType.name()));
+        }
+        if (status != null) {
+            builder.and(userStatusInfo.status.eq(status));
+        }
+
+        // 데이터 검색
+        List<WebUserDTO> dtos = queryFactory
+                .select(
+                        Projections.constructor(
+                                WebUserDTO.class,
+                                user.id,
+                                user.name,
+                                user.email,
+                                user.phoneNumber,
+                                levelPointMaster.userLevel,
+                                user.createAt,
+                                user.recentLoginAt
+                        )
+                )
+                .from(user)
+                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
+                .where(builder)
+                .orderBy(user.createAt.desc())
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+
+        long count = queryFactory
+                .select(
+                        user.id.count()
+                )
+                .from(user)
+                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
+                .where(builder)
+                .fetchOne();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    @Override
+    public WebUserDetailDTO getUser(Long userId) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                WebUserDetailDTO.class,
+                                user.id.as("userId"),
+                                attachFile.attachFileName.as("profileImageUrl"),
+                                user.email,
+                                user.password,
+                                user.name,
+                                user.phoneNumber,
+                                user.createAt.as("registerAt"),
+                                levelPointMaster.userLevel,
+                                levelPointMaster.levelPoint,
+                                greenLabelPoint.greenLabelPoint,
+                                userStatusInfo.status.as("userStatus")
+                        )
+                )
+                .from(user)
+                .leftJoin(attachFile).on(attachFile.id.eq(user.profileImageId))
+                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
+                .innerJoin(greenLabelPoint).on(greenLabelPoint.userId.eq(userId))
+                .where(user.id.eq(userId))
+                .fetchFirst();
+    }
+
+    @Override
+    public long updateUser(Long userId, UpdateUserDTO dto, Long profileImageId) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        long result = queryFactory.update(user)
+                .set(user.profileImageId, profileImageId)
+                .set(user.modifyAt, LocalDateTime.now())
+                .set(user.modifyId, currentAuditor)
+                .where(user.id.eq(userId))
+                .execute();
+
+        queryFactory.update(userStatusInfo)
+                .set(userStatusInfo.status, dto.getUserStatus())
+                .set(userStatusInfo.statusReason, "관리자에 의한 회원 상태 변경")
+
+                .set(userStatusInfo.modifyAt, LocalDateTime.now())
+                .set(userStatusInfo.modifyId, currentAuditor)
+                .where(userStatusInfo.userId.eq(userId))
+                .execute();
+
+        return result;
     }
 }

@@ -29,4 +29,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
     @Query("UPDATE User u SET u.type = :type WHERE u.id = :id")
     int updateUserType(@Param("id") Long id, @Param("type") UserType type);
 
+    @Query("SELECT u.profileImageId FROM User u WHERE u.id = :userId")
+    Optional<Long> findProfileImageIdByUserId(@Param("userId") Long userId);
+
 }

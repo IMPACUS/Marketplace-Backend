@@ -1,20 +1,21 @@
 package com.impacus.maketplace.service.point.greenLabelPoint;
 
 import com.impacus.maketplace.common.enumType.error.PointErrorType;
-import com.impacus.maketplace.common.enumType.point.PointStatus;
-import com.impacus.maketplace.common.enumType.point.PointType;
-import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
+import com.impacus.maketplace.common.enumType.point.*;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
-import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
+import com.impacus.maketplace.entity.point.RewardPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistory;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistoryRelation;
+import com.impacus.maketplace.repository.point.RewardPointRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointAllocationRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRelationRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
+import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,8 @@ public class GreenLabelPointAllocationService {
     private final GreenLabelPointRepository greenLabelPointRepository;
     private final GreenLabelPointHistoryRepository historyRepository;
     private final GreenLabelPointHistoryRelationRepository relationRepository;
+    private final LevelPointMasterRepository levelPointMasterRepository;
+    private final RewardPointRepository rewardPointRepository;
 
     /**
      * 그린 라벨 포인트를 지급하는 함수
@@ -51,7 +54,12 @@ public class GreenLabelPointAllocationService {
                 return false;
             }
 
-            // 2. 포인트 지급
+            // 2. 포인트 리워드 타입이 지급 가능한 상태인지 확인
+            if (!validateAndIncrementIssueQuantity(pointType.getRewardPointType())) {
+                return false;
+            }
+
+            // 3. 포인트 지급
             Long greenLabelPoint = greenLabelPointRepository.findGreenLabelPointByUserId(userId);
             Long changedPoint = greenLabelPoint + tradePoint;
             greenLabelPointRepository.updateGreenLabelPointByUserId(userId, changedPoint);
@@ -68,7 +76,9 @@ public class GreenLabelPointAllocationService {
                     pointType,
                     PointStatus.GRANT,
                     tradePoint,
-                    0L
+                    0L,
+                    changedPoint,
+                    levelPointMasterRepository.findLevelPointByUserId(userId)
             );
             allocationRepository.save(allocation);
             historyRepository.save(history);
@@ -90,6 +100,33 @@ public class GreenLabelPointAllocationService {
             );
             return true;
         }
+    }
+
+    /**
+     * 포인트 타입이 지급 가능한 상태인지 확인하고, 지급가능한 경우, 지급 수를 올리는 함수
+     *
+     * @param rewardPointType
+     * @return
+     */
+    @Transactional
+    public boolean validateAndIncrementIssueQuantity(RewardPointType rewardPointType) {
+        if (rewardPointType == null) {
+            throw new CustomException(PointErrorType.INVALID_POINT_TYPE, "포인트 리워드를 할 수 없는 포인트 타입입니다.");
+        }
+
+        // 1. 리워드 포인트 조회
+        RewardPoint rewardPoint = rewardPointRepository.findByRewardPointType(rewardPointType);
+
+        // 2. 지급 가능한 상태인지 확인
+        if (rewardPoint.getStatus() == RewardPointStatus.STOPPED || rewardPoint.isDeleted()) {
+            return false;
+        }
+
+        // 3. 지급 수 추가
+        rewardPoint.incrementIssueQuantity();
+        rewardPointRepository.save(rewardPoint);
+
+        return true;
     }
 
     /**
@@ -131,7 +168,9 @@ public class GreenLabelPointAllocationService {
                 type,
                 PointStatus.USE,
                 tradePoint,
-                changedPoint < 0 ? changedPoint : 0L
+                changedPoint < 0 ? changedPoint : 0L,
+                changedPoint < 0 ? 0 : changedPoint,
+                levelPointMasterRepository.findLevelPointByUserId(userId)
         );
         historyRepository.save(history);
 
@@ -181,7 +220,7 @@ public class GreenLabelPointAllocationService {
      * @param userId
      * @return
      */
-    public GreenLabelPointDTO getGreenLabelPointInformation(Long userId) {
+    public AppGreenLabelPointDTO getGreenLabelPointInformation(Long userId) {
         try {
             return allocationRepository.findPointInformationByUserId(userId);
         } catch (Exception ex) {
