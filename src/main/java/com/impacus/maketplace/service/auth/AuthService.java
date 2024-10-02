@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.auth;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
@@ -64,7 +65,7 @@ public class AuthService {
                 greenLabelPointAllocationService.payGreenLabelPoint(
                         user.getId(),
                         PointType.CHECK,
-                        PointType.CHECK.getAllocatedPoints()
+                        RewardPointType.CHECK.getAllocatedPoints()
                 );
             }
 
@@ -108,7 +109,7 @@ public class AuthService {
             User user = userService.findUserById(userId);
             switch (userType) {
                 case ROLE_APPROVED_SELLER -> {
-                    boolean isPasswordMatch = passwordEncoder.matches(password, user.getPassword());
+                    boolean isPasswordMatch = passwordEncoder.matches(password, passwordEncoder.encode(user.getPassword()));
                     return CheckMatchedPasswordDTO.toDTO(isPasswordMatch);
                 }
             }

@@ -5,14 +5,16 @@ import com.impacus.maketplace.common.enumType.point.PointStatus;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointAllocation;
+import com.impacus.maketplace.entity.point.RewardPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistory;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistoryRelation;
+import com.impacus.maketplace.repository.point.RewardPointRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointAllocationRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRelationRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
+import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +45,10 @@ class GreenLabelPointAllocationServiceTest {
     private GreenLabelPointHistoryRepository historyRepository;
     @Mock
     private GreenLabelPointHistoryRelationRepository relationRepository;
+    @Mock
+    private LevelPointMasterRepository levelPointMasterRepository;
+    @Mock
+    private RewardPointRepository rewardPointRepository;
 
     @Test
     @DisplayName("[정상 케이스] 그린 라벨 포인트 지급한다.")
@@ -51,12 +57,12 @@ class GreenLabelPointAllocationServiceTest {
         Long userId = 1L;
         PointType pointType = PointType.PURCHASE_GENERAL_PRODUCT;
         Long tradePoint = 100L;
+        RewardPoint rewardPoint = RewardPoint.from(pointType.getRewardPointType());
 
         // when
-        when(greenLabelPointRepository.findGreenLabelPointByUserId(userId)).thenReturn(200L);
-        when(allocationRepository.save(any(GreenLabelPointAllocation.class))).thenReturn(null);
-        when(historyRepository.save(any(GreenLabelPointHistory.class))).thenReturn(null);
-        when(relationRepository.save(any(GreenLabelPointHistoryRelation.class))).thenReturn(null);
+        lenient().when(greenLabelPointRepository.findGreenLabelPointByUserId(userId)).thenReturn(200L);
+        when(rewardPointRepository.findByRewardPointType(pointType.getRewardPointType())).thenReturn(rewardPoint);
+        when(allocationService.validateAndIncrementIssueQuantity(pointType.getRewardPointType())).thenReturn(true);
         boolean result = allocationService.payGreenLabelPoint(userId, pointType, tradePoint);
 
         // then
@@ -86,7 +92,7 @@ class GreenLabelPointAllocationServiceTest {
         Long userId = 1L;
         PointType pointType = PointType.CHECK;
         LocalDateTime allocatedPointAt = LocalDate.now().atStartOfDay().plusHours(2);
-        Long tradePoint = PointType.CHECK.getAllocatedPoints();
+        Long tradePoint = pointType.getRewardPointType().getAllocatedPoints();
 
         // when
         when(allocationRepository.findRecentAllocatedPointAtByUserIdAndPointType(userId, pointType)).thenReturn(allocatedPointAt);
@@ -103,7 +109,7 @@ class GreenLabelPointAllocationServiceTest {
         Long userId = 1L;
         PointType pointType = PointType.SHARE_PRODUCT;
         Long allocatedPointCnt = 2L;
-        Long tradePoint = PointType.SHARE_PRODUCT.getAllocatedPoints();
+        Long tradePoint = pointType.getRewardPointType().getAllocatedPoints();
 
         // when
         when(allocationRepository.findAllocatedPointCntByUserIdAndPointType(userId, pointType)).thenReturn(allocatedPointCnt);
@@ -120,7 +126,7 @@ class GreenLabelPointAllocationServiceTest {
         Long userId = 1L;
         PointType pointType = PointType.SNS_TAG;
         LocalDateTime allocatedPointAt = LocalDateTime.now().minusWeeks(1);
-        Long tradePoint = PointType.SNS_TAG.getAllocatedPoints();
+        Long tradePoint = pointType.getRewardPointType().getAllocatedPoints();
 
         // when
         when(allocationRepository.findRecentAllocatedPointAtByUserIdAndPointType(userId, pointType)).thenReturn(allocatedPointAt);
@@ -149,6 +155,8 @@ class GreenLabelPointAllocationServiceTest {
                 type,
                 PointStatus.USE,
                 usedPoints * (-1),
+                0L,
+                100L,
                 0L
         );
 
@@ -158,6 +166,7 @@ class GreenLabelPointAllocationServiceTest {
         when(historyRepository.save(any(GreenLabelPointHistory.class)))
                 .thenReturn(history);
         when(relationRepository.save(any(GreenLabelPointHistoryRelation.class))).thenReturn(null);
+        when(levelPointMasterRepository.findLevelPointByUserId(userId)).thenReturn(0L);
         Long historyId = allocationService.deductPoints(userId, type, usedPoints, allowsNegativeBalance);
 
         // then

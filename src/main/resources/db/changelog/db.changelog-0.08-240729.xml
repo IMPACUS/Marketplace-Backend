@@ -22,7 +22,7 @@
     </changeSet>
 
     <!-- level_point 관련 생성 -->
-    <changeSet id="changelog-0.08.03-240729" author="lchy0413">
+    <changeSet id="changelog-0.08.03-240729-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="level_point_master"/>
@@ -44,6 +44,7 @@
             <column name="expiration_start_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            <column name="last_expired_at" type="TIMESTAMP"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -133,7 +134,7 @@
     </changeSet>
 
     <!-- green_label_point 관련 생성 -->
-    <changeSet id="changelog-0.08.06-240729" author="lchy0413">
+    <changeSet id="changelog-0.08.06-240729-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="green_label_point_allocation"/>
@@ -161,6 +162,7 @@
             <column name="expired_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            <column name="last_expired_at" type="TIMESTAMP"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -177,7 +179,7 @@
         <setColumnRemarks tableName="green_label_point_allocation" columnName="allocated_point"
                           remarks="지급 포인트"/>
     </changeSet>
-    <changeSet id="changelog-0.08.07-240729" author="lchy0413">
+    <changeSet id="changelog-0.08.07-240729-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="green_label_point_history"/>
@@ -202,6 +204,12 @@
             <column name="unapplied_point" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
+            <column name="level_point" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="green_label_point" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="create_at" type="TIMESTAMP">
             </column>
@@ -215,6 +223,10 @@
 
         <setColumnRemarks tableName="green_label_point_history" columnName="unapplied_point"
                           remarks="미적용 포인트"/>
+        <setColumnRemarks tableName="green_label_point_history" columnName="level_point"
+                          remarks="레벨 포인트 (해당 시점 기준)"/>
+        <setColumnRemarks tableName="green_label_point_history" columnName="green_label_point"
+                          remarks="그린 라벨 포인트 (해당 시점 기준)"/>
     </changeSet>
     <changeSet id="changelog-0.08.08-240729" author="lchy0413">
         <preConditions onFail="MARK_RAN">

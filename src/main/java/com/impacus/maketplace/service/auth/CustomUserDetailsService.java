@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import security.CustomUserDetails;
 
@@ -21,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final AdminInfoRepository adminInfoRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 토큰 생성 시, 토큰에 추가할 사용자(소비자, 판매자, 관리자) 정보를 조회하는 함수
@@ -35,13 +37,15 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 1. 소비자, 판매자에 대해서 확인
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
-            return CustomUserDetails.create(optionalUser.get());
+            User user = optionalUser.get();
+            return CustomUserDetails.toEntity(user, passwordEncoder.encode(user.getPassword()));
         }
 
         // 2. 관리자에 대해서 확인
         Optional<AdminInfo> optionalAdmin = adminInfoRepository.findByAdminIdName(email);
         if (optionalAdmin.isPresent()) {
-            return CustomUserDetails.create(optionalAdmin.get());
+            AdminInfo admin = optionalAdmin.get();
+            return CustomUserDetails.toEntity(admin, passwordEncoder.encode(admin.getPassword()));
         }
 
         // 3. 사용자, 판매자, 관리자 관련 Entity 에서 찾을 수 없는 경우 에러 발생 시킴
