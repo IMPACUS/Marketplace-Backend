@@ -118,10 +118,10 @@ public class AdminCouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
     @DeleteMapping("")
-    public ApiResponseEntity<Boolean> deleteCoupons(@Valid @RequestBody CouponIdListDTO couponIdListDTO) {
+    public ApiResponseEntity<Boolean> deleteCoupons(@RequestParam(value = "coupon-ids") List<Long> couponIds) {
 
         // 1. 쿠폰 삭제하기
-        couponAdminService.deleteCoupon(couponIdListDTO.getCouponIdList());
+        couponAdminService.deleteCoupon(couponIds);
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
