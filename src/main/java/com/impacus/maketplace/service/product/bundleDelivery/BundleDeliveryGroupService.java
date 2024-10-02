@@ -12,6 +12,7 @@ import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDet
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupProductDTO;
 import com.impacus.maketplace.entity.product.bundleDelivery.BundleDeliveryGroup;
 import com.impacus.maketplace.repository.product.bundleDelivery.BundleDeliveryGroupRepository;
+import com.impacus.maketplace.service.product.ReadProductService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ import java.util.Optional;
 public class BundleDeliveryGroupService {
     private final BundleDeliveryGroupRepository bundleDeliveryGroupRepository;
     private final ReadSellerService readSellerService;
+    private final ReadProductService readProductService;
 
     /**
      * 묶음 배송 그룹 생성
@@ -37,7 +39,7 @@ public class BundleDeliveryGroupService {
     @Transactional
     public void addBundleDeliveryGroup(Long userId, CreateBundleDeliveryGroupDTO dto) {
         try {
-            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+            Long sellerId = getSellerIdByUserType(userId, dto.getSellerId());
 
             // 1. 유효성 검사
             readSellerService.checkSellerExistenceById(sellerId);
@@ -63,7 +65,7 @@ public class BundleDeliveryGroupService {
     @Transactional
     public void updateBundleDeliveryGroup(Long userId, Long groupId, CreateBundleDeliveryGroupDTO dto) {
         try {
-            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+            Long sellerId = getSellerIdByUserType(userId, dto.getSellerId());
 
             // 1. 유효성 검사
             Optional<BundleDeliveryGroup> groupOptional = bundleDeliveryGroupRepository.findById(groupId);
@@ -99,6 +101,21 @@ public class BundleDeliveryGroupService {
         }
     }
 
+    private Long getSellerIdByUserType(Long userId, Long sellerId) {
+        UserType userType = SecurityUtils.getCurrentUserType();
+        if (userType == UserType.ROLE_APPROVED_SELLER) {
+            return readSellerService.findSellerIdByUserId(userId);
+        } else {
+            if (sellerId == null) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,
+                        String.format("요청 권한: %s, sellerId는 null일 수 없습니다.", userType.name())
+                );
+            }
+
+            return sellerId;
+        }
+    }
+
     /**
      * 묶음 배송 그룹 리스트 함수
      *
@@ -109,16 +126,17 @@ public class BundleDeliveryGroupService {
      */
     public Page<BundleDeliveryGroupDetailDTO> findDetailBundleDeliveryGroups(
             Long userId,
+            Long sellerId,
             String keyword,
             Pageable pageable,
             String sortBy,
             String direction
     ) {
         try {
-            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+            Long resolvedSellerId = getSellerIdByUserType(userId, sellerId);
 
             return bundleDeliveryGroupRepository.findDetailBundleDeliveryGroups(
-                    sellerId,
+                    resolvedSellerId,
                     keyword,
                     pageable,
                     sortBy,
@@ -164,11 +182,8 @@ public class BundleDeliveryGroupService {
     @Transactional
     public void deleteProductFromBundleGroup(Long userId, Long groupId, Long productId) {
         try {
-            Long sellerId = readSellerService.findSellerIdByUserId(userId);
-
             // 1. 업데이트
             long result = bundleDeliveryGroupRepository.deleteProductFromBundleGroup(
-                    sellerId,
                     groupId,
                     productId
             );
