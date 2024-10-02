@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.point.greenLablePoint;
+package com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.point.PointStatus;
