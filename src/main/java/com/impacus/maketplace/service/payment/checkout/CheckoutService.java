@@ -136,16 +136,15 @@ public class CheckoutService {
         validateCheckoutProduct(checkoutProductInfoDTO.isProductIsDeleted(), checkoutProductInfoDTO.isOptionIsDeleted(), checkoutProductInfoDTO.getProductStatus(), checkoutProductInfoDTO.getStock(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
 
         // 5. validateDiscount
+        Long greenLabelPoint = greenLabelPointAllocationService.getGreenLabelPointAmount(userId);
+        if (greenLabelPoint < checkoutSingleDTO.getPointAmount()) {
+            throw new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
+        }
+
         List<PaymentCouponDTO> paymentCouponsForProduct = couponRedeemService.getAmountAfterValidateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
         Long totalPrice = checkoutProductInfoDTO.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
         List<PaymentCouponDTO> paymentCouponsForOrder = couponRedeemService.getAmountAfterValidateCouponsForOrder(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice);
 
-        AppGreenLabelPointDTO greenLabelPointInformation = greenLabelPointAllocationService.getGreenLabelPointInformation(userId);
-        if (greenLabelPointInformation.getGreenLabelPoint() < checkoutSingleDTO.getPointAmount()) {
-            throw new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
-        }
-
-        Long ecoDiscount = (long) (checkoutProductInfoDTO.getAppSalesPrice() - checkoutProductInfoDTO.getDiscountPrice());
         Long productCouponDiscount = discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct);
         Long orderCouponDiscount = discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder);
         Long pointDiscount = discountService.calculatePointDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, checkoutSingleDTO.getPointAmount());

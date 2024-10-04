@@ -1,11 +1,14 @@
 package com.impacus.maketplace.service.payment;
 
 import com.impacus.maketplace.common.enumType.coupon.BenefitType;
+import com.impacus.maketplace.common.enumType.error.OrderErrorType;
+import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.payment.PaymentMethod;
 import com.impacus.maketplace.common.enumType.payment.PaymentOrderStatus;
 import com.impacus.maketplace.common.enumType.payment.PaymentType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.config.PaymentConfig;
 import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
@@ -42,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -111,22 +115,22 @@ public class CheckoutServiceTest {
         int appSalesPrice = 10000;
         int discountPrice = 10000;
         PaymentMethod method = PaymentMethod.CARD;
-        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, pointAmount, method, (long) discountPrice);
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice);
 
         BuyerInfoDTO buyerInfoDTO = getBuyerInfoDTO(userId);
-        CheckoutProductInfoDTO checkoutProductInfoDTO = getCheckoutProductInfoDTO(checkoutSingleDTO.getPaymentProductInfo().getProductId(), appSalesPrice, discountPrice, checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId());
+        CheckoutProductInfoDTO checkoutProductInfoDTO = getCheckoutProductInfoDTO(checkoutSingleDTO.getPaymentProductInfo().getProductId(), appSalesPrice, discountPrice, checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId()
+                ,ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
         List<PaymentCouponDTO> paymentCouponsForProduct = new ArrayList<>();
         List<PaymentCouponDTO> paymentCouponsForOrder = new ArrayList<>();
-        AppGreenLabelPointDTO greenLabelPointDTO = getGreenLabelPointDTO(0L, 0L);
 
         Long totalPrice = checkoutProductInfoDTO.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
-        Long ecoDiscount = (long)checkoutProductInfoDTO.getAppSalesPrice() - checkoutProductInfoDTO.getDiscountPrice();
+        Long ecoDiscount = (long) checkoutProductInfoDTO.getAppSalesPrice() - checkoutProductInfoDTO.getDiscountPrice();
         Long discountProductCoupon = 0L;
         Long discountOrderCoupon = 0L;
         Long couponDiscount = discountProductCoupon + discountOrderCoupon;
         Long discountPoint = 0L;
         DiscountInfoDTO discountInfo = DiscountInfoDTO.builder()
-                .appSalesPrice((long)appSalesPrice)
+                .appSalesPrice((long) appSalesPrice)
                 .ecoDiscountAmount(0L)
                 .productCouponDiscountAmount(0L)
                 .orderCouponDiscountAmount(0L)
@@ -154,7 +158,7 @@ public class CheckoutServiceTest {
         when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
         when(couponRedeemService.getAmountAfterValidateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
         when(couponRedeemService.getAmountAfterValidateCouponsForOrder(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
-        when(greenLabelPointAllocationService.getGreenLabelPointInformation(userId)).thenReturn(greenLabelPointDTO);
+        when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(0L);
         when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(0L);
         when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);
         when(discountService.calculatePointDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, checkoutSingleDTO.getPointAmount())).thenReturn(0L);
@@ -173,6 +177,263 @@ public class CheckoutServiceTest {
         assertThat(result.getTotalDiscountedAmount()).isEqualTo(totalPrice);
     }
 
+    // 1. 결제 실패 -> 쿠폰 중복 사용
+    @Test
+    @DisplayName("[실패 케이스] 2개 이상의 상품에 1개의 쿠폰을 중복 사용 - DUPLICATE_USE_USER_COUPON")
+    void checkoutSingleUsingDuplicateCoupon_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        appliedCouponForProductIds.add(1L);
+        appliedCouponForProductIds.add(1L);
+        Long pointAmount = 0L;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice);
+
+        // when && then
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.DUPLICATE_USE_USER_COUPON);
+    }
+
+    @Test
+    @DisplayName("[실패 케이스] 1개 이상의 상품에 1개의 쿠폰을 중복 사용 - DUPLICATE_USE_USER_COUPON")
+    void checkoutSingleUsingDuplicateCouponToOneProduct_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        appliedCouponForProductIds.add(1L);
+        appliedCouponForProductIds.add(1L);
+        Long pointAmount = 0L;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice);
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        // then
+        assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.DUPLICATE_USE_USER_COUPON);
+    }
+
+    // 2. 결제 실패 -> validateCheckoutProduct
+    @Test
+    @DisplayName("[실패 케이스] 상품이 삭제되어 있는 경우 - DELETED_ORDER_PRODUCT")
+    void checkoutSingleDeletedProduct_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        Long pointAmount = 0L;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice);
+        BuyerInfoDTO buyerInfo = getBuyerInfoDTO(userId);
+        CheckoutProductInfoDTO productInfo = getCheckoutProductInfoDTO(1L, 1000, 1000, 1L, 1L, ProductStatus.SALES_PROGRESS, true, false, 100L, ProductType.GENERAL);
+
+        when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfo);
+        when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(productInfo);
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        // then
+        assertThat(exception.getErrorType()).isEqualTo(OrderErrorType.DELETED_ORDER_PRODUCT);
+    }
+
+    @Test
+    @DisplayName("[실패 케이스] 상품의 상태가 판매 중지 상태일 경우 - SALE_STOP_ORDER_PRODUCT")
+    void checkoutSingleSalesStop_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        Long pointAmount = 0L;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice);
+        BuyerInfoDTO buyerInfo = getBuyerInfoDTO(userId);
+        CheckoutProductInfoDTO productInfoSalesStop = getCheckoutProductInfoDTO(1L, 1000, 1000, 1L, 1L, ProductStatus.SALES_STOP, false, false, 100L, ProductType.GENERAL);
+
+
+        when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfo);
+        when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(productInfoSalesStop);
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        // then
+        assertThat(exception.getErrorType()).isEqualTo(OrderErrorType.SALE_STOP_ORDER_PRODUCT);
+    }
+
+    @Test
+    @DisplayName("[실패 케이스] 상품의 상태가 품절인 경우 - SOLD_OUT_ORDER_PRODUCT")
+    void checkoutSingleSoldOut_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        Long pointAmount = 0L;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice);
+        BuyerInfoDTO buyerInfo = getBuyerInfoDTO(userId);
+        CheckoutProductInfoDTO productInfoSoldOut = getCheckoutProductInfoDTO(1L, 1000, 1000, 1L, 1L, ProductStatus.SOLD_OUT, false, false, 100L, ProductType.GENERAL);
+
+
+        when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfo);
+        when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(productInfoSoldOut);
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        // then
+        assertThat(exception.getErrorType()).isEqualTo(OrderErrorType.SOLD_OUT_ORDER_PRODUCT);
+    }
+
+    @Test
+    @DisplayName("[실패 케이스] 상품의 옵션이 삭제되어 있는 경우 - DELETED_ORDER_PRODUCT_OPTION")
+    void checkoutSingleDeletedOption_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        Long pointAmount = 0L;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice);
+        BuyerInfoDTO buyerInfo = getBuyerInfoDTO(userId);
+        CheckoutProductInfoDTO productInfoDeletedOption = getCheckoutProductInfoDTO(1L, 1000, 1000, 1L, 1L, ProductStatus.SALES_PROGRESS, false, true, 100L, ProductType.GENERAL);
+
+
+        when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfo);
+        when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(productInfoDeletedOption);
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        // then
+        assertThat(exception.getErrorType()).isEqualTo(OrderErrorType.DELETED_ORDER_PRODUCT_OPTION);
+    }
+
+    @Test
+    @DisplayName("[실패 케이스] 상품의 재고가 부족한 경우 - OUT_OF_STOCK_ORDER_PRODUCT")
+    void checkoutSingleOutOfStock_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        Long pointAmount = 0L;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 10L, pointAmount, method, (long) discountPrice);
+        BuyerInfoDTO buyerInfo = getBuyerInfoDTO(userId);
+        CheckoutProductInfoDTO productInfoOutOfStock = getCheckoutProductInfoDTO(1L, 1000, 1000, 1L, 1L, ProductStatus.SALES_PROGRESS, false, false, 5L, ProductType.GENERAL);
+
+        when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfo);
+        when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(productInfoOutOfStock);
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        // then
+        assertThat(exception.getErrorType()).isEqualTo(OrderErrorType.OUT_OF_STOCK_ORDER_PRODUCT);
+    }
+
+    // 3. 결제 실패 -> NOT_ENOUGH_POINT_AMOUNT
+    @Test
+    @DisplayName("[실패 케이스] 사용한 포인트보다 잔액 포인트가 부족할 경우 - NOT_ENOUGH_POINT_AMOUNT")
+    void checkoutSingleNotEnoughPointAmount_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        Long pointAmount = 1000L;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+
+        // when
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice);
+        BuyerInfoDTO buyerInfo = getBuyerInfoDTO(userId);
+        CheckoutProductInfoDTO productInfo = getCheckoutProductInfoDTO(1L, 1000, 1000, 1L, 1L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
+        Long greenLabelPoint = 500L;
+
+        when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfo);
+        when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(productInfo);
+        when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(greenLabelPoint);
+
+        // then
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        // then
+        assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
+    }
+
+    // 4. 결제 실패 -> MISMATCH_TOTAL_AMOUNT
+    @Test
+    @DisplayName("[실패 케이스] 할인이 적용된 최종 결제 금액이 프론트에서 전해 받은 최종 결제 금액과 일치하지 않는 경우")
+    void checkoutSingleMismatchTotalAmount_fail() {
+        // given
+        Long userId = 1L;
+        List<Long> appliedCouponForProductIds = new ArrayList<>();
+        appliedCouponForProductIds.add(1L);
+        List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+        Long pointAmount = 0L;
+        int appSalesPrice = 10000;
+        int discountPrice = 10000;
+        PaymentMethod method = PaymentMethod.CARD;
+        CheckoutSingleDTO checkoutSingleDTO = getCheckoutSingleDTO(appliedCouponForProductIds, appliedCommonUserCouponIds, 1L, pointAmount, method, (long) discountPrice - 1000);
+
+        BuyerInfoDTO buyerInfoDTO = getBuyerInfoDTO(userId);
+        CheckoutProductInfoDTO checkoutProductInfoDTO = getCheckoutProductInfoDTO(checkoutSingleDTO.getPaymentProductInfo().getProductId(), appSalesPrice, discountPrice, checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId()
+                ,ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
+        List<PaymentCouponDTO> paymentCouponsForProduct = new ArrayList<>();
+        List<PaymentCouponDTO> paymentCouponsForOrder = new ArrayList<>();
+
+        Long totalPrice = checkoutProductInfoDTO.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
+        DiscountInfoDTO discountInfo = DiscountInfoDTO.builder()
+                .appSalesPrice((long) appSalesPrice)
+                .ecoDiscountAmount(0L)
+                .productCouponDiscountAmount(1100L)
+                .orderCouponDiscountAmount(0L)
+                .pointDiscountAmount(0L)
+                .build();
+
+        when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
+        when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
+        when(couponRedeemService.getAmountAfterValidateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
+        when(couponRedeemService.getAmountAfterValidateCouponsForOrder(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
+        when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(0L);
+        when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(1100L);
+        when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);
+        when(discountService.calculatePointDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, checkoutSingleDTO.getPointAmount())).thenReturn(0L);
+        when(discountService.reconcileDiscountAmount(any(ProductPricingDTO.class), any(Long.class), any(Long.class), any(Long.class))).thenReturn(discountInfo);
+
+        // when
+        CustomException exception = assertThrows(CustomException.class, () ->
+                checkoutService.checkoutSingle(userId, checkoutSingleDTO));
+
+        // then
+        assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
+    }
 
 
     private PaymentOrder getPaymentOrder(Long paymentEventId, Long sellerId, Long productId, Long productOptionHistoryId, Long quantity, Long amount, Long ecoDiscount, Long discountPoint, Long couponDiscount, Integer commissionPercent) {
@@ -197,6 +458,7 @@ public class CheckoutServiceTest {
                 .threshold(5)
                 .build();
     }
+
     private PaymentEvent getPaymentEvent(Long userId, PaymentMethod method) {
         return PaymentEvent.builder()
                 .id(1L)
@@ -209,43 +471,41 @@ public class CheckoutServiceTest {
                 .method(method)
                 .build();
     }
-
-    private AppGreenLabelPointDTO getGreenLabelPointDTO(Long greenLabelPoint, Long pointsExpiringIn30Days) {
-        return new AppGreenLabelPointDTO(greenLabelPoint, pointsExpiringIn30Days);
-    }
     private PaymentCouponDTO getPaymentCouponDTO(Long userCouponId, BenefitType benefitType, Long benefitValue) {
         return new PaymentCouponDTO(userCouponId, benefitType, benefitValue);
     }
-    private CheckoutProductInfoDTO getCheckoutProductInfoDTO(Long productId, int appSalesPrice, int discountPrice, Long productOptionId, Long sellerId) {
+
+    private CheckoutProductInfoDTO getCheckoutProductInfoDTO(Long productId, int appSalesPrice, int discountPrice, Long productOptionId, Long sellerId, ProductStatus productStatus, boolean productIsDeleted, boolean optionIsDeleted, Long stock, ProductType productType) {
         return new CheckoutProductInfoDTO(
                 productId,
                 sellerId,
                 "판매자 브랜드 이름",
                 10,
                 "상품명 이름",
-                ProductType.GENERAL,
-                ProductStatus.SALES_PROGRESS,
+                productType,
+                productStatus,
                 appSalesPrice,
                 discountPrice,
                 0,
-                false,
+                productIsDeleted,
                 productOptionId,
                 "색상",
                 "크기",
-                100L,
-                false,
+                stock,
+                optionIsDeleted,
                 1L
         );
     }
+
     private BuyerInfoDTO getBuyerInfoDTO(Long userId) {
         return new BuyerInfoDTO(userId, "email@mm.mm", "구매자 정보", "000-0000-0000");
     }
 
-    private CheckoutSingleDTO getCheckoutSingleDTO(List<Long> appliedCouponForProductIds, List<Long> appliedCommonUserCouponIds, Long pointAmount, PaymentMethod method, Long calculatedTotalAmount) {
+    private CheckoutSingleDTO getCheckoutSingleDTO(List<Long> appliedCouponForProductIds, List<Long> appliedCommonUserCouponIds, Long quantity, Long pointAmount, PaymentMethod method, Long calculatedTotalAmount) {
         PaymentProductInfoDTO paymentProductInfoDTO = PaymentProductInfoDTO.builder()
                 .productId(1L)
                 .productOptionId(1L)
-                .quantity(1L)
+                .quantity(quantity)
                 .sellerId(1L)
                 .appliedCouponForProductIds(appliedCouponForProductIds)
                 .build();

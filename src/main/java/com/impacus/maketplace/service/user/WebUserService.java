@@ -180,7 +180,7 @@ public class WebUserService {
 
             // 그린 라벨 포인트 지급
             if (dto.getGreenLabelPoint() != null) {
-                long currentGreenLabelPoint = greenLabelPointRepository.findGreenLabelPointByUserId(userId);
+                long currentGreenLabelPoint = greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId);
                 long changedGreenLabelPoint = dto.getGreenLabelPoint() - currentGreenLabelPoint;
                 if (changedGreenLabelPoint < 1) {
                     throw new CustomException(PointErrorType.INVALID_POINT, "지급할 가용 포인트가 현재 보유한 포인트보다 작을 수 없습니다.");
