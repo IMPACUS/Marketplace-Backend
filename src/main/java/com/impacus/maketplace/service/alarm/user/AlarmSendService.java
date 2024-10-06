@@ -10,9 +10,7 @@ import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.entity.alarm.bizgo.BizgoToken;
 import com.impacus.maketplace.repository.alarm.bizgo.BizgoRepository;
 import com.impacus.maketplace.service.EmailService;
-import com.impacus.maketplace.service.alarm.user.dto.BizgoTokenDto;
-import com.impacus.maketplace.service.alarm.user.enums.AlarmEnum;
-import com.impacus.maketplace.service.alarm.user.enums.AlarmKakaoEnum;
+import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -41,12 +39,12 @@ public class AlarmSendService {
     @Value("${key.bizgo.sender-key}")
     private String senderKey;
 
-    public void sendMail(String receiver, AlarmEnum alarmEnum) {
-        EmailDto emailDto = EmailDto.builder()
-                .receiveEmail(receiver)
-                .build();
-        emailService.sendMail(emailDto, MailType.selectAlarm(alarmEnum));
-    }
+//    public void sendMail(String receiver, AlarmEnum alarmEnum) {
+//        EmailDto emailDto = EmailDto.builder()
+//                .receiveEmail(receiver)
+//                .build();
+//        emailService.sendMail(emailDto, MailType.selectAlarm(alarmEnum));
+//    }
 
     public void sendMsg(String msg, String phone) {
         String token = this.getToken();
@@ -127,29 +125,29 @@ public class AlarmSendService {
         }
     }
 
-    public void sendKakao(String phone, AlarmKakaoEnum kakaoEnum, String name, String itemName, String orderNum, String courier, String invoice) {
-        if (!StringUtils.hasText(name)) throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_NAME);
-        String template = kakaoEnum.getTemplate().replace("#{홍길동}", name);
-        String kakao = kakaoEnum.name();
-
-        if (kakao.equals("CANCEL")) {
-            if (!StringUtils.hasText(itemName))
-                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ITEM_NAME);
-            if (!StringUtils.hasText(orderNum))
-                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ORDER_NUM);
-            if (!StringUtils.hasText(courier))
-                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_COURIER);
-            if (!StringUtils.hasText(invoice))
-                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_INVOICE);
-            template = template.replace("#{상품명}", itemName).replace("#{주문번호}", orderNum).replace("#{택배사}", courier).replace("#{송장번호}", invoice);
-        } else if (kakao.equals("RESTOCK") || kakao.equals("REVIEW")) {
-            if (!StringUtils.hasText(itemName))
-                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ITEM_NAME);
-            template = template.replace("#{상품명}", itemName);
-        }
-        String token = this.getToken();
-        this.generateKakao(token, phone, kakaoEnum.getCode(), template);
-    }
+//    public void sendKakao(String phone, AlarmKakaoEnum kakaoEnum, String name, String itemName, String orderNum, String courier, String invoice) {
+//        if (!StringUtils.hasText(name)) throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_NAME);
+//        String template = kakaoEnum.getTemplate().replace("#{홍길동}", name);
+//        String kakao = kakaoEnum.name();
+//
+//        if (kakao.equals("CANCEL")) {
+//            if (!StringUtils.hasText(itemName))
+//                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ITEM_NAME);
+//            if (!StringUtils.hasText(orderNum))
+//                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ORDER_NUM);
+//            if (!StringUtils.hasText(courier))
+//                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_COURIER);
+//            if (!StringUtils.hasText(invoice))
+//                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_INVOICE);
+//            template = template.replace("#{상품명}", itemName).replace("#{주문번호}", orderNum).replace("#{택배사}", courier).replace("#{송장번호}", invoice);
+//        } else if (kakao.equals("RESTOCK") || kakao.equals("REVIEW")) {
+//            if (!StringUtils.hasText(itemName))
+//                throw new CustomException(HttpStatus.BAD_REQUEST, BizgoErrorType.KAKAO_NO_ITEM_NAME);
+//            template = template.replace("#{상품명}", itemName);
+//        }
+//        String token = this.getToken();
+//        this.generateKakao(token, phone, kakaoEnum.getCode(), template);
+//    }
 
     private void generateKakao(String token, String phone, String code, String template) {
         String url = "https://omni.ibapi.kr/v1/send/alimtalk";

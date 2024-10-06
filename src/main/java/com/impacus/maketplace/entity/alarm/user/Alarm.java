@@ -12,7 +12,7 @@ import org.hibernate.annotations.Comment;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class Alarm extends BaseEntity {
+abstract class Alarm extends BaseEntity {
     @Column(nullable = false)
     protected Long userId;
 
@@ -32,11 +32,7 @@ public abstract class Alarm extends BaseEntity {
     @Comment("PUSH 알람 여부")
     protected boolean push;
 
-    @Column
-    @Comment("알림 멘트1")
-    protected String comment1;
-
     @Column(columnDefinition = "text")
-    @Comment("알림 멘트2")
-    protected String comment2;
+    @Comment("메세지 내용")
+    protected String comment;
 }

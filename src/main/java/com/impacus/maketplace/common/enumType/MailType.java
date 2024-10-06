@@ -2,7 +2,6 @@ package com.impacus.maketplace.common.enumType;
 
 import com.impacus.maketplace.common.enumType.error.AlarmErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.service.alarm.user.enums.AlarmEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -38,14 +37,14 @@ public enum MailType {
                 .orElse(UNKNOWN);
     }
 
-    public static MailType selectAlarm(AlarmEnum alarmEnum) {
-        if (alarmEnum.name().equals("ORDER_DELIVERY")) return MailType.ORDER_DELIVERY_EMAIL;
-        else if (alarmEnum.name().equals("RESTOCK")) return MailType.RESTOCK_EMAIL;
-        else if (alarmEnum.name().equals("REVIEW")) return MailType.REVIEW_EMAIL;
-        else if (alarmEnum.name().equals("SERVICE_CENTER")) return MailType.SERVICE_CENTER_EMAIL;
-        else if (alarmEnum.name().equals("BRAND_SHOP")) return MailType.BRAND_SHOP_EMAIL;
-        else if (alarmEnum.name().equals("SHOPPING_BENEFITS")) return MailType.SHOPPING_BENEFITS_EMAIL;
-        else throw new CustomException(AlarmErrorType.INVALID_ENUM);
-    }
+//    public static MailType selectAlarm(AlarmEnum alarmEnum) {
+//        if (alarmEnum.name().equals("ORDER_DELIVERY")) return MailType.ORDER_DELIVERY_EMAIL;
+//        else if (alarmEnum.name().equals("RESTOCK")) return MailType.RESTOCK_EMAIL;
+//        else if (alarmEnum.name().equals("REVIEW")) return MailType.REVIEW_EMAIL;
+//        else if (alarmEnum.name().equals("SERVICE_CENTER")) return MailType.SERVICE_CENTER_EMAIL;
+//        else if (alarmEnum.name().equals("BRAND_SHOP")) return MailType.BRAND_SHOP_EMAIL;
+//        else if (alarmEnum.name().equals("SHOPPING_BENEFITS")) return MailType.SHOPPING_BENEFITS_EMAIL;
+//        else throw new CustomException(AlarmErrorType.INVALID_ENUM);
+//    }
 
 }

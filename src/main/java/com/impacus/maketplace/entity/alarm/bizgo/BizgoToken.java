@@ -1,7 +1,7 @@
 package com.impacus.maketplace.entity.alarm.bizgo;
 
 import com.impacus.maketplace.common.utils.TimestampConverter;
-import com.impacus.maketplace.service.alarm.user.dto.BizgoTokenDto;
+import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
