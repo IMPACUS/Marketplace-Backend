@@ -18,6 +18,7 @@ import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.alarm.seller.AlarmSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class CreateSellerService {
     private final AttachFileService attachFileService;
     private final UserService userService;
     private final EmailService emailService;
+    private final AlarmSellerService alarmSellerService;
 
     /**
      * Seller를 저장하는 함수
@@ -101,6 +103,7 @@ public class CreateSellerService {
             // 6. SellerAdjustmentInfo 저장
             SellerAdjustmentInfo adjustmentInfo = sellerDTO.toSellerAdjustmentInfo(sellerId, bankBookFile.getId());
             sellerAdjustmentInfoService.saveSellerAdjustmentInfo(adjustmentInfo);
+            alarmSellerService.saveDefault(sellerId);
 
             return SimpleSellerFromSellerDTO.toDTO(user.getId(), seller);
         } catch (Exception e) {

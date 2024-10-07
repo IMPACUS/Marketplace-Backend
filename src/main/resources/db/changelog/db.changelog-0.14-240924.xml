@@ -7,377 +7,6 @@
     <changeSet id="changelog-0.14.01-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="alarm_user_order_delivery"/>
-                <tableExists tableName="alarm_user_brand_shop"/>
-                <tableExists tableName="alarm_user_shopping_benefits"/>
-                <tableExists tableName="alarm_user_service_center"/>
-                <tableExists tableName="alarm_user_restock"/>
-                <tableExists tableName="alarm_user_review"/>
-            </not>
-        </preConditions>
-        <renameTable oldTableName="order_delivery_alarm" newTableName="alarm_user_order_delivery"/>
-        <renameTable oldTableName="brand_shop_alarm" newTableName="alarm_user_brand_shop"/>
-        <renameTable oldTableName="shopping_benefits_alarm" newTableName="alarm_user_shopping_benefits"/>
-        <renameTable oldTableName="service_center_alarm" newTableName="alarm_user_service_center"/>
-        <renameTable oldTableName="restock_alarm" newTableName="alarm_user_restock"/>
-        <renameTable oldTableName="review_alarm" newTableName="alarm_user_review"/>
-    </changeSet>
-
-    <changeSet id="changelog-0.14.02-240924" author="sda0523">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists tableName="alarm_user_order_delivery" columnName="alarm_order_delivery_id"/>
-                <columnExists tableName="alarm_user_brand_shop" columnName="alarm_brand_shop_id"/>
-                <columnExists tableName="alarm_user_shopping_benefits" columnName="alarm_shopping_benefits_id"/>
-                <columnExists tableName="alarm_user_service_center" columnName="alarm_service_center_id"/>
-                <columnExists tableName="alarm_user_restock" columnName="alarm_restock_id"/>
-                <columnExists tableName="alarm_user_review" columnName="alarm_review_id"/>
-            </not>
-        </preConditions>
-        <renameColumn tableName="alarm_user_review" oldColumnName="review_alarm_id" newColumnName="alarm_review_id"/>
-        <renameColumn tableName="alarm_user_restock" oldColumnName="restock_alarm_id" newColumnName="alarm_restock_id"/>
-        <renameColumn tableName="alarm_user_service_center" oldColumnName="service_center_alarm_id"
-                      newColumnName="alarm_service_center_id"/>
-        <renameColumn tableName="alarm_user_shopping_benefits" oldColumnName="shopping_benefits_alarm_id"
-                      newColumnName="alarm_shopping_benefits_id"/>
-        <renameColumn tableName="alarm_user_brand_shop" oldColumnName="brand_shop_alarm_id"
-                      newColumnName="alarm_brand_shop_id"/>
-        <renameColumn tableName="alarm_user_order_delivery" oldColumnName="order_delivery_alarm_id"
-                      newColumnName="alarm_order_delivery_id"/>
-    </changeSet>
-
-    <changeSet id="changelog-0.14.03-240924" author="sda0523">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists tableName="alarm_user_order_delivery" columnName="category"/>
-                <columnExists tableName="alarm_user_order_delivery" columnName="subcategory"/>
-                <columnExists tableName="alarm_user_brand_shop" columnName="category"/>
-                <columnExists tableName="alarm_user_shopping_benefits" columnName="category"/>
-                <columnExists tableName="alarm_user_shopping_benefits" columnName="subcategory"/>
-                <columnExists tableName="alarm_user_service_center" columnName="category"/>
-                <columnExists tableName="alarm_user_restock" columnName="category"/>
-                <columnExists tableName="alarm_user_review" columnName="category"/>
-            </not>
-        </preConditions>
-        <addColumn tableName="alarm_user_order_delivery">
-            <column name="category" type="varchar" remarks="COMPLETE(결제완료), DELIVERY(배송), CANCEL(반품/교환/주문취소)">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-        <addColumn tableName="alarm_user_order_delivery">
-            <column name="subcategory" type="varchar" remarks="NONE(없음), DELIVERY_START(배송시작), DELIVERY_COMPLETE(배송완료)">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-        <addColumn tableName="alarm_user_brand_shop">
-            <column name="category" type="varchar" remarks="BRAND_SHOP_NEWS(찜한 제품의 브랜드 샵 소식)">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-        <addColumn tableName="alarm_user_shopping_benefits">
-            <column name="category" type="varchar"
-                    remarks="ADVERTISEMENT(광고), COUPON_EXTINCTION(쿠폰 소멸), POINT_EXTINCTION(포인트 소멸)">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-        <addColumn tableName="alarm_user_shopping_benefits">
-            <column name="subcategory" type="varchar"
-                    remarks="NONE(없음), COUPON_EXTINCTION1,2(쿠폰 소멸1,2), POINT_EXTINCTION1,2(포인트 소멸1,2)">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-        <addColumn tableName="alarm_user_service_center">
-            <column name="category" type="varchar" remarks="SERVICE_CENTER(고객센터)">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-        <addColumn tableName="alarm_user_review">
-            <column name="category" type="varchar" remarks="REVIEW(리뷰), SERVICE_EVALUATION(서비스 평가)">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-        <addColumn tableName="alarm_user_restock">
-            <column name="category" type="varchar" remarks="RESTOCK(재입고)">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
-    </changeSet>
-
-    <changeSet id="changelog-0.14.04-240924" author="sda0523">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists tableName="alarm_user_order_delivery" columnName="comment"/>
-                <columnExists tableName="alarm_user_brand_shop" columnName="comment"/>
-                <columnExists tableName="alarm_user_shopping_benefits" columnName="comment"/>
-                <columnExists tableName="alarm_user_service_center" columnName="comment"/>
-                <columnExists tableName="alarm_user_restock" columnName="comment"/>
-                <columnExists tableName="alarm_user_review" columnName="comment"/>
-            </not>
-        </preConditions>
-        <addColumn tableName="alarm_user_order_delivery">
-            <column name="comment" type="text" remarks="메세지 내용"/>
-        </addColumn>
-        <addColumn tableName="alarm_user_brand_shop">
-            <column name="comment" type="text" remarks="메세지 내용"/>
-        </addColumn>
-        <addColumn tableName="alarm_user_shopping_benefits">
-            <column name="comment" type="text" remarks="메세지 내용"/>
-        </addColumn>
-        <addColumn tableName="alarm_user_service_center">
-            <column name="comment" type="text" remarks="메세지 내용"/>
-        </addColumn>
-        <addColumn tableName="alarm_user_review">
-            <column name="comment" type="text" remarks="메세지 내용"/>
-        </addColumn>
-        <addColumn tableName="alarm_user_restock">
-            <column name="comment" type="text" remarks="메세지 내용"/>
-        </addColumn>
-    </changeSet>
-
-    <changeSet id="changelog-0.14.05-240924" author="sda0523">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists tableName="alarm_user_order_delivery" columnName="msg"/>
-                <columnExists tableName="alarm_user_order_delivery" columnName="push"/>
-                <columnExists tableName="alarm_user_brand_shop" columnName="msg"/>
-                <columnExists tableName="alarm_user_brand_shop" columnName="push"/>
-                <columnExists tableName="alarm_user_shopping_benefits" columnName="msg"/>
-                <columnExists tableName="alarm_user_shopping_benefits" columnName="push"/>
-                <columnExists tableName="alarm_user_service_center" columnName="msg"/>
-                <columnExists tableName="alarm_user_service_center" columnName="push"/>
-                <columnExists tableName="alarm_user_restock" columnName="msg"/>
-                <columnExists tableName="alarm_user_restock" columnName="push"/>
-                <columnExists tableName="alarm_user_review" columnName="msg"/>
-                <columnExists tableName="alarm_user_review" columnName="push"/>
-            </not>
-        </preConditions>
-        <renameColumn tableName="alarm_user_review" oldColumnName="is_alarm" newColumnName="msg"/>
-        <renameColumn tableName="alarm_user_review" oldColumnName="sns" newColumnName="push"/>
-        <renameColumn tableName="alarm_user_restock" oldColumnName="is_alarm" newColumnName="msg"/>
-        <renameColumn tableName="alarm_user_restock" oldColumnName="sns" newColumnName="push"/>
-        <renameColumn tableName="alarm_user_service_center" oldColumnName="is_alarm" newColumnName="msg"/>
-        <renameColumn tableName="alarm_user_service_center" oldColumnName="sns" newColumnName="push"/>
-        <renameColumn tableName="alarm_user_shopping_benefits" oldColumnName="is_alarm" newColumnName="msg"/>
-        <renameColumn tableName="alarm_user_shopping_benefits" oldColumnName="sns" newColumnName="push"/>
-        <renameColumn tableName="alarm_user_brand_shop" oldColumnName="is_alarm" newColumnName="msg"/>
-        <renameColumn tableName="alarm_user_brand_shop" oldColumnName="sns" newColumnName="push"/>
-        <renameColumn tableName="alarm_user_order_delivery" oldColumnName="is_alarm" newColumnName="msg"/>
-        <renameColumn tableName="alarm_user_order_delivery" oldColumnName="sns" newColumnName="push"/>
-
-        <setColumnRemarks tableName="alarm_user_review" columnName="msg" remarks="메세지 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_review" columnName="push" remarks="push 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_restock" columnName="msg" remarks="메세지 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_restock" columnName="push" remarks="push 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_service_center" columnName="msg" remarks="메세지 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_service_center" columnName="push" remarks="push 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_shopping_benefits" columnName="msg" remarks="메세지 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_shopping_benefits" columnName="push" remarks="push 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_brand_shop" columnName="msg" remarks="메세지 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_brand_shop" columnName="push" remarks="push 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_order_delivery" columnName="msg" remarks="메세지 알람 여부"/>
-        <setColumnRemarks tableName="alarm_user_order_delivery" columnName="push" remarks="push 알람 여부"/>
-    </changeSet>
-
-    <changeSet id="changelog-0.14.06-240924" author="sda0523">
-        <preConditions onFail="MARK_RAN">
-            <columnExists tableName="alarm_user_order_delivery" columnName="time"/>
-            <columnExists tableName="alarm_user_brand_shop" columnName="time"/>
-            <columnExists tableName="alarm_user_shopping_benefits" columnName="time"/>
-            <columnExists tableName="alarm_user_service_center" columnName="time"/>
-            <columnExists tableName="alarm_user_restock" columnName="time"/>
-            <columnExists tableName="alarm_user_review" columnName="time"/>
-        </preConditions>
-        <dropColumn tableName="alarm_user_review" columnName="time"/>
-        <dropColumn tableName="alarm_user_restock" columnName="time"/>
-        <dropColumn tableName="alarm_user_service_center" columnName="time"/>
-        <dropColumn tableName="alarm_user_shopping_benefits" columnName="time"/>
-        <dropColumn tableName="alarm_user_brand_shop" columnName="time"/>
-        <dropColumn tableName="alarm_user_order_delivery" columnName="time"/>
-    </changeSet>
-
-    <changeSet id="changelog-0.14.07-240924" author="sda0523">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="bizgo_token"/>
-            </not>
-        </preConditions>
-        <createTable tableName="bizgo_token">
-            <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="token" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="expired_date" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column name="create_at" type="TIMESTAMP"/>
-            <column name="register_id" type="VARCHAR(255)"/>
-        </createTable>
-    </changeSet>
-
-    <changeSet id="changelog-0.14.08-240924" author="sda0523">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="alarm_seller_order"/>
-                <tableExists tableName="alarm_seller_wish"/>
-                <tableExists tableName="alarm_seller_inquiry"/>
-                <tableExists tableName="alarm_seller_advertisement"/>
-                <tableExists tableName="alarm_seller_open"/>
-            </not>
-        </preConditions>
-        <createTable tableName="alarm_seller_order">
-            <column name="alarm_order_id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="user_id" type="BIGINT" remarks="user_info의 FK">
-                <constraints nullable="false"/>
-            </column>
-            <column name="msg" type="BOOLEAN" remarks="메세지 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="kakao" type="BOOLEAN" remarks="카카오 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="email" type="BOOLEAN" remarks="이메일 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="push" type="BOOLEAN" remarks="push 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="category" type="VARCHAR(255)" remarks="COMPLETE(결제완료), DELIVERY(배송), CANCEL(반품/교환/주문취소)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="subcategory" type="VARCHAR(255)"
-                    remarks="NONE(없음), DELIVERY_START(배송시작), DELIVERY_COMPLETE(배송완료)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="comment" type="text" remarks="메세지 내용"/>
-            <column name="create_at" type="TIMESTAMP"/>
-            <column name="register_id" type="VARCHAR(255)"/>
-            <column name="modify_at" type="TIMESTAMP"/>
-            <column name="modify_id" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="alarm_seller_wish">
-            <column name="alarm_wish_id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="user_id" type="BIGINT" remarks="user_info의 FK">
-                <constraints nullable="false"/>
-            </column>
-            <column name="msg" type="BOOLEAN" remarks="메세지 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="kakao" type="BOOLEAN" remarks="카카오 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="email" type="BOOLEAN" remarks="이메일 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="push" type="BOOLEAN" remarks="push 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="category" type="VARCHAR(255)" remarks="WISH(브랜드/삼품 찜)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="comment" type="text" remarks="메세지 내용"/>
-            <column name="create_at" type="TIMESTAMP"/>
-            <column name="register_id" type="VARCHAR(255)"/>
-            <column name="modify_at" type="TIMESTAMP"/>
-            <column name="modify_id" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="alarm_seller_inquiry">
-            <column name="alarm_inquiry_id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="user_id" type="BIGINT" remarks="user_info의 FK">
-                <constraints nullable="false"/>
-            </column>
-            <column name="msg" type="BOOLEAN" remarks="메세지 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="kakao" type="BOOLEAN" remarks="카카오 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="email" type="BOOLEAN" remarks="이메일 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="push" type="BOOLEAN" remarks="push 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="category" type="VARCHAR(255)" remarks="INQUIRY(문의/리뷰)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="comment" type="text" remarks="메세지 내용"/>
-            <column name="create_at" type="TIMESTAMP"/>
-            <column name="register_id" type="VARCHAR(255)"/>
-            <column name="modify_at" type="TIMESTAMP"/>
-            <column name="modify_id" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="alarm_seller_advertisement">
-            <column name="alarm_advertisement_id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="user_id" type="BIGINT" remarks="user_info의 FK">
-                <constraints nullable="false"/>
-            </column>
-            <column name="msg" type="BOOLEAN" remarks="메세지 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="kakao" type="BOOLEAN" remarks="카카오 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="email" type="BOOLEAN" remarks="이메일 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="push" type="BOOLEAN" remarks="push 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="category" type="VARCHAR(255)" remarks="ADVERTISEMENT(광고)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="comment" type="text" remarks="메세지 내용"/>
-            <column name="create_at" type="TIMESTAMP"/>
-            <column name="register_id" type="VARCHAR(255)"/>
-            <column name="modify_at" type="TIMESTAMP"/>
-            <column name="modify_id" type="VARCHAR(255)"/>
-        </createTable>
-        <createTable tableName="alarm_seller_open">
-            <column name="alarm_open_id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="user_id" type="BIGINT" remarks="user_info의 FK">
-                <constraints nullable="false"/>
-            </column>
-            <column name="msg" type="BOOLEAN" remarks="메세지 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="kakao" type="BOOLEAN" remarks="카카오 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="email" type="BOOLEAN" remarks="이메일 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="push" type="BOOLEAN" remarks="push 알람 여부">
-                <constraints nullable="false"/>
-            </column>
-            <column name="category" type="VARCHAR(255)" remarks="APPROVAL(입점 승인), REJECTION(입점 거절)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="comment" type="text" remarks="메세지 내용"/>
-            <column name="create_at" type="TIMESTAMP"/>
-            <column name="register_id" type="VARCHAR(255)"/>
-            <column name="modify_at" type="TIMESTAMP"/>
-            <column name="modify_id" type="VARCHAR(255)"/>
-        </createTable>
-    </changeSet>
-
-    <changeSet id="changelog-0.14.09-240924" author="sda0523">
-        <preConditions onFail="MARK_RAN">
-            <not>
                 <tableExists tableName="alarm_admin_for_user"/>
                 <tableExists tableName="alarm_admin_for_seller"/>
             </not>
@@ -417,6 +46,101 @@
             <column name="register_id" type="VARCHAR(255)"/>
             <column name="modify_at" type="TIMESTAMP"/>
             <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.02-240924" author="sda0523">
+        <dropTable tableName="order_delivery_alarm"/>
+        <dropTable tableName="brand_shop_alarm"/>
+        <dropTable tableName="shopping_benefits_alarm"/>
+        <dropTable tableName="service_center_alarm"/>
+        <dropTable tableName="restock_alarm"/>
+        <dropTable tableName="review_alarm"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.03-240924" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="alarm_user"/>
+                <tableExists tableName="alarm_seller"/>
+            </not>
+        </preConditions>
+        <createTable tableName="alarm_user">
+            <column name="alarm_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT" autoIncrement="true" remarks="user_info의 FK">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(255)" remarks="카테고리">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_on" type="BOOLEAN" remarks="알림 on off"/>
+            <column name="kakao" type="BOOLEAN" remarks="카카오 전송 유무"/>
+            <column name="push" type="BOOLEAN" remarks="push 전송 유무"/>
+            <column name="msg" type="BOOLEAN" remarks="문자 전송 유무"/>
+            <column name="email" type="BOOLEAN" remarks="이메일 전송 유무"/>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createIndex indexName="idx_user_id" tableName="alarm_user">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex indexName="idx_user_category" tableName="alarm_user">
+            <column name="category"/>
+        </createIndex>
+
+        <createTable tableName="alarm_seller">
+            <column name="alarm_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="seller_id" type="BIGINT" autoIncrement="true" remarks="seller의 FK">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(255)" remarks="카테고리">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao" type="BOOLEAN" remarks="카카오 전송 유무"/>
+            <column name="email" type="BOOLEAN" remarks="이메일 전송 유무"/>
+            <column name="msg" type="BOOLEAN" remarks="문자 전송 유무"/>
+            <column name="time" type="VARCHAR(255)" remarks="알림 시간 설정 ALL(24hr), FIX(9시~22시), CUSTOM(브랜드 영업시간)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createIndex indexName="idx_seller_id" tableName="alarm_seller">
+            <column name="seller_id"/>
+        </createIndex>
+        <createIndex indexName="idx_seller_category" tableName="alarm_seller">
+            <column name="category"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.04-240924" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bizgo_token"/>
+            </not>
+        </preConditions>
+        <createTable tableName="bizgo_token">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired_date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>

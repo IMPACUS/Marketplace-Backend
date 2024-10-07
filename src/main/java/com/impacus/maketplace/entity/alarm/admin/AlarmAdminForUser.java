@@ -1,8 +1,8 @@
 package com.impacus.maketplace.entity.alarm.admin;
 
 import com.impacus.maketplace.common.BaseEntity;
-import com.impacus.maketplace.common.enumType.alarm.AlarmCategoryUserEnum;
-import com.impacus.maketplace.common.enumType.alarm.AlarmSubcategoryUserEnum;
+import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
+import com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum;
 import com.impacus.maketplace.dto.alarm.admin.AddAlarmUserDto;
 import com.impacus.maketplace.dto.alarm.admin.OutputAlarmUserDto;
 import jakarta.persistence.*;
@@ -28,11 +28,11 @@ public class AlarmAdminForUser extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private AlarmCategoryUserEnum category;
+    private AlarmUserCategoryEnum category;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private AlarmSubcategoryUserEnum subcategory;
+    private AlarmUserSubcategoryEnum subcategory;
 
     @Column(columnDefinition = "text")
     @Comment("알림 내용1")
@@ -46,7 +46,7 @@ public class AlarmAdminForUser extends BaseEntity {
     @Comment("알림 내용 템플릿")
     private String template;
 
-    public AlarmAdminForUser(AddAlarmUserDto addAlarmUserDto, AlarmSubcategoryUserEnum subcategory) {
+    public AlarmAdminForUser(AddAlarmUserDto addAlarmUserDto, AlarmUserSubcategoryEnum subcategory) {
         this.category = addAlarmUserDto.getCategory();
         this.subcategory = subcategory;
         List<String> commentList = addAlarmUserDto.getSubcategory().get(subcategory);

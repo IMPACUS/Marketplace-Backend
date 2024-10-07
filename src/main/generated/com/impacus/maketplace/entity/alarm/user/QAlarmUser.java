@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.alarm.admin;
+package com.impacus.maketplace.entity.alarm.user;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -10,27 +10,29 @@ import com.querydsl.core.types.Path;
 
 
 /**
- * QAlarmAdminForUser is a Querydsl query type for AlarmAdminForUser
+ * QAlarmUser is a Querydsl query type for AlarmUser
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QAlarmAdminForUser extends EntityPathBase<AlarmAdminForUser> {
+public class QAlarmUser extends EntityPathBase<AlarmUser> {
 
-    private static final long serialVersionUID = 2089804397L;
+    private static final long serialVersionUID = -1804911133L;
 
-    public static final QAlarmAdminForUser alarmAdminForUser = new QAlarmAdminForUser("alarmAdminForUser");
+    public static final QAlarmUser alarmUser = new QAlarmUser("alarmUser");
 
     public final com.impacus.maketplace.common.QBaseEntity _super = new com.impacus.maketplace.common.QBaseEntity(this);
 
     public final EnumPath<com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum> category = createEnum("category", com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum.class);
 
-    public final StringPath comment1 = createString("comment1");
-
-    public final StringPath comment2 = createString("comment2");
-
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
 
+    public final BooleanPath email = createBoolean("email");
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final BooleanPath isOn = createBoolean("isOn");
+
+    public final BooleanPath kakao = createBoolean("kakao");
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifyAt = _super.modifyAt;
@@ -38,23 +40,25 @@ public class QAlarmAdminForUser extends EntityPathBase<AlarmAdminForUser> {
     //inherited
     public final StringPath modifyId = _super.modifyId;
 
+    public final BooleanPath msg = createBoolean("msg");
+
+    public final BooleanPath push = createBoolean("push");
+
     //inherited
     public final StringPath registerId = _super.registerId;
 
-    public final EnumPath<com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum> subcategory = createEnum("subcategory", com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
-    public final StringPath template = createString("template");
-
-    public QAlarmAdminForUser(String variable) {
-        super(AlarmAdminForUser.class, forVariable(variable));
+    public QAlarmUser(String variable) {
+        super(AlarmUser.class, forVariable(variable));
     }
 
-    public QAlarmAdminForUser(Path<? extends AlarmAdminForUser> path) {
+    public QAlarmUser(Path<? extends AlarmUser> path) {
         super(path.getType(), path.getMetadata());
     }
 
-    public QAlarmAdminForUser(PathMetadata metadata) {
-        super(AlarmAdminForUser.class, metadata);
+    public QAlarmUser(PathMetadata metadata) {
+        super(AlarmUser.class, metadata);
     }
 
 }
