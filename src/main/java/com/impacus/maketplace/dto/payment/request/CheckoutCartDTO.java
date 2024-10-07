@@ -20,4 +20,5 @@ public class CheckoutCartDTO {
     private PaymentMethod method;   // 결제 방식
     private Boolean usedRegisteredCard = false; // 등록된 카드 사용 유무
     private Long registeredCardId;  // 사용한 카드의 id
+    private Long calculatedTotalAmount;  // 프론트 서버에서 계산한 금액
 }

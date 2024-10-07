@@ -18,7 +18,6 @@ import com.impacus.maketplace.dto.payment.request.AddressInfoDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.request.PaymentProductInfoDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
-import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.entity.address.DeliveryAddress;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
@@ -156,8 +155,8 @@ public class CheckoutServiceTest {
 
         when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
         when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
-        when(couponRedeemService.getAmountAfterValidateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
-        when(couponRedeemService.getAmountAfterValidateCouponsForOrder(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
+        when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
+        when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
         when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(0L);
         when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(0L);
         when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);
@@ -419,8 +418,8 @@ public class CheckoutServiceTest {
 
         when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
         when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
-        when(couponRedeemService.getAmountAfterValidateCouponsForProduct(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
-        when(couponRedeemService.getAmountAfterValidateCouponsForOrder(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
+        when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
+        when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
         when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(0L);
         when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(1100L);
         when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);

@@ -236,6 +236,7 @@ public class DiscountService {
                     .productCouponDiscountAmount(productCouponDiscount)
                     .orderCouponDiscountAmount(orderCouponDiscount)
                     .pointDiscountAmount(pointDiscount)
+                    .quantity(productPricing.getQuantity())
                     .build();
 
             if (discountInfo.isNegativeAmount()) {
