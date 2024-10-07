@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface AlarmAdminForUserRepository extends JpaRepository<AlarmAdminForUser, Long> {
-    Optional<AlarmAdminForUser> findByCategoryAndSubcategory(AlarmCategoryUserEnum category, AlarmSubcategoryUserEnum subcategorySet);
+    Optional<AlarmAdminForUser> findByCategoryAndSubcategory(AlarmCategoryUserEnum category, AlarmSubcategoryUserEnum subcategory);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE AlarmAdminForUser a SET a.comment1 = :comment1, a.comment2 = :comment2, a.template = :template WHERE a.id = :id")

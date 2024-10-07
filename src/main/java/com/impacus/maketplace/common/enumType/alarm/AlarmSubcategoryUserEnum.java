@@ -16,7 +16,7 @@ public enum AlarmSubcategoryUserEnum {
                     "- 상품명: #{상품명}\n" +
                     "- 주문금액: #{20,000}원\n" +
                     "\n" +
-                    "#{유저 결제완료}"),
+                    "#{하단 문구}"),
     DELIVERY_START("배송 시작", "ORDER_DELIVERY", "배송",
             "주문/배송안내\n" +
                     "\n" +
@@ -27,7 +27,7 @@ public enum AlarmSubcategoryUserEnum {
                     "- 택배사: #{택배사}\n" +
                     "- 송장번호: #{송장번호}\n" +
                     "\n" +
-                    "#{유저 결제완료}"),
+                    "#{하단 문구}"),
     DELIVERY_COMPLETE("배송 완료", "ORDER_DELIVERY", "배송 완료",
             "주문/배송 안내\n" +
                     "\n" +
@@ -38,7 +38,7 @@ public enum AlarmSubcategoryUserEnum {
                     "- 택배사: #{택배사}\n" +
                     "- 송장번호: #{송장번호}\n" +
                     "\n" +
-                    "#{유저 결제완료}"),
+                    "#{하단 문구}"),
     CANCEL("반품/교환/주문취소", "ORDER_DELIVERY", "반품/교환/주문취소",
             "#{홍길동}님, 안녕하세요 IMPLACE입니다.\n" +
                     "\n" +
@@ -50,7 +50,7 @@ public enum AlarmSubcategoryUserEnum {
                     "- 택배사: #{택배사}\n" +
                     "- 송장번호: #{송장번호} \n" +
                     "\n" +
-                    "#{유저 결제완료}"),
+                    "#{하단 문구}"),
     RESTOCK("재입고", "RESTOCK", "재입고",
             "#{홍길동}님, 안녕하세요 IMPLACE입니다.\n" +
                     "\n" +
@@ -58,7 +58,7 @@ public enum AlarmSubcategoryUserEnum {
                     "\n" +
                     "- 신청상품: #{상품명}\n" +
                     "\n" +
-                    "#{유저 결제완료}"),
+                    "#{하단 문구}"),
     REVIEW("리뷰", "REVIEW", "리뷰",
             "#{홍길동}님, 안녕하세요 IMPLACE입니다.\n" +
                     "\n" +
@@ -66,7 +66,7 @@ public enum AlarmSubcategoryUserEnum {
                     "\n" +
                     "- 리뷰 상품: #{상품명} \n" +
                     "\n" +
-                    "#{유저 결제완료}"),
+                    "#{하단 문구}"),
     SERVICE_EVALUATION("서비스 평가", "REVIEW", "서비스평가",
             "서비스 평가:\n" +
                     "\n" +
@@ -74,13 +74,13 @@ public enum AlarmSubcategoryUserEnum {
                     "\n" +
                     "작성하신 평가에 답글이 등록 되었습니다.\n" +
                     "\n" +
-                    "#{유저 결제완료}"),
+                    "#{하단 문구}"),
     SERVICE_CENTER("고객센터", "SERVICE_CENTER", "고객센터",
             "#{홍길동}님, 안녕하세요 IMPLACE입니다.\n" +
                     "\n" +
                     "고객센터로 문의 주셔서 감사합니다.\n" +
                     "\n" +
-                    "#{유저 결제완료}"),
+                    "#{하단 문구}"),
     //    BRAND_SHOP("브랜드 샵", "BRAND_SHOP"),
 //    ADVERTISEMENT("광고", "SHOPPING_BENEFITS"),
     COUPON_EXTINCTION_1("쿠폰 소멸1", "SHOPPING_BENEFITS", "쿠폰소멸(30일전)",
@@ -92,12 +92,12 @@ public enum AlarmSubcategoryUserEnum {
                     "- 쿠폰금액: #{쿠폰금액}원\n" +
                     "- 유효기간: #{유효기간} 까지\n" +
                     "\n" +
-                    "#{유저 결제완료}" +
+                    "#{하단 문구}" +
                     "\n" +
                     "쿠폰함 확인하기\n" +
                     "#{쿠폰함 링크로 이동}\n" +
                     "\n" +
-                    "#{유저 결제완료1}"),
+                    "#{하단 문구1}"),
     COUPON_EXTINCTION_2("쿠폰 소멸2", "SHOPPING_BENEFITS", "쿠폰소멸(1일)",
             "소멸예정 쿠폰 안내\n" +
                     "\n" +
@@ -107,12 +107,12 @@ public enum AlarmSubcategoryUserEnum {
                     "- 쿠폰금액: #{쿠폰금액}원\n" +
                     "- 유효기간: #{유효기간} 까지\n" +
                     "\n" +
-                    "#{유저 결제완료}" +
+                    "#{하단 문구}" +
                     "\n" +
                     "쿠폰함 확인하기\n" +
                     "#{쿠폰함 링크로 이동}\n" +
                     "\n" +
-                    "#{유저 결제완료1}"),
+                    "#{하단 문구1}"),
     POINT_EXTINCTION_1("포인트 소멸1", "SHOPPING_BENEFITS", "휴면안내",
             "소멸예정 포인트 안내\n" +
                     "\n" +
@@ -121,12 +121,12 @@ public enum AlarmSubcategoryUserEnum {
                     "- 포인트: #{포인트}P\n" +
                     "- 유효기간: #{유효기간} 까지\n" +
                     "\n" +
-                    "#{유저 결제완료}" +
+                    "#{하단 문구}" +
                     "\n" +
                     "적립금 확인하기\n" +
                     "#{적립금페이지링크}\n" +
                     "\n" +
-                    "#{유저 결제완료1}"),
+                    "#{하단 문구1}"),
     POINT_EXTINCTION_2("포인트 소멸2", "SHOPPING_BENEFITS", "휴면안내(포인트 소멸1일전)",
             "소멸예정 포인트 안내\n" +
                     "\n" +
@@ -135,12 +135,12 @@ public enum AlarmSubcategoryUserEnum {
                     "- 적립금: #{적립금}P\n" +
                     "- 유효기간: #{유효기간} 까지\n" +
                     "\n" +
-                    "#{유저 결제완료}" +
+                    "#{하단 문구}" +
                     "\n" +
                     "적립금 확인하기\n" +
                     "#{적립금페이지링크}\n" +
                     "\n" +
-                    "#{유저 결제완료1}");
+                    "#{하단 문구1}");
     private String value;
     private String category;
     private String kakaoCode;

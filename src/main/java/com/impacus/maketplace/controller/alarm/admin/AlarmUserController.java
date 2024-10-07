@@ -3,12 +3,9 @@ package com.impacus.maketplace.controller.alarm.admin;
 import com.impacus.maketplace.common.enumType.alarm.AlarmCategoryUserEnum;
 import com.impacus.maketplace.common.enumType.alarm.AlarmSubcategoryUserEnum;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.alarm.admin.AddAlarmSellerDto;
-import com.impacus.maketplace.dto.alarm.admin.AddAlarmUserDto;
-import com.impacus.maketplace.dto.alarm.admin.GetAlarmUserDto;
-import com.impacus.maketplace.dto.alarm.admin.OutputAlarmUserDto;
+import com.impacus.maketplace.dto.alarm.admin.*;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForUser;
-import com.impacus.maketplace.service.alarm.admin.AlarmService;
+import com.impacus.maketplace.service.alarm.admin.AlarmUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,8 +17,8 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/alarm/admin")
-public class AlarmController {
-    private final AlarmService alarmService;
+public class AlarmUserController {
+    private final AlarmUserService alarmService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRINCIPAL_ADMIN', 'ROLE_OWNER')")
     @PostMapping("user")
@@ -45,7 +42,7 @@ public class AlarmController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRINCIPAL_ADMIN', 'ROLE_OWNER')")
     @GetMapping("user")
-    public ApiResponseEntity<?> getAlarmUserComment(@ModelAttribute GetAlarmUserDto getAlarmDto) {
+    public ApiResponseEntity<?> getAlarmUserComment(@Valid @ModelAttribute GetAlarmUserDto getAlarmDto) {
         AlarmCategoryUserEnum category = getAlarmDto.getCategory();
         Set<AlarmSubcategoryUserEnum> subcategorySet = getAlarmDto.getSubcategory();
         alarmService.inputValidation(category, subcategorySet);
@@ -61,24 +58,6 @@ public class AlarmController {
                 .data(output)
                 .build();
     }
-//
-//    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRINCIPAL_ADMIN', 'ROLE_OWNER')")
-//    @PostMapping("seller")
-//    public ApiResponseEntity<?> addAlarmSellerComment(@Valid AddAlarmSellerDto addAlarmDto) {
-//        alarmService.inputValidation(addAlarmDto.getCategory(), addAlarmDto.getSubcategory());
-//        alarmService.addUpdate(addAlarmDto);
-//        return ApiResponseEntity.builder()
-//                .message("알림 문구가 성공적으로 저장됐습니다.")
-//                .build();
-//    }
-//
-//    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRINCIPAL_ADMIN', 'ROLE_OWNER')")
-//    @GetMapping("seller")
-//    public ApiResponseEntity<?> getAlarmSellerComment(AddAlarmSellerDto addAlarmDto) {
-//        alarmService.inputValidation(addAlarmDto.getCategory(), addAlarmDto.getSubcategory());
-//        alarmService.addUpdate(addAlarmDto);
-//        return ApiResponseEntity.builder()
-//                .message("알림 문구가 성공적으로 저장됐습니다.")
-//                .build();
-//    }
+
+
 }

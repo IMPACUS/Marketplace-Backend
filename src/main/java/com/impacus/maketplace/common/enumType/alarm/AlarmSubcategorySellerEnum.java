@@ -27,7 +27,7 @@ public enum AlarmSubcategorySellerEnum {
                     "- 운송장번호: #{운송장번호}\n" +
                     "\n" +
                     "\n" +
-                    "상세 내역은 관리자 페이지에서 확인하실 수 있습니다."),
+                    "#{하단 문구}"),
     DELIVERY_COMPLETE("배송 완료", "ORDER_DELIVERY", "판매자 (배송완료)",
             "배송시작 안내\n" +
                     "\n" +
@@ -38,7 +38,7 @@ public enum AlarmSubcategorySellerEnum {
                     "- 운송장번호: #{운송장번호}\n" +
                     "\n" +
                     "\n" +
-                    "상세 내역은 관리자 페이지에서 확인하실 수 있습니다."),
+                    "#{하단 문구}"),
     CANCEL("반품/교환/주문취소", "ORDER_DELIVERY", "판매자 (반품/교환/취소)",
             "반품/교환/취소 안내\n" +
                     "\n" +
@@ -49,7 +49,7 @@ public enum AlarmSubcategorySellerEnum {
                     "- 운송장번호: #{운송장번호}\n" +
                     "\n" +
                     "\n" +
-                    "관리자 페이지에 접수하여 주문 처리를 부탁 드립니다."),
+                    "#{하단 문구}"),
     WISH("브랜드/상품 찜", "WISH", "판매자 (찜)",
             "브랜드/상품 찜 안내\n" +
                     "\n" +
@@ -57,7 +57,7 @@ public enum AlarmSubcategorySellerEnum {
                     "\n" +
                     "소비자 회원님께서 브랜드/상품을 찜 하였습니다!\n" +
                     "\n" +
-                    "관리자 페이지에서 확인 가능합니다."),
+                    "#{하단 문구}"),
     INQUIRY_REVIEW("문의/리뷰", "INQUIRY_REVIEW", "판매자 (문의 리뷰)",
             "문의/리뷰 안내\n" +
                     "\n" +
@@ -66,7 +66,7 @@ public enum AlarmSubcategorySellerEnum {
                     "소비자 회원님께서 소중한 문의/리뷰를 남겼습니다.\n" +
                     "\n" +
                     "\n" +
-                    "관리자 페이지에서 확인하여 회신/답변 부탁 드리겠습니다."),
+                    "#{하단 문구}"),
     //    ADVERTISEMENT("광고", "ADVERTISEMENT"),
     OPEN_APPROVAL("입점 승인", "OPEN", "판매자 (입점승인)",
             "입점승인 안내 \n" +
@@ -82,7 +82,7 @@ public enum AlarmSubcategorySellerEnum {
                     "다양한 마케팅, 홍보 서비스 제공해 드리오니 해당 내용으로 담당자가 신청하신 번호로 연락 드릴 예정입니다.\n" +
                     "\n" +
                     "\n" +
-                    "관리자 페이지에서 확인 하실 수 있습니다."),
+                    "#{하단 문구}"),
     OPEN_REJECTION("입점 거절", "OPEN", "판매자 (입점반려)",
             "입점반려 안내 \n" +
                     "\n" +
@@ -94,7 +94,7 @@ public enum AlarmSubcategorySellerEnum {
                     "\n" +
                     "\n" +
                     "\n" +
-                    "저희 서비스를 찾아주셔서 감사합니다.");
+                    "#{하단 문구}");
     private String value;
     private String category;
     private String kakaoCode;

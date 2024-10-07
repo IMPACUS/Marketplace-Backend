@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -55,16 +54,16 @@ public class AlarmAdminForUser extends BaseEntity {
 
         if (commentList.size() > 0) {
             this.comment1 = commentList.get(0);
-            this.template = template.replace("#{유저 결제완료}", this.comment1);
+            this.template = template.replace("#{하단 문구}", this.comment1);
         } else {
-            this.template = template.replace("#{유저 결제완료}", "");
+            this.template = template.replace("#{하단 문구}", "");
         }
 
         if (List.of("COUPON_EXTINCTION_1", "COUPON_EXTINCTION_2", "POINT_EXTINCTION_1", "POINT_EXTINCTION_2").contains(subcategory.name()) && commentList.size() > 1) {
             this.comment2 = commentList.get(1);
-            this.template = template.replace("#{유저 결제완료1}", this.comment2);
+            this.template = template.replace("#{하단 문구1}", this.comment2);
         } else {
-            this.template = template.replace("#{유저 결제완료1}", "");
+            this.template = template.replace("#{하단 문구1}", "");
         }
     }
 
