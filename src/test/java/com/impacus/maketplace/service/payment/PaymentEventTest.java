@@ -5,7 +5,6 @@ import com.impacus.maketplace.common.enumType.payment.PaymentOrderStatus;
 import com.impacus.maketplace.common.enumType.payment.PaymentType;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
