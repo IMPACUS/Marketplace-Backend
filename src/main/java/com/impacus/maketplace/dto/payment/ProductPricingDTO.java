@@ -9,7 +9,8 @@ public class ProductPricingDTO {
     private Long appSalesPrice;       // 앱 판매가
     private Long ecoDiscountAmount;   // 에코 할인 금액
     private Long priceAfterEcoDiscount; // 에코 할인 적용 후 가격
-    private Long quantity;
+    @Builder.Default
+    private Long quantity = 1L;
 
     @Builder
     ProductPricingDTO(Long productId, Long appSalesPrice, Long ecoDiscountAmount, Long quantity) {
