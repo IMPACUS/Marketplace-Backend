@@ -127,7 +127,8 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
                                 AlarmPointDTO.class,
                                 user.name.as("userName"),
                                 allocation.remainPoint,
-                                allocation.expiredAt
+                                allocation.expiredAt,
+                                user.phoneNumber
                         )
                 )
                 .from(allocation)

@@ -115,7 +115,7 @@ public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGr
         List<BundleDeliveryGroupProductDTO> result = queryFactory
                 .selectFrom(product)
                 .innerJoin(bundleDeliveryGroup).on(bundleDeliveryGroup.id.eq(groupId))
-                .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(productOption).on(productOption.productId.eq(product.id).and(productOption.isDeleted.eq(false)))
                 .where(product.id.in(productIds))
                 .orderBy(product.id.asc(), productOption.id.asc())
                 .transform(
