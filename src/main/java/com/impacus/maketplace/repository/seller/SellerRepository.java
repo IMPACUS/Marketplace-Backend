@@ -52,4 +52,7 @@ public interface SellerRepository extends JpaRepository<Seller, Long>, ReadSelle
             " FROM Seller s " +
             "WHERE s.isDeleted = false AND s.userId = :userId")
     Long findSellerIdByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT s.marketName FROM Seller s WHERE s.id = :sellerId")
+    String findMarketNameBySellerId(@Param("sellerId") Long id);
 }
