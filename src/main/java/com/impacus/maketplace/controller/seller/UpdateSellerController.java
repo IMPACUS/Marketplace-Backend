@@ -2,7 +2,6 @@ package com.impacus.maketplace.controller.seller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.seller.request.*;
-import com.impacus.maketplace.service.seller.ReadSellerService;
 import com.impacus.maketplace.service.seller.UpdateSellerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import security.CustomUserDetails;
 @Slf4j
 @RequestMapping("/api/v1/seller")
 public class UpdateSellerController {
-    private final ReadSellerService readSellerService;
     private final UpdateSellerService updateSellerService;
 
     /**

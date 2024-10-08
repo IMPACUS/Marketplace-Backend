@@ -20,7 +20,7 @@ public enum PointType {
     ADMIN_PROVIDE(6, "관리자에 의한 포인트 지급", RewardPointType.ADMIN_PROVIDE),
     ADMIN_RECEIVE(7, "관리자에 의한 포인트 감소", null),
     REFUND_PRODUCT(8, "상품 환불", null),
-    UPGRADE_LEVEL(9, "레벨 포인트 등급 상승", null),
+    UPGRADE_LEVEL(9, "레벨 포인트 등급 상승", RewardPointType.UPGRADE_LEVEL),
     DOWNGRADE_LEVEL(10, "레벨 포인트 등급 하락", null),
     REVIEW(11, "리뷰 작성", RewardPointType.REVIEW),
     SHARE_APP(12, "앱 공유", RewardPointType.SHARE_APP),

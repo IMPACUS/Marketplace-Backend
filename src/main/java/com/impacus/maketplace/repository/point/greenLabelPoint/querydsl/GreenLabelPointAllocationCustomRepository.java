@@ -2,6 +2,7 @@ package com.impacus.maketplace.repository.point.greenLabelPoint.querydsl;
 
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
+import com.impacus.maketplace.dto.point.AlarmPointDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
 import org.springframework.data.repository.query.Param;
@@ -37,4 +38,6 @@ public interface GreenLabelPointAllocationCustomRepository {
      * @return
      */
     Long findAllocatedPointCntByUserIdAndPointType(Long userId, PointType pointType);
+
+    AlarmPointDTO findAlarmPointByAllocationId(Long greenLabelPointAllocationId);
 }
