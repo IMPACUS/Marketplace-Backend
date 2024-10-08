@@ -14,6 +14,6 @@ public interface AlarmAdminForSellerRepository extends JpaRepository<AlarmAdminF
     Optional<AlarmAdminForSeller> findByCategoryAndSubcategory(AlarmSellerCategoryEnum category, AlarmSellerSubcategoryEnum subcategory);
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE AlarmAdminForSeller a SET a.comment1 = :comment1, a.comment2 = :comment2, a.template = :template WHERE a.id = :id")
-    void updateComment(@Param("id") Long id, @Param("comment1") String comment1, @Param("comment2") String comment2, @Param("template") String template);
+    @Query("UPDATE AlarmAdminForSeller a SET a.comment1 = :comment1, a.template = :template WHERE a.id = :id")
+    void updateComment(@Param("id") Long id, @Param("comment1") String comment1, @Param("template") String template);
 }

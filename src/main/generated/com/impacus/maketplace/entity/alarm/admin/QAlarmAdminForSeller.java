@@ -25,8 +25,6 @@ public class QAlarmAdminForSeller extends EntityPathBase<AlarmAdminForSeller> {
 
     public final StringPath comment1 = createString("comment1");
 
-    public final StringPath comment2 = createString("comment2");
-
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
 

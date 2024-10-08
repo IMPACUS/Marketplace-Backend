@@ -11,10 +11,10 @@ public enum AlarmUserSubcategoryEnum {
                     "\n" +
                     "#{홍길동}님, 결제가 완료 되었어요.\n" +
                     "\n" +
-                    "- 주문일: #{2024-10-05}\n" +
+                    "- 주문일: #{주문일}\n" +
                     "- 주문번호: #{주문번호}\n" +
                     "- 상품명: #{상품명}\n" +
-                    "- 주문금액: #{20,000}원\n" +
+                    "- 주문금액: #{주문금액}원\n" +
                     "\n" +
                     "#{하단 문구}"),
     DELIVERY_START("배송 시작", "ORDER_DELIVERY", "배송",
@@ -39,8 +39,10 @@ public enum AlarmUserSubcategoryEnum {
                     "- 송장번호: #{송장번호}\n" +
                     "\n" +
                     "#{하단 문구}"),
-    CANCEL("반품/교환/주문취소", "ORDER_DELIVERY", "반품/교환/주문취소",
-            "#{홍길동}님, 안녕하세요 IMPLACE입니다.\n" +
+    CANCEL("반품/교환/주문취소", "ORDER_DELIVERY", "반품/교환/주문취소(A)",
+            "주문/배송 안내\n" +
+                    "\n" +
+                    "#{홍길동}님, 안녕하세요 IMPLACE입니다.\n" +
                     "\n" +
                     "반품/교환/주문취소 접수가\n" +
                     "정상적으로 완료되었습니다.\n" +
@@ -75,7 +77,7 @@ public enum AlarmUserSubcategoryEnum {
                     "작성하신 평가에 답글이 등록 되었습니다.\n" +
                     "\n" +
                     "#{하단 문구}"),
-    SERVICE_CENTER("고객센터", "SERVICE_CENTER", "고객센터",
+    SERVICE_CENTER("고객센터", "SERVICE_CENTER", "고객센터(A)",
             "#{홍길동}님, 안녕하세요 IMPLACE입니다.\n" +
                     "\n" +
                     "고객센터로 문의 주셔서 감사합니다.\n" +
@@ -95,7 +97,7 @@ public enum AlarmUserSubcategoryEnum {
                     "#{하단 문구}" +
                     "\n" +
                     "쿠폰함 확인하기\n" +
-                    "#{쿠폰함 링크로 이동}\n" +
+                    "#{쿠폰함 링크}\n" +
                     "\n" +
                     "#{하단 문구1}"),
     COUPON_EXTINCTION_2("쿠폰 소멸2", "SHOPPING_BENEFITS", "쿠폰소멸(1일)",
@@ -110,7 +112,7 @@ public enum AlarmUserSubcategoryEnum {
                     "#{하단 문구}" +
                     "\n" +
                     "쿠폰함 확인하기\n" +
-                    "#{쿠폰함 링크로 이동}\n" +
+                    "#{쿠폰함 링크}\n" +
                     "\n" +
                     "#{하단 문구1}"),
     POINT_EXTINCTION_1("포인트 소멸1", "SHOPPING_BENEFITS", "휴면안내",
@@ -124,7 +126,7 @@ public enum AlarmUserSubcategoryEnum {
                     "#{하단 문구}" +
                     "\n" +
                     "적립금 확인하기\n" +
-                    "#{적립금페이지링크}\n" +
+                    "#{적립금 링크}\n" +
                     "\n" +
                     "#{하단 문구1}"),
     POINT_EXTINCTION_2("포인트 소멸2", "SHOPPING_BENEFITS", "휴면안내(포인트 소멸1일전)",
@@ -138,7 +140,7 @@ public enum AlarmUserSubcategoryEnum {
                     "#{하단 문구}" +
                     "\n" +
                     "적립금 확인하기\n" +
-                    "#{적립금페이지링크}\n" +
+                    "#{적립금 링크}\n" +
                     "\n" +
                     "#{하단 문구1}");
     private String value;

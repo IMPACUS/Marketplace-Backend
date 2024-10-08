@@ -40,7 +40,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="comment1" type="text" remarks="알림 내용1"/>
-            <column name="comment2" type="text" remarks="알림 내용2"/>
             <column name="template" type="text" remarks="알림 내용 템플릿"/>
             <column name="create_at" type="TIMESTAMP"/>
             <column name="register_id" type="VARCHAR(255)"/>

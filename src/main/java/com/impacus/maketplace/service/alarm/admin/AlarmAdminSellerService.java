@@ -41,7 +41,6 @@ public class AlarmAdminSellerService {
 
     public void update(AlarmAdminForSeller a, List<String> commentList) {
         String comment1 = "";
-        String comment2 = "";
         String template = a.getSubcategory().getTemplate();
         if (commentList.size() > 0) {
             comment1 = commentList.get(0);
@@ -57,6 +56,6 @@ public class AlarmAdminSellerService {
 //        } else {
 //            template = template.replace("#{하단 문구1}", "");
 //        }
-        alarmAdminForSellerRepository.updateComment(a.getId(), comment1, comment2, template);
+        alarmAdminForSellerRepository.updateComment(a.getId(), comment1, template);
     }
 }

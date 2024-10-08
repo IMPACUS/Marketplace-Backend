@@ -37,12 +37,15 @@ public class AlarmAdminForSeller extends BaseEntity {
     private String comment1 = "";
 
     @Column(columnDefinition = "text")
-    @Comment("알림 내용2")
-    private String comment2 = "";
-
-    @Column(columnDefinition = "text")
     @Comment("알림 내용 템플릿")
     private String template;
+
+    public AlarmAdminForSeller(AlarmSellerCategoryEnum category, AlarmSellerSubcategoryEnum subcategory, String comment1, String template) {
+        this.category = category;
+        this.subcategory = subcategory;
+        this.comment1 = comment1;
+        this.template = template.replace("#{하단 문구}", comment1);
+    }
 
     public AlarmAdminForSeller(AddAlarmSellerDto addAlarmSellerDto, AlarmSellerSubcategoryEnum subcategory) {
         this.category = addAlarmSellerDto.getCategory();

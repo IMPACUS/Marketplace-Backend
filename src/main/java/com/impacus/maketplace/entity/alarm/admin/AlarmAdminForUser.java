@@ -46,6 +46,14 @@ public class AlarmAdminForUser extends BaseEntity {
     @Comment("알림 내용 템플릿")
     private String template;
 
+    public AlarmAdminForUser(AlarmUserCategoryEnum category, AlarmUserSubcategoryEnum subcategory, String comment1, String comment2, String template) {
+        this.category = category;
+        this.subcategory = subcategory;
+        this.comment1 = comment1;
+        this.comment2 = comment2;
+        this.template = template.replace("#{하단 문구}", comment1).replace("#{하단 문구1}", comment2);
+    }
+
     public AlarmAdminForUser(AddAlarmUserDto addAlarmUserDto, AlarmUserSubcategoryEnum subcategory) {
         this.category = addAlarmUserDto.getCategory();
         this.subcategory = subcategory;
