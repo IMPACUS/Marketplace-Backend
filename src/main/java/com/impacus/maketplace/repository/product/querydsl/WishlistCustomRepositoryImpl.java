@@ -35,6 +35,17 @@ public class WishlistCustomRepositoryImpl implements WishlistCustomRepository {
         return PaginationUtils.toSlice(dtos, pageable);
     }
 
+    @Override
+    public String findMarketNameByWishlistId(Long wishlistId) {
+        return queryFactory
+                .select(seller.marketName)
+                .from(wishlist)
+                .innerJoin(product).on(product.id.eq(wishlist.productId))
+                .innerJoin(seller).on(seller.id.eq(product.sellerId))
+                .where(wishlist.id.eq(wishlistId))
+                .fetchFirst();
+    }
+
     private List<WishlistDetailDTO> getWishlistDetailDTOs(Long userId, Pageable pageable) {
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(wishlist.productId))

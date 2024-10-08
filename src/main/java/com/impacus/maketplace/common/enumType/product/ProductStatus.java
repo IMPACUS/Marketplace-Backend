@@ -33,5 +33,4 @@ public enum ProductStatus {
 
         return path.in(types);
     }
-
 }

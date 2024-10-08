@@ -2,15 +2,19 @@ package com.impacus.maketplace.controller.payment;
 
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.payment.request.CheckoutCartDTO;
+import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
+import com.impacus.maketplace.dto.payment.response.CheckoutCartProductsDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
+import com.impacus.maketplace.dto.payment.response.PaymentCartDTO;
+import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import security.CustomUserDetails;
 
 import java.util.List;
 
@@ -44,13 +48,40 @@ public class CheckoutController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("checkout-cart")
-    public ApiResponseEntity<List<CheckoutProductDTO>> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
+    public ApiResponseEntity<CheckoutCartProductsDTO> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
 
-        List<CheckoutProductDTO> response = checkoutService.getCheckoutCart(shoppingBasketIdList);
+        List<CheckoutProductDTO> products = checkoutService.getCheckoutCart(shoppingBasketIdList);
+        CheckoutCartProductsDTO response = CheckoutCartProductsDTO.builder()
+                .products(products)
+                .shoppingBasketIdList(shoppingBasketIdList)
+                .build();
 
         return ApiResponseEntity
-                .<List<CheckoutProductDTO>>builder()
+                .<CheckoutCartProductsDTO>builder()
                 .data(response)
                 .build();
+    }
+
+    /**
+     * 결제하기 처리 (단일 상품 구매) - 전처리 단계
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("checkout-single")
+    public ApiResponseEntity<PaymentSingleDTO> checkoutSingle(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutSingleDTO checkoutSingleDTO) {
+        PaymentSingleDTO response = checkoutService.checkoutSingle(user.getId(), checkoutSingleDTO);
+
+        return ApiResponseEntity
+                .<PaymentSingleDTO>builder()
+                .data(response)
+                .build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("checkout-cart")
+    public ApiResponseEntity<PaymentCartDTO> checkoutCart(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutCartDTO checkoutCartDTO) {
+
+        checkoutService.checkoutCart(user.getId(), checkoutCartDTO);
+
+        return null;
     }
 }

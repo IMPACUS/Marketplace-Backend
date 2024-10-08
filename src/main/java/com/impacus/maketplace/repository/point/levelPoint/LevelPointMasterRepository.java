@@ -22,6 +22,10 @@ public interface LevelPointMasterRepository extends JpaRepository<LevelPointMast
     @Query("SELECT lpm FROM LevelPointMaster lpm where lpm.userId = :userId")
     Optional<LevelPointMaster> findByUserIdForUpdate(@Param("userId") Long userId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT lpm.levelPoint FROM LevelPointMaster lpm where lpm.userId = :userId")
+    Long findLevelPointByUserId(@Param("userId") Long userId);
+
     @Transactional
     @Modifying
     @Query("UPDATE LevelPointMaster lpm " +

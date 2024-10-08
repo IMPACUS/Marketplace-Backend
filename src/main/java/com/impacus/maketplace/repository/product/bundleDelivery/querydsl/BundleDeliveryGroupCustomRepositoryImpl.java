@@ -143,11 +143,11 @@ public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGr
     }
 
     @Override
-    public long deleteProductFromBundleGroup(Long sellerId, Long groupId, Long productId) {
+    public long deleteProductFromBundleGroup(Long groupId, Long productId) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(product.sellerId.eq(sellerId))
+        builder
                 .and(product.bundleDeliveryGroupId.eq(groupId))
                 .and(product.id.eq(productId));
 

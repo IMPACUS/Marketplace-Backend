@@ -3,7 +3,6 @@ package com.impacus.maketplace.common.utils;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -35,7 +34,7 @@ public class PaginationUtils {
      * @param pageable 페이지 번호, 크기 등의 페이지네이션 정보
      * @return 페이지 크기에 맞게 잘린 Page 객체
      */
-    public static <T> Page<T> toPage(List<T> list, Pageable pageable, int count) {
+    public static <T> Page<T> toPage(List<T> list, Pageable pageable, long count) {
         return new PageImpl<>(list, pageable, count);
     }
 }

@@ -10,6 +10,7 @@ import lombok.Data;
 public class CheckoutProductDTO {
     private Long productId;   // 상품 id
     private String name;    // 상품명
+    private Long sellerId;  // 판매자 id
     private String marketName;  // 브랜드명
     private String color;   // 색상
     private String size;    // 크기
@@ -25,6 +26,7 @@ public class CheckoutProductDTO {
     public CheckoutProductDTO(CheckoutProductWithDetailsDTO checkoutProductWithDetailsDTO, Long productId, Long productOptionId, Long quantity) {
         this.productId = productId;
         this.name = checkoutProductWithDetailsDTO.getName();
+        this.sellerId = checkoutProductWithDetailsDTO.getSellerId();
         this.marketName = checkoutProductWithDetailsDTO.getMarketName();
         this.color = checkoutProductWithDetailsDTO.getColor();
         this.size = checkoutProductWithDetailsDTO.getSize();
@@ -43,6 +45,7 @@ public class CheckoutProductDTO {
     public CheckoutProductDTO(CheckoutProductWithDetailsByCartDTO orderProductWithDetailsByCartDTO) {
         this.productId = orderProductWithDetailsByCartDTO.getProductId();
         this.name = orderProductWithDetailsByCartDTO.getName();
+        this.sellerId = orderProductWithDetailsByCartDTO.getSellerId();
         this.marketName = orderProductWithDetailsByCartDTO.getMarketName();
         this.color = orderProductWithDetailsByCartDTO.getColor();
         this.size = orderProductWithDetailsByCartDTO.getSize();

@@ -3,6 +3,7 @@ package com.impacus.maketplace.service;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -85,7 +86,7 @@ public class UserService {
 
             // 3. User&UserStatus 생성 및 저장
             User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
-                    encodePassword(password),
+                    password,
                     signUpRequest.getName());
             userRepository.save(user);
             userStatusInfoService.addUserStatusInfo(user.getId());
@@ -152,12 +153,8 @@ public class UserService {
             // 3. 비밀번호 확인
             // 3-1. 틀린 경우: 틀린 횟수 추가
             // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
-            if (!passwordEncoder.matches(password, user.getPassword())) {
+            if (!passwordEncoder.matches(password, encodePassword(user.getPassword()))) {
                 LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
-
-                if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
-                    changeUserStatus(user, UserStatus.BLOCKED);
-                }
                 throw new CustomException(CommonErrorType.WRONG_PASSWORD);
             } else {
                 loginFailAttemptService.resetLoginFailAttempt(user);
@@ -174,7 +171,7 @@ public class UserService {
                 greenLabelPointAllocationService.payGreenLabelPoint(
                         user.getId(),
                         PointType.CHECK,
-                        PointType.CHECK.getAllocatedPoints()
+                        RewardPointType.CHECK.getAllocatedPoints()
                 );
             }
 
@@ -209,12 +206,8 @@ public class UserService {
 //            // 3. 비밀번호 확인
 //            // 3-1. 틀린 경우: 틀린 횟수 추가
 //            // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
-//            if (!passwordEncoder.matches(password, admin.getPassword())) {
+//            if (!passwordEncoder.matches(password, encodePassword(admin.getPassword()))) {
 //                LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(admin);
-//
-//                if (loginFailAttempt.getFailAttemptCnt() > LIMIT_LOGIN_FAIL_ATTEMPT) {
-//                    changeUserStatus(user, UserStatus.BLOCKED);
-//                }
 //                throw new CustomException(CommonErrorType.WRONG_PASSWORD);
 //            } else {
 //                loginFailAttemptService.resetLoginFailAttempt(user);
@@ -255,7 +248,6 @@ public class UserService {
 
         UserStatusInfo userStatusInfo = userStatusInfoService.findUserStatusInfoByUserId(user.getId());
         switch (userStatusInfo.getStatus()) {
-            case BLOCKED -> throw new CustomException(CommonErrorType.BLOCKED_EMAIL);
             case DEACTIVATED -> throw new CustomException(UserErrorType.DEACTIVATED_USER);
             case SUSPENDED -> throw new CustomException(UserErrorType.SUSPENDED_USER);
         }
@@ -320,8 +312,8 @@ public class UserService {
     @Transactional(noRollbackFor = CustomException.class)
     public void changeUserStatus(User user, UserStatus userStatus) {
         switch (userStatus) {
-            case BLOCKED: {
-                userStatusInfoService.updateUserStatus(user.getId(), UserStatus.BLOCKED, "로그인 시도 가능 횟수 초과");
+            case SUSPENDED: {
+                userStatusInfoService.updateUserStatus(user.getId(), UserStatus.SUSPENDED, "로그인 시도 가능 횟수 초과");
             }
             break;
         }

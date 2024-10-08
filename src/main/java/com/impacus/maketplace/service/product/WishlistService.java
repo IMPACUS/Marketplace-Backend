@@ -113,4 +113,19 @@ public class WishlistService {
             throw new CustomException(ex);
         }
     }
+
+    /**
+     * 찜 알림 데이터를 구성하기 위해 찜 ID로 브랜드명을 조회하는 함수
+     *
+     * @param wishlistId 조회하고자 하는 찜 ID
+     * @return 찜의 상품 브랜드명
+     */
+    public String findMarketNameByWishlistId(Long wishlistId) {
+        String marketName = wishlistRepository.findMarketNameByWishlistId(wishlistId);
+        if (marketName == null) {
+            throw new CustomException((CommonErrorType.NOT_EXISTED_WISHLIST));
+        }
+
+        return marketName;
+    }
 }

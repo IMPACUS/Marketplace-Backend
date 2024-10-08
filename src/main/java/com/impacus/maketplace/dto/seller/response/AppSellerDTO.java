@@ -12,7 +12,7 @@ public class AppSellerDTO {
     private String marketName;
     private String contactName;
     private String customerServiceNumber;
-    private String representativeContact;
+    private String businessEmail;
     private String businessDay;
     private LocalTime openingTime;
     private LocalTime closingTime;

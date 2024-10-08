@@ -20,6 +20,7 @@ public class CheckoutProductWithDetailsByCartDTO {
     private Integer deliveryFee; // 배송비
     private List<String> productImages; // 이미지 리스트
     private boolean productIsDeleted; // 삭제 여부
+    private Long sellerId;  // 판매자 id
     private String marketName; // 브랜드명, 마켓명
     private String color;   // 색상
     private String size;    // 크기
@@ -30,7 +31,7 @@ public class CheckoutProductWithDetailsByCartDTO {
     private Long quantity; // 구매 수량
 
     @QueryProjection
-    public CheckoutProductWithDetailsByCartDTO(Long productId, String name, ProductStatus productStatus, ProductType type, DiscountStatus discountStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, List<String> productImages, boolean productIsDeleted, String marketName, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionId, Long quantity) {
+    public CheckoutProductWithDetailsByCartDTO(Long productId, String name, ProductStatus productStatus, ProductType type, DiscountStatus discountStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, List<String> productImages, boolean productIsDeleted, Long sellerId, String marketName, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionId, Long quantity) {
         this.productId = productId;
         this.name = name;
         this.productStatus = productStatus;
@@ -41,6 +42,7 @@ public class CheckoutProductWithDetailsByCartDTO {
         this.deliveryFee = deliveryFee;
         this.productImages = productImages;
         this.productIsDeleted = productIsDeleted;
+        this.sellerId = sellerId;
         this.marketName = marketName;
         this.color = color;
         this.size = size;

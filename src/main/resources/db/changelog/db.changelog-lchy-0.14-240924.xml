@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.14.01" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="user_info" columnName="password"/>
+            <columnExists tableName="admin_info" columnName="password"/>
+        </preConditions>
+        <update tableName="user_info">
+            <column name="password"
+                    value="aZlhsKE44rY/YnTlsTANnQ=="/>
+        </update>
+        <update tableName="admin_info">
+            <column name="password"
+                    value="aZlhsKE44rY/YnTlsTANnQ=="/>
+        </update>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.02" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="green_label_point_history" columnName="level_point"/>
+                <columnExists tableName="green_label_point_history" columnName="green_label_point"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="green_label_point_history">
+            <column name="level_point" type="BIGINT" defaultValue="0"/>
+        </addColumn>
+        <addColumn tableName="green_label_point_history">
+            <column name="green_label_point" type="BIGINT" defaultValue="0"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.03-2" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="reward_point"/>
+            </not>
+        </preConditions>
+        <createTable tableName="reward_point">
+            <column name="reward_point_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="reward_point_type" type="VARCHAR(255)">
+                <constraints unique="true" nullable="true"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issue_quantity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grant_method" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiration_period" type="NUMERIC(21,0)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <setColumnRemarks tableName="reward_point" columnName="issue_quantity" remarks="지급 수"/>
+        <setColumnRemarks tableName="reward_point" columnName="grant_method" remarks="발급 상태"/>
+        <setColumnRemarks tableName="reward_point" columnName="expiration_period" remarks="지급 수"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.04" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="level_point_master" columnName="last_expired_at"/>
+                <columnExists tableName="green_label_point_allocation" columnName="last_expired_at"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="level_point_master">
+            <column name="last_expired_at" type="TIMESTAMP"/>
+        </addColumn>
+        <addColumn tableName="green_label_point_allocation">
+            <column name="last_expired_at" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

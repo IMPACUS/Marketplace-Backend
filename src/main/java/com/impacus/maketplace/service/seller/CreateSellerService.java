@@ -82,7 +82,7 @@ public class CreateSellerService {
             // 3. User 저장
             User user = new User(
                     email,
-                    userService.encodePassword(password),
+                    password,
                     email,
                     sellerDTO.getContactNumber(),
                     UserType.ROLE_UNAPPROVED_SELLER);
