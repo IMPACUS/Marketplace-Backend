@@ -4,7 +4,6 @@ import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.point.RewardPointDTO;
 import com.impacus.maketplace.service.point.RewardPointService;
-import com.impacus.maketplace.service.product.WishlistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,6 @@ import java.util.List;
 @RequestMapping("api/v1/reward-point")
 public class RewardPointController {
     private final RewardPointService rewardPointService;
-    private final WishlistService pointService;
 
     /**
      * [관리자] 포인트 리워드 목록 조회 API
@@ -50,19 +48,6 @@ public class RewardPointController {
     ) {
         rewardPointService.updateRewardPointStatus(rewardPointIds, status);
         return ApiResponseEntity.<Void>builder()
-                .message("포인트 리워드의 발급 상태 변경 성공")
-                .build();
-    }
-
-
-    /**
-     * [관리자] 포인트 리워드의 발급 상태 변경  API
-     */
-    @GetMapping("test")
-    public ApiResponseEntity<?> ddddd(
-    ) {
-        return ApiResponseEntity.builder()
-                .data(pointService.findMarketNameByWishlistId(1L))
                 .message("포인트 리워드의 발급 상태 변경 성공")
                 .build();
     }
