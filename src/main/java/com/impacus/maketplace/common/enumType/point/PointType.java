@@ -26,7 +26,7 @@ public enum PointType {
     SHARE_APP(12, "앱 공유", RewardPointType.SHARE_APP),
     SHARE_PRODUCT(13, "상품 공유", RewardPointType.SHARE_PRODUCT),
     SNS_TAG(14, "SNS 태그", RewardPointType.SNS_TAG),
-    ECO_VIP_QUARTERLY_POINT(15, "ECO VIP 레벨 정기 포인트 지급", null),
+    ECO_VIP_QUARTERLY_POINT(15, "ECO VIP 레벨 정기 포인트 지급", RewardPointType.UPGRADE_LEVEL),
     COUPON(16, "쿠폰 포인트 지급", RewardPointType.COUPON);
 
     private final int code;

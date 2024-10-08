@@ -84,6 +84,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         BooleanBuilder userBuilder = new BooleanBuilder();
         userBuilder.and(user.type.eq(UserType.ROLE_CERTIFIED_USER))
                 .and(user.id.eq(levelPointMaster.userId))
+                .and(userStatusInfo.status.eq(UserStatus.ACTIVE))
                 .and(user.isDeleted.eq(false));
 
         return queryFactory
@@ -91,6 +92,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .from(user)
                 .where(userBuilder)
                 .innerJoin(levelPointMaster).on(levelCondition(userLevel))
+                .innerJoin(userStatusInfo).on(userStatusInfo.userId.eq(user.id))
                 .fetch();
     }
 

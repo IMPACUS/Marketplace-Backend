@@ -9,6 +9,9 @@ import lombok.Getter;
 
 @Getter
 public class CreateBundleDeliveryGroupDTO {
+
+    private Long sellerId;
+
     @NotBlank
     @Size(max = 25)
     private String name;
