@@ -304,7 +304,7 @@ public class CheckoutService {
                         item -> (long) item.getCheckoutProductInfoDTO().getAppSalesPrice() * item.getQuantity()
                 ));
 
-        Map<Long, Long> productCouponDiscount = discountService.calculateProductCouponDiscounts(productPrices, productCoupons);
+        Map<Long, Long> productCouponDiscounts = discountService.calculateProductCouponDiscounts(productPrices, productCoupons);
         Map<Long, Long> orderCouponDiscounts = discountService.calculateOrderCouponDiscounts(totalPrice, productPrices, orderCoupons);
         Map<Long, Long> pointDiscounts = discountService.calculatePointDiscounts(totalPrice, productPrices, checkoutCartDTO.getPointAmount());
 
@@ -319,7 +319,7 @@ public class CheckoutService {
                                 .build()
                 ));
 
-        Map<Long, DiscountInfoDTO> discountInfos = discountService.reconcileDiscountAmounts(productPricings, productCouponDiscount, orderCouponDiscounts, pointDiscounts);
+        Map<Long, DiscountInfoDTO> discountInfos = discountService.reconcileDiscountAmounts(productPricings, productCouponDiscounts, orderCouponDiscounts, pointDiscounts);
 
         Long totalDiscountedAmount = discountInfos.values().stream().mapToLong(DiscountInfoDTO::getFinalAmount)
                 .sum();
@@ -379,7 +379,7 @@ public class CheckoutService {
                 )
                 .toList();
 
-        paymentEvent.getPaymentOrders().addAll(paymentOrders);
+        savedPaymentEvent.getPaymentOrders().addAll(paymentOrders);
 
         List<PaymentOrder> savedPaymentOrders = paymentOrderRepository.saveAll(paymentOrders);
 
@@ -395,7 +395,7 @@ public class CheckoutService {
         });
 
         List<Long> paymentOrderCouponIds = orderCoupons.stream().map(PaymentCouponDTO::getUserCouponId).toList();
-        couponRedeemService.registPaymentOrderCoupons(savedPaymentEvent.getId(), paymentOrderCouponIds);
+        couponRedeemService.registPaymentEventCoupons(savedPaymentEvent.getId(), paymentOrderCouponIds);
 
         // 10. Response DTO 반환
         CheckoutCustomerDTO checkoutCustomerDTO = new CheckoutCustomerDTO(
