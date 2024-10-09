@@ -34,7 +34,6 @@ public class CreateSellerService {
     private final AttachFileService attachFileService;
     private final UserService userService;
     private final EmailService emailService;
-    private final AlarmSellerService alarmSellerService;
 
     /**
      * Seller를 저장하는 함수
@@ -103,7 +102,6 @@ public class CreateSellerService {
             // 6. SellerAdjustmentInfo 저장
             SellerAdjustmentInfo adjustmentInfo = sellerDTO.toSellerAdjustmentInfo(sellerId, bankBookFile.getId());
             sellerAdjustmentInfoService.saveSellerAdjustmentInfo(adjustmentInfo);
-            alarmSellerService.saveDefault(sellerId);
 
             return SimpleSellerFromSellerDTO.toDTO(user.getId(), seller);
         } catch (Exception e) {

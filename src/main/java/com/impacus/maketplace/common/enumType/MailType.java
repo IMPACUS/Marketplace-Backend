@@ -19,12 +19,7 @@ public enum MailType {
     SELLER_APPROVE("14", "seller_approve_mail", "입점 승인 메일 입니다."),
     SELLER_REJECT("15", "seller_reject_mail", "입접 거절 메일 입니다."),
     SELLER_EMAIL_VERIFICATION("16", "auth_mail", "[판매자] 이메일 인증"),
-    BRAND_SHOP_EMAIL("17", "alarm/brand_shop_mail", "브랜드 샵 알림 메일 전송 안내입니다."),
-    ORDER_DELIVERY_EMAIL("18", "alarm/order_delivery_mail", "주문/배송 알림 메일 전송 안내입니다."),
-    RESTOCK_EMAIL("19", "alarm/restock_mail", "재입고 알림 메일 전송 안내입니다."),
-    REVIEW_EMAIL("20", "alarm/review_mail", "리뷰 알림 메일 전송 안내입니다."),
-    SERVICE_CENTER_EMAIL("21", "alarm/service_center_mail", "고객센터 알림 메일 전송 안내입니다."),
-    SHOPPING_BENEFITS_EMAIL("22", "alarm/shopping_benefits_mail", "쇼핑혜택 알림 메일 전송 안내입니다."),
+    ALARM("17", "", ""),
     UNKNOWN("99", "", "");
 
 

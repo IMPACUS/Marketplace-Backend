@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.alarm;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.alarm.AlarmSellerCategoryEnum;
 import com.impacus.maketplace.common.enumType.alarm.AlarmSellerSubcategoryEnum;
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
@@ -10,6 +11,7 @@ import com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum;
 import com.impacus.maketplace.common.enumType.error.AlarmErrorType;
 import com.impacus.maketplace.common.enumType.error.BizgoErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.EmailDto;
 import com.impacus.maketplace.dto.alarm.common.SendTextDto;
 import com.impacus.maketplace.dto.alarm.seller.SendSellerTextDto;
 import com.impacus.maketplace.dto.alarm.user.SendUserTextDto;
@@ -58,8 +60,8 @@ public class AlarmSendService {
     @Value("${key.bizgo.sender-key}")
     private String senderKey;
 
-    @Transactional(readOnly = true)
-    public void sendUserAlarm(Long userId, String receiver, SendUserTextDto sendUserTextDto) {
+    @Transactional
+    public void sendUserAlarm(Long userId, String receiver, String phone, SendUserTextDto sendUserTextDto) {
         AlarmUserCategoryEnum category = sendUserTextDto.getCategory();
         AlarmUserSubcategoryEnum subcategory = sendUserTextDto.getSubcategory();
         Optional<AlarmAdminForUser> optionalAdmin = alarmAdminForUserRepository.findByCategoryAndSubcategory(category, subcategory);
@@ -72,26 +74,18 @@ public class AlarmSendService {
         AlarmUser alarmUser = optionalUser.get();
         if (alarmUser.getIsOn()) {
             String template = optionalAdmin.get().getTemplate();
-//        if(alarmUser.getEmail()) this.sendMail();
-            if (alarmUser.getKakao())
-                this.sendKakao(receiver, sendUserTextDto, template, subcategory.getKakaoCode());
-            if (alarmUser.getMsg())
-                this.sendUserMsg(receiver, sendUserTextDto, template);
-//                    if(alarmUser.getPush())
+            String text = this.getText(sendUserTextDto, template);
+            if (alarmUser.getEmail())
+                this.sendMail(receiver, subcategory.getValue(), text);
+            if (alarmUser.getKakao() || alarmUser.getMsg()) {
+                String token = this.getToken();
+                if (alarmUser.getKakao())
+                    this.sendKakao(token, phone, text, subcategory.getKakaoCode());
+                if (alarmUser.getMsg())
+                    this.sendMsg(token, phone, text);
+            }
+//            if (alarmUser.getPush())
         }
-    }
-
-//    private void sendMail(String receiver, AlarmEnum alarmEnum) {
-//        EmailDto emailDto = EmailDto.builder()
-//                .receiveEmail(receiver)
-//                .build();
-//        emailService.sendMail(emailDto, MailType.selectAlarm(alarmEnum));
-//    }
-
-    private void sendUserMsg(String phone, SendTextDto sendTextDto, String template) {
-        String msg = this.getText(sendTextDto, template);
-        String token = this.getToken();
-        this.generateMsg(token, msg, phone);
     }
 
     private String getText(SendTextDto sendTextDto, String template) {
@@ -221,7 +215,25 @@ public class AlarmSendService {
         }
     }
 
-    private void generateMsg(String token, String msg, String phone) {
+    private void sendMail(String receiver, String subject, String text) {
+        String subjectMail = "[IMPLACE] " + subject + " 안내입니다.";
+        EmailDto emailDto = EmailDto.builder()
+                .receiveEmail(receiver)
+                .subject(subjectMail)
+                .build();
+        String mailText = "<div style=\"margin:100px;\">" +
+                "  <h1>안녕하세요.</h1>" +
+                "  <h1>환경을 먼저 생각하는 IMPLACE 입니다.</h1>" +
+                "  <br>" +
+                "  <p>#{안내메일}</p>" +
+                "  <br/>" +
+                "  <br/>" +
+                "</div>";
+        mailText = mailText.replace("#{안내메일}", text).replace("\n", "<br/>");
+        emailService.sendAlarmMail(emailDto, mailText);
+    }
+
+    private void sendMsg(String token, String phone, String msg) {
         String url = "https://omni.ibapi.kr/v1/send/sms";
         int bytes = 0;
         try {
@@ -254,13 +266,7 @@ public class AlarmSendService {
         }
     }
 
-    private void sendKakao(String phone, SendTextDto sendTextDto, String template, String kakaoCode) {
-        String text = this.getText(sendTextDto, template);
-        String token = this.getToken();
-        this.generateKakao(token, phone, kakaoCode, text);
-    }
-
-    private void generateKakao(String token, String phone, String code, String template) {
+    private void sendKakao(String token, String phone, String text, String kakaoCode) {
         String url = "https://omni.ibapi.kr/v1/send/alimtalk";
 
         HttpHeaders headers = new HttpHeaders();
@@ -272,8 +278,8 @@ public class AlarmSendService {
         requestBody.put("senderKey", senderKey);
         requestBody.put("msgType", "AT");
         requestBody.put("to", phone);
-        requestBody.put("templateCode", code);
-        requestBody.put("text", template);
+        requestBody.put("templateCode", kakaoCode);
+        requestBody.put("text", text);
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
         RestTemplate restTemplate = new RestTemplate();
@@ -305,7 +311,8 @@ public class AlarmSendService {
         return response;
     }
 
-    public void sendSellerAlarm(Long sellerId, String receiver, SendSellerTextDto sendSellerTextDto) {
+    @Transactional
+    public void sendSellerAlarm(Long sellerId, String receiver, String phone, SendSellerTextDto sendSellerTextDto) {
         AlarmSellerCategoryEnum category = sendSellerTextDto.getCategory();
         AlarmSellerSubcategoryEnum subcategory = sendSellerTextDto.getSubcategory();
         Optional<AlarmAdminForSeller> optionalAdmin = alarmAdminForSellerRepository.findByCategoryAndSubcategory(category, subcategory);
@@ -318,11 +325,16 @@ public class AlarmSendService {
 
         AlarmSeller alarmSeller = optionalSeller.get();
         String template = optionalAdmin.get().getTemplate();
-//        if(alarmUser.getEmail()) this.sendMail();
-        if (alarmSeller.getKakao())
-            this.sendKakao(receiver, sendSellerTextDto, template, subcategory.getKakaoCode());
-        if (alarmSeller.getMsg()) this.sendUserMsg(receiver, sendSellerTextDto, template);
-//                    if(alarmUser.getPush())
-
+        String text = this.getText(sendSellerTextDto, template);
+        if (alarmSeller.getEmail())
+            this.sendMail(receiver, subcategory.getValue(), text);
+        if (alarmSeller.getKakao() || alarmSeller.getMsg()) {
+            String token = this.getToken();
+            if (alarmSeller.getKakao())
+                this.sendKakao(token, phone, text, subcategory.getKakaoCode());
+            if (alarmSeller.getMsg())
+                this.sendMsg(token, phone, text);
+        }
+//        if (alarmSeller.getPush())
     }
 }

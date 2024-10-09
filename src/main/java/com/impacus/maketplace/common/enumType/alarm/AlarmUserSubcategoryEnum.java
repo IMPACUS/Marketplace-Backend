@@ -85,7 +85,7 @@ public enum AlarmUserSubcategoryEnum {
                     "#{하단 문구}"),
     //    BRAND_SHOP("브랜드 샵", "BRAND_SHOP"),
 //    ADVERTISEMENT("광고", "SHOPPING_BENEFITS"),
-    COUPON_EXTINCTION_1("쿠폰 소멸1", "SHOPPING_BENEFITS", "쿠폰소멸(30일전)",
+    COUPON_EXTINCTION_1("쿠폰 소멸", "SHOPPING_BENEFITS", "쿠폰소멸(30일전)",
             "소멸예정 쿠폰 안내\n" +
                     "\n" +
                     "#{홍길동}님, 안녕하세요 IMPLACE입니다. 사용 가능한 쿠폰 소멸될 예정입니다.\n" +
@@ -100,7 +100,7 @@ public enum AlarmUserSubcategoryEnum {
                     "#{쿠폰함 링크}\n" +
                     "\n" +
                     "#{하단 문구1}"),
-    COUPON_EXTINCTION_2("쿠폰 소멸2", "SHOPPING_BENEFITS", "쿠폰소멸(1일)",
+    COUPON_EXTINCTION_2("쿠폰 소멸", "SHOPPING_BENEFITS", "쿠폰소멸(1일)",
             "소멸예정 쿠폰 안내\n" +
                     "\n" +
                     "#{홍길동}님, 안녕하세요 IMPLACE입니다. 사용 가능한 쿠폰 소멸될 예정입니다.\n" +
@@ -115,7 +115,7 @@ public enum AlarmUserSubcategoryEnum {
                     "#{쿠폰함 링크}\n" +
                     "\n" +
                     "#{하단 문구1}"),
-    POINT_EXTINCTION_1("포인트 소멸1", "SHOPPING_BENEFITS", "휴면안내",
+    POINT_EXTINCTION_1("포인트 소멸", "SHOPPING_BENEFITS", "휴면안내",
             "소멸예정 포인트 안내\n" +
                     "\n" +
                     "#{홍길동}님, 안녕하세요 IMPLACE입니다. 사용 가능한 포인트가 소멸될 예정입니다.\n" +
@@ -129,7 +129,7 @@ public enum AlarmUserSubcategoryEnum {
                     "#{적립금 링크}\n" +
                     "\n" +
                     "#{하단 문구1}"),
-    POINT_EXTINCTION_2("포인트 소멸2", "SHOPPING_BENEFITS", "휴면안내(포인트 소멸1일전)",
+    POINT_EXTINCTION_2("포인트 소멸", "SHOPPING_BENEFITS", "휴면안내(포인트 소멸1일전)",
             "소멸예정 포인트 안내\n" +
                     "\n" +
                     "#{홍길동}님, 안녕하세요 IMPLACE입니다. 사용 가능한 포인트가 소멸될 예정입니다.\n" +
