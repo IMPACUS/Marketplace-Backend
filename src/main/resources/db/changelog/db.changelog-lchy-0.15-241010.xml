@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="changelog-0.15.01-24-09-24-1" author="lchy0413">
+    <changeSet id="changelog-0.15.01-24-09-24" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="base_info"/>
@@ -20,7 +20,7 @@
             <column name="title" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="detail" type="VARCHAR(255)">
+            <column name="detail" type="TEXT">
                 <constraints nullable="false"/>
             </column>
 
