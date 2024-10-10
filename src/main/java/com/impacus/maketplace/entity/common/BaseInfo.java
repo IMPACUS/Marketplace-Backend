@@ -24,6 +24,16 @@ public class BaseInfo extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String detail;
+
+    public BaseInfo(InfoType infoType) {
+        this.infoType = infoType;
+        this.title = infoType.getDefaultTitle();
+        this.detail = infoType.getDefaultDetail();
+    }
+
+    public static BaseInfo from(InfoType infoType) {
+        return new BaseInfo(infoType);
+    }
 }
