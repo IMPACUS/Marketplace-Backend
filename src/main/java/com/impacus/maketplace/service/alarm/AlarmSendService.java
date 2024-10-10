@@ -59,6 +59,8 @@ public class AlarmSendService {
     private String bizgoPw;
     @Value("${key.bizgo.sender-key}")
     private String senderKey;
+    @Value("${key.bizgo.from-phone}")
+    private String fromPhone;
 
     @Transactional
     public void sendUserAlarm(Long userId, String receiver, String phone, SendUserTextDto sendUserTextDto) {
@@ -250,7 +252,7 @@ public class AlarmSendService {
         headers.setBearerAuth(token);
 
         JSONObject requestBody = new JSONObject();
-        requestBody.put("from", "01071644471");
+        requestBody.put("from", fromPhone);
         requestBody.put("to", phone);
         requestBody.put("text", msg);
 

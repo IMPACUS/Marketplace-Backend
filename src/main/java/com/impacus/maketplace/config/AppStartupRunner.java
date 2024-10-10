@@ -98,37 +98,52 @@ public class AppStartupRunner implements ApplicationRunner {
         optional = all.stream().filter(a -> a.getCategory().name().equals("SHOPPING_BENEFITS") && a.getSubcategory().name().equals("COUPON_EXTINCTION_1")).findFirst();
         if (optional.isEmpty())
             list.add(new AlarmAdminForUser(AlarmUserCategoryEnum.SHOPPING_BENEFITS, AlarmUserSubcategoryEnum.COUPON_EXTINCTION_1,
-                    "※ 이 메시지는 이용약관(계약서) 동의에 따라 지급된 쿠폰 대한 소멸 예정 안내 메세지입니다.\n" +
+                    "※ 이 메시지는 이용약관(계약서) 동의에 따라 지급된\n" +
+                            " 쿠폰 대한 소멸 예정 안내 메세지입니다.\n" +
                             "\n" +
-                            "※ 문자 발송 시점에 따라 포인트에 차이가 있을 수 있으며, 쿠폰 유효기간 및 이용 안내는 아래 쿠폰 조회에서 확인하실 수 있습니다.",
-                    "*해당 알림은 고객님이 보유중인 쿠폰 만료 30일전에 발송됩니다.",
+                            "※ 문자 발송 시점에 따라 쿠폰에 차이가 있을 수 있으며, \n" +
+                            "쿠폰 유효기간 및 이용 안내는 아래 쿠폰 조회에서\n" +
+                            " 확인하실 수 있습니다.",
+                    "*해당 알림은 고객님이 보유중인 쿠폰 만료 \n" +
+                            "30일전에 발송됩니다.",
                     AlarmUserSubcategoryEnum.COUPON_EXTINCTION_1.getTemplate()));
 
         optional = all.stream().filter(a -> a.getCategory().name().equals("SHOPPING_BENEFITS") && a.getSubcategory().name().equals("COUPON_EXTINCTION_2")).findFirst();
         if (optional.isEmpty())
             list.add(new AlarmAdminForUser(AlarmUserCategoryEnum.SHOPPING_BENEFITS,
                     AlarmUserSubcategoryEnum.COUPON_EXTINCTION_2,
-                    "※ 이 메시지는 이용약관(계약서) 동의에 따라 지급된 쿠폰 대한 소멸 예정 안내 메세지입니다.\n" +
+                    "※ 이 메시지는 이용약관(계약서) 동의에 따라 지급된\n" +
+                            " 쿠폰 대한 소멸 예정 안내 메세지입니다.\n" +
                             "\n" +
-                            "※ 문자 발송 시점에 따라 포인트에 차이가 있을 수 있으며, 쿠폰 유효기간 및 이용 안내는 아래 쿠폰 조회에서 확인하실 수 있습니다.",
-                    "*해당 알림은 고객님이 보유중인 쿠폰 만료 1일전에 발송됩니다.",
+                            "※ 문자 발송 시점에 따라 쿠폰에 차이가 있을 수 있으며, \n" +
+                            "쿠폰 유효기간 및 이용 안내는 아래 쿠폰 조회에서\n" +
+                            " 확인하실 수 있습니다.",
+                    "*해당 알림은 고객님이 보유중인 쿠폰 만료 \n" +
+                            "1일전에 발송됩니다.",
                     AlarmUserSubcategoryEnum.COUPON_EXTINCTION_2.getTemplate()));
 
         optional = all.stream().filter(a -> a.getCategory().name().equals("SHOPPING_BENEFITS") && a.getSubcategory().name().equals("POINT_EXTINCTION_1")).findFirst();
         if (optional.isEmpty())
             list.add(new AlarmAdminForUser(AlarmUserCategoryEnum.SHOPPING_BENEFITS, AlarmUserSubcategoryEnum.POINT_EXTINCTION_1,
-                    "※ 이 메시지는 이용약관(계약서) 동의에 따라 지급된 포인트 대한 소멸 예정 안내 메세지입니다.\n" +
+                    "※ 이 메시지는 이용약관(계약서) 동의에 따라 지급된\n" +
+                            "포인트 대한 소멸 예정 안내 메세지입니다.\n" +
                             "\n" +
-                            "※ 문자 발송 시점에 따라 포인트에 차이가 있을 수 있으며, 포인트 유효기간 및 이용 안내는 아래 쿠폰 조회에서 확인하실 수 있습니다.",
-                    "*해당 알림은 고객님이 보유중인 포인트 만료 30일전에 발송됩니다.",
+                            "※ 문자 발송 시점에 따라 포인트에 차이가 있을 수 있으며, \n" +
+                            "포인트 유효기간 및 이용 안내는 아래 쿠폰 조회에서\n" +
+                            " 확인하실 수 있습니다.",
+                    "*해당 알림은 고객님이 보유중인 포인트 만료 \n" +
+                            "30일전에 발송됩니다.",
                     AlarmUserSubcategoryEnum.POINT_EXTINCTION_1.getTemplate()));
 
         optional = all.stream().filter(a -> a.getCategory().name().equals("SHOPPING_BENEFITS") && a.getSubcategory().name().equals("POINT_EXTINCTION_2")).findFirst();
         if (optional.isEmpty())
             list.add(new AlarmAdminForUser(AlarmUserCategoryEnum.SHOPPING_BENEFITS, AlarmUserSubcategoryEnum.POINT_EXTINCTION_2,
-                    "※ 이 메시지는 이용약관(계약서) 동의에 따라 지급된 포인트 대한 소멸 예정 안내 메세지입니다.\n" +
+                    "※ 이 메시지는 이용약관(계약서) 동의에 따라 지급된\n" +
+                            "포인트 대한 소멸 예정 안내 메세지입니다.\n" +
                             "\n" +
-                            "※ 문자 발송 시점에 따라 포인트에 차이가 있을 수 있으며,  포인트 유효기간 및 이용 안내는 아래 쿠폰 조회에서 확인하실 수 있습니다.",
+                            "※ 문자 발송 시점에 따라 포인트에 차이가 있을 수 있으며, \n" +
+                            "포인트 유효기간 및 이용 안내는 아래 쿠폰 조회에서\n" +
+                            " 확인하실 수 있습니다.",
                     "*해당 알림은 고객님이 보유중인 포인트 만료 \n" +
                             "1일전에 발송됩니다.",
                     AlarmUserSubcategoryEnum.POINT_EXTINCTION_2.getTemplate()));
