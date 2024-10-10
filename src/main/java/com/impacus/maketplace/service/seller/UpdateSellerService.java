@@ -452,8 +452,33 @@ public class UpdateSellerService {
 
             // 2. 판매자 정보 업데이트
             sellerRepository.updateSellerInformation(seller.getUserId(), sellerId, dto, profileImageId);
+
+            // 판매자 상태가 변경됨에 따라 연관 데이터 업데이트
+            switch (dto.getUserStatus()) {
+                case ACTIVE -> {
+                    handleActiveSellerStatus(sellerId);
+                }
+                case SUSPENDED -> {
+                    handleSuspendedSellerStatus(sellerId);
+                }
+                case DEACTIVATED -> {
+                    handleDeactivatedSellerStatus(sellerId);
+                }
+            }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    private void handleActiveSellerStatus(Long sellerId) {
+
+    }
+
+    private void handleSuspendedSellerStatus(Long sellerId) {
+
+    }
+
+    private void handleDeactivatedSellerStatus(Long sellerId) {
+
     }
 }
