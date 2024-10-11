@@ -1,8 +1,10 @@
 package com.impacus.maketplace.service.api;
 
+import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 쿠폰 Api 요청 서비스
@@ -20,4 +22,10 @@ public interface CouponApiService {
      * 조건: 삭제되지 않은 쿠폰
      */
     void issueCouponUser(Long userId, Long couponId);
+
+    /**
+     * 알람 보내야 되는 사용자 쿠폰 정보 가져오기
+     * @return {Map<UesrId, List<AlarmCouponDTO>>}
+     */
+    Map<Long, List<AlarmCouponDTO>> getAlarmCoupon();
 }
