@@ -1051,6 +1051,7 @@ public class CheckoutServiceTest {
                 productStatus,
                 appSalesPrice,
                 discountPrice,
+                null,
                 0,
                 productIsDeleted,
                 productOptionId,

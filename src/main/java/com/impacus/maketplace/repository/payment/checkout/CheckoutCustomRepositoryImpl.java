@@ -114,6 +114,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                         product.productStatus,
                         product.appSalesPrice,
                         product.discountPrice,
+                        product.salesChargePercent,
                         product.deliveryFee,
                         product.isDeleted,
                         productOption.id,

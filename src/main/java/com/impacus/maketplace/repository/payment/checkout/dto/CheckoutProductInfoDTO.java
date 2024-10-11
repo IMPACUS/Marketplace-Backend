@@ -16,6 +16,7 @@ public class CheckoutProductInfoDTO {
     private ProductStatus productStatus; // 상품 상태
     private int appSalesPrice; // 앱 판매가
     private int discountPrice; // 할인가
+    private Integer salesChargePercent; // null 인 경우, 판매자의 수수료를 사용
     private Integer deliveryFee; // 배송비
     private boolean productIsDeleted; // 삭제 여부
     private Long productOptionId;   // 상품 option id
@@ -26,7 +27,7 @@ public class CheckoutProductInfoDTO {
     private Long productOptionHistoryId;    // 상품 옵션 history id
 
     @QueryProjection
-    public CheckoutProductInfoDTO(Long productId, Long sellerId, String marketName, Integer chargePercent, String name, ProductType productType, ProductStatus productStatus, int appSalesPrice, int discountPrice, Integer deliveryFee, boolean productIsDeleted, Long productOptionId, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionHistoryId) {
+    public CheckoutProductInfoDTO(Long productId, Long sellerId, String marketName, Integer chargePercent, String name, ProductType productType, ProductStatus productStatus, int appSalesPrice, int discountPrice, Integer salesChargePercent, Integer deliveryFee, boolean productIsDeleted, Long productOptionId, String color, String size, Long stock, boolean optionIsDeleted, Long productOptionHistoryId) {
         this.productId = productId;
         this.sellerId = sellerId;
         this.marketName = marketName;
@@ -36,6 +37,7 @@ public class CheckoutProductInfoDTO {
         this.productStatus = productStatus;
         this.appSalesPrice = appSalesPrice;
         this.discountPrice = discountPrice;
+        this.salesChargePercent = salesChargePercent;
         this.deliveryFee = deliveryFee;
         this.productIsDeleted = productIsDeleted;
         this.productOptionId = productOptionId;
@@ -48,5 +50,9 @@ public class CheckoutProductInfoDTO {
 
     public Long getEcoDiscount() {
         return (long) appSalesPrice - discountPrice;
+    }
+
+    public Integer getChargePercent() {
+        return salesChargePercent != null ? salesChargePercent : chargePercent;
     }
 }
