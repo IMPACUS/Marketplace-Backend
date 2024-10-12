@@ -42,24 +42,4 @@ public class AlarmUserController {
                 .message("푸시 알림이 성공적으로 전송됐습니다.")
                 .build();
     }
-
-    @PostMapping("test/user")
-    public ApiResponseEntity<?> updateAlarmUser(@ModelAttribute SendUserTextDto sendUserTextDto,
-                                                @RequestParam("userId") Long userId) {
-        alarmSendService.sendUserAlarm(userId, "sindong942@naver.com", "01088417145", sendUserTextDto);
-
-        return ApiResponseEntity.builder()
-                .message("알림 전송이 성공적으로 됐습니다.")
-                .build();
-    }
-
-    @PostMapping("test/seller")
-    public ApiResponseEntity<?> updateAlarmSeller(@ModelAttribute SendSellerTextDto sendSellerTextDto,
-                                                  @RequestParam("sellerId") Long sellerId) {
-        alarmSendService.sendSellerAlarm(sellerId, "sindong942@naver.com", "01088417145", sendSellerTextDto);
-
-        return ApiResponseEntity.builder()
-                .message("알림 전송이 성공적으로 됐습니다.")
-                .build();
-    }
 }
