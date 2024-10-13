@@ -116,7 +116,7 @@ public class CouponRedeemService {
      */
     public List<PaymentCouponDTO> getPaymentCouponForProductAfterValidation(Long userId, List<Long> usedUserCouponIds, com.impacus.maketplace.common.enumType.product.ProductType productType, String marketName, int appSalesPrice, Long quantity) {
 
-        if (usedUserCouponIds.isEmpty()) return new ArrayList<>();
+        if (usedUserCouponIds == null || usedUserCouponIds.isEmpty()) return new ArrayList<>();
 
         // 1. 쿠폰 리스트 가져오기
         List<ValidateUserCouponForProductDTO> coupons = couponCustomRepositroy.findUserCouponInfoForValidateForProductByIds(userId, usedUserCouponIds);
@@ -145,7 +145,7 @@ public class CouponRedeemService {
      */
     public List<PaymentCouponDTO> getPaymentCouponForOrderAfterValidation(Long userId, List<Long> usedUserCouponsIds, Long totalPrice) {
 
-        if (usedUserCouponsIds.isEmpty()) return new ArrayList<>();
+        if (usedUserCouponsIds == null || usedUserCouponsIds.isEmpty()) return new ArrayList<>();
 
         // 1. 쿠폰 리스트 가져오기
         List<ValidateUserCouponForOrderDTO> coupons = couponCustomRepositroy.findUserCouponInfoForValidateForOrderByIds(userId, usedUserCouponsIds);

@@ -115,8 +115,12 @@ public class CheckoutService {
     public PaymentSingleDTO checkoutSingle(Long userId, CheckoutSingleDTO checkoutSingleDTO) {
         // 1. 중복 쿠폰 사용 체크
         List<Long> allCouponIds = new ArrayList<>();
-        allCouponIds.addAll(checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds());
-        allCouponIds.addAll(checkoutSingleDTO.getAppliedCommonUserCouponIds());
+        if (checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds() != null) {
+            allCouponIds.addAll(checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds());
+        }
+        if (checkoutSingleDTO.getAppliedCommonUserCouponIds() != null) {
+            allCouponIds.addAll(checkoutSingleDTO.getAppliedCommonUserCouponIds());
+        }
 
         validateDuplicatedCoupon(allCouponIds);
 

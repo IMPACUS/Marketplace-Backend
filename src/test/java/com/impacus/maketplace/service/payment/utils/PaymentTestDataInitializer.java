@@ -24,6 +24,8 @@ import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.history.ProductOptionHistoryRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,19 +62,35 @@ public class PaymentTestDataInitializer {
     @Autowired
     private GreenLabelPointRepository greenLabelPointRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Transactional
+    public void deleteAllData() {
+        // 데이터 삭제
+        userCouponRepository.deleteAll();
+        couponRepository.deleteAll();
+        greenLabelPointRepository.deleteAll();
+        productOptionHistoryRepository.deleteAll();
+        productOptionRepository.deleteAll();
+        productRepository.deleteAll();
+        sellerRepository.deleteAll();
+        userRepository.deleteAll();
+
+        // 시퀀스 초기화
+        entityManager.createNativeQuery("ALTER SEQUENCE user_info_user_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE seller_seller_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE coupon_coupon_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE issued_coupon_issued_coupon_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE product_info_product_info_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE product_option_product_option_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE product_option_history_product_option_history_id_seq RESTART WITH 1").executeUpdate();
+        entityManager.createNativeQuery("ALTER SEQUENCE green_label_point_green_label_point_id_seq RESTART WITH 1").executeUpdate();
+    }
+
     @Transactional
     public void initializeTestData() {
-        // 1. 기존 데이터 삭제
-        userRepository.deleteAll();
-        sellerRepository.deleteAll();
-        couponRepository.deleteAll();
-        userCouponRepository.deleteAll();
-        productRepository.deleteAll();
-        productOptionRepository.deleteAll();
-        productOptionHistoryRepository.deleteAll();
-        // 2. 테스트용 데이터 생성
-
-        // 2.1 판매자 생성
+        // 1. 판매자 생성
         Seller seller = Seller.builder()
                 .userId(1L)
                 .contactName("테스트용 판매자")
@@ -85,7 +103,7 @@ public class PaymentTestDataInitializer {
 
         Seller savedSeller = sellerRepository.save(seller);
 
-        // 2.2 상품 옵션 생성 (유효 옵션 1개, 삭제된 옵션 1개, 재고 0인 옵션 1개)
+        // 2. 상품 옵션 생성 (유효 옵션 1개, 삭제된 옵션 1개, 재고 0인 옵션 1개)
         CreateProductOptionDTO createProductOptionDTO1 = createProductOptionDTO(100L);
         CreateProductOptionDTO createProductOptionDTO2 = createProductOptionDTO(0L);
 
@@ -93,7 +111,7 @@ public class PaymentTestDataInitializer {
         createProductOptionDTOs.add(createProductOptionDTO1);
         createProductOptionDTOs.add(createProductOptionDTO2);
 
-        // 2.3 테스트 상품 1 생성 및 저장
+        // 3. 테스트 상품 1 생성 및 저장
         CreateProductDTO testProductDTO1 = createProductDTO("테스트 상품1", 10000, 10000, 10000, ProductStatus.SALES_PROGRESS, ProductType.GENERAL, createProductOptionDTOs);
         Product testProduct1 = testProductDTO1.toEntity(savedSeller.getId());
         Product savedProduct1 = productRepository.save(testProduct1);
@@ -121,7 +139,7 @@ public class PaymentTestDataInitializer {
         productOptionHistoryRepository.save(productOptionHistory2);
         productOptionHistoryRepository.save(productOptionHistory3);
 
-        // 2.4 테스트 상품 2 생성 및 저장
+        // 4. 테스트 상품 2 생성 및 저장
         CreateProductDTO testProductDTO2 = createProductDTO("테스트 상품2", 10000, 10000, 8000, ProductStatus.SALES_PROGRESS, ProductType.GREEN_TAG, createProductOptionDTOs);
         Product testProduct2 = testProductDTO2.toEntity(savedSeller.getId());
         Product savedProduct2 = productRepository.save(testProduct2);
@@ -149,7 +167,7 @@ public class PaymentTestDataInitializer {
         productOptionHistoryRepository.save(productOptionHistory5);
         productOptionHistoryRepository.save(productOptionHistory6);
 
-        // 2.5 테스트 상품 3 생성 및 저장
+        // 5. 테스트 상품 3 생성 및 저장
         CreateProductDTO testProductDTO3 = createProductDTO("테스트 상품3", 10000, 10000, 8000, ProductStatus.SALES_STOP, ProductType.GREEN_TAG, createProductOptionDTOs);
         Product testProduct3 = testProductDTO3.toEntity(savedSeller.getId());
         Product savedProduct3 = productRepository.save(testProduct3);
@@ -177,12 +195,12 @@ public class PaymentTestDataInitializer {
         productOptionHistoryRepository.save(productOptionHistory8);
         productOptionHistoryRepository.save(productOptionHistory9);
 
-        // 2.5 사용자(소비자) 생성
+        // 6. 사용자(소비자) 생성
         User user = User.builder()
                 .email("test@test.com")
-                .password("패스워드")
-                .name("사용자이름")
-                .userIdName("회원아이디")
+                .password("testpassword")
+                .name("testName")
+                .userIdName("tsetUserIdName")
                 .type(UserType.ROLE_CERTIFIED_USER)
                 .phoneNumber("000-0000-0000")
                 .isCertEmail(true)
@@ -194,33 +212,33 @@ public class PaymentTestDataInitializer {
 
         User savedUser = userRepository.save(user);
 
-        // 2.6 포인트 지급 (10000)
+        // 7. 포인트 지급 (10000)
         GreenLabelPoint greenLabelPoint = GreenLabelPoint.toEntity(savedUser.getId());
         GreenLabelPoint savedGreenLabelPoint = greenLabelPointRepository.save(greenLabelPoint);
         greenLabelPointRepository.updateGreenLabelPointByUserId(savedGreenLabelPoint.getUserId(), 10000L);
 
-        // 2.7 쿠폰 등록(혜택 구분 2개, 적용 타입 2개, 쿠폰 사용 범위 2개, 사용 가능 기준 금액 2개)
-        // 1. 쿠폰 1: 10% 할인 쿠폰, 제약 조건 없음
+        // 8. 쿠폰 등록(혜택 구분 2개, 적용 타입 2개, 쿠폰 사용 범위 2개, 사용 가능 기준 금액 2개)
+        // 8.1. 쿠폰 1: 10% 할인 쿠폰, 제약 조건 없음
         Coupon coupon1 = createCoupon("test1", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 2. 쿠폰 2: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓)
+        // 8.2. 쿠폰 2: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓)
         Coupon coupon2 = createCoupon("tset2", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.BRAND, "테스트마켓", StandardType.UNLIMITED, null);
-        // 3. 쿠폰 3: 10% 할인 쿠폰, 제약 조건 -> 브랜드(틀린이름)
+        // 8.3. 쿠폰 3: 10% 할인 쿠폰, 제약 조건 -> 브랜드(틀린이름)
         Coupon coupon3 = createCoupon("test3", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.BRAND, "틀린마켓이름", StandardType.UNLIMITED, null);
-        // 4. 쿠폰 4: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 사용 기준 금액: 10000원
+        // 8.4. 쿠폰 4: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 사용 기준 금액: 10000원
         Coupon coupon4 = createCoupon("test4", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.BRAND, "테스트마켓", StandardType.LIMIT, 10000L);
-        // 5. 쿠폰 5: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 일반 상품, 사용 기준 금액: 10000원
+        // 8.5. 쿠폰 5: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 일반 상품, 사용 기준 금액: 10000원
         Coupon coupon5 = createCoupon("test5", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.BASIC, CoverageType.BRAND, "테스트마켓", StandardType.LIMIT, 10000L);
-        // 6. 쿠폰 6: 10% 할인 쿠폰, 제약 조건 -> 에코 상품, 사용 기준 금액: 10000원
+        // 8.6. 쿠폰 6: 10% 할인 쿠폰, 제약 조건 -> 에코 상품, 사용 기준 금액: 10000원
         Coupon coupon6 = createCoupon("test6", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ECO_GREEN, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
-        // 7. 쿠폰 7: 5000원 할인 쿠폰, 제약 조건 없음
+        // 8.7. 쿠폰 7: 5000원 할인 쿠폰, 제약 조건 없음
         Coupon coupon7 = createCoupon("test7", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 8. 쿠폰 8: 10000원 할인 쿠폰, 제약 조건 -> 사용 가능 기준 금액 20000원
-        Coupon coupon8 = createCoupon("test8", BenefitType.AMOUNT, 10000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 9. 쿠폰 9: 이미 사용한 쿠폰으로 처리 (제약 조건 X)
+        // 8.8. 쿠폰 8: 10000원 할인 쿠폰, 제약 조건 -> 사용 가능 기준 금액 20000원
+        Coupon coupon8 = createCoupon("test8", BenefitType.AMOUNT, 10000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 20000L);
+        // 8.9. 쿠폰 9: 이미 사용한 쿠폰으로 처리 (제약 조건 X)
         Coupon coupon9 = createCoupon("test9", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 10. 쿠폰 10: 만료된 쿠폰으로 처리 (제약 조건 X)
+        // 8.10. 쿠폰 10: 만료된 쿠폰으로 처리 (제약 조건 X)
         Coupon coupon10 = createCoupon("test10", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 11. 쿠폰 11: 지급 실패한 쿠폰으로 처리 (제약 조건 X)
+        // 8.11. 쿠폰 11: 지급 실패한 쿠폰으로 처리 (제약 조건 X)
         Coupon coupon11 = createCoupon("test11", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
 
         Coupon savedCoupon1 = couponRepository.save(coupon1);
@@ -353,7 +371,7 @@ public class PaymentTestDataInitializer {
                 productStatus,            // productStatus
                 "테스트 상품",            // description
                 productType,              // type
-                null,                     // salesChargePercent
+                10,                     // salesChargePercent
                 productDetail,            // productDetail
                 productOptionDTOs,           // productOptions
                 productDeliveryTimeDTO,   // deliveryTime
