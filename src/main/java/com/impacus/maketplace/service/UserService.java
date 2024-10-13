@@ -25,6 +25,7 @@ import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
+import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
@@ -62,6 +63,7 @@ public class UserService {
     private final UserStatusInfoService userStatusInfoService;
     private final PointService pointService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
+    private final AlarmUserService alarmUserService;
 
     @Transactional
     public UserDTO addUser(SignUpDTO signUpRequest) {
@@ -90,6 +92,7 @@ public class UserService {
                     signUpRequest.getName());
             userRepository.save(user);
             userStatusInfoService.addUserStatusInfo(user.getId());
+            alarmUserService.saveDefault(user.getId());
 
             // 4. 포인트 관련 Entity 생성
             // (LevelPointMaster, LevelAchievement, GreenLabelPoint)

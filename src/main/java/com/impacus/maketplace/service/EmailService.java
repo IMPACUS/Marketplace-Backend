@@ -34,6 +34,36 @@ public class EmailService {
     private final ObjectCopyHelper objectCopyHelper;
 
     @Transactional
+    public void sendAlarmMail(EmailDto emailDto, String text) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            msgHelper.setTo(emailDto.getReceiveEmail());
+            msgHelper.setFrom("support@implace.com");
+            msgHelper.setSubject(emailDto.getSubject());
+            msgHelper.setText(text, true);
+            javaMailSender.send(mimeMessage);
+
+            emailDto.setReceiveEmail(Base64.getEncoder().
+                    encodeToString(emailDto.getReceiveEmail().getBytes(StandardCharsets.UTF_8)));
+            emailDto.setAuthNo("");
+            emailDto.setMailType("17");
+
+            EmailHistory emailHistory = EmailHistory
+                    .builder()
+                    .receiveEmail(emailDto.getReceiveEmail())
+                    .mailType(MailType.ALARM)
+                    .authNo("")
+                    .sendAt(LocalDateTime.now())
+                    .build();
+            emailHistoryRepository.save(emailHistory);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Transactional
     public Boolean sendMail(EmailDto emailDto, MailType mailType) {
         String authNumber = createCode();
         if (!mailType.equals(MailType.AUTH)) {
@@ -43,6 +73,7 @@ public class EmailService {
         try {
             MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             msgHelper.setTo(emailDto.getReceiveEmail());
+            msgHelper.setFrom("support@implace.com");
             msgHelper.setSubject(mailType.getSubject());
             msgHelper.setText(setContext(authNumber, mailType.getTemplate()), true);
             javaMailSender.send(mimeMessage);
