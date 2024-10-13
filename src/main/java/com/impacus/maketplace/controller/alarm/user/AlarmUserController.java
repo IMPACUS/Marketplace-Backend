@@ -35,7 +35,7 @@ public class AlarmUserController {
 
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("push")
-    public ApiResponseEntity<?> updateAlarmUser(@Valid @RequestBody SendUserPushDto sendUserPushDto) {
+    public ApiResponseEntity<?> pushAlarmUser(@Valid @RequestBody SendUserPushDto sendUserPushDto) {
         alarmSendService.sendPush(sendUserPushDto.getToken(), sendUserPushDto.getTitle(), sendUserPushDto.getContent());
 
         return ApiResponseEntity.builder()
