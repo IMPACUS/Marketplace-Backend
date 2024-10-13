@@ -467,5 +467,29 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
         return dto;
     }
 
+    @Override
+    public AppSellerDTO getSellerInformationForApp(Long sellerId) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                AppSellerDTO.class,
+                                seller.id.as("sellerId"),
+                                seller.marketName,
+                                seller.contactName,
+                                seller.customerServiceNumber,
+                                sellerBusinessInfo.businessEmail,
+                                brand.businessDay,
+                                brand.openingTime,
+                                brand.closingTime,
+                                brand.breakingTime
+                        )
+                )
+                .from(seller)
+                .leftJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .leftJoin(brand).on(brand.sellerId.eq(seller.id))
+                .where(seller.id.eq(sellerId))
+                .fetchOne();
+    }
+
 
 }

@@ -9,10 +9,8 @@ import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
-import com.impacus.maketplace.dto.product.response.DetailedProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
-import com.impacus.maketplace.dto.product.response.ProductForAppDTO;
-import com.impacus.maketplace.dto.product.response.ProductForWebDTO;
+import com.impacus.maketplace.dto.product.response.*;
+import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.redis.service.RecentProductViewsService;
@@ -92,7 +90,7 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findProductByCategoryForApp(
+    public Slice<AppProductDTO> findProductByCategoryForApp(
             Long userId,
             Long subCategoryId,
             Pageable pageable
@@ -109,7 +107,7 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public Slice<ProductForAppDTO> findProductForRecentViews(
+    public Slice<AppProductDTO> findProductForRecentViews(
             Long userId,
             Pageable pageable
     ) {
@@ -121,21 +119,35 @@ public class ReadProductService implements ProductInterface {
         }
     }
 
+    public Page<WebProductTableDetailDTO> findProductsForWebFromSeller(
+        Long userId,
+        String keyword,
+        LocalDate startAt,
+        LocalDate endAt,
+        Pageable pageable
+    ) {
+        Long sellerId = getSellerId(userId, UserType.ROLE_APPROVED_SELLER);
+
+        return findProductDetailsForWeb(
+            sellerId,
+            keyword,
+            startAt,
+            endAt,
+            pageable
+        );
+    }
+
     @Override
-    public Page<ProductForWebDTO> findProductsForWeb(
-            Long userId,
-            UserType userType,
+    public Page<WebProductTableDetailDTO> findProductDetailsForWeb(
+            Long sellerId,
             String keyword,
             LocalDate startAt,
             LocalDate endAt,
             Pageable pageable
     ) {
         try {
-            // 1. seller id 조회 (관리자인 경우 null)
-            Long sellerId = getSellerId(userId, userType);
-
-            // 2. 상품 조회
-            return productRepository.findProductsForWeb(sellerId, keyword, startAt, endAt, pageable);
+            // 상품 조회
+            return productRepository.findProductDetailsForWeb(sellerId, keyword, startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -159,13 +171,13 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public DetailedProductDTO findDetailedProduct(Long userId, Long productId) {
+    public AppProductDetailDTO findDetailedProduct(Long userId, Long productId) {
         try {
             // 1. productId 존재확인
             findProductById(productId);
 
             // 2. Product 세부 데이터 가져오기
-            DetailedProductDTO detailedProductDTO = productRepository.findProductByProductId(userId, productId);
+            AppProductDetailDTO detailedProductDTO = productRepository.findProductByProductIdForApp(userId, productId);
 
             // 3. 최근 본 상품 저장
             recentProductViewsService.addRecentProductView(userId, productId);
@@ -177,7 +189,7 @@ public class ReadProductService implements ProductInterface {
     }
 
     @Override
-    public ProductDetailForWebDTO findProductDetailForWeb(Long userId, Long productId) {
+    public WebProductDetailDTO findProductDetailForWeb(Long userId, Long productId) {
         try {
             UserType userType = SecurityUtils.getCurrentUserType();
             Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? readSellerService.findSellerByUserId(userId).getId() : null;
@@ -186,7 +198,7 @@ public class ReadProductService implements ProductInterface {
             checkExistenceById(productId);
 
             // 1. 데이터 조회
-            ProductDetailForWebDTO dto = productRepository.findProductDetailByProductId(sellerId, userType, productId);
+            WebProductDetailDTO dto = productRepository.findProductDetailByProductId(sellerId, userType, productId);
 
             // 2. 판매자의 상품인지 확인
             if (dto == null) {
@@ -194,6 +206,39 @@ public class ReadProductService implements ProductInterface {
             }
 
             return dto;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    @Override
+    public WebProductDTO findProductByProductId(Long userId, Long productId) {
+        try {
+            UserType userType = SecurityUtils.getCurrentUserType();
+            Long sellerId = userType == UserType.ROLE_APPROVED_SELLER ? readSellerService.findSellerByUserId(userId).getId() : null;
+
+            WebProductDTO dto = productRepository.findProductByProductId(userType, sellerId, productId);
+            if(dto == null){
+                throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
+            }
+
+            return dto;
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    @Override
+    public Page<WebProductTableDTO> findProductsForWeb(
+        Long sellerId,
+        String keyword,
+        LocalDate startAt,
+        LocalDate endAt,
+        Pageable pageable
+    ) {
+        try {
+            // 상품 조회
+            return productRepository.findProductsForWeb(sellerId, keyword, startAt, endAt, pageable);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,6 @@ public class AdminService {
     private final AdminInfoRepository adminInfoRepository;
     private final AdminLoginLogRepository adminLoginLogRepository;
     private final AdminActivityLogRepository adminActivityLogRepository;
-    private final PasswordEncoder passwordEncoder;
 
 
     /**
@@ -146,7 +144,7 @@ public class AdminService {
                 .juminNo(adminFormDTO.getJuminNo())
                 .accountType(adminFormDTO.getAccountType())
                 .adminIdName(adminFormDTO.getAdminIdName())
-                .password(passwordEncoder.encode((adminFormDTO.getPassword())))
+                .password(adminFormDTO.getPassword())
                 .build();
         AdminInfo result = adminInfoRepository.save(adminInfo);
 

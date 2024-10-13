@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Drop orders table -->
+    <changeSet id="changelog-jb0.03-240905-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="orders"/>
+        </preConditions>
+        <dropTable tableName="orders"/>
+    </changeSet>
+
+    <!-- Drop order_products table -->
+    <changeSet id="changelog-jb0.03-240905-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="order_products"/>
+        </preConditions>
+        <dropTable tableName="order_products"/>
+    </changeSet>
+
+    <!-- Update user_coupon table -->
+    <changeSet id="changelog-jb0.03-240905-03-04" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="user_coupon" columnName="source_type"/>
+        </preConditions>
+        <dropColumn tableName="user_coupon" columnName="source_type"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.03-240905-03-05" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="user_coupon" columnName="source_id"/>
+        </preConditions>
+        <dropColumn tableName="user_coupon" columnName="source_id"/>
+    </changeSet>
+
+    <!-- Create payment_events table -->
+    <changeSet id="changelog-jb0.03-240905-04-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="payment_events"/>
+            </not>
+        </preConditions>
+        <createTable tableName="payment_events">
+            <column name="payment_events_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="buyer_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_payment_done" type="BOOLEAN" defaultValue="FALSE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_key" type="VARCHAR(255)"/>
+            <column name="order_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_name" type="VARCHAR(255)"/>
+            <column name="method" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="psp_raw_data" type="JSON"/>
+            <column name="approved_at" type="DATETIME"/>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Create payment_orders table -->
+    <changeSet id="changelog-jb0.03-240905-05-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="payment_orders"/>
+            </not>
+        </preConditions>
+        <createTable tableName="payment_orders">
+            <column name="payment_orders_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="payment_event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seller_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_option_history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT" defaultValue="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="eco_discount" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="green_label_discount" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coupon_discount" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="commision_percent" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_order_status" type="VARCHAR(255)" defaultValue="NOT_STARTED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ledger_updated" type="BOOLEAN" defaultValue="FALSE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="wallet_updated" type="BOOLEAN" defaultValue="FALSE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_payment_done" type="BOOLEAN" defaultValue="FALSE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="failed_count" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="threshold" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Create payment_order_history table -->
+    <changeSet id="changelog-jb0.03-240905-06-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="payment_order_history"/>
+            </not>
+        </preConditions>
+        <createTable tableName="payment_order_history">
+            <column name="payment_order_history_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="payment_order_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previous_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="new_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason" type="VARCHAR(255)"/>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Create payment_event_coupon table -->
+    <changeSet id="changelog-jb0.03-240905-07-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="payment_event_coupons"/>
+            </not>
+        </preConditions>
+        <createTable tableName="payment_event_coupons">
+            <column name="payment_event_coupons_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="payment_event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create payment_order_coupon table -->
+    <changeSet id="changelog-jb0.03-240905-08-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="payment_order_coupons"/>
+            </not>
+        </preConditions>
+        <createTable tableName="payment_order_coupons">
+            <column name="payment_order_coupons_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="payment_order_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.03-240905-09-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="payment_orders" columnName="commision_percent"/>
+        </preConditions>
+        <renameColumn tableName="payment_orders" oldColumnName="commision_percent" newColumnName="commission_percent"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.03-240911-10-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="delivery_address" columnName="orders_id"/>
+        </preConditions>
+        <renameColumn tableName="delivery_address" oldColumnName="orders_id" newColumnName="payment_event_id"/>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.03-240911-11-01" author="jeongbeom4693">
+        <sql>ALTER TABLE payment_orders ALTER COLUMN quantity TYPE BIGINT;</sql>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.03-240930-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_event_coupons" columnName="is_used"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="payment_event_coupons">
+            <column name="is_used" type="Boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-jb0.03-240930-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_order_coupons" columnName="is_used"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="payment_order_coupons">
+            <column name="is_used" type="Boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

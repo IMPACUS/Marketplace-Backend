@@ -166,7 +166,7 @@ public class ReadSellerController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @GetMapping("")
+    @GetMapping()
     public ApiResponseEntity<Page<SellerDTO>> getSellers(
             @PageableDefault(size = 15, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "brand-name", required = false) String brandName,
@@ -193,11 +193,28 @@ public class ReadSellerController {
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @GetMapping("{sellerId}")
-    public ApiResponseEntity<SimpleSellerFromAdminDTO> getSellerInformation(@PathVariable Long sellerId) {
-        SimpleSellerFromAdminDTO dto = readSellerService.getSellerInformation(sellerId);
+    public ApiResponseEntity<SimpleSellerFromAdminDTO> getSellerInformationForWeb(@PathVariable Long sellerId) {
+        SimpleSellerFromAdminDTO dto = readSellerService.getSellerInformationFroWeb(sellerId);
 
         return ApiResponseEntity
                 .<SimpleSellerFromAdminDTO>builder()
+                .message("판매자 정보 조회 성공")
+                .data(dto)
+                .build();
+    }
+
+    /**
+     * [앱] 상품의 판매자 정보 조회 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @GetMapping("/brand/{sellerId}")
+    public ApiResponseEntity<AppSellerDTO> getSellerInformationForApp(@PathVariable Long sellerId) {
+        AppSellerDTO dto = readSellerService.getSellerInformationForApp(sellerId);
+
+        return ApiResponseEntity
+                .<AppSellerDTO>builder()
                 .message("판매자 정보 조회 성공")
                 .data(dto)
                 .build();

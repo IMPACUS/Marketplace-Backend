@@ -17,6 +17,9 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
 
     List<User> findByEmailLike(String emailWithPrefix);
 
+    @Query("SELECT u.id FROM User u WHERE u.email LIKE :emailWithPrefix")
+    List<Long> findIdByEmailLike(@Param("emailWithPrefix") String emailWithPrefix);
+
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
@@ -28,5 +31,8 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
     @Modifying
     @Query("UPDATE User u SET u.type = :type WHERE u.id = :id")
     int updateUserType(@Param("id") Long id, @Param("type") UserType type);
+
+    @Query("SELECT u.profileImageId FROM User u WHERE u.id = :userId")
+    Optional<Long> findProfileImageIdByUserId(@Param("userId") Long userId);
 
 }

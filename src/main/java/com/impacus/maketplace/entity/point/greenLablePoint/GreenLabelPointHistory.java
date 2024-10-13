@@ -38,18 +38,30 @@ public class GreenLabelPointHistory extends BaseEntity {
     @Comment("미적용 포인트")
     private Long unappliedPoint;
 
+    @Column(nullable = false)
+    @Comment("레벨 포인트 (해당 시점 기준)")
+    private long levelPoint;
+
+    @Column(nullable = false)
+    @Comment("그린 라벨 포인트 (해당 시점 기준)")
+    private long greenLabelPoint;
+
     public GreenLabelPointHistory(
             Long userId,
             PointType pointType,
             PointStatus pointStatus,
             Long tradeAmount,
-            Long unappliedPoint
+            Long unappliedPoint,
+            long greenLabelPoint,
+            long levelPoint
     ) {
         this.userId = userId;
         this.pointType = pointType;
         this.pointStatus = pointStatus;
         this.tradeAmount = tradeAmount;
         this.unappliedPoint = unappliedPoint;
+        this.greenLabelPoint = greenLabelPoint;
+        this.levelPoint = levelPoint;
     }
 
     public static GreenLabelPointHistory of(
@@ -57,10 +69,12 @@ public class GreenLabelPointHistory extends BaseEntity {
             PointType pointType,
             PointStatus pointStatus,
             Long tradeAmount,
-            Long unappliedPoint
+            Long unappliedPoint,
+            long greenLabelPoint,
+            long levelPoint
     ) {
         return new GreenLabelPointHistory(
-                userId, pointType, pointStatus, tradeAmount, unappliedPoint
+                userId, pointType, pointStatus, tradeAmount, unappliedPoint, greenLabelPoint, levelPoint
         );
     }
 }

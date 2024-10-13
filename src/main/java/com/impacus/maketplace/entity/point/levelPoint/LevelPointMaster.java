@@ -34,6 +34,10 @@ public class LevelPointMaster extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime expirationStartAt;
 
+    @Comment("최근 포인트 소멸일")
+    @Column(nullable = true)
+    private LocalDateTime lastExpiredAt;
+
     public LevelPointMaster(Long userId) {
         this.userId = userId;
         this.userLevel = UserLevel.BRONZE;

@@ -45,13 +45,6 @@ public class UserCoupon extends BaseEntity {
     @ColumnDefault("'false'")
     private Boolean isUsed; // 쿠폰 사용 여부
 
-    @Column(nullable = false)
-    @ColumnDefault("'NONE'")
-    @Enumerated(EnumType.STRING)
-    private CouponSourceType sourceType;
-
-    private Long sourceId;
-
     private LocalDate expiredAt;   // 쿠폰 만료 날짜
 
     private LocalDateTime usedAt;   // 쿠폰을 사용한 날짜

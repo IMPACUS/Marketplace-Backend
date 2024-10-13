@@ -50,7 +50,6 @@ public class User extends BaseEntity {
     private String jumin2;
 
     @Convert(converter = AES256ToStringConverter.class)
-    @ColumnDefault("'010-0000-0000'")
     @Column(nullable = false)
     private String phoneNumber;
 

@@ -7,7 +7,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.*;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
@@ -229,10 +229,10 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Override
-    public ProductDetailForWebDTO findTemporaryProduct(Long userId) {
+    public WebProductDetailDTO findTemporaryProduct(Long userId) {
         try {
             UserType userType = SecurityUtils.getCurrentUserType();
-            ProductDetailForWebDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
+            WebProductDetailDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
             Long temporaryProductId = dto.getId();
 
             // categoryId와 bundleDeliveryGroupId가 존재하는지 확인

@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReviewSellerDTO {
     private Long id; // 리뷰 인덱스 번호
-    private Long orderId; // 주문 인덱스 번호
+//    private Long orderId; // 주문 인덱스 번호
     private Long sellerId; // 판매자 인덱스 번호
     private Long buyerId; // 구매자 인덱스 번호
     private Integer score; // 점수
