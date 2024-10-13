@@ -24,13 +24,15 @@ public class BundleDeliveryGroupController {
     private final BundleDeliveryGroupService bundleDeliveryGroupService;
 
     /**
-     * [관리자] 새로운 묶음 배송 그룹을 등록하는 API
+     * [관리자/판매자] 새로운 묶음 배송 그룹을 등록하는 API
      *
      * @param dto
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
-    @PostMapping()
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @PostMapping
     public ApiResponseEntity<Void> addBundleDeliveryGroup(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody CreateBundleDeliveryGroupDTO dto
@@ -46,12 +48,14 @@ public class BundleDeliveryGroupController {
     }
 
     /**
-     * [판매자] 묶음 배송 그룹을 수정하는 API
+     * [관리자/판매자] 묶음 배송 그룹 수정하는 API
      *
      * @param dto
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @PutMapping("/{groupId}")
     public ApiResponseEntity<Void> updateBundleDeliveryGroup(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -70,12 +74,14 @@ public class BundleDeliveryGroupController {
     }
 
     /**
-     * [판매자] 묶음 배송 그룹 조회
+     * [판매자] 묶음 배송 그룹 삭제
      *
      * @param groupId
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @DeleteMapping("/{groupId}")
     public ApiResponseEntity<Void> deleteBundleDeliveryGroup(
             @PathVariable(value = "groupId") Long groupId
@@ -90,19 +96,23 @@ public class BundleDeliveryGroupController {
     }
 
     /**
-     * [판매자] 묶음 배송 그룹을 조회하는 API
+     * [관리자/판매자] 묶음 배송 그룹 조회 API
      *
      * @param user
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @GetMapping()
     public ApiResponseEntity<Page<BundleDeliveryGroupDetailDTO>> findDetailBundleDeliveryGroups(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "sort-by", required = false) String sortBy,
             @RequestParam(name = "direction", required = false, defaultValue = "asc") String direction,
-            @PageableDefault(sort = "groupId", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(sort = "groupId", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(name = "seller-id", required = false) Long sellerId
     ) {
         // 사용자가 sortBy를 제공한 경우, direction 에 따라 정렬 객체 생성
         if (sortBy != null && !sortBy.isEmpty()) {
@@ -112,6 +122,7 @@ public class BundleDeliveryGroupController {
 
         Page<BundleDeliveryGroupDetailDTO> result = bundleDeliveryGroupService.findDetailBundleDeliveryGroups(
                 user.getId(),
+                sellerId,
                 keyword,
                 pageable,
                 sortBy,
@@ -125,12 +136,15 @@ public class BundleDeliveryGroupController {
     }
 
     /**
-     * [판매자] 묶음 배송 그룹 페이지에서 상품 조회 API
+     * [판매자/관리자] 묶음 배송 그룹 페이지에서 상품 조회 API
      *
      * @param groupId
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @GetMapping("/{groupId}/products")
     public ApiResponseEntity<Page<BundleDeliveryGroupProductDTO>> findProductsByDetailBundleDeliveryGroup(
             @PathVariable("groupId") Long groupId,
@@ -150,12 +164,14 @@ public class BundleDeliveryGroupController {
     }
 
     /**
-     * [판매자] 묶음 배송 그룹에 속한 상품 삭제 API
+     * [관리자/판매자] 묶음 배송 그룹에 속한 상품 삭제 API
      *
      * @param groupId
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
     @DeleteMapping("/{groupId}/products/{productId}")
     public ApiResponseEntity<Void> deleteProductFromBundleGroup(
             @AuthenticationPrincipal CustomUserDetails user,

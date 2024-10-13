@@ -24,3 +24,12 @@ key:
     pw: 23670UA10010XGPG71X9
     sender-key: d7c8eea8276eb40356773dc11913c3f3ef8c6ebe
     from-phone: '01071644471'
+  payment:
+    store-id: store-07021ad4-a603-481e-bec8-48c4419ab304
+    smartro:
+      channel-key: channel-key-da3b5408-17a4-4f20-8276-77342088e399
+      key: 0/4GFsSd7ERVRGX9WHOzJ96GyeMTwvIaKSWUCKmN3fDklNRGw3CualCFoMPZaS99YiFGOuwtzTkrLo4bR4V+Ow==
+      cancel-password: 123456
+      api-key: +qUx0p3BjGChF4quZogCOJhmFU27RV+EaFJfnnMylY3poGLBm7kgM6YKTDEUL429VF8Fbt9EANbgHOjN/Xu/bA==
+    kakao-pay:
+      channel-key: channel-key-6a6fabe7-a282-43ad-98e5-816019aa795a

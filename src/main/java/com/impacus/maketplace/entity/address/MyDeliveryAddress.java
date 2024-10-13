@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.address;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -36,6 +37,7 @@ public class MyDeliveryAddress extends BaseEntity {
     @Column(nullable = false)
     private String detailAddress;   // 메모
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String connectNumber;   // 연락처
 
     private String memo;    // 메모

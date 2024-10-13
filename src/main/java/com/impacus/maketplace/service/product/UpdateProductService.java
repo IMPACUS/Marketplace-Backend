@@ -54,7 +54,7 @@ public class UpdateProductService {
     ) {
         try {
             // 1. Product 찾기
-            CommonProductDTO savedProduct = productRepository.findProductByProductId(productId);
+            CommonProductDTO savedProduct = productRepository.findCommonProductByProductId(productId);
 
             // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
             // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴

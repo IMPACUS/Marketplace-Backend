@@ -2,9 +2,11 @@ package com.impacus.maketplace.repository.point.greenLabelPoint.querydsl;
 
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
-import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelPointDTO;
+import com.impacus.maketplace.dto.point.AlarmPointDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
+import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -26,6 +28,7 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
 
     private final QGreenLabelPoint greenLabelPoint = QGreenLabelPoint.greenLabelPoint1;
     private final QGreenLabelPointAllocation allocation = QGreenLabelPointAllocation.greenLabelPointAllocation;
+    private final QUser user = QUser.user;
 
     @Override
     public List<NotUsedGreenLabelPointAllocationDTO> findNotUsedGreenLabelPointByUserId(Long userId) {
@@ -65,7 +68,7 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
     }
 
     @Override
-    public GreenLabelPointDTO findPointInformationByUserId(Long userId) {
+    public AppGreenLabelPointDTO findPointInformationByUserId(Long userId) {
         // 1. 그린 라벨 포인트 조회
         Long point = queryFactory
                 .select(greenLabelPoint.greenLabelPoint)
@@ -84,7 +87,7 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
                 .where(allocationBuilder)
                 .fetchOne();
 
-        return GreenLabelPointDTO.toDTO(point, pointsExpiringIn30Days);
+        return AppGreenLabelPointDTO.toDTO(point, pointsExpiringIn30Days);
     }
 
     @Override
@@ -114,6 +117,24 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
                 .where(allocationBuilder)
                 .orderBy(allocation.createAt.desc())
                 .fetchOne();
+    }
+
+    @Override
+    public AlarmPointDTO findAlarmPointByAllocationId(Long greenLabelPointAllocationId) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                AlarmPointDTO.class,
+                                user.name.as("userName"),
+                                allocation.remainPoint,
+                                allocation.expiredAt,
+                                user.phoneNumber
+                        )
+                )
+                .from(allocation)
+                .innerJoin(user).on(allocation.userId.eq(user.id))
+                .where(allocation.id.eq(greenLabelPointAllocationId))
+                .fetchFirst();
     }
 
 }

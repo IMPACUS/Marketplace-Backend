@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.address;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,7 @@ public class DeliveryAddress extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long ordersId;  // 주문 아이디
+    private Long paymentEventId;  // 결제 이벤트 id
 
     @Column(nullable = false)
     private String receiver;    // 받는이
@@ -31,6 +32,7 @@ public class DeliveryAddress extends BaseEntity {
     @Column(nullable = false)
     private String detailAddress;   // 상세 주소
 
+    @Convert(converter = AES256ToStringConverter.class)
     private String connectNumber;   // 연락처
 
     private String memo;    // 메모

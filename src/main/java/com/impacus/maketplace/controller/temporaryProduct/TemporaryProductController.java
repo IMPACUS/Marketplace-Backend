@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.DetailStepProductDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailForWebDTO;
+import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -115,11 +115,11 @@ public class TemporaryProductController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
     @GetMapping()
-    public ApiResponseEntity<ProductDetailForWebDTO> getTemporaryProduct(
+    public ApiResponseEntity<WebProductDetailDTO> getTemporaryProduct(
             @AuthenticationPrincipal CustomUserDetails user) {
-        ProductDetailForWebDTO dto = temporaryProductService.findTemporaryProduct(user.getId());
+        WebProductDetailDTO dto = temporaryProductService.findTemporaryProduct(user.getId());
         return ApiResponseEntity
-                .<ProductDetailForWebDTO>builder()
+                .<WebProductDetailDTO>builder()
                 .data(dto)
                 .build();
     }
