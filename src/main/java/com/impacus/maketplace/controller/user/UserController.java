@@ -6,6 +6,8 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.excel.ExcelSheetData;
+import com.impacus.maketplace.dto.excel.SXSSFExcelFile;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
@@ -98,6 +100,13 @@ public class UserController {
             @RequestParam(value = "user-status", required = false) UserStatus status
     ) {
         Page<WebUserDTO> result = readUserService.getUsers(pageable, userName, phoneNumber, startAt, endAt, oauthProviderType, status);
+
+        try {
+            new SXSSFExcelFile(ExcelSheetData.of(result.getContent(), WebUserDTO.class));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         return ApiResponseEntity.<Page<WebUserDTO>>builder()
                 .message("회원 검색 목록 조회 성공")
                 .data(result)
