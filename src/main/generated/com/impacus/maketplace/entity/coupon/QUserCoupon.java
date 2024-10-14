@@ -47,10 +47,6 @@ public class QUserCoupon extends EntityPathBase<UserCoupon> {
     //inherited
     public final StringPath registerId = _super.registerId;
 
-    public final NumberPath<Long> sourceId = createNumber("sourceId", Long.class);
-
-    public final EnumPath<com.impacus.maketplace.common.enumType.coupon.CouponSourceType> sourceType = createEnum("sourceType", com.impacus.maketplace.common.enumType.coupon.CouponSourceType.class);
-
     public final EnumPath<com.impacus.maketplace.common.enumType.coupon.UserCouponStatus> status = createEnum("status", com.impacus.maketplace.common.enumType.coupon.UserCouponStatus.class);
 
     public final DateTimePath<java.time.LocalDateTime> usedAt = createDateTime("usedAt", java.time.LocalDateTime.class);

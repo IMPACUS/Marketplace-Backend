@@ -30,6 +30,8 @@ public class QGreenLabelPointAllocation extends EntityPathBase<GreenLabelPointAl
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final DateTimePath<java.time.LocalDateTime> lastExpiredAt = createDateTime("lastExpiredAt", java.time.LocalDateTime.class);
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifyAt = _super.modifyAt;
 

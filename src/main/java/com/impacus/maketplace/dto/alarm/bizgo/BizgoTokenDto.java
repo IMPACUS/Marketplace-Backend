@@ -1,6 +1,6 @@
 package com.impacus.maketplace.dto.alarm.bizgo;
 
-import com.impacus.maketplace.entity.alarm.bizgo.BizgoToken;
+import com.impacus.maketplace.entity.alarm.token.AlarmToken;
 import lombok.Getter;
 
 @Getter
@@ -16,7 +16,7 @@ public class BizgoTokenDto {
         private String expired;
     }
 
-    public BizgoToken toEntity() {
-        return new BizgoToken(this);
+    public AlarmToken toEntity() {
+        return new AlarmToken(this);
     }
 }

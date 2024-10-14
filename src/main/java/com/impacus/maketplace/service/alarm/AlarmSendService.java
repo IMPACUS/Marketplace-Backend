@@ -3,11 +3,7 @@ package com.impacus.maketplace.service.alarm;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import com.impacus.maketplace.common.enumType.MailType;
-import com.impacus.maketplace.common.enumType.alarm.AlarmSellerCategoryEnum;
-import com.impacus.maketplace.common.enumType.alarm.AlarmSellerSubcategoryEnum;
-import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
-import com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum;
+import com.impacus.maketplace.common.enumType.alarm.*;
 import com.impacus.maketplace.common.enumType.error.AlarmErrorType;
 import com.impacus.maketplace.common.enumType.error.BizgoErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -17,12 +13,14 @@ import com.impacus.maketplace.dto.alarm.seller.SendSellerTextDto;
 import com.impacus.maketplace.dto.alarm.user.SendUserTextDto;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForSeller;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForUser;
-import com.impacus.maketplace.entity.alarm.bizgo.BizgoToken;
+import com.impacus.maketplace.entity.alarm.token.AlarmToken;
+import com.impacus.maketplace.entity.alarm.seller.AlarmHold;
 import com.impacus.maketplace.entity.alarm.seller.AlarmSeller;
 import com.impacus.maketplace.entity.alarm.user.AlarmUser;
 import com.impacus.maketplace.repository.alarm.admin.AlarmAdminForSellerRepository;
 import com.impacus.maketplace.repository.alarm.admin.AlarmAdminForUserRepository;
-import com.impacus.maketplace.repository.alarm.bizgo.BizgoRepository;
+import com.impacus.maketplace.repository.alarm.bizgo.AlarmTokenRepository;
+import com.impacus.maketplace.repository.alarm.seller.AlarmHoldRepository;
 import com.impacus.maketplace.repository.alarm.seller.AlarmSellerRepository;
 import com.impacus.maketplace.repository.alarm.user.AlarmUserRepository;
 import com.impacus.maketplace.service.EmailService;
@@ -39,19 +37,22 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AlarmSendService {
     private final EmailService emailService;
-    private final BizgoRepository bizgoRepository;
+    private final AlarmTokenRepository alarmTokenRepository;
     private final AlarmUserRepository alarmUserRepository;
     private final AlarmSellerRepository alarmSellerRepository;
     private final AlarmAdminForUserRepository alarmAdminForUserRepository;
     private final AlarmAdminForSellerRepository alarmAdminForSellerRepository;
+    private final AlarmHoldRepository alarmHoldRepository;
 
     @Value("${key.bizgo.id}")
     private String bizgoId;
@@ -62,7 +63,6 @@ public class AlarmSendService {
     @Value("${key.bizgo.from-phone}")
     private String fromPhone;
 
-    @Transactional
     public void sendUserAlarm(Long userId, String receiver, String phone, SendUserTextDto sendUserTextDto) {
         AlarmUserCategoryEnum category = sendUserTextDto.getCategory();
         AlarmUserSubcategoryEnum subcategory = sendUserTextDto.getSubcategory();
@@ -74,19 +74,15 @@ public class AlarmSendService {
         if (optionalUser.isEmpty()) throw new CustomException(HttpStatus.BAD_REQUEST, AlarmErrorType.NO_EXIST_USER);
 
         AlarmUser alarmUser = optionalUser.get();
+        Boolean isEmail = alarmUser.getEmail();
+        Boolean isKakao = alarmUser.getKakao();
+        Boolean isMsg = alarmUser.getMsg();
+        String kakaoCode = subcategory.getKakaoCode();
+        String subject = subcategory.getValue();
         if (alarmUser.getIsOn()) {
             String template = optionalAdmin.get().getTemplate();
             String text = this.getText(sendUserTextDto, template);
-            if (alarmUser.getEmail())
-                this.sendMail(receiver, subcategory.getValue(), text);
-            if (alarmUser.getKakao() || alarmUser.getMsg()) {
-                String token = this.getToken();
-                if (alarmUser.getKakao())
-                    this.sendKakao(token, phone, text, subcategory.getKakaoCode());
-                if (alarmUser.getMsg())
-                    this.sendMsg(token, phone, text);
-            }
-//            if (alarmUser.getPush())
+            this.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text);
         }
     }
 
@@ -176,22 +172,34 @@ public class AlarmSendService {
         throw new CustomException(HttpStatus.BAD_REQUEST, AlarmErrorType.NOT_COMMENT_IN_SUBCATEGORY);
     }
 
+    void sendAlarm(Boolean isKakao, Boolean isEmail, Boolean isMsg, String subject, String receiver, String phone, String kakaoCode, String text) {
+        if (isEmail)
+            this.sendMail(receiver, subject, text);
+        if (isKakao || isMsg) {
+            String token = this.getToken();
+            if (isKakao)
+                this.sendKakao(token, phone, text, kakaoCode);
+            if (isMsg)
+                this.sendMsg(token, phone, text);
+        }
+    }
+
     private String getToken() {
-        Optional<BizgoToken> optional = bizgoRepository.latestToken();
+        Optional<AlarmToken> optional = alarmTokenRepository.findBizgoToken();
         String token = "";
         if (optional.isEmpty()) {
-            token = this.generateToken();
+            token = this.generateToken(null);
         } else {
-            BizgoToken bizgoToken = optional.get();
-            token = bizgoToken.getToken();
-            LocalDateTime expiredDate = bizgoToken.getExpiredDate().minusMinutes(1);
+            AlarmToken alarmToken = optional.get();
+            token = alarmToken.getToken();
+            LocalDateTime expiredDate = alarmToken.getExpiredDate().minusMinutes(1);
             boolean isExpired = expiredDate.isBefore(LocalDateTime.now());
-            if (isExpired) token = this.generateToken();
+            if (isExpired) token = this.generateToken(alarmToken.getId());
         }
         return token;
     }
 
-    private String generateToken() {
+    private String generateToken(Long id) {
         String url = "https://omni.ibapi.kr/v1/auth/token";
 
         HttpHeaders headers = new HttpHeaders();
@@ -206,7 +214,11 @@ public class AlarmSendService {
             ResponseEntity<BizgoTokenDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, BizgoTokenDto.class);
             if (response.getStatusCode().is2xxSuccessful()) {
                 BizgoTokenDto body = response.getBody();
-                bizgoRepository.save(body.toEntity());
+                if (id == null) alarmTokenRepository.save(body.toEntity());
+                else {
+                    String expiredData = body.getData().getExpired().replace("+09:00", "");
+                    alarmTokenRepository.updateToken(body.getData().getToken(), LocalDateTime.parse(expiredData), LocalDateTime.now(), id);
+                }
                 return body.getData().getToken();
             } else if (response.getStatusCode().is4xxClientError())
                 throw new CustomException(HttpStatus.UNAUTHORIZED, BizgoErrorType.UNAUTHORIZED);
@@ -313,7 +325,6 @@ public class AlarmSendService {
         return response;
     }
 
-    @Transactional
     public void sendSellerAlarm(Long sellerId, String receiver, String phone, SendSellerTextDto sendSellerTextDto) {
         AlarmSellerCategoryEnum category = sendSellerTextDto.getCategory();
         AlarmSellerSubcategoryEnum subcategory = sendSellerTextDto.getSubcategory();
@@ -328,15 +339,24 @@ public class AlarmSendService {
         AlarmSeller alarmSeller = optionalSeller.get();
         String template = optionalAdmin.get().getTemplate();
         String text = this.getText(sendSellerTextDto, template);
-        if (alarmSeller.getEmail())
-            this.sendMail(receiver, subcategory.getValue(), text);
-        if (alarmSeller.getKakao() || alarmSeller.getMsg()) {
-            String token = this.getToken();
-            if (alarmSeller.getKakao())
-                this.sendKakao(token, phone, text, subcategory.getKakaoCode());
-            if (alarmSeller.getMsg())
-                this.sendMsg(token, phone, text);
+        Boolean isEmail = alarmSeller.getEmail();
+        Boolean isKakao = alarmSeller.getKakao();
+        Boolean isMsg = alarmSeller.getMsg();
+        String subject = subcategory.getValue();
+        String kakaoCode = subcategory.getKakaoCode();
+        AlarmSellerTimeEnum time = alarmSeller.getTime();
+
+        if (time.equals(AlarmSellerTimeEnum.All)) {
+            this.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text);
+        } else if (time.equals(AlarmSellerTimeEnum.FIX)) {
+            LocalTime now = LocalTime.now();
+            LocalTime start = LocalTime.of(9, 0);  // 9:00 AM
+            LocalTime end = LocalTime.of(22, 0);   // 10:00 PM
+
+            if (now.isAfter(start) && now.isBefore(end))
+                this.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text);
+            else
+                alarmHoldRepository.save(new AlarmHold(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text));
         }
-//        if (alarmSeller.getPush())
     }
 }

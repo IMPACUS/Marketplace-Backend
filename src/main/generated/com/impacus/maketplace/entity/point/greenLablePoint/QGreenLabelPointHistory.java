@@ -24,7 +24,11 @@ public class QGreenLabelPointHistory extends EntityPathBase<GreenLabelPointHisto
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
 
+    public final NumberPath<Long> greenLabelPoint = createNumber("greenLabelPoint", Long.class);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final NumberPath<Long> levelPoint = createNumber("levelPoint", Long.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifyAt = _super.modifyAt;
