@@ -2,7 +2,9 @@ package com.impacus.maketplace.service.alarm.user;
 
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
 import com.impacus.maketplace.dto.alarm.user.UpdateUserAlarmDto;
+import com.impacus.maketplace.entity.alarm.token.AlarmToken;
 import com.impacus.maketplace.entity.alarm.user.AlarmUser;
+import com.impacus.maketplace.repository.alarm.bizgo.AlarmTokenRepository;
 import com.impacus.maketplace.repository.alarm.user.AlarmUserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AlarmUserService {
     private final AlarmUserRepository alarmUserRepository;
+    private final AlarmTokenRepository alarmTokenRepository;
 
     public void saveDefault(Long userId) {
         List<AlarmUser> list = new ArrayList<>();
@@ -50,5 +53,11 @@ public class AlarmUserService {
         } else {
             alarmUserRepository.save(new AlarmUser(userId, category, kakao, push, msg, email));
         }
+    }
+
+    public void saveAndUpdateToken(String token, Long userId) {
+        Optional<AlarmToken> optional = alarmTokenRepository.findByUserId(userId);
+        if (optional.isEmpty()) alarmTokenRepository.save(new AlarmToken(userId, token));
+        else optional.get().setToken(token);
     }
 }

@@ -125,19 +125,48 @@
     <changeSet id="changelog-0.14.04-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="bizgo_token"/>
+                <tableExists tableName="alarm_token"/>
             </not>
         </preConditions>
-        <createTable tableName="bizgo_token">
+        <createTable tableName="alarm_token">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)" remarks="BIZGO, FCM">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT" remarks="user_info의 id">
+                <constraints unique="true"/>
             </column>
             <column name="token" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="expired_date" type="TIMESTAMP">
-                <constraints nullable="false"/>
+            <column name="expired_date" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.05-240924" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="alarm_hold"/>
+            </not>
+        </preConditions>
+        <createTable tableName="alarm_hold">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="email" type="BOOLEAN"/>
+            <column name="kakao" type="BOOLEAN"/>
+            <column name="msg" type="BOOLEAN"/>
+            <column name="subject" type="VARCHAR(255)" remarks="메일 제목"/>
+            <column name="receiver" type="VARCHAR(255)" remarks="받는 메일 주소"/>
+            <column name="phone" type="VARCHAR(255)" remarks="받는 폰 번호"/>
+            <column name="kakao_code" type="VARCHAR(255)" remarks="카카오 템플릿 코드"/>
+            <column name="text" type="text" remarks="알림 내용"/>
             <column name="create_at" type="TIMESTAMP"/>
             <column name="register_id" type="VARCHAR(255)"/>
         </createTable>

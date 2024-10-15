@@ -102,7 +102,7 @@ public enum AlarmUserSubcategoryEnum {
                     " 확인하실 수 있습니다.  \n" +
                     "\n" +
                     "쿠폰함 확인하기\n" +
-                    "#{쿠폰함 링크}\n" +
+                    "implace://coupon\n" +
                     "\n" +
                     "*해당 알림은 고객님이 보유중인 쿠폰 만료 \n" +
                     "30일전에 발송됩니다."),
@@ -123,7 +123,7 @@ public enum AlarmUserSubcategoryEnum {
                     " 확인하실 수 있습니다.  \n" +
                     "\n" +
                     "쿠폰함 확인하기\n" +
-                    "#{쿠폰함 링크}\n" +
+                    "implace://coupon\n" +
                     "\n" +
                     "*해당 알림은 고객님이 보유중인 쿠폰 만료 \n" +
                     "1일전에 발송됩니다."),
@@ -143,7 +143,7 @@ public enum AlarmUserSubcategoryEnum {
                     " 확인하실 수 있습니다.  \n" +
                     "\n" +
                     "적립금 확인하기\n" +
-                    "#{적립금 링크}\n" +
+                    "implace://reward\n" +
                     "\n" +
                     "*해당 알림은 고객님이 보유중인 포인트 만료 \n" +
                     "30일전에 발송됩니다."),
@@ -163,7 +163,7 @@ public enum AlarmUserSubcategoryEnum {
                     " 확인하실 수 있습니다.  \n" +
                     "\n" +
                     "적립금 확인하기\n" +
-                    "#{적립금 링크}\n" +
+                    "implace://reward\n" +
                     "\n" +
                     "*해당 알림은 고객님이 보유중인 포인트 만료 \n" +
                     "1일전에 발송됩니다.");

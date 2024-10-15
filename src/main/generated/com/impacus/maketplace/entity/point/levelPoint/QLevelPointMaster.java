@@ -28,6 +28,8 @@ public class QLevelPointMaster extends EntityPathBase<LevelPointMaster> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final DateTimePath<java.time.LocalDateTime> lastExpiredAt = createDateTime("lastExpiredAt", java.time.LocalDateTime.class);
+
     public final NumberPath<Long> levelPoint = createNumber("levelPoint", Long.class);
 
     //inherited
