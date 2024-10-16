@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.auth;
 
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -10,6 +11,7 @@ import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
+import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
@@ -37,7 +39,7 @@ public class AuthService {
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final AdminService adminService;
 
-    private final static String AUTHENTICATION_HEADER_TYPE = "Bearer";
+    private static final String AUTHENTICATION_HEADER_TYPE = "Bearer";
 
     /**
      * JWT 토큰을 재발급하는 함수
@@ -48,7 +50,6 @@ public class AuthService {
      */
     public UserDTO reissueToken(String accessToken, String refreshToken) {
         accessToken = StringUtils.parseGrantTypeInToken(AUTHENTICATION_HEADER_TYPE, accessToken);
-        UserType userType = SecurityUtils.getCurrentUserType();
 
         try {
             // 1. refresh token 유효성 확인
@@ -63,6 +64,7 @@ public class AuthService {
             // 2. Access token 사용자 확인
             Authentication authentication = tokenProvider.getAuthentication(accessToken);
             CustomUserDetails customUserDetail = (CustomUserDetails) authentication.getPrincipal();
+            UserType userType = SecurityUtils.getCurrentUserFromCustomUserDetails(customUserDetail);
 
             // 3. 토큰 재발급
             switch (userType) {
@@ -84,7 +86,11 @@ public class AuthService {
 
 
     public UserDTO reissueConsumerAndSellerToken(String email, Authentication authentication, UserType userType) {
-        User user = userService.validateAndFindUser(email, userType);
+        CommonUserDTO user = userService.findCommonUserByEmail(email);
+        switch (user.getStatus()) {
+            case DEACTIVATED -> throw new CustomException(UserErrorType.DEACTIVATED_USER);
+            case SUSPENDED -> throw new CustomException(UserErrorType.SUSPENDED_USER);
+        }
 
         // 1. JWT 토큰 재발급
         TokenInfoVO tokenInfoVO = tokenProvider.createToken(authentication);
@@ -92,7 +98,7 @@ public class AuthService {
         // 2. 소비자인 경우 출석 포인트 지급
         if (user.getType() == UserType.ROLE_CERTIFIED_USER) {
             greenLabelPointAllocationService.payGreenLabelPoint(
-                    user.getId(),
+                    user.getUserId(),
                     PointType.CHECK,
                     RewardPointType.CHECK.getAllocatedPoints());
         }

@@ -5,12 +5,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import security.CustomUserDetails;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Component
-public class SecurityUtils {
+public final class SecurityUtils {
+
     /**
      * 현재 API 요청에서 사용된 요청자의 권한을 반환하는 함수
      * - 요청한 API 의 권한이 없는 경우, ROLE_NONE
@@ -27,6 +29,17 @@ public class SecurityUtils {
 
             return UserType.fromName(roles);
         } catch (Exception ex) {
+            return UserType.ROLE_NONE;
+        }
+    }
+
+    public static UserType getCurrentUserFromCustomUserDetails(CustomUserDetails customUserDetail) {
+        try {
+            String roles = customUserDetail.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.joining(", "));
+            return UserType.fromName(roles);
+        } catch (Exception e) {
             return UserType.ROLE_NONE;
         }
     }
