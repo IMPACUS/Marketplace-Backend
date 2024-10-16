@@ -13,6 +13,7 @@ import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
+import com.impacus.maketplace.service.ExcelService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.user.WebUserService;
 import jakarta.validation.Valid;
@@ -27,6 +28,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
 import java.time.LocalDate;
 
 
@@ -37,6 +40,7 @@ public class UserController {
 
     private final UserService userService;
     private final WebUserService readUserService;
+    private final ExcelService excelService;
 
     /**
      * 이메일 인증 코드 요청 API
@@ -90,7 +94,7 @@ public class UserController {
      */
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    public ApiResponseEntity<Page<WebUserDTO>> getUsers(
+    public ApiResponseEntity<?> getUsers(
             @PageableDefault(size = 6, sort = "registerAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "user-name", required = false) String userName,
             @RequestParam(value = "phone-number", required = false) String phoneNumber,
@@ -103,18 +107,24 @@ public class UserController {
 
         try {
             ExcelSheetData ddd = ExcelSheetData.of(result.getContent(), WebUserDTO.class);
-            SXSSFExcelFile file = new SXSSFExcelFile(ddd);
+            SXSSFExcelFile file = new SXSSFExcelFile(ddd, "1111");
+            ByteArrayOutputStream outputStream = file.writeWithEncryption();
 
-            file.saveExcel("not-entry.xlsx");
+            URI uri = excelService.saveExcelInS3(outputStream);
+
+            return ApiResponseEntity.<URI>builder()
+                    .message("회원 검색 목록 조회 성공")
+                    .data(uri)
+                    .build();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        return ApiResponseEntity.<Page<WebUserDTO>>builder()
-                .message("회원 검색 목록 조회 성공")
-                .data(result)
-                .build();
+//        return ApiResponseEntity.<Page<WebUserDTO>>builder()
+//                .message("회원 검색 목록 조회 성공")
+//                .data(result)
+//                .build();
     }
 
     /**

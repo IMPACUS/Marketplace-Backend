@@ -111,6 +111,14 @@ public abstract class BaseSXSSFExcelFile implements ExcelFile {
         }
     }
 
+    public ByteArrayOutputStream writeWithEncryption() throws IOException {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            writeWithEncryption(outputStream);
+
+            return outputStream;
+        }
+    }
+
     private OutputStream getEncryptorStream(POIFSFileSystem fileSystem, String password) {
         try {
             Encryptor encryptor = new EncryptionInfo(EncryptionMode.agile).getEncryptor();
@@ -128,7 +136,7 @@ public abstract class BaseSXSSFExcelFile implements ExcelFile {
      * @param filePath 저장될 위치
      * @throws IOException
      */
-    public void saveExcel(String filePath) throws IOException {
+    public void saveExcelInLocal(String filePath) throws IOException {
         try (FileOutputStream fileOut = new FileOutputStream(filePath);
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             writeWithEncryption(out);
