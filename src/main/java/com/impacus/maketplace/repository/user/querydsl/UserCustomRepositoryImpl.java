@@ -253,8 +253,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 user.id.as("userId"),
                                 user.email,
                                 user.password,
+                                user.name,
                                 user.type,
-                                userStatusInfo
+                                userStatusInfo.status
                         )
                 )
                 .from(user)

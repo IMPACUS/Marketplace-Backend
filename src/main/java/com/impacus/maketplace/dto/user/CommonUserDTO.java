@@ -11,6 +11,7 @@ public class CommonUserDTO {
     private Long userId;
     private String email;
     private String password;
+    private String name;
     private UserType type;
     private UserStatus status;
 }
