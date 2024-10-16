@@ -1,11 +1,5 @@
 package com.impacus.maketplace.service.auth;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
@@ -24,8 +18,12 @@ import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
 @Service
@@ -67,7 +65,7 @@ public class AuthService {
             switch (userType) {
                 case ROLE_CERTIFIED_USER:
                 case ROLE_APPROVED_SELLER:
-                    return reissueConsumerAndSellerToken(customUserDetail.getEmail(), authentication);
+                    return reissueConsumerAndSellerToken(customUserDetail.getEmail(), authentication, userType);
                 case ROLE_ADMIN:
                 case ROLE_PRINCIPAL_ADMIN:
                 case ROLE_OWNER:
@@ -80,10 +78,10 @@ public class AuthService {
             throw new CustomException(ex);
         }
     }
-    
 
-    public UserDTO reissueConsumerAndSellerToken(String email, Authentication authentication) {
-        User user = userService.findUserByEmail(email);
+
+    public UserDTO reissueConsumerAndSellerToken(String email, Authentication authentication, UserType userType) {
+        User user = userService.validateAndFindUser(email, userType);
 
         // 1. JWT 토큰 재발급
         TokenInfoVO tokenInfoVO = tokenProvider.createToken(authentication);

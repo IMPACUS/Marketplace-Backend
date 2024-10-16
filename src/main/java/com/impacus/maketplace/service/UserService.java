@@ -232,7 +232,7 @@ public class UserService {
      * @param userType
      * @return
      */
-    private User validateAndFindUser(String email, UserType userType) {
+    public User validateAndFindUser(String email, UserType userType) {
         User user = switch (userType) {
             case ROLE_CERTIFIED_USER -> {
                 User checkedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
