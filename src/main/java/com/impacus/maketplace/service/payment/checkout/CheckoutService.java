@@ -164,7 +164,9 @@ public class CheckoutService {
 
         // 6. 최종 결제 금액 비교
         if (!discountInfo.getFinalAmount().equals(checkoutSingleDTO.getCalculatedTotalAmount())) {
-            throw new CustomException(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
+            CustomException exception = new CustomException(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
+            LogUtils.error(this.getClass().toString(), String.format("최종 금액 불일치 -> 프론트 서버: %d, 백엔드 서버: %d", checkoutSingleDTO.getCalculatedTotalAmount(), discountInfo.getFinalAmount()), exception);
+            throw exception;
         }
 
         // 7. order_id 및 payment_id 생성

@@ -168,7 +168,7 @@ public class PaymentTestDataInitializer {
         productOptionHistoryRepository.save(productOptionHistory6);
 
         // 5. 테스트 상품 3 생성 및 저장
-        CreateProductDTO testProductDTO3 = createProductDTO("테스트 상품3", 10000, 10000, 8000, ProductStatus.SALES_STOP, ProductType.GREEN_TAG, createProductOptionDTOs);
+        CreateProductDTO testProductDTO3 = createProductDTO("테스트 상품3", 20000, 19999, 16999, ProductStatus.SALES_PROGRESS, ProductType.GREEN_TAG, createProductOptionDTOs);
         Product testProduct3 = testProductDTO3.toEntity(savedSeller.getId());
         Product savedProduct3 = productRepository.save(testProduct3);
 
@@ -195,7 +195,35 @@ public class PaymentTestDataInitializer {
         productOptionHistoryRepository.save(productOptionHistory8);
         productOptionHistoryRepository.save(productOptionHistory9);
 
-        // 6. 사용자(소비자) 생성
+        // 6. 테스트 상품 4 생성 및 저장 (판매 중지된 상품)
+        CreateProductDTO testProductDTO4 = createProductDTO("테스트 상품4", 10000, 10000, 8000, ProductStatus.SALES_STOP, ProductType.GREEN_TAG, createProductOptionDTOs);
+        Product testProduct4 = testProductDTO4.toEntity(savedSeller.getId());
+        Product savedProduct4 = productRepository.save(testProduct4);
+
+        ProductOption productOption10 = testProductDTO2.getProductOptions().get(0).toEntity(savedProduct4.getId());
+        ProductOption productOption11 = testProductDTO2.getProductOptions().get(1).toEntity(savedProduct4.getId());
+        ProductOption productOption12 = ProductOption.builder()
+                .productId(savedProduct2.getId())
+                .color(testProductDTO2.getProductOptions().get(0).getColor())
+                .size(testProductDTO2.getProductOptions().get(0).getSize())
+                .stock(testProductDTO2.getProductOptions().get(0).getStock())
+                .isDeleted(true)
+                .build();
+
+        ProductOption savedProductOption10 = productOptionRepository.save(productOption10);
+        ProductOption savedProductOption11 = productOptionRepository.save(productOption11);
+        ProductOption savedProductOption12 = productOptionRepository.save(productOption12);
+
+        ProductOptionHistory productOptionHistory10 = ProductOptionHistory.toEntity(savedProductOption10);
+        ProductOptionHistory productOptionHistory11 = ProductOptionHistory.toEntity(savedProductOption11);
+        ProductOptionHistory productOptionHistory12 = ProductOptionHistory.toEntity(savedProductOption12);
+
+        productOptionHistoryRepository.save(productOptionHistory10);
+        productOptionHistoryRepository.save(productOptionHistory11);
+        productOptionHistoryRepository.save(productOptionHistory12);
+
+
+        // 7. 사용자(소비자) 생성
         User user = User.builder()
                 .email("test@test.com")
                 .password("testpassword")
@@ -212,33 +240,33 @@ public class PaymentTestDataInitializer {
 
         User savedUser = userRepository.save(user);
 
-        // 7. 포인트 지급 (10000)
+        // 8. 포인트 지급 (10000)
         GreenLabelPoint greenLabelPoint = GreenLabelPoint.toEntity(savedUser.getId());
         GreenLabelPoint savedGreenLabelPoint = greenLabelPointRepository.save(greenLabelPoint);
         greenLabelPointRepository.updateGreenLabelPointByUserId(savedGreenLabelPoint.getUserId(), 10000L);
 
-        // 8. 쿠폰 등록(혜택 구분 2개, 적용 타입 2개, 쿠폰 사용 범위 2개, 사용 가능 기준 금액 2개)
-        // 8.1. 쿠폰 1: 10% 할인 쿠폰, 제약 조건 없음
+        // 9. 쿠폰 등록(혜택 구분 2개, 적용 타입 2개, 쿠폰 사용 범위 2개, 사용 가능 기준 금액 2개)
+        // 9.1. 쿠폰 1: 10% 할인 쿠폰, 제약 조건 없음
         Coupon coupon1 = createCoupon("test1", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 8.2. 쿠폰 2: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓)
+        // 9.2. 쿠폰 2: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓)
         Coupon coupon2 = createCoupon("tset2", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.BRAND, "테스트마켓", StandardType.UNLIMITED, null);
-        // 8.3. 쿠폰 3: 10% 할인 쿠폰, 제약 조건 -> 브랜드(틀린이름)
+        // 9.3. 쿠폰 3: 10% 할인 쿠폰, 제약 조건 -> 브랜드(틀린이름)
         Coupon coupon3 = createCoupon("test3", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.BRAND, "틀린마켓이름", StandardType.UNLIMITED, null);
-        // 8.4. 쿠폰 4: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 사용 기준 금액: 10000원
-        Coupon coupon4 = createCoupon("test4", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.BRAND, "테스트마켓", StandardType.LIMIT, 10000L);
-        // 8.5. 쿠폰 5: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 일반 상품, 사용 기준 금액: 10000원
+        // 9.4. 쿠폰 4: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 사용 기준 금액: 10000원
+        Coupon coupon4 = createCoupon("test4", BenefitType.PERCENTAGE, 20L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
+        // 9.5. 쿠폰 5: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 일반 상품, 사용 기준 금액: 10000원
         Coupon coupon5 = createCoupon("test5", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.BASIC, CoverageType.BRAND, "테스트마켓", StandardType.LIMIT, 10000L);
-        // 8.6. 쿠폰 6: 10% 할인 쿠폰, 제약 조건 -> 에코 상품, 사용 기준 금액: 10000원
+        // 9.6. 쿠폰 6: 10% 할인 쿠폰, 제약 조건 -> 에코 상품, 사용 기준 금액: 10000원
         Coupon coupon6 = createCoupon("test6", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ECO_GREEN, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
-        // 8.7. 쿠폰 7: 5000원 할인 쿠폰, 제약 조건 없음
+        // 9.7. 쿠폰 7: 5000원 할인 쿠폰, 제약 조건 없음
         Coupon coupon7 = createCoupon("test7", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 8.8. 쿠폰 8: 10000원 할인 쿠폰, 제약 조건 -> 사용 가능 기준 금액 20000원
+        // 9.8. 쿠폰 8: 10000원 할인 쿠폰, 제약 조건 -> 사용 가능 기준 금액 20000원
         Coupon coupon8 = createCoupon("test8", BenefitType.AMOUNT, 10000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 20000L);
-        // 8.9. 쿠폰 9: 이미 사용한 쿠폰으로 처리 (제약 조건 X)
+        // 9.9. 쿠폰 9: 이미 사용한 쿠폰으로 처리 (제약 조건 X)
         Coupon coupon9 = createCoupon("test9", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 8.10. 쿠폰 10: 만료된 쿠폰으로 처리 (제약 조건 X)
+        // 9.10. 쿠폰 10: 만료된 쿠폰으로 처리 (제약 조건 X)
         Coupon coupon10 = createCoupon("test10", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 8.11. 쿠폰 11: 지급 실패한 쿠폰으로 처리 (제약 조건 X)
+        // 9.11. 쿠폰 11: 지급 실패한 쿠폰으로 처리 (제약 조건 X)
         Coupon coupon11 = createCoupon("test11", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
 
         Coupon savedCoupon1 = couponRepository.save(coupon1);
@@ -253,7 +281,7 @@ public class PaymentTestDataInitializer {
         Coupon savedCoupon10 = couponRepository.save(coupon10);
         Coupon savedCoupon11 = couponRepository.save(coupon11);
 
-        // 2.8 등록한 쿠폰을 이용해서 사용자 쿠폰 생성
+        // 10. 등록한 쿠폰을 이용해서 사용자 쿠폰 생성
         UserCoupon userCoupon1 = createUserCoupon(savedUser.getId(), savedCoupon1.getId(), false, null, UserCouponStatus.ISSUE_SUCCESS);
         UserCoupon userCoupon2 = createUserCoupon(savedUser.getId(), savedCoupon2.getId(), false, null, UserCouponStatus.ISSUE_SUCCESS);
         UserCoupon userCoupon3 = createUserCoupon(savedUser.getId(), savedCoupon3.getId(), false, null, UserCouponStatus.ISSUE_SUCCESS);

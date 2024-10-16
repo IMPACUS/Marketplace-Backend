@@ -109,5 +109,4 @@ public class DiscountInfoDTOTest {
         assertThat(pointDiscountAmountAfterAddPoint).isEqualTo(1400L);
         assertThat(finalAmountAfterAddPoint).isEqualTo(0L);
     }
-
 }

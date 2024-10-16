@@ -1314,7 +1314,7 @@ class DiscountServiceTest {
         }
 
         @Test
-        @DisplayName("[오류 케이스] 2개의 상품 주문에 대해 모든 할인을 적용했을 때 포인트가 남는다면 예외를 발생시킨다")
+        @DisplayName("[예외 케이스] 2개의 상품 주문에 대해 모든 할인을 적용했을 때 포인트가 남는다면 예외를 발생시킨다")
         void reconcileDiscountAmountDoubleAllDiscountsPointReconcile_INVALID_POINT() {
             // given
             ProductPricingDTO productPricingDTO1 = ProductPricingDTO.builder()
