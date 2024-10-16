@@ -12,6 +12,7 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
@@ -357,6 +358,10 @@ public class UserService {
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+    }
+
+    public CommonUserDTO findCommonUserByEmail(String email) {
+        return userRepository.findCommonUserByEmail(email);
     }
 
     public boolean existUserByEmail(String email) {
