@@ -9,11 +9,11 @@ import java.time.format.DateTimeFormatter;
 
 public interface ExcelFile {
 
-    static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+    DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     void write(OutputStream stream) throws IOException;
 
-    void writeWithEncryption(OutputStream stream, String password) throws IOException;
+    void writeWithEncryption(OutputStream stream) throws IOException;
 
     default <T> void createCell(Row row, int column, T value, CellStyle style) {
         if (value == null) return; // avoid NPE

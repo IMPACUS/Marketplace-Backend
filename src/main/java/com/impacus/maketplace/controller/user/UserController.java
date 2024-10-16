@@ -102,7 +102,11 @@ public class UserController {
         Page<WebUserDTO> result = readUserService.getUsers(pageable, userName, phoneNumber, startAt, endAt, oauthProviderType, status);
 
         try {
-            new SXSSFExcelFile(ExcelSheetData.of(result.getContent(), WebUserDTO.class));
+            ExcelSheetData ddd = ExcelSheetData.of(result.getContent(), WebUserDTO.class);
+            SXSSFExcelFile file = new SXSSFExcelFile(ddd);
+
+            file.saveExcel("not-entry.xlsx");
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.annotation.excel.ExcelColumn;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SuperClassReflectionUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
 import org.apache.poi.poifs.crypt.Encryptor;
@@ -31,14 +32,13 @@ public abstract class BaseSXSSFExcelFile implements ExcelFile {
     protected SXSSFWorkbook workbook;
     protected Sheet sheet;
 
+    /**
+     * password 엑셀 파일을 암호화할 비밀번호 (null이면 암호화하지 않음)
+     */
+    protected String password;
+
     public BaseSXSSFExcelFile() {
         this.workbook = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
-    }
-
-    public static void saveExcel(String filePath, byte[] excelData) throws IOException {
-        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-            fileOut.write(excelData);
-        }
     }
 
     protected void renderHeaders(ExcelMetadata excelMetadata) {
@@ -73,29 +73,42 @@ public abstract class BaseSXSSFExcelFile implements ExcelFile {
         }
     }
 
+    /**
+     * 생성된 엑셀 파일을 주어진 OutputStream에 저장하는 함수.
+     *
+     * @param stream stream 엑셀이 저장될 OutputStream
+     * @throws IOException
+     */
     @Override
     public void write(OutputStream stream) throws IOException {
         workbook.write(stream);
     }
 
+    /**
+     * 생성된 엑셀 파일을 주어진 OutputStream에 암호화하여 저장하는 함수.
+     *
+     * @param stream 엑셀이 저장될 OutputStream
+     * @throws IOException
+     */
     @Override
-    public void writeWithEncryption(OutputStream stream, String password) throws IOException {
-        if (password == null) {
-            write(stream);
-        } else {
-//            POIFSFileSystem fileSystem = new POIFSFileSystem();
-//            OutputStream encryptorStream = getEncryptorStream(fileSystem, password);
-//            workbook.write(encryptorStream);
-//            encryptorStream.close();
-//
-//            fileSystem.writeFilesystem(stream);
-//            fileSystem.close();
-        }
-        saveExcel("base-countries.xlsx", ((ByteArrayOutputStream) stream).toByteArray());
+    public void writeWithEncryption(OutputStream stream) throws IOException {
+        try {
+            if (password == null) {
+                write(stream);
+            } else {
+                POIFSFileSystem fileSystem = new POIFSFileSystem();
+                OutputStream encryptorStream = getEncryptorStream(fileSystem, password);
+                workbook.write(encryptorStream);
+                encryptorStream.close();
 
-        workbook.close();
-        workbook.dispose();
-        stream.close();
+                fileSystem.writeFilesystem(stream);
+                fileSystem.close();
+            }
+        } finally {
+            workbook.close();
+            workbook.dispose();
+            stream.close();
+        }
     }
 
     private OutputStream getEncryptorStream(POIFSFileSystem fileSystem, String password) {
@@ -107,5 +120,29 @@ public abstract class BaseSXSSFExcelFile implements ExcelFile {
             throw new CustomException(CommonErrorType.FAIL_TO_CREATE_EXCEL,
                     "Failed to obtain encrypted data stream from POIFSFileSystem.");
         }
+    }
+
+    /**
+     * 엑셀 저장 함수
+     *
+     * @param filePath 저장될 위치
+     * @throws IOException
+     */
+    public void saveExcel(String filePath) throws IOException {
+        try (FileOutputStream fileOut = new FileOutputStream(filePath);
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            writeWithEncryption(out);
+
+            fileOut.write(out.toByteArray());
+        }
+    }
+
+    /**
+     * 엑셀을 response로 전달하는 함수
+     *
+     * @param response
+     */
+    public void sendResponse(HttpServletResponse response) throws IOException {
+        writeWithEncryption(response.getOutputStream());
     }
 }
