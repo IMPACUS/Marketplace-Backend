@@ -6,8 +6,6 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
-import com.impacus.maketplace.dto.excel.ExcelSheetData;
-import com.impacus.maketplace.dto.excel.SXSSFExcelFile;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
@@ -28,8 +26,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
-import java.net.URI;
 import java.time.LocalDate;
 
 
@@ -94,7 +90,7 @@ public class UserController {
      */
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    public ApiResponseEntity<?> getUsers(
+    public ApiResponseEntity<Page<WebUserDTO>> getUsers(
             @PageableDefault(size = 6, sort = "registerAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "user-name", required = false) String userName,
             @RequestParam(value = "phone-number", required = false) String phoneNumber,
@@ -105,26 +101,26 @@ public class UserController {
     ) {
         Page<WebUserDTO> result = readUserService.getUsers(pageable, userName, phoneNumber, startAt, endAt, oauthProviderType, status);
 
-        try {
-            ExcelSheetData ddd = ExcelSheetData.of(result.getContent(), WebUserDTO.class);
-            SXSSFExcelFile file = new SXSSFExcelFile(ddd, "1111");
-            ByteArrayOutputStream outputStream = file.writeWithEncryption();
+//        try {
+//            ExcelSheetData ddd = ExcelSheetData.of(result.getContent(), WebUserDTO.class);
+//            SXSSFExcelFile file = new SXSSFExcelFile(ddd, "1111");
+//            ByteArrayOutputStream outputStream = file.writeWithEncryption();
+//
+//            URI uri = excelService.saveExcelInS3(outputStream);
+//
+//            return ApiResponseEntity.<URI>builder()
+//                    .message("회원 검색 목록 조회 성공")
+//                    .data(uri)
+//                    .build();
+//
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
 
-            URI uri = excelService.saveExcelInS3(outputStream);
-
-            return ApiResponseEntity.<URI>builder()
-                    .message("회원 검색 목록 조회 성공")
-                    .data(uri)
-                    .build();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-//        return ApiResponseEntity.<Page<WebUserDTO>>builder()
-//                .message("회원 검색 목록 조회 성공")
-//                .data(result)
-//                .build();
+        return ApiResponseEntity.<Page<WebUserDTO>>builder()
+                .message("회원 검색 목록 조회 성공")
+                .data(result)
+                .build();
     }
 
     /**
