@@ -53,8 +53,11 @@ public class AuthService {
         try {
             // 1. refresh token 유효성 확인
             TokenErrorType validateResult = tokenProvider.validateToken(refreshToken);
+            boolean isLogOut = blacklistService.existsBlacklistByAccessToken(accessToken);
             if (validateResult != TokenErrorType.NONE) {
                 throw new CustomException(HttpStatus.UNAUTHORIZED, validateResult.getErrorType());
+            } else if (isLogOut) {
+                throw new CustomException(HttpStatus.UNAUTHORIZED, CommonErrorType.LOGGED_OUT_TOKEN);
             }
 
             // 2. Access token 사용자 확인
@@ -113,6 +116,11 @@ public class AuthService {
     @Transactional
     public void logout(String accessToken) {
         accessToken = StringUtils.parseGrantTypeInToken(AUTHENTICATION_HEADER_TYPE, accessToken);
+        TokenErrorType tokenErrorType = tokenProvider.validateToken(accessToken);
+        if (tokenErrorType != TokenErrorType.NONE) {
+            throw new CustomException(HttpStatus.UNAUTHORIZED, tokenErrorType.getErrorType());
+        }
+
         Long expiration = tokenProvider.getExpiration(accessToken);
         if (expiration == null || expiration == 0L) {
             return;
