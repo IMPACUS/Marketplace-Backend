@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
@@ -241,5 +242,24 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .execute();
 
         return result;
+    }
+
+    @Override
+    public CommonUserDTO findCommonUserByEmail(String email) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                CommonUserDTO.class,
+                                user.id.as("userId"),
+                                user.email,
+                                user.password,
+                                user.type,
+                                userStatusInfo
+                        )
+                )
+                .from(user)
+                .innerJoin(userStatusInfo).on(userStatusInfo.userId.eq(user.id))
+                .where(user.email.eq(email))
+                .fetchFirst();
     }
 }
