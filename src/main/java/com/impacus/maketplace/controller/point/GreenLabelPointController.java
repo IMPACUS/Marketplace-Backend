@@ -2,6 +2,7 @@ package com.impacus.maketplace.controller.point;
 
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
@@ -84,6 +85,24 @@ public class GreenLabelPointController {
         Page<WebGreenLabelHistoryDTO> result = greenLabelPointHistoryService.getGreenLabelPointHistoriesForWeb(pageable, keyword, status, startAt, endAt);
         return ApiResponseEntity.<Page<WebGreenLabelHistoryDTO>>builder()
                 .message("포인트 지급 목록 조회 성공")
+                .data(result)
+                .build();
+    }
+
+    /**
+     * [관리자] 포인트 지급 목록 엑셀 생성 요청 API
+     */
+    @GetMapping("/allocation/excel")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportGreenLabelPointHistoriesForWeb(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "status", required = false) RewardPointStatus status,
+            @RequestParam(value = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+            @RequestParam(value = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt
+    ) {
+        FileGenerationStatusIdDTO result = greenLabelPointHistoryService.exportGreenLabelPointHistoriesForWeb(keyword, status, startAt, endAt);
+        return ApiResponseEntity.<FileGenerationStatusIdDTO>builder()
+                .message("포인트 지급 목록 엑셀 생성 요청 성공")
                 .data(result)
                 .build();
     }

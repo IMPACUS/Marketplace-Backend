@@ -15,6 +15,7 @@ import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointHisto
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -83,10 +84,36 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
             LocalDate startAt,
             LocalDate endAt
     ) {
-
         // 1. 검색어 필터링
+        BooleanBuilder builder = getBooleanBuilderInWebGreenLabelHistoryDTO(
+                keyword,
+                status,
+                startAt,
+                endAt
+        );
+
+        // 2. 데이터 조회
+        List<WebGreenLabelHistoryDTO> dtos = getWebGreenLabelHistoryDTOs(builder, pageable);
+
+        long count = queryFactory
+                .select(history.id.count())
+                .from(history)
+                .innerJoin(user).on(user.id.eq(history.userId))
+                .where(builder)
+                .fetchFirst();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    public BooleanBuilder getBooleanBuilderInWebGreenLabelHistoryDTO(
+            String keyword,
+            RewardPointStatus status,
+            LocalDate startAt,
+            LocalDate endAt
+    ) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(history.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)));
+        builder.and(history.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .and(history.pointStatus.eq(PointStatus.GRANT));
 
         if (keyword != null && !keyword.isBlank()) {
             builder.and(user.email.containsIgnoreCase(keyword));
@@ -102,8 +129,14 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
             }
         }
 
-        // 2. 데이터 조회
-        List<WebGreenLabelHistoryDTO> dtos = queryFactory
+        return builder;
+    }
+
+    public List<WebGreenLabelHistoryDTO> getWebGreenLabelHistoryDTOs(
+            BooleanBuilder builder,
+            Pageable pageable
+    ) {
+        JPAQuery<WebGreenLabelHistoryDTO> query = queryFactory
                 .select(
                         Projections.constructor(
                                 WebGreenLabelHistoryDTO.class,
@@ -119,19 +152,35 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
                 .from(history)
                 .innerJoin(user).on(user.id.eq(history.userId))
                 .where(builder)
-                .orderBy(history.createAt.desc())
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch();
+                .orderBy(history.createAt.desc());
 
-        long count = queryFactory
-                .select(history.id.count())
-                .from(history)
-                .innerJoin(user).on(user.id.eq(history.userId))
-                .where(builder)
-                .fetchFirst();
+        if (pageable != null) {
+            return query
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+        } else {
+            return query.fetch();
+        }
+    }
 
-        return PaginationUtils.toPage(dtos, pageable, count);
+    @Override
+    public List<WebGreenLabelHistoryDTO> exportGreenLabelPointHistoriesForWeb(
+            String keyword,
+            RewardPointStatus status,
+            LocalDate startAt,
+            LocalDate endAt
+    ) {
+        // 1. 검색어 필터링
+        BooleanBuilder builder = getBooleanBuilderInWebGreenLabelHistoryDTO(
+                keyword,
+                status,
+                startAt,
+                endAt
+        );
+
+        // 2. 데이터 조회
+        return getWebGreenLabelHistoryDTOs(builder, null);
     }
 
     @Override

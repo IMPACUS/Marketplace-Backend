@@ -22,4 +22,6 @@ public class DirectoryConstants {
 
     public static final String EDITOR_IMAGE_DIRECTORY = "editorImage";
 
+    public static final String EXCEL_DIRECTORY = "excel";
+
 }

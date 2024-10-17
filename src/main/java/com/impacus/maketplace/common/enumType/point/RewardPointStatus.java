@@ -18,4 +18,9 @@ public enum RewardPointStatus {
     MANUAL("수동");
 
     private final String value;
+
+    @Override
+    public String toString() {
+        return this.value;
+    }
 }
