@@ -37,6 +37,8 @@ public class QAlarmHold extends EntityPathBase<AlarmHold> {
 
     public final StringPath registerId = createString("registerId");
 
+    public final TimePath<java.time.LocalTime> sendTime = createTime("sendTime", java.time.LocalTime.class);
+
     public final StringPath subject = createString("subject");
 
     public final StringPath text = createString("text");

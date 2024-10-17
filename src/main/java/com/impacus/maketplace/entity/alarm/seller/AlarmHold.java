@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -24,6 +25,7 @@ public class AlarmHold {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private LocalTime sendTime;
     private Boolean kakao;
     private Boolean email;
     private Boolean msg;
@@ -43,7 +45,8 @@ public class AlarmHold {
     @Column(updatable = false)
     private String registerId;
 
-    public AlarmHold(Boolean kakao, Boolean email, Boolean msg, String subject, String receiver, String phone, String kakaoCode, String text) {
+    public AlarmHold(LocalTime sendTime, Boolean kakao, Boolean email, Boolean msg, String subject, String receiver, String phone, String kakaoCode, String text) {
+        this.sendTime = sendTime;
         this.kakao = kakao;
         this.email = email;
         this.msg = msg;

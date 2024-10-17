@@ -159,6 +159,9 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="send_time" type="TIME" remarks="보낼 시간">
+                <constraints nullable="false"/>
+            </column>
             <column name="email" type="BOOLEAN"/>
             <column name="kakao" type="BOOLEAN"/>
             <column name="msg" type="BOOLEAN"/>
