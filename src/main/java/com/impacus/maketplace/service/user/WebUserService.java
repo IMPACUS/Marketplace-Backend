@@ -18,8 +18,8 @@ import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterReposi
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.repository.user.UserStatusInfoRepository;
 import com.impacus.maketplace.service.AttachFileService;
-import com.impacus.maketplace.service.ExcelService;
 import com.impacus.maketplace.service.coupon.CouponApiServiceImpl;
+import com.impacus.maketplace.service.excel.ExcelService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.point.levelPoint.LevelPointMasterService;
 import lombok.RequiredArgsConstructor;

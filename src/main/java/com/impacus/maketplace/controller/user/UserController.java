@@ -12,8 +12,8 @@ import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
-import com.impacus.maketplace.service.ExcelService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.excel.ExcelService;
 import com.impacus.maketplace.service.user.WebUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -155,7 +155,7 @@ public class UserController {
     }
 
     /**
-     * [관리자] 소비자 회원 검색 목록 조회 API
+     * [관리자] 소비자 회원 검색 목록 엑셀 생성 요청 API
      */
     @GetMapping("/excel")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
