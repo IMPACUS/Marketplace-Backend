@@ -25,16 +25,17 @@ public class ExcelService {
      * List 를 Excel로 생성하는 함수
      *
      * @param data excel 저장 데이터
+     * @param type excel data type 명
      * @return
      */
     @Transactional
-    public FileGenerationStatusIdDTO generateExcel(List<?> data) {
+    public FileGenerationStatusIdDTO generateExcel(List<?> data, Class<?> type) {
         // 1. FileGenerationStatus 생성
         FileGenerationStatus fileGenerationStatus = saveExcelGenerationStatus();
         String fileGenerationStatusId = fileGenerationStatus.getId();
 
         // 2. 엑셀 생성
-        excelProcessingService.createAndSaveExcel(fileGenerationStatus, data);
+        excelProcessingService.createAndSaveExcel(fileGenerationStatus, data, type);
 
         return FileGenerationStatusIdDTO.toDTO(fileGenerationStatusId);
     }

@@ -28,7 +28,7 @@ public interface ExcelFile {
         } else if (value instanceof LocalDateTime) {
             cell.setCellValue(((LocalDateTime) value).format(FORMATTER));
         } else if (value instanceof Enum<?>) {
-            cell.setCellValue(((Enum<?>) value).name());
+            cell.setCellValue(((Enum<?>) value).toString());
         } else {
             cell.setCellValue((String) value);
         }

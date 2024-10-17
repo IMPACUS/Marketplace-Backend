@@ -5,7 +5,6 @@ import com.impacus.maketplace.common.enumType.FileStatus;
 import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.excel.ExcelSheetData;
 import com.impacus.maketplace.dto.excel.SXSSFExcelFile;
-import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.redis.entity.FileGenerationStatus;
 import com.impacus.maketplace.redis.service.FileGenerationStatusService;
 import com.impacus.maketplace.service.aws.S3Service;
@@ -28,13 +27,14 @@ public class ExcelProcessingService {
      *
      * @param fileGenerationStatus
      * @param data                 excel 저장 데이터
+     * @param type excel data type 명
      */
     @Async("fileGenerateExecutor")
-    public void createAndSaveExcel(FileGenerationStatus fileGenerationStatus, List<?> data) {
+    public void createAndSaveExcel(FileGenerationStatus fileGenerationStatus, List<?> data, Class<?> type) {
         try {
             fileGenerationStatusService.updateFileGenerationStatus(fileGenerationStatus, FileStatus.IN_PROGRESS);
 
-            ExcelSheetData sheet = ExcelSheetData.of(data, WebUserDTO.class);
+            ExcelSheetData sheet = ExcelSheetData.of(data, type);
             SXSSFExcelFile file = new SXSSFExcelFile(sheet);
             ByteArrayOutputStream outputStream = file.writeWithEncryption();
             URI uri = saveExcelInS3(outputStream);

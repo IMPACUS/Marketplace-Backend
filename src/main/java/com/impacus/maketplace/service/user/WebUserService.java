@@ -232,7 +232,7 @@ public class WebUserService {
                     status
             );
 
-            return excelService.generateExcel(dtos);
+            return excelService.generateExcel(dtos, WebUserDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
