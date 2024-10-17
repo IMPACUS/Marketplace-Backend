@@ -6,5 +6,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum FileStatus {
-    IN_PROGRESS, COMPLETED, FAILED
+    NOT_STARTED, IN_PROGRESS, COMPLETED, FAILED
 }

@@ -27,8 +27,13 @@ public class FileGenerationStatus {
     private String saveURL;
 
     public FileGenerationStatus(String extend) {
-        this.status = FileStatus.IN_PROGRESS;
+        this.status = FileStatus.NOT_STARTED;
         this.extend = extend;
+    }
+
+    public void updateStatus(FileStatus status, String saveURL) {
+        this.status = status;
+        this.saveURL = saveURL;
     }
 
     public static FileGenerationStatus toEntity(String extend) {
