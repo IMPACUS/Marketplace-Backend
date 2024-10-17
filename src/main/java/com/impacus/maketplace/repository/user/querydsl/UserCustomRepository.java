@@ -42,4 +42,13 @@ public interface UserCustomRepository {
     long updateUser(Long userId, UpdateUserDTO dto, Long profileImageId);
 
     CommonUserDTO findCommonUserByEmail(String email);
+
+    List<WebUserDTO> getAllUsers(
+            String userName,
+            String phoneNumber,
+            LocalDate startAt,
+            LocalDate endAt,
+            OauthProviderType oauthProviderType,
+            UserStatus status
+    );
 }

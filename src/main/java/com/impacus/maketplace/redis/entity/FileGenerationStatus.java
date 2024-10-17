@@ -25,4 +25,13 @@ public class FileGenerationStatus {
 
     @Column(unique = true)
     private String saveURL;
+
+    public FileGenerationStatus(String extend) {
+        this.status = FileStatus.IN_PROGRESS;
+        this.extend = extend;
+    }
+
+    public static FileGenerationStatus toEntity(String extend) {
+        return new FileGenerationStatus(extend);
+    }
 }

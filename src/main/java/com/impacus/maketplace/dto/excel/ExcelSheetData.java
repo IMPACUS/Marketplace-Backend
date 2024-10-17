@@ -1,5 +1,7 @@
 package com.impacus.maketplace.dto.excel;
 
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,6 +17,10 @@ public class ExcelSheetData {
     private final Class<?> type;
 
     public static ExcelSheetData of(List<?> data, Class<?> type) {
+        if (data == null) {
+            throw new CustomException(CommonErrorType.FAIL_TO_CREATE_EXCEL, "Cannot create null data for excel");
+        }
+
         return new ExcelSheetData(data, type);
     }
 }

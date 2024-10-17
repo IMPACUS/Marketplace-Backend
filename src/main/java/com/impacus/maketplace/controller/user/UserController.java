@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
@@ -101,22 +102,6 @@ public class UserController {
     ) {
         Page<WebUserDTO> result = readUserService.getUsers(pageable, userName, phoneNumber, startAt, endAt, oauthProviderType, status);
 
-//        try {
-//            ExcelSheetData ddd = ExcelSheetData.of(result.getContent(), WebUserDTO.class);
-//            SXSSFExcelFile file = new SXSSFExcelFile(ddd, "1111");
-//            ByteArrayOutputStream outputStream = file.writeWithEncryption();
-//
-//            URI uri = excelService.saveExcelInS3(outputStream);
-//
-//            return ApiResponseEntity.<URI>builder()
-//                    .message("회원 검색 목록 조회 성공")
-//                    .data(uri)
-//                    .build();
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-
         return ApiResponseEntity.<Page<WebUserDTO>>builder()
                 .message("회원 검색 목록 조회 성공")
                 .data(result)
@@ -166,6 +151,27 @@ public class UserController {
         readUserService.issueUserReward(userId, dto);
         return ApiResponseEntity.<Void>builder()
                 .message("포인트/쿠폰 지급 성공")
+                .build();
+    }
+
+    /**
+     * [관리자] 소비자 회원 검색 목록 조회 API
+     */
+    @GetMapping("/excel")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportUsers(
+            @RequestParam(value = "user-name", required = false) String userName,
+            @RequestParam(value = "phone-number", required = false) String phoneNumber,
+            @RequestParam(value = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+            @RequestParam(value = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+            @RequestParam(value = "oauth-provider-type", required = false) OauthProviderType oauthProviderType,
+            @RequestParam(value = "user-status", required = false) UserStatus status
+    ) {
+        FileGenerationStatusIdDTO result = readUserService.exportUsers(userName, phoneNumber, startAt, endAt, oauthProviderType, status);
+
+        return ApiResponseEntity.<FileGenerationStatusIdDTO>builder()
+                .message("회원 검색 목록 excel 생성 요청 성공")
+                .data(result)
                 .build();
     }
 }
