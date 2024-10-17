@@ -31,8 +31,6 @@ public class ExcelProcessingService {
      */
     @Async("fileGenerateExecutor")
     public void createAndSaveExcel(FileGenerationStatus fileGenerationStatus, List<?> data) {
-        long start = System.currentTimeMillis();
-        LogUtils.writeInfoLog("createAndSaveExcel", "start createAndSaveExcel");
         try {
             fileGenerationStatusService.updateFileGenerationStatus(fileGenerationStatus, FileStatus.IN_PROGRESS);
 
@@ -46,8 +44,6 @@ public class ExcelProcessingService {
             fileGenerationStatusService.updateFileGenerationStatus(fileGenerationStatus, FileStatus.FAILED);
             LogUtils.writeErrorLog("createAndSaveExcel", "File generation failed", e);
         }
-        long end = System.currentTimeMillis();
-        LogUtils.writeInfoLog("createAndSaveExcel", "end createAndSaveExcel " + (end - start));
     }
 
     /**

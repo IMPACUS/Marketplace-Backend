@@ -13,7 +13,6 @@ import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.service.UserService;
-import com.impacus.maketplace.service.excel.ExcelService;
 import com.impacus.maketplace.service.user.WebUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -37,7 +36,6 @@ public class UserController {
 
     private final UserService userService;
     private final WebUserService readUserService;
-    private final ExcelService excelService;
 
     /**
      * 이메일 인증 코드 요청 API

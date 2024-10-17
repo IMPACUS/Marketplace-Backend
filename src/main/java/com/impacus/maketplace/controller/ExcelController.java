@@ -2,6 +2,7 @@ package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusDTO;
+import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.excel.ExcelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/excel")
 public class ExcelController {
     private final ExcelService excelService;
+    private final UserService userService;
 
     /**
      * [판매자, 관리자] 파일 생성 상태 조회

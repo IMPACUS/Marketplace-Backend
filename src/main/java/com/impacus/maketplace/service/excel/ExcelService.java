@@ -28,7 +28,7 @@ public class ExcelService {
      * @return
      */
     @Transactional
-    public FileGenerationStatusIdDTO generateExcel(List<?> data) throws InterruptedException {
+    public FileGenerationStatusIdDTO generateExcel(List<?> data) {
         // 1. FileGenerationStatus 생성
         FileGenerationStatus fileGenerationStatus = saveExcelGenerationStatus();
         String fileGenerationStatusId = fileGenerationStatus.getId();
