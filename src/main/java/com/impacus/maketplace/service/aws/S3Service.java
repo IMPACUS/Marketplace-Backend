@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.s3.model.Tagging;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -53,13 +55,13 @@ public class S3Service implements CloudFileUploadService {
                 String.format("%s/%s.%s", directoryPath, fileName, extension);
 
         // 3. S3에 업로드
-        return putFileInS3AndGetUrl(uploadFile, fileKey);
+        return putExcelInS3AndGetUrl(uploadFile, fileKey);
     }
 
     /**
      * s3 File을 올리는 함수
      */
-    private URI putFileInS3AndGetUrl(File uploadFile, String fileKey) {
+    private URI putExcelInS3AndGetUrl(File uploadFile, String fileKey) {
         try {
             amazonS3Client.putObject(builder -> builder
                             .acl(ObjectCannedACL.PUBLIC_READ)
@@ -79,13 +81,20 @@ public class S3Service implements CloudFileUploadService {
     }
 
     /**
-     * s3 File을 올리는 함수
+     * s3에 Excel File을 올리는 함수 (24시간 뒤 만료)
+     *
+     * @param fileData 엑셀 파일
+     * @param fileKey 저장할 파일 경로
+     * @return
      */
-    public URI putFileInS3AndGetUrl(byte[] fileData, String fileKey) {
+    public URI putExcelInS3AndGetUrl(byte[] fileData, String fileKey) {
         try {
             amazonS3Client.putObject(builder -> builder
                             .acl(ObjectCannedACL.PUBLIC_READ)
                             .bucket(s3BucketName)
+                            .tagging(Tagging.builder()
+                                    .tagSet(Tag.builder().key("status").value("delete").build())
+                                    .build())
                             .key(fileKey),
                     RequestBody.fromBytes(fileData));
             return amazonS3Client.utilities()

@@ -21,6 +21,6 @@ public class ExcelService {
     }
 
     public URI saveExcelInS3(ByteArrayOutputStream out) {
-        return s3Service.putFileInS3AndGetUrl(out.toByteArray(), getExcelFileName());
+        return s3Service.putExcelInS3AndGetUrl(out.toByteArray(), getExcelFileName());
     }
 }
