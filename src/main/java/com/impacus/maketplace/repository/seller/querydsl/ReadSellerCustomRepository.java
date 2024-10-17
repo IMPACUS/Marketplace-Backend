@@ -30,4 +30,6 @@ public interface ReadSellerCustomRepository {
     SimpleSellerFromAdminDTO getSellerInformation(Long sellerId);
 
     AppSellerDTO getSellerInformationForApp(Long sellerId);
+
+    List<SellerDTO> exportSellers(String brandName, String contactName, UserStatus status);
 }
