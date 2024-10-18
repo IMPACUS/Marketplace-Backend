@@ -37,3 +37,6 @@ spring:
   docker:
     compose:
       enabled: false
+
+firebase:
+  enabled: false
