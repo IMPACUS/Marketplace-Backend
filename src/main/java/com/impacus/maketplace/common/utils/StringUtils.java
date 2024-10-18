@@ -99,6 +99,12 @@ public class StringUtils {
         return str.toLowerCase().contains(keyword.toLowerCase());
     }
 
+    /**
+     * user_info.email을 OauthProviderType와 이메일 계정을 추출해서 반환하는 함수
+     *
+     * @param email Format: OauthProviderKey_Email
+     * @return
+     */
     public static EmailInfoDTO getEmailInfo(String email) {
         String[] emailInfo = email.split("_");
         OauthProviderType oauthProviderType = OauthProviderType.valueOf(emailInfo[0]);
