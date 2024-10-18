@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.coupon;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
@@ -222,6 +223,27 @@ public class AdminCouponController {
         return ApiResponseEntity
                 .<List<CouponNameDTO>>builder()
                 .data(response)
+                .build();
+    }
+
+    /**
+     * ADMIN: 쿠폰 지급 목록 엑셀 요청 API
+     */
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
+            "or hasRole('ROLE_ADMIN')")
+    @GetMapping("/issue-coupon/history-list/excel")
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportIssueCouponHistoryList(@RequestParam(name = "name", required = false) String name,
+                                                                                     @RequestParam(name = "status", required = false) UserCouponStatus userCouponStatus,
+                                                                                     @RequestParam(name = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+                                                                                     @RequestParam(name = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt) {
+
+        FileGenerationStatusIdDTO result = couponApiService.exportIssueCouponHistoryList(name, userCouponStatus, startAt, endAt);
+
+        return ApiResponseEntity
+                .<FileGenerationStatusIdDTO>builder()
+                .data(result)
+                .message("쿠폰 지급 목록 엑셀 요청 성공")
                 .build();
     }
 

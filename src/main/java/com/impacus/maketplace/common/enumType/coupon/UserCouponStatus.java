@@ -14,4 +14,9 @@ public enum UserCouponStatus {
 
     private final String code;
     private final String value;
+
+    @Override
+    public String toString() {
+        return this.getCode();
+    }
 }
