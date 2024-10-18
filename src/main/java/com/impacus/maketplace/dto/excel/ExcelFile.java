@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -29,6 +30,8 @@ public interface ExcelFile {
             cell.setCellValue(((LocalDateTime) value).format(FORMATTER));
         } else if (value instanceof Enum<?>) {
             cell.setCellValue(((Enum<?>) value).toString());
+        } else if (value instanceof LocalDate) {
+            cell.setCellValue(((LocalDate) value).format(FORMATTER));
         } else {
             cell.setCellValue((String) value);
         }
