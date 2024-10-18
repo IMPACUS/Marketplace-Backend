@@ -60,7 +60,7 @@ public class GreenLabelPointAllocationService {
             }
 
             // 3. 포인트 지급
-            Long greenLabelPoint = greenLabelPointRepository.findGreenLabelPointByUserId(userId);
+            Long greenLabelPoint = greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId);
             Long changedPoint = greenLabelPoint + tradePoint;
             greenLabelPointRepository.updateGreenLabelPointByUserId(userId, changedPoint);
 
@@ -151,7 +151,7 @@ public class GreenLabelPointAllocationService {
         }
 
         // 1. 포인트 차감
-        Long greenLabelPoint = greenLabelPointRepository.findGreenLabelPointByUserId(userId);
+        Long greenLabelPoint = greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId);
         Long tradePoint = usedPoints * (-1);
         Long changedPoint = greenLabelPoint + tradePoint;
         if (changedPoint < 0 && !allowsNegativeBalance) {
@@ -215,7 +215,7 @@ public class GreenLabelPointAllocationService {
     }
 
     /**
-     * 그린 라벨 포인트 조회 함수
+     * 그린 라벨 포인트 조회 함수 (배타적 락)
      *
      * @param userId
      * @return
@@ -226,6 +226,16 @@ public class GreenLabelPointAllocationService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * 그린 라벨 포인트 조회 함수
+     * 
+     * @param userId
+     * @return
+     */
+    public Long getGreenLabelPointAmount(Long userId) {
+        return greenLabelPointRepository.findGreenLabelPointByUserId(userId);
     }
 
     /**

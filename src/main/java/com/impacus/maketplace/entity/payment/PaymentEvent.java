@@ -61,7 +61,7 @@ public class PaymentEvent extends BaseEntity {
     /**
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 포함)
      */
-    public Long getTotalDiscountedAmountWithCommission() {
+    public Long getTotalDiscountedAmountWithCommissionFee() {
         return getTotalDiscountedAmount() - getTotalCommissionFee();
     }
 
@@ -70,7 +70,9 @@ public class PaymentEvent extends BaseEntity {
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 제외)
      */
     public Long getTotalDiscountedAmount() {
-        return getTotalAmount() - getTotalDiscount();
+        return this.paymentOrders.stream()
+                .mapToLong(PaymentOrder::getFinalAmount)
+                .sum();
     }
 
     /**
@@ -78,7 +80,7 @@ public class PaymentEvent extends BaseEntity {
      */
     public Long getTotalAmount() {
         return this.paymentOrders.stream()
-                .mapToLong(PaymentOrder::getAmount)
+                .mapToLong(PaymentOrder::getNotDiscountedAmount)
                 .sum();
     }
 
@@ -121,7 +123,7 @@ public class PaymentEvent extends BaseEntity {
      */
     public Long getTotalCommissionFee() {
         return this.paymentOrders.stream()
-                .mapToLong(paymentOrder -> paymentOrder.getAmount() * paymentOrder.getCommissionPercent() / 100)
+                .mapToLong(PaymentOrder::getCommisionFee)
                 .sum();
     }
 }
