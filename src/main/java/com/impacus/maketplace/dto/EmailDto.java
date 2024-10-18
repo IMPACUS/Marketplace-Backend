@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EmailDto {
-
     private String receiveEmail;
     private String subject;
     private String authNo;
     private String mailType;
-
 }

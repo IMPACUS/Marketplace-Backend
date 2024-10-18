@@ -19,6 +19,11 @@ key:
     secret-key: 6B64DCA4E72F58EDIKU9AAB215FE76B64DCA4E72F58EDIKU9AAB215FE7
     accesstoken-validity-in-min: 60
     refreshtoken-validity-in-min: 20160
+  bizgo:
+    id: impa_om_06y1yv55
+    pw: 23670UA10010XGPG71X9
+    sender-key: d7c8eea8276eb40356773dc11913c3f3ef8c6ebe
+    from-phone: '01071644471'
   payment:
     store-id: store-07021ad4-a603-481e-bec8-48c4419ab304
     smartro:
@@ -28,4 +33,3 @@ key:
       api-key: +qUx0p3BjGChF4quZogCOJhmFU27RV+EaFJfnnMylY3poGLBm7kgM6YKTDEUL429VF8Fbt9EANbgHOjN/Xu/bA==
     kakao-pay:
       channel-key: channel-key-6a6fabe7-a282-43ad-98e5-816019aa795a
-

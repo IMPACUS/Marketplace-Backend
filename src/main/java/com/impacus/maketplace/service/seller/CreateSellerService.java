@@ -18,6 +18,7 @@ import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.alarm.seller.AlarmSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

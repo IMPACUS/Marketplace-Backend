@@ -8,15 +8,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.services.s3.model.Tagging;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
@@ -47,19 +49,19 @@ public class S3Service implements CloudFileUploadService {
         }
 
         // 2. 업로드할 파일명 지정
-        String formattedNow = LocalDateTime.now().format(UPLOAD_FILE_FORMATTER);
+        String fileName = com.impacus.maketplace.common.utils.StringUtils.generateUniqueNumber();
         String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-        String fileKey = (extension == null) ? String.format("%s/%s", directoryPath, formattedNow) :
-                String.format("%s/%s.%s", directoryPath, formattedNow, extension);
+        String fileKey = (extension == null) ? String.format("%s/%s", directoryPath, fileName) :
+                String.format("%s/%s.%s", directoryPath, fileName, extension);
 
         // 3. S3에 업로드
-        return putFileInS3AndGetUrl(uploadFile, fileKey);
+        return putExcelInS3AndGetUrl(uploadFile, fileKey);
     }
 
     /**
      * s3 File을 올리는 함수
      */
-    private URI putFileInS3AndGetUrl(File uploadFile, String fileKey) {
+    private URI putExcelInS3AndGetUrl(File uploadFile, String fileKey) {
         try {
             amazonS3Client.putObject(builder -> builder
                             .acl(ObjectCannedACL.PUBLIC_READ)
@@ -75,6 +77,33 @@ public class S3Service implements CloudFileUploadService {
             throw new CustomException(ex);
         } finally {
             removeFileInLocal(uploadFile);
+        }
+    }
+
+    /**
+     * s3에 Excel File을 올리는 함수 (24시간 뒤 만료)
+     *
+     * @param fileData 엑셀 파일
+     * @param fileKey 저장할 파일 경로
+     * @return
+     */
+    public URI putExcelInS3AndGetUrl(byte[] fileData, String fileKey) {
+        try {
+            amazonS3Client.putObject(builder -> builder
+                            .acl(ObjectCannedACL.PUBLIC_READ)
+                            .bucket(s3BucketName)
+                            .tagging(Tagging.builder()
+                                    .tagSet(Tag.builder().key("status").value("delete").build())
+                                    .build())
+                            .key(fileKey),
+                    RequestBody.fromBytes(fileData));
+            return amazonS3Client.utilities()
+                    .getUrl(builder -> builder
+                            .bucket(s3BucketName)
+                            .key(fileKey))
+                    .toURI();
+        } catch (Exception ex) {
+            throw new CustomException(ex);
         }
     }
 
