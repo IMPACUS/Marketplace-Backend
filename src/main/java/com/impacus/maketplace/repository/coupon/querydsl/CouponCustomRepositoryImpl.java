@@ -96,10 +96,10 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public Page<IssueCouponHIstoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
-        List<IssueCouponHIstoryDTO> content = queryFactory
-                .select(new QIssueCouponHIstoryDTO(
-                        userCoupon.couponId,
+    public Page<IssueCouponHistoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+        List<IssueCouponHistoryDTO> content = queryFactory
+                .select(new QIssueCouponHistoryDTO(
+                        userCoupon.id,
                         coupon.code,
                         coupon.description,
                         coupon.name,

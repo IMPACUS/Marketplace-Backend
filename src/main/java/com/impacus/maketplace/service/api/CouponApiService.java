@@ -1,8 +1,11 @@
 package com.impacus.maketplace.service.api;
 
+import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoryDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +18,7 @@ public interface CouponApiService {
      * 쿠폰 이름 및 금액 정보 가져오기
      * 조건: 삭제 X
      */
-    List<CouponNameDTO> getCouponNames();
+    List<CouponNameDTO> findCouponNames();
 
     /**
      * 어드민이 무조건적으로 쿠폰 발급해주는 서비스
@@ -28,4 +31,9 @@ public interface CouponApiService {
      * @return {Map<UesrId, List<AlarmCouponDTO>>}
      */
     Map<Long, List<AlarmCouponDTO>> getAlarmCoupon();
+
+    /**
+     * [쿠폰 지급 내역] 엑셀 다운로드에 사용되는 쿠폰 이력 조회
+     */
+    List<IssueCouponHistoryDTO> findIssueCouponHistories(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt);
 }

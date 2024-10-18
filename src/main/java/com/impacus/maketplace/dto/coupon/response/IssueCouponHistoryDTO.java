@@ -8,8 +8,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-public class IssueCouponHIstoryDTO {
-    private Long couponId;
+public class IssueCouponHistoryDTO {
+    private Long id;
     private String code;
     private String provider;
     private String description;
@@ -22,8 +22,8 @@ public class IssueCouponHIstoryDTO {
     private Long benefitValue;   // 혜택 금액 및 퍼센트
 
     @QueryProjection
-    public IssueCouponHIstoryDTO(Long couponId, String code, String description, String name, String userEmail, String userName, UserCouponStatus userCouponStatus, LocalDateTime createAt, BenefitType benefitType, Long benefitValue) {
-        this.couponId = couponId;
+    public IssueCouponHistoryDTO(Long id, String code, String description, String name, String userEmail, String userName, UserCouponStatus userCouponStatus, LocalDateTime createAt, BenefitType benefitType, Long benefitValue) {
+        this.id = id;
         this.code = code;
         this.provider = "IMPACUS";
         this.description = description;

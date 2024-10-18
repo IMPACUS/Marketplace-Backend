@@ -12,7 +12,7 @@ import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
 import com.impacus.maketplace.dto.coupon.request.IssueCouponTargetUserDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
-import com.impacus.maketplace.dto.coupon.response.IssueCouponHIstoryDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoryDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.user.User;
@@ -241,7 +241,7 @@ public class CouponAdminService {
     /**
      * 쿠폰 이름과 쿠폰 발급 상태에 따라 쿠폰 발급 이력 조회 (페이지네이션)
      */
-    public Page<IssueCouponHIstoryDTO> getIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+    public Page<IssueCouponHistoryDTO> getIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
 
         // 1. 입력값 검증(날짜 검증)
         if (startAt.isAfter(endAt)) {
