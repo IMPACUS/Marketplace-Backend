@@ -60,7 +60,7 @@ class GreenLabelPointAllocationServiceTest {
         RewardPoint rewardPoint = RewardPoint.from(pointType.getRewardPointType());
 
         // when
-        lenient().when(greenLabelPointRepository.findGreenLabelPointByUserId(userId)).thenReturn(200L);
+        lenient().when(greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId)).thenReturn(200L);
         when(rewardPointRepository.findByRewardPointType(pointType.getRewardPointType())).thenReturn(rewardPoint);
         when(allocationService.validateAndIncrementIssueQuantity(pointType.getRewardPointType())).thenReturn(true);
         boolean result = allocationService.payGreenLabelPoint(userId, pointType, tradePoint);
@@ -161,7 +161,7 @@ class GreenLabelPointAllocationServiceTest {
         );
 
         // when
-        when(greenLabelPointRepository.findGreenLabelPointByUserId(userId)).thenReturn(200L);
+        when(greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId)).thenReturn(200L);
         when(allocationRepository.findNotUsedGreenLabelPointByUserId(userId)).thenReturn(allocations);
         when(historyRepository.save(any(GreenLabelPointHistory.class)))
                 .thenReturn(history);
@@ -186,7 +186,7 @@ class GreenLabelPointAllocationServiceTest {
         boolean allowsNegativeBalance = false;
 
         // when
-        when(greenLabelPointRepository.findGreenLabelPointByUserId(userId)).thenReturn(200L);
+        when(greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId)).thenReturn(200L);
         CustomException exception = assertThrows(CustomException.class, () ->
                 allocationService.deductPoints(userId, type, usedPoints, allowsNegativeBalance));
 

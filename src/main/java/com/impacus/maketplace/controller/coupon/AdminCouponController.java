@@ -7,7 +7,7 @@ import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
 import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
-import com.impacus.maketplace.dto.coupon.response.IssueCouponHIstoryDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoryDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
@@ -195,16 +195,16 @@ public class AdminCouponController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
     @GetMapping("/issue-coupon/history-list")
-    public ApiResponseEntity<Page<IssueCouponHIstoryDTO>> getIssueCouponHistoryList(@RequestParam(name = "name", required = false) String name,
+    public ApiResponseEntity<Page<IssueCouponHistoryDTO>> getIssueCouponHistoryList(@RequestParam(name = "name", required = false) String name,
                                                                                     @RequestParam(name = "status", required = false) UserCouponStatus userCouponStatus,
                                                                                     @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
                                                                                     @RequestParam(name = "end-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
                                                                                     @PageableDefault(sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<IssueCouponHIstoryDTO> response = couponAdminService.getIssueCouponHistoryList(name, userCouponStatus, startAt, endAt, pageable);
+        Page<IssueCouponHistoryDTO> response = couponAdminService.getIssueCouponHistoryList(name, userCouponStatus, startAt, endAt, pageable);
 
         return ApiResponseEntity
-                .<Page<IssueCouponHIstoryDTO>>builder()
+                .<Page<IssueCouponHistoryDTO>>builder()
                 .data(response)
                 .build();
     }
@@ -217,7 +217,7 @@ public class AdminCouponController {
             "or hasRole('ROLE_ADMIN')")
     @GetMapping("/names")
     public ApiResponseEntity<List<CouponNameDTO>> getCouponNames() {
-        List<CouponNameDTO> response = couponApiService.getCouponNames();
+        List<CouponNameDTO> response = couponApiService.findCouponNames();
 
         return ApiResponseEntity
                 .<List<CouponNameDTO>>builder()

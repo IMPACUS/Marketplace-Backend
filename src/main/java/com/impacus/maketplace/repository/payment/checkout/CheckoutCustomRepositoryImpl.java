@@ -114,6 +114,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                         product.productStatus,
                         product.appSalesPrice,
                         product.discountPrice,
+                        product.salesChargePercent,
                         product.deliveryFee,
                         product.isDeleted,
                         productOption.id,
@@ -125,7 +126,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                 ))
                 .from(product)
                 .join(seller).on(seller.id.eq(sellerId))
-                .join(productOption).on(productOption.id.eq(productOptionId))
+                .join(productOption).on(productOption.id.eq(productOptionId).and(productOption.productId.eq(productId)))
                 .join(productOptionHistory).on(productOptionHistory.productOptionId.eq(productOptionId))
                 .where(product.id.eq(productId))
                 .fetchOne();

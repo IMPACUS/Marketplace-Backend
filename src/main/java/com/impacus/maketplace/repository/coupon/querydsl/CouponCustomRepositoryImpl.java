@@ -12,7 +12,6 @@ import com.impacus.maketplace.repository.coupon.querydsl.dto.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.Temporal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -97,10 +96,10 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public Page<IssueCouponHIstoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
-        List<IssueCouponHIstoryDTO> content = queryFactory
-                .select(new QIssueCouponHIstoryDTO(
-                        userCoupon.couponId,
+    public Page<IssueCouponHistoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+        List<IssueCouponHistoryDTO> content = queryFactory
+                .select(new QIssueCouponHistoryDTO(
+                        userCoupon.id,
                         coupon.code,
                         coupon.description,
                         coupon.name,
@@ -283,7 +282,9 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     private BooleanExpression availableCouponStatus() {
         return userCoupon.isDownload.eq(true).and(
                 userCoupon.isUsed.eq(false).and(
-                        userCoupon.expiredAt.goe(LocalDate.now())
+                        checkExpired()
+                ).and(
+                        userCoupon.status.eq(UserCouponStatus.ISSUE_SUCCESS)
                 )
         );
     }
@@ -313,6 +314,10 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
             return userCoupon.createAt.loe(endDateTime);
         }
         return null;
+    }
+
+    private BooleanExpression checkExpired() {
+        return userCoupon.expiredAt.isNull().or(userCoupon.expiredAt.goe(LocalDate.now()));
     }
 
     private BooleanExpression userCouponStatusEq(UserCouponStatus userCouponStatus) {
