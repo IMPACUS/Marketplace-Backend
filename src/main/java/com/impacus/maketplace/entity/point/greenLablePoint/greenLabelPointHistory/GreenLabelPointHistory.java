@@ -3,6 +3,7 @@ package com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHisto
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.point.PointStatus;
 import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -64,5 +65,15 @@ public class GreenLabelPointHistory extends BaseEntity {
         this.unappliedPoint = unappliedPoint;
         this.greenLabelPoint = greenLabelPoint;
         this.levelPoint = levelPoint;
+    }
+
+    public GreenLabelPointHistory(CreateGreenLabelHistoryDTO dto) {
+        this.userId = dto.getUserId();
+        this.pointType = dto.getPointType();
+        this.pointStatus = dto.getPointStatus();
+        this.tradeAmount = dto.getTradeAmount();
+        this.unappliedPoint = dto.getUnappliedPoint();
+        this.greenLabelPoint = dto.getGreenLabelPoint();
+        this.levelPoint = dto.getLevelPoint();
     }
 }

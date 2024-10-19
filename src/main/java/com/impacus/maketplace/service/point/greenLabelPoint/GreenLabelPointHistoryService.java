@@ -3,9 +3,13 @@ package com.impacus.maketplace.service.point.greenLabelPoint;
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
+import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
+import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.CommonGreenLabelPointHistory;
+import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.GreenLabelPointHistory;
+import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.OrderGreenLabelPointHistory;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRepository;
 import com.impacus.maketplace.service.excel.ExcelService;
 import lombok.RequiredArgsConstructor;
@@ -99,5 +103,20 @@ public class GreenLabelPointHistoryService {
         } catch (Exception e) {
             throw new CustomException(e);
         }
+    }
+
+    @Transactional
+    public GreenLabelPointHistory saveHistory(
+            CreateGreenLabelHistoryDTO dto
+    ) {
+        GreenLabelPointHistory history;
+        if (dto.getOrderId() == null) {
+            history = CommonGreenLabelPointHistory.of(dto);
+        } else {
+            history = OrderGreenLabelPointHistory.of(dto);
+        }
+
+        greenLabelPointHistoryRepository.save(history);
+        return history;
     }
 }

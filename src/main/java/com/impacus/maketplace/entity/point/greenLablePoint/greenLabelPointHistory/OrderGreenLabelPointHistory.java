@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory;
 
+import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
@@ -11,4 +12,17 @@ import lombok.NoArgsConstructor;
 public class OrderGreenLabelPointHistory extends GreenLabelPointHistory {
 
     private Long orderId;
+
+    public OrderGreenLabelPointHistory(
+            CreateGreenLabelHistoryDTO dto
+    ) {
+        super(dto);
+        this.orderId = dto.getOrderId();
+    }
+
+    public static OrderGreenLabelPointHistory of(
+            CreateGreenLabelHistoryDTO dto
+    ) {
+        return new OrderGreenLabelPointHistory(dto);
+    }
 }
