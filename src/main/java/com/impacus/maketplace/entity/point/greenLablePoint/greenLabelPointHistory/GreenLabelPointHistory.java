@@ -14,6 +14,8 @@ import org.hibernate.annotations.Comment;
 @Getter
 @Table(name = "green_label_point_history")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn
 public class GreenLabelPointHistory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,19 +64,5 @@ public class GreenLabelPointHistory extends BaseEntity {
         this.unappliedPoint = unappliedPoint;
         this.greenLabelPoint = greenLabelPoint;
         this.levelPoint = levelPoint;
-    }
-
-    public static GreenLabelPointHistory of(
-            Long userId,
-            PointType pointType,
-            PointStatus pointStatus,
-            Long tradeAmount,
-            Long unappliedPoint,
-            long greenLabelPoint,
-            long levelPoint
-    ) {
-        return new GreenLabelPointHistory(
-                userId, pointType, pointStatus, tradeAmount, unappliedPoint, greenLabelPoint, levelPoint
-        );
     }
 }

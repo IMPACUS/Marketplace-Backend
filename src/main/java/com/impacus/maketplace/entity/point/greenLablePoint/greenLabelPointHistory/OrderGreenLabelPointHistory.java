@@ -2,9 +2,12 @@ package com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHisto
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @Entity
 @DiscriminatorValue("ORDER")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderGreenLabelPointHistory extends GreenLabelPointHistory {
 
     private Long orderId;

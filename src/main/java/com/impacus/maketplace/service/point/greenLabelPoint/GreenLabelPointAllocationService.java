@@ -8,12 +8,9 @@ import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.entity.point.RewardPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistoryRelation;
-import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.GreenLabelPointHistory;
+import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.CommonGreenLabelPointHistory;
 import com.impacus.maketplace.repository.point.RewardPointRepository;
-import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointAllocationRepository;
-import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRelationRepository;
-import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRepository;
-import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
+import com.impacus.maketplace.repository.point.greenLabelPoint.*;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
 import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +28,8 @@ public class GreenLabelPointAllocationService {
     private final GreenLabelPointAllocationRepository allocationRepository;
     private final GreenLabelPointRepository greenLabelPointRepository;
     private final GreenLabelPointHistoryRepository historyRepository;
+    private final CommonGreenLabelPointHistoryRepository commonHistoryRepository;
+    private final OrderGreenLabelPointHistoryRepository orderHistoryRepository;
     private final GreenLabelPointHistoryRelationRepository relationRepository;
     private final LevelPointMasterRepository levelPointMasterRepository;
     private final RewardPointRepository rewardPointRepository;
@@ -71,7 +70,7 @@ public class GreenLabelPointAllocationService {
                     pointType,
                     tradePoint
             );
-            GreenLabelPointHistory history = GreenLabelPointHistory.of(
+            CommonGreenLabelPointHistory history = CommonGreenLabelPointHistory.of(
                     userId,
                     pointType,
                     PointStatus.GRANT,
@@ -81,7 +80,7 @@ public class GreenLabelPointAllocationService {
                     levelPointMasterRepository.findLevelPointByUserId(userId)
             );
             allocationRepository.save(allocation);
-            historyRepository.save(history);
+            commonHistoryRepository.save(history);
 
             GreenLabelPointHistoryRelation relation = GreenLabelPointHistoryRelation.of(
                     allocation.getId(),
@@ -163,7 +162,7 @@ public class GreenLabelPointAllocationService {
         );
 
         // 2. GreenLabelPointHistory 저장
-        GreenLabelPointHistory history = GreenLabelPointHistory.of(
+        CommonGreenLabelPointHistory history = CommonGreenLabelPointHistory.of(
                 userId,
                 type,
                 PointStatus.USE,
@@ -172,7 +171,7 @@ public class GreenLabelPointAllocationService {
                 changedPoint < 0 ? 0 : changedPoint,
                 levelPointMasterRepository.findLevelPointByUserId(userId)
         );
-        historyRepository.save(history);
+        commonHistoryRepository.save(history);
 
         // 3. 사용될 그린 라벨 포인트 지급 이력 업데이트
         Long deductPoint = usedPoints;
