@@ -4,8 +4,10 @@ import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @DiscriminatorValue("ORDER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

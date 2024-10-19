@@ -12,9 +12,12 @@ import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDeta
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointHistoryRelation;
 import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.QGreenLabelPointHistory;
+import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.QOrderGreenLabelPointHistory;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +40,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
     private final QGreenLabelPointHistoryRelation relation = QGreenLabelPointHistoryRelation.greenLabelPointHistoryRelation;
     private final QGreenLabelPointAllocation allocation = QGreenLabelPointAllocation.greenLabelPointAllocation;
     private final QUser user = QUser.user;
+    private final QOrderGreenLabelPointHistory orderHistory = QOrderGreenLabelPointHistory.orderGreenLabelPointHistory;
 
 
     @Override
@@ -190,7 +194,6 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
         builder.and(history.userId.eq(userId));
 
         // 2. 조회
-        // TODO 주문 번호 조회하는 쿼리 추가
         List<WebGreenLabelHistoryDetailDTO> dtos = queryFactory
                 .select(
                         Projections.constructor(
@@ -201,7 +204,14 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
                                 history.pointType,
                                 history.tradeAmount,
                                 history.createAt,
-                                history.pointStatus
+                                history.pointStatus,
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(orderHistory.orderId)
+                                                .from(orderHistory)
+                                                .where(orderHistory.id.eq(history.id)),
+                                        "orderId"
+                                )
+
                         )
                 )
                 .from(history)
