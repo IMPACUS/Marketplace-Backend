@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
@@ -22,6 +23,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -84,6 +86,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         BooleanBuilder userBuilder = new BooleanBuilder();
         userBuilder.and(user.type.eq(UserType.ROLE_CERTIFIED_USER))
                 .and(user.id.eq(levelPointMaster.userId))
+                .and(userStatusInfo.status.eq(UserStatus.ACTIVE))
                 .and(user.isDeleted.eq(false));
 
         return queryFactory
@@ -91,6 +94,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .from(user)
                 .where(userBuilder)
                 .innerJoin(levelPointMaster).on(levelCondition(userLevel))
+                .innerJoin(userStatusInfo).on(userStatusInfo.userId.eq(user.id))
                 .fetch();
     }
 
@@ -136,6 +140,42 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             OauthProviderType oauthProviderType,
             UserStatus status
     ) {
+        BooleanBuilder builder = getBooleanBuilderForWebUserDTO(
+                userName,
+                phoneNumber,
+                startAt,
+                endAt,
+                oauthProviderType,
+                status
+        );
+
+        // 데이터 검색
+        List<WebUserDTO> dtos = getWebUserDTOs(
+                pageable,
+                builder
+        );
+
+        long count = queryFactory
+                .select(
+                        user.id.count()
+                )
+                .from(user)
+                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
+                .where(builder)
+                .fetchOne();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    private BooleanBuilder getBooleanBuilderForWebUserDTO(
+            String userName,
+            String phoneNumber,
+            LocalDate startAt,
+            LocalDate endAt,
+            OauthProviderType oauthProviderType,
+            UserStatus status
+    ) {
         BooleanBuilder builder = new BooleanBuilder();
 
         // 필터링
@@ -154,8 +194,14 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             builder.and(userStatusInfo.status.eq(status));
         }
 
-        // 데이터 검색
-        List<WebUserDTO> dtos = queryFactory
+        return builder;
+    }
+
+    private List<WebUserDTO> getWebUserDTOs(
+            Pageable pageable,
+            BooleanBuilder builder
+    ) {
+        JPAQuery<WebUserDTO> query = queryFactory
                 .select(
                         Projections.constructor(
                                 WebUserDTO.class,
@@ -172,22 +218,16 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
                 .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
                 .where(builder)
-                .orderBy(user.createAt.desc())
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch();
+                .orderBy(user.createAt.desc());
 
-        long count = queryFactory
-                .select(
-                        user.id.count()
-                )
-                .from(user)
-                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
-                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
-                .where(builder)
-                .fetchOne();
-
-        return PaginationUtils.toPage(dtos, pageable, count);
+        if (pageable != null) {
+            return query
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+        } else {
+            return query.fetch();
+        }
     }
 
     @Override
@@ -239,5 +279,50 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .execute();
 
         return result;
+    }
+
+    @Override
+    public CommonUserDTO findCommonUserByEmail(String email) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                CommonUserDTO.class,
+                                user.id.as("userId"),
+                                user.email,
+                                user.password,
+                                user.name,
+                                user.type,
+                                userStatusInfo.status
+                        )
+                )
+                .from(user)
+                .innerJoin(userStatusInfo).on(userStatusInfo.userId.eq(user.id))
+                .where(user.email.eq(email))
+                .fetchFirst();
+    }
+
+    @Override
+    public List<WebUserDTO> getAllUsers(
+            String userName,
+            String phoneNumber,
+            LocalDate startAt,
+            LocalDate endAt,
+            OauthProviderType oauthProviderType,
+            UserStatus status
+    ) {
+        BooleanBuilder builder = getBooleanBuilderForWebUserDTO(
+                userName,
+                phoneNumber,
+                startAt,
+                endAt,
+                oauthProviderType,
+                status
+        );
+
+        // 데이터 검색
+        return getWebUserDTOs(
+                null,
+                builder
+        );
     }
 }

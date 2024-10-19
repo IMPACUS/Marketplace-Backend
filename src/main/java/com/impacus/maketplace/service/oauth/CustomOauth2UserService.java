@@ -12,6 +12,7 @@ import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.user.UserRepository;
+import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
@@ -46,6 +47,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private String oauthToken = "";
     private final PointService pointService;
+    private final AlarmUserService alarmUserService;
 
     public static Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
         Map<String, Object> jwtClaims = new HashMap<>();
@@ -134,6 +136,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             user = addUser(attributes);
             userStatusInfoService.addUserStatusInfo(user.getId());
             pointService.addEntityAboutPoint(user.getId());
+            alarmUserService.saveDefault(user.getId());
         }
 
         updateRecentLoginAt(user);

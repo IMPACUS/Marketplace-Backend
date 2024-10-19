@@ -76,12 +76,18 @@ public class CheckoutController {
                 .build();
     }
 
+    /**
+     * 결제하기 처리 (장바구니 구매) - 전처리 단계
+     */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("checkout-cart")
     public ApiResponseEntity<PaymentCartDTO> checkoutCart(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutCartDTO checkoutCartDTO) {
 
-        checkoutService.checkoutCart(user.getId(), checkoutCartDTO);
+        PaymentCartDTO response = checkoutService.checkoutCart(user.getId(), checkoutCartDTO);
 
-        return null;
+        return ApiResponseEntity
+                .<PaymentCartDTO>builder()
+                .data(response)
+                .build();
     }
 }

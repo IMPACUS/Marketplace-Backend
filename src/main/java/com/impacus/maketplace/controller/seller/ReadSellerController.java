@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.service.UserService;
@@ -166,7 +167,7 @@ public class ReadSellerController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @GetMapping()
+    @GetMapping
     public ApiResponseEntity<Page<SellerDTO>> getSellers(
             @PageableDefault(size = 15, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "brand-name", required = false) String brandName,
@@ -187,7 +188,31 @@ public class ReadSellerController {
     }
 
     /**
-     * 판매자 목록 조회 API
+     * 판매자 목록 엑셀 생성 요청 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @GetMapping("/excel")
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportSellers(
+            @RequestParam(value = "brand-name", required = false) String brandName,
+            @RequestParam(value = "contact-name", required = false) String contactName,
+            @RequestParam(value = "status", required = false) UserStatus status
+    ) {
+        FileGenerationStatusIdDTO result = readSellerService.exportSellers(
+                brandName,
+                contactName,
+                status
+        );
+        return ApiResponseEntity
+                .<FileGenerationStatusIdDTO>builder()
+                .message("판매자 목록 엑셀 생성 성공")
+                .data(result)
+                .build();
+    }
+
+    /**
+     * 판매자 조회 API
      *
      * @return
      */

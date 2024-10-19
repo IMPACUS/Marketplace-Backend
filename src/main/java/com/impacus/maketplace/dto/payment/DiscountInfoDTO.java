@@ -12,13 +12,15 @@ public class DiscountInfoDTO {
     private Long productCouponDiscountAmount; // 개별 상품 쿠폰 할인 금액
     private Long orderCouponDiscountAmount;   // 주문 전체 쿠폰 할인 금액
     private Long pointDiscountAmount;         // 포인트 할인 금액
+    @Builder.Default
+    private Long quantity = 1L;
 
     public void addPointDiscountAmount(Long amount) {
         this.pointDiscountAmount += amount;
     }
     public Long getDiscountedAmount() {
-        return appSalesPrice
-                - ecoDiscountAmount
+        return getNotDiscountedAmount()
+                - getEcoDiscountAmount()
                 - productCouponDiscountAmount
                 - orderCouponDiscountAmount
                 - pointDiscountAmount;
@@ -43,6 +45,25 @@ public class DiscountInfoDTO {
             pointDiscountAmount = 0L;
             return remain;
         }
+    }
+
+    public Long getNotDiscountedAmount() {
+        return appSalesPrice * quantity;
+    }
+
+    public Long getEcoDiscountAmount() {
+        return ecoDiscountAmount * quantity;
+    }
+
+    public Long getFinalCouponDiscount() {
+        if (productCouponDiscountAmount + orderCouponDiscountAmount > getEcoDiscountedAmount())
+            return getEcoDiscountedAmount();
+
+        return productCouponDiscountAmount + orderCouponDiscountAmount;
+    }
+
+    public Long getEcoDiscountedAmount() {
+        return getNotDiscountedAmount() - getEcoDiscountAmount();
     }
 
     public Long getFinalAmount() {

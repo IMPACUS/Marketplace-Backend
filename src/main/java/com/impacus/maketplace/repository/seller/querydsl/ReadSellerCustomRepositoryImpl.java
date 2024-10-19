@@ -22,6 +22,7 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -331,13 +332,13 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     ) {
         BooleanBuilder userStatusBuilder = new BooleanBuilder()
                 .and(userStatusInfo.userId.eq(seller.userId));
-
         if (status != null) {
             userStatusBuilder.and(userStatusInfo.status.eq(status));
         }
+        BooleanBuilder sellerBuilder = getBooleanBuilderInSellerDTO(brandName, contactName);
 
         // 1. 전체 데이터 조회
-        List<SellerDTO> dtos = getSellerDTOs(userStatusBuilder, brandName, contactName, pageable);
+        List<SellerDTO> dtos = getSellerDTOs(userStatusBuilder, sellerBuilder, pageable);
 
         // 2. 페이징 처리
         Long count = getSellerDTOCount(userStatusBuilder, brandName, contactName);
@@ -346,11 +347,10 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
     private List<SellerDTO> getSellerDTOs(
             BooleanBuilder userStatusBuilder,
-            String brandName,
-            String contactName,
+            BooleanBuilder sellerBuilder,
             Pageable pageable
     ) {
-        return queryFactory
+        JPAQuery<SellerDTO> query = queryFactory
                 .select(Projections.fields(
                         SellerDTO.class,
                         seller.id.as("sellerId"),
@@ -364,13 +364,29 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(seller.userId))
                 .innerJoin(userStatusInfo).on(userStatusBuilder)
-                .where(seller.isDeleted.eq(false)
-                        .and(checkIsContainBrandName(brandName))
-                        .and(checkIsContainContactName(contactName))
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                .where(sellerBuilder);
+
+        if (pageable != null) {
+            return query
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
+                    .fetch();
+        } else {
+            return query.fetch();
+        }
+    }
+
+    private BooleanBuilder getBooleanBuilderInSellerDTO(
+            String brandName,
+            String contactName
+    ) {
+        BooleanBuilder sellerBuilder = new BooleanBuilder();
+        sellerBuilder.and(seller.isDeleted.eq(false)
+                .and(checkIsContainBrandName(brandName))
+                .and(checkIsContainContactName(contactName))
+        );
+
+        return sellerBuilder;
     }
 
     private Long getSellerDTOCount(
@@ -388,6 +404,22 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                         .and(checkIsContainContactName(contactName))
                 )
                 .fetchOne();
+    }
+
+    @Override
+    public List<SellerDTO> exportSellers(String brandName, String contactName, UserStatus status) {
+        BooleanBuilder userStatusBuilder = new BooleanBuilder()
+                .and(userStatusInfo.userId.eq(seller.userId));
+        if (status != null) {
+            userStatusBuilder.and(userStatusInfo.status.eq(status));
+        }
+        BooleanBuilder sellerBuilder = getBooleanBuilderInSellerDTO(brandName, contactName);
+
+        return getSellerDTOs(
+                userStatusBuilder,
+                sellerBuilder,
+                null
+        );
     }
 
     private BooleanBuilder checkIsContainBrandName(String brandName) {

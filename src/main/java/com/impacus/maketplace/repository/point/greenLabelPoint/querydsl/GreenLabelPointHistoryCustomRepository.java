@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface GreenLabelPointHistoryCustomRepository {
     Slice<GreenLabelHistoryDTO> findHistoriesByUserId(Long userId, Pageable pageable);
@@ -16,4 +17,11 @@ public interface GreenLabelPointHistoryCustomRepository {
     Page<WebGreenLabelHistoryDTO> getGreenLabelPointHistoriesForWeb(Pageable pageable, String keyword, RewardPointStatus status, LocalDate startAt, LocalDate endAt);
 
     Page<WebGreenLabelHistoryDetailDTO> getGreenLabelPointHistoryDetailsForWeb(Long userId, Pageable pageable);
+
+    List<WebGreenLabelHistoryDTO> exportGreenLabelPointHistoriesForWeb(
+            String keyword,
+            RewardPointStatus status,
+            LocalDate startAt,
+            LocalDate endAt
+    );
 }

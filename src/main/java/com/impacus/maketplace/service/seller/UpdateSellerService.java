@@ -27,6 +27,7 @@ import com.impacus.maketplace.repository.seller.deliveryCompany.SellerDeliveryCo
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.alarm.seller.AlarmSellerService;
 import com.impacus.maketplace.service.seller.delivery.SelectedSellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.delivery.SellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SelectedSellerDeliveryCompanyService;
@@ -61,6 +62,7 @@ public class UpdateSellerService {
     private final SelectedSellerDeliveryAddressService selectedSellerDeliveryAddressService;
     private final SelectedSellerDeliveryAddressRepository selectedSellerDeliveryAddressRepository;
     private final EmailService emailService;
+    private final AlarmSellerService alarmSellerService;
 
     /**
      * 판매자 입점 상태를 변경하는 함수
@@ -104,6 +106,7 @@ public class UpdateSellerService {
             if (entryStatus == EntryStatus.APPROVE) {
                 userService.updateUserType(userId, UserType.ROLE_APPROVED_SELLER);
                 emailService.sendMail(emailDto, MailType.SELLER_APPROVE);
+                alarmSellerService.saveDefault(seller.getId());
             } else {
                 userService.updateUserType(userId, UserType.ROLE_UNAPPROVED_SELLER);
                 emailService.sendMail(emailDto, MailType.SELLER_REJECT);
@@ -452,8 +455,33 @@ public class UpdateSellerService {
 
             // 2. 판매자 정보 업데이트
             sellerRepository.updateSellerInformation(seller.getUserId(), sellerId, dto, profileImageId);
+
+            // 판매자 상태가 변경됨에 따라 연관 데이터 업데이트
+            switch (dto.getUserStatus()) {
+                case ACTIVE -> {
+                    handleActiveSellerStatus(sellerId);
+                }
+                case SUSPENDED -> {
+                    handleSuspendedSellerStatus(sellerId);
+                }
+                case DEACTIVATED -> {
+                    handleDeactivatedSellerStatus(sellerId);
+                }
+            }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    private void handleActiveSellerStatus(Long sellerId) {
+
+    }
+
+    private void handleSuspendedSellerStatus(Long sellerId) {
+
+    }
+
+    private void handleDeactivatedSellerStatus(Long sellerId) {
+
     }
 }

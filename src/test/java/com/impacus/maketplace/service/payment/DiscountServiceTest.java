@@ -925,6 +925,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(0L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -958,6 +959,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -991,6 +993,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(0L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1024,6 +1027,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(0L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1057,6 +1061,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(0L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1090,6 +1095,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(0L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1123,6 +1129,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(0L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1156,6 +1163,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(0L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1189,6 +1197,7 @@ class DiscountServiceTest {
                     .productId(productId)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1221,12 +1230,14 @@ class DiscountServiceTest {
                     .productId(1L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
                     .productId(2L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1267,12 +1278,14 @@ class DiscountServiceTest {
                     .productId(1L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
                     .productId(2L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1301,19 +1314,21 @@ class DiscountServiceTest {
         }
 
         @Test
-        @DisplayName("[오류 케이스] 2개의 상품 주문에 대해 모든 할인을 적용했을 때 포인트가 남는다면 예외를 발생시킨다")
+        @DisplayName("[예외 케이스] 2개의 상품 주문에 대해 모든 할인을 적용했을 때 포인트가 남는다면 예외를 발생시킨다")
         void reconcileDiscountAmountDoubleAllDiscountsPointReconcile_INVALID_POINT() {
             // given
             ProductPricingDTO productPricingDTO1 = ProductPricingDTO.builder()
                     .productId(1L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
                     .productId(2L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1348,12 +1363,14 @@ class DiscountServiceTest {
                     .productId(1L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
                     .productId(2L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1389,18 +1406,21 @@ class DiscountServiceTest {
                     .productId(1L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
                     .productId(2L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO productPricingDTO3 = ProductPricingDTO.builder()
                     .productId(3L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1440,18 +1460,21 @@ class DiscountServiceTest {
                     .productId(1L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO productPricingDTO2 = ProductPricingDTO.builder()
                     .productId(2L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO productPricingDTO3 = ProductPricingDTO.builder()
                     .productId(3L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();
@@ -1495,24 +1518,28 @@ class DiscountServiceTest {
                     .productId(1L)
                     .appSalesPrice(1000L)
                     .ecoDiscountAmount(100L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO product2 = ProductPricingDTO.builder()
                     .productId(2L)
                     .appSalesPrice(800L)
                     .ecoDiscountAmount(50L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO product3 = ProductPricingDTO.builder()
                     .productId(3L)
                     .appSalesPrice(2000L)
                     .ecoDiscountAmount(200L)
+                    .quantity(1L)
                     .build();
 
             ProductPricingDTO product4 = ProductPricingDTO.builder()
                     .productId(4L)
                     .appSalesPrice(500L)
                     .ecoDiscountAmount(50L)
+                    .quantity(1L)
                     .build();
 
             Map<Long, ProductPricingDTO> productPricingInfo = new HashMap<>();

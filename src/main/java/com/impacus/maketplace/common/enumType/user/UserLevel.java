@@ -73,4 +73,9 @@ public enum UserLevel {
     public boolean checkIsPossibleDowngrade(Long point) {
         return (point < getMinScore());
     }
+
+    @Override
+    public String toString() {
+        return this.name();
+    }
 }
