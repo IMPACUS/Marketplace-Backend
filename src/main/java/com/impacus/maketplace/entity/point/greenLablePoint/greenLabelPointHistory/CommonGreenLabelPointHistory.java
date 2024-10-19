@@ -1,7 +1,6 @@
 package com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory;
 
-import com.impacus.maketplace.common.enumType.point.PointStatus;
-import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
@@ -13,28 +12,14 @@ import lombok.NoArgsConstructor;
 public class CommonGreenLabelPointHistory extends GreenLabelPointHistory {
 
     public CommonGreenLabelPointHistory(
-            Long userId,
-            PointType pointType,
-            PointStatus pointStatus,
-            Long tradeAmount,
-            Long unappliedPoint,
-            long greenLabelPoint,
-            long levelPoint
+            CreateGreenLabelHistoryDTO dto
     ) {
-        super(userId, pointType, pointStatus, tradeAmount, unappliedPoint, greenLabelPoint, levelPoint);
+        super(dto);
     }
 
     public static CommonGreenLabelPointHistory of(
-            Long userId,
-            PointType pointType,
-            PointStatus pointStatus,
-            Long tradeAmount,
-            Long unappliedPoint,
-            long greenLabelPoint,
-            long levelPoint
+            CreateGreenLabelHistoryDTO dto
     ) {
-        return new CommonGreenLabelPointHistory(
-                userId, pointType, pointStatus, tradeAmount, unappliedPoint, greenLabelPoint, levelPoint
-        );
+        return new CommonGreenLabelPointHistory(dto);
     }
 }
