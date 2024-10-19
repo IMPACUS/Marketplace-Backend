@@ -5,11 +5,11 @@ import com.impacus.maketplace.common.enumType.point.PointStatus;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import com.impacus.maketplace.entity.point.RewardPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistoryRelation;
 import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.CommonGreenLabelPointHistory;
 import com.impacus.maketplace.repository.point.RewardPointRepository;
-import com.impacus.maketplace.repository.point.greenLabelPoint.CommonGreenLabelPointHistoryRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointAllocationRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRelationRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
@@ -42,7 +42,7 @@ class GreenLabelPointAllocationServiceTest {
     @Mock
     private GreenLabelPointAllocationRepository allocationRepository;
     @Mock
-    private CommonGreenLabelPointHistoryRepository commonGreenLabelPointHistory;
+    private GreenLabelPointHistoryService greenLabelPointHistoryService;
     @Mock
     private GreenLabelPointHistoryRelationRepository relationRepository;
     @Mock
@@ -150,7 +150,7 @@ class GreenLabelPointAllocationServiceTest {
         NotUsedGreenLabelPointAllocationDTO allocation2 = new NotUsedGreenLabelPointAllocationDTO(2L, 70L, LocalDateTime.now(), pointStatus);
         List<NotUsedGreenLabelPointAllocationDTO> allocations = Arrays.asList(allocation1, allocation2);
 
-        CommonGreenLabelPointHistory history = CommonGreenLabelPointHistory.of(
+        CreateGreenLabelHistoryDTO dto = CreateGreenLabelHistoryDTO.of(
                 userId,
                 type,
                 PointStatus.USE,
@@ -159,11 +159,12 @@ class GreenLabelPointAllocationServiceTest {
                 100L,
                 0L
         );
+        CommonGreenLabelPointHistory history = new CommonGreenLabelPointHistory(dto);
 
         // when
         when(greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId)).thenReturn(200L);
         when(allocationRepository.findNotUsedGreenLabelPointByUserId(userId)).thenReturn(allocations);
-        when(commonGreenLabelPointHistory.save(any(CommonGreenLabelPointHistory.class)))
+        when(greenLabelPointHistoryService.saveHistory(any(CreateGreenLabelHistoryDTO.class)))
                 .thenReturn(history);
         when(relationRepository.save(any(GreenLabelPointHistoryRelation.class))).thenReturn(null);
         when(levelPointMasterRepository.findLevelPointByUserId(userId)).thenReturn(0L);
@@ -171,7 +172,7 @@ class GreenLabelPointAllocationServiceTest {
 
         // then
         verify(greenLabelPointRepository).updateGreenLabelPointByUserId(userId, 100L);
-        verify(commonGreenLabelPointHistory).save(any(CommonGreenLabelPointHistory.class));
+        verify(greenLabelPointHistoryService).saveHistory(any(CreateGreenLabelHistoryDTO.class));
         verify(relationRepository, times(2)).save(any(GreenLabelPointHistoryRelation.class));
         verify(allocationRepository, times(2)).updateGreenLabelPointAllocationById(anyLong(), any(PointUsageStatus.class), anyLong());
     }
