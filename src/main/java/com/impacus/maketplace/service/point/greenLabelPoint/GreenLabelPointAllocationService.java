@@ -55,7 +55,7 @@ public class GreenLabelPointAllocationService {
             Long userId,
             PointType pointType,
             Long tradePoint,
-            @Nullable Long orderId
+            @Nullable String orderId
     ) {
         try {
             // 1. 지급 포인트 유효성 확인

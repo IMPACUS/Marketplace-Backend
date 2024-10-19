@@ -15,7 +15,7 @@ public class CreateGreenLabelHistoryDTO {
     private Long unappliedPoint;
     private long levelPoint;
     private long greenLabelPoint;
-    private Long orderId;
+    private String orderId;
 
     public static CreateGreenLabelHistoryDTO of(
             Long userId,
@@ -39,7 +39,7 @@ public class CreateGreenLabelHistoryDTO {
             Long unappliedPoint,
             long greenLabelPoint,
             long levelPoint,
-            Long orderId
+            String orderId
     ) {
         return new CreateGreenLabelHistoryDTO(
                 userId, pointType, pointStatus, tradeAmount, unappliedPoint, greenLabelPoint, levelPoint, orderId
