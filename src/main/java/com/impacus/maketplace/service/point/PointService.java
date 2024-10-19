@@ -123,7 +123,7 @@ public class PointService {
         Long greenLabelPoint = dto.getGreenLabelPoint();
         if (greenLabelPoint != null) {
             if (pointType == PointStatus.GRANT) {
-                greenLabelPointAllocationService.payGreenLabelPoint(userId, PointType.ADMIN_PROVIDE, greenLabelPoint, 1L);
+                greenLabelPointAllocationService.payGreenLabelPoint(userId, PointType.ADMIN_PROVIDE, greenLabelPoint);
             } else {
                 greenLabelPointAllocationService.deductPoints(userId, PointType.ADMIN_RECEIVE, greenLabelPoint, true);
             }

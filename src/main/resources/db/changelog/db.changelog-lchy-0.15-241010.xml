@@ -31,7 +31,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-lchy0.15.02-24-09-24" author="lchy0413">
+    <changeSet id="changelog-lchy0.15.02-24-09-24-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="green_label_point_history" columnName="dtype"/>
@@ -44,7 +44,7 @@
             </column>
         </addColumn>
         <addColumn tableName="green_label_point_history">
-            <column name="order_id" type="BIGINT"/>
+            <column name="order_id" type="VARCHAR(255)"/>
         </addColumn>
 
     </changeSet>

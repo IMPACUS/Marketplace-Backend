@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderGreenLabelPointHistory extends GreenLabelPointHistory {
 
-    private Long orderId;
+    private String orderId;
 
     public OrderGreenLabelPointHistory(
             CreateGreenLabelHistoryDTO dto
