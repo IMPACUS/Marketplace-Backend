@@ -226,14 +226,18 @@ public class ReadSellerService {
             Pageable pageable,
             String brandName,
             String contactName,
-            UserStatus status
+            UserStatus status,
+            LocalDate startAt,
+            LocalDate endAt
     ) {
         try {
             return sellerRepository.getSellers(
                     pageable,
                     brandName,
                     contactName,
-                    status
+                    status,
+                    startAt,
+                    endAt
             );
         } catch (Exception exception) {
             throw new CustomException(exception);

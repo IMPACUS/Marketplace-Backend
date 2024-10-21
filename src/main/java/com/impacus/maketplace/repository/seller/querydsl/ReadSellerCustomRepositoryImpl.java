@@ -328,7 +328,9 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             Pageable pageable,
             String brandName,
             String contactName,
-            UserStatus status
+            UserStatus status,
+            LocalDate startAt,
+            LocalDate endAt
     ) {
         BooleanBuilder userStatusBuilder = new BooleanBuilder()
                 .and(userStatusInfo.userId.eq(seller.userId));
@@ -336,12 +338,13 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             userStatusBuilder.and(userStatusInfo.status.eq(status));
         }
         BooleanBuilder sellerBuilder = getBooleanBuilderInSellerDTO(brandName, contactName);
+        sellerBuilder.and(seller.entryApprovedAt.goe(startAt.atStartOfDay()).and(seller.entryApprovedAt.loe(endAt.atTime(LocalTime.MAX))));
 
         // 1. 전체 데이터 조회
         List<SellerDTO> dtos = getSellerDTOs(userStatusBuilder, sellerBuilder, pageable);
 
         // 2. 페이징 처리
-        Long count = getSellerDTOCount(userStatusBuilder, brandName, contactName);
+        Long count = getSellerDTOCount(userStatusBuilder, sellerBuilder);
         return new PageImpl<>(dtos, pageable, count);
     }
 
@@ -391,18 +394,14 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
     private Long getSellerDTOCount(
             BooleanBuilder userStatusBuilder,
-            String brandName,
-            String contactName
+            BooleanBuilder sellerBuilder
     ) {
         return queryFactory
                 .select(seller.count())
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(seller.userId))
                 .innerJoin(userStatusInfo).on(userStatusBuilder)
-                .where(seller.isDeleted.eq(false)
-                        .and(checkIsContainBrandName(brandName))
-                        .and(checkIsContainContactName(contactName))
-                )
+                .where(sellerBuilder)
                 .fetchOne();
     }
 

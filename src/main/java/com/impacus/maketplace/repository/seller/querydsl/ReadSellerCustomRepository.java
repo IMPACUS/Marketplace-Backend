@@ -25,7 +25,9 @@ public interface ReadSellerCustomRepository {
 
     List<SubCategoryDetailDTO> findAllBrandName();
 
-    Page<SellerDTO> getSellers(Pageable pageable, String brandName, String contactName, UserStatus status);
+    Page<SellerDTO> getSellers(Pageable pageable, String brandName, String contactName, UserStatus status,
+                               LocalDate startAt,
+                               LocalDate endAt);
 
     SimpleSellerFromAdminDTO getSellerInformation(Long sellerId);
 
