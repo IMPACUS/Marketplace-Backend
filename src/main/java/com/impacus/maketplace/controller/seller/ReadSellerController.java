@@ -128,7 +128,7 @@ public class ReadSellerController {
     }
 
     /**
-     * 판매자 정보 관리 데이터 조회
+     * [판매자 판매자 정보 관리 데이터 조회
      *
      * @param user
      * @return
@@ -162,7 +162,7 @@ public class ReadSellerController {
     }
 
     /**
-     * 판매자 목록 조회 API
+     * [판매자] 판매자 목록 조회 API
      *
      * @return
      */
@@ -170,6 +170,8 @@ public class ReadSellerController {
     @GetMapping
     public ApiResponseEntity<Page<SellerDTO>> getSellers(
             @PageableDefault(size = 15, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(value = "start-at") LocalDate startAt,
+            @RequestParam(value = "end-at") LocalDate endAt,
             @RequestParam(value = "brand-name", required = false) String brandName,
             @RequestParam(value = "contact-name", required = false) String contactName,
             @RequestParam(value = "status", required = false) UserStatus status
@@ -178,7 +180,9 @@ public class ReadSellerController {
                 pageable,
                 brandName,
                 contactName,
-                status
+                status,
+                startAt,
+                endAt
         );
         return ApiResponseEntity
                 .<Page<SellerDTO>>builder()
@@ -212,7 +216,7 @@ public class ReadSellerController {
     }
 
     /**
-     * 판매자 조회 API
+     * [관리자] 판매자 조회 API
      *
      * @return
      */
