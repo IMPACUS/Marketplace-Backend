@@ -28,6 +28,11 @@ public class SimpleSellerFromAdminDTO {
     private String mailOrderBusinessReportUrl;
     private String bankBookUrl;
 
+    private String password; // 비밀번호
+    private String businessEmail; // 대표 이메일
+    private String representativeName; // 대표자명
+    private String logoImageId;
+
     public void setBusinessRegistrationUrl(String url) {
         this.businessRegistrationUrl = url;
     }

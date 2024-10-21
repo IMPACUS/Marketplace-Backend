@@ -21,7 +21,6 @@ public class SellerBusinessInfo extends BaseEntity {
     @Column(nullable = false, unique = true)
     private Long sellerId;
 
-
     @Column(nullable = false)
     @Comment("대표명")
     private String representativeName;

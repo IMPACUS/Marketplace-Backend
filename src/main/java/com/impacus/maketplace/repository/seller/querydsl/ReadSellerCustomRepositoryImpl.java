@@ -442,6 +442,9 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
     @Override
     public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
+        QAttachFile businessRegistrationFile = new QAttachFile("businessRegistrationFile");
+        QAttachFile mailOrderBusinessReportFile = new QAttachFile("mailOrderBusinessReportFile");
+
         SimpleSellerFromAdminDTO dto = queryFactory
                 .select(
                         Projections.fields(
@@ -460,14 +463,19 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 sellerAdjustmentInfo.accountName,
                                 sellerAdjustmentInfo.accountNumber,
                                 seller.chargePercent,
-                                userStatusInfo.status.as("userStatus")
+                                userStatusInfo.status.as("userStatus"),
+                                user.password,
+                                sellerBusinessInfo.businessEmail,
+                                sellerBusinessInfo.representativeName,
+                                attachFile.attachFileName.as("logoImageId")
                         )
                 )
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(seller.userId))
-                .leftJoin(userStatusInfo).on(userStatusInfo.userId.eq(seller.userId))
-                .leftJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                .leftJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
+                .innerJoin(userStatusInfo).on(userStatusInfo.userId.eq(seller.userId))
+                .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
+                .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
+                .leftJoin(attachFile).on(attachFile.id.eq(seller.logoImageId))
                 .where(seller.isDeleted.eq(false).and(seller.id.eq(sellerId)))
                 .fetchFirst();
 
