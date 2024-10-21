@@ -444,8 +444,9 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
         QAttachFile businessRegistrationFile = new QAttachFile("businessRegistrationFile");
         QAttachFile mailOrderBusinessReportFile = new QAttachFile("mailOrderBusinessReportFile");
+        QAttachFile bankBookFile = new QAttachFile("bankBookFile");
 
-        SimpleSellerFromAdminDTO dto = queryFactory
+        return queryFactory
                 .select(
                         Projections.fields(
                                 SimpleSellerFromAdminDTO.class,
@@ -467,7 +468,10 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 user.password,
                                 sellerBusinessInfo.businessEmail,
                                 sellerBusinessInfo.representativeName,
-                                attachFile.attachFileName.as("logoImageId")
+                                attachFile.attachFileName.as("logoImageId"),
+                                businessRegistrationFile.attachFileName.as("businessRegistrationUrl"),
+                                mailOrderBusinessReportFile.attachFileName.as("mailOrderBusinessReportUrl"),
+                                bankBookFile.attachFileName.as("bankBookUrl")
                         )
                 )
                 .from(seller)
@@ -476,34 +480,11 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                 .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
                 .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
                 .leftJoin(attachFile).on(attachFile.id.eq(seller.logoImageId))
+                .leftJoin(businessRegistrationFile).on(businessRegistrationFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
+                .leftJoin(mailOrderBusinessReportFile).on(mailOrderBusinessReportFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
+                .leftJoin(bankBookFile).on(bankBookFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
                 .where(seller.isDeleted.eq(false).and(seller.id.eq(sellerId)))
                 .fetchFirst();
-
-
-        // 사본 데이터 추가
-        AttachFile businessRegistration = queryFactory.selectFrom(attachFile)
-                .innerJoin(seller).on(seller.id.eq(sellerId))
-                .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                .where(attachFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
-                .fetchOne();
-
-        AttachFile mailOrderBusinessReport = queryFactory.selectFrom(attachFile)
-                .innerJoin(seller).on(seller.id.eq(sellerId))
-                .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                .where(attachFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
-                .fetchOne();
-
-        dto.setBusinessRegistrationUrl(businessRegistration == null ? null : businessRegistration.getAttachFileName());
-        dto.setMailOrderBusinessReportUrl(mailOrderBusinessReport == null ? null : mailOrderBusinessReport.getAttachFileName());
-
-        AttachFile bankBookUrl = queryFactory.selectFrom(attachFile)
-                .innerJoin(seller).on(seller.id.eq(sellerId))
-                .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
-                .where(attachFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
-                .fetchOne();
-        dto.setBankBookUrl(bankBookUrl == null ? null : bankBookUrl.getAttachFileName());
-
-        return dto;
     }
 
     @Override

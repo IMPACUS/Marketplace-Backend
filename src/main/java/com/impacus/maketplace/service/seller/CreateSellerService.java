@@ -16,9 +16,7 @@ import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.AttachFileService;
-import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
-import com.impacus.maketplace.service.alarm.seller.AlarmSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +31,6 @@ public class CreateSellerService {
     private final SellerAdjustmentInfoService sellerAdjustmentInfoService;
     private final AttachFileService attachFileService;
     private final UserService userService;
-    private final EmailService emailService;
 
     /**
      * Seller를 저장하는 함수
