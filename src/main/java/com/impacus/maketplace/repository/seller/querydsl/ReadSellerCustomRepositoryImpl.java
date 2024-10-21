@@ -446,7 +446,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                 .select(
                         Projections.fields(
                                 SimpleSellerFromAdminDTO.class,
-                                seller.id,
+                                seller.id.as("sellerId"),
                                 seller.marketName,
                                 seller.contactName,
                                 user.email,
@@ -468,7 +468,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                 .leftJoin(userStatusInfo).on(userStatusInfo.userId.eq(seller.userId))
                 .leftJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
                 .leftJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
-                .where(seller.isDeleted.eq(false))
+                .where(seller.isDeleted.eq(false).and(seller.id.eq(sellerId)))
                 .fetchFirst();
 
 

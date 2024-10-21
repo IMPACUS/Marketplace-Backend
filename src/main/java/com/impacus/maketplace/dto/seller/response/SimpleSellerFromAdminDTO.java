@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class SimpleSellerFromAdminDTO {
-    private Long id;
+    private Long sellerId;
     private String marketName;
     private String contactName;
     private String email;
