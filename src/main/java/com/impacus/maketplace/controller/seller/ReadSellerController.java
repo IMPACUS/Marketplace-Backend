@@ -162,7 +162,7 @@ public class ReadSellerController {
     }
 
     /**
-     * [판매자] 판매자 목록 조회 API
+     * [관리자] 판매자 목록 조회 API
      *
      * @return
      */
@@ -221,7 +221,7 @@ public class ReadSellerController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @GetMapping("{sellerId}")
+    @GetMapping("/{sellerId}")
     public ApiResponseEntity<SimpleSellerFromAdminDTO> getSellerInformationForWeb(@PathVariable Long sellerId) {
         SimpleSellerFromAdminDTO dto = readSellerService.getSellerInformationFroWeb(sellerId);
 
