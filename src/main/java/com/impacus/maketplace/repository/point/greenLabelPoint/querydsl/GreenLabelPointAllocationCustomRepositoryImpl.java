@@ -120,21 +120,23 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
     }
 
     @Override
-    public AlarmPointDTO findAlarmPointByAllocationId(Long greenLabelPointAllocationId) {
+    public List<AlarmPointDTO> findAllAlarmPoint() {
         return queryFactory
                 .select(
                         Projections.fields(
                                 AlarmPointDTO.class,
+                                user.id.as("userId"),
                                 user.name.as("userName"),
                                 allocation.remainPoint,
                                 allocation.expiredAt,
-                                user.phoneNumber
+                                user.phoneNumber,
+                                user.email
                         )
                 )
                 .from(allocation)
                 .innerJoin(user).on(allocation.userId.eq(user.id))
-                .where(allocation.id.eq(greenLabelPointAllocationId))
-                .fetchFirst();
+                .where(allocation.expiredAt.between(LocalDateTime.now(), LocalDateTime.now().plusDays(33)))
+                .fetch();
     }
 
 }

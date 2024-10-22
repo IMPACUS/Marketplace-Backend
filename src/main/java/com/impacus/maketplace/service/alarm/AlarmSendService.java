@@ -310,7 +310,7 @@ public class AlarmSendService {
         }
     }
 
-    public String sendPush(String token, String title, String content) {
+    private void sendPush(String token, String title, String content) {
         Message message = Message.builder()
                 .putData("title", title)
                 .putData("content", content)
@@ -325,7 +325,6 @@ public class AlarmSendService {
         }
 
         log.info("Successfully sent message : {}", response);
-        return response;
     }
 
     public void sendSellerAlarm(Long sellerId, String receiver, String phone, SendSellerTextDto sendSellerTextDto) {

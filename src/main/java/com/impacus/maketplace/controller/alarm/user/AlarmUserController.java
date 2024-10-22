@@ -6,6 +6,7 @@ import com.impacus.maketplace.dto.alarm.seller.SendSellerTextDto;
 import com.impacus.maketplace.dto.alarm.user.SendUserPushDto;
 import com.impacus.maketplace.dto.alarm.user.SendUserTextDto;
 import com.impacus.maketplace.dto.alarm.user.UpdateUserAlarmDto;
+import com.impacus.maketplace.service.alarm.AlarmScheduleService;
 import com.impacus.maketplace.service.alarm.AlarmSendService;
 import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
@@ -50,6 +51,17 @@ public class AlarmUserController {
     @PostMapping("test")
     public ApiResponseEntity<?> test() {
         greenLabelPointAllocationService.payGreenLabelPoint(1L, PointType.CHECK, 1000000L);
+
+        return ApiResponseEntity.builder()
+                .message("푸시 알림이 성공적으로 전송됐습니다.")
+                .build();
+    }
+
+    private final AlarmScheduleService alarmScheduleService;
+
+    @PostMapping("test2")
+    public ApiResponseEntity<?> test2() {
+        alarmScheduleService.sendCouponAndPoint();
 
         return ApiResponseEntity.builder()
                 .message("푸시 알림이 성공적으로 전송됐습니다.")
