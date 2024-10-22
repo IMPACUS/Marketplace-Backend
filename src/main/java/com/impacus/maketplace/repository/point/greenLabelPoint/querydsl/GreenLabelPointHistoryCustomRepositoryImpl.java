@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
@@ -89,7 +90,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
             LocalDate endAt
     ) {
         // 1. 검색어 필터링
-        BooleanBuilder builder = getBooleanBuilderInWebGreenLabelHistoryDTO(
+        BooleanBuilder builder = getBuilderInWebGreenLabelHistoryDTO(
                 keyword,
                 status,
                 startAt,
@@ -109,7 +110,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
         return PaginationUtils.toPage(dtos, pageable, count);
     }
 
-    public BooleanBuilder getBooleanBuilderInWebGreenLabelHistoryDTO(
+    public BooleanBuilder getBuilderInWebGreenLabelHistoryDTO(
             String keyword,
             RewardPointStatus status,
             LocalDate startAt,
@@ -169,19 +170,10 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
     }
 
     @Override
-    public List<WebGreenLabelHistoryDTO> exportGreenLabelPointHistoriesForWeb(
-            String keyword,
-            RewardPointStatus status,
-            LocalDate startAt,
-            LocalDate endAt
-    ) {
+    public List<WebGreenLabelHistoryDTO> findGreenLabelPointHistoriesByIds(IdsDTO dto) {
         // 1. 검색어 필터링
-        BooleanBuilder builder = getBooleanBuilderInWebGreenLabelHistoryDTO(
-                keyword,
-                status,
-                startAt,
-                endAt
-        );
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(history.id.in(dto.getIds()));
 
         // 2. 데이터 조회
         return getWebGreenLabelHistoryDTOs(builder, null);

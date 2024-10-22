@@ -2,6 +2,7 @@ package com.impacus.maketplace.controller.point;
 
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
@@ -9,6 +10,7 @@ import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointHistoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -92,15 +94,12 @@ public class GreenLabelPointController {
     /**
      * [관리자] 포인트 지급 목록 엑셀 생성 요청 API
      */
-    @GetMapping("/allocation/excel")
+    @PostMapping("/allocation/excel")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    public ApiResponseEntity<FileGenerationStatusIdDTO> exportGreenLabelPointHistoriesForWeb(
-            @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "status", required = false) RewardPointStatus status,
-            @RequestParam(value = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-            @RequestParam(value = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportGreenLabelPointHistories(
+            @Valid @RequestBody IdsDTO dto
     ) {
-        FileGenerationStatusIdDTO result = greenLabelPointHistoryService.exportGreenLabelPointHistoriesForWeb(keyword, status, startAt, endAt);
+        FileGenerationStatusIdDTO result = greenLabelPointHistoryService.findGreenLabelPointHistoriesByIds(dto);
         return ApiResponseEntity.<FileGenerationStatusIdDTO>builder()
                 .message("포인트 지급 목록 엑셀 생성 요청 성공")
                 .data(result)
