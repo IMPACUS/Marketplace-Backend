@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.point.greenLabelPoint;
 
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
@@ -79,25 +80,11 @@ public class GreenLabelPointHistoryService {
     /**
      * 포인트 지급 목록 엑셀 생성 함수
      *
-     * @param keyword
-     * @param status
-     * @param startAt
-     * @param endAt
      * @return
      */
-    public FileGenerationStatusIdDTO exportGreenLabelPointHistoriesForWeb(
-            String keyword,
-            RewardPointStatus status,
-            LocalDate startAt,
-            LocalDate endAt
-    ) {
+    public FileGenerationStatusIdDTO findGreenLabelPointHistoriesByIds(IdsDTO dto) {
         try {
-            List<WebGreenLabelHistoryDTO> dtos = greenLabelPointHistoryRepository.exportGreenLabelPointHistoriesForWeb(
-                    keyword,
-                    status,
-                    startAt,
-                    endAt
-            );
+            List<WebGreenLabelHistoryDTO> dtos = greenLabelPointHistoryRepository.findGreenLabelPointHistoriesByIds(dto);
 
             return excelService.generateExcel(dtos, WebGreenLabelHistoryDTO.class);
         } catch (Exception e) {
