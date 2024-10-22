@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailRequest;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
@@ -155,17 +156,12 @@ public class UserController {
     /**
      * [관리자] 소비자 회원 검색 목록 엑셀 생성 요청 API
      */
-    @GetMapping("/excel")
+    @PostMapping("/excel")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     public ApiResponseEntity<FileGenerationStatusIdDTO> exportUsers(
-            @RequestParam(value = "user-name", required = false) String userName,
-            @RequestParam(value = "phone-number", required = false) String phoneNumber,
-            @RequestParam(value = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-            @RequestParam(value = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
-            @RequestParam(value = "oauth-provider-type", required = false) OauthProviderType oauthProviderType,
-            @RequestParam(value = "user-status", required = false) UserStatus status
+            @RequestBody IdsDTO dto
     ) {
-        FileGenerationStatusIdDTO result = readUserService.exportUsers(userName, phoneNumber, startAt, endAt, oauthProviderType, status);
+        FileGenerationStatusIdDTO result = readUserService.exportUsers(dto);
 
         return ApiResponseEntity.<FileGenerationStatusIdDTO>builder()
                 .message("회원 검색 목록 excel 생성 요청 성공")
