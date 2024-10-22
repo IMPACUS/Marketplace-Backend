@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.coupon;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.request.*;
@@ -232,13 +233,9 @@ public class AdminCouponController {
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
-    @GetMapping("/issue-coupon/history-list/excel")
-    public ApiResponseEntity<FileGenerationStatusIdDTO> exportIssueCouponHistoryList(@RequestParam(name = "name", required = false) String name,
-                                                                                     @RequestParam(name = "status", required = false) UserCouponStatus userCouponStatus,
-                                                                                     @RequestParam(name = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-                                                                                     @RequestParam(name = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt) {
-
-        FileGenerationStatusIdDTO result = couponApiService.exportIssueCouponHistoryList(name, userCouponStatus, startAt, endAt);
+    @PostMapping("/issue-coupon/history-list/excel")
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportIssueCouponHistoryList(@Valid @RequestBody IdsDTO dto) {
+        FileGenerationStatusIdDTO result = couponApiService.exportIssueCouponHistories(dto);
 
         return ApiResponseEntity
                 .<FileGenerationStatusIdDTO>builder()
