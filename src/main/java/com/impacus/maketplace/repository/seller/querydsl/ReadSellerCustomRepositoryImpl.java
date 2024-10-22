@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.seller.SellerType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.common.QAttachFile;
@@ -406,13 +407,11 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     }
 
     @Override
-    public List<SellerDTO> exportSellers(String brandName, String contactName, UserStatus status) {
+    public List<SellerDTO> findSellersByIds(IdsDTO dto) {
         BooleanBuilder userStatusBuilder = new BooleanBuilder()
                 .and(userStatusInfo.userId.eq(seller.userId));
-        if (status != null) {
-            userStatusBuilder.and(userStatusInfo.status.eq(status));
-        }
-        BooleanBuilder sellerBuilder = getBooleanBuilderInSellerDTO(brandName, contactName);
+        BooleanBuilder sellerBuilder = new BooleanBuilder()
+                .and(seller.id.in(dto.getIds()));
 
         return getSellerDTOs(
                 userStatusBuilder,
