@@ -82,7 +82,7 @@ public class GreenLabelPointHistoryService {
      *
      * @return
      */
-    public FileGenerationStatusIdDTO findGreenLabelPointHistoriesByIds(IdsDTO dto) {
+    public FileGenerationStatusIdDTO exportGreenLabelPointHistories(IdsDTO dto) {
         try {
             List<WebGreenLabelHistoryDTO> dtos = greenLabelPointHistoryRepository.findGreenLabelPointHistoriesByIds(dto);
 

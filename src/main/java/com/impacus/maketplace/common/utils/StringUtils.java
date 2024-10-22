@@ -107,9 +107,12 @@ public class StringUtils {
      */
     public static EmailInfoDTO getEmailInfo(String email) {
         String[] emailInfo = email.split("_");
-        OauthProviderType oauthProviderType = OauthProviderType.valueOf(emailInfo[0]);
-
-        return EmailInfoDTO.of(emailInfo[1], oauthProviderType);
+        try {
+            OauthProviderType oauthProviderType = OauthProviderType.valueOf(emailInfo[0]);
+            return EmailInfoDTO.of(emailInfo[1], oauthProviderType);
+        } catch (IllegalArgumentException e) {
+            return EmailInfoDTO.of(emailInfo[0], OauthProviderType.NONE);
+        }
     }
 
 }

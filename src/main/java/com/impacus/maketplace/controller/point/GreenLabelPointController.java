@@ -99,7 +99,7 @@ public class GreenLabelPointController {
     public ApiResponseEntity<FileGenerationStatusIdDTO> exportGreenLabelPointHistories(
             @Valid @RequestBody IdsDTO dto
     ) {
-        FileGenerationStatusIdDTO result = greenLabelPointHistoryService.findGreenLabelPointHistoriesByIds(dto);
+        FileGenerationStatusIdDTO result = greenLabelPointHistoryService.exportGreenLabelPointHistories(dto);
         return ApiResponseEntity.<FileGenerationStatusIdDTO>builder()
                 .message("포인트 지급 목록 엑셀 생성 요청 성공")
                 .data(result)

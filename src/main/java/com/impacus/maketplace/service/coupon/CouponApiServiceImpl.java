@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,32 +55,20 @@ public class CouponApiServiceImpl implements CouponApiService {
     }
 
     @Override
-    public List<IssueCouponHistoryDTO> findIssueCouponHistories(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt) {
-        return couponApiRepository.findIssueCouponHistories(name, userCouponStatus, startAt, endAt);
+    public List<IssueCouponHistoryDTO> findIssueCouponHistories(IdsDTO dto) {
+        return couponApiRepository.findIssueCouponHistories(dto);
     }
 
     /**
      * 쿠폰 지급 목록 엑셀 생성 함수
      *
-     * @param name
-     * @param userCouponStatus
-     * @param startAt
-     * @param endAt
      * @return
      */
-    public FileGenerationStatusIdDTO exportIssueCouponHistoryList(
-            String name,
-            UserCouponStatus userCouponStatus,
-            LocalDate startAt,
-            LocalDate endAt
+    public FileGenerationStatusIdDTO exportIssueCouponHistories(
+            IdsDTO dto
     ) {
         try {
-            List<IssueCouponHistoryDTO> dtos = findIssueCouponHistories(
-                    name,
-                    userCouponStatus,
-                    startAt,
-                    endAt
-            );
+            List<IssueCouponHistoryDTO> dtos = findIssueCouponHistories(dto);
 
             return excelService.generateExcel(dtos, IssueCouponHistoryDTO.class);
         } catch (Exception e) {
