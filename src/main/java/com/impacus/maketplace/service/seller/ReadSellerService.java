@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.seller.Seller;
@@ -284,22 +285,19 @@ public class ReadSellerService {
     /**
      * 판매자 목록 엑셀 생성 함수
      *
-     * @param brandName
-     * @param contactName
-     * @param status
      * @return
      */
     public FileGenerationStatusIdDTO exportSellers(
-            String brandName,
-            String contactName,
-            UserStatus status
+            IdsDTO dto
     ) {
-        List<SellerDTO> dtos = sellerRepository.exportSellers(
-                brandName,
-                contactName,
-                status
-        );
+        try {
+            List<SellerDTO> dtos = sellerRepository.findSellersByIds(
+                    dto
+            );
 
-        return excelService.generateExcel(dtos, SellerDTO.class);
+            return excelService.generateExcel(dtos, SellerDTO.class);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
     }
 }

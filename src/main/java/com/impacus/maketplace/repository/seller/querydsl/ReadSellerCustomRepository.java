@@ -3,6 +3,7 @@ package com.impacus.maketplace.repository.seller.querydsl;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,5 +34,5 @@ public interface ReadSellerCustomRepository {
 
     AppSellerDTO getSellerInformationForApp(Long sellerId);
 
-    List<SellerDTO> exportSellers(String brandName, String contactName, UserStatus status);
+    List<SellerDTO> findSellersByIds(IdsDTO dto);
 }
