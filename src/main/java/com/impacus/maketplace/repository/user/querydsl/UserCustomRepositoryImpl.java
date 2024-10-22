@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
@@ -302,22 +303,11 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     }
 
     @Override
-    public List<WebUserDTO> getAllUsers(
-            String userName,
-            String phoneNumber,
-            LocalDate startAt,
-            LocalDate endAt,
-            OauthProviderType oauthProviderType,
-            UserStatus status
+    public List<WebUserDTO> findUsersByIds(
+            IdsDTO dto
     ) {
-        BooleanBuilder builder = getBooleanBuilderForWebUserDTO(
-                userName,
-                phoneNumber,
-                startAt,
-                endAt,
-                oauthProviderType,
-                status
-        );
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(user.id.in(dto.getIds()));
 
         // 데이터 검색
         return getWebUserDTOs(
