@@ -1,15 +1,16 @@
 package com.impacus.maketplace.dto.product.response;
 
+import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
-import com.impacus.maketplace.common.enumType.product.ProductStatus;
-import com.impacus.maketplace.entity.product.Product;
+import com.impacus.maketplace.common.utils.ProductUtils;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -22,6 +23,7 @@ public class WebProductTableDTO {
     private long orderCnt;
     private LocalDateTime createAt;
     private List<WebProductOptionDTO> options;
+    private Integer deliveryFee;
 
     @QueryProjection
     public WebProductTableDTO(
@@ -31,7 +33,10 @@ public class WebProductTableDTO {
         String productNumber,
         DeliveryType deliveryType,
         LocalDateTime createAt,
-        List<ProductOption> productOptions
+        List<ProductOption> productOptions,
+        int deliveryFee,
+        DeliveryRefundType deliveryFeeType,
+        Integer sellerDeliveryFee
 
     ) {
         this.productId = id;
@@ -45,6 +50,7 @@ public class WebProductTableDTO {
             options.add(new WebProductOptionDTO(productOption.getId(), productOption.getColor(), productOption.getSize()));
         }
         this.options = options;
+        this.deliveryFee = ProductUtils.getProductDeliveryFee(deliveryFee, deliveryFeeType, sellerDeliveryFee);
     }
 
 }
