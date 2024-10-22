@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.utils.AmountComma;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.point.AlarmPointDTO;
+import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForUser;
 import com.impacus.maketplace.entity.alarm.seller.AlarmHold;
 import com.impacus.maketplace.entity.alarm.user.AlarmUser;
 import com.impacus.maketplace.repository.alarm.admin.AlarmAdminForUserRepository;
@@ -63,10 +64,11 @@ public class AlarmScheduleService {
 
     @Scheduled(cron = "0 0 11 * * *", zone = "Asia/Seoul")
     public void sendCouponAndPoint() {
-        LocalDateTime now = LocalDateTime.now();
-//        List<AlarmAdminForUser> shoppingBenefits = alarmAdminForUserRepository.findByCategory(AlarmUserCategoryEnum.SHOPPING_BENEFITS);
-//        this.sendPointAlarm(now);
+        this.sendCouponAlarm();
+        this.sendPointAlarm();
+    }
 
+    private void sendCouponAlarm() {
         List<AlarmCouponDTO> alarmCoupons = couponApiRepository.getAlarmCoupons();
         Map<Long, List<AlarmCouponDTO>> alarmMap = alarmCoupons.stream().collect(Collectors.groupingBy(AlarmCouponDTO::getUserId));
         for (Long userId : alarmMap.keySet()) {
@@ -95,20 +97,16 @@ public class AlarmScheduleService {
                             String amount = couponList.stream()
                                     .map(a -> AmountComma.formatCurrency(a.getBenefitValue()) + a.getBenefitType().getValue())
                                     .collect(Collectors.joining(", "));
-                            String template;
-                            String subject;
-                            String kakaoCode;
-                            if (day == 1) {
-                                template = AlarmUserSubcategoryEnum.COUPON_EXTINCTION_2.getTemplate();
-                                subject = AlarmUserSubcategoryEnum.COUPON_EXTINCTION_2.getValue();
-                                kakaoCode = AlarmUserSubcategoryEnum.COUPON_EXTINCTION_2.getKakaoCode();
-                            } else {
-                                template = AlarmUserSubcategoryEnum.COUPON_EXTINCTION_1.getTemplate();
-                                subject = AlarmUserSubcategoryEnum.COUPON_EXTINCTION_1.getValue();
-                                kakaoCode = AlarmUserSubcategoryEnum.COUPON_EXTINCTION_1.getKakaoCode();
-                            }
+
+                            AlarmUserSubcategoryEnum couponExtinction;
+                            if (day == 1) couponExtinction = AlarmUserSubcategoryEnum.COUPON_EXTINCTION_2;
+                            else couponExtinction = AlarmUserSubcategoryEnum.COUPON_EXTINCTION_1;
+
+                            String template = couponExtinction.getTemplate();
+                            String subject = couponExtinction.getValue();
+                            String kakaoCode = couponExtinction.getKakaoCode();
                             template = template.replace("#{홍길동}", userName).replace("#{쿠폰명}", couponName).replace("#{쿠폰금액}", amount).replace("#{유효기간}", expiredAt);
-                            alarmSendService.sendAlarm(isKakao, isEmail, isMsg, subject, "sindong942@naver.com", "01088417145", kakaoCode, template);
+                            alarmSendService.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, template);
                         }
                     }
                 }
@@ -117,13 +115,15 @@ public class AlarmScheduleService {
 
     }
 
-    private void sendPointAlarm(LocalDateTime now) {
+    private void sendPointAlarm() {
+        LocalDateTime now = LocalDateTime.now();
+        List<AlarmAdminForUser> shoppingBenefits = alarmAdminForUserRepository.findByCategory(AlarmUserCategoryEnum.SHOPPING_BENEFITS);
         List<AlarmPointDTO> allAlarmPoint = greenLabelPointAllocationRepository.findAllAlarmPoint();
         for (AlarmPointDTO dto : allAlarmPoint) {
             LocalDateTime expiredAt = dto.getExpiredAt();
-            long daysBetween = ChronoUnit.DAYS.between(expiredAt, now);
+            long daysBetween = ChronoUnit.DAYS.between(now, expiredAt);
 
-            if ((daysBetween >= 1 && daysBetween < 2) || (daysBetween >= 30 && daysBetween < 31)) {
+            if ((daysBetween == 1) || (daysBetween == 30)) {
                 Optional<AlarmUser> optional = alarmUserRepository.findByUserIdAndCategory(dto.getUserId(), AlarmUserCategoryEnum.SHOPPING_BENEFITS);
                 if (optional.isEmpty()) log.error("포인트 알림 전송중 해당 유저 id는 존재하지 않습니다. userId : {}", dto.getUserId());
                 else {
@@ -134,33 +134,34 @@ public class AlarmScheduleService {
                         Boolean isEmail = alarmUser.getEmail();
                         Boolean isPush = alarmUser.getPush();
                         String userName = dto.getUserName();
-                        String receiver = dto.getEmail();
-                        String phone = dto.getPhoneNumber();
+                        String receiver = StringUtils.getEmailInfo(dto.getEmail()).getEmail();
+                        String phone = dto.getPhoneNumber().replace("-", "");
                         String remainPoint = AmountComma.formatCurrency(dto.getRemainPoint());
-                        String expiredStr = expiredAt.toString().replace("T", " ");
-                        if (daysBetween >= 1 && daysBetween < 2) {
-                            AlarmUserSubcategoryEnum pointExtinction = AlarmUserSubcategoryEnum.POINT_EXTINCTION_2;
-                            String kakaoCode = pointExtinction.getKakaoCode();
-                            String subject = pointExtinction.getValue();
-                            String template = pointExtinction.getTemplate()
-                                    .replace("#{홍길동}", userName)
-                                    .replace("#{적립금}", remainPoint)
-                                    .replace("#{유효기간}", expiredStr);
-                            alarmSendService.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, template);
-                        } else if (daysBetween >= 30 && daysBetween < 31) {
-                            AlarmUserSubcategoryEnum pointExtinction = AlarmUserSubcategoryEnum.POINT_EXTINCTION_1;
-                            String kakaoCode = pointExtinction.getKakaoCode();
-                            String subject = pointExtinction.getValue();
-                            String template = pointExtinction.getTemplate()
-                                    .replace("#{홍길동}", userName)
-                                    .replace("#{적립금}", remainPoint)
-                                    .replace("#{유효기간}", expiredStr);
-                            alarmSendService.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, template);
-                        }
+                        String expiredStr = removeAfterDot(expiredAt.toString().replace("T", " "));
+
+                        AlarmUserSubcategoryEnum pointExtinction;
+                        if (daysBetween == 1) pointExtinction = AlarmUserSubcategoryEnum.POINT_EXTINCTION_2;
+                        else pointExtinction = AlarmUserSubcategoryEnum.POINT_EXTINCTION_1;
+
+                        String kakaoCode = pointExtinction.getKakaoCode();
+                        String subject = pointExtinction.getValue();
+                        String template = pointExtinction.getTemplate()
+                                .replace("#{홍길동}", userName)
+                                .replace("#{적립금}", remainPoint)
+                                .replace("#{유효기간}", expiredStr);
+                        alarmSendService.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, template);
                     }
                 }
             }
         }
+    }
+
+    private String removeAfterDot(String str) {
+        int index = str.indexOf(".");
+        if (index != -1) {  // .이 문자열에 존재할 경우
+            return str.substring(0, index);
+        }
+        return str;  // .이 없으면 원본 문자열 반환
     }
 }
 

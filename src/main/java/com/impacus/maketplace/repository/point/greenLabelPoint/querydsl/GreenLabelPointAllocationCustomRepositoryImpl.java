@@ -135,7 +135,7 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
                 )
                 .from(allocation)
                 .innerJoin(user).on(allocation.userId.eq(user.id))
-                .where(allocation.expiredAt.between(LocalDateTime.now(), LocalDateTime.now().plusDays(33)))
+                .where(allocation.expiredAt.between(LocalDateTime.now(), LocalDateTime.now().plusDays(31)))
                 .fetch();
     }
 

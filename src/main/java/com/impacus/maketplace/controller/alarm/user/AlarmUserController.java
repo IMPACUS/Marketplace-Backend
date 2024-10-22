@@ -56,15 +56,4 @@ public class AlarmUserController {
                 .message("푸시 알림이 성공적으로 전송됐습니다.")
                 .build();
     }
-
-    private final AlarmScheduleService alarmScheduleService;
-
-    @PostMapping("test2")
-    public ApiResponseEntity<?> test2() {
-        alarmScheduleService.sendCouponAndPoint();
-
-        return ApiResponseEntity.builder()
-                .message("푸시 알림이 성공적으로 전송됐습니다.")
-                .build();
-    }
 }
