@@ -21,6 +21,7 @@ public enum CommonErrorType implements ErrorType {
     FAIL_TO_CREATE_EXCEL("011_FAIL_TO_CREATE_EXCEL", "엑셀 생성하는데 실패했습니다."),
     NOT_EXISTED_BRAND("012_NOT_EXISTED_BRAND", "존재하지 않는 브랜드입니다"),
     FAIL_TO_UPLOAD_FILE("013_FAIL_TO_UPLOAD_FILE", "S3로 파일을 첨부하는데 실패했습니다."),
+    OPEN_API_REQUEST_FAIL("014_OPEN_API_REQUEST_FAIL", "OPEN API 요청에 실패했습니다."),
     REGISTERED_WISHLIST("015_REGISTERED_WISHLIST", "이미 존재하는 찜 데이터 추가 요청입니다."),
     NOT_EXISTED_WISHLIST("016_NOT_EXISTED_WISHLIST", "존재하지 않는 찜 데이터입니다."),
     NOT_EXISTED_ATTACH_FILE("017_NOT_EXISTED_ATTACH_FILE", "존재하지 않는 첨부 파일입니다."),

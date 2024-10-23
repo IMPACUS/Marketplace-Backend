@@ -25,3 +25,4 @@ logging:
   level:
     org.apache.http: DEBUG
     httpclient.wire: DEBUG
+    com.openfeign.package: DEBUG
