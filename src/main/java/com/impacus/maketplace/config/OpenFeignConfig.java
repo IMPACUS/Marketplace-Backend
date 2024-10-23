@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableFeignClients(basePackages = {
-
+        "com.impacus.maketplace.service.oauth"
 })
 public class OpenFeignConfig {
 
@@ -30,6 +30,6 @@ public class OpenFeignConfig {
     public RequestInterceptor requestInterceptor() {
         return requestTemplate
                 -> requestTemplate
-                .header("Content-Type", "application/json");
+                .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
     }
 }
