@@ -78,7 +78,6 @@ public class AlarmScheduleService {
                     Boolean isMsg = alarmUser.getMsg();
                     Boolean isKakao = alarmUser.getKakao();
                     Boolean isEmail = alarmUser.getEmail();
-                    Boolean isPush = alarmUser.getPush();
                     List<AlarmCouponDTO> alarmCouponDTOS = alarmMap.get(userId);
                     String receiver = StringUtils.getEmailInfo(alarmCouponDTOS.get(0).getEmail()).getEmail();
                     String userName = alarmCouponDTOS.get(0).getUserName();
