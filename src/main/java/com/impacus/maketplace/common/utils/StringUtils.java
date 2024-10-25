@@ -105,7 +105,7 @@ public class StringUtils {
      * @param email Format: OauthProviderKey_Email
      * @return
      */
-    public static EmailInfoDTO getEmailInfo(String email) {
+    public static EmailInfoDTO  getEmailInfo(String email) {
         String[] emailInfo = email.split("_");
         try {
             OauthProviderType oauthProviderType = OauthProviderType.valueOf(emailInfo[0]);

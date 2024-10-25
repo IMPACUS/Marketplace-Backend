@@ -17,12 +17,14 @@ import com.impacus.maketplace.entity.alarm.token.AlarmToken;
 import com.impacus.maketplace.entity.alarm.seller.AlarmHold;
 import com.impacus.maketplace.entity.alarm.seller.AlarmSeller;
 import com.impacus.maketplace.entity.alarm.user.AlarmUser;
+import com.impacus.maketplace.entity.seller.Brand;
 import com.impacus.maketplace.repository.alarm.admin.AlarmAdminForSellerRepository;
 import com.impacus.maketplace.repository.alarm.admin.AlarmAdminForUserRepository;
 import com.impacus.maketplace.repository.alarm.bizgo.AlarmTokenRepository;
 import com.impacus.maketplace.repository.alarm.seller.AlarmHoldRepository;
 import com.impacus.maketplace.repository.alarm.seller.AlarmSellerRepository;
 import com.impacus.maketplace.repository.alarm.user.AlarmUserRepository;
+import com.impacus.maketplace.repository.seller.BrandRepository;
 import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDto;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +55,7 @@ public class AlarmSendService {
     private final AlarmAdminForUserRepository alarmAdminForUserRepository;
     private final AlarmAdminForSellerRepository alarmAdminForSellerRepository;
     private final AlarmHoldRepository alarmHoldRepository;
+    private final BrandRepository brandRepository;
 
     @Value("${key.bizgo.id}")
     private String bizgoId;
@@ -307,7 +310,7 @@ public class AlarmSendService {
         }
     }
 
-    public String sendPush(String token, String title, String content) {
+    private void sendPush(String token, String title, String content) {
         Message message = Message.builder()
                 .putData("title", title)
                 .putData("content", content)
@@ -322,7 +325,6 @@ public class AlarmSendService {
         }
 
         log.info("Successfully sent message : {}", response);
-        return response;
     }
 
     public void sendSellerAlarm(Long sellerId, String receiver, String phone, SendSellerTextDto sendSellerTextDto) {
@@ -356,7 +358,21 @@ public class AlarmSendService {
             if (now.isAfter(start) && now.isBefore(end))
                 this.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text);
             else
-                alarmHoldRepository.save(new AlarmHold(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text));
+                alarmHoldRepository.save(new AlarmHold(start, isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text));
+        } else if (time.equals(AlarmSellerTimeEnum.CUSTOM)) {
+            Optional<Brand> optional = brandRepository.findBySellerId(sellerId);
+            if (optional.isEmpty())
+                throw new CustomException(HttpStatus.MULTI_STATUS, AlarmErrorType.NO_EXIST_SELLER_IN_BRAND);
+
+            Brand brand = optional.get();
+            LocalTime openingTime = brand.getOpeningTime();
+            LocalTime closingTime = brand.getClosingTime();
+            LocalTime now = LocalTime.now();
+
+            if (now.isAfter(openingTime) && now.isBefore(closingTime))
+                this.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text);
+            else
+                alarmHoldRepository.save(new AlarmHold(openingTime, isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text));
         }
     }
 }

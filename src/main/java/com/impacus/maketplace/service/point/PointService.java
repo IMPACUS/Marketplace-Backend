@@ -34,7 +34,7 @@ public class PointService {
     private final UserRepository userRepository;
     private final LevelPointMasterService levelPointMasterService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
-    private final GreenLabelPointAllocationRepository greenLabelPointAllocationRepository;
+
 
     /**
      * 소비자 생성된 경우, 포인트 관련 엔티티를 생성하는 함수
@@ -128,21 +128,5 @@ public class PointService {
                 greenLabelPointAllocationService.deductPoints(userId, PointType.ADMIN_RECEIVE, greenLabelPoint, true);
             }
         }
-    }
-
-    /*
-     * 포인트 알림을 구성하기 위한 데이터를 반환하는 함수
-     *
-     * @param greenLabelPointAllocationId 조회하려고 하는 그린 라벨 포인트 지급 ID
-     * @return 포인트 알림 데이터
-     */
-    public AlarmPointDTO findAlarmPointByAllocationId(Long greenLabelPointAllocationId) {
-        AlarmPointDTO dto = greenLabelPointAllocationRepository.findAlarmPointByAllocationId(greenLabelPointAllocationId);
-
-        if (dto == null) {
-            throw new CustomException(PointErrorType.NOT_EXISTED_GREEN_LABEL_POINT_ALLOCATION_ID);
-        }
-
-        return dto;
     }
 }
