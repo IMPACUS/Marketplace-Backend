@@ -80,12 +80,26 @@ public class AlarmSendService {
         Boolean isEmail = alarmUser.getEmail();
         Boolean isKakao = alarmUser.getKakao();
         Boolean isMsg = alarmUser.getMsg();
+        Boolean isPush = alarmUser.getPush();
         String kakaoCode = subcategory.getKakaoCode();
         String subject = subcategory.getValue();
         if (alarmUser.getIsOn()) {
             String template = optionalAdmin.get().getTemplate();
             String text = this.getText(sendUserTextDto, template);
             this.sendAlarm(isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text);
+            if (isPush) {
+                Optional<AlarmToken> optional = alarmTokenRepository.findByUserId(userId);
+                if (optional.isEmpty())
+                    throw new CustomException(HttpStatus.BAD_REQUEST, AlarmErrorType.NO_EXIST_USER_IN_TOKEN);
+                String categoryName = category.name();
+                String subcategoryName = subcategory.name();
+                if (!((categoryName.equals("ORDER_DELIVERY") && subcategoryName.equals("CANCEL")) ||
+                        (categoryName.equals("SHOPPING_BENEFITS") && subcategoryName.equals("COUPON_EXTINCTION_1")) ||
+                        (categoryName.equals("SHOPPING_BENEFITS") && subcategoryName.equals("COUPON_EXTINCTION_2")) ||
+                        (categoryName.equals("SHOPPING_BENEFITS") && subcategoryName.equals("POINT_EXTINCTION_1")) ||
+                        (categoryName.equals("SHOPPING_BENEFITS") && subcategoryName.equals("POINT_EXTINCTION_2"))))
+                    this.sendPush(optional.get().getToken(), subject + " 알림", text);
+            }
         }
     }
 
