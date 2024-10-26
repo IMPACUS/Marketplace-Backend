@@ -41,4 +41,13 @@ public class AlarmUserController {
                 .message("푸시 토큰이 성공적으로 저장됐습니다.")
                 .build();
     }
+
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    @PostMapping("push/test")
+    public ApiResponseEntity<?> pushTestAlarmUser(@AuthenticationPrincipal CustomUserDetails user) {
+        alarmSendService.testPush(user.getId());
+        return ApiResponseEntity.builder()
+                .message("푸시 전송됐습니다.")
+                .build();
+    }
 }

@@ -389,4 +389,13 @@ public class AlarmSendService {
                 alarmHoldRepository.save(new AlarmHold(openingTime, isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text));
         }
     }
+
+    public void testPush(Long userId) {
+        Optional<AlarmToken> optional = alarmTokenRepository.findByUserId(userId);
+        if (optional.isEmpty())
+            throw new CustomException(HttpStatus.BAD_REQUEST, AlarmErrorType.NO_EXIST_USER_IN_TOKEN);
+        AlarmUserSubcategoryEnum paymentComplete = AlarmUserSubcategoryEnum.PAYMENT_COMPLETE;
+
+        this.sendPush(optional.get().getToken(), "테스트 알림", paymentComplete.getTemplate());
+    }
 }
