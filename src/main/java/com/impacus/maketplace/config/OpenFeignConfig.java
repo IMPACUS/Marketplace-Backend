@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableFeignClients(basePackages = {
-        "com.impacus.maketplace.service.oauth"
 })
 public class OpenFeignConfig {
 

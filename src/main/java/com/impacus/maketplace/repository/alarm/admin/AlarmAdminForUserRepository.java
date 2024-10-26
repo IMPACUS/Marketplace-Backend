@@ -8,10 +8,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AlarmAdminForUserRepository extends JpaRepository<AlarmAdminForUser, Long> {
     Optional<AlarmAdminForUser> findByCategoryAndSubcategory(AlarmUserCategoryEnum category, AlarmUserSubcategoryEnum subcategory);
+
+    List<AlarmAdminForUser> findByCategory(AlarmUserCategoryEnum category);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE AlarmAdminForUser a SET a.comment1 = :comment1, a.comment2 = :comment2, a.template = :template WHERE a.id = :id")

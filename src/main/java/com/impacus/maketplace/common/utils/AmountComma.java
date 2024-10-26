@@ -7,4 +7,9 @@ public class AmountComma {
         NumberFormat numberFormat = NumberFormat.getInstance();
         return numberFormat.format(amount);
     }
+
+    public static String formatCurrency(long amount) {
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        return numberFormat.format(amount);
+    }
 }

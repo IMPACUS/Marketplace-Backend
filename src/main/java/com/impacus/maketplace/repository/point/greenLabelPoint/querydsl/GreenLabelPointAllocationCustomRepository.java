@@ -39,5 +39,5 @@ public interface GreenLabelPointAllocationCustomRepository {
      */
     Long findAllocatedPointCntByUserIdAndPointType(Long userId, PointType pointType);
 
-    AlarmPointDTO findAlarmPointByAllocationId(Long greenLabelPointAllocationId);
+    List<AlarmPointDTO> findAllAlarmPoint();
 }

@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.point.greenLablePoint;
+package com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -15,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QGreenLabelPointHistory extends EntityPathBase<GreenLabelPointHistory> {
 
-    private static final long serialVersionUID = -485437407L;
+    private static final long serialVersionUID = 341696994L;
 
     public static final QGreenLabelPointHistory greenLabelPointHistory = new QGreenLabelPointHistory("greenLabelPointHistory");
 

@@ -149,7 +149,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-0.14.05-240924" author="sda0523">
+    <changeSet id="changelog-sda0.14.05-240924" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="alarm_hold"/>
@@ -158,6 +158,9 @@
         <createTable tableName="alarm_hold">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="send_time" type="TIME" remarks="보낼 시간">
+                <constraints nullable="false"/>
             </column>
             <column name="email" type="BOOLEAN"/>
             <column name="kakao" type="BOOLEAN"/>
@@ -170,5 +173,18 @@
             <column name="create_at" type="TIMESTAMP"/>
             <column name="register_id" type="VARCHAR(255)"/>
         </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-sday0.15.06-24-09-24" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="alarm_hold" columnName="send_time"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="alarm_hold">
+            <column name="send_time" type="TIME" remarks="보낼 시간">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
     </changeSet>
 </databaseChangeLog>
