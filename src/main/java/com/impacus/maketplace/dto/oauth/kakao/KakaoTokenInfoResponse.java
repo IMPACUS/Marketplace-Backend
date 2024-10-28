@@ -1,4 +1,4 @@
-package com.impacus.maketplace.dto.oauth;
+package com.impacus.maketplace.dto.oauth.kakao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

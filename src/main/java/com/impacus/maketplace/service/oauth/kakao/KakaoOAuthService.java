@@ -1,19 +1,23 @@
 package com.impacus.maketplace.service.oauth.kakao;
 
-import com.impacus.maketplace.dto.oauth.KakaoTokenInfoResponse;
+import com.impacus.maketplace.dto.oauth.kakao.KakaoTokenInfoResponse;
+import com.impacus.maketplace.dto.oauth.kakao.userProfile.KakaoUserProfileResponse;
 import com.impacus.maketplace.dto.oauth.request.OauthDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.service.oauth.OAuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class KakaoOAuthService implements OAuthService {
     private final KakaoOAuthAPIService kakaoOAuthAPIService;
+    private final KakaoCommonAPIService kakaoCommonAPIService;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
@@ -32,7 +36,7 @@ public class KakaoOAuthService implements OAuthService {
     @Override
     public OauthLoginDTO login(OauthDTO dto) {
         // 1. Kakao 토큰 요청
-        KakaoTokenInfoResponse response = kakaoOAuthAPIService.getTokenInfo(
+        KakaoTokenInfoResponse token = kakaoOAuthAPIService.getTokenInfo(
                 clientId,
                 clientSecret,
                 dto.getCode(),
@@ -41,7 +45,9 @@ public class KakaoOAuthService implements OAuthService {
         );
 
         // 2. 사용자 프로필 정보 요청
-
+        KakaoUserProfileResponse profile = kakaoCommonAPIService.getUserProfile(
+                String.format("Bearer %s", token.getAccessToken())
+        );
 
         return null;
     }

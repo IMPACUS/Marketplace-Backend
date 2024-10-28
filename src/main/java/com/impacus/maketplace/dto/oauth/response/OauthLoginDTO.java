@@ -8,15 +8,15 @@ import lombok.Getter;
 
 @Getter
 public class OauthLoginDTO extends UserDTO {
-    @JsonProperty(value = "isSignIn")
-    private boolean isSignIn;
+    @JsonProperty(value = "hasSignedUp")
+    private boolean hasSignedUp;
 
     public OauthLoginDTO(
             User user,
-            boolean isSignIn,
+            boolean hasSignedUp,
             TokenInfoVO token
     ) {
         super(user, token);
-        this.isSignIn = isSignIn;
+        this.hasSignedUp = hasSignedUp;
     }
 }
