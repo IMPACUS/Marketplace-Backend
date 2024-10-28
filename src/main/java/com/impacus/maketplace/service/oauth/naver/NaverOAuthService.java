@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -20,7 +18,7 @@ public class NaverOAuthService implements OAuthService {
      * @param dto
      */
     @Override
-    public OauthLoginDTO login(OauthDTO dto) throws IOException {
+    public OauthLoginDTO login(OauthDTO dto) {
         return null;
     }
 

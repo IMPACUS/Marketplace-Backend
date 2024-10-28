@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.oauth.kakao;
 
-import com.impacus.maketplace.dto.oauth.KakaoTokenInfoRequest;
+import com.impacus.maketplace.dto.oauth.KakaoTokenInfoResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
@@ -11,8 +11,15 @@ public class KakaoOAuthAPIServiceFactory implements FallbackFactory<KakaoOAuthAP
     @Override
     public KakaoOAuthAPIService create(Throwable cause) {
         return new KakaoOAuthAPIService() {
+
             @Override
-            public Object getTokenInfo(KakaoTokenInfoRequest request) {
+            public KakaoTokenInfoResponse getTokenInfo(
+                    String clientId,
+                    String clientSecret,
+                    String code,
+                    String grantType,
+                    String redirectUri
+            ) {
                 log.debug("★ Fallback reason was: " + cause.getMessage());
                 return null;
             }

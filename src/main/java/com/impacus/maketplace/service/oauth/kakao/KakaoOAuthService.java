@@ -1,18 +1,28 @@
 package com.impacus.maketplace.service.oauth.kakao;
 
+import com.impacus.maketplace.dto.oauth.KakaoTokenInfoResponse;
 import com.impacus.maketplace.dto.oauth.request.OauthDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.service.oauth.OAuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class KakaoOAuthService implements OAuthService {
+    private final KakaoOAuthAPIService kakaoOAuthAPIService;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
+    private String clientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
+    private String redirectUri;
 
     /**
      * 소셜 로그인/소셜 로그인 회원가입
@@ -20,7 +30,19 @@ public class KakaoOAuthService implements OAuthService {
      * @param dto
      */
     @Override
-    public OauthLoginDTO login(OauthDTO dto) throws IOException {
+    public OauthLoginDTO login(OauthDTO dto) {
+        // 1. Kakao 토큰 요청
+        KakaoTokenInfoResponse response = kakaoOAuthAPIService.getTokenInfo(
+                clientId,
+                clientSecret,
+                dto.getCode(),
+                "authorization_code",
+                redirectUri
+        );
+
+        // 2. 사용자 프로필 정보 요청
+
+
         return null;
     }
 

@@ -3,14 +3,12 @@ package com.impacus.maketplace.service.oauth;
 import com.impacus.maketplace.dto.oauth.request.OauthDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 
-import java.io.IOException;
-
 public interface OAuthService {
 
     /**
      * 소셜 로그인/소셜 로그인 회원가입
      */
-    OauthLoginDTO login(OauthDTO dto) throws IOException;
+    OauthLoginDTO login(OauthDTO dto);
 
 
     /**
