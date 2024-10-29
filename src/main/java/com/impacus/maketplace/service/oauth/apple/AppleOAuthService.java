@@ -38,7 +38,9 @@ import java.util.Date;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AppleOAuthService implements OAuthService {
+
     private static final String GRANT_TYPE = "authorization_code";
+
     private final AppleOAuthAPIService appleOAuthAPIService;
     private final CustomOauth2UserService customOauth2UserService;
     private final JwtTokenProvider tokenProvider;
@@ -116,7 +118,7 @@ public class AppleOAuthService implements OAuthService {
         }
     }
 
-    public PrivateKey getPrivateKey() throws IOException {
+    private PrivateKey getPrivateKey() throws IOException {
         ClassPathResource resource = new ClassPathResource("static/key/" + appleKeyPath);
 
         try (InputStream in = resource.getInputStream();
