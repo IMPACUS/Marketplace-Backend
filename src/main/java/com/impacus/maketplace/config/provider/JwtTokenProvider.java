@@ -1,13 +1,12 @@
 package com.impacus.maketplace.config.provider;
 
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
-import com.impacus.maketplace.common.enumType.error.TokenErrorType;
-import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.vo.auth.TokenInfoVO;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SignatureException;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Date;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,13 +15,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import security.CustomUserDetails;
 
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
-import java.util.stream.Collectors;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.TokenErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.vo.auth.TokenInfoVO;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
+import security.CustomUserDetails;
 
 @Slf4j
 @Component
@@ -162,12 +170,28 @@ public class JwtTokenProvider implements InitializingBean {
                 .setSigningKey(jwtKey).build()
                 .parseClaimsJws(accessToken).getBody()
                 .getExpiration();
-        
+
         if (expiration == null) {
             return 0L;
         }
 
         Long now = new Date().getTime();
         return (expiration.getTime() - now);
+    }
+    
+    /**
+     * User 로 Authentication 생성하는 함수
+     *
+     * @param user
+     * @return
+     */
+    public Authentication createAuthenticationFromUser(User user, UserType type) {
+        // 1. Authentication 객체 생성
+        CustomUserDetails userDetails = CustomUserDetails.toEntity(user, type);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+            userDetails, type.name()
+        );
+
+        return authenticationToken;
     }
 }
