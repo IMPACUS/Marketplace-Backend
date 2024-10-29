@@ -47,7 +47,7 @@ public class NaverOAuthService implements OAuthService {
         }
 
         // 1. Naver 토큰 발급
-        NaverTokenResponse tokenResponse = naverOAuthAPIService.getToken(
+        NaverTokenResponse tokenResponse = naverOAuthAPIService.getNaverToken(
             "authorization_code", 
                         clientId, 
                         clientSecret,
