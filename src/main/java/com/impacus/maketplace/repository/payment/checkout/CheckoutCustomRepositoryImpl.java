@@ -1,5 +1,7 @@
 package com.impacus.maketplace.repository.payment.checkout;
 
+import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
@@ -103,7 +105,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
      */
     @Override
     public CheckoutProductInfoDTO getPaymentProductInfo(Long productId, Long productOptionId, Long sellerId, Boolean usedRegisteredCard, Long registeredCardId) {
-        return queryFactory
+        CheckoutProductInfoDTO checkoutProductInfoDTO = queryFactory
                 .select(new QCheckoutProductInfoDTO(
                         product.id,
                         seller.id,
@@ -125,10 +127,28 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                         productOptionHistory.id
                 ))
                 .from(product)
-                .join(seller).on(seller.id.eq(sellerId))
-                .join(productOption).on(productOption.id.eq(productOptionId).and(productOption.productId.eq(productId)))
-                .join(productOptionHistory).on(productOptionHistory.productOptionId.eq(productOptionId))
+                .leftJoin(seller).on(seller.id.eq(sellerId))
+                .leftJoin(productOption).on(productOption.id.eq(productOptionId).and(productOption.productId.eq(productId)))
+                .leftJoin(productOptionHistory).on(productOptionHistory.productOptionId.eq(productOptionId))
                 .where(product.id.eq(productId))
                 .fetchOne();
+
+        if (checkoutProductInfoDTO == null) {
+            throw new CustomException(PaymentErrorType.NOT_FOUND_PRODUCT);
+        }
+
+        if (checkoutProductInfoDTO.getProductOptionId() == null) {
+            throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION);
+        }
+
+        if (checkoutProductInfoDTO.getProductOptionHistoryId() == null) {
+            throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION_HISTORY);
+        }
+
+        if (checkoutProductInfoDTO.getSellerId() == null) {
+            throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_SELLER);
+        }
+
+        return checkoutProductInfoDTO;
     }
 }

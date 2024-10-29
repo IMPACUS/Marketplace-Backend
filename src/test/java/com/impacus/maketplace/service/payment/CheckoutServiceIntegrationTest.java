@@ -791,7 +791,7 @@ public class CheckoutServiceIntegrationTest {
          * 7. 모든 할인: 에코 할인을 포함한 모든 할인이 올바르게 적용
          * 8. 할인 조정: 모든 쿠폰 할인을 적용했을 경우 총 상품 가격을 넘어 섰을 경우 0원 처리
          * 8. 할인 조정: 반올림 처리
-         * 실패 케이스
+         * 예외 케이스
          * 1. 상품 검증: 상품의 재고 부족
          * 2. 상품 검증: 삭제된 옵션
          * 3. 상품 검증: 판매 중지된 상품
@@ -800,7 +800,10 @@ public class CheckoutServiceIntegrationTest {
          * 6. 쿠폰: 이미 사용된 쿠폰 사용
          * 7. 쿠폰: 지급 실패 쿠폰 사용
          * 8. 쿠폰: 총 주문 금액이 쿠폰 적용 가능한 금액보다 낮을 경우
-         * 9. 포인트: 쿠폰 할인 금액이 총 상품 가격을 넘어 섰을 경우 포인트 적용 불가능
+         * 9. 쿠폰: 쿠폰 id를 중복해서 적용한 경우
+         * 10. 포인트: 쿠폰 할인 금액이 총 상품 가격을 넘어 섰을 경우 포인트 적용 불가능
+         * 11. 포인트: 포인트 잔액이 부족한 경우
+         * 12. 금액: 클라이언트 서버에서 계산된 최종 금액과 현재 서버에서 계산한 최종 금액이 일치하지 않는 경우
          */
         @Test
         @DisplayName("[정상 케이스] - 모든 할인 적용 없이 1개의 상품 구매 처리 성공")
@@ -1162,7 +1165,7 @@ public class CheckoutServiceIntegrationTest {
         }
 
         @Test
-        @DisplayName("[정상 케이스] 할인 조정: 쿠폰 할인 금액이 상품 판매 가격을 넘어섰을 경우 0원으로 처리한다.")
+        @DisplayName("[정상 케이스] - 할인 조정: 쿠폰 할인 금액이 상품 판매 가격을 넘어섰을 경우 0원으로 처리한다.")
         void checkoutCartReconcileDiscountWhenOverAmount() {
             Long userId = 1L;
             List<Long> shoppingBasketIdList = new ArrayList<>();
@@ -1208,6 +1211,424 @@ public class CheckoutServiceIntegrationTest {
 
             // then
             assertThat(result.getTotalDiscountedAmount()).isEqualTo(1999L);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 상품 검증: 상품의 재고가 부족한 경우 [OUT_OF_STOCK_ORDER_PRODUCT]")
+        void checkoutCartOutOfStock_failed() {
+            // given
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO = PaymentProductInfoDTO.builder()
+                    .productId(1L)
+                    .productOptionId(2L)
+                    .quantity(1L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(new ArrayList<>())
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(OrderErrorType.OUT_OF_STOCK_ORDER_PRODUCT);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 상품 검증: 상품의 옵션이 삭제된 경우 [DELETED_ORDER_PRODUCT_OPTION]")
+        void checkoutCartDeletedOrderProductOption_failed() {
+            // given
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO = PaymentProductInfoDTO.builder()
+                    .productId(1L)
+                    .productOptionId(3L)
+                    .quantity(1L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(new ArrayList<>())
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(OrderErrorType.DELETED_ORDER_PRODUCT_OPTION);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 상품 검증: 판매 중지된 상품의 경우 [SALE_STOP_ORDER_PRODUCT]")
+        void checkoutCartDeletedOrderProduct_failed() {
+            // given
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO = PaymentProductInfoDTO.builder()
+                    .productId(4L)
+                    .productOptionId(12L)
+                    .quantity(1L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(new ArrayList<>())
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(OrderErrorType.SALE_STOP_ORDER_PRODUCT);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 쿠폰: 만료된 쿠폰인 경우 [INVALID_ACCESS_USER_COUPON]")
+        void checkoutCartExpiredAppliedCoupon_failed() {
+            // given
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+            shoppingBasketIdList.add(2L);
+            shoppingBasketIdList.add(3L);
+            List<Long> appliedCouponForProductIds1 = new ArrayList<>();
+            appliedCouponForProductIds1.add(10L);
+            PaymentProductInfoDTO paymentProductInfoDTO1 = PaymentProductInfoDTO.builder()
+                    .productId(1L)
+                    .productOptionId(1L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .build();
+
+            List<Long> appliedCouponForProductIds2 = new ArrayList<>();
+            appliedCouponForProductIds1.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO2 = PaymentProductInfoDTO.builder()
+                    .productId(2L)
+                    .productOptionId(4L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .build();
+
+            List<Long> appliedCouponForProductIds3 = new ArrayList<>();
+            appliedCouponForProductIds1.add(7L);
+            PaymentProductInfoDTO paymentProductInfoDTO3 = PaymentProductInfoDTO.builder()
+                    .productId(3L)
+                    .productOptionId(7L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO1);
+            paymentProductInfos.add(paymentProductInfoDTO2);
+            paymentProductInfos.add(paymentProductInfoDTO3);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_ACCESS_USER_COUPON);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 쿠폰: 브랜드명이 일치하지 않는 경우 [INVALID_APPLIED_USER_COUPON]")
+        void checkoutCartMismatchBrandNameCoupon_failed() {
+            // given
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+            shoppingBasketIdList.add(2L);
+            shoppingBasketIdList.add(3L);
+            List<Long> appliedCouponForProductIds1 = new ArrayList<>();
+            appliedCouponForProductIds1.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO1 = PaymentProductInfoDTO.builder()
+                    .productId(1L)
+                    .productOptionId(1L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .build();
+
+            List<Long> appliedCouponForProductIds2 = new ArrayList<>();
+            appliedCouponForProductIds1.add(3L);
+            PaymentProductInfoDTO paymentProductInfoDTO2 = PaymentProductInfoDTO.builder()
+                    .productId(2L)
+                    .productOptionId(4L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .build();
+
+            List<Long> appliedCouponForProductIds3 = new ArrayList<>();
+            appliedCouponForProductIds1.add(7L);
+            PaymentProductInfoDTO paymentProductInfoDTO3 = PaymentProductInfoDTO.builder()
+                    .productId(3L)
+                    .productOptionId(7L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO1);
+            paymentProductInfos.add(paymentProductInfoDTO2);
+            paymentProductInfos.add(paymentProductInfoDTO3);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 쿠폰: 지급 실패한 쿠폰인 경우 [INVALID_ACCESS_USER_COUPON]")
+        void checkoutCartFailedIssueCoupon_failed() {
+            // given
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+            shoppingBasketIdList.add(2L);
+            shoppingBasketIdList.add(3L);
+            List<Long> appliedCouponForProductIds1 = new ArrayList<>();
+            appliedCouponForProductIds1.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO1 = PaymentProductInfoDTO.builder()
+                    .productId(1L)
+                    .productOptionId(1L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .build();
+
+            List<Long> appliedCouponForProductIds2 = new ArrayList<>();
+            appliedCouponForProductIds1.add(2L);
+            PaymentProductInfoDTO paymentProductInfoDTO2 = PaymentProductInfoDTO.builder()
+                    .productId(2L)
+                    .productOptionId(4L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .build();
+
+            List<Long> appliedCouponForProductIds3 = new ArrayList<>();
+            appliedCouponForProductIds1.add(7L);
+            PaymentProductInfoDTO paymentProductInfoDTO3 = PaymentProductInfoDTO.builder()
+                    .productId(3L)
+                    .productOptionId(7L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO1);
+            paymentProductInfos.add(paymentProductInfoDTO2);
+            paymentProductInfos.add(paymentProductInfoDTO3);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+            appliedCommonUserCouponIds.add(11L);
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10000L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_ACCESS_USER_COUPON);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 쿠폰: 중복된 쿠폰 id를 적용했을 경우 []")
+        void checkoutCartDuplicatedAppliedCoupon_failed() {
+            // given
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+            shoppingBasketIdList.add(2L);
+            shoppingBasketIdList.add(3L);
+            List<Long> appliedCouponForProductIds1 = new ArrayList<>();
+            appliedCouponForProductIds1.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO1 = PaymentProductInfoDTO.builder()
+                    .productId(1L)
+                    .productOptionId(1L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .build();
+
+            List<Long> appliedCouponForProductIds2 = new ArrayList<>();
+            appliedCouponForProductIds1.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO2 = PaymentProductInfoDTO.builder()
+                    .productId(2L)
+                    .productOptionId(4L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .build();
+
+            List<Long> appliedCouponForProductIds3 = new ArrayList<>();
+            appliedCouponForProductIds1.add(7L);
+            PaymentProductInfoDTO paymentProductInfoDTO3 = PaymentProductInfoDTO.builder()
+                    .productId(3L)
+                    .productOptionId(7L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO1);
+            paymentProductInfos.add(paymentProductInfoDTO2);
+            paymentProductInfos.add(paymentProductInfoDTO3);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            List<Long> appliedCommonUserCouponIds = new ArrayList<>();
+            appliedCommonUserCouponIds.add(11L);
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10000L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.DUPLICATE_USE_USER_COUPON);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 포인트: 쿠폰 할인 금액이 총 상품 금액을 넘어섰을 경우 포인트를 적용할 수 없다. []")
+        void checkoutCartCantAppliedPointWhenOverDiscountedCouponAmount_failed() {
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+
+            // 상품 할인가: 8000원 (에코 상품)
+            // 10000원 상품에 50% 할인 적용 + 5000원 할인 => 10000원 할인 적용
+            List<Long> appliedCouponForProductIds1 = new ArrayList<>();
+            appliedCouponForProductIds1.add(1L);
+            appliedCouponForProductIds1.add(2L);
+            appliedCouponForProductIds1.add(4L);
+            appliedCouponForProductIds1.add(6L);
+            appliedCouponForProductIds1.add(7L);
+            PaymentProductInfoDTO paymentProductInfoDTO1 = PaymentProductInfoDTO.builder()
+                    .productId(2L)
+                    .productOptionId(4L)
+                    .quantity(1L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO1);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 10L, PaymentMethod.CARD, false, null, 0L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.INVALID_USE_POINT);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 포인트: 포인트 잔액이 부족한 경우 [NOT_ENOUGH_POINT_AMOUNT]")
+        void checkoutCartNotEnghouPointAmount_failed() {
+            Long userId = 1L;
+            List<Long> shoppingBasketIdList = new ArrayList<>();
+            shoppingBasketIdList.add(1L);
+
+            PaymentProductInfoDTO paymentProductInfoDTO1 = PaymentProductInfoDTO.builder()
+                    .productId(2L)
+                    .productOptionId(4L)
+                    .quantity(1L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(new ArrayList<>())
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO1);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 15000L, PaymentMethod.CARD, false, null, 0L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
+        }
+
+        @Test
+        @DisplayName("[예외 케이스] - 금액: 클라이언트 서버에서 계산된 최종 금액과 현재 서버에서 계산한 최종 금액이 일치하지 않는 경우 []")
+        void checkoutCartMismatchTotalAmount_failed() {
+            // given
+            Long userId = 1L;
+            List<Long> shppingBasketIdList = new ArrayList<>();
+            shppingBasketIdList.add(1L);
+            PaymentProductInfoDTO paymentProductInfoDTO = PaymentProductInfoDTO.builder()
+                    .productId(1L)
+                    .productOptionId(1L)
+                    .quantity(1L)
+                    .sellerId(1L)
+                    .appliedCouponForProductIds(new ArrayList<>())
+                    .build();
+
+            List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
+            paymentProductInfos.add(paymentProductInfoDTO);
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 5000L);
+
+            // when
+            CustomException exception = assertThrows(CustomException.class, () ->
+                    checkoutService.checkoutCart(userId, checkoutCartDTO));
+
+            // then
+            assertThat(exception.getErrorType()).isEqualTo(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
         }
     }
 

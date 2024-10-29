@@ -258,10 +258,16 @@ public class CheckoutService {
 
         // 1. 중복 쿠폰 사용 체크
         List<Long> allCouponIds = new ArrayList<>();
-        allCouponIds.addAll(checkoutCartDTO.getAppliedCommonUserCouponIds());
+        if (checkoutCartDTO.getAppliedCommonUserCouponIds() != null) {
+            allCouponIds.addAll(checkoutCartDTO.getAppliedCommonUserCouponIds());
+        }
         allCouponIds.addAll(
                 checkoutCartDTO.getPaymentProductInfos().stream()
-                        .flatMap(paymentProductInfoDTO -> paymentProductInfoDTO.getAppliedCouponForProductIds().stream())
+                        .flatMap(paymentProductInfoDTO ->
+                                Optional.ofNullable(paymentProductInfoDTO.getAppliedCouponForProductIds())
+                                        .orElse(Collections.emptyList())  // Use empty list if null
+                                        .stream()
+                        )
                         .toList()
         );
 

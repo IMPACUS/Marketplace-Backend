@@ -203,7 +203,7 @@ public class PaymentTestDataInitializer {
         ProductOption productOption10 = testProductDTO2.getProductOptions().get(0).toEntity(savedProduct4.getId());
         ProductOption productOption11 = testProductDTO2.getProductOptions().get(1).toEntity(savedProduct4.getId());
         ProductOption productOption12 = ProductOption.builder()
-                .productId(savedProduct2.getId())
+                .productId(savedProduct4.getId())
                 .color(testProductDTO2.getProductOptions().get(0).getColor())
                 .size(testProductDTO2.getProductOptions().get(0).getSize())
                 .stock(testProductDTO2.getProductOptions().get(0).getStock())
