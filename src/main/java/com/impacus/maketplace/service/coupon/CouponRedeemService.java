@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
 import com.impacus.maketplace.entity.coupon.PaymentEventCoupon;
 import com.impacus.maketplace.entity.coupon.PaymentOrderCoupon;
@@ -128,7 +129,9 @@ public class CouponRedeemService {
         // 2. 쿠폰 하나씩 검증
         coupons.forEach(coupon -> {
             if (!couponValidationService.validateCouponForProduct(coupon, productType, marketName, appSalesPrice, quantity)) {
-                throw new CustomException(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+                CustomException exception = new CustomException(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+                LogUtils.error(this.getClass().toString(), String.format("쿠폰 검증 실패 coupon: %s", coupon.toString()), exception);
+                throw exception;
             }
         });
 

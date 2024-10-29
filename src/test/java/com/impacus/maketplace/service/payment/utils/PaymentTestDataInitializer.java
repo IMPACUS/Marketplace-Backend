@@ -252,7 +252,7 @@ public class PaymentTestDataInitializer {
         Coupon coupon2 = createCoupon("tset2", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.BRAND, "테스트마켓", StandardType.UNLIMITED, null);
         // 9.3. 쿠폰 3: 10% 할인 쿠폰, 제약 조건 -> 브랜드(틀린이름)
         Coupon coupon3 = createCoupon("test3", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.BRAND, "틀린마켓이름", StandardType.UNLIMITED, null);
-        // 9.4. 쿠폰 4: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 사용 기준 금액: 10000원
+        // 9.4. 쿠폰 4: 20% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 사용 기준 금액: 10000원
         Coupon coupon4 = createCoupon("test4", BenefitType.PERCENTAGE, 20L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
         // 9.5. 쿠폰 5: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 일반 상품, 사용 기준 금액: 10000원
         Coupon coupon5 = createCoupon("test5", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.BASIC, CoverageType.BRAND, "테스트마켓", StandardType.LIMIT, 10000L);
@@ -260,8 +260,8 @@ public class PaymentTestDataInitializer {
         Coupon coupon6 = createCoupon("test6", BenefitType.PERCENTAGE, 10L, com.impacus.maketplace.common.enumType.coupon.ProductType.ECO_GREEN, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
         // 9.7. 쿠폰 7: 5000원 할인 쿠폰, 제약 조건 없음
         Coupon coupon7 = createCoupon("test7", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
-        // 9.8. 쿠폰 8: 10000원 할인 쿠폰, 제약 조건 -> 사용 가능 기준 금액 20000원
-        Coupon coupon8 = createCoupon("test8", BenefitType.AMOUNT, 10000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 20000L);
+        // 9.8. 쿠폰 8: 10000원 할인 쿠폰, 제약 조건 -> 사용 가능 기준 금액 15000원
+        Coupon coupon8 = createCoupon("test8", BenefitType.AMOUNT, 10000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 15000L);
         // 9.9. 쿠폰 9: 이미 사용한 쿠폰으로 처리 (제약 조건 X)
         Coupon coupon9 = createCoupon("test9", BenefitType.AMOUNT, 5000L, com.impacus.maketplace.common.enumType.coupon.ProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
         // 9.10. 쿠폰 10: 만료된 쿠폰으로 처리 (제약 조건 X)

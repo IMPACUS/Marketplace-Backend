@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.OrderUtils;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.PaymentConfig;
 import com.impacus.maketplace.dto.payment.CheckoutCartProductInfoDTO;
 import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
@@ -288,10 +289,16 @@ public class CheckoutService {
         );
 
         // 5. validateDiscount
-        Long greenLabelPoint = greenLabelPointAllocationService.getGreenLabelPointAmount(userId);
-        if (greenLabelPoint < checkoutCartDTO.getPointAmount()) {
-            throw new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
+        Long greenLabelPoint = 0L;
+        if (checkoutCartDTO.getPointAmount() >= 0L) {
+            greenLabelPoint = greenLabelPointAllocationService.getGreenLabelPointAmount(userId);
+            if (greenLabelPoint < checkoutCartDTO.getPointAmount()) {
+                CustomException exception = new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
+                LogUtils.error(String.format("%s %s", this.getClass(), "checkoutCart()"), String.format("validateDiscount 실패 -> 현재 남은 포인트: %d, 사용할 포인트: %d", greenLabelPoint, checkoutCartDTO.getPointAmount()), exception);
+                throw exception;
+            }
         }
+
 
         Map<Long, List<PaymentCouponDTO>> productCoupons = checkoutCartProductList.stream()
                 .collect(Collectors.toMap(
@@ -332,7 +339,9 @@ public class CheckoutService {
 
         // 6. 최종 결제 금액 비교
         if (!totalDiscountedAmount.equals(checkoutCartDTO.getCalculatedTotalAmount())) {
-            throw new CustomException(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
+            CustomException exception = new CustomException(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
+            LogUtils.error(String.format("%s %s", this.getClass(), "checkoutCart()"), String.format("서버간의 최종 결제 금액 비교 불일치 -> 클라이언트 서버: %d, 현재 서버: %d", checkoutCartDTO.getCalculatedTotalAmount(), totalDiscountedAmount), exception);
+            throw exception;
         }
 
         // 7. order_id 및 payment_id 생성
