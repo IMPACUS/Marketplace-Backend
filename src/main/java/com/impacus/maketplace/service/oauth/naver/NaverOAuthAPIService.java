@@ -1,15 +1,14 @@
 package com.impacus.maketplace.service.oauth.naver;
 
 
+import com.impacus.maketplace.common.constants.api.NaverAPIConstants;
+import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
+import com.impacus.maketplace.service.oauth.OAuthAPIServiceFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.impacus.maketplace.common.constants.api.NaverAPIConstants;
-import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
-import com.impacus.maketplace.service.oauth.OAuthAPIServiceFallback;
-
-@FeignClient(name = "kakaoOAuthAPIClient",
+@FeignClient(name = "naverOAuthAPIClient",
         url = NaverAPIConstants.COMMON_URL,
         fallback = OAuthAPIServiceFallback.class
 )

@@ -1,17 +1,15 @@
 package com.impacus.maketplace.service.oauth.naver;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
 import com.impacus.maketplace.dto.oauth.request.OauthDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.service.oauth.OAuthService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -31,6 +29,7 @@ public class NaverOAuthService implements OAuthService {
      * @param dto
      */
     @Override
+    @Transactional
     public OauthLoginDTO login(OauthDTO dto) {
         if (dto.getState() == null) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "Naver 로그인인 경우, state가 null일 수 없습니다.");
