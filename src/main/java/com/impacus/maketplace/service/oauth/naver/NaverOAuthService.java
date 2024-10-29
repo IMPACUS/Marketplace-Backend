@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.oauth.naver;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
+import com.impacus.maketplace.dto.oauth.naver.userProfile.NaverUserProfileResponse;
 import com.impacus.maketplace.dto.oauth.request.OauthDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.service.oauth.OAuthService;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NaverOAuthService implements OAuthService {
     private final NaverOAuthAPIService naverOAuthAPIService;
+    private final NaverCommonAPIService naverCommonAPIService;
 
     @Value("${spring.security.oauth2.client.registration.naver.client-id}")
     private String clientId;
@@ -42,6 +44,11 @@ public class NaverOAuthService implements OAuthService {
                         clientSecret,
                         dto.getCode(),
                         dto.getState()
+        );
+
+        // 2. 사용자 정보 요청
+        NaverUserProfileResponse userResponse = naverCommonAPIService.getUserProfile(
+                String.format("Bearer %s", tokenResponse.getAccessToken())
         );
 
         return null;

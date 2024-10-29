@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "naverOAuthAPIClient",
-        url = NaverAPIConstants.COMMON_URL,
+        url = NaverAPIConstants.AUTH_URL,
         fallback = OAuthAPIServiceFallback.class
 )
 public interface NaverOAuthAPIService {
