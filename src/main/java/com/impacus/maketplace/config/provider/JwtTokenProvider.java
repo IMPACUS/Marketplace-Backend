@@ -1,12 +1,15 @@
 package com.impacus.maketplace.config.provider;
 
 
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
-import java.util.stream.Collectors;
-
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.TokenErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.vo.auth.TokenInfoVO;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -15,22 +18,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
-import com.impacus.maketplace.common.enumType.error.TokenErrorType;
-import com.impacus.maketplace.common.enumType.user.UserType;
-import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.vo.auth.TokenInfoVO;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SignatureException;
-import lombok.extern.slf4j.Slf4j;
 import security.CustomUserDetails;
+
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Date;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -63,13 +57,15 @@ public class JwtTokenProvider implements InitializingBean {
      * @return access token 과 refresh token이 담긴 jwt 토큰 객체
      */
     public TokenInfoVO createToken(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
         // 1. 권한 가져오기
-        String authorities = authentication.getAuthorities().stream()
+        String authorities = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         // 2. userID 가져오기
-        Long userId = ((CustomUserDetails) authentication.getPrincipal()).getId();
+        Long userId = userDetails.getId();
 
         // 3. Access token 생성
         long now = (new Date()).getTime();

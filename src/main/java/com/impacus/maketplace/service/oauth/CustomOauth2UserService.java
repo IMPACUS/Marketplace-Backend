@@ -7,6 +7,7 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationException;
 import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
@@ -150,7 +151,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private void validateOauthProvider(User user, OauthProviderType oauthProviderType) throws CustomOAuth2AuthenticationException {
         if (!user.getEmail().contains(oauthProviderType.name())) {
-            throw new CustomOAuth2AuthenticationException("SERVER_ERROR", CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+            throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
         }
     }
 
