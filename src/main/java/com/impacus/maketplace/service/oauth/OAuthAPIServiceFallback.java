@@ -4,11 +4,13 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
 import com.impacus.maketplace.dto.oauth.google.GoogleTokenResponse;
+import com.impacus.maketplace.dto.oauth.google.GoogleUserInfoResponse;
 import com.impacus.maketplace.dto.oauth.kakao.KakaoTokenResponse;
 import com.impacus.maketplace.dto.oauth.kakao.userProfile.KakaoUserProfileResponse;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
 import com.impacus.maketplace.dto.oauth.naver.userProfile.NaverUserResponse;
 import com.impacus.maketplace.service.oauth.apple.AppleOAuthAPIService;
+import com.impacus.maketplace.service.oauth.google.GoogleCommonAPIService;
 import com.impacus.maketplace.service.oauth.google.GoogleOAuthAPIService;
 import com.impacus.maketplace.service.oauth.kakao.KakaoCommonAPIService;
 import com.impacus.maketplace.service.oauth.kakao.KakaoOAuthAPIService;
@@ -21,7 +23,8 @@ public class OAuthAPIServiceFallback implements
         NaverOAuthAPIService,
         NaverCommonAPIService,
         AppleOAuthAPIService,
-        GoogleOAuthAPIService {
+        GoogleOAuthAPIService,
+        GoogleCommonAPIService {
 
     @Override
     public KakaoTokenResponse getTokenInfo(
@@ -57,5 +60,10 @@ public class OAuthAPIServiceFallback implements
     @Override
     public GoogleTokenResponse getGoogleToken(String clientId, String clientSecret, String code, String grantType, String redirectUri) {
         throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public GoogleUserInfoResponse getUserInfo(String authorization) {
+        return null;
     }
 }

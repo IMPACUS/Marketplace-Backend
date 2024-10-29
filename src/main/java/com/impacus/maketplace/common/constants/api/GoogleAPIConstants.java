@@ -6,5 +6,5 @@ public class GoogleAPIConstants {
 
     public static final String TOKEN = "/token";
 
-    public static final String FIND_USER_INFO = "/userinfo/v2/me";
+    public static final String USER_INFO = "/userinfo/v2/me";
 }
