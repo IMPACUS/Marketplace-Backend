@@ -1,11 +1,19 @@
 package com.impacus.maketplace.service.oauth.google;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.config.attribute.OAuthAttributes;
+import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.google.GoogleTokenResponse;
+import com.impacus.maketplace.dto.oauth.google.GoogleUserInfoResponse;
 import com.impacus.maketplace.dto.oauth.request.OauthDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
+import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
 import com.impacus.maketplace.service.oauth.OAuthService;
+import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class GoogleOAuthService implements OAuthService {
     private final GoogleOAuthAPIService googleOAuthAPIService;
+    private final GoogleCommonAPIService googleCommonAPIService;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final JwtTokenProvider tokenProvider;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
@@ -41,7 +52,26 @@ public class GoogleOAuthService implements OAuthService {
                 redirectUri
         );
 
-        return null;
+        // 2. 사용자 정보 요청
+        GoogleUserInfoResponse userInfoResponse = googleCommonAPIService.getUserInfo(
+                String.format("Bearer %s", tokenResponse.getAccessToken())
+        );
+
+        // 3. 회원 가입 및 로그인
+        OAuthAttributes attribute = OAuthAttributes.builder()
+                .name(userInfoResponse.getName())
+                .email(userInfoResponse.getEmail())
+                .oAuthProvider(dto.getOauthProviderType())
+                .build();
+        User user = customOauth2UserService.saveOrUpdate(attribute);
+        Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
+        TokenInfoVO token = tokenProvider.createToken(auth);
+
+        return OauthLoginDTO.of(
+                user,
+                false,
+                token
+        );
     }
 
     /**
