@@ -1,6 +1,7 @@
 package com.impacus.maketplace.controller.seller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.service.seller.UpdateSellerService;
 import jakarta.validation.Valid;
@@ -12,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 @RequestMapping("/api/v1/seller")
 public class UpdateSellerController {
     private final UpdateSellerService updateSellerService;
@@ -187,6 +188,8 @@ public class UpdateSellerController {
             @Valid @RequestPart UpdateSellerInfoFromAdminDTO seller,
             @RequestPart(required = false) MultipartFile profileImage
     ) {
+        LogUtils.writeInfoLog("updateSellerInformation", "Check multipartFile is null: " +
+                profileImage == null ? "null" : profileImage.getOriginalFilename());
         updateSellerService.updateSellerInformation(sellerId, seller, profileImage);
         return ApiResponseEntity
                 .<Void>builder()
