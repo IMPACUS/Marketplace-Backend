@@ -1,6 +1,7 @@
 package com.impacus.maketplace.controller.seller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.service.seller.UpdateSellerService;
 import jakarta.validation.Valid;
@@ -187,6 +188,8 @@ public class UpdateSellerController {
             @Valid @RequestPart UpdateSellerInfoFromAdminDTO seller,
             @RequestPart(required = false) MultipartFile profileImage
     ) {
+        LogUtils.writeInfoLog("updateSellerInformation", "Check multipartFile is null: " +
+                profileImage == null ? "null" : "not null");
         updateSellerService.updateSellerInformation(sellerId, seller, profileImage);
         return ApiResponseEntity
                 .<Void>builder()
