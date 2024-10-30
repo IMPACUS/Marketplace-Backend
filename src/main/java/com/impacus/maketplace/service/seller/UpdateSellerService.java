@@ -157,6 +157,7 @@ public class UpdateSellerService {
             boolean isExistedBrand = brandRepository.existsBySellerId(sellerId);
 
             // 2. 스토어 정보 변경
+            dto.roundOpeningTime(); // 영업 시간 반올림
             sellerRepository.updateBrandInformationByUserId(userId, sellerId, dto, isExistedBrand);
 
             // 3. 브랜드 정보가 존재하지 않은 경우 생성
