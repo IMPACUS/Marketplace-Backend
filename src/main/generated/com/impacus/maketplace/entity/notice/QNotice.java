@@ -10,14 +10,14 @@ import com.querydsl.core.types.Path;
 
 
 /**
- * QNoticeManage is a Querydsl query type for NoticeManage
+ * QNotice is a Querydsl query type for Notice
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QNoticeManage extends EntityPathBase<NoticeManage> {
+public class QNotice extends EntityPathBase<Notice> {
 
-    private static final long serialVersionUID = 1143635654L;
+    private static final long serialVersionUID = 719862273L;
 
-    public static final QNoticeManage noticeManage = new QNoticeManage("noticeManage");
+    public static final QNotice notice = new QNotice("notice");
 
     public final com.impacus.maketplace.common.QBaseEntity _super = new com.impacus.maketplace.common.QBaseEntity(this);
 
@@ -51,16 +51,16 @@ public class QNoticeManage extends EntityPathBase<NoticeManage> {
 
     public final EnumPath<com.impacus.maketplace.common.enumType.notice.NoticeType> type = createEnum("type", com.impacus.maketplace.common.enumType.notice.NoticeType.class);
 
-    public QNoticeManage(String variable) {
-        super(NoticeManage.class, forVariable(variable));
+    public QNotice(String variable) {
+        super(Notice.class, forVariable(variable));
     }
 
-    public QNoticeManage(Path<? extends NoticeManage> path) {
+    public QNotice(Path<? extends Notice> path) {
         super(path.getType(), path.getMetadata());
     }
 
-    public QNoticeManage(PathMetadata metadata) {
-        super(NoticeManage.class, metadata);
+    public QNotice(PathMetadata metadata) {
+        super(Notice.class, metadata);
     }
 
 }

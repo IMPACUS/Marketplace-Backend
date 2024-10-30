@@ -7,10 +7,10 @@
     <changeSet id="changelog-da-0.01-241028" author="sda0523">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="notice_manage"/>
+                <tableExists tableName="notice"/>
             </not>
         </preConditions>
-        <createTable tableName="notice_manage">
+        <createTable tableName="notice">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
