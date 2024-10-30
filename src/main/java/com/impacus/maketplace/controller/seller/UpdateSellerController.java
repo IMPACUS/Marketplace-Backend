@@ -189,7 +189,7 @@ public class UpdateSellerController {
             @RequestPart(required = false) MultipartFile profileImage
     ) {
         LogUtils.writeInfoLog("updateSellerInformation", "Check multipartFile is null: " +
-                profileImage == null ? "null" : profileImage.getOriginalFilename());
+                profileImage == null ? "null" : "not null");
         updateSellerService.updateSellerInformation(sellerId, seller, profileImage);
         return ApiResponseEntity
                 .<Void>builder()
