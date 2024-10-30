@@ -449,10 +449,13 @@ public class UpdateSellerService {
             Seller seller = readSellerService.findSellerBySellerId(sellerId);
 
             // 1. 프로필 이미지 존재하는 경우, 프로필 이미지 저장
-            Long profileImageId = null;
-            if (profileImage != null) {
-                profileImageId = attachFileService.uploadFileAndAddAttachFile(profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY).getId();
+            if (profileImage == null) {
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "프로필 이미지(로고 이미지)는 null일 수 없습니다.");
             }
+
+            Long profileImageId = attachFileService.uploadFileAndAddAttachFile(
+                    profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY
+            ).getId();
 
             // 2. 판매자 정보 업데이트
             sellerRepository.updateSellerInformation(seller.getUserId(), sellerId, dto, profileImageId);
