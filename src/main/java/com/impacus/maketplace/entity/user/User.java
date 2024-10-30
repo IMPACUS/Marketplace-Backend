@@ -2,7 +2,9 @@ package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.TimestampConverter;
 import jakarta.persistence.*;
 import lombok.*;
@@ -51,7 +53,10 @@ public class User extends BaseEntity {
 
     @Convert(converter = AES256ToStringConverter.class)
     @Column(nullable = false)
-    private String phoneNumber;
+    private String phoneNumberPrefix;
+
+    @Column(nullable = false)
+    private String phoneNumberSuffix;
 
     private Long profileImageId; // 프로필 이미지 아이디
 
@@ -87,13 +92,13 @@ public class User extends BaseEntity {
         this.email = email;
         this.password = password;
         this.type = UserType.ROLE_CERTIFIED_USER;
-        this.phoneNumber = "010-0000-0000";
-
         this.isCertEmail = false;
         this.isCertPhone = false;
         this.certEmailAt = LocalDateTime.now();
         this.certPhoneAt = LocalDateTime.now();
         this.isDeleted = false;
+
+        setPhoneNumber("010-0000-0000");
     }
 
     public User(String email,
@@ -104,14 +109,27 @@ public class User extends BaseEntity {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.phoneNumber = phoneNumber;
         this.type = userType;
-
         this.isCertEmail = true;
         this.isCertPhone = true;
         this.certEmailAt = LocalDateTime.now();
         this.certPhoneAt = LocalDateTime.now();
         this.isDeleted = false;
+
+        setPhoneNumber(phoneNumber);
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumberPrefix + "-" + phoneNumberSuffix;
+    }
+
+    private void setPhoneNumber(String phoneNumber) {
+        if (phoneNumber != null && phoneNumber.length() >= 4) {
+            this.phoneNumberPrefix = phoneNumber.substring(0, phoneNumber.length() - 4);
+            this.phoneNumberSuffix = phoneNumber.substring(phoneNumber.length() - 4);
+        } else {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "\"유효한 전화번호를 입력해주세요.\"");
+        }
     }
 
     public void setRecentLoginAt() {
