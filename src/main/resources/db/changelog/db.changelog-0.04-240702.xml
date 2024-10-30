@@ -12,7 +12,7 @@
     </changeSet>
 
     <!-- seller_info 생성 -->
-    <changeSet id="changelog-0.04.01-240525-1" author="lchy0413">
+    <changeSet id="changelog-lchy0.04.01-240525" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="seller"/>
@@ -34,9 +34,7 @@
             <column name="market_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="logo_image_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+            <column name="logo_image_id" type="BIGINT"/>
             <column name="customer_service_number" type="VARCHAR(255)">
             </column>
             <column name="business_type" type="VARCHAR(255)">
