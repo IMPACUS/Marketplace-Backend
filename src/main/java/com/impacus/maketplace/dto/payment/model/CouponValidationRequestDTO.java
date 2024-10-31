@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.payment.model;
 
 import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.dto.payment.request.PaymentProductInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,6 +42,14 @@ public class CouponValidationRequestDTO {
         }
     }
 
+    public CouponValidationRequestDTO createCouponValidationRequestForCheckoutSingle(Long productId, List<Long> appliedCouponIds, int productPrice, Long quantity, ProductType productType, String marketName, List<Long> orderCouponIds) {
+        Long orderTotalPrice = productPrice * quantity;
+        return new CouponValidationRequestDTO(
+                Collections.singletonList(new ProductCouponValidationData(productId, appliedCouponIds, productPrice, quantity, productType, marketName)),
+                orderCouponIds,
+                orderTotalPrice);
+    }
+
     public static CouponValidationRequestDTO createEmptyValidatedCouponDTO(Long orderTotalPrice) {
         return new CouponValidationRequestDTO(Collections.emptyList(), Collections.emptyList(), orderTotalPrice);
     }
@@ -52,7 +61,7 @@ public class CouponValidationRequestDTO {
     public List<Long> getUserCouponIds() {
         List<Long> userCouponIds = new ArrayList<>();
         productInfosForCoupon.forEach(productCoupon -> userCouponIds.addAll(productCoupon.getAppliedCouponIds()));
-        userCouponIds.addAll(userCouponIds);
+        userCouponIds.addAll(this.orderCouponIds);
         return userCouponIds;
     }
 

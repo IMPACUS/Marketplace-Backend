@@ -9,10 +9,8 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.config.PaymentConfig;
-import com.impacus.maketplace.dto.payment.model.CheckoutCartProductInfoDTO;
-import com.impacus.maketplace.dto.payment.model.DiscountInfoDTO;
-import com.impacus.maketplace.dto.payment.model.PaymentCouponDTO;
-import com.impacus.maketplace.dto.payment.model.ProductPricingDTO;
+import com.impacus.maketplace.dto.coupon.model.ValidatedPaymentCouponInfosDTO;
+import com.impacus.maketplace.dto.payment.model.*;
 import com.impacus.maketplace.dto.payment.request.CheckoutCartDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutCustomerDTO;
@@ -115,11 +113,11 @@ public class CheckoutService {
     public PaymentSingleDTO checkoutSingle(Long userId, CheckoutSingleDTO checkoutSingleDTO) {
         // 1. 중복 쿠폰 사용 체크
         List<Long> allCouponIds = new ArrayList<>();
-        if (checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds() != null) {
-            allCouponIds.addAll(checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds());
+        if (checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds() != null) {
+            allCouponIds.addAll(checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds());
         }
-        if (checkoutSingleDTO.getAppliedCommonUserCouponIds() != null) {
-            allCouponIds.addAll(checkoutSingleDTO.getAppliedCommonUserCouponIds());
+        if (checkoutSingleDTO.getAppliedOrderCouponIds() != null) {
+            allCouponIds.addAll(checkoutSingleDTO.getAppliedOrderCouponIds());
         }
 
         validateDuplicatedCoupon(allCouponIds);
@@ -145,12 +143,27 @@ public class CheckoutService {
             throw new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
         }
 
-        List<PaymentCouponDTO> productCoupons = couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfo.getProductType(), checkoutProductInfo.getMarketName(), checkoutProductInfo.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
+
         Long totalPrice = checkoutProductInfo.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
-        List<PaymentCouponDTO> orderCoupons = couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice);
+
+        CouponValidationRequestDTO couponValidationRequestDTO = new CouponValidationRequestDTO(
+                Collections.singletonList(new CouponValidationRequestDTO.ProductCouponValidationData(checkoutProductInfo.getProductId(), checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds(), checkoutProductInfo.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), checkoutProductInfo.getProductType(), checkoutProductInfo.getMarketName())),
+                checkoutSingleDTO.getAppliedOrderCouponIds(),
+                totalPrice
+        );
+
+        // 1번의 쿼리로 모든 쿠폰 검증 방식
+        ValidatedPaymentCouponInfosDTO validatedPaymentCouponInfos = couponRedeemService.getValidatedPaymentCouponInfos(userId, couponValidationRequestDTO);
+        List<PaymentCouponDTO> productCoupons = validatedPaymentCouponInfos.getPaymentProductCoupon(checkoutProductInfo.getProductId());
+        List<PaymentCouponDTO> orderCoupons = validatedPaymentCouponInfos.getOrderCoupons();
+
+        // 사용한 쿠폰의 갯수만큼 쿼리를 보내는 방식
+//        couponRedeemService.getValidatedPaymentCouponInfos()
+//        List<PaymentCouponDTO> productCoupons = couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds(), checkoutProductInfo.getProductType(), checkoutProductInfo.getMarketName(), checkoutProductInfo.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity());
+//        List<PaymentCouponDTO> orderCoupons = couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedOrderCouponIds(), totalPrice);
 
         Long productCouponDiscount = discountService.calculateProductCouponDiscount(checkoutProductInfo.getProductId(), totalPrice, productCoupons);
-        Long orderCouponDiscount = discountService.calculateOrderCouponDiscount(checkoutProductInfo.getProductId(), totalPrice, orderCoupons);
+        Long orderCouponDiscount = discountService.calculateOrderCouponDiscount(checkoutProductInfo.getProductId(), totalPrice, validatedPaymentCouponInfos.getOrderCoupons());
         Long pointDiscount = discountService.calculatePointDiscount(checkoutProductInfo.getProductId(), totalPrice, checkoutSingleDTO.getPointAmount());
 
         ProductPricingDTO productPricing = ProductPricingDTO.builder()
@@ -263,7 +276,7 @@ public class CheckoutService {
         allCouponIds.addAll(
                 checkoutCartDTO.getPaymentProductInfos().stream()
                         .flatMap(paymentProductInfoDTO ->
-                                Optional.ofNullable(paymentProductInfoDTO.getAppliedCouponForProductIds())
+                                Optional.ofNullable(paymentProductInfoDTO.getAppliedProductCouponIds())
                                         .orElse(Collections.emptyList())  // Use empty list if null
                                         .stream()
                         )
@@ -281,7 +294,7 @@ public class CheckoutService {
                     return CheckoutCartProductInfoDTO.builder()
                             .checkoutProductInfoDTO(checkoutProductInfoDTO)
                             .quantity(paymentProductInfoDTO.getQuantity())
-                            .appliedCouponForProductIds(paymentProductInfoDTO.getAppliedCouponForProductIds())
+                            .appliedCouponForProductIds(paymentProductInfoDTO.getAppliedProductCouponIds())
                             .build();
                 }
         ).toList();

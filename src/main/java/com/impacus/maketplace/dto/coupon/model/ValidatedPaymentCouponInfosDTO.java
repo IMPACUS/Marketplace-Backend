@@ -19,11 +19,9 @@ public class ValidatedPaymentCouponInfosDTO {
         return new ValidatedPaymentCouponInfosDTO(Collections.emptyMap(), Collections.emptyList());
     }
 
-    public static ValidateProductCouponInfoDTO fromDto(UserCouponInfoForCheckoutDTO dto) {
-        return new ValidateProductCouponInfoDTO(dto.getProductType(), dto.getUseCoverageType(), dto.getUseCoverageSubCategoryName(), dto.getUseStandardType(), dto.getUseStandardValue());
-    }
+    public List<PaymentCouponDTO> getPaymentProductCoupon(Long productId) {
+        if (!productCoupons.containsKey(productId)) return Collections.emptyList();
 
-    public ValidateProductCouponInfoDTO fromDto(PaymentUserCouponInfo dto) {
-        return new ValidateProductCouponInfoDTO(dto.getProductType(), dto.getUseCoverageType(), dto.getUseCoverageSubCategoryName(), dto.getUseStandardType(), dto.getUseStandardValue());
+        return productCoupons.get(productId);
     }
 }

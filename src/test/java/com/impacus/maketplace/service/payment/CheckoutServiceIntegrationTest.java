@@ -14,19 +14,15 @@ import com.impacus.maketplace.dto.payment.response.PaymentCartDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
 import com.impacus.maketplace.service.payment.utils.PaymentTestDataInitializer;
-import org.assertj.core.api.Assertions;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -236,7 +232,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(null)
+                    .appliedProductCouponIds(null)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -262,7 +258,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(null)
+                    .appliedProductCouponIds(null)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -291,7 +287,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -324,7 +320,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -354,7 +350,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -386,7 +382,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -418,7 +414,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -445,7 +441,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(10L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(null)
+                    .appliedProductCouponIds(null)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -472,7 +468,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(3L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(null)
+                    .appliedProductCouponIds(null)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -499,7 +495,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(2L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(null)
+                    .appliedProductCouponIds(null)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -530,7 +526,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -560,7 +556,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -588,7 +584,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -616,7 +612,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -644,7 +640,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -672,7 +668,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -700,7 +696,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -728,7 +724,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(null)
+                    .appliedProductCouponIds(null)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -760,7 +756,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
                     .build();
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
@@ -817,7 +813,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -848,7 +844,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -881,21 +877,21 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
             PaymentProductInfoDTO paymentProductInfoDTO2 = PaymentProductInfoDTO.builder()
                     .productId(2L)
                     .productOptionId(4L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
             PaymentProductInfoDTO paymentProductInfoDTO3 = PaymentProductInfoDTO.builder()
                     .productId(3L)
                     .productOptionId(7L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -932,7 +928,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<Long> appliedCouponForProductIds2 = new ArrayList<>();
@@ -942,7 +938,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .appliedProductCouponIds(appliedCouponForProductIds2)
                     .build();
 
             List<Long> appliedCouponForProductIds3 = new ArrayList<>();
@@ -952,7 +948,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .appliedProductCouponIds(appliedCouponForProductIds3)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -990,7 +986,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<Long> appliedCouponForProductIds2 = new ArrayList<>();
@@ -1001,7 +997,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .appliedProductCouponIds(appliedCouponForProductIds2)
                     .build();
 
             List<Long> appliedCouponForProductIds3 = new ArrayList<>();
@@ -1011,7 +1007,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .appliedProductCouponIds(appliedCouponForProductIds3)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1056,7 +1052,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             PaymentProductInfoDTO paymentProductInfoDTO2 = PaymentProductInfoDTO.builder()
@@ -1064,7 +1060,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             PaymentProductInfoDTO paymentProductInfoDTO3 = PaymentProductInfoDTO.builder()
@@ -1072,7 +1068,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1112,7 +1108,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<Long> appliedCouponForProductIds2 = new ArrayList<>();
@@ -1123,7 +1119,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .appliedProductCouponIds(appliedCouponForProductIds2)
                     .build();
 
             List<Long> appliedCouponForProductIds3 = new ArrayList<>();
@@ -1133,7 +1129,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .appliedProductCouponIds(appliedCouponForProductIds3)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1185,7 +1181,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<Long> appliedCouponForProductIds2 = new ArrayList<>();
@@ -1195,7 +1191,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .appliedProductCouponIds(appliedCouponForProductIds2)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1225,7 +1221,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(2L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1255,7 +1251,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(3L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1285,7 +1281,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(12L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1319,7 +1315,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<Long> appliedCouponForProductIds2 = new ArrayList<>();
@@ -1329,7 +1325,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .appliedProductCouponIds(appliedCouponForProductIds2)
                     .build();
 
             List<Long> appliedCouponForProductIds3 = new ArrayList<>();
@@ -1339,7 +1335,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .appliedProductCouponIds(appliedCouponForProductIds3)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1375,7 +1371,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<Long> appliedCouponForProductIds2 = new ArrayList<>();
@@ -1385,7 +1381,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .appliedProductCouponIds(appliedCouponForProductIds2)
                     .build();
 
             List<Long> appliedCouponForProductIds3 = new ArrayList<>();
@@ -1395,7 +1391,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .appliedProductCouponIds(appliedCouponForProductIds3)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1431,7 +1427,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<Long> appliedCouponForProductIds2 = new ArrayList<>();
@@ -1441,7 +1437,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .appliedProductCouponIds(appliedCouponForProductIds2)
                     .build();
 
             List<Long> appliedCouponForProductIds3 = new ArrayList<>();
@@ -1451,7 +1447,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .appliedProductCouponIds(appliedCouponForProductIds3)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1490,7 +1486,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<Long> appliedCouponForProductIds2 = new ArrayList<>();
@@ -1500,7 +1496,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds2)
+                    .appliedProductCouponIds(appliedCouponForProductIds2)
                     .build();
 
             List<Long> appliedCouponForProductIds3 = new ArrayList<>();
@@ -1510,7 +1506,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(7L)
                     .quantity(3L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds3)
+                    .appliedProductCouponIds(appliedCouponForProductIds3)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1553,7 +1549,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIds1)
+                    .appliedProductCouponIds(appliedCouponForProductIds1)
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1583,7 +1579,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(4L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();
@@ -1613,7 +1609,7 @@ public class CheckoutServiceIntegrationTest {
                     .productOptionId(1L)
                     .quantity(1L)
                     .sellerId(1L)
-                    .appliedCouponForProductIds(new ArrayList<>())
+                    .appliedProductCouponIds(new ArrayList<>())
                     .build();
 
             List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();

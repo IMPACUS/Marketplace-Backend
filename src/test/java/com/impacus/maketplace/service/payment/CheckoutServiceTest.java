@@ -159,8 +159,8 @@ public class CheckoutServiceTest {
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
             when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
-            when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
-            when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
+            when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
+            when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedOrderCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
             when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(0L);
             when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(0L);
             when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);
@@ -422,8 +422,8 @@ public class CheckoutServiceTest {
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
             when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
-            when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
-            when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
+            when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
+            when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedOrderCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
             when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(0L);
             when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(1100L);
             when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);
@@ -493,8 +493,8 @@ public class CheckoutServiceTest {
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
             when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
-            when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
-            when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
+            when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
+            when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedOrderCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
             when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(1000L);
             when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(0L);
             when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);
@@ -570,8 +570,8 @@ public class CheckoutServiceTest {
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
             when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
-            when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedCouponForProductIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
-            when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedCommonUserCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
+            when(couponRedeemService.getPaymentCouponForProductAfterValidation(userId, checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds(), checkoutProductInfoDTO.getProductType(), checkoutProductInfoDTO.getMarketName(), checkoutProductInfoDTO.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity())).thenReturn(paymentCouponsForProduct);
+            when(couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutSingleDTO.getAppliedOrderCouponIds(), totalPrice)).thenReturn(paymentCouponsForOrder);
             when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(1000L);
             when(discountService.calculateProductCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForProduct)).thenReturn(0L);
             when(discountService.calculateOrderCouponDiscount(checkoutProductInfoDTO.getProductId(), totalPrice, paymentCouponsForOrder)).thenReturn(0L);
@@ -980,7 +980,7 @@ public class CheckoutServiceTest {
                     .productOptionId((long) i )
                     .quantity(quantityList.get(i))
                     .sellerId((long) i)
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(i))
+                    .appliedProductCouponIds(appliedCouponForProductIdsList.get(i))
                     .build();
 
             paymentProductInfos.add(paymentProductInfoDTO);
@@ -1071,7 +1071,7 @@ public class CheckoutServiceTest {
                 .productOptionId(1L)
                 .quantity(quantity)
                 .sellerId(1L)
-                .appliedCouponForProductIds(appliedCouponForProductIds)
+                .appliedProductCouponIds(appliedCouponForProductIds)
                 .build();
 
         AddressInfoDTO addressInfoDTO = AddressInfoDTO.builder()

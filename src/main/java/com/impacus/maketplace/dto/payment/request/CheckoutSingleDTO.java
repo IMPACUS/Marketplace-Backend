@@ -19,7 +19,7 @@ public class CheckoutSingleDTO {
     private PaymentProductInfoDTO paymentProductInfo;   // 결제 상품 정보
     @NotNull(message = "주소 정보는 필수 요청 데이터입니다.")
     private AddressInfoDTO addressInfoDTO;  // 결제시 입력한 주소지
-    private List<Long> appliedCommonUserCouponIds = new ArrayList<>();  // 전체 주문에 적용된 사용자 쿠폰 리스트
+    private List<Long> appliedOrderCouponIds = new ArrayList<>();  // 전체 주문에 적용된 사용자 쿠폰 리스트
     @NotNull(message = "포인트를 사용하지 않을 경우 포인트 금액의 기본 값을 0으로 설정해주세요.")
     @Min(value = 0L, message = "사용한 포인트는 음수가 될 수 없습니다.")
     private Long pointAmount = 0L;   // 사용한 포인트 금액
@@ -30,7 +30,7 @@ public class CheckoutSingleDTO {
     private Long calculatedTotalAmount;  // 프론트 서버에서 계산한 금액
 
     @JsonSetter(nulls = Nulls.AS_EMPTY)
-    public void setAppliedCommonUserCouponIds(List<Long> appliedCommonUserCouponIds) {
-        this.appliedCommonUserCouponIds = appliedCommonUserCouponIds != null ? appliedCommonUserCouponIds : new ArrayList<>();
+    public void setAppliedOrderCouponIds(List<Long> appliedOrderCouponIds) {
+        this.appliedOrderCouponIds = appliedOrderCouponIds != null ? appliedOrderCouponIds : new ArrayList<>();
     }
 }
