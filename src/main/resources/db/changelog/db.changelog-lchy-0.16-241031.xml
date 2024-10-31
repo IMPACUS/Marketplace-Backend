@@ -19,7 +19,7 @@
             </not>
         </preConditions>
         <addColumn tableName="user_info">
-            <column name="phone_number_prefix" type="VARCHAR(255)" defaultValue=""/>
+            <column name="phone_number_prefix" type="VARCHAR(255)" defaultValue="d36vIuoiIY3YCDxc5tjs+g=="/>
         </addColumn>
         <addColumn tableName="user_info">
             <column name="phone_number_suffix" type="VARCHAR(255)" defaultValue="0000"/>

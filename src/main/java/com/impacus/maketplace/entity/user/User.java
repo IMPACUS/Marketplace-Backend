@@ -2,10 +2,9 @@ package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
-import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.TimestampConverter;
+import com.impacus.maketplace.dto.user.PhoneNumberDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -124,12 +123,9 @@ public class User extends BaseEntity {
     }
 
     private void setPhoneNumber(String phoneNumber) {
-        if (phoneNumber != null && phoneNumber.length() >= 4) {
-            this.phoneNumberPrefix = phoneNumber.substring(0, phoneNumber.length() - 4);
-            this.phoneNumberSuffix = phoneNumber.substring(phoneNumber.length() - 4);
-        } else {
-            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "\"유효한 전화번호를 입력해주세요.\"");
-        }
+        PhoneNumberDTO dto = new PhoneNumberDTO(phoneNumber);
+        this.phoneNumberPrefix = dto.getPhoneNumberPrefix();
+        this.phoneNumberSuffix = dto.getPhoneNumberSuffix();
     }
 
     public void setRecentLoginAt() {
