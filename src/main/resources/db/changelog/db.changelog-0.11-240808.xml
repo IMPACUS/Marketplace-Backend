@@ -101,7 +101,7 @@
 <!--    </changeSet>-->
 
     <!-- user_info 생성 -->
-    <changeSet id="changelog-lchy0.11.04-240808" author="lchy0413">
+    <changeSet id="changelog-lchy0.11.04-240808-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_info"/>
@@ -129,9 +129,6 @@
             </column>
             <column name="jumin1" type="VARCHAR(255)"/>
             <column name="jumin2" type="VARCHAR(255)"/>
-            <column name="phone_number" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="profile_image_id" type="BIGINT"/>
             <column name="recent_login_at" type="TIMESTAMP"/>
             <column name="is_cert_email" type="BOOLEAN" defaultValueBoolean="true"/>
