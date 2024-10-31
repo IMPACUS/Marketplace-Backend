@@ -2,6 +2,8 @@ package com.impacus.maketplace.dto.user.response;
 
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.common.utils.StringUtils;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +24,31 @@ public class WebUserDetailDTO {
     private long greenLabelPoint; // 가용 포인트
     private UserStatus userStatus;       // 소비자 상태
 
-    public void updateLoginInfo() {
+    @QueryProjection
+    public WebUserDetailDTO(
+            Long userId,
+            String profileImageUr,
+            String email,
+            String password,
+            String name,
+            String phoneNumberPrefix,
+            String phoneNumberSuffix,
+            LocalDateTime registerAt,
+            UserLevel userLevel,
+            long levelPoint,
+            long greenLabelPoint,
+            UserStatus userStatus
+    ) {
+        this.userId = userId;
+        this.profileImageUrl = profileImageUr;
         this.email = email.split("_")[1];
+        this.password = password;
+        this.name = name;
+        this.phoneNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
+        this.registerAt = registerAt;
+        this.userLevel = userLevel;
+        this.levelPoint = levelPoint;
+        this.greenLabelPoint = greenLabelPoint;
+        this.userStatus = userStatus;
     }
 }

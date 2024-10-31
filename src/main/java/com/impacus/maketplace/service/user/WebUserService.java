@@ -101,8 +101,6 @@ public class WebUserService {
             if (dto == null) {
                 throw new CustomException(UserErrorType.NOT_EXISTED_USER);
             }
-
-            dto.updateLoginInfo();
             return dto;
         } catch (Exception ex) {
             throw new CustomException(ex);
