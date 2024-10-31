@@ -656,7 +656,7 @@ public class CheckoutServiceIntegrationTest {
         }
 
         @Test
-        @DisplayName("[예외 케이스] - 쿠폰: 에코 상품 타입 체크가 올바르지 않은 경우 [INVALID_APPLIED_USER_COUPON]")
+        @DisplayName("[예외 케이스] - 쿠폰: 에코 상품 타입 체크가 올바르지 않은 경우 [INVALID_USER_COUPON_TYPE_MISMATCH]")
         void checkoutSingleProductTypeMismatchCouponType_failed() {
             // given
             Long userId = 1L;
@@ -680,11 +680,11 @@ public class CheckoutServiceIntegrationTest {
                     checkoutService.checkoutSingle(userId, checkoutSingleDTO));
 
             // then
-            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_USER_COUPON_TYPE_MISMATCH);
         }
 
         @Test
-        @DisplayName("[예외 케이스] - 쿠폰: 브랜드 이름이 일치하지 않는 경우 [INVALID_APPLIED_USER_COUPON]")
+        @DisplayName("[예외 케이스] - 쿠폰: 브랜드 이름이 일치하지 않는 경우 [INVALID_USER_COUPON_USE_COVERAGE_MISMATCH]")
         void checkoutSingleMismatchBrandName_faild() {
             // given
             Long userId = 1L;
@@ -708,11 +708,11 @@ public class CheckoutServiceIntegrationTest {
                     checkoutService.checkoutSingle(userId, checkoutSingleDTO));
 
             // then
-            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_USER_COUPON_USE_COVERAGE_MISMATCH);
         }
 
         @Test
-        @DisplayName("[예외 케이스] - 쿠폰: 총 주문 금액이 쿠폰 적용 가능한 금액보다 낮을 경우 [INVALID_APPLIED_USER_COUPON]")
+        @DisplayName("[예외 케이스] - 쿠폰: 총 주문 금액이 쿠폰 적용 가능한 금액보다 낮을 경우 [INVALID_USER_COUPON_USE_STANDARD_MISMATCH]")
         void checkoutSingleInsufficientTotalAmount() {
             // given
             Long userId = 1L;
@@ -736,7 +736,7 @@ public class CheckoutServiceIntegrationTest {
                     checkoutService.checkoutSingle(userId, checkoutSingleDTO));
 
             // then
-            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_USER_COUPON_USE_STANDARD_MISMATCH);
         }
 
 
@@ -1356,7 +1356,7 @@ public class CheckoutServiceIntegrationTest {
         }
 
         @Test
-        @DisplayName("[예외 케이스] - 쿠폰: 브랜드명이 일치하지 않는 경우 [INVALID_APPLIED_USER_COUPON]")
+        @DisplayName("[예외 케이스] - 쿠폰: 브랜드명이 일치하지 않는 경우 [INVALID_USER_COUPON_USE_COVERAGE_MISMATCH]")
         void checkoutCartMismatchBrandNameCoupon_failed() {
             // given
             Long userId = 1L;
@@ -1408,7 +1408,7 @@ public class CheckoutServiceIntegrationTest {
                     checkoutService.checkoutCart(userId, checkoutCartDTO));
 
             // then
-            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_APPLIED_USER_COUPON);
+            assertThat(exception.getErrorType()).isEqualTo(CouponErrorType.INVALID_USER_COUPON_USE_COVERAGE_MISMATCH);
         }
 
         @Test
@@ -1530,7 +1530,7 @@ public class CheckoutServiceIntegrationTest {
         }
 
         @Test
-        @DisplayName("[예외 케이스] - 포인트: 쿠폰 할인 금액이 총 상품 금액을 넘어섰을 경우 포인트를 적용할 수 없다. []")
+        @DisplayName("[예외 케이스] - 포인트: 쿠폰 할인 금액이 총 상품 금액을 넘어섰을 경우 포인트를 적용할 수 없다. [INVALID_USE_POINT]")
         void checkoutCartCantAppliedPointWhenOverDiscountedCouponAmount_failed() {
             Long userId = 1L;
             List<Long> shoppingBasketIdList = new ArrayList<>();

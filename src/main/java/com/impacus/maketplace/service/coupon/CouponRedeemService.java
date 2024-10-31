@@ -132,6 +132,7 @@ public class CouponRedeemService {
             throw new CustomException(CouponErrorType.INVALID_ACCESS_USER_COUPON);
         }
 
+
         // 2. userCouponId를 key값으로 가지는 Map 생성
         Map<Long, PaymentUserCouponInfo> paymentUserCouponInfoMap = paymentUserCouponInfos.stream()
                 .collect(Collectors.toMap(
@@ -149,7 +150,7 @@ public class CouponRedeemService {
         });
 
         // 3.2 주문에 적용된 쿠폰 검증
-        couponValidationRequestDTO.getUserCouponIds()
+        couponValidationRequestDTO.getOrderCouponIds()
                 .forEach(couponId -> {
                     PaymentUserCouponInfo userCouponDTO = paymentUserCouponInfoMap.get(couponId);
                     couponValidationService.validateCouponForOrderWithException(ValidateOrderCouponInfoDTO.fromDto(userCouponDTO), couponValidationRequestDTO.getOrderTotalPrice());

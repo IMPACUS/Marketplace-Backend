@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
 public class CouponValidationRequestDTO {
 
     private List<ProductCouponValidationData> productInfosForCoupon;
@@ -30,7 +29,7 @@ public class CouponValidationRequestDTO {
 
         public ProductCouponValidationData(Long productId, List<Long> appliedCouponIds, int productPrice, Long quantity, ProductType productType, String marketName) {
             this.productId = productId;
-            this.appliedCouponIds = appliedCouponIds;
+            this.appliedCouponIds = appliedCouponIds != null ? appliedCouponIds : Collections.emptyList();
             this.productPrice = (long) productPrice;
             this.quantity = quantity;
             this.productType = productType;
@@ -42,16 +41,10 @@ public class CouponValidationRequestDTO {
         }
     }
 
-    public CouponValidationRequestDTO createCouponValidationRequestForCheckoutSingle(Long productId, List<Long> appliedCouponIds, int productPrice, Long quantity, ProductType productType, String marketName, List<Long> orderCouponIds) {
-        Long orderTotalPrice = productPrice * quantity;
-        return new CouponValidationRequestDTO(
-                Collections.singletonList(new ProductCouponValidationData(productId, appliedCouponIds, productPrice, quantity, productType, marketName)),
-                orderCouponIds,
-                orderTotalPrice);
-    }
-
-    public static CouponValidationRequestDTO createEmptyValidatedCouponDTO(Long orderTotalPrice) {
-        return new CouponValidationRequestDTO(Collections.emptyList(), Collections.emptyList(), orderTotalPrice);
+    public CouponValidationRequestDTO(List<ProductCouponValidationData> productInfosForCoupon, List<Long> orderCouponIds, Long orderTotalPrice) {
+        this.productInfosForCoupon = productInfosForCoupon != null ? productInfosForCoupon : Collections.emptyList();
+        this.orderCouponIds = orderCouponIds != null ? orderCouponIds : Collections.emptyList();
+        this.orderTotalPrice = orderTotalPrice;
     }
 
     public boolean isEmpty() {

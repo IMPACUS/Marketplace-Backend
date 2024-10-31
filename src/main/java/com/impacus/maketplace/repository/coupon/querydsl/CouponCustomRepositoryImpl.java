@@ -244,22 +244,21 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
 
     @Override
     public List<PaymentUserCouponInfo> findPaymentUserCouponInfos(Long userId, List<Long> userCouponIds) {
-//        return queryFactory
-//                .select(new QValidateUserCouponDTO(
-//                        userCoupon.id,
-//                        coupon.benefitType,
-//                        coupon.benefitValue,
-//                        coupon.productType,
-//                        coupon.useCoverageType,
-//                        coupon.useCoverageSubCategoryName,
-//                        coupon.useStandardType,
-//                        coupon.useStandardValue
-//                ))
-//                .from(userCoupon)
-//                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-//                .where(userCoupon.id.in(userCouponIds), userCoupon.userId.eq(userId), availableCouponStatus())
-//                .fetch();
-        return null;
+        return queryFactory
+                .select(new QPaymentUserCouponInfo(
+                        userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useCoverageSubCategoryName,
+                        coupon.useStandardType,
+                        coupon.useStandardValue
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .where(userCoupon.id.in(userCouponIds), userCoupon.userId.eq(userId), availableCouponStatus())
+                .fetch();
     }
 
     private BooleanExpression availableCouponStatus() {

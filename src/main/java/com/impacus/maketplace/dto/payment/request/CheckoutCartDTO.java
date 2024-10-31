@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class CheckoutCartDTO {
     @NotEmpty(message = "결제 상품 정보로 빈 값이 올 수 없습니다.")
     private List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();   // 결제 상품 정보
     private AddressInfoDTO addressInfoDTO;  // 결제시 입력한 주소지
-    private List<Long> appliedCommonUserCouponIds = new ArrayList<>();  // 전체 주문에 적용된 사용자 쿠폰 리스트
+    private List<Long> appliedOrderCouponIds = new ArrayList<>();  // 전체 주문에 적용된 사용자 쿠폰 리스트
     @NotNull(message = "포인트를 사용하지 않을 경우 포인트 금액의 기본 값을 0으로 설정해주세요.")
     @Min(value = 0L, message = "사용한 포인트는 음수가 될 수 없습니다.")
     private Long pointAmount = 0L;   // 사용한 포인트 금액
@@ -38,7 +37,7 @@ public class CheckoutCartDTO {
     }
 
     @JsonSetter(nulls = Nulls.AS_EMPTY)
-    public void setAppliedCommonUserCouponIds(List<Long> appliedCommonUserCouponIds) {
-        this.appliedCommonUserCouponIds = appliedCommonUserCouponIds != null ? appliedCommonUserCouponIds : new ArrayList<>();
+    public void setAppliedOrderCouponIds(List<Long> appliedOrderCouponIds) {
+        this.appliedOrderCouponIds = appliedOrderCouponIds != null ? appliedOrderCouponIds : new ArrayList<>();
     }
 }

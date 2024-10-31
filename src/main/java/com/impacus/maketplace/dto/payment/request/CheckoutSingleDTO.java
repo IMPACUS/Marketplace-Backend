@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -31,6 +32,6 @@ public class CheckoutSingleDTO {
 
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAppliedOrderCouponIds(List<Long> appliedOrderCouponIds) {
-        this.appliedOrderCouponIds = appliedOrderCouponIds != null ? appliedOrderCouponIds : new ArrayList<>();
+        this.appliedOrderCouponIds = appliedOrderCouponIds != null ? appliedOrderCouponIds : Collections.emptyList();
     }
 }

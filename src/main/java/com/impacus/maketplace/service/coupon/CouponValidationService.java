@@ -42,7 +42,7 @@ public class CouponValidationService {
 
         // 타입 체크 (상품 적용: 모든 브랜드)
         if (coupon.getUseCoverageType() != CoverageType.ALL) {
-            throw new CustomException(CouponErrorType.INVALID_USER_COUPON_TYPE_MISMATCH);
+            throw new CustomException(CouponErrorType.INVALID_USER_COUPON_USE_COVERAGE_MISMATCH);
         }
 
         // 금액 체크

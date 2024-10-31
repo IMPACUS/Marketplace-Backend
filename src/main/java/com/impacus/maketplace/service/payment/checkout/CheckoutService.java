@@ -143,16 +143,15 @@ public class CheckoutService {
             throw new CustomException(PaymentErrorType.NOT_ENOUGH_POINT_AMOUNT);
         }
 
-
         Long totalPrice = checkoutProductInfo.getAppSalesPrice() * checkoutSingleDTO.getPaymentProductInfo().getQuantity();
 
+        // 1번의 쿼리로 모든 쿠폰 검증 방식
         CouponValidationRequestDTO couponValidationRequestDTO = new CouponValidationRequestDTO(
                 Collections.singletonList(new CouponValidationRequestDTO.ProductCouponValidationData(checkoutProductInfo.getProductId(), checkoutSingleDTO.getPaymentProductInfo().getAppliedProductCouponIds(), checkoutProductInfo.getAppSalesPrice(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), checkoutProductInfo.getProductType(), checkoutProductInfo.getMarketName())),
                 checkoutSingleDTO.getAppliedOrderCouponIds(),
                 totalPrice
         );
 
-        // 1번의 쿼리로 모든 쿠폰 검증 방식
         ValidatedPaymentCouponInfosDTO validatedPaymentCouponInfos = couponRedeemService.getValidatedPaymentCouponInfos(userId, couponValidationRequestDTO);
         List<PaymentCouponDTO> productCoupons = validatedPaymentCouponInfos.getPaymentProductCoupon(checkoutProductInfo.getProductId());
         List<PaymentCouponDTO> orderCoupons = validatedPaymentCouponInfos.getOrderCoupons();
@@ -270,8 +269,8 @@ public class CheckoutService {
 
         // 1. 중복 쿠폰 사용 체크
         List<Long> allCouponIds = new ArrayList<>();
-        if (checkoutCartDTO.getAppliedCommonUserCouponIds() != null) {
-            allCouponIds.addAll(checkoutCartDTO.getAppliedCommonUserCouponIds());
+        if (checkoutCartDTO.getAppliedOrderCouponIds() != null) {
+            allCouponIds.addAll(checkoutCartDTO.getAppliedOrderCouponIds());
         }
         allCouponIds.addAll(
                 checkoutCartDTO.getPaymentProductInfos().stream()
@@ -317,17 +316,39 @@ public class CheckoutService {
             }
         }
 
-
-        Map<Long, List<PaymentCouponDTO>> productCoupons = checkoutCartProductList.stream()
-                .collect(Collectors.toMap(
-                        item -> item.getCheckoutProductInfoDTO().getProductId(),
-                        item -> couponRedeemService.getPaymentCouponForProductAfterValidation(userId, item.getAppliedCouponForProductIds(), item.getCheckoutProductInfoDTO().getProductType(), item.getCheckoutProductInfoDTO().getMarketName(), item.getCheckoutProductInfoDTO().getAppSalesPrice(), item.getQuantity())
-                ));
-        Long totalPrice = checkoutCartProductList.stream().mapToLong(chekcoutCartProductInfoDTO ->
+        Long orderTotalPrice = checkoutCartProductList.stream().mapToLong(chekcoutCartProductInfoDTO ->
                 chekcoutCartProductInfoDTO.getCheckoutProductInfoDTO().getAppSalesPrice() * chekcoutCartProductInfoDTO.getQuantity()
         ).sum();
 
-        List<PaymentCouponDTO> orderCoupons = couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutCartDTO.getAppliedCommonUserCouponIds(), totalPrice);
+        // 1번의 쿼리로 모든 쿠폰 검증 방식
+        List<CouponValidationRequestDTO.ProductCouponValidationData> productCouponValidationDataList = checkoutCartProductList.stream()
+                .map(item -> {
+                    CheckoutProductInfoDTO productInfo = item.getCheckoutProductInfoDTO();
+                    return new CouponValidationRequestDTO.ProductCouponValidationData(
+                            productInfo.getProductId(),
+                            item.getAppliedCouponForProductIds(),
+                            productInfo.getAppSalesPrice(),
+                            item.getQuantity(),
+                            productInfo.getProductType(),
+                            productInfo.getMarketName()
+                    );
+                })
+                .toList();
+
+        CouponValidationRequestDTO couponValidationRequestDTO = new CouponValidationRequestDTO(productCouponValidationDataList, checkoutCartDTO.getAppliedOrderCouponIds(), orderTotalPrice);
+
+        ValidatedPaymentCouponInfosDTO validatedPaymentCouponInfos = couponRedeemService.getValidatedPaymentCouponInfos(userId, couponValidationRequestDTO);
+        Map<Long, List<PaymentCouponDTO>> productCoupons = validatedPaymentCouponInfos.getProductCoupons();
+        List<PaymentCouponDTO> orderCoupons = validatedPaymentCouponInfos.getOrderCoupons();
+
+        // 사용한 쿠폰의 갯수만큼 쿼리를 보내는 방식
+//        Map<Long, List<PaymentCouponDTO>> productCoupons = checkoutCartProductList.stream()
+//                .collect(Collectors.toMap(
+//                        item -> item.getCheckoutProductInfoDTO().getProductId(),
+//                        item -> couponRedeemService.getPaymentCouponForProductAfterValidation(userId, item.getAppliedCouponForProductIds(), item.getCheckoutProductInfoDTO().getProductType(), item.getCheckoutProductInfoDTO().getMarketName(), item.getCheckoutProductInfoDTO().getAppSalesPrice(), item.getQuantity())
+//                ));
+//
+//        List<PaymentCouponDTO> orderCoupons = couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutCartDTO.getAppliedOrderCouponIds(), orderTotalPrice);
 
         Map<Long, Long> productPrices = checkoutCartProductList.stream()
                 .collect(Collectors.toMap(
@@ -336,8 +357,8 @@ public class CheckoutService {
                 ));
 
         Map<Long, Long> productCouponDiscounts = discountService.calculateProductCouponDiscounts(productPrices, productCoupons);
-        Map<Long, Long> orderCouponDiscounts = discountService.calculateOrderCouponDiscounts(totalPrice, productPrices, orderCoupons);
-        Map<Long, Long> pointDiscounts = discountService.calculatePointDiscounts(totalPrice, productPrices, checkoutCartDTO.getPointAmount());
+        Map<Long, Long> orderCouponDiscounts = discountService.calculateOrderCouponDiscounts(orderTotalPrice, productPrices, orderCoupons);
+        Map<Long, Long> pointDiscounts = discountService.calculatePointDiscounts(orderTotalPrice, productPrices, checkoutCartDTO.getPointAmount());
 
         Map<Long, ProductPricingDTO> productPricings = checkoutCartProductList.stream()
                 .collect(Collectors.toMap(
@@ -422,8 +443,8 @@ public class CheckoutService {
 
         // 9. PaymentEventCoupon 및 PaymentOrderCoupon에 등록 후 사용 처리를 false로 처리
         savedPaymentOrders.forEach(paymentOrder -> {
-            List<PaymentCouponDTO> paymentCoupons = productCoupons.getOrDefault(paymentOrder.getProductId(), null);
-            List<Long> userCouponIds = paymentCoupons.stream().map(PaymentCouponDTO::getUserCouponId).toList();
+            List<PaymentCouponDTO> paymentProductCoupons = productCoupons.getOrDefault(paymentOrder.getProductId(), new ArrayList<>());
+            List<Long> userCouponIds = paymentProductCoupons.stream().map(PaymentCouponDTO::getUserCouponId).toList();
             couponRedeemService.registPaymentOrderCoupons(paymentOrder.getPaymentEventId(), userCouponIds);
         });
 
