@@ -1,5 +1,6 @@
 package com.impacus.maketplace.repository.payment.checkout.dto;
 
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
@@ -11,10 +12,10 @@ public class BuyerInfoDTO {
     private String phoneNumber; // 사용자 휴대폰 번호
 
     @QueryProjection
-    public BuyerInfoDTO(Long userId, String email, String name, String phoneNumber) {
+    public BuyerInfoDTO(Long userId, String email, String name, String phoneNumberPrefix, String phoneNumberSuffix) {
         this.userId = userId;
         this.email = email;
         this.name = name;
-        this.phoneNumber = phoneNumber;
+        this.phoneNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
     }
 }
