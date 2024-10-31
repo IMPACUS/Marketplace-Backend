@@ -181,16 +181,6 @@ public class UpdateSellerCustomRepositoryImpl implements UpdateSellerCustomRepos
     ) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
-        // 프로필 이미지 업데이트
-        queryFactory
-                .update(user)
-                .set(user.profileImageId, profileImageId)
-
-                .set(user.modifyAt, LocalDateTime.now())
-                .set(user.modifyId, currentAuditor)
-                .where(user.id.eq(userId))
-                .execute();
-
         // userStatus 정보 업데이트
         queryFactory
                 .update(userStatusInfo)
@@ -205,6 +195,7 @@ public class UpdateSellerCustomRepositoryImpl implements UpdateSellerCustomRepos
         queryFactory
                 .update(seller)
                 .set(seller.chargePercent, dto.getCharge())
+                .set(seller.logoImageId, profileImageId)
 
                 .set(seller.modifyAt, LocalDateTime.now())
                 .set(seller.modifyId, currentAuditor)
