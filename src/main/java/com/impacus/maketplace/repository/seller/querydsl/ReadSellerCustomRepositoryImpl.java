@@ -462,7 +462,7 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 sellerAdjustmentInfo.bankCode,
                                 sellerAdjustmentInfo.accountName,
                                 sellerAdjustmentInfo.accountNumber,
-                                seller.chargePercent,
+                                seller.chargePercent.as("charge"),
                                 userStatusInfo.status.as("userStatus"),
                                 user.password,
                                 sellerBusinessInfo.businessEmail,
