@@ -1,22 +1,20 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.ProductType;
+import com.impacus.maketplace.common.enumType.coupon.TargetProductType;
 import com.impacus.maketplace.common.enumType.coupon.StandardType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.coupon.model.ValidateOrderCouponInfoDTO;
+import com.impacus.maketplace.dto.coupon.model.ValidatedPaymentCouponInfosDTO;
 import com.impacus.maketplace.dto.coupon.request.ProductQuantityDTO;
 import com.impacus.maketplace.dto.coupon.response.*;
-import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponProductRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.ProductPricingInfoDTO;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.UserCouponInfoForCheckoutDTO;
-import com.impacus.maketplace.repository.coupon.querydsl.dto.ValidateUserCouponForOrderDTO;
-import com.impacus.maketplace.repository.coupon.querydsl.dto.ValidateUserCouponForProductDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,7 +138,7 @@ public class CouponUserService {
         List<AvailableCouponsForProductDTO> availableCouponsForProductDTOList = productPricingInfoDTOList.stream()
                 .map(productPricingInfoDTO -> {
                     List<AvailableCouponsDTO> list = userCouponInfoForCheckoutList.stream()
-                            .filter(coupon -> couponValidationService.validateCouponForProduct(new ValidateUserCouponForProductDTO(coupon), productPricingInfoDTO.getProductType(), productPricingInfoDTO.getMarketName(), productPricingInfoDTO.getAppSalesPrice(), productQuantityMap.get(productPricingInfoDTO.getProductId())))
+                            .filter(coupon -> couponValidationService.validateCouponForProduct(ValidatedPaymentCouponInfosDTO.fromDto(coupon), productPricingInfoDTO.getProductType(), productPricingInfoDTO.getMarketName(), (long) productPricingInfoDTO.getAppSalesPrice(), productQuantityMap.get(productPricingInfoDTO.getProductId())))
                             .map(userCouponInfoForCheckoutDTO ->
                                     new AvailableCouponsDTO(userCouponInfoForCheckoutDTO.getUserCouponId(),
                                             userCouponInfoForCheckoutDTO.getCouponName(),
@@ -157,11 +155,7 @@ public class CouponUserService {
                 .sum();
 
         List<AvailableCouponsDTO> availableCouponsForOrderDTOList = userCouponInfoForCheckoutList.stream()
-                .filter(coupon -> {
-                    if (coupon.getProductType() != ProductType.ALL) return false;
-                    if (coupon.getUseCoverageType() == CoverageType.BRAND) return false;
-                    return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalPrice;
-                })
+                .filter(coupon -> couponValidationService.validateCouponForOrder(ValidateOrderCouponInfoDTO.fromDto(coupon), totalPrice))
                 .map(userCouponInfoForCheckoutDTO ->
                         new AvailableCouponsDTO(userCouponInfoForCheckoutDTO.getUserCouponId(),
                                 userCouponInfoForCheckoutDTO.getCouponName(),

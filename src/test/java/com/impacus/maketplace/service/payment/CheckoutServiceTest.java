@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service.payment;
 
-import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.common.enumType.error.OrderErrorType;
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.payment.PaymentMethod;
@@ -11,10 +10,10 @@ import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.OrderUtils;
 import com.impacus.maketplace.config.PaymentConfig;
-import com.impacus.maketplace.dto.payment.CheckoutCartProductInfoDTO;
-import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
-import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
-import com.impacus.maketplace.dto.payment.ProductPricingDTO;
+import com.impacus.maketplace.dto.payment.model.CheckoutCartProductInfoDTO;
+import com.impacus.maketplace.dto.payment.model.DiscountInfoDTO;
+import com.impacus.maketplace.dto.payment.model.PaymentCouponDTO;
+import com.impacus.maketplace.dto.payment.model.ProductPricingDTO;
 import com.impacus.maketplace.dto.payment.request.AddressInfoDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutCartDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
@@ -33,7 +32,6 @@ import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInf
 import com.impacus.maketplace.service.coupon.CouponRedeemService;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

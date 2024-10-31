@@ -4,8 +4,6 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -40,7 +38,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProductType productType;    //  상품 적용 타입 [ ECO할인/그린태그 , 일반 상품, 구분안함(둘다 적용) ]
+    private TargetProductType productType;    //  상품 적용 타입 [ ECO할인/그린태그 , 일반 상품, 구분안함(둘다 적용) ]
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

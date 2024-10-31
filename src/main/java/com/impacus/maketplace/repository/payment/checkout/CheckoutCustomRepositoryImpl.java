@@ -2,6 +2,7 @@ package com.impacus.maketplace.repository.payment.checkout;
 
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.payment.model.PaymentProductInfoIdDTO;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QShoppingBasket;
@@ -9,10 +10,13 @@ import com.impacus.maketplace.entity.product.history.QProductOptionHistory;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.repository.payment.checkout.dto.*;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -133,22 +137,80 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                 .where(product.id.eq(productId))
                 .fetchOne();
 
-        if (checkoutProductInfoDTO == null) {
-            throw new CustomException(PaymentErrorType.NOT_FOUND_PRODUCT);
-        }
-
-        if (checkoutProductInfoDTO.getProductOptionId() == null) {
-            throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION);
-        }
-
-        if (checkoutProductInfoDTO.getProductOptionHistoryId() == null) {
-            throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION_HISTORY);
-        }
-
-        if (checkoutProductInfoDTO.getSellerId() == null) {
-            throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_SELLER);
-        }
+        validationCheckoutProduct(checkoutProductInfoDTO);
 
         return checkoutProductInfoDTO;
     }
+
+    @Override
+    public List<CheckoutProductInfoDTO> getPaymentProductInfos(List<PaymentProductInfoIdDTO> paymentProductInfoIds, Boolean usedRegisteredCard, Long registeredCardId) {
+        // 동적 조건 생성
+        BooleanExpression combinedCondition = Expressions.FALSE;
+
+        for (PaymentProductInfoIdDTO info : paymentProductInfoIds) {
+            BooleanExpression condition = product.id.eq(info.getProductId())
+                    .and(productOption.id.eq(info.getProductOptionId()))
+                    .and(seller.id.eq(info.getSellerId()));
+
+            combinedCondition = combinedCondition.or(condition);
+        }
+
+        // 쿼리 실행
+        List<CheckoutProductInfoDTO> checkoutProductInfos = queryFactory
+                .select(new QCheckoutProductInfoDTO(
+                        product.id,
+                        seller.id,
+                        seller.marketName,
+                        seller.chargePercent,
+                        product.name,
+                        product.type,
+                        product.productStatus,
+                        product.appSalesPrice,
+                        product.discountPrice,
+                        product.salesChargePercent,
+                        product.deliveryFee,
+                        product.isDeleted,
+                        productOption.id,
+                        productOption.color,
+                        productOption.size,
+                        productOption.stock,
+                        productOption.isDeleted,
+                        productOptionHistory.id
+                ))
+                .from(product)
+                .leftJoin(seller).on(product.sellerId.eq(seller.id))
+                .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(productOptionHistory).on(productOptionHistory.productOptionId.eq(productOption.id))
+                .where(combinedCondition)
+                .fetch();
+
+        validationCheckoutProducts(checkoutProductInfos);
+
+        return checkoutProductInfos;
+    }
+    private void validationCheckoutProduct(CheckoutProductInfoDTO checkoutProductInfoDTO) {
+        List<CheckoutProductInfoDTO> checkoutProductInfos = Collections.singletonList(checkoutProductInfoDTO);
+        validationCheckoutProducts(checkoutProductInfos);
+    }
+
+    private void validationCheckoutProducts(List<CheckoutProductInfoDTO> checkoutProductInfos) {
+        for (CheckoutProductInfoDTO checkoutProductInfoDTO : checkoutProductInfos) {
+            if (checkoutProductInfoDTO == null) {
+                throw new CustomException(PaymentErrorType.NOT_FOUND_PRODUCT);
+            }
+
+            if (checkoutProductInfoDTO.getProductOptionId() == null) {
+                throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION);
+            }
+
+            if (checkoutProductInfoDTO.getProductOptionHistoryId() == null) {
+                throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION_HISTORY);
+            }
+
+            if (checkoutProductInfoDTO.getSellerId() == null) {
+                throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_SELLER);
+            }
+        }
+    }
+
 }

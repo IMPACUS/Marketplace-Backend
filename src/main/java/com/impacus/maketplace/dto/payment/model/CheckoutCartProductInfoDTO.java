@@ -1,4 +1,4 @@
-package com.impacus.maketplace.dto.payment;
+package com.impacus.maketplace.dto.payment.model;
 
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInfoDTO;
 import lombok.Builder;

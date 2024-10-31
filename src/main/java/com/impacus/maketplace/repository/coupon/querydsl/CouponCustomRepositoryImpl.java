@@ -2,7 +2,7 @@ package com.impacus.maketplace.repository.coupon.querydsl;
 
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.ProductType;
+import com.impacus.maketplace.common.enumType.coupon.TargetProductType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.QCoupon;
@@ -243,40 +243,23 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public List<ValidateUserCouponForProductDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds) {
-        return queryFactory
-                .select(new QValidateUserCouponForProductDTO(
-                        userCoupon.id,
-                        coupon.benefitType,
-                        coupon.benefitValue,
-                        coupon.productType,
-                        coupon.useCoverageType,
-                        coupon.useCoverageSubCategoryName,
-                        coupon.useStandardType,
-                        coupon.useStandardValue
-                ))
-                .from(userCoupon)
-                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
-                .fetch();
-    }
-
-    @Override
-    public List<ValidateUserCouponForOrderDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds) {
-        return queryFactory
-                .select(new QValidateUserCouponForOrderDTO(
-                        userCoupon.id,
-                        coupon.benefitType,
-                        coupon.benefitValue,
-                        coupon.productType,
-                        coupon.useCoverageType,
-                        coupon.useStandardType,
-                        coupon.useStandardValue
-                ))
-                .from(userCoupon)
-                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
-                .fetch();
+    public List<PaymentUserCouponInfo> findPaymentUserCouponInfos(Long userId, List<Long> userCouponIds) {
+//        return queryFactory
+//                .select(new QValidateUserCouponDTO(
+//                        userCoupon.id,
+//                        coupon.benefitType,
+//                        coupon.benefitValue,
+//                        coupon.productType,
+//                        coupon.useCoverageType,
+//                        coupon.useCoverageSubCategoryName,
+//                        coupon.useStandardType,
+//                        coupon.useStandardValue
+//                ))
+//                .from(userCoupon)
+//                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+//                .where(userCoupon.id.in(userCouponIds), userCoupon.userId.eq(userId), availableCouponStatus())
+//                .fetch();
+        return null;
     }
 
     private BooleanExpression availableCouponStatus() {
@@ -290,8 +273,8 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     private BooleanExpression eqAllOrIsEcoProduct(Boolean isEcoProduct) {
-        return coupon.productType.eq(ProductType.ALL).or(
-                isEcoProduct ? coupon.productType.eq(ProductType.ECO_GREEN) : coupon.productType.eq(ProductType.BASIC)
+        return coupon.productType.eq(TargetProductType.ALL).or(
+                isEcoProduct ? coupon.productType.eq(TargetProductType.ECO_GREEN) : coupon.productType.eq(TargetProductType.BASIC)
         );
     }
 
@@ -339,4 +322,41 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     private BooleanExpression couponIsNotDeleted() {
         return coupon.isDeleted.eq(false);
     }
+
+    /*@Override
+    public List<ValidateUserCouponDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds) {
+        return queryFactory
+                .select(new QValidateUserCouponDTO(
+                        userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useCoverageSubCategoryName,
+                        coupon.useStandardType,
+                        coupon.useStandardValue
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
+                .fetch();
+    }
+
+    @Override
+    public List<ValidateUserCouponDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds) {
+        return queryFactory
+                .select(new QValidateUserCouponDTO(
+                        userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useStandardType,
+                        coupon.useStandardValue
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
+                .fetch();
+    }*/
 }
