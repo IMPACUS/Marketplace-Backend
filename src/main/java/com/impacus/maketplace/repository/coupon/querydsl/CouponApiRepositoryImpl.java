@@ -51,7 +51,8 @@ public class CouponApiRepositoryImpl implements CouponApiRepository {
                 .select(new QAlarmCouponDTO(
                         userCoupon.userId,
                         user.name,
-                        user.phoneNumber,
+                        user.phoneNumberPrefix,
+                        user.phoneNumberSuffix,
                         user.email,
                         coupon.name,
                         coupon.benefitType,
