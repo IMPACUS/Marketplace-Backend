@@ -91,7 +91,8 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                         user.id,
                         user.email,
                         user.name,
-                        user.phoneNumber
+                        user.phoneNumberPrefix,
+                        user.phoneNumberSuffix
                 ))
                 .from(user)
                 .where(user.id.eq(userId))

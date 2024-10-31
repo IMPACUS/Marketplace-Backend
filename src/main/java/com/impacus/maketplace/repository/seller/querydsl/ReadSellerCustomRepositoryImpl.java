@@ -79,13 +79,14 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     public DetailedSellerEntryDTO findDetailedSellerEntry(Long userId) {
         DetailedSellerEntryDTO detailedSellerEntryDTO = queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 DetailedSellerEntryDTO.class,
                                 user.id,
                                 seller.marketName,
                                 seller.contactName,
                                 user.email,
-                                user.phoneNumber.as("contactNumber"),
+                                user.phoneNumberSuffix,
+                                user.phoneNumberPrefix,
                                 sellerBusinessInfo.businessRegistrationNumber,
                                 sellerBusinessInfo.mailOrderBusinessReportNumber,
                                 sellerBusinessInfo.businessAddress,
@@ -143,7 +144,8 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 user.id,
                                 seller.createAt,
                                 seller.marketName,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 sellerBusinessInfo.businessCondition,
                                 seller.entryStatus
                         )
@@ -157,6 +159,9 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
     @Override
     public DetailedSellerDTO findDetailedSellerInformationByUserId(Long userId) {
+        QAttachFile businessRegistrationFile = new QAttachFile("businessRegistrationFile");
+        QAttachFile mailOrderBusinessReportFile = new QAttachFile("mailOrderBusinessReportFile");
+        QAttachFile bankBookFile = new QAttachFile("bankBookFile");
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(seller.userId.eq(userId))
                 .and(seller.isDeleted.eq(false));
@@ -172,34 +177,41 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                 .leftJoin(sellerDeliveryAddress).on(sellerDeliveryAddress.sellerId.eq(seller.id))
                 .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .leftJoin(selectedSellerDeliveryCompany).on(selectedSellerDeliveryCompany.sellerDeliveryCompanyId.eq(sellerDeliveryCompany.id))
+                .leftJoin(businessRegistrationFile).on(businessRegistrationFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
+                .leftJoin(mailOrderBusinessReportFile).on(mailOrderBusinessReportFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
+                .leftJoin(bankBookFile).on(bankBookFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
                 .transform(
                         GroupBy.groupBy(seller.id).list(
-                                Projections.fields(
+                                Projections.constructor(
                                         DetailedSellerDTO.class,
-                                        attachFile.attachFileName.as("logoImageUrl"),
-                                        seller.marketName.as("brandName"),
+                                        attachFile.attachFileName,
+                                        seller.marketName,
                                         seller.customerServiceNumber,
-                                        sellerBusinessInfo.businessEmail.as("representativeEmail"),
-                                        brand.introduction.as("brandIntroduction"),
+                                        sellerBusinessInfo.businessEmail,
+                                        brand.introduction,
                                         brand.openingTime,
                                         brand.closingTime,
                                         brand.businessDay,
                                         brand.breakingTime,
                                         user.email,
-                                        user.phoneNumber,
+                                        user.phoneNumberPrefix,
+                                        user.phoneNumberSuffix,
                                         Projections.fields(
                                                 SellerManagerInfoDTO.class,
                                                 sellerBusinessInfo.representativeName,
-                                                sellerBusinessInfo.businessAddress.as("address"),
+                                                sellerBusinessInfo.businessAddress,
                                                 sellerBusinessInfo.businessRegistrationNumber,
-                                                sellerBusinessInfo.mailOrderBusinessReportNumber
-                                        ).as("manager"),
+                                                sellerBusinessInfo.mailOrderBusinessReportNumber,
+                                                businessRegistrationFile.attachFileName.as("businessRegistrationUrl"),
+                                                mailOrderBusinessReportFile.attachFileName.as("mailOrderBusinessReportUrl")
+                                        ),
                                         Projections.fields(
                                                 SellerAdjustmentInfoDTO.class,
                                                 sellerAdjustmentInfo.bankCode,
                                                 sellerAdjustmentInfo.accountName,
-                                                sellerAdjustmentInfo.accountNumber
-                                        ).as("adjustment"),
+                                                sellerAdjustmentInfo.accountNumber,
+                                                bankBookFile.attachFileName.as("bankBookUrl")
+                                        ),
                                         Projections.fields(
                                                 SellerDeliveryCompanyInfoDTO.class,
                                                 sellerDeliveryCompany.generalDeliveryFee,
@@ -207,17 +219,17 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                                 sellerDeliveryCompany.refundDeliveryFee,
                                                 sellerDeliveryCompany.refundSpecialDeliveryFee,
                                                 GroupBy.list(
-                                                        Projections.fields(
+                                                        Projections.constructor(
                                                                 SelectedSellerDeliveryCompanyDTO.class,
-                                                                selectedSellerDeliveryCompany.id.as("selectedSellerDeliveryCompanyId"),
+                                                                selectedSellerDeliveryCompany.id,
                                                                 selectedSellerDeliveryCompany.deliveryCompany
                                                         )
                                                 ).as("deliveryCompanies")
-                                        ).as("deliveryCompany"),
+                                        ),
                                         GroupBy.list(
                                                 Projections.fields(
                                                         SellerDeliveryAddressInfoDTO.class,
-                                                        sellerDeliveryAddress.id.as("deliveryAddressId"),
+                                                        sellerDeliveryAddress.id,
                                                         sellerDeliveryAddress.generalAddress,
                                                         sellerDeliveryAddress.generalDetailAddress,
                                                         sellerDeliveryAddress.generalBusinessName,
@@ -228,8 +240,8 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                                         sellerDeliveryAddress.refundAccountName,
                                                         sellerDeliveryAddress.refundBankCode
                                                 )
-                                        ).as("deliveryAddress"),
-                                        selectedSellerDeliveryAddress.sellerDeliveryAddressId.as("mainDeliveryAddressId")
+                                        ),
+                                        selectedSellerDeliveryAddress.sellerDeliveryAddressId
                                 )
                         )
                 );
@@ -240,36 +252,18 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             DetailedSellerDTO dto = dtos.get(0);
 
             // 1. SelectedSellerDeliveryCompanyDTO 중복 제거 및 정렬
-            List<SelectedSellerDeliveryCompanyDTO> processedDeliveryCompanies = processDeliveryCompanies(dto.getDeliveryCompany().getDeliveryCompanies());
+            List<SelectedSellerDeliveryCompanyDTO> foundDeliveryCompanies = dto.getDeliveryCompany().getDeliveryCompanies()
+                    .stream().filter(x -> !x.isNull())
+                    .toList();
+            List<SelectedSellerDeliveryCompanyDTO> processedDeliveryCompanies = processDeliveryCompanies(foundDeliveryCompanies);
             dto.getDeliveryCompany().setDeliveryCompanies(processedDeliveryCompanies);
 
             // 2. SellerDeliveryAddressInfoDTO 중복 제거 및 정렬
-            List<SellerDeliveryAddressInfoDTO> processedDeliveryAddresses = processDeliveryAddresses(dto.getDeliveryAddress());
+            List<SellerDeliveryAddressInfoDTO> foundDeliveryAddresses = dto.getDeliveryAddress()
+                    .stream().filter(x -> !x.isNull())
+                    .toList();
+            List<SellerDeliveryAddressInfoDTO> processedDeliveryAddresses = processDeliveryAddresses(foundDeliveryAddresses);
             dto.setDeliveryAddress(processedDeliveryAddresses);
-
-            // 3. manager 사본 데이터 추가
-            AttachFile businessRegistration = queryFactory.selectFrom(attachFile)
-                    .innerJoin(seller).on(seller.userId.eq(userId))
-                    .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                    .where(attachFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
-                    .fetchOne();
-
-            AttachFile mailOrderBusinessReport = queryFactory.selectFrom(attachFile)
-                    .innerJoin(seller).on(seller.userId.eq(userId))
-                    .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                    .where(attachFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
-                    .fetchOne();
-
-            dto.getManager().setBusinessRegistrationUrl(businessRegistration == null ? null : businessRegistration.getAttachFileName());
-            dto.getManager().setMailOrderBusinessReportUrl(mailOrderBusinessReport == null ? null : mailOrderBusinessReport.getAttachFileName());
-
-            // 4. adjustment 사본 데이터 추가
-            AttachFile bankBookUrl = queryFactory.selectFrom(attachFile)
-                    .innerJoin(seller).on(seller.userId.eq(userId))
-                    .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
-                    .where(attachFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
-                    .fetchOne();
-            dto.getAdjustment().setBankBookUrl(bankBookUrl == null ? null : bankBookUrl.getAttachFileName());
 
             return dto;
         }
@@ -355,13 +349,14 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             Pageable pageable
     ) {
         JPAQuery<SellerDTO> query = queryFactory
-                .select(Projections.fields(
+                .select(Projections.constructor(
                         SellerDTO.class,
                         seller.id.as("sellerId"),
                         seller.marketName.as("brandName"),
                         seller.contactName,
                         user.email,
-                        user.phoneNumber,
+                        user.phoneNumberPrefix,
+                        user.phoneNumberSuffix,
                         seller.entryApprovedAt,
                         user.recentLoginAt
                 ))
@@ -447,13 +442,14 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
         return queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 SimpleSellerFromAdminDTO.class,
                                 seller.id.as("sellerId"),
                                 seller.marketName,
                                 seller.contactName,
                                 user.email,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 seller.entryApprovedAt,
                                 sellerBusinessInfo.representativeContact,
                                 sellerBusinessInfo.businessAddress,

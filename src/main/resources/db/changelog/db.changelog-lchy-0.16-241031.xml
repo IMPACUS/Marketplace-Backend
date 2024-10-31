@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-lchy0.16.01-24-10-31" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="user_info" columnName="phone_number"/>
+        </preConditions>
+        <dropColumn tableName="user_info" columnName="phone_number"/>
+    </changeSet>
+
+    <changeSet id="changelog-lchy0.16.02-24-10-31" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_info" columnName="phone_number_prefix"/>
+                <columnExists tableName="user_info" columnName="phone_number_suffix"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="user_info">
+            <column name="phone_number_prefix" type="VARCHAR(255)" defaultValue="d36vIuoiIY3YCDxc5tjs+g=="/>
+        </addColumn>
+        <addColumn tableName="user_info">
+            <column name="phone_number_suffix" type="VARCHAR(255)" defaultValue="0000"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

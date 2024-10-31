@@ -114,15 +114,20 @@ public class SuperCategoryService {
                 .orElseThrow(() -> new CustomException(CategoryErrorType.NOT_EXISTED_SUPER_CATEGORY));
     }
 
+    public List<CategoryDetailDTO> findAllCategory(boolean isExceptBrand) {
+        return findAllCategory(isExceptBrand, null);
+    }
+
     /**
      * 전체 1차/2차 카테고리를 찾는 함수
      * - true인 경우 brand 데이터 조회, false인 경우 brand까지 포함한 전체 데이터 조회
      *
      * @param isExceptBrand brand 데이터 포함 여부
+     * @param keyword 2차 카테고리 검색어
      * @return
      */
-    public List<CategoryDetailDTO> findAllCategory(boolean isExceptBrand) {
-        List<CategoryDetailDTO> dtos =  superCategoryRepository.findAllCategory();
+    public List<CategoryDetailDTO> findAllCategory(boolean isExceptBrand, String keyword) {
+        List<CategoryDetailDTO> dtos = superCategoryRepository.findAllCategory(keyword);
 
         // 2. brand 데이터 삭제 여부 확인
         int brandSuperCategoryId = -1;

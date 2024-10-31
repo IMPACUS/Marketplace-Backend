@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.user.response;
 
 import com.impacus.maketplace.common.enumType.user.UserLevel;
+import com.impacus.maketplace.common.utils.StringUtils;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -24,7 +25,8 @@ public class ReadUserSummaryDTO {
             String email,
             Long greenLevelPoint,
             Long levelPoint,
-            String phoneNumber,
+            String phoneNumberPrefix,
+            String phoneNumberSuffix,
             String profileImageUrl,
             LocalDateTime registerAt
     ) {
@@ -33,7 +35,7 @@ public class ReadUserSummaryDTO {
         this.userLevel = userLevel;
         this.greenLevelPoint = greenLevelPoint;
         this.levelPoint = levelPoint;
-        this.phoneNumber = phoneNumber;
+        this.phoneNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
         this.profileImageUrl = profileImageUrl;
         this.registerAt = registerAt;
 

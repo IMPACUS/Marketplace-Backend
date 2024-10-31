@@ -19,4 +19,8 @@ public class SellerDeliveryAddressInfoDTO {
     private String refundAccountNumber;
     private String refundAccountName;
     private BankCode refundBankCode;
+
+    public boolean isNull() {
+        return deliveryAddressId == null;
+    }
 }

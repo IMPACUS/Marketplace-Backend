@@ -5,6 +5,7 @@ import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.category.QSuperCategory;
 import com.impacus.maketplace.entity.common.QAttachFile;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -24,9 +25,16 @@ public class SuperCategoryCustomRepositoryImpl implements SuperCategoryCustomRep
     private final QAttachFile attachFile = QAttachFile.attachFile;
 
     @Override
-    public List<CategoryDetailDTO> findAllCategory() {
+    public List<CategoryDetailDTO> findAllCategory(String keyword) {
+        BooleanBuilder subCategoryBoolean = new BooleanBuilder();
+        subCategoryBoolean.and(superCategory.id.eq(subCategory.superCategoryId));
+
+        if (keyword != null && !keyword.isBlank()) {
+            subCategoryBoolean.and(subCategory.name.containsIgnoreCase(keyword));
+        }
+
         return queryFactory.selectFrom(superCategory)
-                .leftJoin(subCategory).on(superCategory.id.eq(subCategory.superCategoryId))
+                .leftJoin(subCategory).on(subCategoryBoolean)
                 .transform(
                         GroupBy.groupBy(superCategory.id).list(Projections.constructor(
                                         CategoryDetailDTO.class,

@@ -37,7 +37,8 @@ public class WebUserDTO {
             Long userId,
             String name,
             String email,
-            String phoneNumber,
+            String phoneNumberPrefix,
+            String phoneNumberSuffix,
             UserLevel userLevel,
             LocalDateTime registerAt,
             LocalDateTime recentLoginAt
@@ -47,7 +48,7 @@ public class WebUserDTO {
         EmailInfoDTO emailInfo = StringUtils.getEmailInfo(email);
         this.oauthProviderType = emailInfo.getOauthProviderType();
         this.email = emailInfo.getEmail();
-        this.phoneNumber = phoneNumber;
+        this.phoneNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
         this.userLevel = userLevel;
         this.registerAt = registerAt;
         this.recentLoginAt = recentLoginAt;

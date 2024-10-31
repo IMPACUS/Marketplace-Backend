@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.seller.response;
 
 import com.impacus.maketplace.common.annotation.excel.ExcelColumn;
+import com.impacus.maketplace.common.utils.StringUtils;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -26,4 +27,23 @@ public class SellerDTO {
 
     @ExcelColumn(headerName = "최근 활동")
     private LocalDateTime recentLoginAt;
+
+    public SellerDTO(
+            Long sellerId,
+            String brandName,
+            String contactName,
+            String email,
+            String phoneNumberPrefix,
+            String phoneNumberSuffix,
+            LocalDateTime entryApprovedAt,
+            LocalDateTime recentLoginAt
+    ) {
+        this.sellerId = sellerId;
+        this.brandName = brandName;
+        this.contactName = contactName;
+        this.email = email;
+        this.phoneNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
+        this.entryApprovedAt = entryApprovedAt;
+        this.recentLoginAt = recentLoginAt;
+    }
 }

@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.coupon.api;
 
 import com.impacus.maketplace.common.enumType.coupon.BenefitType;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +21,10 @@ public class AlarmCouponDTO {
     private LocalDate expiredAt;    // 쿠폰 만료 날짜
 
     @QueryProjection
-    public AlarmCouponDTO(Long userId, String userName, String phoneNumber, String email, String couponName, BenefitType benefitType, Long benefitValue, LocalDate expiredAt) {
+    public AlarmCouponDTO(Long userId, String userName, String phoneNumberPrefix, String phoneNumberSuffix, String email, String couponName, BenefitType benefitType, Long benefitValue, LocalDate expiredAt) {
         this.userId = userId;
         this.userName = userName;
-        this.phoneNumber = phoneNumber;
+        this.phoneNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
         this.email = email;
         this.couponName = couponName;
         this.benefitType = benefitType;
