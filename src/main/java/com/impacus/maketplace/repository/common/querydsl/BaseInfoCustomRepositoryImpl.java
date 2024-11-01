@@ -33,7 +33,8 @@ public class BaseInfoCustomRepositoryImpl implements BaseInfoCustomRepository {
                                 BaseInfoDetailDTO.class,
                                 baseInfo.title,
                                 baseInfo.detail,
-                                baseInfo.infoType
+                                baseInfo.infoType,
+                                baseInfo.modifyAt
                         )
                 )
                 .from(baseInfo)

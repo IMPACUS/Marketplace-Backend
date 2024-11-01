@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -23,6 +24,8 @@ public class BaseInfoDTO {
 
     @NotNull
     private BaseInfoDetailDTO levelPoint;
+
+    private LocalDateTime modifyAt;
 
     public BaseInfoDTO(List<BaseInfoDetailDTO> baseInfoDetailDTOS) {
         for (BaseInfoDetailDTO baseInfoDetailDTO : baseInfoDetailDTOS) {
