@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 public class BaseInfoDetailDTO {
@@ -18,4 +20,7 @@ public class BaseInfoDetailDTO {
 
     @JsonIgnore
     private InfoType infoType;
+
+    @JsonIgnore
+    private LocalDateTime modifyAt;
 }
