@@ -34,8 +34,8 @@ spring:
             scope:
               - email
           kakao:
-            client-id: 11feba151c9000140c34efa5b250ab61
-            client-secret: moqDsduMLshr4nuHasGPX9P993FwHjsS
+            client-id: 5367a87f7a265af63583eafbaee4cd32
+            client-secret: i4xjg7DgsnKKFRnQmTGUgjDuMpyyUTdw
             client-authentication-method: client_secret_post
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
