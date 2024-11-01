@@ -41,11 +41,18 @@ public enum RewardPointType {
         return result;
     }
 
+    /**
+     * 지급 조건 검색어가 존재하는지 확인하는 함수
+     *
+     * @param path
+     * @param keyword
+     * @return
+     */
     public static BooleanExpression containsEnumValue(EnumPath<RewardPointType> path, String keyword) {
         List<RewardPointType> types = new ArrayList<>();
 
         for (RewardPointType type : RewardPointType.values()) {
-            if (type.getValue().contains(keyword)) {
+            if (type.getIssueCondition().contains(keyword)) {
                 types.add(type);
             }
         }
