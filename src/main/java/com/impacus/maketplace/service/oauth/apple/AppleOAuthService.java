@@ -3,9 +3,8 @@ package com.impacus.maketplace.service.oauth.apple;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.impacus.maketplace.common.constants.api.AppleAPIConstants;
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
-import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
@@ -42,7 +41,8 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AppleOAuthService implements OAuthService {
 
-    private static final String GRANT_TYPE = "authorization_code";
+    private static final String GENERATE_TOKEN_GRANT_TYPE = "authorization_code";
+    private static final String REISSUE_GRANT_TYPE = "refresh_token";
 
     private final AppleOAuthAPIService appleOAuthAPIService;
     private final CustomOauth2UserService customOauth2UserService;
@@ -70,25 +70,11 @@ public class AppleOAuthService implements OAuthService {
                 clientId,
                 createSecret(),
                 dto.getCode(),
-                GRANT_TYPE
+                GENERATE_TOKEN_GRANT_TYPE
         );
 
         // 2. 회원가입/로그인
-        String email = getEmailFromIdToken(tokenResponse.getIdToken());
-        OAuthAttributes attribute = OAuthAttributes.builder()
-                .name(email)
-                .email(email)
-                .oAuthProvider(dto.getOauthProviderType())
-                .build();
-        User user = customOauth2UserService.saveOrUpdate(attribute);
-        Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
-        TokenInfoVO token = tokenProvider.createToken(auth);
-
-        return OauthLoginDTO.of(
-                user,
-                false,
-                token
-        );
+        return saveOrUpdateUser(tokenResponse.getIdToken());
     }
 
     /**
@@ -99,7 +85,39 @@ public class AppleOAuthService implements OAuthService {
     @Override
     @Transactional
     public OauthLoginDTO login(OauthTokenDTO dto) {
-        throw new CustomException(CommonErrorType.UNKNOWN, "아직 제공하지 않는 기능입니다.");
+        // 1. 사용자 정보 조회
+        AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueToken(
+                clientId,
+                createSecret(),
+                dto.getRefreshToken(),
+                REISSUE_GRANT_TYPE
+        );
+        return saveOrUpdateUser(tokenResponse.getIdToken());
+    }
+
+    /**
+     * 애플 사용자를 저장 혹은 업데이트하고 토큰 발급하는 함수
+     *
+     * @param idToken
+     * @return
+     */
+    @Transactional
+    public OauthLoginDTO saveOrUpdateUser(String idToken) {
+        String email = getEmailFromIdToken(idToken);
+        OAuthAttributes attribute = OAuthAttributes.builder()
+                .name(email)
+                .email(email)
+                .oAuthProvider(OauthProviderType.APPLE)
+                .build();
+        User user = customOauth2UserService.saveOrUpdate(attribute);
+        Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
+        TokenInfoVO token = tokenProvider.createToken(auth);
+
+        return OauthLoginDTO.of(
+                user,
+                false,
+                token
+        );
     }
 
     private String getEmailFromIdToken(String idToken) {

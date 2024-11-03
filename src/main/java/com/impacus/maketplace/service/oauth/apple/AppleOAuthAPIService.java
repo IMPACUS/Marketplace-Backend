@@ -20,4 +20,12 @@ public interface AppleOAuthAPIService {
             @RequestParam("code") String code,
             @RequestParam("grant_type") String grantType
     );
+
+    @PostMapping(value = AppleAPIConstants.VALIDATE_CODE)
+    AppleTokenResponse reissueToken(
+            @RequestParam("client_id") String clientId,
+            @RequestParam("client_secret") String clientSecret,
+            @RequestParam("refresh_token") String refreshToken,
+            @RequestParam("grant_type") String grantType
+    );
 }
