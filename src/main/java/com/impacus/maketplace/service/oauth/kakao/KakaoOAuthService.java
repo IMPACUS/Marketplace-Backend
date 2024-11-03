@@ -55,12 +55,28 @@ public class KakaoOAuthService implements OAuthService {
                 redirectUri
         );
 
-        // 2. 사용자 프로필 정보 요청
-        KakaoUserProfileResponse profileResponse = kakaoCommonAPIService.getUserProfile(
-                String.format("Bearer %s", tokenResponse.getAccessToken())
+        OauthTokenDTO tokenRequestDTO = OauthTokenDTO.toDTO(
+                tokenResponse.getAccessToken(),
+                tokenResponse.getRefreshToken(),
+                dto.getOauthProviderType()
         );
 
-        // 3. 회원가입/로그인
+        return login(tokenRequestDTO);
+    }
+
+    /**
+     * 소셜 로그인/소셜 로그인 회원가입
+     *
+     * @param dto
+     */
+    @Override
+    public OauthLoginDTO login(OauthTokenDTO dto) {
+        // 1. 사용자 프로필 정보 요청
+        KakaoUserProfileResponse profileResponse = kakaoCommonAPIService.getUserProfile(
+                String.format("Bearer %s", dto.getAccessToken())
+        );
+
+        // 2. 회원가입/로그인
         OAuthAttributes attribute = OAuthAttributes.builder()
                 .name((String) profileResponse.getKakaoAccount().getProfile().get("nickname"))
                 .email(profileResponse.getKakaoAccount().getEmail())
@@ -75,16 +91,6 @@ public class KakaoOAuthService implements OAuthService {
                 false,
                 token
         );
-    }
-
-    /**
-     * 소셜 로그인/소셜 로그인 회원가입
-     *
-     * @param dto
-     */
-    @Override
-    public OauthLoginDTO login(OauthTokenDTO dto) {
-        return null;
     }
 
     /**
