@@ -58,6 +58,11 @@ public class OAuthAPIServiceFallback implements
     }
 
     @Override
+    public AppleTokenResponse reissueToken(String clientId, String clientSecret, String refreshToken, String grantType) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
     public GoogleTokenResponse getGoogleToken(String clientId, String clientSecret, String code, String grantType, String redirectUri) {
         throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
     }
