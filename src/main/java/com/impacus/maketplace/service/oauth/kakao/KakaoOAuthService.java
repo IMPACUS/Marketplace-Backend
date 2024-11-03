@@ -70,6 +70,7 @@ public class KakaoOAuthService implements OAuthService {
      * @param dto
      */
     @Override
+    @Transactional
     public OauthLoginDTO login(OauthTokenDTO dto) {
         // 1. 사용자 프로필 정보 요청
         KakaoUserProfileResponse profileResponse = kakaoCommonAPIService.getUserProfile(
