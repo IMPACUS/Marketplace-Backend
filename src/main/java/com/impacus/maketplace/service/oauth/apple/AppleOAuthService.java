@@ -97,6 +97,7 @@ public class AppleOAuthService implements OAuthService {
      * @param dto
      */
     @Override
+    @Transactional
     public OauthLoginDTO login(OauthTokenDTO dto) {
         throw new CustomException(CommonErrorType.UNKNOWN, "아직 제공하지 않는 기능입니다.");
     }
