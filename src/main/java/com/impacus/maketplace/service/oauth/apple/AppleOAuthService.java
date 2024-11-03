@@ -3,8 +3,10 @@ package com.impacus.maketplace.service.oauth.apple;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.impacus.maketplace.common.constants.api.AppleAPIConstants;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
@@ -65,6 +67,10 @@ public class AppleOAuthService implements OAuthService {
     @Override
     @Transactional
     public OauthLoginDTO login(OauthCodeDTO dto) {
+        if (dto.getOs() == null) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "os 데이터가 null일 수 없습니다.");
+        }
+
         // 1. 사용자 토큰 조회
         AppleTokenResponse tokenResponse = appleOAuthAPIService.getToken(
                 clientId,
