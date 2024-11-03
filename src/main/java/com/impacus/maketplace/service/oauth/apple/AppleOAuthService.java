@@ -3,7 +3,9 @@ package com.impacus.maketplace.service.oauth.apple;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.impacus.maketplace.common.constants.api.AppleAPIConstants;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
@@ -96,7 +98,7 @@ public class AppleOAuthService implements OAuthService {
      */
     @Override
     public OauthLoginDTO login(OauthTokenDTO dto) {
-        return null;
+        throw new CustomException(CommonErrorType.UNKNOWN, "아직 제공하지 않는 기능입니다.");
     }
 
     private String getEmailFromIdToken(String idToken) {

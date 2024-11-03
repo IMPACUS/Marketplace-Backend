@@ -3,9 +3,11 @@ package com.impacus.maketplace.dto.oauth.request;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class OauthTokenDTO {
     @NotBlank
     private String accessToken;
