@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.oauth.apple;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.impacus.maketplace.common.constants.api.AppleAPIConstants;
+import com.impacus.maketplace.common.enumType.OSType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -50,14 +51,24 @@ public class AppleOAuthService implements OAuthService {
     private final CustomOauth2UserService customOauth2UserService;
     private final JwtTokenProvider tokenProvider;
 
-    @Value("${apple.app-id}")
-    private String clientId;
+    @Value("${apple.aos-app-id}")
+    private String aosClientId;
+    @Value("${apple.ios-app-id}")
+    private String iosClientId;
     @Value("${apple.teamId}")
     private String appleTeamId;
     @Value("${apple.keyId}")
     private String appleKeyId;
     @Value("${apple.keyPath}")
     private String appleKeyPath;
+
+    private String getClientId(OSType osType) {
+        if (osType == OSType.AOS) {
+            return aosClientId;
+        } else {
+            return iosClientId;
+        }
+    }
 
     /**
      * 소셜 로그인/소셜 로그인 회원가입
@@ -72,9 +83,10 @@ public class AppleOAuthService implements OAuthService {
         }
 
         // 1. 사용자 토큰 조회
+        String clientId = getClientId(dto.getOs());
         AppleTokenResponse tokenResponse = appleOAuthAPIService.getToken(
                 clientId,
-                createSecret(),
+                createSecret(clientId),
                 dto.getCode(),
                 GENERATE_TOKEN_GRANT_TYPE
         );
@@ -91,10 +103,15 @@ public class AppleOAuthService implements OAuthService {
     @Override
     @Transactional
     public OauthLoginDTO login(OauthTokenDTO dto) {
+        if (dto.getOs() == null) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "os 데이터가 null일 수 없습니다.");
+        }
+
         // 1. 사용자 정보 조회
+        String clientId = getClientId(dto.getOs());
         AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueToken(
                 clientId,
-                createSecret(),
+                createSecret(clientId),
                 dto.getRefreshToken(),
                 REISSUE_GRANT_TYPE
         );
@@ -137,7 +154,7 @@ public class AppleOAuthService implements OAuthService {
         return email;
     }
 
-    private String createSecret() {
+    private String createSecret(String clientId) {
         Date expirationDate = Date.from(
                 LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
         try {
