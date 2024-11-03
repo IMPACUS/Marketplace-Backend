@@ -6,6 +6,7 @@ import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.google.GoogleTokenResponse;
 import com.impacus.maketplace.dto.oauth.google.GoogleUserInfoResponse;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
+import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -72,6 +73,16 @@ public class GoogleOAuthService implements OAuthService {
                 false,
                 token
         );
+    }
+
+    /**
+     * 소셜 로그인/소셜 로그인 회원가입
+     *
+     * @param dto
+     */
+    @Override
+    public OauthLoginDTO login(OauthTokenDTO dto) {
+        return null;
     }
 
     /**
