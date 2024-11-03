@@ -53,12 +53,29 @@ public class GoogleOAuthService implements OAuthService {
                 redirectUri
         );
 
-        // 2. 사용자 정보 요청
-        GoogleUserInfoResponse userInfoResponse = googleCommonAPIService.getUserInfo(
-                String.format("Bearer %s", tokenResponse.getAccessToken())
+        OauthTokenDTO tokenRequestDTO = OauthTokenDTO.toDTO(
+                tokenResponse.getAccessToken(),
+                tokenResponse.getRefreshToken(),
+                dto.getOauthProviderType()
         );
 
-        // 3. 회원 가입 및 로그인
+        return login(tokenRequestDTO);
+    }
+
+    /**
+     * 소셜 로그인/소셜 로그인 회원가입
+     *
+     * @param dto
+     */
+    @Override
+    @Transactional
+    public OauthLoginDTO login(OauthTokenDTO dto) {
+        // 1. 사용자 정보 요청
+        GoogleUserInfoResponse userInfoResponse = googleCommonAPIService.getUserInfo(
+                String.format("Bearer %s", dto.getAccessToken())
+        );
+
+        // 2. 회원 가입 및 로그인
         OAuthAttributes attribute = OAuthAttributes.builder()
                 .name(userInfoResponse.getName())
                 .email(userInfoResponse.getEmail())
@@ -73,16 +90,6 @@ public class GoogleOAuthService implements OAuthService {
                 false,
                 token
         );
-    }
-
-    /**
-     * 소셜 로그인/소셜 로그인 회원가입
-     *
-     * @param dto
-     */
-    @Override
-    public OauthLoginDTO login(OauthTokenDTO dto) {
-        return null;
     }
 
     /**
