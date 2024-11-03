@@ -17,4 +17,10 @@ public class OauthTokenDTO {
 
     @ValidEnum(enumClass = OauthProviderType.class)
     private OauthProviderType oauthProviderType;
+
+    public static OauthTokenDTO toDTO(
+            String accessToken, String refreshToken, OauthProviderType oauthProviderType
+    ) {
+        return new OauthTokenDTO(accessToken, refreshToken, oauthProviderType);
+    }
 }
