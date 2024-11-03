@@ -244,7 +244,7 @@ public class CouponAdminService {
     public Page<IssueCouponHistoryDTO> getIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
 
         // 1. 입력값 검증(날짜 검증)
-        if (startAt.isAfter(endAt)) {
+        if (startAt != null && endAt != null && startAt.isAfter(endAt)) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA);
         }
 
