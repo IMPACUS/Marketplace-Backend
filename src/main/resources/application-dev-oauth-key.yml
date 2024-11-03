@@ -64,4 +64,5 @@ apple:
   teamId: 9TLC6HGDZ9
   keyId: MP445Z8B2T
   keyPath: AuthKey_MP445Z8B2T.p8
-  app-id: implace.impacus.com
+  aos-app-id: implace.impacus.com
+  ios-app-id: com.impacus.implace
