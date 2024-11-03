@@ -5,7 +5,7 @@ import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.google.GoogleTokenResponse;
 import com.impacus.maketplace.dto.oauth.google.GoogleUserInfoResponse;
-import com.impacus.maketplace.dto.oauth.request.OauthDTO;
+import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -42,7 +42,7 @@ public class GoogleOAuthService implements OAuthService {
      */
     @Override
     @Transactional
-    public OauthLoginDTO login(OauthDTO dto) {
+    public OauthLoginDTO login(OauthCodeDTO dto) {
         // 1. 토큰 정보 요청
         GoogleTokenResponse tokenResponse = googleOAuthAPIService.getGoogleToken(
                 clientId,

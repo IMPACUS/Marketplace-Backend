@@ -7,7 +7,7 @@ import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
 import com.impacus.maketplace.dto.oauth.naver.userProfile.NaverUserResponse;
-import com.impacus.maketplace.dto.oauth.request.OauthDTO;
+import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -41,7 +41,7 @@ public class NaverOAuthService implements OAuthService {
      */
     @Override
     @Transactional
-    public OauthLoginDTO login(OauthDTO dto) {
+    public OauthLoginDTO login(OauthCodeDTO dto) {
         if (dto.getState() == null) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "Naver 로그인인 경우, state가 null일 수 없습니다.");
         }

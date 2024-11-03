@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class OauthDTO {
+public class OauthCodeDTO {
     @NotBlank
     private String code;
 
