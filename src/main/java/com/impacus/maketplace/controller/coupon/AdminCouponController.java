@@ -199,7 +199,7 @@ public class AdminCouponController {
     @GetMapping("/issue-coupon/history-list")
     public ApiResponseEntity<Page<IssueCouponHistoryDTO>> getIssueCouponHistoryList(@RequestParam(name = "name", required = false) String name,
                                                                                     @RequestParam(name = "status", required = false) UserCouponStatus userCouponStatus,
-                                                                                    @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+                                                                                     @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
                                                                                     @RequestParam(name = "end-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
                                                                                     @PageableDefault(sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable) {
 

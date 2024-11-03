@@ -48,7 +48,8 @@ public class CouponValidationRequestDTO {
     }
 
     public boolean isEmpty() {
-        return productInfosForCoupon.isEmpty() && orderCouponIds.isEmpty();
+        int sum = productInfosForCoupon.stream().mapToInt(ProductCouponValidationData::getAppliedCouponCount).sum();
+        return sum == 0 && orderCouponIds.isEmpty();
     }
 
     public List<Long> getUserCouponIds() {
