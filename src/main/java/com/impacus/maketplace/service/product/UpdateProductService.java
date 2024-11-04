@@ -114,20 +114,8 @@ public class UpdateProductService {
     private void validateProductRequest(UpdateProductDTO dto, CommonProductDTO savedProduct) {
         // 상품 이미지, 카테고리, 묶음 배송 그룹 유효성 검사
         readProductService.validateProductRequest(
-                savedProduct.getProductImages(),
-                dto.getCategoryId(),
                 savedProduct.getSellerId(),
-                dto.getBundleDeliveryOption(),
-                dto.getBundleDeliveryGroupId()
-        );
-        // 배송 및 환불 수수료 유효성 검사
-        readProductService.validateDeliveryRefundFee(
-                dto.getDeliveryFee(),
-                dto.getRefundFee(),
-                dto.getSpecialDeliveryFee(),
-                dto.getSpecialRefundFee(),
-                dto.getDeliveryFeeType(),
-                dto.getRefundFeeType()
+                dto
         );
     }
 

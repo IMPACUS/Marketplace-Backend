@@ -303,7 +303,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                 productClaimInfo.claimCost,
                                                 productClaimInfo.claimPolicyGuild,
                                                 productClaimInfo.claimContactInfo
-                                        ).as("claim")
+                                        ).as("claim"),
+                                        product.version
                                         )
                                 )
                         );
