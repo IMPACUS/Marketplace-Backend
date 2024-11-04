@@ -6,22 +6,26 @@ import com.impacus.maketplace.dto.product.dto.CommonProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.product.response.WebProductDTO;
 import com.impacus.maketplace.dto.product.response.WebProductTableDTO;
-import com.impacus.maketplace.dto.product.response.WebProductTableDetailDTO;
-import com.impacus.maketplace.entity.product.*;
+import com.impacus.maketplace.entity.product.Product;
+import com.impacus.maketplace.entity.product.QProduct;
+import com.impacus.maketplace.entity.product.QProductOption;
+import com.impacus.maketplace.entity.product.QWishlist;
+import com.impacus.maketplace.entity.seller.QSeller;
+import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,6 +34,8 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
     private final QWishlist wishlist = QWishlist.wishlist;
+    private final QSeller seller = QSeller.seller;
+    private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
 
     @Override
     public CommonProductDTO findCommonProductByProductId(Long productId) {
@@ -94,7 +100,8 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
                                     productOption.color,
                                     productOption.size
                                 )
-                            )
+                            ),
+                            product.createAt
                         )
                     )
                 );
@@ -172,8 +179,9 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
         // 3. productIds 에 포함되는 상품 조회
         JPAQuery<Product> query = queryFactory
             .selectFrom(product)
+                .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(product.sellerId))
             .leftJoin(productOption).on(productOptionBuilder)
-            .groupBy(product.id, productOption.id)
+                .groupBy(product.id, productOption.id, sellerDeliveryCompany.id)
             .where(product.id.in(productIds))
             .orderBy(product.createAt.desc());
         return query
@@ -187,7 +195,10 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
                         product.productNumber,
                         product.deliveryType,
                         product.createAt,
-                        GroupBy.list(productOption)
+                            GroupBy.list(productOption),
+                            product.deliveryFee,
+                            product.deliveryFeeType,
+                            sellerDeliveryCompany.generalDeliveryFee
                     )
                 )
             );

@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class RewardPointDTO {
     private Long rewardPointId;         // 포인트 리워드 아이디
     private Long point;                 // 포인트
+    private String name; // 포인트 명
     private String issueCondition;      // 지급 조건
     private long expirationPeriod;    // 사용 기간
     private long issueQuantity;         // 지급 수
@@ -34,7 +35,8 @@ public class RewardPointDTO {
     ) {
         this.rewardPointId = rewardPointId;
         this.point = rewardPointType.getAllocatedPoints();
-        this.issueCondition = rewardPointType.getValue();
+        this.name = rewardPointType.getValue();
+        this.issueCondition = this.point == null ? rewardPointType.getIssueCondition() : String.format("%s[%dP]", rewardPointType.getIssueCondition(), this.point);
         this.expirationPeriod = expirationPeriod.toDays();
         this.issueQuantity = issueQuantity;
         this.grantMethod = grantMethod;

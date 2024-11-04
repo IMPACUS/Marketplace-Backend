@@ -5,10 +5,13 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.repository.seller.mapping.SellerMarketNameViewsMapping;
+import com.impacus.maketplace.service.excel.ExcelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ReadSellerService {
     private final SellerRepository sellerRepository;
+    private final ExcelService excelService;
 
     /**
      * 판매자 입점 현황을 조회하는 함수
@@ -223,14 +227,18 @@ public class ReadSellerService {
             Pageable pageable,
             String brandName,
             String contactName,
-            UserStatus status
+            UserStatus status,
+            LocalDate startAt,
+            LocalDate endAt
     ) {
         try {
             return sellerRepository.getSellers(
                     pageable,
                     brandName,
                     contactName,
-                    status
+                    status,
+                    startAt,
+                    endAt
             );
         } catch (Exception exception) {
             throw new CustomException(exception);
@@ -271,6 +279,25 @@ public class ReadSellerService {
             return sellerRepository.getSellerInformationForApp(sellerId);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 판매자 목록 엑셀 생성 함수
+     *
+     * @return
+     */
+    public FileGenerationStatusIdDTO exportSellers(
+            IdsDTO dto
+    ) {
+        try {
+            List<SellerDTO> dtos = sellerRepository.findSellersByIds(
+                    dto
+            );
+
+            return excelService.generateExcel(dtos, SellerDTO.class);
+        } catch (Exception e) {
+            throw new CustomException(e);
         }
     }
 }

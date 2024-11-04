@@ -6,6 +6,8 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.service.UserService;
@@ -127,7 +129,7 @@ public class ReadSellerController {
     }
 
     /**
-     * 판매자 정보 관리 데이터 조회
+     * [판매자 판매자 정보 관리 데이터 조회
      *
      * @param user
      * @return
@@ -161,14 +163,16 @@ public class ReadSellerController {
     }
 
     /**
-     * 판매자 목록 조회 API
+     * [관리자] 판매자 목록 조회 API
      *
      * @return
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @GetMapping()
+    @GetMapping
     public ApiResponseEntity<Page<SellerDTO>> getSellers(
             @PageableDefault(size = 15, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(value = "start-at") LocalDate startAt,
+            @RequestParam(value = "end-at") LocalDate endAt,
             @RequestParam(value = "brand-name", required = false) String brandName,
             @RequestParam(value = "contact-name", required = false) String contactName,
             @RequestParam(value = "status", required = false) UserStatus status
@@ -177,7 +181,9 @@ public class ReadSellerController {
                 pageable,
                 brandName,
                 contactName,
-                status
+                status,
+                startAt,
+                endAt
         );
         return ApiResponseEntity
                 .<Page<SellerDTO>>builder()
@@ -187,12 +193,32 @@ public class ReadSellerController {
     }
 
     /**
-     * 판매자 목록 조회 API
+     * 판매자 목록 엑셀 생성 요청 API
      *
      * @return
      */
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @GetMapping("{sellerId}")
+    @PostMapping("/excel")
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportSellers(
+            @Valid @RequestBody IdsDTO dto
+    ) {
+        FileGenerationStatusIdDTO result = readSellerService.exportSellers(
+                dto
+        );
+        return ApiResponseEntity
+                .<FileGenerationStatusIdDTO>builder()
+                .message("판매자 목록 엑셀 생성 성공")
+                .data(result)
+                .build();
+    }
+
+    /**
+     * [관리자] 판매자 조회 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
+    @GetMapping("/{sellerId}")
     public ApiResponseEntity<SimpleSellerFromAdminDTO> getSellerInformationForWeb(@PathVariable Long sellerId) {
         SimpleSellerFromAdminDTO dto = readSellerService.getSellerInformationFroWeb(sellerId);
 

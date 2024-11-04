@@ -12,6 +12,7 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
@@ -25,6 +26,7 @@ import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
+import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
@@ -62,6 +64,7 @@ public class UserService {
     private final UserStatusInfoService userStatusInfoService;
     private final PointService pointService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
+    private final AlarmUserService alarmUserService;
 
     @Transactional
     public UserDTO addUser(SignUpDTO signUpRequest) {
@@ -90,6 +93,7 @@ public class UserService {
                     signUpRequest.getName());
             userRepository.save(user);
             userStatusInfoService.addUserStatusInfo(user.getId());
+            alarmUserService.saveDefault(user.getId());
 
             // 4. 포인트 관련 Entity 생성
             // (LevelPointMaster, LevelAchievement, GreenLabelPoint)
@@ -229,7 +233,7 @@ public class UserService {
      * @param userType
      * @return
      */
-    private User validateAndFindUser(String email, UserType userType) {
+    public User validateAndFindUser(String email, UserType userType) {
         User user = switch (userType) {
             case ROLE_CERTIFIED_USER -> {
                 User checkedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
@@ -354,6 +358,10 @@ public class UserService {
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+    }
+
+    public CommonUserDTO findCommonUserByEmail(String email) {
+        return userRepository.findCommonUserByEmail(email);
     }
 
     public boolean existUserByEmail(String email) {

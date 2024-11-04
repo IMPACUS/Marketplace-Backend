@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -24,7 +25,13 @@ public class BaseInfoDTO {
     @NotNull
     private BaseInfoDetailDTO levelPoint;
 
+    private LocalDateTime modifyAt;
+
     public BaseInfoDTO(List<BaseInfoDetailDTO> baseInfoDetailDTOS) {
+        if (baseInfoDetailDTOS != null && !baseInfoDetailDTOS.isEmpty()) {
+            this.modifyAt = baseInfoDetailDTOS.get(0).getModifyAt();
+        }
+
         for (BaseInfoDetailDTO baseInfoDetailDTO : baseInfoDetailDTOS) {
             switch (baseInfoDetailDTO.getInfoType()) {
                 case GREEN_TAG_COUPON -> {

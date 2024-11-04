@@ -6,15 +6,20 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
-import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointHistory;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointHistoryRelation;
+import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.QGreenLabelPointHistory;
+import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.QOrderGreenLabelPointHistory;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +41,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
     private final QGreenLabelPointHistoryRelation relation = QGreenLabelPointHistoryRelation.greenLabelPointHistoryRelation;
     private final QGreenLabelPointAllocation allocation = QGreenLabelPointAllocation.greenLabelPointAllocation;
     private final QUser user = QUser.user;
+    private final QOrderGreenLabelPointHistory orderHistory = QOrderGreenLabelPointHistory.orderGreenLabelPointHistory;
 
 
     @Override
@@ -83,10 +89,36 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
             LocalDate startAt,
             LocalDate endAt
     ) {
-
         // 1. 검색어 필터링
+        BooleanBuilder builder = getBuilderInWebGreenLabelHistoryDTO(
+                keyword,
+                status,
+                startAt,
+                endAt
+        );
+
+        // 2. 데이터 조회
+        List<WebGreenLabelHistoryDTO> dtos = getWebGreenLabelHistoryDTOs(builder, pageable);
+
+        long count = queryFactory
+                .select(history.id.count())
+                .from(history)
+                .innerJoin(user).on(user.id.eq(history.userId))
+                .where(builder)
+                .fetchFirst();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    public BooleanBuilder getBuilderInWebGreenLabelHistoryDTO(
+            String keyword,
+            RewardPointStatus status,
+            LocalDate startAt,
+            LocalDate endAt
+    ) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(history.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)));
+        builder.and(history.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .and(history.pointStatus.eq(PointStatus.GRANT));
 
         if (keyword != null && !keyword.isBlank()) {
             builder.and(user.email.containsIgnoreCase(keyword));
@@ -102,8 +134,14 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
             }
         }
 
-        // 2. 데이터 조회
-        List<WebGreenLabelHistoryDTO> dtos = queryFactory
+        return builder;
+    }
+
+    public List<WebGreenLabelHistoryDTO> getWebGreenLabelHistoryDTOs(
+            BooleanBuilder builder,
+            Pageable pageable
+    ) {
+        JPAQuery<WebGreenLabelHistoryDTO> query = queryFactory
                 .select(
                         Projections.constructor(
                                 WebGreenLabelHistoryDTO.class,
@@ -119,19 +157,26 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
                 .from(history)
                 .innerJoin(user).on(user.id.eq(history.userId))
                 .where(builder)
-                .orderBy(history.createAt.desc())
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch();
+                .orderBy(history.createAt.desc());
 
-        long count = queryFactory
-                .select(history.id.count())
-                .from(history)
-                .innerJoin(user).on(user.id.eq(history.userId))
-                .where(builder)
-                .fetchFirst();
+        if (pageable != null) {
+            return query
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+        } else {
+            return query.fetch();
+        }
+    }
 
-        return PaginationUtils.toPage(dtos, pageable, count);
+    @Override
+    public List<WebGreenLabelHistoryDTO> findGreenLabelPointHistoriesByIds(IdsDTO dto) {
+        // 1. 검색어 필터링
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(history.id.in(dto.getIds()));
+
+        // 2. 데이터 조회
+        return getWebGreenLabelHistoryDTOs(builder, null);
     }
 
     @Override
@@ -141,7 +186,6 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
         builder.and(history.userId.eq(userId));
 
         // 2. 조회
-        // TODO 주문 번호 조회하는 쿼리 추가
         List<WebGreenLabelHistoryDetailDTO> dtos = queryFactory
                 .select(
                         Projections.constructor(
@@ -152,7 +196,14 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
                                 history.pointType,
                                 history.tradeAmount,
                                 history.createAt,
-                                history.pointStatus
+                                history.pointStatus,
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(orderHistory.orderId)
+                                                .from(orderHistory)
+                                                .where(orderHistory.id.eq(history.id)),
+                                        "orderId"
+                                )
+
                         )
                 )
                 .from(history)

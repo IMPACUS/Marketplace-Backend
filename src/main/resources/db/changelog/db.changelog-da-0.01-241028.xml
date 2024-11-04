@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-da-0.01-241028" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="notice"/>
+            </not>
+        </preConditions>
+        <createTable tableName="notice">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)" remarks="NOTICE, EVENT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attach_file_id" type="BIGINT" remarks="attach_file의 FK"/>
+            <column name="title" type="VARCHAR(255)" remarks="제목">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="text" remarks="내용"/>
+            <column name="start_date_time" type="datetime" remarks="시작 날짜"/>
+            <column name="end_date_time" type="datetime" remarks="종료 날짜"/>
+            <column name="status" type="VARCHAR(255)" remarks="RUN, STOP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="impression" type="int" defaultValue="0" remarks="노출 수">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

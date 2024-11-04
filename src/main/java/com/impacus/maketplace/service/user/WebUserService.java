@@ -7,6 +7,8 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
@@ -18,6 +20,7 @@ import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.repository.user.UserStatusInfoRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.coupon.CouponApiServiceImpl;
+import com.impacus.maketplace.service.excel.ExcelService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.point.levelPoint.LevelPointMasterService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,6 +46,7 @@ public class WebUserService {
     private final GreenLabelPointRepository greenLabelPointRepository;
     private final LevelPointMasterRepository levelPointMasterRepository;
     private final CouponApiServiceImpl couponApiService;
+    private final ExcelService excelService;
 
     /**
      * 이메일로 사용자 프로필 검색하는 함수
@@ -96,8 +101,6 @@ public class WebUserService {
             if (dto == null) {
                 throw new CustomException(UserErrorType.NOT_EXISTED_USER);
             }
-
-            dto.updateLoginInfo();
             return dto;
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -180,7 +183,7 @@ public class WebUserService {
 
             // 그린 라벨 포인트 지급
             if (dto.getGreenLabelPoint() != null) {
-                long currentGreenLabelPoint = greenLabelPointRepository.findGreenLabelPointByUserId(userId);
+                long currentGreenLabelPoint = greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId);
                 long changedGreenLabelPoint = dto.getGreenLabelPoint() - currentGreenLabelPoint;
                 if (changedGreenLabelPoint < 1) {
                     throw new CustomException(PointErrorType.INVALID_POINT, "지급할 가용 포인트가 현재 보유한 포인트보다 작을 수 없습니다.");
@@ -194,6 +197,25 @@ public class WebUserService {
                 couponApiService.issueCouponUser(userId, dto.getCouponId());
             }
 
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 회원 목록 엑셀 파일 생성
+     *
+     * @return
+     */
+    public FileGenerationStatusIdDTO exportUsers(
+            IdsDTO dto
+    ) {
+        try {
+            List<WebUserDTO> dtos = userRepository.findUsersByIds(
+                    dto
+            );
+
+            return excelService.generateExcel(dtos, WebUserDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }

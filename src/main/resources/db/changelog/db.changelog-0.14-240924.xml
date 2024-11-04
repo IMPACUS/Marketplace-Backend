@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-0.14.01-240924" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="alarm_admin_for_user"/>
+                <tableExists tableName="alarm_admin_for_seller"/>
+            </not>
+        </preConditions>
+        <createTable tableName="alarm_admin_for_user">
+            <column name="alarm_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(255)" remarks="카테고리">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subcategory" type="VARCHAR(255)" remarks="하단 카테고리">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment1" type="text" remarks="알림 내용1"/>
+            <column name="comment2" type="text" remarks="알림 내용2"/>
+            <column name="template" type="text" remarks="알림 내용 템플릿"/>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+        <createTable tableName="alarm_admin_for_seller">
+            <column name="alarm_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(255)" remarks="카테고리">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subcategory" type="VARCHAR(255)" remarks="하단 카테고리">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment1" type="text" remarks="알림 내용1"/>
+            <column name="template" type="text" remarks="알림 내용 템플릿"/>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.02-240924" author="sda0523">
+        <dropTable tableName="order_delivery_alarm"/>
+        <dropTable tableName="brand_shop_alarm"/>
+        <dropTable tableName="shopping_benefits_alarm"/>
+        <dropTable tableName="service_center_alarm"/>
+        <dropTable tableName="restock_alarm"/>
+        <dropTable tableName="review_alarm"/>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.03-240924" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="alarm_user"/>
+                <tableExists tableName="alarm_seller"/>
+            </not>
+        </preConditions>
+        <createTable tableName="alarm_user">
+            <column name="alarm_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT" autoIncrement="true" remarks="user_info의 FK">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(255)" remarks="카테고리">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_on" type="BOOLEAN" remarks="알림 on off"/>
+            <column name="kakao" type="BOOLEAN" remarks="카카오 전송 유무"/>
+            <column name="push" type="BOOLEAN" remarks="push 전송 유무"/>
+            <column name="msg" type="BOOLEAN" remarks="문자 전송 유무"/>
+            <column name="email" type="BOOLEAN" remarks="이메일 전송 유무"/>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createIndex indexName="idx_user_id" tableName="alarm_user">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex indexName="idx_user_category" tableName="alarm_user">
+            <column name="category"/>
+        </createIndex>
+
+        <createTable tableName="alarm_seller">
+            <column name="alarm_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="seller_id" type="BIGINT" autoIncrement="true" remarks="seller의 FK">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(255)" remarks="카테고리">
+                <constraints nullable="false"/>
+            </column>
+            <column name="kakao" type="BOOLEAN" remarks="카카오 전송 유무"/>
+            <column name="email" type="BOOLEAN" remarks="이메일 전송 유무"/>
+            <column name="msg" type="BOOLEAN" remarks="문자 전송 유무"/>
+            <column name="time" type="VARCHAR(255)" remarks="알림 시간 설정 ALL(24hr), FIX(9시~22시), CUSTOM(브랜드 영업시간)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createIndex indexName="idx_seller_id" tableName="alarm_seller">
+            <column name="seller_id"/>
+        </createIndex>
+        <createIndex indexName="idx_seller_category" tableName="alarm_seller">
+            <column name="category"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="changelog-0.14.04-240924-1" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="alarm_token"/>
+            </not>
+        </preConditions>
+        <createTable tableName="alarm_token">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)" remarks="BIZGO, FCM">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT" remarks="user_info의 id">
+                <constraints unique="true"/>
+            </column>
+            <column name="token" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired_date" type="TIMESTAMP"/>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-sda0.14.05-240924" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="alarm_hold"/>
+            </not>
+        </preConditions>
+        <createTable tableName="alarm_hold">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="send_time" type="TIME" remarks="보낼 시간">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="BOOLEAN"/>
+            <column name="kakao" type="BOOLEAN"/>
+            <column name="msg" type="BOOLEAN"/>
+            <column name="subject" type="VARCHAR(255)" remarks="메일 제목"/>
+            <column name="receiver" type="VARCHAR(255)" remarks="받는 메일 주소"/>
+            <column name="phone" type="VARCHAR(255)" remarks="받는 폰 번호"/>
+            <column name="kakao_code" type="VARCHAR(255)" remarks="카카오 템플릿 코드"/>
+            <column name="text" type="text" remarks="알림 내용"/>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-sday0.15.06-24-09-24" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="alarm_hold" columnName="send_time"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="alarm_hold">
+            <column name="send_time" type="TIME" remarks="보낼 시간">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

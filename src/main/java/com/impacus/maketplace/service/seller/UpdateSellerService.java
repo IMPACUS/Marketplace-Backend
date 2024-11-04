@@ -27,6 +27,7 @@ import com.impacus.maketplace.repository.seller.deliveryCompany.SellerDeliveryCo
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.alarm.seller.AlarmSellerService;
 import com.impacus.maketplace.service.seller.delivery.SelectedSellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.delivery.SellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SelectedSellerDeliveryCompanyService;
@@ -61,6 +62,7 @@ public class UpdateSellerService {
     private final SelectedSellerDeliveryAddressService selectedSellerDeliveryAddressService;
     private final SelectedSellerDeliveryAddressRepository selectedSellerDeliveryAddressRepository;
     private final EmailService emailService;
+    private final AlarmSellerService alarmSellerService;
 
     /**
      * 판매자 입점 상태를 변경하는 함수
@@ -104,6 +106,7 @@ public class UpdateSellerService {
             if (entryStatus == EntryStatus.APPROVE) {
                 userService.updateUserType(userId, UserType.ROLE_APPROVED_SELLER);
                 emailService.sendMail(emailDto, MailType.SELLER_APPROVE);
+                alarmSellerService.saveDefault(seller.getId());
             } else {
                 userService.updateUserType(userId, UserType.ROLE_UNAPPROVED_SELLER);
                 emailService.sendMail(emailDto, MailType.SELLER_REJECT);
@@ -154,6 +157,7 @@ public class UpdateSellerService {
             boolean isExistedBrand = brandRepository.existsBySellerId(sellerId);
 
             // 2. 스토어 정보 변경
+            dto.roundOpeningTime(); // 영업 시간 반올림
             sellerRepository.updateBrandInformationByUserId(userId, sellerId, dto, isExistedBrand);
 
             // 3. 브랜드 정보가 존재하지 않은 경우 생성
@@ -447,7 +451,9 @@ public class UpdateSellerService {
             // 1. 프로필 이미지 존재하는 경우, 프로필 이미지 저장
             Long profileImageId = null;
             if (profileImage != null) {
-                profileImageId = attachFileService.uploadFileAndAddAttachFile(profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY).getId();
+                profileImageId = attachFileService.uploadFileAndAddAttachFile(
+                        profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY
+                ).getId();
             }
 
             // 2. 판매자 정보 업데이트

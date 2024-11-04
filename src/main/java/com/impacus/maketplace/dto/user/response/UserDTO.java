@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.user.response;
 
+import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
@@ -19,6 +20,10 @@ public class UserDTO {
 
     public UserDTO(User user, TokenInfoVO token) {
         this(user.getId(), user.getEmail(), user.getPassword(), user.getName(), token);
+    }
+
+    public UserDTO(CommonUserDTO user, TokenInfoVO token) {
+        this(user.getUserId(), user.getEmail(), user.getPassword(), user.getName(), token);
     }
 
     public UserDTO(AdminInfo admin, TokenInfoVO token) {

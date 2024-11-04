@@ -132,6 +132,11 @@ public class AdminService {
      */
     @Transactional(readOnly = false)
     public AdminInfo registerAdminForm(AdminFormDTO adminFormDTO) {
+        // 1. 유효성 확인
+        if (adminInfoRepository.findByAdminIdName(adminFormDTO.getAdminIdName()).isPresent()) {
+            throw new CustomException(AdminErrorType.DUPLICATED_ADMIN_ID_NAME);
+        }
+
         // 먼저 AdminFormDTO에서 받은 정보를 AdminInfo 에 등록하고 해당 폼 삽입
         AdminInfo adminInfo
                 = AdminInfo

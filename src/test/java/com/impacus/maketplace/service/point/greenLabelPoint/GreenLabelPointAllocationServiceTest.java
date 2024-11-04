@@ -5,13 +5,13 @@ import com.impacus.maketplace.common.enumType.point.PointStatus;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.PointUsageStatus;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import com.impacus.maketplace.entity.point.RewardPoint;
-import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistory;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPointHistoryRelation;
+import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.CommonGreenLabelPointHistory;
 import com.impacus.maketplace.repository.point.RewardPointRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointAllocationRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRelationRepository;
-import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointHistoryRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.mapping.NotUsedGreenLabelPointAllocationDTO;
 import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
@@ -42,7 +42,7 @@ class GreenLabelPointAllocationServiceTest {
     @Mock
     private GreenLabelPointAllocationRepository allocationRepository;
     @Mock
-    private GreenLabelPointHistoryRepository historyRepository;
+    private GreenLabelPointHistoryService greenLabelPointHistoryService;
     @Mock
     private GreenLabelPointHistoryRelationRepository relationRepository;
     @Mock
@@ -60,7 +60,7 @@ class GreenLabelPointAllocationServiceTest {
         RewardPoint rewardPoint = RewardPoint.from(pointType.getRewardPointType());
 
         // when
-        lenient().when(greenLabelPointRepository.findGreenLabelPointByUserId(userId)).thenReturn(200L);
+        lenient().when(greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId)).thenReturn(200L);
         when(rewardPointRepository.findByRewardPointType(pointType.getRewardPointType())).thenReturn(rewardPoint);
         when(allocationService.validateAndIncrementIssueQuantity(pointType.getRewardPointType())).thenReturn(true);
         boolean result = allocationService.payGreenLabelPoint(userId, pointType, tradePoint);
@@ -150,7 +150,7 @@ class GreenLabelPointAllocationServiceTest {
         NotUsedGreenLabelPointAllocationDTO allocation2 = new NotUsedGreenLabelPointAllocationDTO(2L, 70L, LocalDateTime.now(), pointStatus);
         List<NotUsedGreenLabelPointAllocationDTO> allocations = Arrays.asList(allocation1, allocation2);
 
-        GreenLabelPointHistory history = GreenLabelPointHistory.of(
+        CreateGreenLabelHistoryDTO dto = CreateGreenLabelHistoryDTO.of(
                 userId,
                 type,
                 PointStatus.USE,
@@ -159,11 +159,12 @@ class GreenLabelPointAllocationServiceTest {
                 100L,
                 0L
         );
+        CommonGreenLabelPointHistory history = new CommonGreenLabelPointHistory(dto);
 
         // when
-        when(greenLabelPointRepository.findGreenLabelPointByUserId(userId)).thenReturn(200L);
+        when(greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId)).thenReturn(200L);
         when(allocationRepository.findNotUsedGreenLabelPointByUserId(userId)).thenReturn(allocations);
-        when(historyRepository.save(any(GreenLabelPointHistory.class)))
+        when(greenLabelPointHistoryService.saveHistory(any(CreateGreenLabelHistoryDTO.class)))
                 .thenReturn(history);
         when(relationRepository.save(any(GreenLabelPointHistoryRelation.class))).thenReturn(null);
         when(levelPointMasterRepository.findLevelPointByUserId(userId)).thenReturn(0L);
@@ -171,7 +172,7 @@ class GreenLabelPointAllocationServiceTest {
 
         // then
         verify(greenLabelPointRepository).updateGreenLabelPointByUserId(userId, 100L);
-        verify(historyRepository).save(any(GreenLabelPointHistory.class));
+        verify(greenLabelPointHistoryService).saveHistory(any(CreateGreenLabelHistoryDTO.class));
         verify(relationRepository, times(2)).save(any(GreenLabelPointHistoryRelation.class));
         verify(allocationRepository, times(2)).updateGreenLabelPointAllocationById(anyLong(), any(PointUsageStatus.class), anyLong());
     }
@@ -186,7 +187,7 @@ class GreenLabelPointAllocationServiceTest {
         boolean allowsNegativeBalance = false;
 
         // when
-        when(greenLabelPointRepository.findGreenLabelPointByUserId(userId)).thenReturn(200L);
+        when(greenLabelPointRepository.findWriteLockGreenLablePointByUserId(userId)).thenReturn(200L);
         CustomException exception = assertThrows(CustomException.class, () ->
                 allocationService.deductPoints(userId, type, usedPoints, allowsNegativeBalance));
 

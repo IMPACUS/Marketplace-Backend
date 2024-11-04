@@ -5,6 +5,8 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
@@ -22,6 +24,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
@@ -66,7 +69,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 user.email,
                                 greenLabelPoint.greenLabelPoint,
                                 levelPointMaster.levelPoint,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 attachFile.attachFileName.as("profileImageUrl"),
                                 user.createAt.as("registerAt")
                         )
@@ -138,46 +142,20 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             OauthProviderType oauthProviderType,
             UserStatus status
     ) {
-        BooleanBuilder builder = new BooleanBuilder();
-
-        // 필터링
-        builder.and(user.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
-                .and(user.type.in(new UserType[]{UserType.ROLE_CERTIFIED_USER, UserType.ROLE_DEACTIVATED_USER}));
-        if (userName != null && !userName.isBlank()) {
-            builder.and(user.name.containsIgnoreCase(userName));
-        }
-        if (phoneNumber != null && !phoneNumber.isBlank()) {
-            builder.and(user.phoneNumber.eq(phoneNumber)); // TODO 본인 인증 API 연결 시, 핸드폰 뒷자리 4자리만 검색하도록 변경
-        }
-        if (oauthProviderType != null) {
-            builder.and(user.email.contains(oauthProviderType.name()));
-        }
-        if (status != null) {
-            builder.and(userStatusInfo.status.eq(status));
-        }
+        BooleanBuilder builder = getBooleanBuilderForWebUserDTO(
+                userName,
+                phoneNumber,
+                startAt,
+                endAt,
+                oauthProviderType,
+                status
+        );
 
         // 데이터 검색
-        List<WebUserDTO> dtos = queryFactory
-                .select(
-                        Projections.constructor(
-                                WebUserDTO.class,
-                                user.id,
-                                user.name,
-                                user.email,
-                                user.phoneNumber,
-                                levelPointMaster.userLevel,
-                                user.createAt,
-                                user.recentLoginAt
-                        )
-                )
-                .from(user)
-                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
-                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
-                .where(builder)
-                .orderBy(user.createAt.desc())
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetch();
+        List<WebUserDTO> dtos = getWebUserDTOs(
+                pageable,
+                builder
+        );
 
         long count = queryFactory
                 .select(
@@ -192,18 +170,82 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         return PaginationUtils.toPage(dtos, pageable, count);
     }
 
+    private BooleanBuilder getBooleanBuilderForWebUserDTO(
+            String userName,
+            String phoneNumber,
+            LocalDate startAt,
+            LocalDate endAt,
+            OauthProviderType oauthProviderType,
+            UserStatus status
+    ) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 필터링
+        builder.and(user.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .and(user.type.in(new UserType[]{UserType.ROLE_CERTIFIED_USER, UserType.ROLE_DEACTIVATED_USER}));
+        if (userName != null && !userName.isBlank()) {
+            builder.and(user.name.containsIgnoreCase(userName));
+        }
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            builder.and(user.phoneNumberSuffix.containsIgnoreCase(phoneNumber));
+        }
+        if (oauthProviderType != null) {
+            builder.and(user.email.contains(oauthProviderType.name()));
+        }
+        if (status != null) {
+            builder.and(userStatusInfo.status.eq(status));
+        }
+
+        return builder;
+    }
+
+    private List<WebUserDTO> getWebUserDTOs(
+            Pageable pageable,
+            BooleanBuilder builder
+    ) {
+        JPAQuery<WebUserDTO> query = queryFactory
+                .select(
+                        Projections.constructor(
+                                WebUserDTO.class,
+                                user.id,
+                                user.name,
+                                user.email,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
+                                levelPointMaster.userLevel,
+                                user.createAt,
+                                user.recentLoginAt
+                        )
+                )
+                .from(user)
+                .innerJoin(levelPointMaster).on(user.id.eq(levelPointMaster.userId))
+                .innerJoin(userStatusInfo).on(user.id.eq(userStatusInfo.userId))
+                .where(builder)
+                .orderBy(user.createAt.desc());
+
+        if (pageable != null) {
+            return query
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+        } else {
+            return query.fetch();
+        }
+    }
+
     @Override
     public WebUserDetailDTO getUser(Long userId) {
         return queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 WebUserDetailDTO.class,
                                 user.id.as("userId"),
                                 attachFile.attachFileName.as("profileImageUrl"),
                                 user.email,
                                 user.password,
                                 user.name,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 user.createAt.as("registerAt"),
                                 levelPointMaster.userLevel,
                                 levelPointMaster.levelPoint,
@@ -241,5 +283,39 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .execute();
 
         return result;
+    }
+
+    @Override
+    public CommonUserDTO findCommonUserByEmail(String email) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                CommonUserDTO.class,
+                                user.id.as("userId"),
+                                user.email,
+                                user.password,
+                                user.name,
+                                user.type,
+                                userStatusInfo.status
+                        )
+                )
+                .from(user)
+                .innerJoin(userStatusInfo).on(userStatusInfo.userId.eq(user.id))
+                .where(user.email.eq(email))
+                .fetchFirst();
+    }
+
+    @Override
+    public List<WebUserDTO> findUsersByIds(
+            IdsDTO dto
+    ) {
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(user.id.in(dto.getIds()));
+
+        // 데이터 검색
+        return getWebUserDTOs(
+                null,
+                builder
+        );
     }
 }

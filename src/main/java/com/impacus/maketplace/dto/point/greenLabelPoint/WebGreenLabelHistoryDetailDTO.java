@@ -27,17 +27,22 @@ public class WebGreenLabelHistoryDetailDTO {
             PointType pointType,
             long tradeAmount,
             LocalDateTime createAt,
-            PointStatus pointStatus
+            PointStatus pointStatus,
+            String orderId
     ) {
         this.historyId = historyId;
         this.availablePoints = greenLabelPoint;
         this.levelPoint = levelPoint;
-        this.pointDescription = pointType.getValue(); // TODO 주문 번호 추가하도록 수정
+        this.pointDescription = pointType.getValue();
         this.createAt = createAt;
         this.tradeAmount = tradeAmount;
         if (pointStatus == PointStatus.USE || pointStatus == PointStatus.EXPIRE) {
             this.usedPoint = tradeAmount;
         }
 
+        if (orderId != null) {
+
+            this.pointDescription = String.format("[%s] %s", orderId, pointDescription);
+        }
     }
 }
