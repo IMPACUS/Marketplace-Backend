@@ -100,7 +100,8 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
                                     productOption.color,
                                     productOption.size
                                 )
-                            )
+                            ),
+                            product.createAt
                         )
                     )
                 );
