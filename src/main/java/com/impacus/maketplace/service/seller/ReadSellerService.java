@@ -5,7 +5,7 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
-import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.seller.Seller;
@@ -288,7 +288,7 @@ public class ReadSellerService {
      * @return
      */
     public FileGenerationStatusIdDTO exportSellers(
-            IdsDTO dto
+            CouponIdsDTO dto
     ) {
         try {
             List<SellerDTO> dtos = sellerRepository.findSellersByIds(

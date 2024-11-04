@@ -7,7 +7,7 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
@@ -208,7 +208,7 @@ public class WebUserService {
      * @return
      */
     public FileGenerationStatusIdDTO exportUsers(
-            IdsDTO dto
+            CouponIdsDTO dto
     ) {
         try {
             List<WebUserDTO> dtos = userRepository.findUsersByIds(

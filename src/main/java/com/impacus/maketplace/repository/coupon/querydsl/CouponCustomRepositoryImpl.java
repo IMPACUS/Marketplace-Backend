@@ -1,9 +1,6 @@
 package com.impacus.maketplace.repository.coupon.querydsl;
 
-import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
-import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.ProductType;
-import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
+import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.QCoupon;
 import com.impacus.maketplace.entity.coupon.QUserCoupon;
@@ -96,7 +93,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public Page<IssueCouponHistoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus status, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+    public IssueCouponHistoriesDTO findIssueCouponHistories(String name, UserCouponStatus status, LocalDate startAt, LocalDate endAt, Pageable pageable) {
         List<IssueCouponHistoryDTO> content = queryFactory
                 .select(new QIssueCouponHistoryDTO(
                         userCoupon.id,
@@ -132,7 +129,51 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                         userCouponStatusEq(status),
                         betweenDate(startAt, endAt));
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        // Page 변환
+        Page<IssueCouponHistoryDTO> pageContent = PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+
+        // Select Statistics
+        List<IssueCouponStatisticDTO> statistics = queryFactory
+                .select(new QIssueCouponStatisticDTO(
+                        coupon.benefitType,
+                        userCoupon.id.count(),
+                        coupon.benefitValue.sum()
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .join(user).on(user.id.eq(userCoupon.userId))
+                .where(
+                        couponNameEq(name),
+                        userCouponStatusEq(status),
+                        betweenDate(startAt, endAt)
+                )
+                .groupBy(coupon.benefitType)
+                .fetch();
+
+        // 통계 값 계산
+        Long totalCount = statistics.stream()
+                .mapToLong(IssueCouponStatisticDTO::getCount)
+                .sum();
+
+        // 금액 할인 쿠폰 통계
+        IssueCouponStatisticDTO amountStat = statistics.stream()
+                .filter(stat -> stat.getBenefitType() == BenefitType.AMOUNT)
+                .findFirst()
+                .orElse(new IssueCouponStatisticDTO(BenefitType.AMOUNT, 0L, 0L));
+
+        Long totalDiscountedPrice = amountStat.getTotalBenefitValue();
+        Long totalDiscountedPriceCount = amountStat.getCount();
+
+        // 비율 할인 쿠폰 통계
+        IssueCouponStatisticDTO percentStat = statistics.stream()
+                .filter(stat -> stat.getBenefitType() == BenefitType.PERCENTAGE)
+                .findFirst()
+                .orElse(new IssueCouponStatisticDTO(BenefitType.PERCENTAGE, 0L, 0L));
+
+        Long totalDiscountedPercent = percentStat.getTotalBenefitValue();
+        Long totalDiscountedPercentCount = percentStat.getCount();
+
+        return new IssueCouponHistoriesDTO(pageContent, totalCount, totalDiscountedPrice, totalDiscountedPriceCount, totalDiscountedPercent, totalDiscountedPercentCount);
     }
 
     @Override
