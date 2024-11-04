@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class IssueCouponHistoryDTO {
-    private Long id;
+    private Long userCouponId;
 
     @ExcelColumn(headerName = "쿠폰번호")
     private String code;
@@ -33,7 +33,7 @@ public class IssueCouponHistoryDTO {
     private String userName;
 
     @ExcelColumn(headerName = "지급 상태")
-    private UserCouponStatus userCouponStatus;
+    private UserCouponStatus status;
 
     @ExcelColumn(headerName = "지급 일자")
     private LocalDate issueDate;
@@ -42,15 +42,15 @@ public class IssueCouponHistoryDTO {
     private Long benefitValue;   // 혜택 금액 및 퍼센트
 
     @QueryProjection
-    public IssueCouponHistoryDTO(Long id, String code, String description, String name, String userEmail, String userName, UserCouponStatus userCouponStatus, LocalDateTime createAt, BenefitType benefitType, Long benefitValue) {
-        this.id = id;
+    public IssueCouponHistoryDTO(Long userCouponId, String code, String description, String name, String userEmail, String userName, UserCouponStatus status, LocalDateTime createAt, BenefitType benefitType, Long benefitValue) {
+        this.userCouponId = userCouponId;
         this.code = code;
         this.provider = "IMPACUS";
         this.description = description;
         this.name = name;
         this.userEmail = StringUtils.getEmailInfo(userEmail).getEmail();
         this.userName = userName;
-        this.userCouponStatus = userCouponStatus;
+        this.status = status;
         this.issueDate = createAt.toLocalDate();
         this.benefitType = benefitType;
         this.benefitValue = benefitValue;

@@ -96,7 +96,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public Page<IssueCouponHistoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+    public Page<IssueCouponHistoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus status, LocalDate startAt, LocalDate endAt, Pageable pageable) {
         List<IssueCouponHistoryDTO> content = queryFactory
                 .select(new QIssueCouponHistoryDTO(
                         userCoupon.id,
@@ -115,7 +115,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                 .join(user).on(user.id.eq(userCoupon.userId))
                 .where(
                         couponNameEq(name),
-                        userCouponStatusEq(userCouponStatus),
+                        userCouponStatusEq(status),
                         betweenDate(startAt, endAt))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -124,11 +124,12 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
         // Count Data
         JPAQuery<Long> countQuery = queryFactory
                 .select(coupon.count())
-                .from(coupon)
+                .from(userCoupon)
                 .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .join(user).on(user.id.eq(userCoupon.userId))
                 .where(
                         couponNameEq(name),
-                        userCouponStatusEq(userCouponStatus),
+                        userCouponStatusEq(status),
                         betweenDate(startAt, endAt));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
@@ -320,8 +321,8 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
         return userCoupon.expiredAt.isNull().or(userCoupon.expiredAt.goe(LocalDate.now()));
     }
 
-    private BooleanExpression userCouponStatusEq(UserCouponStatus userCouponStatus) {
-        return userCouponStatus != null ? userCoupon.status.eq(userCouponStatus) : null;
+    private BooleanExpression userCouponStatusEq(UserCouponStatus status) {
+        return status != null ? userCoupon.status.eq(status) : null;
     }
 
     private BooleanExpression checkCanIssueCoupon() {
