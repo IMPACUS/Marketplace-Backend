@@ -10,10 +10,7 @@ import com.impacus.maketplace.dto.coupon.request.CouponDTO;
 import com.impacus.maketplace.dto.coupon.request.CouponIssueDTO;
 import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
 import com.impacus.maketplace.dto.coupon.request.IssueCouponTargetUserDTO;
-import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
-import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
-import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoryDTO;
-import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
@@ -241,7 +238,7 @@ public class CouponAdminService {
     /**
      * 쿠폰 이름과 쿠폰 발급 상태에 따라 쿠폰 발급 이력 조회 (페이지네이션)
      */
-    public Page<IssueCouponHistoryDTO> getIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+    public IssueCouponHistoriesDTO getIssueCouponHistories(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
 
         // 1. 입력값 검증(날짜 검증)
         if (startAt != null && endAt != null && startAt.isAfter(endAt)) {
@@ -249,7 +246,7 @@ public class CouponAdminService {
         }
 
         // 2. DB 조회
-        return couponCustomRepositroy.findIssueCouponHistoryList(name, userCouponStatus, startAt, endAt, pageable);
+        return couponCustomRepositroy.findIssueCouponHistories(name, userCouponStatus, startAt, endAt, pageable);
     }
 
     /**

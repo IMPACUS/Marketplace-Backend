@@ -1,6 +1,6 @@
 package com.impacus.maketplace.repository.coupon.querydsl;
 
-import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoryDTO;
@@ -13,5 +13,5 @@ public interface CouponApiRepository {
 
     List<AlarmCouponDTO> getAlarmCoupons();
 
-    List<IssueCouponHistoryDTO> findIssueCouponHistories(IdsDTO dto);
+    List<IssueCouponHistoryDTO> findIssueCouponHistories(CouponIdsDTO dto);
 }

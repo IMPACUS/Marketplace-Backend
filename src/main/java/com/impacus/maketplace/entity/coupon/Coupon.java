@@ -26,6 +26,8 @@ public class Coupon extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String code;    // 쿠폰 코드
 
+    // 발급한 AdminID 추가 고려중
+
     @Column(nullable = false)
     private String name;    // 쿠폰 이름
 
