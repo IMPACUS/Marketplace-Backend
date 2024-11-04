@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,6 +17,9 @@ public class CreateProductDTO extends ProductDTO {
 
     @NotNull
     private boolean doesUseTemporaryProduct;
+
+    @NotNull
+    private List<String> productImages;
 
     public Product toEntity(Long sellerId) {
         return new Product(sellerId, this);
