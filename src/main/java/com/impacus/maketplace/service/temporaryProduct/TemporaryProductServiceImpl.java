@@ -66,9 +66,10 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     @Transactional
     public void addTemporaryProductAtBasic(BasicStepProductDTO dto) {
         validateProductRequest(dto.getProductImages(), dto);
+        UserType userType = SecurityUtils.getCurrentUserType();
 
         // 상품 생성
-        TemporaryProduct temporaryProduct = dto.toEntity();
+        TemporaryProduct temporaryProduct = dto.toEntity(userType);
         temporaryProductRepository.save(temporaryProduct);
         Long temporaryProductId = temporaryProduct.getId();
 
@@ -84,9 +85,14 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     public void updateTemporaryProductAtBasic(String registerId, BasicStepProductDTO dto) {
         validateProductRequest(dto.getProductImages(), dto);
         Long temporaryProductId = temporaryProductRepository.findIdByRegisterId(registerId);
+        UserType userType = SecurityUtils.getCurrentUserType();
 
         // 상품 수정
-        temporaryProductRepository.updateTemporaryProduct(temporaryProductId, dto);
+        temporaryProductRepository.updateTemporaryProduct(
+                temporaryProductId,
+                dto,
+                !userType.equals(UserType.ROLE_APPROVED_SELLER)
+        );
 
         // 배송 지연 시간 수정
         deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());

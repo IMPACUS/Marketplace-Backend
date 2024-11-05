@@ -110,6 +110,11 @@ public class TemporaryProductController {
                 .build();
     }
 
+    /**
+     * 임시 저장 데이터 조회
+     * @param user
+     * @return
+     */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +

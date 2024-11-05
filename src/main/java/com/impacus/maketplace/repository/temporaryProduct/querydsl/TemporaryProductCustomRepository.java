@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TemporaryProductCustomRepository  {
-    void updateTemporaryProduct(Long temporaryProductId, BasicStepProductDTO dto);
+    void updateTemporaryProduct(Long temporaryProductId, BasicStepProductDTO dto, boolean doesUpdateChargePercent);
 
     void updateTemporaryProductDetail(Long temporaryProductId, CreateProductDetailInfoDTO dto);
 
