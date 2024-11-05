@@ -40,6 +40,7 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
                 .set(temporaryProduct.name, dto.getName())
                 .set(temporaryProduct.deliveryType, dto.getDeliveryType())
                 .set(temporaryProduct.isCustomProduct, dto.getIsCustomProduct())
+                .set(temporaryProduct.categoryId, dto.getCategoryId())
                 .set(temporaryProduct.deliveryFeeType, dto.getDeliveryFeeType())
                 .set(temporaryProduct.refundFeeType, dto.getRefundFeeType())
                 .set(temporaryProduct.deliveryFee, dto.getDeliveryFee())
