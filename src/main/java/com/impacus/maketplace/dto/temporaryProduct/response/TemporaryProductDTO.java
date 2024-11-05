@@ -1,9 +1,7 @@
 package com.impacus.maketplace.dto.temporaryProduct.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailInfoDTO;
-import com.impacus.maketplace.dto.product.response.WebProductOptionDetailDTO;
+import com.impacus.maketplace.dto.product.response.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,8 +14,8 @@ public class TemporaryProductDTO {
 
     @JsonIgnore
     private Long id;
-    private TemporaryProductBasicDTO information;
-    private TemporaryProductSpecificationDTO specification;
+    private WebProductBasicDTO information;
+    private WebProductSpecificationDTO specification;
 
     @Setter
     private Set<WebProductOptionDetailDTO> productOptions;
