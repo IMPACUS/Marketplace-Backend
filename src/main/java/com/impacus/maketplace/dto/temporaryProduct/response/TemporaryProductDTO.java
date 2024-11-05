@@ -23,6 +23,14 @@ public class TemporaryProductDTO {
     private ProductDetailInfoDTO productDetail;
     private ProductClaimInfoDTO claim;
 
+    public void updateCategoryNull() {
+        information.setCategoryId(null);
+    }
+
+    public void updateBundleDeliveryGroupNull() {
+        information.setBundleDeliveryGroupId(null);
+    }
+
 
 
 }

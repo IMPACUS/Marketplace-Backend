@@ -9,6 +9,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.*;
+import com.impacus.maketplace.dto.product.response.WebProductBasicDTO;
 import com.impacus.maketplace.dto.product.response.WebProductOptionDetailDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
@@ -241,27 +242,70 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Override
-    public TemporaryProductDTO findTemporaryProduct(Long userId) {
-//        try {
-            UserType userType = SecurityUtils.getCurrentUserType();
-        TemporaryProductDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
-            if (dto == null) {
-                throw new CustomException(ProductErrorType.NOT_EXISTED_TEMPORARY_PRODUCT);
-            }
-            Long temporaryProductId = dto.getId();
+    public TemporaryProductDTO findTemporaryProduct(Long userId, Long sellerId) {
+        try {
+            TemporaryProductDTO dto = getTemporaryProductDTO(userId);
 
-        // categoryId & bundle-group 존재하는지 확인
+            // 유효성 확인
+            validateCategoryAndBundleDeliveryGroup(dto, userId, sellerId);
 
             // TemporaryProductOption 값 가져오기
-        Set<WebProductOptionDetailDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
-                    .stream()
-                .map(option -> objectCopyHelper.copyObject(option, WebProductOptionDetailDTO.class))
-                    .collect(Collectors.toSet());
-        dto.setProductOptions(options);
-
+            Set<WebProductOptionDetailDTO> options = getTemporaryProductOptions(dto.getId());
+            dto.setProductOptions(options);
             return dto;
-//        } catch (Exception ex) {
-//            throw new CustomException(ex);
-//        }
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * dto 데이터 유효성 확인
+     *
+     * @param dto
+     * @param sellerId
+     */
+    private void validateCategoryAndBundleDeliveryGroup(TemporaryProductDTO dto, Long userId, Long sellerId) {
+        UserType userType = SecurityUtils.getCurrentUserType();
+        WebProductBasicDTO basicDTO = dto.getInformation();
+
+        // 카테고리 존재 확인
+        if (!subCategoryService.existsBySubCategoryId(basicDTO.getCategoryId())) {
+            dto.updateCategoryNull();
+        }
+
+        // 판매자 존재하는지 확인
+        if (!userType.equals(UserType.ROLE_APPROVED_SELLER) && sellerId == null) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "sellerId는 null일 수 없습니다.");
+        }
+
+        // 판매자에 등록된 묶음 배송인지 확인
+        Long foundSellerId = userType.equals(UserType.ROLE_APPROVED_SELLER) ? readSellerService.findSellerIdByUserId(userId) : sellerId;
+        if (!bundleDeliveryGroupRepository.existsBySellerIdAndIdAndIsDeletedFalseAndIsUsedTrue(foundSellerId, basicDTO.getBundleDeliveryGroupId())) {
+            dto.updateBundleDeliveryGroupNull();
+        }
+    }
+
+    /**
+     * 사용자 ID로 임시 상품을 조회 (상품이 없으면 예외를 발생)
+     *
+     * @param userId
+     * @return
+     */
+    private TemporaryProductDTO getTemporaryProductDTO(Long userId) {
+        TemporaryProductDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
+        if (dto == null) {
+            throw new CustomException(ProductErrorType.NOT_EXISTED_TEMPORARY_PRODUCT);
+        }
+        return dto;
+    }
+
+    /**
+     * 상품 ID로 임시 상품 옵션을 조회
+     */
+    private Set<WebProductOptionDetailDTO> getTemporaryProductOptions(Long productId) {
+        return temporaryProductOptionService.findTemporaryProductOptionByProductId(productId)
+                .stream()
+                .map(option -> objectCopyHelper.copyObject(option, WebProductOptionDetailDTO.class))
+                .collect(Collectors.toSet());
     }
 }
