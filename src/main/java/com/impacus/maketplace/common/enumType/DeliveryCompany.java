@@ -9,12 +9,14 @@ import java.util.Map;
 @Getter
 @RequiredArgsConstructor
 public enum DeliveryCompany {
-  CJ(1, "CJ"),
-  LOTTE(2, "롯데"),
-  HANJIN(3, "한진"),
-  HYUNDAI(4, "현대"),
-  DELIRABBIT(5, "딜리래빗"),
-
+  CJ(1, "CJ대한통운"),
+  LOTTE(2, "롯데택배"),
+  HANJIN(3, "한진택배"),
+  KOREA_POST(4, "우체국택배"),
+  HYUNDAI(5, "현대택배"),
+  KYOUNGDONG(6, "경동택배"),
+  LOGEN(7, "로젠택배"),
+  DELIRABBIT(8, "딜리래빗"),
   NONE(100, "알수 없음");
 
   private final int code;
