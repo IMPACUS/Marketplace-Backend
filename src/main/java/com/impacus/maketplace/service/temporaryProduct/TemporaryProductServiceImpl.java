@@ -239,6 +239,10 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         try {
             UserType userType = SecurityUtils.getCurrentUserType();
             WebProductDetailDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
+            if (dto == null) {
+                throw new CustomException(ProductErrorType.NOT_EXISTED_TEMPORARY_PRODUCT);
+            }
+
             Long temporaryProductId = dto.getId();
 
             // categoryId와 bundleDeliveryGroupId가 존재하는지 확인
