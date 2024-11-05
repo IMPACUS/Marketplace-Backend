@@ -3,12 +3,8 @@ package com.impacus.maketplace.repository.temporaryProduct.querydsl;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
-import com.impacus.maketplace.dto.product.response.ProductDeliveryTimeDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailInfoDTO;
-import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductBasicDTO;
+import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
-import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductSpecificationDTO;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductClaimInfo;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDeliveryTime;
@@ -142,7 +138,7 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
                                 TemporaryProductDTO.class,
                                 temporaryProduct.id,
                                 Projections.fields(
-                                        TemporaryProductBasicDTO.class,
+                                        WebProductBasicDTO.class,
                                         temporaryProduct.name,
                                         temporaryProduct.deliveryType,
                                         temporaryProduct.isCustomProduct,
@@ -168,7 +164,7 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
                                         ).as("deliveryTime")
                                 ).as("information"),
                                 Projections.fields(
-                                        TemporaryProductSpecificationDTO.class,
+                                        WebProductSpecificationDTO.class,
                                         temporaryProduct.description,
                                         temporaryProduct.weight,
                                         temporaryProduct.productStatus,

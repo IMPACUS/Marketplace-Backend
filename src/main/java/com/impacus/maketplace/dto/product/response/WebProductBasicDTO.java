@@ -1,10 +1,9 @@
-package com.impacus.maketplace.dto.temporaryProduct.response;
+package com.impacus.maketplace.dto.product.response;
 
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
-import com.impacus.maketplace.dto.product.response.ProductDeliveryTimeDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +11,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class TemporaryProductBasicDTO {
+public class WebProductBasicDTO {
     private String name;
     private DeliveryType deliveryType;
     private Boolean isCustomProduct;
