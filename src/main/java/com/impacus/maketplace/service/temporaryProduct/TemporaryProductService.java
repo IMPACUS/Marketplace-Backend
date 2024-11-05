@@ -68,5 +68,5 @@ public interface TemporaryProductService {
      * @param userId 사용자 아이디
      * @return 임시 상품 데이터
      */
-    TemporaryProductDTO findTemporaryProduct(Long userId);
+    TemporaryProductDTO findTemporaryProduct(Long userId, Long sellerId);
 }

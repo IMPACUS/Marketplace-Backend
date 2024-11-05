@@ -121,8 +121,10 @@ public class TemporaryProductController {
             "or hasRole('ROLE_OWNER')")
     @GetMapping
     public ApiResponseEntity<TemporaryProductDTO> getTemporaryProduct(
-            @AuthenticationPrincipal CustomUserDetails user) {
-        TemporaryProductDTO dto = temporaryProductService.findTemporaryProduct(user.getId());
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "seller-id", required = false) Long sellerId
+    ) {
+        TemporaryProductDTO dto = temporaryProductService.findTemporaryProduct(user.getId(), sellerId);
         return ApiResponseEntity
                 .<TemporaryProductDTO>builder()
                 .data(dto)

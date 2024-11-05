@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ public class WebProductBasicDTO {
     private String name;
     private DeliveryType deliveryType;
     private Boolean isCustomProduct;
+
+    @Setter
     private Long categoryId;
     private DeliveryRefundType deliveryFeeType;
     private DeliveryRefundType refundFeeType;
@@ -24,7 +27,10 @@ public class WebProductBasicDTO {
     private Integer specialRefundFee;
     private DeliveryCompany deliveryCompany;
     private BundleDeliveryOption bundleDeliveryOption;
+
+    @Setter
     private Long bundleDeliveryGroupId;
+
     private List<String> productImages;
     private int marketPrice;
     private int appSalesPrice;
