@@ -13,6 +13,7 @@ import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDeliveryT
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDetailInfo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Repository;
@@ -31,10 +32,10 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
     private final QTemporaryProductDeliveryTime deliveryTime = QTemporaryProductDeliveryTime.temporaryProductDeliveryTime;
 
     @Override
-    public void updateTemporaryProduct(Long temporaryProductId, BasicStepProductDTO dto) {
+    public void updateTemporaryProduct(Long temporaryProductId, BasicStepProductDTO dto, boolean doesUpdateChargePercent) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
-        queryFactory
+        JPAUpdateClause query = queryFactory
                 .update(temporaryProduct)
                 .set(temporaryProduct.name, dto.getName())
                 .set(temporaryProduct.deliveryType, dto.getDeliveryType())
@@ -55,8 +56,13 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
 
                 .set(temporaryProduct.modifyAt, LocalDateTime.now())
                 .set(temporaryProduct.modifyId, currentAuditor)
-                .where(temporaryProduct.id.eq(temporaryProductId))
-                .execute();
+                .where(temporaryProduct.id.eq(temporaryProductId));
+
+        if (doesUpdateChargePercent) {
+            query.set(temporaryProduct.salesChargePercent, dto.getSalesChargePercent());
+        }
+
+        query.execute();
     }
 
     @Override

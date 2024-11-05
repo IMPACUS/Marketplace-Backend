@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.product.DeliveryType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -71,7 +72,7 @@ public class BasicStepProductDTO {
     @NotNull
     private Integer discountPrice;
 
-    public TemporaryProduct toEntity() {
-        return new TemporaryProduct(this);
+    public TemporaryProduct toEntity(UserType userType) {
+        return new TemporaryProduct(this, !userType.equals(UserType.ROLE_APPROVED_SELLER));
     }
 }

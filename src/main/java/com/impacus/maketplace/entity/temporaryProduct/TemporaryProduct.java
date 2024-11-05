@@ -109,12 +109,14 @@ public class TemporaryProduct extends BaseEntity {
         this.type = dto.getType();
     }
 
-    public TemporaryProduct(BasicStepProductDTO dto) {
+    public TemporaryProduct(BasicStepProductDTO dto, boolean doesSaveChargePercent) {
         this.name = dto.getName();
         this.deliveryType = dto.getDeliveryType();
         this.isCustomProduct = dto.getIsCustomProduct();
         this.categoryId = dto.getCategoryId();
-        this.salesChargePercent = dto.getSalesChargePercent();
+        if (doesSaveChargePercent) {
+            this.salesChargePercent = dto.getSalesChargePercent();
+        }
         this.deliveryFeeType = dto.getDeliveryFeeType();
         this.refundFeeType = dto.getRefundFeeType();
         if (dto.getDeliveryFeeType() == DeliveryRefundType.MANUAL) {
