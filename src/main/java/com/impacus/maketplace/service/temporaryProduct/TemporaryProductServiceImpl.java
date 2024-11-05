@@ -7,9 +7,9 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.*;
-import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
-import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.product.response.WebProductOptionDetailDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
+import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import com.impacus.maketplace.repository.product.bundleDelivery.BundleDeliveryGroupRepository;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
@@ -235,34 +235,27 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Override
-    public WebProductDetailDTO findTemporaryProduct(Long userId) {
-        try {
+    public TemporaryProductDTO findTemporaryProduct(Long userId) {
+//        try {
             UserType userType = SecurityUtils.getCurrentUserType();
-            WebProductDetailDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
+        TemporaryProductDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
             if (dto == null) {
                 throw new CustomException(ProductErrorType.NOT_EXISTED_TEMPORARY_PRODUCT);
             }
-
             Long temporaryProductId = dto.getId();
 
-            // categoryId와 bundleDeliveryGroupId가 존재하는지 확인
-            if (dto.getCategoryId() != null && !subCategoryService.existsBySubCategoryId(dto.getCategoryId())) {
-                dto.updateCategoryIdNull();
-            }
-            if (dto.getBundleDeliveryGroupId() != null && userType != UserType.ROLE_APPROVED_SELLER) {
-                dto.updateBundleDeliveryGroupId();
-            }
+        // categoryId & bundle-group 존재하는지 확인
 
             // TemporaryProductOption 값 가져오기
-            Set<ProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
+        Set<WebProductOptionDetailDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
                     .stream()
-                    .map(option -> objectCopyHelper.copyObject(option, ProductOptionDTO.class))
+                .map(option -> objectCopyHelper.copyObject(option, WebProductOptionDetailDTO.class))
                     .collect(Collectors.toSet());
-            dto.setProductOption(options);
+        dto.setProductOptions(options);
 
             return dto;
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 }

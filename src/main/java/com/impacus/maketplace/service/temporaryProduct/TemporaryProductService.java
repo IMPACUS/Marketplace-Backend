@@ -3,8 +3,8 @@ package com.impacus.maketplace.service.temporaryProduct;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.DetailStepProductDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
-import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
+import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 
 public interface TemporaryProductService {
@@ -68,5 +68,5 @@ public interface TemporaryProductService {
      * @param userId 사용자 아이디
      * @return 임시 상품 데이터
      */
-    WebProductDetailDTO findTemporaryProduct(Long userId);
+    TemporaryProductDTO findTemporaryProduct(Long userId);
 }
