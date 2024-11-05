@@ -17,6 +17,9 @@ import java.util.List;
 
 @Getter
 public class BasicStepProductDTO {
+
+    private Long sellerId;
+
     @NotBlank
     @Size(max = 50)
     private String name;
