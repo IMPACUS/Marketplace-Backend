@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class BundleDeliveryGroupProductDTO {
     private Long productId;
+    private String productNumber;
     private String name;
     private List<String> productImages;
     private DeliveryFeeRule deliveryFeeRule;
@@ -22,6 +23,7 @@ public class BundleDeliveryGroupProductDTO {
 
     public BundleDeliveryGroupProductDTO(
             Long productId,
+            String productNumber,
             String name,
             List<String> productImages,
             DeliveryFeeRule deliveryFeeRule,
@@ -29,6 +31,7 @@ public class BundleDeliveryGroupProductDTO {
             List<ProductOption> productOptions
     ) {
         this.productId = productId;
+        this.productNumber = productNumber;
         this.name = name;
         this.productImages = productImages;
         this.deliveryFeeRule = deliveryFeeRule;
