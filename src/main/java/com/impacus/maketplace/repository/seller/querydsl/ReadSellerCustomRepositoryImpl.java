@@ -460,13 +460,13 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 sellerAdjustmentInfo.accountNumber,
                                 seller.chargePercent.as("charge"),
                                 userStatusInfo.status.as("userStatus"),
+                                businessRegistrationFile.attachFileName.as("businessRegistrationUrl"),
+                                mailOrderBusinessReportFile.attachFileName.as("mailOrderBusinessReportUrl"),
+                                bankBookFile.attachFileName.as("bankBookUrl"),
                                 user.password,
                                 sellerBusinessInfo.businessEmail,
                                 sellerBusinessInfo.representativeName,
-                                attachFile.attachFileName.as("logoImageId"),
-                                businessRegistrationFile.attachFileName.as("businessRegistrationUrl"),
-                                mailOrderBusinessReportFile.attachFileName.as("mailOrderBusinessReportUrl"),
-                                bankBookFile.attachFileName.as("bankBookUrl")
+                                attachFile.attachFileName.as("logoImageId")
                         )
                 )
                 .from(seller)
