@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @EqualsAndHashCode()
 public class WebProductOptionDetailDTO {
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long productOptionId;
     private String color;
     private String size;

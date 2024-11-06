@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.product.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
@@ -32,9 +33,16 @@ public class WebProductBasicDTO {
     private Long bundleDeliveryGroupId;
 
     private List<String> productImages;
-    private int marketPrice;
-    private int appSalesPrice;
-    private int discountPrice;
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private Integer marketPrice = 0;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private Integer appSalesPrice = 0;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private Integer discountPrice = 0;
+
     private Integer salesChargePercent;
+
+    @Setter
     private ProductDeliveryTimeDTO deliveryTime;
 }
