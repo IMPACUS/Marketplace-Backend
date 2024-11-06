@@ -220,6 +220,8 @@ public class ReadProductService implements ProductInterface {
                 throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
             }
 
+            dto.processNullObject();
+
             return dto;
         } catch (Exception ex) {
             throw new CustomException(ex);

@@ -17,7 +17,7 @@ public class TemporaryProductDTO {
     @JsonIgnore
     private Long id;
 
-    private TemporaryProductBasicDTO information;
+    private WebProductBasicDTO information;
 
     private WebProductSpecificationDTO specification;
 

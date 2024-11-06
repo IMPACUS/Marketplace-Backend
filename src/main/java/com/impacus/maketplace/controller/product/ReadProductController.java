@@ -94,7 +94,7 @@ public class ReadProductController {
     }
 
     /**
-     * [판매자/관리자] 단일 상품 조회 API
+     * [판매자/관리자] (상품수정용) 단일 상품 조회 API
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
             "or hasRole('ROLE_ADMIN') " +
