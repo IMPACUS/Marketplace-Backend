@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.product.*;
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -78,15 +79,19 @@ public abstract class ProductDTO {
 
     private Integer salesChargePercent;
 
+    @Valid
     @NotNull
     private CreateProductDetailInfoDTO productDetail;
 
+    @Valid
     @NotNull
     private List<CreateProductOptionDTO> productOptions;
 
+    @Valid
     @NotNull
     private CreateProductDeliveryTimeDTO deliveryTime;
 
+    @Valid
     @NotNull
     private CreateClaimInfoDTO claim;
 }
