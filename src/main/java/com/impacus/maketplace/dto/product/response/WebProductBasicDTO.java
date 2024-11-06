@@ -13,6 +13,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WebProductBasicDTO {
     private String name;
     private DeliveryType deliveryType;

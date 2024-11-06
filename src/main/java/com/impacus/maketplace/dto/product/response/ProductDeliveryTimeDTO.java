@@ -6,7 +6,7 @@ import com.impacus.maketplace.entity.product.ProductDeliveryTime;
 import lombok.Data;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductDeliveryTimeDTO {
     private int minDays = -1;
     private int maxDays = -1;
@@ -18,7 +18,7 @@ public class ProductDeliveryTimeDTO {
 
     @JsonIgnore
     public boolean isNull() {
-        return this.minDays ==0 && this.maxDays == 0;
+        return this.minDays ==-1 && this.maxDays == -1;
     }
 
     public static ProductDeliveryTimeDTO toDTO(ProductDeliveryTime deliveryTime) {
