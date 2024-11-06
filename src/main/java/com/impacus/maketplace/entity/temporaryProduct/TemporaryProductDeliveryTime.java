@@ -28,6 +28,6 @@ public class TemporaryProductDeliveryTime extends DeliveryTime {
     public TemporaryProductDeliveryTime(
             Long temporaryProductId
     ) {
-        this(temporaryProductId, 0, 0);
+        this(temporaryProductId, -1, -1);
     }
 }

@@ -1,5 +1,7 @@
 package com.impacus.maketplace.dto.product.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProductDetailInfo;
 import lombok.AllArgsConstructor;
@@ -7,6 +9,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductDetailInfoDTO {
 
     private String productType; // 상품 종류
@@ -61,5 +64,22 @@ public class ProductDetailInfoDTO {
         this.qualityAssuranceStandards = productDetailInfo.getQualityAssuranceStandards();
         this.asManager = productDetailInfo.getAsManager();
         this.contactNumber = productDetailInfo.getContactNumber();
+    }
+
+    @JsonIgnore
+    public boolean isNull() {
+        return productType == null &&
+                productMaterial== null &&
+                productColor== null &&
+                productSize== null &&
+                dateOfManufacture == null &&
+                washingPrecautions == null &&
+                countryOfManufacture == null &&
+                manufacturer == null &&
+                importer== null &&
+                qualityAssuranceStandards == null &&
+                asManager == null &&
+                contactNumber == null;
+
     }
 }

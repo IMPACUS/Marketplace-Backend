@@ -256,6 +256,9 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
             // TemporaryProductOption 값 가져오기
             Set<WebProductOptionDetailDTO> options = getTemporaryProductOptions(dto.getId());
             dto.setProductOptions(options);
+
+            // Null 처리
+            dto.processNullObject();
             return dto;
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -273,7 +276,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         WebProductBasicDTO basicDTO = dto.getInformation();
 
         // 카테고리 존재 확인
-        if (!subCategoryService.existsBySubCategoryId(basicDTO.getCategoryId())) {
+        if (basicDTO.getCategoryId() != null && !subCategoryService.existsBySubCategoryId(basicDTO.getCategoryId())) {
             dto.updateCategoryNull();
         }
 

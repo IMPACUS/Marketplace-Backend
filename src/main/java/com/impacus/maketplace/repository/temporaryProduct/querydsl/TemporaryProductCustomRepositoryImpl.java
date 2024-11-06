@@ -4,6 +4,7 @@ import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
+import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductBasicDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductClaimInfo;
@@ -138,7 +139,7 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
                                 TemporaryProductDTO.class,
                                 temporaryProduct.id,
                                 Projections.fields(
-                                        WebProductBasicDTO.class,
+                                        TemporaryProductBasicDTO.class,
                                         temporaryProduct.name,
                                         temporaryProduct.deliveryType,
                                         temporaryProduct.isCustomProduct,
