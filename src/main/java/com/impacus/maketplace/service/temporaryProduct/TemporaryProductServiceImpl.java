@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.error.BundleDeliveryGroupErrorType
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
@@ -90,7 +91,10 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
 
         // 판매자에 등록된 묶음 배송인지 확인
         Long sellerId = userType.equals(UserType.ROLE_APPROVED_SELLER) ? readSellerService.findSellerIdByUserId(userId) : dto.getSellerId();
-        if (!bundleDeliveryGroupRepository.existsBySellerIdAndIdAndIsDeletedFalseAndIsUsedTrue(sellerId, dto.getBundleDeliveryGroupId())) {
+        if (dto.getBundleDeliveryOption()  == BundleDeliveryOption.BUNDLE_DELIVERY_AVAILABLE
+                && dto.getBundleDeliveryGroupId() != null
+                && !bundleDeliveryGroupRepository.existsBySellerIdAndIdAndIsDeletedFalseAndIsUsedTrue(sellerId, dto.getBundleDeliveryGroupId())
+        ) {
             throw new CustomException(BundleDeliveryGroupErrorType.NOT_EXISTED_BUNDLE_DELIVERY_GROUP);
         }
     }
