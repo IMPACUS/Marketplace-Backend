@@ -194,11 +194,11 @@ public class AdminCouponController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
     @GetMapping("/issued-coupons")
-    public ApiResponseEntity<IssueCouponHistoriesDTO> getIssueCouponHistoryList(@RequestParam(name = "name", required = false) String name,
-                                                                                @RequestParam(name = "status", required = false) UserCouponStatus userCouponStatus,
-                                                                                @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-                                                                                @RequestParam(name = "end-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
-                                                                                @PageableDefault(sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ApiResponseEntity<IssueCouponHistoriesDTO> getIssueCouponHistories(@RequestParam(name = "name", required = false) String name,
+                                                                              @RequestParam(name = "status", required = false) UserCouponStatus userCouponStatus,
+                                                                              @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+                                                                              @RequestParam(name = "end-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+                                                                              @PageableDefault(sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
         IssueCouponHistoriesDTO response = couponAdminService.getIssueCouponHistories(name, userCouponStatus, startAt, endAt, pageable);
 
