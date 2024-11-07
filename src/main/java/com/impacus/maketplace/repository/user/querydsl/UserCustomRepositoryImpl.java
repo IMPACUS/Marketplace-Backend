@@ -5,7 +5,7 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
-import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
@@ -69,7 +69,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 user.email,
                                 greenLabelPoint.greenLabelPoint,
                                 levelPointMaster.levelPoint,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 attachFile.attachFileName.as("profileImageUrl"),
                                 user.createAt.as("registerAt")
                         )
@@ -186,7 +187,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             builder.and(user.name.containsIgnoreCase(userName));
         }
         if (phoneNumber != null && !phoneNumber.isBlank()) {
-            builder.and(user.phoneNumber.eq(phoneNumber)); // TODO 본인 인증 API 연결 시, 핸드폰 뒷자리 4자리만 검색하도록 변경
+            builder.and(user.phoneNumberSuffix.containsIgnoreCase(phoneNumber));
         }
         if (oauthProviderType != null) {
             builder.and(user.email.contains(oauthProviderType.name()));
@@ -209,7 +210,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 user.id,
                                 user.name,
                                 user.email,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 levelPointMaster.userLevel,
                                 user.createAt,
                                 user.recentLoginAt
@@ -235,14 +237,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     public WebUserDetailDTO getUser(Long userId) {
         return queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 WebUserDetailDTO.class,
                                 user.id.as("userId"),
                                 attachFile.attachFileName.as("profileImageUrl"),
                                 user.email,
                                 user.password,
                                 user.name,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 user.createAt.as("registerAt"),
                                 levelPointMaster.userLevel,
                                 levelPointMaster.levelPoint,
@@ -304,7 +307,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     @Override
     public List<WebUserDTO> findUsersByIds(
-            IdsDTO dto
+            CouponIdsDTO dto
     ) {
         BooleanBuilder builder = new BooleanBuilder()
                 .and(user.id.in(dto.getIds()));

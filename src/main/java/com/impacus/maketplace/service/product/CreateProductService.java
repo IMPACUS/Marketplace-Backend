@@ -61,20 +61,10 @@ public class CreateProductService {
             }
 
             // 1. productRequest 데이터 유효성 검사
+            readProductService.validateProductImages(dto.getProductImages());
             readProductService.validateProductRequest(
-                    dto.getProductImages(),
-                    dto.getCategoryId(),
                     sellerId,
-                    dto.getBundleDeliveryOption(),
-                    dto.getBundleDeliveryGroupId()
-            );
-            readProductService.validateDeliveryRefundFee(
-                    dto.getDeliveryFee(),
-                    dto.getRefundFee(),
-                    dto.getSpecialDeliveryFee(),
-                    dto.getSpecialRefundFee(),
-                    dto.getDeliveryFeeType(),
-                    dto.getRefundFeeType()
+                    dto
             );
 
             // 3. Product 저장

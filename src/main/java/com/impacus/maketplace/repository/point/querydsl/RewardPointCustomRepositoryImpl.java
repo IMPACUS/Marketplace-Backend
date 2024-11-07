@@ -1,5 +1,13 @@
 package com.impacus.maketplace.repository.point.querydsl;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
@@ -12,14 +20,8 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
@@ -66,6 +68,8 @@ public class RewardPointCustomRepositoryImpl implements RewardPointCustomReposit
                 .from(rewardPoint)
                 .where(builder)
                 .orderBy(statusPriority != null ? statusPriority.asc() : rewardPoint.createAt.desc(), orderSpecifier)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
 
         long count = queryFactory

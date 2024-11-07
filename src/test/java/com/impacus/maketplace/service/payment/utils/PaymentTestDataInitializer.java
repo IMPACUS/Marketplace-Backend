@@ -2,8 +2,8 @@ package com.impacus.maketplace.service.payment.utils;
 
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.coupon.*;
-import com.impacus.maketplace.common.enumType.product.*;
 import com.impacus.maketplace.common.enumType.product.ProductType;
+import com.impacus.maketplace.common.enumType.product.*;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.SellerType;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -230,7 +230,8 @@ public class PaymentTestDataInitializer {
                 .name("testName")
                 .userIdName("tsetUserIdName")
                 .type(UserType.ROLE_CERTIFIED_USER)
-                .phoneNumber("000-0000-0000")
+                .phoneNumberPrefix("000-0000")
+                .phoneNumberSuffix("0000")
                 .isCertEmail(true)
                 .isCertPhone(true)
                 .certEmailAt(LocalDateTime.now())

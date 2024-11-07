@@ -2,6 +2,8 @@ package com.impacus.maketplace.dto.product.response;
 
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.entity.product.Product;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -23,6 +25,7 @@ public class WebProductDTO {
     private Integer discountPrice;
     private int orderCnt;
     private List<ProductOptionDTO> options;
+    private LocalDateTime createAt;
 
     public WebProductDTO(
         Long productId,
@@ -33,7 +36,8 @@ public class WebProductDTO {
         long wishlistCnt,
         Integer appSalesPrice,
         Integer discountPrice,
-        List<ProductOptionDTO> options
+        List<ProductOptionDTO> options,
+        LocalDateTime createAt
     ) {
         this.productId = productId;
         this.productNumber = productNumber;
@@ -54,5 +58,6 @@ public class WebProductDTO {
 
         this.totalOptionSize = String.join(", ", sizes);
         this.totalOptionColor = String.join(", ", colors);
+        this.createAt = createAt;
     }
 }

@@ -6,7 +6,7 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
-import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
@@ -170,7 +170,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
     }
 
     @Override
-    public List<WebGreenLabelHistoryDTO> findGreenLabelPointHistoriesByIds(IdsDTO dto) {
+    public List<WebGreenLabelHistoryDTO> findGreenLabelPointHistoriesByIds(CouponIdsDTO dto) {
         // 1. 검색어 필터링
         BooleanBuilder builder = new BooleanBuilder()
                 .and(history.id.in(dto.getIds()));

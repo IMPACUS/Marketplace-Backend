@@ -1077,7 +1077,7 @@ public class CheckoutServiceTest {
     }
 
     private BuyerInfoDTO getBuyerInfoDTO(Long userId) {
-        return new BuyerInfoDTO(userId, "email@mm.mm", "구매자 정보", "000-0000-0000");
+        return new BuyerInfoDTO(userId, "email@mm.mm", "구매자 정보", "000-0000", "0000");
     }
 
     private CheckoutSingleDTO getCheckoutSingleDTO(List<Long> appliedCouponForProductIds, List<Long> appliedCommonUserCouponIds, Long quantity, Long pointAmount, PaymentMethod method, Long calculatedTotalAmount) {

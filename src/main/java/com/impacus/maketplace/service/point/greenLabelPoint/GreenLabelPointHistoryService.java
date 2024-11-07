@@ -2,7 +2,7 @@ package com.impacus.maketplace.service.point.greenLabelPoint;
 
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
@@ -82,7 +82,7 @@ public class GreenLabelPointHistoryService {
      *
      * @return
      */
-    public FileGenerationStatusIdDTO exportGreenLabelPointHistories(IdsDTO dto) {
+    public FileGenerationStatusIdDTO exportGreenLabelPointHistories(CouponIdsDTO dto) {
         try {
             List<WebGreenLabelHistoryDTO> dtos = greenLabelPointHistoryRepository.findGreenLabelPointHistoriesByIds(dto);
 

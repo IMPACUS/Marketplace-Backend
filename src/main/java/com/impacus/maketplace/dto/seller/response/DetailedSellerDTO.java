@@ -1,6 +1,6 @@
 package com.impacus.maketplace.dto.seller.response;
 
-import lombok.AllArgsConstructor;
+import com.impacus.maketplace.common.utils.StringUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +9,6 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class DetailedSellerDTO {
     private String logoImageUrl;
     private String brandName;
@@ -27,4 +26,41 @@ public class DetailedSellerDTO {
     private SellerDeliveryCompanyInfoDTO deliveryCompany;
     private List<SellerDeliveryAddressInfoDTO> deliveryAddress;
     private Long mainDeliveryAddressId;
+
+    public DetailedSellerDTO(
+            String logoImageUrl,
+            String brandName,
+            String customerServiceNumber,
+            String representativeEmail,
+            String brandIntroduction,
+            LocalTime openingTime,
+            LocalTime closingTime,
+            String businessDay,
+            String breakingTime,
+            String email,
+            String phoneNumberPrefix,
+            String phoneNumberSuffix,
+            SellerManagerInfoDTO manager,
+            SellerAdjustmentInfoDTO adjustment,
+            SellerDeliveryCompanyInfoDTO deliveryCompany,
+            List<SellerDeliveryAddressInfoDTO> deliveryAddress,
+            Long mainDeliveryAddressId
+    ) {
+        this.logoImageUrl = logoImageUrl;
+        this.brandName = brandName;
+        this.customerServiceNumber = customerServiceNumber;
+        this.representativeEmail = representativeEmail;
+        this.brandIntroduction = brandIntroduction;
+        this.openingTime = openingTime;
+        this.closingTime = closingTime;
+        this.businessDay = businessDay;
+        this.breakingTime = breakingTime;
+        this.email = email;
+        this.phoneNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
+        this.manager = manager;
+        this.adjustment = adjustment;
+        this.deliveryCompany = deliveryCompany;
+        this.deliveryAddress = deliveryAddress;
+        this.mainDeliveryAddressId = mainDeliveryAddressId;
+    }
 }

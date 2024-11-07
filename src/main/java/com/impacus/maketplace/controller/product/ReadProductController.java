@@ -3,7 +3,6 @@ package com.impacus.maketplace.controller.product;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDTO;
 import com.impacus.maketplace.dto.product.response.*;
-import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
 import com.impacus.maketplace.service.product.ReadProductService;
 import com.impacus.maketplace.service.product.bundleDelivery.BundleDeliveryGroupService;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +94,7 @@ public class ReadProductController {
     }
 
     /**
-     * [판매자/관리자] 단일 상품 조회 API
+     * [판매자/관리자] (상품수정용) 단일 상품 조회 API
      */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
             "or hasRole('ROLE_ADMIN') " +
@@ -106,10 +105,10 @@ public class ReadProductController {
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable(name = "productId") Long productId
     ) {
-        WebProductDetailDTO productDetailDTO = productService.findProductDetailForWeb(user.getId(), productId);
+        WebProductDetailDTO response = productService.findProductDetailForWeb(user.getId(), productId);
         return ApiResponseEntity
                 .<WebProductDetailDTO>builder()
-                .data(productDetailDTO)
+                .data(response)
                 .build();
     }
 
@@ -124,10 +123,10 @@ public class ReadProductController {
     public ApiResponseEntity<Slice<AppProductDTO>> getProductForRecentViews(
             @AuthenticationPrincipal CustomUserDetails user,
             @PageableDefault(size = 15, direction = Sort.Direction.DESC, sort = "createAt") Pageable pageable) {
-        Slice<AppProductDTO> productDTOList = productService.findProductForRecentViews(user.getId(), pageable);
+        Slice<AppProductDTO> response = productService.findProductForRecentViews(user.getId(), pageable);
         return ApiResponseEntity
                 .<Slice<AppProductDTO>>builder()
-                .data(productDTOList)
+                .data(response)
                 .build();
     }
 

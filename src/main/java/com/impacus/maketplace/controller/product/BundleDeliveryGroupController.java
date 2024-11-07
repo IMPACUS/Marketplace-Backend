@@ -74,6 +74,31 @@ public class BundleDeliveryGroupController {
     }
 
     /**
+     * [관리자/판매자] 묶음 배송 그룹 단건 조회 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @GetMapping("/{groupId}")
+    public ApiResponseEntity<BundleDeliveryGroupDetailDTO> getBundleDeliveryGroup(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable(value = "groupId") Long groupId
+    ) {
+        BundleDeliveryGroupDetailDTO result = bundleDeliveryGroupService.getBundleDeliveryGroup(
+                user.getId(),
+                groupId
+        );
+        return ApiResponseEntity
+                .<BundleDeliveryGroupDetailDTO>builder()
+                .data(result)
+                .message("묶음 배송 그룹 단건 조회 성공")
+                .build();
+    }
+
+    /**
      * [판매자] 묶음 배송 그룹 삭제
      *
      * @param groupId

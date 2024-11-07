@@ -3,6 +3,7 @@ package com.impacus.maketplace.dto.category.response;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,7 +18,7 @@ public class CategoryDetailDTO {
                              List<SubCategoryDetailDTO> subCategories) {
         this.superCategoryId = superCategoryId;
         this.superCategoryName = superCategoryName;
-        this.subCategories = validateSubCategories(subCategories) ? subCategories : null;
+        this.subCategories = validateSubCategories(subCategories) ? subCategories : new ArrayList<>();
     }
 
     public boolean validateSubCategories(List<SubCategoryDetailDTO> subCategories) {

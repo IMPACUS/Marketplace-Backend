@@ -16,7 +16,7 @@ public interface CouponCustomRepositroy {
 
     List<IssueCouponInfoDTO> findIssueCouponInfoList();
 
-    Page<IssueCouponHistoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus UserCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable);
+    IssueCouponHistoriesDTO findIssueCouponHistories(String name, UserCouponStatus UserCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable);
 
     List<UserCouponOverviewDTO> findUserCouponOverviewList(Long userId);
 
