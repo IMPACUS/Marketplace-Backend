@@ -12,7 +12,6 @@ import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupDet
 import com.impacus.maketplace.dto.bundleDelivery.response.BundleDeliveryGroupProductDTO;
 import com.impacus.maketplace.entity.product.bundleDelivery.BundleDeliveryGroup;
 import com.impacus.maketplace.repository.product.bundleDelivery.BundleDeliveryGroupRepository;
-import com.impacus.maketplace.service.product.ReadProductService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +27,6 @@ import java.util.Optional;
 public class BundleDeliveryGroupService {
     private final BundleDeliveryGroupRepository bundleDeliveryGroupRepository;
     private final ReadSellerService readSellerService;
-    private final ReadProductService readProductService;
 
     /**
      * 묶음 배송 그룹 생성
@@ -231,6 +229,25 @@ public class BundleDeliveryGroupService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+
+    }
+
+    public BundleDeliveryGroupDetailDTO getBundleDeliveryGroup(Long userId, Long groupId) {
+        UserType userType = SecurityUtils.getCurrentUserType();
+
+        // 묶음 배송 그룹 조회
+        BundleDeliveryGroup group = bundleDeliveryGroupRepository.findByIdAndIsDeletedFalse(groupId)
+                .orElseThrow(() -> new CustomException(BundleDeliveryGroupErrorType.NOT_EXISTED_BUNDLE_DELIVERY_GROUP));
+
+        // 유효성 검사
+        if (userType.equals(UserType.ROLE_APPROVED_SELLER)) {
+            Long sellerId = readSellerService.findSellerIdByUserId(userId);
+            if (sellerId != group.getSellerId()) {
+                throw new CustomException(BundleDeliveryGroupErrorType.NOT_EXISTED_BUNDLE_DELIVERY_GROUP, "판매자가 등록한 묶음 배송 그룹이 아닙니다.");
+            }
+        }
+
+        return BundleDeliveryGroupDetailDTO.toDTO(group);
 
     }
 }
