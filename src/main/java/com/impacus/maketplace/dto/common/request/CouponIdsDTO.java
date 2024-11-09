@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class IdsDTO {
+public class CouponIdsDTO {
     @NotNull
     private List<Long> ids;
 }

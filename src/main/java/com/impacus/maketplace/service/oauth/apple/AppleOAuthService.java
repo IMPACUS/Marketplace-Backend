@@ -3,11 +3,16 @@ package com.impacus.maketplace.service.oauth.apple;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.impacus.maketplace.common.constants.api.AppleAPIConstants;
+import com.impacus.maketplace.common.enumType.OSType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
-import com.impacus.maketplace.dto.oauth.request.OauthDTO;
+import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
+import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -39,20 +44,31 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AppleOAuthService implements OAuthService {
 
-    private static final String GRANT_TYPE = "authorization_code";
+    private static final String GENERATE_TOKEN_GRANT_TYPE = "authorization_code";
+    private static final String REISSUE_GRANT_TYPE = "refresh_token";
 
     private final AppleOAuthAPIService appleOAuthAPIService;
     private final CustomOauth2UserService customOauth2UserService;
     private final JwtTokenProvider tokenProvider;
 
-    @Value("${apple.app-id}")
-    private String clientId;
+    @Value("${apple.aos-app-id}")
+    private String aosClientId;
+    @Value("${apple.ios-app-id}")
+    private String iosClientId;
     @Value("${apple.teamId}")
     private String appleTeamId;
     @Value("${apple.keyId}")
     private String appleKeyId;
     @Value("${apple.keyPath}")
     private String appleKeyPath;
+
+    private String getClientId(OSType osType) {
+        if (osType == OSType.AOS) {
+            return aosClientId;
+        } else {
+            return iosClientId;
+        }
+    }
 
     /**
      * 소셜 로그인/소셜 로그인 회원가입
@@ -61,21 +77,60 @@ public class AppleOAuthService implements OAuthService {
      */
     @Override
     @Transactional
-    public OauthLoginDTO login(OauthDTO dto) {
+    public OauthLoginDTO login(OauthCodeDTO dto) {
+        if (dto.getOs() == null) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "os 데이터가 null일 수 없습니다.");
+        }
+
         // 1. 사용자 토큰 조회
+        String clientId = getClientId(dto.getOs());
         AppleTokenResponse tokenResponse = appleOAuthAPIService.getToken(
                 clientId,
-                createSecret(),
+                createSecret(clientId),
                 dto.getCode(),
-                GRANT_TYPE
+                GENERATE_TOKEN_GRANT_TYPE
         );
 
         // 2. 회원가입/로그인
-        String email = getEmailFromIdToken(tokenResponse.getIdToken());
+        return saveOrUpdateUser(tokenResponse.getIdToken());
+    }
+
+    /**
+     * 소셜 로그인/소셜 로그인 회원가입
+     *
+     * @param dto
+     */
+    @Override
+    @Transactional
+    public OauthLoginDTO login(OauthTokenDTO dto) {
+        if (dto.getOs() == null) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "os 데이터가 null일 수 없습니다.");
+        }
+
+        // 1. 사용자 정보 조회
+        String clientId = getClientId(dto.getOs());
+        AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueToken(
+                clientId,
+                createSecret(clientId),
+                dto.getRefreshToken(),
+                REISSUE_GRANT_TYPE
+        );
+        return saveOrUpdateUser(tokenResponse.getIdToken());
+    }
+
+    /**
+     * 애플 사용자를 저장 혹은 업데이트하고 토큰 발급하는 함수
+     *
+     * @param idToken
+     * @return
+     */
+    @Transactional
+    public OauthLoginDTO saveOrUpdateUser(String idToken) {
+        String email = getEmailFromIdToken(idToken);
         OAuthAttributes attribute = OAuthAttributes.builder()
                 .name(email)
                 .email(email)
-                .oAuthProvider(dto.getOauthProviderType())
+                .oAuthProvider(OauthProviderType.APPLE)
                 .build();
         User user = customOauth2UserService.saveOrUpdate(attribute);
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
@@ -99,7 +154,7 @@ public class AppleOAuthService implements OAuthService {
         return email;
     }
 
-    private String createSecret() {
+    private String createSecret(String clientId) {
         Date expirationDate = Date.from(
                 LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
         try {

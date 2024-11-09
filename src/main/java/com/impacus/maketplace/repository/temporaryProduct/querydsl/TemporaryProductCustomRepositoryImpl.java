@@ -3,16 +3,15 @@ package com.impacus.maketplace.repository.temporaryProduct.querydsl;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.CreateProductDetailInfoDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
-import com.impacus.maketplace.dto.product.response.ProductClaimInfoDTO;
-import com.impacus.maketplace.dto.product.response.ProductDeliveryTimeDTO;
-import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
-import com.impacus.maketplace.dto.product.response.ProductDetailInfoDTO;
+import com.impacus.maketplace.dto.product.response.*;
+import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProduct;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductClaimInfo;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDeliveryTime;
 import com.impacus.maketplace.entity.temporaryProduct.QTemporaryProductDetailInfo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Repository;
@@ -31,14 +30,15 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
     private final QTemporaryProductDeliveryTime deliveryTime = QTemporaryProductDeliveryTime.temporaryProductDeliveryTime;
 
     @Override
-    public void updateTemporaryProduct(Long temporaryProductId, BasicStepProductDTO dto) {
+    public void updateTemporaryProduct(Long temporaryProductId, BasicStepProductDTO dto, boolean doesUpdateChargePercent) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
-        queryFactory
+        JPAUpdateClause query = queryFactory
                 .update(temporaryProduct)
                 .set(temporaryProduct.name, dto.getName())
                 .set(temporaryProduct.deliveryType, dto.getDeliveryType())
                 .set(temporaryProduct.isCustomProduct, dto.getIsCustomProduct())
+                .set(temporaryProduct.categoryId, dto.getCategoryId())
                 .set(temporaryProduct.deliveryFeeType, dto.getDeliveryFeeType())
                 .set(temporaryProduct.refundFeeType, dto.getRefundFeeType())
                 .set(temporaryProduct.deliveryFee, dto.getDeliveryFee())
@@ -55,8 +55,13 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
 
                 .set(temporaryProduct.modifyAt, LocalDateTime.now())
                 .set(temporaryProduct.modifyId, currentAuditor)
-                .where(temporaryProduct.id.eq(temporaryProductId))
-                .execute();
+                .where(temporaryProduct.id.eq(temporaryProductId));
+
+        if (doesUpdateChargePercent) {
+            query.set(temporaryProduct.salesChargePercent, dto.getSalesChargePercent());
+        }
+
+        query.execute();
     }
 
     @Override
@@ -126,43 +131,50 @@ public class TemporaryProductCustomRepositoryImpl implements TemporaryProductCus
     }
 
     @Override
-    public WebProductDetailDTO findDetailIdByRegisterId(String registerId) {
+    public TemporaryProductDTO findDetailIdByRegisterId(String registerId) {
         return queryFactory
                 .select(
                         Projections.fields(
-                                WebProductDetailDTO.class,
+                                TemporaryProductDTO.class,
                                 temporaryProduct.id,
-                                temporaryProduct.name,
-                                temporaryProduct.categoryId,
-                                temporaryProduct.deliveryType,
-                                temporaryProduct.isCustomProduct,
-                                temporaryProduct.deliveryFeeType,
-                                temporaryProduct.refundFeeType,
-                                temporaryProduct.deliveryFee,
-                                temporaryProduct.refundFee,
-                                temporaryProduct.specialDeliveryFee,
-                                temporaryProduct.specialRefundFee,
-                                temporaryProduct.deliveryCompany,
-                                temporaryProduct.bundleDeliveryOption,
-                                temporaryProduct.bundleDeliveryGroupId,
-                                temporaryProduct.salesChargePercent,
-                                temporaryProduct.marketPrice,
-                                temporaryProduct.appSalesPrice,
-                                temporaryProduct.discountPrice,
-                                temporaryProduct.weight,
-                                temporaryProduct.type,
-                                temporaryProduct.productStatus,
-                                temporaryProduct.description,
+                                Projections.fields(
+                                        WebProductBasicDTO.class,
+                                        temporaryProduct.name,
+                                        temporaryProduct.deliveryType,
+                                        temporaryProduct.isCustomProduct,
+                                        temporaryProduct.categoryId,
+                                        temporaryProduct.deliveryFeeType,
+                                        temporaryProduct.refundFeeType,
+                                        temporaryProduct.deliveryFee,
+                                        temporaryProduct.refundFee,
+                                        temporaryProduct.specialDeliveryFee,
+                                        temporaryProduct.specialRefundFee,
+                                        temporaryProduct.deliveryCompany,
+                                        temporaryProduct.bundleDeliveryOption,
+                                        temporaryProduct.bundleDeliveryGroupId,
+                                        temporaryProduct.productImages,
+                                        temporaryProduct.marketPrice,
+                                        temporaryProduct.appSalesPrice,
+                                        temporaryProduct.discountPrice,
+                                        temporaryProduct.salesChargePercent,
+                                        Projections.constructor(
+                                                ProductDeliveryTimeDTO.class,
+                                                deliveryTime.minDays,
+                                                deliveryTime.maxDays
+                                        ).as("deliveryTime")
+                                ).as("information"),
+                                Projections.fields(
+                                        WebProductSpecificationDTO.class,
+                                        temporaryProduct.description,
+                                        temporaryProduct.weight,
+                                        temporaryProduct.productStatus,
+                                        temporaryProduct.type
+
+                                ).as("specification"),
                                 Projections.constructor(
                                         ProductDetailInfoDTO.class,
                                         temporaryProductDetail
                                 ).as("productDetail"),
-                                Projections.constructor(
-                                        ProductDeliveryTimeDTO.class,
-                                        deliveryTime.minDays,
-                                        deliveryTime.maxDays
-                                ).as("deliveryTime"),
-                                temporaryProduct.productImages,
                                 Projections.constructor(
                                         ProductClaimInfoDTO.class,
                                         claimInfo.recallInfo,

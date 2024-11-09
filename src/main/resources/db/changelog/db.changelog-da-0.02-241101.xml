@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-da-0.01-241028" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="system_footer"/>
+            </not>
+        </preConditions>
+        <createTable tableName="system_footer">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="attach_file_id" type="BIGINT" remarks="attach_file의 FK"/>
+            <column name="company_name" type="VARCHAR(255)" remarks="상호명">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owner" type="VARCHAR(255)" remarks="대표">
+                <constraints nullable="false"/>
+            </column>
+            <column name="business_num" type="VARCHAR(255)" remarks="사업자등록번호">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(255)" remarks="주소">
+                <constraints nullable="false"/>
+            </column>
+            <column name="support_num" type="VARCHAR(255)" remarks="고객센터 전화번호">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)" remarks="종합문의">
+                <constraints nullable="false"/>
+            </column>
+            <column name="copyright" type="VARCHAR(255)" remarks="copyright">
+                <constraints nullable="false"/>
+            </column>
+            <column name="term_service" type="VARCHAR(255)" remarks="이용약관">
+                <constraints nullable="false"/>
+            </column>
+            <column name="information_policy" type="VARCHAR(255)" remarks="개인정보처리방침">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="time" remarks="시작 시간">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="time" remarks="종료 시간">
+                <constraints nullable="false"/>
+            </column>
+            <column name="week" type="VARCHAR(255)" remarks="요일">
+                <constraints nullable="false"/>
+            </column>
+            <column name="information_notice" type="text" remarks="정보제공고시">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
