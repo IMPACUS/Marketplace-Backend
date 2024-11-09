@@ -1,8 +1,9 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.ProductType;
+import com.impacus.maketplace.common.enumType.coupon.CouponProductType;
 import com.impacus.maketplace.common.enumType.coupon.StandardType;
+import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.ValidateUserCouponForOrderDTO;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.ValidateUserCouponForProductDTO;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class CouponValidationService {
 
     public boolean validateCouponForOrder(ValidateUserCouponForOrderDTO coupon, Long totalPrice) {
         // 타입 체크
-        if (coupon.getProductType() != ProductType.ALL) {
+        if (coupon.getProductType() != CouponProductType.ALL) {
             return false;
         }
 
@@ -29,14 +30,14 @@ public class CouponValidationService {
         // 금액 체크
         return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalPrice;
     }
-    public boolean validateCouponForProduct(ValidateUserCouponForProductDTO coupon, com.impacus.maketplace.common.enumType.product.ProductType productType, String marketName, int appSalesPrice, Long quantity) {
+    public boolean validateCouponForProduct(ValidateUserCouponForProductDTO coupon, ProductType productType, String marketName, int appSalesPrice, Long quantity) {
         // 타입 체크 (쿠폰: 에코 적용, 상품: 그린 태그가 아니면)
-        if (coupon.getProductType() == ProductType.ECO_GREEN && productType != com.impacus.maketplace.common.enumType.product.ProductType.GREEN_TAG) {
+        if (coupon.getProductType() == CouponProductType.ECO_GREEN && productType != ProductType.GREEN_TAG) {
             return false;
         }
 
         // 타입 체크 (쿠폰: 일반 상품, 상품: 일반 상품 아니면)
-        if (coupon.getProductType() == ProductType.BASIC && productType != com.impacus.maketplace.common.enumType.product.ProductType.GENERAL) {
+        if (coupon.getProductType() == CouponProductType.BASIC && productType != ProductType.GENERAL) {
             return false;
         }
 
