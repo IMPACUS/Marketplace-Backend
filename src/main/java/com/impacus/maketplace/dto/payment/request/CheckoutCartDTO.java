@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.payment.PaymentMethod;
+import com.impacus.maketplace.dto.payment.model.PaymentProductInfoIdDTO;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -39,5 +40,9 @@ public class CheckoutCartDTO {
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAppliedOrderCouponIds(List<Long> appliedOrderCouponIds) {
         this.appliedOrderCouponIds = appliedOrderCouponIds != null ? appliedOrderCouponIds : new ArrayList<>();
+    }
+
+    public List<PaymentProductInfoIdDTO> getPaymentProductInfoIds() {
+        return this.getPaymentProductInfos().stream().map(PaymentProductInfoDTO::getPaymentProductInfoId).toList();
     }
 }

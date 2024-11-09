@@ -621,19 +621,16 @@ public class CheckoutServiceTest {
 
             BuyerInfoDTO buyerInfoDTO = getBuyerInfoDTO(userId);
 
-            List<CheckoutCartProductInfoDTO> checkoutCartProductInfos = new ArrayList<>();
+            List<CheckoutProductInfoDTO> checkoutProductInfos = new ArrayList<>();
             CheckoutProductInfoDTO checkoutProductInfoDTO1 = getCheckoutProductInfoDTO(0L, 5000, 5000, 1L, 1L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
             CheckoutProductInfoDTO checkoutProductInfoDTO2 = getCheckoutProductInfoDTO(1L, 15000, 15000, 2L, 2L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
-            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO1 = CheckoutCartProductInfoDTO.builder()
-                    .checkoutProductInfoDTO(checkoutProductInfoDTO1)
-                    .quantity(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(0))
-                    .build();
-            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO2 = CheckoutCartProductInfoDTO.builder()
-                    .checkoutProductInfoDTO(checkoutProductInfoDTO2)
-                    .quantity(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(1))
-                    .build();
+
+            checkoutProductInfos.add(checkoutProductInfoDTO1);
+            checkoutProductInfos.add(checkoutProductInfoDTO2);
+
+            List<CheckoutCartProductInfoDTO> checkoutCartProductInfos = new ArrayList<>();
+            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO1 = new CheckoutCartProductInfoDTO(checkoutProductInfoDTO1, 1L, appliedCouponForProductIdsList.get(0));
+            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO2 = new CheckoutCartProductInfoDTO(checkoutProductInfoDTO2, 1L, appliedCouponForProductIdsList.get(1));
 
             checkoutCartProductInfos.add(checkoutCartProductInfoDTO1);
             checkoutCartProductInfos.add(checkoutCartProductInfoDTO2);
@@ -688,11 +685,12 @@ public class CheckoutServiceTest {
             }
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
-            for (int i = 0; i < productCount; i++) {
-                PaymentProductInfoDTO paymentProductInfoDTO = checkoutCartDTO.getPaymentProductInfos().get(i);
-                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);
-                when(checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId())).thenReturn(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO());
-            }
+            when(checkoutCustomRepository.getPaymentProductInfos(anyList(), anyBoolean(), any())).thenReturn(checkoutProductInfos);
+//            for (int i = 0; i < productCount; i++) {
+//                PaymentProductInfoDTO paymentProductInfoDTO = checkoutCartDTO.getPaymentProductInfos().get(i);
+//                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);
+//                when(checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId())).thenReturn(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO());
+//            }
             when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(0L);
 //            for (int i = 0; i < productCount; i++) {
 //                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);
@@ -739,25 +737,19 @@ public class CheckoutServiceTest {
 
             BuyerInfoDTO buyerInfoDTO = getBuyerInfoDTO(userId);
 
-            List<CheckoutCartProductInfoDTO> checkoutCartProductInfos = new ArrayList<>();
+            List<CheckoutProductInfoDTO> checkoutProductInfos = new ArrayList<>();
             CheckoutProductInfoDTO checkoutProductInfoDTO1 = getCheckoutProductInfoDTO(0L, 5000, 4000, 1L, 1L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
             CheckoutProductInfoDTO checkoutProductInfoDTO2 = getCheckoutProductInfoDTO(1L, 15000, 13000, 2L, 2L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
             CheckoutProductInfoDTO checkoutProductInfoDTO3 = getCheckoutProductInfoDTO(2L, 10000, 8000, 3L, 3L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
-            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO1 = CheckoutCartProductInfoDTO.builder()
-                    .checkoutProductInfoDTO(checkoutProductInfoDTO1)
-                    .quantity(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(0))
-                    .build();
-            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO2 = CheckoutCartProductInfoDTO.builder()
-                    .checkoutProductInfoDTO(checkoutProductInfoDTO2)
-                    .quantity(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(1))
-                    .build();
-            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO3 = CheckoutCartProductInfoDTO.builder()
-                    .checkoutProductInfoDTO(checkoutProductInfoDTO3)
-                    .quantity(1L)
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(2))
-                    .build();
+
+            checkoutProductInfos.add(checkoutProductInfoDTO1);
+            checkoutProductInfos.add(checkoutProductInfoDTO2);
+            checkoutProductInfos.add(checkoutProductInfoDTO3);
+
+            List<CheckoutCartProductInfoDTO> checkoutCartProductInfos = new ArrayList<>();
+            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO1 = new CheckoutCartProductInfoDTO(checkoutProductInfoDTO1, 1L, appliedCouponForProductIdsList.get(0));
+            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO2 = new CheckoutCartProductInfoDTO(checkoutProductInfoDTO2, 1L, appliedCouponForProductIdsList.get(1));
+            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO3 = new CheckoutCartProductInfoDTO(checkoutProductInfoDTO3, 1L, appliedCouponForProductIdsList.get(2));
 
             checkoutCartProductInfos.add(checkoutCartProductInfoDTO1);
             checkoutCartProductInfos.add(checkoutCartProductInfoDTO2);
@@ -817,11 +809,12 @@ public class CheckoutServiceTest {
             }
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
-            for (int i = 0; i < productCount; i++) {
-                PaymentProductInfoDTO paymentProductInfoDTO = checkoutCartDTO.getPaymentProductInfos().get(i);
-                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);
-                when(checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId())).thenReturn(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO());
-            }
+            when(checkoutCustomRepository.getPaymentProductInfos(anyList(), anyBoolean(), any())).thenReturn(checkoutProductInfos);
+//            for (int i = 0; i < productCount; i++) {
+//                PaymentProductInfoDTO paymentProductInfoDTO = checkoutCartDTO.getPaymentProductInfos().get(i);
+//                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);
+//                when(checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId())).thenReturn(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO());
+//            }
             when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(10000L);
 //            for (int i = 0; i < productCount; i++) {
 //                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);
@@ -874,25 +867,19 @@ public class CheckoutServiceTest {
 
             BuyerInfoDTO buyerInfoDTO = getBuyerInfoDTO(userId);
 
+            List<CheckoutProductInfoDTO> checkoutProductInfos = new ArrayList<>();
             List<CheckoutCartProductInfoDTO> checkoutCartProductInfos = new ArrayList<>();
             CheckoutProductInfoDTO checkoutProductInfoDTO1 = getCheckoutProductInfoDTO(0L, 5000, 4000, 1L, 1L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
             CheckoutProductInfoDTO checkoutProductInfoDTO2 = getCheckoutProductInfoDTO(1L, 15000, 13000, 2L, 2L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
             CheckoutProductInfoDTO checkoutProductInfoDTO3 = getCheckoutProductInfoDTO(2L, 10000, 8000, 3L, 3L, ProductStatus.SALES_PROGRESS, false, false, 100L, ProductType.GENERAL);
-            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO1 = CheckoutCartProductInfoDTO.builder()
-                    .checkoutProductInfoDTO(checkoutProductInfoDTO1)
-                    .quantity(quantityList.get(0))
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(0))
-                    .build();
-            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO2 = CheckoutCartProductInfoDTO.builder()
-                    .checkoutProductInfoDTO(checkoutProductInfoDTO2)
-                    .quantity(quantityList.get(1))
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(1))
-                    .build();
-            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO3 = CheckoutCartProductInfoDTO.builder()
-                    .checkoutProductInfoDTO(checkoutProductInfoDTO3)
-                    .quantity(quantityList.get(2))
-                    .appliedCouponForProductIds(appliedCouponForProductIdsList.get(2))
-                    .build();
+
+            checkoutProductInfos.add(checkoutProductInfoDTO1);
+            checkoutProductInfos.add(checkoutProductInfoDTO2);
+            checkoutProductInfos.add(checkoutProductInfoDTO3);
+
+            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO1 = new CheckoutCartProductInfoDTO(checkoutProductInfoDTO1,  quantityList.get(0), appliedCouponForProductIdsList.get(0));
+            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO2 = new CheckoutCartProductInfoDTO(checkoutProductInfoDTO2, quantityList.get(1),appliedCouponForProductIdsList.get(1));
+            CheckoutCartProductInfoDTO checkoutCartProductInfoDTO3 = new CheckoutCartProductInfoDTO(checkoutProductInfoDTO3, quantityList.get(2), appliedCouponForProductIdsList.get(2));
 
             checkoutCartProductInfos.add(checkoutCartProductInfoDTO1);
             checkoutCartProductInfos.add(checkoutCartProductInfoDTO2);
@@ -952,11 +939,13 @@ public class CheckoutServiceTest {
             }
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
-            for (int i = 0; i < productCount; i++) {
-                PaymentProductInfoDTO paymentProductInfoDTO = checkoutCartDTO.getPaymentProductInfos().get(i);
-                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);
-                when(checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId())).thenReturn(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO());
-            }
+            when(checkoutCustomRepository.getPaymentProductInfos(anyList(), anyBoolean(), any())).thenReturn(checkoutProductInfos);
+
+//            for (int i = 0; i < productCount; i++) {
+//                PaymentProductInfoDTO paymentProductInfoDTO = checkoutCartDTO.getPaymentProductInfos().get(i);
+//                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);
+//                when(checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId())).thenReturn(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO());
+//            }
             when(greenLabelPointAllocationService.getGreenLabelPointAmount(userId)).thenReturn(10000L);
 //            for (int i = 0; i < productCount; i++) {
 //                CheckoutCartProductInfoDTO checkoutCartProductInfoDTO = checkoutCartProductInfos.get(i);

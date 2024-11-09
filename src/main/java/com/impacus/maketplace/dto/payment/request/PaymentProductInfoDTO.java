@@ -2,6 +2,7 @@ package com.impacus.maketplace.dto.payment.request;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.impacus.maketplace.dto.payment.model.PaymentProductInfoIdDTO;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -22,5 +23,9 @@ public class PaymentProductInfoDTO {
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAppliedProductCouponIds(List<Long> appliedProductCouponIds) {
         this.appliedProductCouponIds = appliedProductCouponIds != null ? appliedProductCouponIds : Collections.emptyList();
+    }
+
+    public PaymentProductInfoIdDTO getPaymentProductInfoId() {
+        return new PaymentProductInfoIdDTO(this.getProductId(), this.getProductOptionId(), this.getSellerId());
     }
 }

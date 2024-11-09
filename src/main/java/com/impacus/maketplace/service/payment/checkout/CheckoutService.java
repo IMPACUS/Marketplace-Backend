@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.payment.checkout;
 
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.OrderErrorType;
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.payment.PaymentOrderStatus;
@@ -13,6 +14,7 @@ import com.impacus.maketplace.dto.coupon.model.ValidatedPaymentCouponInfosDTO;
 import com.impacus.maketplace.dto.payment.model.*;
 import com.impacus.maketplace.dto.payment.request.CheckoutCartDTO;
 import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
+import com.impacus.maketplace.dto.payment.request.PaymentProductInfoDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutCustomerDTO;
 import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentCartDTO;
@@ -268,7 +270,7 @@ public class CheckoutService {
     public PaymentCartDTO checkoutCart(Long userId, CheckoutCartDTO checkoutCartDTO) {
 
         // 1. 중복 쿠폰 사용 체크
-        System.out.println("1. 중복 쿠폰 사용 체크" + System.currentTimeMillis());
+        System.out.println("1. 중복 쿠폰 사용 체크: " + System.currentTimeMillis());
         List<Long> allCouponIds = new ArrayList<>();
         if (checkoutCartDTO.getAppliedOrderCouponIds() != null) {
             allCouponIds.addAll(checkoutCartDTO.getAppliedOrderCouponIds());
@@ -286,31 +288,35 @@ public class CheckoutService {
         validateDuplicatedCoupon(allCouponIds);
 
         // 2. 필요한 사용자 정보 가져오기
-        System.out.println("2. 필요한 사용자 정보 가져오기" + System.currentTimeMillis());
+        System.out.println("2. 필요한 사용자 정보 가져오기: " + System.currentTimeMillis());
         BuyerInfoDTO buyerInfo = checkoutCustomRepository.getBuyerInfo(userId);
 
         // 3. 필요한 정보 가져오기
-        System.out.println("3. 필요한 정보 가져오기" + System.currentTimeMillis());
-        List<CheckoutCartProductInfoDTO> checkoutCartProductList = checkoutCartDTO.getPaymentProductInfos().stream().map(paymentProductInfoDTO -> {
-                    CheckoutProductInfoDTO checkoutProductInfoDTO = checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId());
-                    return CheckoutCartProductInfoDTO.builder()
-                            .checkoutProductInfoDTO(checkoutProductInfoDTO)
-                            .quantity(paymentProductInfoDTO.getQuantity())
-                            .appliedCouponForProductIds(paymentProductInfoDTO.getAppliedProductCouponIds())
-                            .build();
-                }
-        ).toList();
+        System.out.println("3. 필요한 정보 가져오기: " + System.currentTimeMillis());
+        // 상품의 수만큼 N번의 쿼리로 조회
+//        List<CheckoutCartProductInfoDTO> checkoutCartProductList = checkoutCartDTO.getPaymentProductInfos().stream().map(paymentProductInfoDTO -> {
+//                    CheckoutProductInfoDTO checkoutProductInfo = checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId());
+//                    return new CheckoutCartProductInfoDTO(checkoutProductInfo, paymentProductInfoDTO.getQuantity(), paymentProductInfoDTO.getAppliedProductCouponIds());
+//                }
+//        ).toList();
+        // 1번의 쿼리로 상품 정보 가져온 후 Mapping
+        List<CheckoutProductInfoDTO> checkoutProductInfos = checkoutCustomRepository.getPaymentProductInfos(checkoutCartDTO.getPaymentProductInfoIds(), false, null);
+        List<CheckoutCartProductInfoDTO> checkoutCartProductList = checkoutProductInfos.stream().map(checkoutProductInfo -> {
+                    PaymentProductInfoDTO paymentProductInfoDTO = getPaymentProductInfoFromCheckoutCartById(checkoutCartDTO, checkoutProductInfo);
+                    return new CheckoutCartProductInfoDTO(checkoutProductInfo, paymentProductInfoDTO.getQuantity(), paymentProductInfoDTO.getAppliedProductCouponIds());
+                })
+                .toList();
 
         Integer size = checkoutCartProductList.size();
 
         // 4. validateCheckoutCartProduct
-        System.out.println("4. validateCheckoutCartProduct" + System.currentTimeMillis());
+        System.out.println("4. validateCheckoutCartProduct: " + System.currentTimeMillis());
         checkoutCartProductList.forEach(checkoutCartProductInfoDTO ->
                 validateCheckoutProduct(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().isProductIsDeleted(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().isOptionIsDeleted(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductStatus(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getStock(), checkoutCartProductInfoDTO.getQuantity())
         );
 
         // 5. validateDiscount
-        System.out.println("5.1 validateDiscount 포인트 가져오기" + System.currentTimeMillis());
+        System.out.println("5.1 validateDiscount 포인트 가져오기: " + System.currentTimeMillis());
         Long greenLabelPoint = 0L;
         if (checkoutCartDTO.getPointAmount() >= 0L) {
             greenLabelPoint = greenLabelPointAllocationService.getGreenLabelPointAmount(userId);
@@ -325,7 +331,7 @@ public class CheckoutService {
                 chekcoutCartProductInfoDTO.getCheckoutProductInfoDTO().getAppSalesPrice() * chekcoutCartProductInfoDTO.getQuantity()
         ).sum();
 
-        System.out.println("5.2 validateDiscount 쿠폰 가져오기" + System.currentTimeMillis());
+        System.out.println("5.2 validateDiscount 쿠폰 가져오기: " + System.currentTimeMillis());
         // 1번의 쿼리로 모든 쿠폰 검증 방식
         List<CouponValidationRequestDTO.ProductCouponValidationData> productCouponValidationDataList = checkoutCartProductList.stream()
                 .map(item -> {
@@ -356,7 +362,7 @@ public class CheckoutService {
 //
 //        List<PaymentCouponDTO> orderCoupons = couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutCartDTO.getAppliedOrderCouponIds(), orderTotalPrice);
 
-        System.out.println("5.3 validateDiscount" + System.currentTimeMillis());
+        System.out.println("5.3 validateDiscount: " + System.currentTimeMillis());
         Map<Long, Long> productPrices = checkoutCartProductList.stream()
                 .collect(Collectors.toMap(
                         item -> item.getCheckoutProductInfoDTO().getProductId(),
@@ -384,7 +390,7 @@ public class CheckoutService {
                 .sum();
 
         // 6. 최종 결제 금액 비교
-        System.out.println("6. 최종 결제 금액 비교" + System.currentTimeMillis());
+        System.out.println("6. 최종 결제 금액 비교: " + System.currentTimeMillis());
         if (!totalDiscountedAmount.equals(checkoutCartDTO.getCalculatedTotalAmount())) {
             CustomException exception = new CustomException(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
             LogUtils.error(String.format("%s %s", this.getClass(), "checkoutCart()"), String.format("서버간의 최종 결제 금액 비교 불일치 -> 클라이언트 서버: %d, 현재 서버: %d", checkoutCartDTO.getCalculatedTotalAmount(), totalDiscountedAmount), exception);
@@ -392,7 +398,7 @@ public class CheckoutService {
         }
 
         // 7. order_id 및 payment_id 생성
-        System.out.println("7. order_id 및 payment_id 생성" + System.currentTimeMillis());
+        System.out.println("7. order_id 및 payment_id 생성: " + System.currentTimeMillis());
         String orderId = getOrderId();
         String paymentKey;
         try {
@@ -405,7 +411,7 @@ public class CheckoutService {
         String orderName = OrderUtils.generateOrderName(checkoutCartProductList.get(0).getCheckoutProductInfoDTO().getName(), checkoutCartProductList.get(0).getQuantity(), size);
 
         // 8. PaymentEvent, PaymentOrder, DeliveyAddress 저장
-        System.out.println("8. PaymentEvent, PaymentOrder, DeliveyAddress 저장" + System.currentTimeMillis());
+        System.out.println("8. PaymentEvent, PaymentOrder, DeliveyAddress 저장: " + System.currentTimeMillis());
         PaymentEvent paymentEvent = PaymentEvent.builder()
                 .buyerId(userId)
                 .isPaymentDone(false)
@@ -480,6 +486,16 @@ public class CheckoutService {
                 .paymentMethod(savedPaymentEvent.getMethod())
                 .customer(checkoutCustomerDTO)
                 .build();
+    }
+
+    // 조회한 상품 id를 기반으로 상품 DTO 가져오기
+    private PaymentProductInfoDTO getPaymentProductInfoFromCheckoutCartById(CheckoutCartDTO checkoutCartDTO, CheckoutProductInfoDTO checkoutProductInfo) {
+        Optional<PaymentProductInfoDTO> paymentProductInfoDTOOpt = checkoutCartDTO.getPaymentProductInfos().stream().filter(paymentProductInfo -> paymentProductInfo.getProductId().equals(checkoutProductInfo.getProductId())).findAny();
+        return paymentProductInfoDTOOpt.orElseThrow(() -> {
+            CustomException exception = new CustomException(CommonErrorType.UNKNOWN);
+            LogUtils.error(this.getClass() + "::checkoutCart", "상품 정보 Mapping 과정에서 발생한 예상치 못한 에러 발생", exception);
+            return exception;
+        });
     }
 
     private static void validateDuplicatedCoupon(List<Long> allCouponIds) {
