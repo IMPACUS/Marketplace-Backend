@@ -23,7 +23,7 @@ public class CouponDetailDTO {
 
     private Long benefitValue;
 
-    private TargetProductType productType;
+    private CouponProductType productType;
 
     private PaymentTarget paymentTarget;
 

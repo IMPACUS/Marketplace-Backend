@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.TargetProductType;
+import com.impacus.maketplace.common.enumType.coupon.CouponProductType;
 import com.impacus.maketplace.common.enumType.coupon.StandardType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
@@ -21,7 +21,7 @@ public class CouponValidationService {
 
     public boolean validateCouponForOrder(ValidateOrderCouponInfoDTO coupon, Long totalPrice) {
         // 타입 체크 (상품 구분: ALL)
-        if (coupon.getProductType() != TargetProductType.ALL) {
+        if (coupon.getProductType() != CouponProductType.ALL) {
             return false;
         }
 
@@ -36,7 +36,7 @@ public class CouponValidationService {
 
     public void validateCouponForOrderWithException(ValidateOrderCouponInfoDTO coupon, Long totalPrice) {
         // 타입 체크 (상품 구분: ALL)
-        if (coupon.getProductType() != TargetProductType.ALL) {
+        if (coupon.getProductType() != CouponProductType.ALL) {
             throw new CustomException(CouponErrorType.INVALID_USER_COUPON_TYPE_MISMATCH);
         }
 
@@ -53,12 +53,12 @@ public class CouponValidationService {
 
     public boolean validateCouponForProduct(ValidateProductCouponInfoDTO coupon, ProductType productType, String marketName, Long appSalesPrice, Long quantity) {
         // 타입 체크 (쿠폰: 에코 적용, 상품: 그린 태그가 아니면)
-        if (coupon.getProductType() == TargetProductType.ECO_GREEN && productType != ProductType.GREEN_TAG) {
+        if (coupon.getProductType() == CouponProductType.ECO_GREEN && productType != ProductType.GREEN_TAG) {
             return false;
         }
 
         // 타입 체크 (쿠폰: 일반 상품, 상품: 일반 상품 아니면)
-        if (coupon.getProductType() == TargetProductType.BASIC && productType != ProductType.GENERAL) {
+        if (coupon.getProductType() == CouponProductType.BASIC && productType != ProductType.GENERAL) {
             return false;
         }
 
@@ -74,12 +74,12 @@ public class CouponValidationService {
 
     public void validateCouponForProductWithException(ValidateProductCouponInfoDTO coupon, ProductType productType, String marketName, Long appSalesPrice, Long quantity) {
         // 타입 체크 (쿠폰: 에코 적용, 상품: 그린 태그가 아니면)
-        if (coupon.getProductType() == TargetProductType.ECO_GREEN && productType != ProductType.GREEN_TAG) {
+        if (coupon.getProductType() == CouponProductType.ECO_GREEN && productType != ProductType.GREEN_TAG) {
             throw new CustomException(CouponErrorType.INVALID_USER_COUPON_TYPE_MISMATCH);
         }
 
         // 타입 체크 (쿠폰: 일반 상품, 상품: 일반 상품 아니면)
-        if (coupon.getProductType() == TargetProductType.BASIC && productType != ProductType.GENERAL) {
+        if (coupon.getProductType() == CouponProductType.BASIC && productType != ProductType.GENERAL) {
             throw new CustomException(CouponErrorType.INVALID_USER_COUPON_TYPE_MISMATCH);
         }
 

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum TargetProductType implements CouponUtils.CommonFieldInterface {
+public enum CouponProductType implements CouponUtils.CommonFieldInterface {
     ECO_GREEN("ECO_GREEN", "에코/그린 상품"),
     BASIC("BASIC" , "일반상품"),
     ALL("ALL" , "구분없음");

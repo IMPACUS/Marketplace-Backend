@@ -24,8 +24,8 @@ public class CouponIssueDTO implements CouponDTO {
     @NotNull
     private Long benefitValue;
 
-    @ValidEnum(enumClass = TargetProductType.class)
-    private TargetProductType productType;
+    @ValidEnum(enumClass = CouponProductType.class)
+    private CouponProductType productType;
 
     @ValidEnum(enumClass = PaymentTarget.class)
     private PaymentTarget paymentTarget;

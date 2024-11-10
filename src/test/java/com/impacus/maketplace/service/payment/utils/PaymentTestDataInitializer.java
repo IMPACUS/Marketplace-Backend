@@ -248,27 +248,27 @@ public class PaymentTestDataInitializer {
 
         // 9. 쿠폰 등록(혜택 구분 2개, 적용 타입 2개, 쿠폰 사용 범위 2개, 사용 가능 기준 금액 2개)
         // 9.1. 쿠폰 1: 10% 할인 쿠폰, 제약 조건 없음
-        Coupon coupon1 = createCoupon("test1", BenefitType.PERCENTAGE, 10L, TargetProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
+        Coupon coupon1 = createCoupon("test1", BenefitType.PERCENTAGE, 10L, CouponProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
         // 9.2. 쿠폰 2: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓)
-        Coupon coupon2 = createCoupon("tset2", BenefitType.PERCENTAGE, 10L, TargetProductType.ALL, CoverageType.BRAND, "테스트마켓", StandardType.UNLIMITED, null);
+        Coupon coupon2 = createCoupon("tset2", BenefitType.PERCENTAGE, 10L, CouponProductType.ALL, CoverageType.BRAND, "테스트마켓", StandardType.UNLIMITED, null);
         // 9.3. 쿠폰 3: 10% 할인 쿠폰, 제약 조건 -> 브랜드(틀린이름)
-        Coupon coupon3 = createCoupon("test3", BenefitType.PERCENTAGE, 10L, TargetProductType.ALL, CoverageType.BRAND, "틀린마켓이름", StandardType.UNLIMITED, null);
+        Coupon coupon3 = createCoupon("test3", BenefitType.PERCENTAGE, 10L, CouponProductType.ALL, CoverageType.BRAND, "틀린마켓이름", StandardType.UNLIMITED, null);
         // 9.4. 쿠폰 4: 20% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 사용 기준 금액: 10000원
-        Coupon coupon4 = createCoupon("test4", BenefitType.PERCENTAGE, 20L, TargetProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
+        Coupon coupon4 = createCoupon("test4", BenefitType.PERCENTAGE, 20L, CouponProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
         // 9.5. 쿠폰 5: 10% 할인 쿠폰, 제약 조건 -> 브랜드(테스트마켓), 일반 상품, 사용 기준 금액: 10000원
-        Coupon coupon5 = createCoupon("test5", BenefitType.PERCENTAGE, 10L, TargetProductType.BASIC, CoverageType.BRAND, "테스트마켓", StandardType.LIMIT, 10000L);
+        Coupon coupon5 = createCoupon("test5", BenefitType.PERCENTAGE, 10L, CouponProductType.BASIC, CoverageType.BRAND, "테스트마켓", StandardType.LIMIT, 10000L);
         // 9.6. 쿠폰 6: 10% 할인 쿠폰, 제약 조건 -> 에코 상품, 사용 기준 금액: 10000원
-        Coupon coupon6 = createCoupon("test6", BenefitType.PERCENTAGE, 10L, TargetProductType.ECO_GREEN, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
+        Coupon coupon6 = createCoupon("test6", BenefitType.PERCENTAGE, 10L, CouponProductType.ECO_GREEN, CoverageType.ALL, null, StandardType.LIMIT, 10000L);
         // 9.7. 쿠폰 7: 5000원 할인 쿠폰, 제약 조건 없음
-        Coupon coupon7 = createCoupon("test7", BenefitType.AMOUNT, 5000L, TargetProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
+        Coupon coupon7 = createCoupon("test7", BenefitType.AMOUNT, 5000L, CouponProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
         // 9.8. 쿠폰 8: 10000원 할인 쿠폰, 제약 조건 -> 사용 가능 기준 금액 15000원
-        Coupon coupon8 = createCoupon("test8", BenefitType.AMOUNT, 10000L, TargetProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 15000L);
+        Coupon coupon8 = createCoupon("test8", BenefitType.AMOUNT, 10000L, CouponProductType.ALL, CoverageType.ALL, null, StandardType.LIMIT, 15000L);
         // 9.9. 쿠폰 9: 이미 사용한 쿠폰으로 처리 (제약 조건 X)
-        Coupon coupon9 = createCoupon("test9", BenefitType.AMOUNT, 5000L, TargetProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
+        Coupon coupon9 = createCoupon("test9", BenefitType.AMOUNT, 5000L, CouponProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
         // 9.10. 쿠폰 10: 만료된 쿠폰으로 처리 (제약 조건 X)
-        Coupon coupon10 = createCoupon("test10", BenefitType.AMOUNT, 5000L, TargetProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
+        Coupon coupon10 = createCoupon("test10", BenefitType.AMOUNT, 5000L, CouponProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
         // 9.11. 쿠폰 11: 지급 실패한 쿠폰으로 처리 (제약 조건 X)
-        Coupon coupon11 = createCoupon("test11", BenefitType.AMOUNT, 5000L, TargetProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
+        Coupon coupon11 = createCoupon("test11", BenefitType.AMOUNT, 5000L, CouponProductType.ALL, CoverageType.ALL, null, StandardType.UNLIMITED, null);
 
         Coupon savedCoupon1 = couponRepository.save(coupon1);
         Coupon savedCoupon2 = couponRepository.save(coupon2);
@@ -319,7 +319,7 @@ public class PaymentTestDataInitializer {
                 .status(userCouponStatus)
                 .build();
     }
-    private Coupon createCoupon(String code, BenefitType benefitType, Long benefitValue, TargetProductType productType, CoverageType useCoverageType, String brandName, StandardType useStandardType, Long useStandardValue) {
+    private Coupon createCoupon(String code, BenefitType benefitType, Long benefitValue, CouponProductType productType, CoverageType useCoverageType, String brandName, StandardType useStandardType, Long useStandardValue) {
         return Coupon.builder()
                 .code(code)
                 .name("테스트용 쿠폰")

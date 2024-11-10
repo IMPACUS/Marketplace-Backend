@@ -8,7 +8,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
 @Data
-public class PaymentUserCouponInfo {
+public class ValidateUserCouponForProductDTO {
     private Long userCouponId;
     private BenefitType benefitType;  // 혜택 구분 [ 원, % ]
     private Long benefitValue;   // 혜택 금액 혹은 퍼센트
@@ -19,7 +19,7 @@ public class PaymentUserCouponInfo {
     private Long useStandardValue;  // N원 (N원 이상 주문시 사용 가능)
 
     @QueryProjection
-    public PaymentUserCouponInfo(Long userCouponId, BenefitType benefitType, Long benefitValue, CouponProductType productType, CoverageType useCoverageType, String useCoverageSubCategoryName, StandardType useStandardType, Long useStandardValue) {
+    public ValidateUserCouponForProductDTO(Long userCouponId, BenefitType benefitType, Long benefitValue, CouponProductType productType, CoverageType useCoverageType, String useCoverageSubCategoryName, StandardType useStandardType, Long useStandardValue) {
         this.userCouponId = userCouponId;
         this.benefitType = benefitType;
         this.benefitValue = benefitValue;
@@ -28,5 +28,14 @@ public class PaymentUserCouponInfo {
         this.useCoverageSubCategoryName = useCoverageSubCategoryName;
         this.useStandardType = useStandardType;
         this.useStandardValue = useStandardValue;
+    }
+
+    public ValidateUserCouponForProductDTO(UserCouponInfoForCheckoutDTO userCouponInfoForCheckoutDTO) {
+        this.userCouponId = userCouponInfoForCheckoutDTO.getUserCouponId();
+        this.productType = userCouponInfoForCheckoutDTO.getProductType();
+        this.useCoverageType = userCouponInfoForCheckoutDTO.getUseCoverageType();
+        this.useCoverageSubCategoryName = userCouponInfoForCheckoutDTO.getUseCoverageSubCategoryName();
+        this.useStandardType = userCouponInfoForCheckoutDTO.getUseStandardType();
+        this.useStandardValue = userCouponInfoForCheckoutDTO.getUseStandardValue();
     }
 }

@@ -1,13 +1,13 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.TargetProductType;
+import com.impacus.maketplace.common.enumType.coupon.CouponProductType;
 import com.impacus.maketplace.common.enumType.coupon.StandardType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.model.ValidateOrderCouponInfoDTO;
 import com.impacus.maketplace.dto.coupon.model.ValidateProductCouponInfoDTO;
-import com.impacus.maketplace.dto.coupon.model.ValidatedPaymentCouponInfosDTO;
 import com.impacus.maketplace.dto.coupon.request.ProductQuantityDTO;
 import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
@@ -125,8 +125,16 @@ public class CouponUserService {
      */
     public AvailableCouponsForCheckoutDTO findAvailableCouponsForCheckout(Long userId, List<ProductQuantityDTO> productQuantityDTOList) {
 
+        // 0. productId 중복 확인
+        validateDuplicatedProduct(productQuantityDTOList);
+
         // 1. 주문한 상품의 id, 브랜드와 금액을 DTO List로 가져오기
         List<ProductPricingInfoDTO> productPricingInfoDTOList = couponProductRepository.findProductPricingInfoList(productQuantityDTOList.stream().map(ProductQuantityDTO::getProductId).toList());
+
+        // 1.1 매핑되는 product id가 없을 경우
+        if (productQuantityDTOList.size() != productPricingInfoDTOList.size()) {
+            throw new CustomException(ProductErrorType.NOT_EXISTED_PRODUCT);
+        }
 
         // 2. 사용자가 보유하고 있는 쿠폰 List 가져오기
         List<UserCouponInfoForCheckoutDTO> userCouponInfoForCheckoutList = couponCustomRepositroy.findUserCouponInfoForCheckoutList(userId);
@@ -165,5 +173,14 @@ public class CouponUserService {
                 .toList();
 
         return new AvailableCouponsForCheckoutDTO(availableCouponsForProductDTOList, availableCouponsForOrderDTOList);
+    }
+
+    private void validateDuplicatedProduct(List<ProductQuantityDTO> productQuantityDTOList) {
+        Set<Long> uniqueProductIds = new HashSet<>();
+        productQuantityDTOList.forEach(productQuantityDTO -> {
+            if (!uniqueProductIds.add(productQuantityDTO.getProductId())) {
+                throw new CustomException(CouponErrorType.DUPLICATED_PRODUCDT_ID);
+            }
+        });
     }
 }

@@ -28,8 +28,8 @@ public class CouponUpdateDTO implements CouponDTO {
     @Min(value = 0, message = "음수 입력은 허용되지 않습니다.")
     private Long benefitValue;
 
-    @ValidEnum(enumClass = TargetProductType.class)
-    private TargetProductType productType;
+    @ValidEnum(enumClass = CouponProductType.class)
+    private CouponProductType productType;
 
     @ValidEnum(enumClass = PaymentTarget.class)
     private PaymentTarget paymentTarget;
