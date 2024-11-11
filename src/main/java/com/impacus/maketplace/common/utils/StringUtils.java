@@ -115,4 +115,8 @@ public class StringUtils {
         }
     }
 
+    public static String getPhoneNumber(String phoneNumberPrefix, String phoneNumberSuffix) {
+        return phoneNumberPrefix + "-" + phoneNumberSuffix;
+    }
+
 }

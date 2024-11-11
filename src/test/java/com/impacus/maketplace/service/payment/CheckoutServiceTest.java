@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service.payment;
 
-import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.common.enumType.error.OrderErrorType;
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.payment.PaymentMethod;
@@ -33,7 +32,6 @@ import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInf
 import com.impacus.maketplace.service.coupon.CouponRedeemService;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -45,7 +43,10 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -1064,7 +1065,7 @@ public class CheckoutServiceTest {
     }
 
     private BuyerInfoDTO getBuyerInfoDTO(Long userId) {
-        return new BuyerInfoDTO(userId, "email@mm.mm", "구매자 정보", "000-0000-0000");
+        return new BuyerInfoDTO(userId, "email@mm.mm", "구매자 정보", "000-0000", "0000");
     }
 
     private CheckoutSingleDTO getCheckoutSingleDTO(List<Long> appliedCouponForProductIds, List<Long> appliedCommonUserCouponIds, Long quantity, Long pointAmount, PaymentMethod method, Long calculatedTotalAmount) {

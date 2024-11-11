@@ -11,4 +11,8 @@ import lombok.NoArgsConstructor;
 public class SelectedSellerDeliveryCompanyDTO {
     private Long selectedSellerDeliveryCompanyId;
     private DeliveryCompany deliveryCompany;
+    
+    public boolean isNull() {
+        return selectedSellerDeliveryCompanyId == null && deliveryCompany == null;
+    }
 }

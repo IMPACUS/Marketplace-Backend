@@ -124,6 +124,8 @@ public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGr
                                         Projections.constructor(
                                                 BundleDeliveryGroupProductDTO.class,
                                                 product.id.as("productId"),
+                                                bundleDeliveryGroup.groupNumber,
+                                                product.productNumber,
                                                 product.name,
                                                 product.productImages,
                                                 bundleDeliveryGroup.deliveryFeeRule,

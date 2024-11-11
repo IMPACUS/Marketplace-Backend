@@ -40,7 +40,7 @@ public class Seller extends BaseEntity {
     @Column(nullable = false)
     private String marketName;
 
-    @Column(nullable = false)
+    @Column
     private Long logoImageId;
 
     @Comment("고객센터 전화 번호")

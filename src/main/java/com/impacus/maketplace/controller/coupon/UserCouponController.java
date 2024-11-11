@@ -34,7 +34,7 @@ public class UserCouponController {
      * APP: 쿠폰함 - 보유 쿠폰 List API
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("/coupon-box/coupon-list")
+    @GetMapping("/coupon-box")
     public ApiResponseEntity<List<UserCouponOverviewDTO>> getUserCouponOverviewList(@AuthenticationPrincipal CustomUserDetails user) {
 
         List<UserCouponOverviewDTO> response = couponService.getUserCouponOverviewList(user.getId());
@@ -46,7 +46,6 @@ public class UserCouponController {
     }
 
     /**
-     * POSTMANE API 수정하기
      * APP: 쿠폰함 - 쿠폰 등록하기
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
@@ -66,11 +65,11 @@ public class UserCouponController {
      * APP: 쿠폰함 - 쿠폰 다운로드
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("/coupon-box/coupon/download")
+    @PostMapping("/coupon-box/coupons/{coupon-id}")
     public ApiResponseEntity<UserCouponDownloadDTO> downloadUserCoupon(@AuthenticationPrincipal CustomUserDetails user,
-                                                                       @Valid @RequestBody UserCouponIdDTO couponIdDTO) {
+                                                                       @PathVariable(value = "coupon-id") Long couponId) {
 
-        UserCouponDownloadDTO response = couponService.downloadUserCoupon(user.getId(), couponIdDTO.getUserCouponId());
+        UserCouponDownloadDTO response = couponService.downloadUserCoupon(user.getId(), couponId);
 
         return ApiResponseEntity
                 .<UserCouponDownloadDTO>builder()
@@ -82,7 +81,7 @@ public class UserCouponController {
      * APP: 브랜드 쿠폰 받기 - 쿠폰 List API
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @GetMapping("/brand-coupon/coupon-list")
+    @GetMapping("/brand-coupon-box")
     public ApiResponseEntity<List<BrandCouponOverviewDTO>> getBrandCouponList(@AuthenticationPrincipal CustomUserDetails user,
                                                                               @RequestParam(name = "brand-name") String brandName,
                                                                               @RequestParam(name = "eco-product") Boolean isEcoProduct) {
@@ -99,11 +98,11 @@ public class UserCouponController {
      * APP: 브랜드 쿠폰 받기 - 쿠폰 다운 받기 API
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("/brand-coupon/download")
+    @PostMapping("/brand-coupon-box/coupons/{coupon-id}")
     public ApiResponseEntity<UserCouponDownloadDTO> issueAndDownloadCoupon(@AuthenticationPrincipal CustomUserDetails user,
-                                                                           @Valid @RequestBody CouponIdDTO couponDownloadDTO) {
+                                                                           @PathVariable(value = "coupon-id") Long couponId) {
 
-        UserCouponDownloadDTO response = couponService.issueAndDownloadCoupon(user.getId(), couponDownloadDTO.getCouponId());
+        UserCouponDownloadDTO response = couponService.issueAndDownloadCoupon(user.getId(), couponId);
         return ApiResponseEntity
                 .<UserCouponDownloadDTO>builder()
                 .data(response)

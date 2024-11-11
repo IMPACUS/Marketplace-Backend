@@ -1,8 +1,6 @@
 package com.impacus.maketplace.repository.admin;
 
-import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.dto.admin.*;
-import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.admin.QAdminActivityLog;
 import com.impacus.maketplace.entity.admin.QAdminInfo;
 import com.impacus.maketplace.entity.admin.QAdminLoginLog;
@@ -242,7 +240,7 @@ public class AdminCustomRepositoryImpl implements AdminCustomRepository {
             return null;
         }
         return userEntity.email.containsIgnoreCase(search)
-                .or(userEntity.phoneNumber.containsIgnoreCase(search))
+                .or(userEntity.phoneNumberSuffix.containsIgnoreCase(search))
                 .or(userEntity.name.containsIgnoreCase(search));
     }
 

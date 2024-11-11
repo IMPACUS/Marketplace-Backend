@@ -9,8 +9,9 @@ import com.impacus.maketplace.common.enumType.product.DeliveryRefundType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
+import com.impacus.maketplace.dto.product.request.CreateProductDeliveryTimeDTO;
+import com.impacus.maketplace.dto.product.request.ProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
-import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.redis.service.RecentProductViewsService;
@@ -48,23 +49,20 @@ public class ReadProductService implements ProductInterface {
 
     @Override
     public void validateProductRequest(
-            List<String> productImages,
-            Long categoryId,
             Long sellerId,
-            BundleDeliveryOption bundleDeliveryOption,
-            Long bundleDeliveryGroupId
+            ProductDTO dto
     ) {
-        // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
-        if (productImages.size() > 5) {
-            throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
-        }
+        Long categoryId = dto.getCategoryId();
+        BundleDeliveryOption bundleDeliveryOption = dto.getBundleDeliveryOption();
+        Long bundleDeliveryGroupId = dto.getBundleDeliveryGroupId();
+        CreateProductDeliveryTimeDTO deliveryTimeDTO = dto.getDeliveryTime();
 
-        // 2. 상품 내부 데이터 확인
+        // 상품 내부 데이터 확인
         if (!subCategoryService.existsBySubCategoryId(categoryId)) {
             throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
         }
 
-        // 3. 묶음 배송 그룹 데이터 확인
+        //  묶음 배송 그룹 데이터 확인
         if (bundleDeliveryOption == BundleDeliveryOption.BUNDLE_DELIVERY_AVAILABLE) {
             if (bundleDeliveryGroupId == null) {
                 throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "개별 배송일 때는 묶음 배송 그룹 id가 Null이면 안됩니다.");
@@ -75,6 +73,23 @@ public class ReadProductService implements ProductInterface {
             if (bundleDeliveryGroupId != null) {
                 throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "개별 배송일 때는 묶음 배송 그룹 id가 Null이여야 합니다.");
             }
+        }
+
+        // 배송비 & 반송비 유효성 검사
+        validateDeliveryRefundFee(dto);
+
+        // 배송 예정일 유효성 검사
+        if (deliveryTimeDTO.getMinDays() > deliveryTimeDTO.getMaxDays()) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "최소일이 최대일보다 클 수 없습니다.   ");
+        }
+    }
+
+    public void validateProductImages(
+            List<String> productImages
+    ) {
+        // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
+        if (productImages.size() > 5) {
+            throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
         }
     }
 
@@ -205,6 +220,8 @@ public class ReadProductService implements ProductInterface {
                 throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
             }
 
+            dto.processNullObject();
+
             return dto;
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -248,21 +265,17 @@ public class ReadProductService implements ProductInterface {
      * 배송비&반품비 유효성 검사 함수
      * - CHARGE_UNDER_30000 일 때, 배송비 정보 혹은 반품비 정보가 null 일 수 없음.
      *
-     * @param deliveryFee
-     * @param refundFee
-     * @param specialDeliveryFee
-     * @param specialRefundFee
-     * @param deliveryFeeType
-     * @param refundFeeType
      */
     public void validateDeliveryRefundFee(
-            Integer deliveryFee,
-            Integer refundFee,
-            Integer specialDeliveryFee,
-            Integer specialRefundFee,
-            DeliveryRefundType deliveryFeeType,
-            DeliveryRefundType refundFeeType
+            ProductDTO dto
     ) {
+        Integer deliveryFee = dto.getDeliveryFee();
+        Integer refundFee = dto.getRefundFee();
+        Integer specialDeliveryFee = dto.getSpecialDeliveryFee();
+        Integer specialRefundFee = dto.getSpecialRefundFee();
+        DeliveryRefundType deliveryFeeType = dto.getDeliveryFeeType();
+        DeliveryRefundType refundFeeType = dto.getRefundFeeType();
+
         // 1. 배송비 정보 확인
         if (deliveryFeeType == DeliveryRefundType.MANUAL && (deliveryFee == null || specialDeliveryFee == null)) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA,

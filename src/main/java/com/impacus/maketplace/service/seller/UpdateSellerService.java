@@ -157,6 +157,7 @@ public class UpdateSellerService {
             boolean isExistedBrand = brandRepository.existsBySellerId(sellerId);
 
             // 2. 스토어 정보 변경
+            dto.roundOpeningTime(); // 영업 시간 반올림
             sellerRepository.updateBrandInformationByUserId(userId, sellerId, dto, isExistedBrand);
 
             // 3. 브랜드 정보가 존재하지 않은 경우 생성
@@ -450,7 +451,9 @@ public class UpdateSellerService {
             // 1. 프로필 이미지 존재하는 경우, 프로필 이미지 저장
             Long profileImageId = null;
             if (profileImage != null) {
-                profileImageId = attachFileService.uploadFileAndAddAttachFile(profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY).getId();
+                profileImageId = attachFileService.uploadFileAndAddAttachFile(
+                        profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY
+                ).getId();
             }
 
             // 2. 판매자 정보 업데이트

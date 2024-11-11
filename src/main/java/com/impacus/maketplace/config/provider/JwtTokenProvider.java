@@ -3,7 +3,9 @@ package com.impacus.maketplace.config.provider;
 
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
@@ -55,13 +57,15 @@ public class JwtTokenProvider implements InitializingBean {
      * @return access token 과 refresh token이 담긴 jwt 토큰 객체
      */
     public TokenInfoVO createToken(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
         // 1. 권한 가져오기
-        String authorities = authentication.getAuthorities().stream()
+        String authorities = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         // 2. userID 가져오기
-        Long userId = ((CustomUserDetails) authentication.getPrincipal()).getId();
+        Long userId = userDetails.getId();
 
         // 3. Access token 생성
         long now = (new Date()).getTime();
@@ -162,12 +166,28 @@ public class JwtTokenProvider implements InitializingBean {
                 .setSigningKey(jwtKey).build()
                 .parseClaimsJws(accessToken).getBody()
                 .getExpiration();
-        
+
         if (expiration == null) {
             return 0L;
         }
 
         Long now = new Date().getTime();
         return (expiration.getTime() - now);
+    }
+    
+    /**
+     * User 로 Authentication 생성하는 함수
+     *
+     * @param user
+     * @return
+     */
+    public Authentication createAuthenticationFromUser(User user, UserType type) {
+        // 1. Authentication 객체 생성
+        CustomUserDetails userDetails = CustomUserDetails.toEntity(user, type);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+            userDetails, type.name()
+        );
+
+        return authenticationToken;
     }
 }

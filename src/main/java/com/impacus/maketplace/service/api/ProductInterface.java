@@ -1,9 +1,8 @@
 package com.impacus.maketplace.service.api;
 
-import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.product.request.ProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
-import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
 import com.impacus.maketplace.entity.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,16 +29,11 @@ public interface ProductInterface {
     /**
      * ProductRequest 의 유효성 검사
      *
-     * @param productImages 상품 이미지 리스트
-     * @param categoryId       카테고리 ID
      * @throws CustomException 유효하지 않는 경우, 예외 발생
      */
     void validateProductRequest(
-            List<String> productImages,
-            Long categoryId,
             Long sellerId,
-            BundleDeliveryOption bundleDeliveryOption,
-            Long bundleDeliveryGroupId
+            ProductDTO dto
     );
 
     /**

@@ -4,8 +4,8 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.product.request.BasicStepProductDTO;
 import com.impacus.maketplace.dto.product.request.DetailStepProductDTO;
 import com.impacus.maketplace.dto.product.request.OptionStepProductDTO;
-import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
+import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -110,16 +110,23 @@ public class TemporaryProductController {
                 .build();
     }
 
+    /**
+     * 임시 저장 데이터 조회
+     * @param user
+     * @return
+     */
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @GetMapping()
-    public ApiResponseEntity<WebProductDetailDTO> getTemporaryProduct(
-            @AuthenticationPrincipal CustomUserDetails user) {
-        WebProductDetailDTO dto = temporaryProductService.findTemporaryProduct(user.getId());
+    @GetMapping
+    public ApiResponseEntity<TemporaryProductDTO> getTemporaryProduct(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(value = "seller-id", required = false) Long sellerId
+    ) {
+        TemporaryProductDTO dto = temporaryProductService.findTemporaryProduct(user.getId(), sellerId);
         return ApiResponseEntity
-                .<WebProductDetailDTO>builder()
+                .<TemporaryProductDTO>builder()
                 .data(dto)
                 .build();
     }

@@ -123,13 +123,14 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
     public List<AlarmPointDTO> findAllAlarmPoint() {
         return queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 AlarmPointDTO.class,
-                                user.id.as("userId"),
-                                user.name.as("userName"),
+                                user.id,
+                                user.name,
                                 allocation.remainPoint,
                                 allocation.expiredAt,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 user.email
                         )
                 )

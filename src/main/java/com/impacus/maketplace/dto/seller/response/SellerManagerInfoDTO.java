@@ -1,9 +1,9 @@
 package com.impacus.maketplace.dto.seller.response;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @NoArgsConstructor
 public class SellerManagerInfoDTO {
     private String representativeName;

@@ -52,7 +52,9 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
                                 product.sellerId,
                                 product.productNumber,
                                 product.productImages,
-                                product.version
+                                product.version,
+                                product.createAt,
+                                product.registerId
                         )
                 )
                 .from(product)
@@ -100,7 +102,8 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
                                     productOption.color,
                                     productOption.size
                                 )
-                            )
+                            ),
+                            product.createAt
                         )
                     )
                 );
