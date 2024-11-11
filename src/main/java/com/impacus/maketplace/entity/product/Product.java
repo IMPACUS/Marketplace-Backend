@@ -21,7 +21,7 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "product_info")
-@NoArgsConstructor()
+@NoArgsConstructor
 public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -135,6 +135,7 @@ public class Product extends BaseEntity {
     }
 
     public Product(CommonProductDTO dto) {
+        super(dto.getCreateAt(), dto.getRegisterId());
         this.id = dto.getProductId();
         this.sellerId = dto.getSellerId();
         this.name = dto.getName();
