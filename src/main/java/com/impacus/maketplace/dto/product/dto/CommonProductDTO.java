@@ -5,6 +5,7 @@ import com.impacus.maketplace.entity.product.Product;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -16,6 +17,8 @@ public class CommonProductDTO {
     private String productNumber;
     private List<String> productImages;
     private long version;
+    private LocalDateTime createAt;
+    private String registerId;
 
     public Product toEntity(UpdateProductDTO dto) {
         Product changedProduct = new Product(this);
