@@ -43,9 +43,9 @@ public class QAlarmSeller extends EntityPathBase<AlarmSeller> {
     //inherited
     public final StringPath registerId = _super.registerId;
 
-    public final NumberPath<Long> sellerId = createNumber("sellerId", Long.class);
-
     public final EnumPath<com.impacus.maketplace.common.enumType.alarm.AlarmSellerTimeEnum> time = createEnum("time", com.impacus.maketplace.common.enumType.alarm.AlarmSellerTimeEnum.class);
+
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QAlarmSeller(String variable) {
         super(AlarmSeller.class, forVariable(variable));

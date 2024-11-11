@@ -106,7 +106,7 @@ public class UpdateSellerService {
             if (entryStatus == EntryStatus.APPROVE) {
                 userService.updateUserType(userId, UserType.ROLE_APPROVED_SELLER);
                 emailService.sendMail(emailDto, MailType.SELLER_APPROVE);
-                alarmSellerService.saveDefault(seller.getId());
+                alarmSellerService.saveDefault(seller.getUserId());
             } else {
                 userService.updateUserType(userId, UserType.ROLE_UNAPPROVED_SELLER);
                 emailService.sendMail(emailDto, MailType.SELLER_REJECT);

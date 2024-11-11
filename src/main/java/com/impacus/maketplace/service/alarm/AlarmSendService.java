@@ -18,6 +18,7 @@ import com.impacus.maketplace.entity.alarm.seller.AlarmHold;
 import com.impacus.maketplace.entity.alarm.seller.AlarmSeller;
 import com.impacus.maketplace.entity.alarm.user.AlarmUser;
 import com.impacus.maketplace.entity.seller.Brand;
+import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.alarm.admin.AlarmAdminForSellerRepository;
 import com.impacus.maketplace.repository.alarm.admin.AlarmAdminForUserRepository;
 import com.impacus.maketplace.repository.alarm.bizgo.AlarmTokenRepository;
@@ -25,6 +26,7 @@ import com.impacus.maketplace.repository.alarm.seller.AlarmHoldRepository;
 import com.impacus.maketplace.repository.alarm.seller.AlarmSellerRepository;
 import com.impacus.maketplace.repository.alarm.user.AlarmUserRepository;
 import com.impacus.maketplace.repository.seller.BrandRepository;
+import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDto;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +57,7 @@ public class AlarmSendService {
     private final AlarmAdminForUserRepository alarmAdminForUserRepository;
     private final AlarmAdminForSellerRepository alarmAdminForSellerRepository;
     private final AlarmHoldRepository alarmHoldRepository;
+    private final SellerRepository sellerRepository;
     private final BrandRepository brandRepository;
 
     @Value("${key.bizgo.id}")
@@ -341,14 +344,14 @@ public class AlarmSendService {
         log.info("Successfully sent message : {}", response);
     }
 
-    public void sendSellerAlarm(Long sellerId, String receiver, String phone, SendSellerTextDto sendSellerTextDto) {
+    public void sendSellerAlarm(Long userId, String receiver, String phone, SendSellerTextDto sendSellerTextDto) {
         AlarmSellerCategoryEnum category = sendSellerTextDto.getCategory();
         AlarmSellerSubcategoryEnum subcategory = sendSellerTextDto.getSubcategory();
         Optional<AlarmAdminForSeller> optionalAdmin = alarmAdminForSellerRepository.findByCategoryAndSubcategory(category, subcategory);
         if (optionalAdmin.isEmpty())
             throw new CustomException(HttpStatus.BAD_REQUEST, AlarmErrorType.NOT_MATCH_CATEGORY);
 
-        Optional<AlarmSeller> optionalSeller = alarmSellerRepository.findBySellerIdAndCategory(sellerId, category);
+        Optional<AlarmSeller> optionalSeller = alarmSellerRepository.findByUserIdAndCategory(userId, category);
         if (optionalSeller.isEmpty())
             throw new CustomException(HttpStatus.BAD_REQUEST, AlarmErrorType.NO_EXIST_SELLER);
 
@@ -374,9 +377,12 @@ public class AlarmSendService {
             else
                 alarmHoldRepository.save(new AlarmHold(start, isKakao, isEmail, isMsg, subject, receiver, phone, kakaoCode, text));
         } else if (time.equals(AlarmSellerTimeEnum.CUSTOM)) {
-            Optional<Brand> optional = brandRepository.findBySellerId(sellerId);
+            Optional<Seller> byUserId = sellerRepository.findByUserId(userId);
+            if (byUserId.isEmpty())
+                throw new CustomException(HttpStatus.BAD_REQUEST, AlarmErrorType.NO_EXIST_USER);
+            Optional<Brand> optional = brandRepository.findBySellerId(byUserId.get().getId());
             if (optional.isEmpty())
-                throw new CustomException(HttpStatus.MULTI_STATUS, AlarmErrorType.NO_EXIST_SELLER_IN_BRAND);
+                throw new CustomException(HttpStatus.BAD_REQUEST, AlarmErrorType.NO_EXIST_SELLER_IN_BRAND);
 
             Brand brand = optional.get();
             LocalTime openingTime = brand.getOpeningTime();
