@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Drop orders table -->
+    <changeSet id="changelog-jb0.04-241112-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="coupon" columnName="event_type"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="coupon">
+            <column name="event_type" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

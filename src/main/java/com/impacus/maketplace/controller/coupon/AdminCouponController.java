@@ -12,6 +12,7 @@ import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.service.coupon.CouponAdminService;
 import com.impacus.maketplace.service.coupon.CouponApiServiceImpl;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -237,6 +238,18 @@ public class AdminCouponController {
                 .<FileGenerationStatusIdDTO>builder()
                 .data(result)
                 .message("쿠폰 지급 목록 엑셀 요청 성공")
+                .build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')")
+    @GetMapping("event-types")
+    public ApiResponseEntity<List<CouponEventTypeDTO>> getCouponEventTypes() {
+        List<CouponEventTypeDTO> response = couponAdminService.getCouponEventTypes();
+
+        return ApiResponseEntity
+                .<List<CouponEventTypeDTO>>builder()
+                .data(response)
                 .build();
     }
 }

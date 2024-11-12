@@ -6,10 +6,7 @@ import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
-import com.impacus.maketplace.dto.coupon.request.CouponDTO;
-import com.impacus.maketplace.dto.coupon.request.CouponIssueDTO;
-import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
-import com.impacus.maketplace.dto.coupon.request.IssueCouponTargetUserDTO;
+import com.impacus.maketplace.dto.coupon.request.*;
 import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.user.User;
@@ -26,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -247,6 +246,15 @@ public class CouponAdminService {
 
         // 2. DB 조회
         return couponCustomRepositroy.findIssueCouponHistories(name, userCouponStatus, startAt, endAt, pageable);
+    }
+
+    /**
+     * 쿠폰 이벤트 종류 형식 조회
+     */
+    public List<CouponEventTypeDTO> getCouponEventTypes() {
+        return Arrays.stream(EventType.values())
+                .map(EventType::convert)
+                .collect(Collectors.toList());
     }
 
     /**

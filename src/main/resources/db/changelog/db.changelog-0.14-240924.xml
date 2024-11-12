@@ -187,4 +187,13 @@
             </column>
         </addColumn>
     </changeSet>
+
+    <changeSet id="changelog-sda0.14.07-240924" author="sda0523">
+        <renameColumn tableName="alarm_seller"
+                      oldColumnName="seller_id"
+                      newColumnName="user_id"
+                      columnDataType="BIGINT"
+                      remarks="user_info의 FK"/>
+        <setColumnRemarks tableName="alarm_seller" columnName="user_id" remarks="user_info의 FK"/>
+    </changeSet>
 </databaseChangeLog>
