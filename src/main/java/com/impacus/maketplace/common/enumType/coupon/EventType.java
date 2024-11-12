@@ -1,6 +1,7 @@
 package com.impacus.maketplace.common.enumType.coupon;
 
 import com.impacus.maketplace.common.utils.CouponUtils;
+import com.impacus.maketplace.dto.coupon.request.CouponEventTypeDTO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -16,4 +17,8 @@ public enum EventType implements CouponUtils.CommonFieldInterface{
 
     private final String code;
     private final String value;
+
+    public CouponEventTypeDTO convert() {
+        return new CouponEventTypeDTO(this.code, this.value);
+    }
 }
