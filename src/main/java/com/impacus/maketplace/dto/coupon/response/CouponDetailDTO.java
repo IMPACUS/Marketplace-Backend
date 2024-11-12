@@ -33,6 +33,8 @@ public class CouponDetailDTO {
 
     private CouponType couponType;
 
+    private EventType eventType;
+
     private CouponIssueType couponIssueType;
 
     private ExpireTimeType expireTimeType;
@@ -89,6 +91,7 @@ public class CouponDetailDTO {
                 .issuedTimeType(coupon.getIssuedTimeType())
                 .couponIssueType(coupon.getCouponIssueType())
                 .couponType(coupon.getCouponType())
+                .eventType(coupon.getEventType())
                 .expireTimeType(coupon.getExpireTimeType())
                 .expireTimeDays(coupon.getExpireTimeDays())
                 .issueCoverageType(coupon.getIssueCoverageType())
