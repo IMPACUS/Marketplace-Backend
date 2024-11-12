@@ -4,8 +4,8 @@ import com.impacus.maketplace.common.utils.CouponUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Getter
+@RequiredArgsConstructor
 public enum CouponType implements CouponUtils.CommonFieldInterface{
 
     EVENT("EVENT", "이벤트_실행형"),

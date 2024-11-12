@@ -38,6 +38,8 @@ public class CouponIssueDTO implements CouponDTO {
     @ValidEnum(enumClass = CouponType.class)
     private CouponType couponType;
 
+    private EventType eventType;
+
     @ValidEnum(enumClass = CouponIssueType.class)
     private CouponIssueType couponIssueType;
 
@@ -106,6 +108,7 @@ public class CouponIssueDTO implements CouponDTO {
                 .issuedTimeType(this.issuedTimeType)
                 .couponIssueType(this.couponIssueType)
                 .couponType(this.couponType)
+                .eventType(this.eventType)
                 .expireTimeType(this.expireTimeType)
                 .expireTimeDays(this.expireTimeType == ExpireTimeType.LIMIT ? this.expireTimeDays : null)
                 .issueCoverageType(this.issueCoverageType)

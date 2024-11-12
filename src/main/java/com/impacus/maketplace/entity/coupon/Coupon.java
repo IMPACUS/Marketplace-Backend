@@ -63,6 +63,9 @@ public class Coupon extends BaseEntity {
     private CouponType couponType;  // 쿠폰 형식 [ 이벤트 , 지급형 ]
 
     @Enumerated(EnumType.STRING)
+    private EventType eventType;       // 이벤트 종류 선택
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CouponIssueType couponIssueType;    // 쿠폰 발급 횟수 [ 1회성, 지속성 ]
 
@@ -154,6 +157,7 @@ public class Coupon extends BaseEntity {
         this.firstCount = couponUpdateDTO.getFirstCount();
         this.issuedTimeType = couponUpdateDTO.getIssuedTimeType();
         this.couponType = couponUpdateDTO.getCouponType();
+        this.eventType = couponUpdateDTO.getEventType();
         this.couponIssueType = couponUpdateDTO.getCouponIssueType();
         this.expireTimeType = couponUpdateDTO.getExpireTimeType();
         this.expireTimeDays = couponUpdateDTO.getExpireTimeDays();
