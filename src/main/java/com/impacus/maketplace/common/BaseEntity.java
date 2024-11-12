@@ -6,6 +6,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @ToString
 @EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
 public abstract class BaseEntity {
 
     @CreatedDate
@@ -35,4 +37,9 @@ public abstract class BaseEntity {
 
     @LastModifiedBy
     private String modifyId;
+
+    public BaseEntity(LocalDateTime createAt, String registerId) {
+        this.createAt = createAt;
+        this.registerId = registerId;
+    }
 }

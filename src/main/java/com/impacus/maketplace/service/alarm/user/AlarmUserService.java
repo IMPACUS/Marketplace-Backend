@@ -1,6 +1,7 @@
 package com.impacus.maketplace.service.alarm.user;
 
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
+import com.impacus.maketplace.dto.alarm.user.GetUserAlarmDto;
 import com.impacus.maketplace.dto.alarm.user.UpdateUserAlarmDto;
 import com.impacus.maketplace.entity.alarm.token.AlarmToken;
 import com.impacus.maketplace.entity.alarm.user.AlarmUser;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,7 +40,12 @@ public class AlarmUserService {
         alarmUserRepository.saveAll(list);
     }
 
-    public void updateAlarm(@Valid UpdateUserAlarmDto u, Long userId) {
+    public List<GetUserAlarmDto> findAlarm(Long userId) {
+        List<AlarmUser> userAlarmList = alarmUserRepository.findAllByUserId(userId);
+        return userAlarmList.stream().map(GetUserAlarmDto::new).collect(Collectors.toList());
+    }
+
+    public void updateAlarm(UpdateUserAlarmDto u, Long userId) {
         AlarmUserCategoryEnum category = u.getCategory();
         Boolean isOn = u.getIsOn();
         Boolean kakao = u.getKakao();

@@ -22,7 +22,7 @@ public class AlarmSeller extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long sellerId;
+    private Long userId;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -36,8 +36,8 @@ public class AlarmSeller extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private AlarmSellerTimeEnum time;
 
-    public AlarmSeller(Long sellerId, AlarmSellerCategoryEnum category, Boolean kakao, Boolean email, Boolean msg, AlarmSellerTimeEnum time) {
-        this.sellerId = sellerId;
+    public AlarmSeller(Long userId, AlarmSellerCategoryEnum category, Boolean kakao, Boolean email, Boolean msg, AlarmSellerTimeEnum time) {
+        this.userId = userId;
         this.category = category;
         this.kakao = kakao;
         this.email = email;

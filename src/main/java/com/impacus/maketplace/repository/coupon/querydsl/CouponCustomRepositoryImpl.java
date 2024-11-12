@@ -247,7 +247,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     public List<UserCouponInfoForCheckoutDTO> findUserCouponInfoForCheckoutList(Long userId) {
         return queryFactory
                 .select(new QUserCouponInfoForCheckoutDTO(
-                        userCoupon.couponId,
+                        userCoupon.id,
                         coupon.name,
                         coupon.benefitType,
                         coupon.benefitValue,
@@ -332,8 +332,8 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     private BooleanExpression eqAllOrIsEcoProduct(Boolean isEcoProduct) {
-        return coupon.productType.eq(ProductType.ALL).or(
-                isEcoProduct ? coupon.productType.eq(ProductType.ECO_GREEN) : coupon.productType.eq(ProductType.BASIC)
+        return coupon.productType.eq(CouponProductType.ALL).or(
+                isEcoProduct ? coupon.productType.eq(CouponProductType.ECO_GREEN) : coupon.productType.eq(CouponProductType.BASIC)
         );
     }
 
