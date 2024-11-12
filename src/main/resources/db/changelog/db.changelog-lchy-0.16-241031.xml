@@ -26,4 +26,57 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="changelog-lchy0.16.03-24-11-12" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="product_history" columnName="product_id"/>
+            <not>
+                <indexExists indexName="idx_product_id" tableName="product_history"/>
+            </not>
+        </preConditions>
+
+        <createIndex indexName="idx_product_id" tableName="product_history">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="changelog-lchy0.16.04-24-11-12" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="product_option_history" columnName="product_option_id"/>
+            <not>
+                <indexExists indexName="idx_product_option_id" tableName="product_option_history"/>
+            </not>
+        </preConditions>
+
+        <createIndex indexName="idx_product_option_id" tableName="product_option_history">
+            <column name="product_option_id"/>
+        </createIndex>
+
+    </changeSet>
+
+    <changeSet id="changelog-lchy0.16.05-24-11-12" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="product_option" columnName="product_id"/>
+            <not>
+                <indexExists indexName="idx_po_product_id" tableName="product_option"/>
+            </not>
+        </preConditions>
+
+        <createIndex indexName="idx_po_product_id" tableName="product_option">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="changelog-lchy0.16.06-24-11-12" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="product_info" columnName="seller_id"/>
+            <not>
+                <indexExists indexName="idx_p_seller_id" tableName="product_info"/>
+            </not>
+        </preConditions>
+
+        <createIndex indexName="idx_p_seller_id" tableName="product_info">
+            <column name="seller_id"/>
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>
