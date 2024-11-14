@@ -28,9 +28,9 @@ public class ProductSearchService {
 
     private static final String ID_KEY = "productSearch:id"; // 자동 증가 ID를 저장할 Redis 키
 
-    public String addSearchData(String name, SearchType type, Long productId) {
+    public String addSearchData(String searchName, SearchType type, Long searchId) {
         Long increment = redisTemplate.opsForValue().increment(ID_KEY);
-        ProductSearch productSearch = new ProductSearch(increment.toString(), name, type, productId);
+        ProductSearch productSearch = new ProductSearch(increment.toString(), searchName, type, searchId);
         ProductSearch save = productSearchRepository.save(productSearch);
         return save.getId();
     }
