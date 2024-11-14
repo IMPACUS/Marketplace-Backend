@@ -21,7 +21,7 @@ public class CheckoutCartDTO {
     private List<Long> shoppingBasketIdList;    // 장바구니 id List
     @NotEmpty(message = "결제 상품 정보로 빈 값이 올 수 없습니다.")
     private List<PaymentProductInfoDTO> paymentProductInfos = new ArrayList<>();   // 결제 상품 정보
-    private AddressInfoDTO addressInfoDTO;  // 결제시 입력한 주소지
+    private AddressInfoDTO addressInfo;  // 결제시 입력한 주소지
     private List<Long> appliedOrderCouponIds = new ArrayList<>();  // 전체 주문에 적용된 사용자 쿠폰 리스트
     @NotNull(message = "포인트를 사용하지 않을 경우 포인트 금액의 기본 값을 0으로 설정해주세요.")
     @Min(value = 0L, message = "사용한 포인트는 음수가 될 수 없습니다.")

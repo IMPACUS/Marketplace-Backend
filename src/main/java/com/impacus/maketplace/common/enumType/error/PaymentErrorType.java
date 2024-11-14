@@ -21,6 +21,8 @@ public enum PaymentErrorType implements ErrorType {
     DUPLICATE_USE_USER_COUPON("092_1_DUPLICATE_USE_USER_COUPON", "쿠폰은 하나의 상품 혹은 주문에만 적용할 수 있습니다."),
     INVALID_USE_POINT("092_2_INVALID_USE_POINT", "잘못된 포인트 사용을 시도했습니다."),
 
+    MISMATCH_SHOPPING_CART_SIZE("093_1_MISMATCH_SHOPPING_CART_SIZE", "장바구니 요소 수와 조회한 상품의 수가 일치하지 않습니다."),
+
     MISMATCH_TOTAL_AMOUNT("099_0_MISMATCH_TOTAL_AMOUNT", "계산한 총 금액이 일치하지 않습니다.");
 
     private final String code;

@@ -186,21 +186,21 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                 .where(combinedCondition)
                 .fetch();
 
-        validationCheckoutProducts(checkoutProductInfos);
+        validationCheckoutProducts(checkoutProductInfos, paymentProductInfoIds.size());
 
         return checkoutProductInfos;
     }
     private void validationCheckoutProduct(CheckoutProductInfoDTO checkoutProductInfoDTO) {
         List<CheckoutProductInfoDTO> checkoutProductInfos = Collections.singletonList(checkoutProductInfoDTO);
-        validationCheckoutProducts(checkoutProductInfos);
+        validationCheckoutProducts(checkoutProductInfos, 1);
     }
 
-    private void validationCheckoutProducts(List<CheckoutProductInfoDTO> checkoutProductInfos) {
-        for (CheckoutProductInfoDTO checkoutProductInfoDTO : checkoutProductInfos) {
-            if (checkoutProductInfoDTO == null) {
-                throw new CustomException(PaymentErrorType.NOT_FOUND_PRODUCT);
-            }
+    private void validationCheckoutProducts(List<CheckoutProductInfoDTO> checkoutProductInfos, int size) {
+        if (checkoutProductInfos.size() != size) {
+            throw new CustomException(PaymentErrorType.NOT_FOUND_PRODUCT);
+        }
 
+        for (CheckoutProductInfoDTO checkoutProductInfoDTO : checkoutProductInfos) {
             if (checkoutProductInfoDTO.getProductOptionId() == null) {
                 throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION);
             }

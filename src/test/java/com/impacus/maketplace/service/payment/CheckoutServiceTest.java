@@ -668,7 +668,7 @@ public class CheckoutServiceTest {
                 PaymentOrder paymentOrder = getPaymentOrder((long) i, paymentEvent.getId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getSellerId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductOptionHistoryId(), checkoutCartProductInfoDTO.getQuantity(), discountInfoDTO.getAppSalesPrice(), discountInfoDTO.getEcoDiscountAmount(), discountInfoDTO.getPointDiscountAmount(), discountInfoDTO.getFinalCouponDiscount(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getChargePercent());
                 paymentOrders.add(paymentOrder);
             }
-            DeliveryAddress deliveryAddress = checkoutCartDTO.getAddressInfoDTO().toEntity(paymentEvent.getId());
+            DeliveryAddress deliveryAddress = checkoutCartDTO.getAddressInfo().toEntity(paymentEvent.getId());
 
 
             try (MockedStatic<OrderUtils> orderUtilsMockedStatic = Mockito.mockStatic(OrderUtils.class)) {
@@ -792,7 +792,7 @@ public class CheckoutServiceTest {
                 PaymentOrder paymentOrder = getPaymentOrder((long) i, paymentEvent.getId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getSellerId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductOptionHistoryId(), checkoutCartProductInfoDTO.getQuantity(), discountInfoDTO.getAppSalesPrice(), discountInfoDTO.getEcoDiscountAmount(), discountInfoDTO.getPointDiscountAmount(), discountInfoDTO.getFinalCouponDiscount(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getChargePercent());
                 paymentOrders.add(paymentOrder);
             }
-            DeliveryAddress deliveryAddress = checkoutCartDTO.getAddressInfoDTO().toEntity(paymentEvent.getId());
+            DeliveryAddress deliveryAddress = checkoutCartDTO.getAddressInfo().toEntity(paymentEvent.getId());
 
 
             try (MockedStatic<OrderUtils> orderUtilsMockedStatic = Mockito.mockStatic(OrderUtils.class)) {
@@ -922,7 +922,7 @@ public class CheckoutServiceTest {
                 PaymentOrder paymentOrder = getPaymentOrder((long) i, paymentEvent.getId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getSellerId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductId(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductOptionHistoryId(), checkoutCartProductInfoDTO.getQuantity(), discountInfoDTO.getAppSalesPrice(), discountInfoDTO.getEcoDiscountAmount(), discountInfoDTO.getPointDiscountAmount(), discountInfoDTO.getFinalCouponDiscount(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getChargePercent());
                 paymentOrders.add(paymentOrder);
             }
-            DeliveryAddress deliveryAddress = checkoutCartDTO.getAddressInfoDTO().toEntity(paymentEvent.getId());
+            DeliveryAddress deliveryAddress = checkoutCartDTO.getAddressInfo().toEntity(paymentEvent.getId());
 
 
             try (MockedStatic<OrderUtils> orderUtilsMockedStatic = Mockito.mockStatic(OrderUtils.class)) {
