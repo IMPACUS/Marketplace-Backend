@@ -1,13 +1,12 @@
 package com.impacus.maketplace.service.alarm.user;
 
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
-import com.impacus.maketplace.dto.alarm.user.GetUserAlarmDto;
-import com.impacus.maketplace.dto.alarm.user.UpdateUserAlarmDto;
+import com.impacus.maketplace.dto.alarm.user.GetUserAlarmDTO;
+import com.impacus.maketplace.dto.alarm.user.UpdateUserAlarmDTO;
 import com.impacus.maketplace.entity.alarm.token.AlarmToken;
 import com.impacus.maketplace.entity.alarm.user.AlarmUser;
 import com.impacus.maketplace.repository.alarm.bizgo.AlarmTokenRepository;
 import com.impacus.maketplace.repository.alarm.user.AlarmUserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,12 +39,12 @@ public class AlarmUserService {
         alarmUserRepository.saveAll(list);
     }
 
-    public List<GetUserAlarmDto> findAlarm(Long userId) {
+    public List<GetUserAlarmDTO> findAlarm(Long userId) {
         List<AlarmUser> userAlarmList = alarmUserRepository.findAllByUserId(userId);
-        return userAlarmList.stream().map(GetUserAlarmDto::new).collect(Collectors.toList());
+        return userAlarmList.stream().map(GetUserAlarmDTO::new).collect(Collectors.toList());
     }
 
-    public void updateAlarm(UpdateUserAlarmDto u, Long userId) {
+    public void updateAlarm(UpdateUserAlarmDTO u, Long userId) {
         AlarmUserCategoryEnum category = u.getCategory();
         Boolean isOn = u.getIsOn();
         Boolean kakao = u.getKakao();

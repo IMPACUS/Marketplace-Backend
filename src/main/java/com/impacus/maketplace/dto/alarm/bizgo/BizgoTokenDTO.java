@@ -4,7 +4,7 @@ import com.impacus.maketplace.entity.alarm.token.AlarmToken;
 import lombok.Getter;
 
 @Getter
-public class BizgoTokenDto {
+public class BizgoTokenDTO {
     private String code;
     private String result;
     private Data data;

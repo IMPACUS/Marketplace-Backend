@@ -3,13 +3,13 @@ package com.impacus.maketplace.dto.alarm.user;
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum;
 import com.impacus.maketplace.common.utils.AmountComma;
-import com.impacus.maketplace.dto.alarm.common.SendTextDto;
+import com.impacus.maketplace.dto.alarm.common.SendTextDTO;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class SendUserTextDto extends SendTextDto {
+public class SendUserTextDTO extends SendTextDTO {
     private AlarmUserCategoryEnum category;
     private AlarmUserSubcategoryEnum subcategory;
     private String name; // 유저명

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class OutputAlarmSellerDto {
+public class OutputAlarmSellerDTO {
     private AlarmSellerCategoryEnum category;
     private AlarmSellerSubcategoryEnum subcategory;
     private List<String> commentList;

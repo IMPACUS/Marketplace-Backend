@@ -2,7 +2,7 @@ package com.impacus.maketplace.entity.alarm.token;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.alarm.AlarmTokenEnum;
-import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDto;
+import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,8 +39,8 @@ public class AlarmToken extends BaseEntity {
         this.token = token;
     }
 
-    public AlarmToken(BizgoTokenDto b) {
-        BizgoTokenDto.Data data = b.getData();
+    public AlarmToken(BizgoTokenDTO b) {
+        BizgoTokenDTO.Data data = b.getData();
         this.type = AlarmTokenEnum.BIZGO;
         this.token = data.getToken();
         String expiredData = data.getExpired().replace("+09:00", "");
