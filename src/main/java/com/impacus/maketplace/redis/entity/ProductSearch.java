@@ -25,8 +25,10 @@ public class ProductSearch {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Indexed
     private SearchType type;
 
+    @Indexed
     private Long searchId;
 
     public void setSearchName(String searchName) {
