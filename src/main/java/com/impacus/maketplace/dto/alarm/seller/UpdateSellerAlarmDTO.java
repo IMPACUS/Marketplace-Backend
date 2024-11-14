@@ -5,7 +5,7 @@ import com.impacus.maketplace.common.enumType.alarm.AlarmSellerTimeEnum;
 import lombok.Getter;
 
 @Getter
-public class UpdateSellerAlarmDto {
+public class UpdateSellerAlarmDTO {
     private AlarmSellerCategoryEnum category;
     private AlarmSellerTimeEnum time;
     private Boolean kakao;

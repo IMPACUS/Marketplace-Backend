@@ -3,8 +3,8 @@ package com.impacus.maketplace.entity.alarm.admin;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.alarm.AlarmSellerCategoryEnum;
 import com.impacus.maketplace.common.enumType.alarm.AlarmSellerSubcategoryEnum;
-import com.impacus.maketplace.dto.alarm.admin.AddAlarmSellerDto;
-import com.impacus.maketplace.dto.alarm.admin.OutputAlarmSellerDto;
+import com.impacus.maketplace.dto.alarm.admin.AddAlarmSellerDTO;
+import com.impacus.maketplace.dto.alarm.admin.OutputAlarmSellerDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,7 +47,7 @@ public class AlarmAdminForSeller extends BaseEntity {
         this.template = template.replace("#{하단 문구}", comment1);
     }
 
-    public AlarmAdminForSeller(AddAlarmSellerDto addAlarmSellerDto, AlarmSellerSubcategoryEnum subcategory) {
+    public AlarmAdminForSeller(AddAlarmSellerDTO addAlarmSellerDto, AlarmSellerSubcategoryEnum subcategory) {
         this.category = addAlarmSellerDto.getCategory();
         this.subcategory = subcategory;
         List<String> commentList = addAlarmSellerDto.getSubcategory().get(subcategory);
@@ -69,7 +69,7 @@ public class AlarmAdminForSeller extends BaseEntity {
 //        }
     }
 
-    public OutputAlarmSellerDto toDto() {
+    public OutputAlarmSellerDTO toDto() {
         List<String> commentList;
 
         // 차후 알림 입력창이 2개 이상일때 사용
@@ -77,6 +77,6 @@ public class AlarmAdminForSeller extends BaseEntity {
 //            commentList = List.of(this.comment1, this.comment2);
 //        else
         commentList = List.of(this.comment1);
-        return new OutputAlarmSellerDto(this.category, this.subcategory, commentList);
+        return new OutputAlarmSellerDTO(this.category, this.subcategory, commentList);
     }
 }
