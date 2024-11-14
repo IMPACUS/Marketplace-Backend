@@ -2,13 +2,11 @@ package com.impacus.maketplace.service.alarm.seller;
 
 import com.impacus.maketplace.common.enumType.alarm.AlarmSellerCategoryEnum;
 import com.impacus.maketplace.common.enumType.alarm.AlarmSellerTimeEnum;
-import com.impacus.maketplace.dto.alarm.seller.GetSellerAlarmDto;
-import com.impacus.maketplace.dto.alarm.seller.UpdateSellerAlarmDto;
+import com.impacus.maketplace.dto.alarm.seller.GetSellerAlarmDTO;
+import com.impacus.maketplace.dto.alarm.seller.UpdateSellerAlarmDTO;
 import com.impacus.maketplace.entity.alarm.seller.AlarmSeller;
-import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.repository.alarm.seller.AlarmSellerRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +34,7 @@ public class AlarmSellerService {
         alarmSellerRepository.saveAll(list);
     }
 
-    public void updateAlarm(UpdateSellerAlarmDto u, Long userId) {
+    public void updateAlarm(UpdateSellerAlarmDTO u, Long userId) {
         AlarmSellerCategoryEnum category = u.getCategory();
         Boolean kakao = u.getKakao();
         Boolean email = u.getEmail();
@@ -52,8 +50,8 @@ public class AlarmSellerService {
         }
     }
 
-    public List<GetSellerAlarmDto> findAlarm(Long userId) {
+    public List<GetSellerAlarmDTO> findAlarm(Long userId) {
         List<AlarmSeller> alarmSellerList = alarmSellerRepository.findAllByUserId(userId);
-        return alarmSellerList.stream().map(GetSellerAlarmDto::new).collect(Collectors.toList());
+        return alarmSellerList.stream().map(GetSellerAlarmDTO::new).collect(Collectors.toList());
     }
 }

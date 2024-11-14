@@ -9,7 +9,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class GetAlarmSellerDto {
+public class GetAlarmSellerDTO {
     @NotNull(message = "null 허용 안함")
     private AlarmSellerCategoryEnum category;
 

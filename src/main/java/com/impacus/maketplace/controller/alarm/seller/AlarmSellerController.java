@@ -1,8 +1,8 @@
 package com.impacus.maketplace.controller.alarm.seller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.alarm.seller.GetSellerAlarmDto;
-import com.impacus.maketplace.dto.alarm.seller.UpdateSellerAlarmDto;
+import com.impacus.maketplace.dto.alarm.seller.GetSellerAlarmDTO;
+import com.impacus.maketplace.dto.alarm.seller.UpdateSellerAlarmDTO;
 import com.impacus.maketplace.service.alarm.seller.AlarmSellerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class AlarmSellerController {
 
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @PutMapping("")
-    public ApiResponseEntity<?> updateAlarmSeller(@Valid @RequestBody UpdateSellerAlarmDto updateSellerAlarmDto,
+    public ApiResponseEntity<?> updateAlarmSeller(@Valid @RequestBody UpdateSellerAlarmDTO updateSellerAlarmDto,
                                                   @AuthenticationPrincipal CustomUserDetails user) {
         alarmSellerService.updateAlarm(updateSellerAlarmDto, user.getId());
 
@@ -33,7 +33,7 @@ public class AlarmSellerController {
     @PreAuthorize("hasRole('ROLE_APPROVED_SELLER')")
     @GetMapping("")
     public ApiResponseEntity<?> getAlarmSeller(@AuthenticationPrincipal CustomUserDetails user) {
-        List<GetSellerAlarmDto> alarm = alarmSellerService.findAlarm(user.getId());
+        List<GetSellerAlarmDTO> alarm = alarmSellerService.findAlarm(user.getId());
 
         return ApiResponseEntity.builder()
                 .message("알림 설정이 성공적으로 조회됐습니다.")

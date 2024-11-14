@@ -3,8 +3,8 @@ package com.impacus.maketplace.entity.alarm.admin;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum;
-import com.impacus.maketplace.dto.alarm.admin.AddAlarmUserDto;
-import com.impacus.maketplace.dto.alarm.admin.OutputAlarmUserDto;
+import com.impacus.maketplace.dto.alarm.admin.AddAlarmUserDTO;
+import com.impacus.maketplace.dto.alarm.admin.OutputAlarmUserDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -54,7 +54,7 @@ public class AlarmAdminForUser extends BaseEntity {
         this.template = template.replace("#{하단 문구}", comment1).replace("#{하단 문구1}", comment2);
     }
 
-    public AlarmAdminForUser(AddAlarmUserDto addAlarmUserDto, AlarmUserSubcategoryEnum subcategory) {
+    public AlarmAdminForUser(AddAlarmUserDTO addAlarmUserDto, AlarmUserSubcategoryEnum subcategory) {
         this.category = addAlarmUserDto.getCategory();
         this.subcategory = subcategory;
         List<String> commentList = addAlarmUserDto.getSubcategory().get(subcategory);
@@ -75,12 +75,12 @@ public class AlarmAdminForUser extends BaseEntity {
         }
     }
 
-    public OutputAlarmUserDto toDto() {
+    public OutputAlarmUserDTO toDto() {
         List<String> commentList;
         if (List.of("COUPON_EXTINCTION_1", "COUPON_EXTINCTION_2", "POINT_EXTINCTION_1", "POINT_EXTINCTION_2").contains(this.subcategory.name()))
             commentList = List.of(this.comment1, this.comment2);
         else
             commentList = List.of(this.comment1);
-        return new OutputAlarmUserDto(this.category, this.subcategory, commentList);
+        return new OutputAlarmUserDTO(this.category, this.subcategory, commentList);
     }
 }

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class SendUserPushDto {
+public class SendUserPushDTO {
     @NotNull(message = "토큰값은 필수입니다.")
     private String token;
 }

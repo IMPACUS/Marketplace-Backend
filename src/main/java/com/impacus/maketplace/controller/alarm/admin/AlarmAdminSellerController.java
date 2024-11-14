@@ -22,7 +22,7 @@ public class AlarmAdminSellerController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRINCIPAL_ADMIN', 'ROLE_OWNER')")
     @PostMapping("seller")
-    public ApiResponseEntity<?> addAlarmSellerComment(@Valid @RequestBody AddAlarmSellerDto addAlarmDto) {
+    public ApiResponseEntity<?> addAlarmSellerComment(@Valid @RequestBody AddAlarmSellerDTO addAlarmDto) {
         AlarmSellerCategoryEnum category = addAlarmDto.getCategory();
         Map<AlarmSellerSubcategoryEnum, List<String>> subcategoryMap = addAlarmDto.getSubcategory();
         Set<AlarmSellerSubcategoryEnum> subcategorySet = subcategoryMap.keySet();
@@ -42,12 +42,12 @@ public class AlarmAdminSellerController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRINCIPAL_ADMIN', 'ROLE_OWNER')")
     @GetMapping("seller")
-    public ApiResponseEntity<?> getAlarmSellerComment(@Valid @ModelAttribute GetAlarmSellerDto getAlarmDto) {
+    public ApiResponseEntity<?> getAlarmSellerComment(@Valid @ModelAttribute GetAlarmSellerDTO getAlarmDto) {
         AlarmSellerCategoryEnum category = getAlarmDto.getCategory();
         Set<AlarmSellerSubcategoryEnum> subcategorySet = getAlarmDto.getSubcategory();
         alarmService.inputValidation(category, subcategorySet);
 
-        List<OutputAlarmSellerDto> output = new ArrayList<>();
+        List<OutputAlarmSellerDTO> output = new ArrayList<>();
         for (AlarmSellerSubcategoryEnum subcategory : subcategorySet) {
             Optional<AlarmAdminForSeller> optional = alarmService.find(category, subcategory);
             optional.ifPresent(alarmAdminForSeller -> output.add(alarmAdminForSeller.toDto()));

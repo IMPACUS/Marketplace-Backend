@@ -8,9 +8,9 @@ import com.impacus.maketplace.common.enumType.error.AlarmErrorType;
 import com.impacus.maketplace.common.enumType.error.BizgoErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.EmailDto;
-import com.impacus.maketplace.dto.alarm.common.SendTextDto;
-import com.impacus.maketplace.dto.alarm.seller.SendSellerTextDto;
-import com.impacus.maketplace.dto.alarm.user.SendUserTextDto;
+import com.impacus.maketplace.dto.alarm.common.SendTextDTO;
+import com.impacus.maketplace.dto.alarm.seller.SendSellerTextDTO;
+import com.impacus.maketplace.dto.alarm.user.SendUserTextDTO;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForSeller;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForUser;
 import com.impacus.maketplace.entity.alarm.token.AlarmToken;
@@ -28,7 +28,7 @@ import com.impacus.maketplace.repository.alarm.user.AlarmUserRepository;
 import com.impacus.maketplace.repository.seller.BrandRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.EmailService;
-import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDto;
+import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -69,7 +69,7 @@ public class AlarmSendService {
     @Value("${key.bizgo.from-phone}")
     private String fromPhone;
 
-    public void sendUserAlarm(Long userId, String receiver, String phone, SendUserTextDto sendUserTextDto) {
+    public void sendUserAlarm(Long userId, String receiver, String phone, SendUserTextDTO sendUserTextDto) {
         AlarmUserCategoryEnum category = sendUserTextDto.getCategory();
         AlarmUserSubcategoryEnum subcategory = sendUserTextDto.getSubcategory();
         Optional<AlarmAdminForUser> optionalAdmin = alarmAdminForUserRepository.findByCategoryAndSubcategory(category, subcategory);
@@ -106,9 +106,9 @@ public class AlarmSendService {
         }
     }
 
-    private String getText(SendTextDto sendTextDto, String template) {
-        if (sendTextDto instanceof SendUserTextDto) {
-            SendUserTextDto sendUserTextDto = (SendUserTextDto) sendTextDto;
+    private String getText(SendTextDTO sendTextDto, String template) {
+        if (sendTextDto instanceof SendUserTextDTO) {
+            SendUserTextDTO sendUserTextDto = (SendUserTextDTO) sendTextDto;
             String subcategory = sendUserTextDto.getSubcategory().name();
             String name = sendUserTextDto.getName();
             String orderDate = sendUserTextDto.getOrderDate();
@@ -158,8 +158,8 @@ public class AlarmSendService {
                         return template.replace("#{포인트}", pointAmount).replace("#{유효기간}", pointExpired).replace("#{적립금 링크}", pointLink);
                     break;
             }
-        } else if (sendTextDto instanceof SendSellerTextDto) {
-            SendSellerTextDto sendSellerTextDto = (SendSellerTextDto) sendTextDto;
+        } else if (sendTextDto instanceof SendSellerTextDTO) {
+            SendSellerTextDTO sendSellerTextDto = (SendSellerTextDTO) sendTextDto;
             String subcategory = sendSellerTextDto.getSubcategory().name();
             String brand = sendSellerTextDto.getBrand();
             String orderDate = sendSellerTextDto.getOrderDate();
@@ -231,9 +231,9 @@ public class AlarmSendService {
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<BizgoTokenDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, BizgoTokenDto.class);
+            ResponseEntity<BizgoTokenDTO> response = restTemplate.exchange(url, HttpMethod.POST, entity, BizgoTokenDTO.class);
             if (response.getStatusCode().is2xxSuccessful()) {
-                BizgoTokenDto body = response.getBody();
+                BizgoTokenDTO body = response.getBody();
                 if (id == null) alarmTokenRepository.save(body.toEntity());
                 else {
                     String expiredData = body.getData().getExpired().replace("+09:00", "");
@@ -344,7 +344,7 @@ public class AlarmSendService {
         log.info("Successfully sent message : {}", response);
     }
 
-    public void sendSellerAlarm(Long userId, String receiver, String phone, SendSellerTextDto sendSellerTextDto) {
+    public void sendSellerAlarm(Long userId, String receiver, String phone, SendSellerTextDTO sendSellerTextDto) {
         AlarmSellerCategoryEnum category = sendSellerTextDto.getCategory();
         AlarmSellerSubcategoryEnum subcategory = sendSellerTextDto.getSubcategory();
         Optional<AlarmAdminForSeller> optionalAdmin = alarmAdminForSellerRepository.findByCategoryAndSubcategory(category, subcategory);

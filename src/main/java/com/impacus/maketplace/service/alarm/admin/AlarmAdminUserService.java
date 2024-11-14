@@ -5,7 +5,7 @@ import com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum;
 import com.impacus.maketplace.common.enumType.error.AlarmErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
-import com.impacus.maketplace.dto.alarm.admin.AddAlarmUserDto;
+import com.impacus.maketplace.dto.alarm.admin.AddAlarmUserDTO;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForUser;
 import com.impacus.maketplace.repository.alarm.admin.AlarmAdminForUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class AlarmAdminUserService {
         }
     }
 
-    public void add(AddAlarmUserDto addAlarmDto, AlarmUserSubcategoryEnum subcategoryEnum) {
+    public void add(AddAlarmUserDTO addAlarmDto, AlarmUserSubcategoryEnum subcategoryEnum) {
         alarmAdminForUserRepository.save(addAlarmDto.toEntity(subcategoryEnum));
     }
 
