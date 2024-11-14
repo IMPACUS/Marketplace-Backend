@@ -28,21 +28,25 @@ public class ProductSearchService {
 
     private static final String ID_KEY = "productSearch:id"; // 자동 증가 ID를 저장할 Redis 키
 
-    public String addSearchData(String name, SearchType type, Long productId) {
+    public void addSearchData(SearchType type, Long searchId, String searchName) {
+        Optional<ProductSearch> optional = productSearchRepository.findByTypeAndSearchId(type, searchId);
+        if (optional.isPresent()) throw new CustomException(HttpStatus.BAD_REQUEST, SearchErrorType.ENTITY_EXIST);
+
         Long increment = redisTemplate.opsForValue().increment(ID_KEY);
-        ProductSearch productSearch = new ProductSearch(increment.toString(), name, type, productId);
+        ProductSearch productSearch = new ProductSearch(increment.toString(), searchName, type, searchId);
         ProductSearch save = productSearchRepository.save(productSearch);
-        return save.getId();
     }
 
-    public void deleteSearchData(String id) {
-        productSearchRepository.deleteById(id);
+    public void deleteSearchData(SearchType type, Long searchId) {
+        Optional<ProductSearch> optional = productSearchRepository.findByTypeAndSearchId(type, searchId);
+        if (optional.isEmpty()) throw new CustomException(HttpStatus.BAD_REQUEST, SearchErrorType.NOT_ENTITY);
+        productSearchRepository.deleteById(optional.get().getId());
     }
 
-    public void updateSearchData(String id, String searchName) {
-        Optional<ProductSearch> byId = productSearchRepository.findById(id);
-        if (byId.isEmpty()) throw new CustomException(HttpStatus.BAD_REQUEST, SearchErrorType.NOT_ID);
-        ProductSearch productSearch = byId.get();
+    public void updateSearchData(SearchType type, Long searchId, String searchName) {
+        Optional<ProductSearch> optional = productSearchRepository.findByTypeAndSearchId(type, searchId);
+        if (optional.isEmpty()) throw new CustomException(HttpStatus.BAD_REQUEST, SearchErrorType.NOT_ENTITY);
+        ProductSearch productSearch = optional.get();
         productSearch.setSearchName(searchName);
         productSearchRepository.save(productSearch);
     }
