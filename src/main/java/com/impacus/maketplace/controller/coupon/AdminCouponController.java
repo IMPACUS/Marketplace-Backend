@@ -200,7 +200,6 @@ public class AdminCouponController {
                                                                               @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
                                                                               @RequestParam(name = "end-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
                                                                               @PageableDefault(sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable) {
-
         IssueCouponHistoriesDTO response = couponAdminService.getIssueCouponHistories(name, userCouponStatus, startAt, endAt, pageable);
 
         return ApiResponseEntity
