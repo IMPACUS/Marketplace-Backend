@@ -35,6 +35,7 @@ import com.impacus.maketplace.service.payment.DiscountService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,23 +86,23 @@ public class CheckoutService {
      *
      * @param shoppingBasketIdList 장바구니 id List
      */
-    public List<CheckoutProductDTO> getCheckoutCart(List<Long> shoppingBasketIdList) {
+    public List<CheckoutProductDTO> getCheckoutCart(Long userId, List<Long> shoppingBasketIdList) {
 
         // 1. 필요한 모든 데이터 가져오기
-        List<CheckoutProductWithDetailsByCartDTO> checkoutProductWithDetailsByCartDTOList = checkoutCustomRepository.findCheckoutProductWithDetailsByCart(shoppingBasketIdList);
+        List<CheckoutProductWithDetailsByCartDTO> checkoutProductWithDetailsByCarts = checkoutCustomRepository.findCheckoutProductWithDetailsByCart(userId, shoppingBasketIdList);
 
         // 2. 유효성 검증
-        if (checkoutProductWithDetailsByCartDTOList.isEmpty()) {
+        if (checkoutProductWithDetailsByCarts.isEmpty() || checkoutProductWithDetailsByCarts.size() != shoppingBasketIdList.size()) {
             throw new CustomException(OrderErrorType.NOT_FOUND_ORDER_PRODUCT);
         }
-        checkoutProductWithDetailsByCartDTOList.forEach(orderProductWithDetailsByCartDTO ->
+        checkoutProductWithDetailsByCarts.forEach(orderProductWithDetailsByCartDTO ->
                 validateCheckoutProduct(orderProductWithDetailsByCartDTO.isProductIsDeleted(),
                         orderProductWithDetailsByCartDTO.isOptionIsDeleted(),
                         orderProductWithDetailsByCartDTO.getProductStatus(),
                         orderProductWithDetailsByCartDTO.getStock(),
                         orderProductWithDetailsByCartDTO.getQuantity()));
 
-        return checkoutProductWithDetailsByCartDTOList.stream()
+        return checkoutProductWithDetailsByCarts.stream()
                 .map(CheckoutProductDTO::new)
                 .toList();
     }
@@ -190,7 +191,7 @@ public class CheckoutService {
             paymentKey = OrderUtils.generatePaymentKey(checkoutSingleDTO);
         } catch (Exception e) {
             LogUtils.error(this.getClass().toString(), "Fail to generate payment id caused over threshold count", e);
-            throw new CustomException(PaymentErrorType.FAIL_GENERATE_PAYMENT_ID);
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.FAIL_GENERATE_PAYMENT_ID);
         }
 
         String orderName = OrderUtils.generateOrderName(checkoutProductInfo.getName(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), 1);
@@ -232,7 +233,7 @@ public class CheckoutService {
 
         PaymentOrder savedPaymentOrder = paymentOrderRepository.save(paymentOrder);
 
-        DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfoDTO().toEntity(savedPaymentEvent.getId());
+        DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfo().toEntity(savedPaymentEvent.getId());
 
         deliveryAddressRepository.save(deliveryAddress);
 
@@ -246,7 +247,7 @@ public class CheckoutService {
         // 10. Response DTO 반환
         CheckoutCustomerDTO checkoutCustomerDTO = new CheckoutCustomerDTO(
                 buyerInfo.getUserId(), buyerInfo.getName(), buyerInfo.getPhoneNumber(), buyerInfo.getEmail(),
-                checkoutSingleDTO.getAddressInfoDTO().getAddress(), checkoutSingleDTO.getAddressInfoDTO().getDetailAddress(), checkoutSingleDTO.getAddressInfoDTO().getPostalCode()
+                checkoutSingleDTO.getAddressInfo().getAddress(), checkoutSingleDTO.getAddressInfo().getDetailAddress(), checkoutSingleDTO.getAddressInfo().getPostalCode()
         );
 
         return PaymentSingleDTO.builder()
@@ -308,6 +309,10 @@ public class CheckoutService {
                 .toList();
 
         Integer size = checkoutCartProductList.size();
+
+        /**
+         * 장바구니 유효성 검증
+         */
 
         // 4. validateCheckoutCartProduct
         System.out.println("4. validateCheckoutCartProduct: " + System.currentTimeMillis());
@@ -520,7 +525,7 @@ public class CheckoutService {
         while (paymentEventRepository.existsByOrderId(orderId)) {
             if (count == 5) {
                 LogUtils.writeInfoLog(this.getClass().toString(), "Fail to generate order id caused over threshold count");
-                throw new CustomException(PaymentErrorType.FAIL_GENERATE_ORDER_ID);
+                throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.FAIL_GENERATE_ORDER_ID);
             }
             orderId = OrderUtils.generateOrderNumber();
             count++;

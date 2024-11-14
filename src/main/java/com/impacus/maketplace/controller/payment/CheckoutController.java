@@ -49,9 +49,9 @@ public class CheckoutController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("checkout-cart")
-    public ApiResponseEntity<CheckoutCartProductsDTO> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
+    public ApiResponseEntity<CheckoutCartProductsDTO> getCheckoutCart(@AuthenticationPrincipal CustomUserDetails user, @RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
 
-        List<CheckoutProductDTO> products = checkoutService.getCheckoutCart(shoppingBasketIdList);
+        List<CheckoutProductDTO> products = checkoutService.getCheckoutCart(user.getId(), shoppingBasketIdList);
         CheckoutCartProductsDTO response = CheckoutCartProductsDTO.builder()
                 .products(products)
                 .shoppingBasketIdList(shoppingBasketIdList)

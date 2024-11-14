@@ -154,7 +154,7 @@ public class CheckoutServiceTest {
 
             PaymentEvent paymentEvent = getPaymentEvent(1L, userId, method);
             PaymentOrder paymentOrder = getPaymentOrder(1L, paymentEvent.getId(), checkoutProductInfoDTO.getSellerId(), checkoutProductInfoDTO.getProductId(), checkoutProductInfoDTO.getProductOptionHistoryId(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), (long) checkoutProductInfoDTO.getAppSalesPrice(), ecoDiscount, discountPoint, couponDiscount, 10);
-            DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfoDTO().toEntity(paymentEvent.getId());
+            DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfo().toEntity(paymentEvent.getId());
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
             when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
@@ -492,7 +492,7 @@ public class CheckoutServiceTest {
 
             PaymentEvent paymentEvent = getPaymentEvent(1L, userId, method);
             PaymentOrder paymentOrder = getPaymentOrder(1L, paymentEvent.getId(), checkoutProductInfoDTO.getSellerId(), checkoutProductInfoDTO.getProductId(), checkoutProductInfoDTO.getProductOptionHistoryId(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), (long) checkoutProductInfoDTO.getAppSalesPrice(), ecoDiscount, discountPoint, couponDiscount, 10);
-            DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfoDTO().toEntity(paymentEvent.getId());
+            DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfo().toEntity(paymentEvent.getId());
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
             when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);
@@ -571,7 +571,7 @@ public class CheckoutServiceTest {
 
             PaymentEvent paymentEvent = getPaymentEvent(1L, userId, method);
             PaymentOrder paymentOrder = getPaymentOrder(1L, paymentEvent.getId(), checkoutProductInfoDTO.getSellerId(), checkoutProductInfoDTO.getProductId(), checkoutProductInfoDTO.getProductOptionHistoryId(), checkoutSingleDTO.getPaymentProductInfo().getQuantity(), (long) checkoutProductInfoDTO.getAppSalesPrice(), ecoDiscount, discountPoint, couponDiscount, 10);
-            DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfoDTO().toEntity(paymentEvent.getId());
+            DeliveryAddress deliveryAddress = checkoutSingleDTO.getAddressInfo().toEntity(paymentEvent.getId());
 
             when(checkoutCustomRepository.getBuyerInfo(userId)).thenReturn(buyerInfoDTO);
             when(checkoutCustomRepository.getPaymentProductInfo(checkoutSingleDTO.getPaymentProductInfo().getProductId(), checkoutSingleDTO.getPaymentProductInfo().getProductOptionId(), checkoutSingleDTO.getPaymentProductInfo().getSellerId(), checkoutSingleDTO.getUsedRegisteredCard(), checkoutSingleDTO.getRegisteredCardId())).thenReturn(checkoutProductInfoDTO);

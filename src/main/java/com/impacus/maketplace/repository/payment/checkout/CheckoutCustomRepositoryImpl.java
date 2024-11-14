@@ -14,6 +14,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -60,7 +61,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
     }
 
     @Override
-    public List<CheckoutProductWithDetailsByCartDTO> findCheckoutProductWithDetailsByCart(List<Long> shoppingBasketIdList) {
+    public List<CheckoutProductWithDetailsByCartDTO> findCheckoutProductWithDetailsByCart(Long userId, List<Long> shoppingBasketIdList) {
         return queryFactory
                 .select(new QCheckoutProductWithDetailsByCartDTO(
                         product.id,
@@ -86,7 +87,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                 .join(productOption).on(productOption.id.eq(shoppingBasket.productOptionId))
                 .join(product).on(product.id.eq(productOption.productId))
                 .join(seller).on(seller.id.eq(product.sellerId))
-                .where(shoppingBasket.id.in(shoppingBasketIdList))
+                .where(shoppingBasket.id.in(shoppingBasketIdList).and(shoppingBasket.userId.eq(userId)))
                 .fetch();
     }
 
@@ -132,7 +133,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
                         productOptionHistory.id
                 ))
                 .from(product)
-                .leftJoin(seller).on(seller.id.eq(sellerId))
+                .leftJoin(seller).on(seller.id.eq(sellerId).and(product.sellerId.eq(sellerId)))
                 .leftJoin(productOption).on(productOption.id.eq(productOptionId).and(productOption.productId.eq(productId)))
                 .leftJoin(productOptionHistory).on(productOptionHistory.productOptionId.eq(productOptionId))
                 .where(product.id.eq(productId))
@@ -205,7 +206,7 @@ public class CheckoutCustomRepositoryImpl implements CheckoutCustomRepository {
             }
 
             if (checkoutProductInfoDTO.getProductOptionHistoryId() == null) {
-                throw new CustomException(PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION_HISTORY);
+                throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION_HISTORY);
             }
 
             if (checkoutProductInfoDTO.getSellerId() == null) {

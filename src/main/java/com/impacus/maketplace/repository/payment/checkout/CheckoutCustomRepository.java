@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface CheckoutCustomRepository {
     CheckoutProductWithDetailsDTO findCheckoutProductWithDetails(Long productId, Long productOptionId);
-    List<CheckoutProductWithDetailsByCartDTO> findCheckoutProductWithDetailsByCart(List<Long> shoppingBasketIdList);
+    List<CheckoutProductWithDetailsByCartDTO> findCheckoutProductWithDetailsByCart(Long userId, List<Long> shoppingBasketIdList);
 
     BuyerInfoDTO getBuyerInfo(Long userId);
 
