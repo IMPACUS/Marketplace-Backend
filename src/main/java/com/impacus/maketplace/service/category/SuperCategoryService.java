@@ -195,7 +195,34 @@ public class SuperCategoryService {
         return dtos;
     }
 
+    /**
+     * 1차 카테고리 다중 삭제 함수
+     *
+     * @param superCategories 삭제할 1차 카테고리 리스트
+     */
+    @Transactional
     public void deleteAllInBatch(List<SuperCategory> superCategories) {
+        // 1. 1차 카테고리 삭제
         superCategoryRepository.deleteAllInBatch(superCategories);
+
+        // 2. 검색어 삭제
+        superCategories.forEach(x -> deleteSuperCategorySearchData(x.getId()));
+    }
+
+    /**
+     * 1챠 카테고리 검색어 삭제
+     *
+     * @param superCategoryId 삭제할 1차 카테고리 ID
+     */
+    @Transactional
+    public void deleteSuperCategorySearchData(Long superCategoryId) {
+        try {
+            productSearchService.deleteSearchData(
+                    SearchType.CATEGORY,
+                    superCategoryId
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("deleteSuperCategorySearchData", "Fail to delete search data", e);
+        }
     }
 }
