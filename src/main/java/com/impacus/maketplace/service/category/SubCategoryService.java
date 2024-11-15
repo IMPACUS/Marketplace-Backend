@@ -149,9 +149,32 @@ public class SubCategoryService {
 
             // 4. 내용 업데이트
             subCategoryRepository.updateCategoryName(categoryId, subCategoryName);
+
+            // 5. 검색어 데이터 수정
+            updateSubCategorySearchData(categoryId, subCategoryName);
+
             return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 2차 카테고리 검색어 수정
+     *
+     * @param subCategoryId 수정할 2차 카테고리 ID
+     * @param name          2차 카테고리 명
+     */
+    @Transactional
+    public void updateSubCategorySearchData(Long subCategoryId, String name) {
+        try {
+            productSearchService.updateSearchData(
+                    SearchType.SUBCATEGORY,
+                    subCategoryId,
+                    name
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("updateSubCategorySearchData", "Fail to update search data", e);
         }
     }
 
