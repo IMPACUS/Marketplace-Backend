@@ -4,6 +4,8 @@ import com.impacus.maketplace.entity.category.SubCategory;
 import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
+import com.impacus.maketplace.service.category.SubCategoryService;
+import com.impacus.maketplace.service.category.SuperCategoryService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -16,10 +18,19 @@ import java.util.List;
 public class CategoryInitializer {
     private final SuperCategoryRepository superCategoryRepository;
     private final SubCategoryRepository subCategoryRepository;
+    private final SuperCategoryService superCategoryService;
+    private final SubCategoryService subCategoryService;
 
-    public CategoryInitializer(SuperCategoryRepository superCategoryRepository, SubCategoryRepository subCategoryRepository) {
+    public CategoryInitializer(
+            SuperCategoryRepository superCategoryRepository,
+            SubCategoryRepository subCategoryRepository,
+            SuperCategoryService superCategoryService,
+            SubCategoryService subCategoryService
+    ) {
         this.superCategoryRepository = superCategoryRepository;
         this.subCategoryRepository = subCategoryRepository;
+        this.superCategoryService = superCategoryService;
+        this.subCategoryService = subCategoryService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -39,8 +50,7 @@ public class CategoryInitializer {
                 .toList();
 
         if (superCategories.size() > 0) {
-            superCategoryRepository.saveAll(superCategories);
-
+            saveSuperCategories(superCategories);
 
             for (SuperCategory superCategory : superCategories) {
                 List<String> subCategoryNames = new ArrayList<>();
@@ -78,9 +88,30 @@ public class CategoryInitializer {
                 List<SubCategory> subCategories = subCategoryNames.stream().map(
                         subCategoryName -> new SubCategory(superCategory.getId(), null, subCategoryName)
                 ).toList();
-
-                subCategoryRepository.saveAll(subCategories);
+                saveSubCategories(subCategories);
             }
         }
+    }
+
+    @Transactional
+    public void saveSuperCategories(List<SuperCategory> superCategories) {
+        // 1. 카테고리 저장
+        superCategoryRepository.saveAll(superCategories);
+
+        // 2. 1차 카테고리 검색어 데이터 저장
+        superCategories.forEach(
+                x -> superCategoryService.addSuperCategorySearchData(x)
+        );
+    }
+
+    @Transactional
+    public void saveSubCategories(List<SubCategory> subCategories) {
+        // 1. 카테고리 저장
+        subCategoryRepository.saveAll(subCategories);
+
+        // 2. 1차 카테고리 검색어 데이터 저장
+        subCategories.forEach(
+                x -> subCategoryService.addSubCategorySearchData(x)
+        );
     }
 }
