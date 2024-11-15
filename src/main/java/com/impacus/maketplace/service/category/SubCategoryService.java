@@ -2,9 +2,11 @@ package com.impacus.maketplace.service.category;
 
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.constants.FileSizeConstants;
+import com.impacus.maketplace.common.enumType.SearchType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
 import com.impacus.maketplace.dto.category.request.CreateSubCategoryDTO;
@@ -12,6 +14,7 @@ import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.entity.category.SubCategory;
 import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.entity.common.AttachFile;
+import com.impacus.maketplace.redis.service.ProductSearchService;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -34,6 +37,7 @@ public class SubCategoryService {
     private final AttachFileService attachFileService;
     private final ObjectCopyHelper objectCopyHelper;
     private final ProductRepository productRepository;
+    private final ProductSearchService productSearchService;
 
     /**
      * 2차 카테고리 추가하는 함수
@@ -70,14 +74,35 @@ public class SubCategoryService {
                 attachFile = attachFileService.uploadFileAndAddAttachFile(thumbnail, DirectoryConstants.THUMBNAIL_IMAGE_DIRECTORY);
             }
 
-            // 3. 2차 카테고리 저장
+            // 4. 2차 카테고리 저장
             SubCategory subCategory = subCategoryRepository.save(
                     new SubCategory(superCategoryId, attachFile.getId(), subCategoryName)
             );
 
+            // 5. 2차 카테고리 검색어 저장
+            addSubCategorySearchData(subCategory);
+
             return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 2차 카테고리 검색어 저장
+     *
+     * @param subCategory 저장할 2차 카테고리
+     */
+    @Transactional
+    public void addSubCategorySearchData(SubCategory subCategory) {
+        try {
+            productSearchService.addSearchData(
+                    SearchType.SUBCATEGORY,
+                    subCategory.getId(),
+                    subCategory.getName()
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("addSubCategorySearchData", "Fail to add search data", e);
         }
     }
 
