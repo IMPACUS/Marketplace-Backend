@@ -234,16 +234,16 @@ public class SubCategoryService {
     /**
      * 1차 카테고리 다중 삭제
      *
-     * @param superCategoryIdList
+     * @param superCategoryIds
      * @return
      */
     @Transactional
-    public void deleteSuperCategory(List<Long> superCategoryIdList) {
+    public void deleteSuperCategory(List<Long> superCategoryIds) {
         try {
             // 1. 2차 카테고리 존재 확인
             List<SuperCategory> superCategories = new ArrayList<>();
             List<SubCategory> subCategories = new ArrayList<>();
-            for (Long superCategoryId : superCategoryIdList) {
+            for (Long superCategoryId : superCategoryIds) {
                 if (productRepository.existsBySuperCategoryId(superCategoryId)) {
                     throw new CustomException(CategoryErrorType.CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT);
                 }
