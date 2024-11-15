@@ -225,7 +225,7 @@ public class SubCategoryService {
             }
 
             // 2. 삭제
-            subCategoryRepository.deleteAllInBatch(subCategories);
+            deleteAllSubCategory(subCategories);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -254,10 +254,41 @@ public class SubCategoryService {
             }
 
             // 2. 삭제
-            subCategoryRepository.deleteAllInBatch(subCategories);
+            deleteAllSubCategory(subCategories);
             superCategoryService.deleteAllInBatch(superCategories);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 2차 카테고리 다중 삭제
+     *
+     * @param subCategories 삭제할 2차 카테고리
+     */
+    @Transactional
+    public void deleteAllSubCategory(List<SubCategory> subCategories) {
+        // 1. 2차 카테고리 삭제
+        subCategoryRepository.deleteAllInBatch(subCategories);
+
+        // 2. 2차 카테고리 검색어 삭제
+        subCategories.forEach(x -> deleteSubCategorySearchData(x.getId()));
+    }
+
+    /**
+     * 2챠 카테고리 검색어 삭제
+     *
+     * @param subCategoryId 삭제할 2차 카테고리 ID
+     */
+    @Transactional
+    public void deleteSubCategorySearchData(Long subCategoryId) {
+        try {
+            productSearchService.deleteSearchData(
+                    SearchType.SUBCATEGORY,
+                    subCategoryId
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("deleteSubCategorySearchData", "Fail to delete search data", e);
         }
     }
 }
