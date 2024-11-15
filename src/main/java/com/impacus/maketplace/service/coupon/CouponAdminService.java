@@ -3,7 +3,9 @@ package com.impacus.maketplace.service.coupon;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
 import com.impacus.maketplace.dto.coupon.request.*;
@@ -15,10 +17,12 @@ import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
+import com.impacus.maketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +42,7 @@ public class CouponAdminService {
     private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final CouponIssuanceService couponIssuanceService;
 
     /**
@@ -225,9 +230,14 @@ public class CouponAdminService {
      */
     @Transactional
     public void issueCouponTargetUser(IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
-        // 1. Email을 통해서 회원 검색
-        User user = userRepository.findByEmail(issueCouponTargetUserDTO.getEmail())
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+        // 1. ID를 통해서 회원 검색
+        User user = userRepository.findById(issueCouponTargetUserDTO.getUserId())
+                .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_USER));
+
+        // 1.1 유저 권한 확인
+        if (!user.getType().equals(UserType.ROLE_CERTIFIED_USER)) {
+            throw new CustomException(CouponErrorType.USER_NOT_AUTHORIZED_FOR_COUPON_EXCEPTION);
+        }
 
         // 2. 쿠폰 지급
         couponIssuanceService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user.getId());

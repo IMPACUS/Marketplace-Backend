@@ -15,6 +15,8 @@ public class CouponDetailDTO {
 
     private Long couponId;
 
+    private String code;
+
     private String name;
 
     private String description;
@@ -67,8 +69,6 @@ public class CouponDetailDTO {
 
     private AutoManualType autoManualType;
 
-    private String code;
-
     private Boolean loginAlarm;
 
     private Boolean smsAlarm;
@@ -109,6 +109,7 @@ public class CouponDetailDTO {
                 .autoManualType(coupon.getAutoManualType())
                 .loginAlarm(coupon.getLoginAlarm())
                 .smsAlarm(coupon.getSmsAlarm())
+                .emailAlarm(coupon.getEmailAlarm())
                 .kakaoAlarm(coupon.getKakaoAlarm())
                 .build();
     }

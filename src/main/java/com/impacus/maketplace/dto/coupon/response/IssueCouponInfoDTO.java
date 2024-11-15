@@ -18,14 +18,14 @@ public class IssueCouponInfoDTO {
     private Integer expireTimeDays;
     private StandardType useStandardType;
     private Long useStandardValue;
-    private CoverageType useConverageType;
+    private CoverageType useCoverageType;
     private String useCoverageSubCategoryName;
     private Boolean smsAlarm;
     private Boolean emailAlarm;
     private Boolean kakaoAlarm;
 
     @QueryProjection
-    public IssueCouponInfoDTO(Long couponId, String name, BenefitType benefitType, Long benefitValue, String description, IssuedTimeType issuedTimeType, ExpireTimeType expireTimeType, Integer expireTimeDays, StandardType useStandardType, Long useStandardValue, CoverageType useConverageType, String useCoverageSubCategoryName, Boolean smsAlarm, Boolean emailAlarm, Boolean kakaoAlarm) {
+    public IssueCouponInfoDTO(Long couponId, String name, BenefitType benefitType, Long benefitValue, String description, IssuedTimeType issuedTimeType, ExpireTimeType expireTimeType, Integer expireTimeDays, StandardType useStandardType, Long useStandardValue, CoverageType useCoverageType, String useCoverageSubCategoryName, Boolean smsAlarm, Boolean emailAlarm, Boolean kakaoAlarm) {
         this.couponId = couponId;
         this.name = name;
         this.benefitType = benefitType;
@@ -36,7 +36,7 @@ public class IssueCouponInfoDTO {
         this.expireTimeDays = expireTimeDays;
         this.useStandardType = useStandardType;
         this.useStandardValue = useStandardValue;
-        this.useConverageType = useConverageType;
+        this.useCoverageType = useCoverageType;
         this.useCoverageSubCategoryName = useCoverageSubCategoryName;
         this.smsAlarm = smsAlarm;
         this.emailAlarm = emailAlarm;
