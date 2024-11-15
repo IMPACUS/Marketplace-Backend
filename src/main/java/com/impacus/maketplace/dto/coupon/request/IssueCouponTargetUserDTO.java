@@ -10,9 +10,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class IssueCouponTargetUserDTO {
 
-    @NotBlank(message = "지급할 사용자의 이메일이 들어오지 않았습니다.")
-    @Email(message = "올바른 형식의 이메일을 입력하세요.")
-    private String email;
+    @NotNull(message = "사용자의 ID는 필수입니다.")
+    private Long userId;
 
     @NotNull(message = "쿠폰 ID는 필수입니다.")
     private Long couponId;
