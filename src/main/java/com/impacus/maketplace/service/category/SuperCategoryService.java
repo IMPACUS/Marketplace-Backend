@@ -101,14 +101,14 @@ public class SuperCategoryService {
     /**
      * 1차 카테고리 명 수정 함수
      *
-     * @param categoryNameRequest
+     * @param dto
      * @return
      */
     @Transactional
-    public Boolean updateSuperCategory(ChangeCategoryNameDTO categoryNameRequest) {
+    public Boolean updateSuperCategory(ChangeCategoryNameDTO dto) {
         try {
-            Long categoryId = categoryNameRequest.getCategoryId();
-            String superCategoryName = categoryNameRequest.getName();
+            Long categoryId = dto.getCategoryId();
+            String superCategoryName = dto.getName();
 
             // 1. 중복된 1차 카테고리 명 확인
             if (existsBySuperCategoryName(superCategoryName)) {
@@ -121,9 +121,30 @@ public class SuperCategoryService {
                 throw new CustomException(CategoryErrorType.NOT_EXISTED_SUPER_CATEGORY);
             }
 
+            // 3. 검색어 데이터 수정
+            updateSuperCategorySearchData(categoryId, superCategoryName);
             return true;
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 1차 카테고리 검색어 수정
+     *
+     * @param superCategoryId 수정할 1차 카테고리 ID
+     * @param name            1차 카테고리 명
+     */
+    @Transactional
+    public void updateSuperCategorySearchData(Long superCategoryId, String name) {
+        try {
+            productSearchService.updateSearchData(
+                    SearchType.CATEGORY,
+                    superCategoryId,
+                    name
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("updateSuperCategorySearchData", "Fail to update search data", e);
         }
     }
 
