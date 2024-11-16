@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
 import lombok.Getter;
 
 @Getter
-public class UpdateUserAlarmDto {
+public class UpdateUserAlarmDTO {
     private AlarmUserCategoryEnum category;
     private Boolean isOn;
     private Boolean kakao;

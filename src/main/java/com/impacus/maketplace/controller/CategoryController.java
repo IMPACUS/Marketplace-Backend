@@ -86,7 +86,7 @@ public class CategoryController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @PutMapping("sub-category/{categoryId}")
+    @PutMapping("sub-category")
     public ApiResponseEntity<SubCategoryDTO> updateSubCategory(
             @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
             @Valid @RequestPart(value = "subCategory") ChangeCategoryNameDTO subCategoryRequest) {

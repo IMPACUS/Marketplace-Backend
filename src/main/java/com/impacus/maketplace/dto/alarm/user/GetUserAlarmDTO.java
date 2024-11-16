@@ -5,7 +5,7 @@ import com.impacus.maketplace.entity.alarm.user.AlarmUser;
 import lombok.Getter;
 
 @Getter
-public class GetUserAlarmDto {
+public class GetUserAlarmDTO {
     private AlarmUserCategoryEnum category;
     private Boolean isOn;
     private Boolean kakao;
@@ -13,7 +13,7 @@ public class GetUserAlarmDto {
     private Boolean msg;
     private Boolean email;
 
-    public GetUserAlarmDto(AlarmUser a) {
+    public GetUserAlarmDTO(AlarmUser a) {
         this.category = a.getCategory();
         this.isOn = a.getIsOn();
         this.kakao = a.getKakao();

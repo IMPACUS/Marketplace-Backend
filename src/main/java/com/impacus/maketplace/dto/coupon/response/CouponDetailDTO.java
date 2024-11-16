@@ -15,6 +15,8 @@ public class CouponDetailDTO {
 
     private Long couponId;
 
+    private String code;
+
     private String name;
 
     private String description;
@@ -32,6 +34,8 @@ public class CouponDetailDTO {
     private IssuedTimeType issuedTimeType;
 
     private CouponType couponType;
+
+    private EventType eventType;
 
     private CouponIssueType couponIssueType;
 
@@ -65,8 +69,6 @@ public class CouponDetailDTO {
 
     private AutoManualType autoManualType;
 
-    private String code;
-
     private Boolean loginAlarm;
 
     private Boolean smsAlarm;
@@ -89,6 +91,7 @@ public class CouponDetailDTO {
                 .issuedTimeType(coupon.getIssuedTimeType())
                 .couponIssueType(coupon.getCouponIssueType())
                 .couponType(coupon.getCouponType())
+                .eventType(coupon.getEventType())
                 .expireTimeType(coupon.getExpireTimeType())
                 .expireTimeDays(coupon.getExpireTimeDays())
                 .issueCoverageType(coupon.getIssueCoverageType())
@@ -106,6 +109,7 @@ public class CouponDetailDTO {
                 .autoManualType(coupon.getAutoManualType())
                 .loginAlarm(coupon.getLoginAlarm())
                 .smsAlarm(coupon.getSmsAlarm())
+                .emailAlarm(coupon.getEmailAlarm())
                 .kakaoAlarm(coupon.getKakaoAlarm())
                 .build();
     }

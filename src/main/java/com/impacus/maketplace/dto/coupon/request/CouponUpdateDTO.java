@@ -42,6 +42,8 @@ public class CouponUpdateDTO implements CouponDTO {
     @ValidEnum(enumClass = CouponType.class)
     private CouponType couponType;
 
+    private EventType eventType;
+
     private CouponIssueType couponIssueType;
 
     @ValidEnum(enumClass = ExpireTimeType.class)

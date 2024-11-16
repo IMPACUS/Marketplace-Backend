@@ -38,6 +38,8 @@ public class CouponIssueDTO implements CouponDTO {
     @ValidEnum(enumClass = CouponType.class)
     private CouponType couponType;
 
+    private EventType eventType;
+
     @ValidEnum(enumClass = CouponIssueType.class)
     private CouponIssueType couponIssueType;
 
@@ -106,6 +108,7 @@ public class CouponIssueDTO implements CouponDTO {
                 .issuedTimeType(this.issuedTimeType)
                 .couponIssueType(this.couponIssueType)
                 .couponType(this.couponType)
+                .eventType(this.eventType)
                 .expireTimeType(this.expireTimeType)
                 .expireTimeDays(this.expireTimeType == ExpireTimeType.LIMIT ? this.expireTimeDays : null)
                 .issueCoverageType(this.issueCoverageType)
@@ -121,10 +124,10 @@ public class CouponIssueDTO implements CouponDTO {
                 .periodEndAt(this.periodType == PeriodType.SET ? this.periodEndAt : null)
                 .numberOfPeriod(this.numberOfPeriod)
                 .autoManualType(this.autoManualType)
-                .loginAlarm(this.loginAlarm)
-                .smsAlarm(this.smsAlarm)
-                .emailAlarm(this.emailAlarm)
-                .kakaoAlarm(this.kakaoAlarm)
+                .loginAlarm(this.loginAlarm != null ? this.loginAlarm : false)
+                .smsAlarm(this.smsAlarm != null ? this.smsAlarm : false)
+                .emailAlarm(this.emailAlarm != null ? this.emailAlarm : false)
+                .kakaoAlarm(this.kakaoAlarm != null ? this.kakaoAlarm : false)
                 .statusType(CouponStatusType.ISSUING)
                 .isDeleted(false)
                 .build();

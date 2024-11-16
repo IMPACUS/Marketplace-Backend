@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public class AddAlarmSellerDto {
+public class AddAlarmSellerDTO {
     @NotNull(message = "null 허용 안함")
     private AlarmSellerCategoryEnum category;
 

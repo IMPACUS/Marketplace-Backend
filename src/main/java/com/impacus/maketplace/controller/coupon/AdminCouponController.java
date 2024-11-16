@@ -199,7 +199,6 @@ public class AdminCouponController {
                                                                               @RequestParam(name = "start-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
                                                                               @RequestParam(name = "end-at", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
                                                                               @PageableDefault(sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable) {
-
         IssueCouponHistoriesDTO response = couponAdminService.getIssueCouponHistories(name, userCouponStatus, startAt, endAt, pageable);
 
         return ApiResponseEntity
@@ -238,6 +237,18 @@ public class AdminCouponController {
                 .<FileGenerationStatusIdDTO>builder()
                 .data(result)
                 .message("쿠폰 지급 목록 엑셀 요청 성공")
+                .build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_OWNER') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')")
+    @GetMapping("event-types")
+    public ApiResponseEntity<List<CouponEventTypeDTO>> getCouponEventTypes() {
+        List<CouponEventTypeDTO> response = couponAdminService.getCouponEventTypes();
+
+        return ApiResponseEntity
+                .<List<CouponEventTypeDTO>>builder()
+                .data(response)
                 .build();
     }
 }
