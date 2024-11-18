@@ -6,6 +6,7 @@ import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.point.CreateGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoriesDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.greenLabelPointHistory.CommonGreenLabelPointHistory;
@@ -55,7 +56,7 @@ public class GreenLabelPointHistoryService {
      * @param endAt
      * @return
      */
-    public Page<WebGreenLabelHistoryDTO> getGreenLabelPointHistoriesForWeb(
+    public WebGreenLabelHistoriesDTO getGreenLabelPointHistoriesForWeb(
             Pageable pageable,
             String keyword,
             RewardPointStatus status,
@@ -63,7 +64,8 @@ public class GreenLabelPointHistoryService {
             LocalDate endAt
     ) {
         try {
-            return greenLabelPointHistoryRepository.getGreenLabelPointHistoriesForWeb(pageable, keyword, status, startAt, endAt);
+            Page<WebGreenLabelHistoryDTO> dtos = greenLabelPointHistoryRepository.getGreenLabelPointHistoriesForWeb(pageable, keyword, status, startAt, endAt);
+            return WebGreenLabelHistoriesDTO.toDTO(dtos);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
