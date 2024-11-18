@@ -12,4 +12,4 @@ services:
   redis:
     image: redis:6.2.6-alpine
     ports:
-      - '6379'
+      - '46662:6379'

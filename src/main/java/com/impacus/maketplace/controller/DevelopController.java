@@ -1,11 +1,15 @@
 package com.impacus.maketplace.controller;
 
+import NiceID.Check.CPClient;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.CloudFileUploadService;
 import com.impacus.maketplace.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +41,16 @@ public class DevelopController {
         return ApiResponseEntity.<UserDTO>builder()
                 .message("사용자 삭제 성공")
                 .build();
+    }
+
+    @GetMapping("/cert")
+    public String getCertification(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            ModelMap modelMap
+    ) {
+        CPClient client = new CPClient();
+        return "";
     }
 
 }
