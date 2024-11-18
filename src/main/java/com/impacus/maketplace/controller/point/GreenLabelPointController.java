@@ -6,7 +6,7 @@ import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
-import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDTO;
+import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoriesDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.WebGreenLabelHistoryDetailDTO;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointHistoryService;
@@ -77,15 +77,15 @@ public class GreenLabelPointController {
      */
     @GetMapping("/allocation")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    public ApiResponseEntity<Page<WebGreenLabelHistoryDTO>> getGreenLabelPointHistoriesForWeb(
+    public ApiResponseEntity<WebGreenLabelHistoriesDTO> getGreenLabelPointHistoriesForWeb(
             @PageableDefault(size = 6, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "status", required = false) RewardPointStatus status,
             @RequestParam(value = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(value = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt
     ) {
-        Page<WebGreenLabelHistoryDTO> result = greenLabelPointHistoryService.getGreenLabelPointHistoriesForWeb(pageable, keyword, status, startAt, endAt);
-        return ApiResponseEntity.<Page<WebGreenLabelHistoryDTO>>builder()
+        WebGreenLabelHistoriesDTO result = greenLabelPointHistoryService.getGreenLabelPointHistoriesForWeb(pageable, keyword, status, startAt, endAt);
+        return ApiResponseEntity.<WebGreenLabelHistoriesDTO>builder()
                 .message("포인트 지급 목록 조회 성공")
                 .data(result)
                 .build();
