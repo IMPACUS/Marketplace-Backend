@@ -290,4 +290,17 @@ public class ReadProductService implements ProductInterface {
 
         }
     }
+
+    /**
+     * 상품 클레임 초기값 조회
+     *
+     * @return
+     */
+    public ProductClaimInfoDTO findBaseClaimInformation() {
+        try {
+            return ProductClaimInfoDTO.toDTO();
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
+    }
 }
