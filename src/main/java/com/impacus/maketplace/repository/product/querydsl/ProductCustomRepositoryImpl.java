@@ -64,7 +64,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         // 1-2. 검색어 조회
         BooleanBuilder searchBuilder = new BooleanBuilder();
         if (keyword != null && !keyword.isBlank()) {
-            searchBuilder.or(product.name.containsIgnoreCase(keyword)); // 검색 옵션: 상품명;
+            searchBuilder.or(product.name.containsIgnoreCase(keyword)); // 검색 옵션: 상품명
         }
 
         BooleanBuilder productOptionBuilder = new BooleanBuilder();
@@ -119,8 +119,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(productOption).on(productOptionBuilder)
                 .groupBy(product.id, productOption.id)
                 .where(product.id.in(productIds))
-                .orderBy(product.createAt.desc());
-        return query
+                .orderBy(product.createAt.desc(), productOption.id.desc());
+        List<WebProductTableDetailDTO> duplicatedProducts = query
                 .transform(
                         GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
@@ -137,7 +137,34 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         )
                 );
+
+        return removeDuplicatedProductTableDetailsForWeb(duplicatedProducts);
     }
+
+    private List<WebProductTableDetailDTO> removeDuplicatedProductTableDetailsForWeb(List<WebProductTableDetailDTO> products) {
+        // Set to keep track of added productOptionIds to avoid duplication
+        Set<Long> existingOptionIds = new HashSet<>();
+
+        // Using Stream API to remove duplicates and manage options
+        Map<Long, WebProductTableDetailDTO> productMap = products.stream()
+                .collect(Collectors.toMap(
+                        WebProductTableDetailDTO::getId,
+                        Function.identity(),
+                        (existing, replacement) -> {
+                            // Add options from replacement to existing without duplicates
+                            replacement.getOptions().forEach(option -> {
+                                if (!existingOptionIds.contains(option.getProductOptionId())) {
+                                    existing.getOptions().add(option);
+                                    existingOptionIds.add(option.getProductOptionId());
+                                }
+                            });
+                            return existing;
+                        }
+                ));
+
+        return new ArrayList<>(productMap.values());
+    }
+
 
     @Override
     public AppProductDetailDTO findProductByProductIdForApp(Long userId, Long productId) {
