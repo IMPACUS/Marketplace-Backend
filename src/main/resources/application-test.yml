@@ -40,3 +40,5 @@ spring:
 
 firebase:
   enabled: false
+url:
+  server-host: http://localhost:8080

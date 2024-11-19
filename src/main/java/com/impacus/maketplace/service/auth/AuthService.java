@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service.auth;
 
+import NiceID.Check.CPClient;
+import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
@@ -10,6 +12,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.auth.response.CertificationRequestDataDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
@@ -20,6 +23,7 @@ import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -27,6 +31,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
+
+import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +44,10 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final AdminService adminService;
+    private final NiceAPIService niceAPIService;
 
     private static final String AUTHENTICATION_HEADER_TYPE = "Bearer";
+
 
     /**
      * JWT 토큰을 재발급하는 함수
@@ -162,5 +170,42 @@ public class AuthService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * 사용자 인증 정보를 저장하는 함수
+     *
+     * @param result
+     * @param encodeData
+     */
+    public void saveUserCerification(CertificationResultCode result, String encodeData, HttpSession session) {
+        CPClient client = niceAPIService.getCPClient(encodeData);
+        String sRequestNumber = "";            // 요청 번호 -> 동일한 요청인지 확인 (사용자 id 확인)
+
+        // 암호화 데이터 분석
+        String plainData = client.getPlainData();
+        String sCipherTime = client.getCipherDateTime(); //복호화 시간
+
+        // 데이타를 추출합니다.
+        HashMap mapresult = client.fnParse(plainData);
+
+        String session_sRequestNumber = (String) session.getAttribute("REQ_SEQ");
+        if (!sRequestNumber.equals(session_sRequestNumber)) {
+            String sMessage = "세션값 불일치 오류입니다.";
+        }
+    }
+
+    /**
+     * 본인인증 암호화 데이터 조회
+     *
+     * @return
+     */
+    public CertificationRequestDataDTO getCertificationRequestData() {
+        // CertificationRequestDataDTO 생성
+        CertificationRequestDataDTO dto = niceAPIService.getRequestData(false);
+
+        // CertificationRequestNumber 저장
+
+        return dto;
     }
 }
