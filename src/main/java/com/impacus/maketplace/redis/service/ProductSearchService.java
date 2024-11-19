@@ -28,6 +28,11 @@ public class ProductSearchService {
 
     private static final String ID_KEY = "productSearch:id"; // 자동 증가 ID를 저장할 Redis 키
 
+    public List<SearchDTO> getInitializer() {
+        List<ProductSearch> all = productSearchRepository.findAll();
+        return all.stream().map(SearchDTO::new).collect(Collectors.toList());
+    }
+
     public void addSearchData(SearchType type, Long searchId, String searchName) {
         Optional<ProductSearch> optional = productSearchRepository.findByTypeAndSearchId(type, searchId);
         if (optional.isPresent()) throw new CustomException(HttpStatus.BAD_REQUEST, SearchErrorType.ENTITY_EXIST);
