@@ -1,8 +1,10 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.constants.HeaderConstants;
+import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.auth.response.CertificationRequestDataDTO;
 import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerFromSellerDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
@@ -12,6 +14,7 @@ import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.seller.CreateSellerService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,5 +93,38 @@ public class AuthController {
     ) {
         authService.logout(accessToken);
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
+    }
+
+    /**
+     * 본인인증에 필요한 데이터를 요청하는 API
+     *
+     * @return
+     */
+    @GetMapping("/certification/request")
+    public ApiResponseEntity<CertificationRequestDataDTO> getCertificationRequestData() {
+        CertificationRequestDataDTO result = authService.getCertificationRequestData();
+        return ApiResponseEntity.<CertificationRequestDataDTO>builder()
+                .data(result)
+                .message("본인 인증 암호화 데이터 조회 성공")
+                .build();
+    }
+
+
+    /**
+     * 본인인증 결과 전달 받는 URL
+     *
+     * @param result
+     * @param encodeData
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/certification", method = {RequestMethod.GET, RequestMethod.POST})
+    public ApiResponseEntity<Boolean> getCertificationResult(
+            @RequestParam(value = "result") CertificationResultCode result,
+            @RequestParam(value = "EncodeData") String encodeData,
+            HttpServletRequest request
+    ) {
+        authService.saveUserCerification(result, encodeData, request.getSession());
+        return null;
     }
 }

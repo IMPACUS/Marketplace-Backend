@@ -19,6 +19,7 @@ import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.redis.service.BlacklistService;
+import com.impacus.maketplace.redis.service.CertificationRequestNumberService;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
@@ -45,6 +46,7 @@ public class AuthService {
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final AdminService adminService;
     private final NiceAPIService niceAPIService;
+    private final CertificationRequestNumberService certificationRequestNumberService;
 
     private static final String AUTHENTICATION_HEADER_TYPE = "Bearer";
 
@@ -205,6 +207,7 @@ public class AuthService {
         CertificationRequestDataDTO dto = niceAPIService.getRequestData(false);
 
         // CertificationRequestNumber 저장
+        certificationRequestNumberService.saveCertificationRequestNumber(dto.getReqNumber());
 
         return dto;
     }
