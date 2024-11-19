@@ -1,7 +1,7 @@
 package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.dto.auth.response.CertificationRequestDataDTO;
-import com.impacus.maketplace.service.auth.NiceAPIService;
+import com.impacus.maketplace.service.auth.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/develop")
 public class DevelopPageController {
-    private final NiceAPIService niceAPIService;
+    private final AuthService authService;
 
     @GetMapping("/cert")
     public String getCertification(
             HttpServletRequest request,
             ModelMap modelMap
     ) {
-        CertificationRequestDataDTO dto = niceAPIService.getRequestData(true);
+        CertificationRequestDataDTO dto = authService.getCertificationRequestData(true);
 
         request.getSession().setAttribute("REQ_SEQ", dto.getReqNumber());
         request.getSession().setAttribute("USER_ID", 17);

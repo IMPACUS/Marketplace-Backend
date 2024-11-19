@@ -38,7 +38,7 @@ public class NiceAPIService {
         // 에러 확인
         if (resultCode != 0) {
             CPClientErrorCode errorCode = CPClientErrorCode.fromCode(resultCode);
-            // 에러 코드 전달
+            throw new CustomException(UserErrorType.FAIL_TO_CERTIFICATION, errorCode);
         }
 
         return client;

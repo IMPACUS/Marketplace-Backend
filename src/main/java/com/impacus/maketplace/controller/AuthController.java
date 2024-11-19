@@ -18,9 +18,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URISyntaxException;
 
 @Slf4j
 @RestController
@@ -111,7 +115,7 @@ public class AuthController {
 
 
     /**
-     * 본인인증 결과 전달 받는 URL
+     * 본인인증 결과 전달 받아 APP 으로 리다이렉트 시키는 URL
      *
      * @param result
      * @param encodeData
@@ -119,12 +123,13 @@ public class AuthController {
      * @return
      */
     @RequestMapping(value = "/certification", method = {RequestMethod.GET, RequestMethod.POST})
-    public ApiResponseEntity<Boolean> getCertificationResult(
+    public ResponseEntity<HttpHeaders> getCertificationResult(
             @RequestParam(value = "result") CertificationResultCode result,
             @RequestParam(value = "EncodeData") String encodeData,
             HttpServletRequest request
-    ) {
-        authService.saveUserCerification(result, encodeData, request.getSession());
-        return null;
+    ) throws URISyntaxException {
+        HttpHeaders httpHeaders = authService.saveUserCertification(result, encodeData, request.getSession());
+
+        return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
     }
 }

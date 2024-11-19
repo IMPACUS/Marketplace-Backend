@@ -1,6 +1,8 @@
 package com.impacus.maketplace.service.auth;
 
 import NiceID.Check.CPClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.impacus.maketplace.common.enumType.certification.CPClientErrorCode;
 import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.TokenErrorType;
@@ -12,6 +14,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.auth.response.CertificationRequestDataDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
@@ -26,13 +29,18 @@ import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAlloc
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import security.CustomUserDetails;
 
+import java.net.URISyntaxException;
 import java.util.HashMap;
 
 @Service
@@ -46,9 +54,15 @@ public class AuthService {
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final AdminService adminService;
     private final NiceAPIService niceAPIService;
-    private final CertificationRequestNumberService certificationRequestNumberService;
+    private final CertificationRequestNumberService certReqNumberService;
 
     private static final String AUTHENTICATION_HEADER_TYPE = "Bearer";
+
+    @Value("${url.certification.success}")
+    private String certificationSuccessURL;
+
+    @Value("${url.certification.fail}")
+    private String certificationFailureURL;
 
 
     /**
@@ -180,21 +194,63 @@ public class AuthService {
      * @param result
      * @param encodeData
      */
-    public void saveUserCerification(CertificationResultCode result, String encodeData, HttpSession session) {
-        CPClient client = niceAPIService.getCPClient(encodeData);
-        String sRequestNumber = "";            // 요청 번호 -> 동일한 요청인지 확인 (사용자 id 확인)
+    public HttpHeaders saveUserCertification(CertificationResultCode result, String encodeData, HttpSession session) throws URISyntaxException {
+        try {
+            CPClient client = niceAPIService.getCPClient(encodeData);
 
-        // 암호화 데이터 분석
-        String plainData = client.getPlainData();
-        String sCipherTime = client.getCipherDateTime(); //복호화 시간
+            // 1. 암호화 데이터 분석
+            String plainData = client.getPlainData();
 
-        // 데이타를 추출합니다.
-        HashMap mapresult = client.fnParse(plainData);
+            // 2. 세션값 확인
+            // - 존재하지 않는 경우: 에러 발생
+            // - 존재하는 경우: 삭제
+            String sessionReqNumber = (String) session.getAttribute("REQ_SEQ");
+            if (!certReqNumberService.existsCertificationRequestNumber(sessionReqNumber)) {
+                throw new CustomException(UserErrorType.FAIL_TO_CERTIFICATION, CPClientErrorCode.NOT_MATCH_SESSION_NUMBER);
+            } else {
+                certReqNumberService.deleteCertificationRequestNumber(sessionReqNumber);
+            }
 
-        String session_sRequestNumber = (String) session.getAttribute("REQ_SEQ");
-        if (!sRequestNumber.equals(session_sRequestNumber)) {
-            String sMessage = "세션값 불일치 오류입니다.";
+            // 3. 데이터 추출
+            String cipherTime = client.getCipherDateTime(); //복호화 시간
+            HashMap mapresult = client.fnParse(plainData);
+            CertificationResult certificationResult = new ObjectMapper().convertValue(mapresult, CertificationResult.class);
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            UriComponents redirectURL = UriComponentsBuilder
+                    .fromUriString(certificationSuccessURL)
+                    .queryParam("result", CertificationResultCode.SUCCESS.toString())
+                    .build();
+
+            httpHeaders.setLocation(redirectURL.toUri());
+            return httpHeaders;
+        } catch (Exception e) {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            UriComponents redirectURL;
+
+            if (e instanceof CustomException) {
+                redirectURL = UriComponentsBuilder
+                        .fromUriString(certificationFailureURL)
+                        .queryParam("result", CertificationResultCode.FAIL.toString())
+                        .queryParam("code", ((CustomException) e).getErrorType().getCode())
+                        .queryParam("detail", ((CustomException) e).getDetail())
+                        .build();
+            } else {
+                redirectURL = UriComponentsBuilder
+                        .fromUriString(certificationFailureURL)
+                        .queryParam("result", CertificationResultCode.FAIL.toString())
+                        .queryParam("code", CommonErrorType.UNKNOWN.getCode())
+                        .queryParam("detail", e.getMessage())
+                        .build();
+            }
+
+            httpHeaders.setLocation(redirectURL.toUri());
+            return httpHeaders;
         }
+    }
+
+    public CertificationRequestDataDTO getCertificationRequestData() {
+        return getCertificationRequestData(false);
     }
 
     /**
@@ -202,12 +258,12 @@ public class AuthService {
      *
      * @return
      */
-    public CertificationRequestDataDTO getCertificationRequestData() {
+    public CertificationRequestDataDTO getCertificationRequestData(boolean isTest) {
         // CertificationRequestDataDTO 생성
-        CertificationRequestDataDTO dto = niceAPIService.getRequestData(false);
+        CertificationRequestDataDTO dto = niceAPIService.getRequestData(isTest);
 
         // CertificationRequestNumber 저장
-        certificationRequestNumberService.saveCertificationRequestNumber(dto.getReqNumber());
+        certReqNumberService.saveCertificationRequestNumber(dto.getReqNumber());
 
         return dto;
     }
