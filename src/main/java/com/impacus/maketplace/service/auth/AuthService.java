@@ -38,11 +38,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import security.CustomUserDetails;
 
-import java.net.URISyntaxException;
 import java.util.HashMap;
 
 @Service
@@ -202,7 +200,7 @@ public class AuthService {
             CertificationResultCode result,
             String encodeData,
             HttpSession session
-    ) throws URISyntaxException {
+    ) {
         try {
             CPClient client = niceAPIService.getCPClient(encodeData);
 
@@ -229,37 +227,9 @@ public class AuthService {
             userService.saveCertification(userId, certificationResult);
 
             // 5. 성공 정보 전달
-            HttpHeaders httpHeaders = new HttpHeaders();
-            UriComponents redirectURL = UriComponentsBuilder
-                    .fromUriString(certificationSuccessURL)
-                    .queryParam("result", CertificationResultCode.SUCCESS.toString())
-                    .build();
-
-            httpHeaders.setLocation(redirectURL.toUri());
-            return httpHeaders;
+            return createRedirectHeaders(certificationSuccessURL, CertificationResultCode.SUCCESS, null, null);
         } catch (Exception e) {
-            HttpHeaders httpHeaders = new HttpHeaders();
-            UriComponents redirectURL;
-
-            // 실패 정보 전달
-            if (e instanceof CustomException) {
-                redirectURL = UriComponentsBuilder
-                        .fromUriString(certificationFailureURL)
-                        .queryParam("result", CertificationResultCode.FAIL.toString())
-                        .queryParam("code", ((CustomException) e).getErrorType().getCode())
-                        .queryParam("detail", ((CustomException) e).getDetail())
-                        .build();
-            } else {
-                redirectURL = UriComponentsBuilder
-                        .fromUriString(certificationFailureURL)
-                        .queryParam("result", CertificationResultCode.FAIL.toString())
-                        .queryParam("code", CommonErrorType.UNKNOWN.getCode())
-                        .queryParam("detail", e.getMessage())
-                        .build();
-            }
-
-            httpHeaders.setLocation(redirectURL.toUri());
-            return httpHeaders;
+            return handleCertificationException(e);
         }
     }
 
@@ -292,5 +262,38 @@ public class AuthService {
         certReqNumberService.saveCertificationRequestNumber(dto.getReqNumber());
 
         return dto;
+    }
+
+    private HttpHeaders createRedirectHeaders(
+            String baseUrl,
+            CertificationResultCode result,
+            String code,
+            String detail
+    ) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl)
+                .queryParam("result", result.toString());
+
+        if (code != null) builder.queryParam("code", code);
+        if (detail != null) builder.queryParam("detail", detail);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(builder.build().toUri());
+        return httpHeaders;
+    }
+
+    private HttpHeaders handleCertificationException(Exception e) {
+        String code;
+        String detail;
+
+        if (e instanceof CustomException) {
+            CustomException customException = (CustomException) e;
+            code = customException.getErrorType().getCode();
+            detail = customException.getDetail().toString();
+        } else {
+            code = CommonErrorType.UNKNOWN.getCode();
+            detail = e.getMessage();
+        }
+
+        return createRedirectHeaders(certificationFailureURL, CertificationResultCode.FAIL, code, detail);
     }
 }
