@@ -457,9 +457,11 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Long userId,
             BooleanBuilder productBuilder
     ) {
-        BooleanBuilder wishlistBuilder = new BooleanBuilder();
-        wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
+        BooleanBuilder wishlistBuilder = new BooleanBuilder()
                 .and(wishlist.productId.eq(product.id));
+        if (userId != null) {
+            wishlistBuilder.and(wishlist.registerId.eq(userId.toString()));
+        }
 
         return queryFactory
                 .selectFrom(product)
