@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * 상품 관련 인터페이스
  *
- * @author 김용현
  */
 public interface ProductInterface {
 
@@ -148,4 +147,14 @@ public interface ProductInterface {
         LocalDate endAt,
         Pageable pageable
     );
+
+    /**
+     * [앱] 상품 검색어 리스트 조회
+     *
+     * @param userId   검색 요청한 사용자 ID
+     * @param name     상품명 검색어
+     * @param pageable 페이지네이션 정보
+     * @return
+     */
+    Slice<AppProductDTO> findProductsByName(Long userId, String name, Pageable pageable);
 }

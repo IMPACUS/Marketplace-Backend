@@ -384,6 +384,32 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
+    public Slice<AppProductDTO> findProductsByName(Long userId, String name, Pageable pageable) {
+        // where 조건 생성
+        BooleanBuilder productBuilder = new BooleanBuilder()
+                .and(product.name.containsIgnoreCase(name));
+
+        // 조건에 맞는 productId 리스트 조회
+        List<Long> productIds = queryFactory
+                .select(product.id)
+                .from(product)
+                .where(productBuilder)
+                .orderBy(product.createAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        // 상품 조회
+        List<AppProductDTO> dtos = findProducts(
+                userId,
+                new BooleanBuilder().and(product.id.in(productIds))
+        );
+
+        // Slice 생성
+        return PaginationUtils.toSlice(dtos, pageable);
+    }
+
+    @Override
     public Slice<AppProductDTO> findAllProductBySubCategoryId(
             Long userId,
             Long subCategoryId,

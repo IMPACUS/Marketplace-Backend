@@ -262,6 +262,19 @@ public class ReadProductService implements ProductInterface {
     }
 
     /**
+     * [앱] 상품 검색어 리스트 조회
+     *
+     * @param userId   검색 요청한 사용자 ID
+     * @param name     상품명 검색어
+     * @param pageable 페이지네이션 정보
+     * @return
+     */
+    @Override
+    public Slice<AppProductDTO> findProductsByName(Long userId, String name, Pageable pageable) {
+        return productRepository.findProductsByName(userId, name, pageable);
+    }
+
+    /**
      * 배송비&반품비 유효성 검사 함수
      * - CHARGE_UNDER_30000 일 때, 배송비 정보 혹은 반품비 정보가 null 일 수 없음.
      *
