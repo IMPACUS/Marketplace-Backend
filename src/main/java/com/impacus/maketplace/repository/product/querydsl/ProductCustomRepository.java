@@ -39,4 +39,6 @@ public interface ProductCustomRepository {
      * @return
      */
     boolean checkIsSellerProductIds(Long userId, List<Long> productIds);
+
+    Slice<AppProductDTO> findProductsByName(Long userId, String name, Pageable pageable);
 }
