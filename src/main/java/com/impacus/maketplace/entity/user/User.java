@@ -86,14 +86,12 @@ public class User extends BaseEntity {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.type = UserType.ROLE_CERTIFIED_USER;
-        this.isCertEmail = false;
+        this.type = UserType.ROLE_UNCERTIFIED_USER;
+        this.isCertEmail = true;
         this.isCertPhone = false;
         this.certEmailAt = LocalDateTime.now();
         this.certPhoneAt = LocalDateTime.now();
         this.isDeleted = false;
-
-        setPhoneNumber("010-0000-0000");
     }
 
     public User(String email,
