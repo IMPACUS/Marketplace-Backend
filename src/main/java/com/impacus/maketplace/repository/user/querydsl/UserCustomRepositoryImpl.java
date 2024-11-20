@@ -21,7 +21,6 @@ import com.impacus.maketplace.entity.point.levelPoint.QLevelAchievement;
 import com.impacus.maketplace.entity.point.levelPoint.QLevelPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.entity.user.QUserConsent;
-import com.impacus.maketplace.entity.user.QUserRole;
 import com.impacus.maketplace.entity.user.QUserStatusInfo;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -51,7 +50,6 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final QGreenLabelPoint greenLabelPoint = QGreenLabelPoint.greenLabelPoint1;
     private final QAttachFile attachFile = QAttachFile.attachFile;
     private final QUserConsent userConsent = QUserConsent.userConsent;
-    private final QUserRole userRole = QUserRole.userRole;
     private final QUserStatusInfo userStatusInfo = QUserStatusInfo.userStatusInfo;
     private final QGreenLabelPointAllocation labelPointAllocation = QGreenLabelPointAllocation.greenLabelPointAllocation;
     private final QLevelAchievement levelAchievement = QLevelAchievement.levelAchievement;
@@ -115,9 +113,6 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .execute();
         queryFactory.delete(userConsent)
                 .where(userConsent.userId.eq(userId))
-                .execute();
-        queryFactory.delete(userRole)
-                .where(userRole.userId.eq(userId))
                 .execute();
         queryFactory.delete(userStatusInfo)
                 .where(userStatusInfo.userId.eq(userId))
