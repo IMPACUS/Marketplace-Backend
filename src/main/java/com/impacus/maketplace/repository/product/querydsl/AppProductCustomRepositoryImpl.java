@@ -34,7 +34,7 @@ import static com.querydsl.core.types.ExpressionUtils.count;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class ProductCustomRepositoryImpl implements ProductCustomRepository {
+public class AppProductCustomRepositoryImpl implements ProductCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
