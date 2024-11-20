@@ -101,7 +101,7 @@
 <!--    </changeSet>-->
 
     <!-- user_info 생성 -->
-    <changeSet id="changelog-lchy0.11.04-240808-2" author="lchy0413">
+    <changeSet id="changelog-lchy0.11.04-240808-3" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="user_info"/>
@@ -131,7 +131,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="jumin1" type="VARCHAR(255)"/>
-            <column name="jumin2" type="VARCHAR(255)"/>
             <column name="profile_image_id" type="BIGINT"/>
             <column name="recent_login_at" type="TIMESTAMP"/>
             <column name="is_cert_email" type="BOOLEAN" defaultValueBoolean="true"/>
@@ -155,7 +154,6 @@
         <setColumnRemarks tableName="user_info" columnName="user_id_name" remarks="회원 아이디"/>
         <setColumnRemarks tableName="user_info" columnName="type" remarks="사용자 타입"/>
         <setColumnRemarks tableName="user_info" columnName="jumin1" remarks="주민 번호 앞자리"/>
-        <setColumnRemarks tableName="user_info" columnName="jumin2" remarks="주민 번호 뒷자리"/>
         <setColumnRemarks tableName="user_info" columnName="profile_image_id" remarks="프로필 이미지 아이디"/>
         <setColumnRemarks tableName="user_info" columnName="recent_login_at" remarks="최근 로그인 일자"/>
         <setColumnRemarks tableName="user_info" columnName="is_cert_email" remarks="이메일 동의 여부"/>

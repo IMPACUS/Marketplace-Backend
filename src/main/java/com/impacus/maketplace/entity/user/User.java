@@ -47,10 +47,6 @@ public class User extends BaseEntity {
     private String jumin1;
 
     @Convert(converter = AES256ToStringConverter.class)
-    @Comment("주민 번호 뒷자리")
-    private String jumin2;
-
-    @Convert(converter = AES256ToStringConverter.class)
     @Column(nullable = false)
     private String phoneNumberPrefix;
 

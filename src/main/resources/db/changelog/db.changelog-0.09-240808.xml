@@ -5,7 +5,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <!--  dormant_user 생성  -->
-    <changeSet id="changelog-0.09.01-240729" author="lchy0413">
+    <changeSet id="changelog-lchy0.09.01-240729" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="dormant_user"/>
@@ -71,7 +71,6 @@
             <column name="bank_code" type="SMALLINT"/>
             <column name="bank_account_number" type="VARCHAR(255)"/>
             <column name="user_jumin1" type="VARCHAR(255)"/>
-            <column name="user_jumin2" type="VARCHAR(255)"/>
             <column name="auth_ci" type="VARCHAR(255)"/>
             <column name="auth_di" type="VARCHAR(255)"/>
             <column name="pccc" type="VARCHAR(255)"/>
