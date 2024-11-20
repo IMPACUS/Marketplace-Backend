@@ -16,9 +16,15 @@ public class PhoneNumberDTO {
 
     public PhoneNumberDTO(String phoneNumber) {
         if (phoneNumber != null && phoneNumber.length() >= 4) {
-            List<String> parts = Arrays.stream(phoneNumber.split("-")).toList();
-            this.phoneNumberPrefix = String.join("-", parts.subList(0, parts.size() - 1));
-            this.phoneNumberSuffix = parts.get(parts.size() - 1);
+            if (phoneNumber.contains("-")) {
+                List<String> parts = Arrays.stream(phoneNumber.split("-")).toList();
+                this.phoneNumberPrefix = String.join("-", parts.subList(0, parts.size() - 1));
+                this.phoneNumberSuffix = parts.get(parts.size() - 1);
+            } else {
+                this.phoneNumberPrefix = phoneNumber.substring(0, phoneNumber.length() - 4);
+                this.phoneNumberSuffix = phoneNumber.substring(phoneNumber.length() - 4);
+            }
+
         } else {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "\"유효한 전화번호를 입력해주세요.\"");
         }

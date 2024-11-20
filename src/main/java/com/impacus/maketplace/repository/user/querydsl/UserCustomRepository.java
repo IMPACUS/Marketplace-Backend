@@ -3,6 +3,7 @@ package com.impacus.maketplace.repository.user.querydsl;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
@@ -47,4 +48,6 @@ public interface UserCustomRepository {
     List<WebUserDTO> findUsersByIds(
             CouponIdsDTO dto
     );
+
+    void saveOrUpdateCertification(Long userId, CertificationResult certificationResult);
 }

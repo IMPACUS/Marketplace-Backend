@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.auth;
 
 import NiceID.Check.CPClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 import com.impacus.maketplace.common.enumType.certification.CPClientErrorCode;
 import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
@@ -11,6 +12,7 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
@@ -57,6 +59,8 @@ public class AuthService {
     private final CertificationRequestNumberService certReqNumberService;
 
     private static final String AUTHENTICATION_HEADER_TYPE = "Bearer";
+    private static final String REQ_NUM_KEY = "REQ_SEQ";
+    private static final String USER_ID_KEY = "USER_ID";
 
     @Value("${url.certification.success}")
     private String certificationSuccessURL;
@@ -194,7 +198,11 @@ public class AuthService {
      * @param result
      * @param encodeData
      */
-    public HttpHeaders saveUserCertification(CertificationResultCode result, String encodeData, HttpSession session) throws URISyntaxException {
+    public HttpHeaders saveUserCertification(
+            CertificationResultCode result,
+            String encodeData,
+            HttpSession session
+    ) throws URISyntaxException {
         try {
             CPClient client = niceAPIService.getCPClient(encodeData);
 
@@ -204,7 +212,8 @@ public class AuthService {
             // 2. 세션값 확인
             // - 존재하지 않는 경우: 에러 발생
             // - 존재하는 경우: 삭제
-            String sessionReqNumber = (String) session.getAttribute("REQ_SEQ");
+            Long userId = Long.valueOf((Integer) session.getAttribute(USER_ID_KEY));
+            String sessionReqNumber = (String) session.getAttribute(REQ_NUM_KEY);
             if (!certReqNumberService.existsCertificationRequestNumber(sessionReqNumber)) {
                 throw new CustomException(UserErrorType.FAIL_TO_CERTIFICATION, CPClientErrorCode.NOT_MATCH_SESSION_NUMBER);
             } else {
@@ -212,10 +221,14 @@ public class AuthService {
             }
 
             // 3. 데이터 추출
-            String cipherTime = client.getCipherDateTime(); //복호화 시간
             HashMap mapresult = client.fnParse(plainData);
             CertificationResult certificationResult = new ObjectMapper().convertValue(mapresult, CertificationResult.class);
+            writeCertificationLog(userId, certificationResult);
 
+            // 4. 사용자 보안인증 정보 저장
+            userService.saveCertification(userId, certificationResult);
+
+            // 5. 성공 정보 전달
             HttpHeaders httpHeaders = new HttpHeaders();
             UriComponents redirectURL = UriComponentsBuilder
                     .fromUriString(certificationSuccessURL)
@@ -228,6 +241,7 @@ public class AuthService {
             HttpHeaders httpHeaders = new HttpHeaders();
             UriComponents redirectURL;
 
+            // 실패 정보 전달
             if (e instanceof CustomException) {
                 redirectURL = UriComponentsBuilder
                         .fromUriString(certificationFailureURL)
@@ -247,6 +261,18 @@ public class AuthService {
             httpHeaders.setLocation(redirectURL.toUri());
             return httpHeaders;
         }
+    }
+
+    private void writeCertificationLog(Long userId, CertificationResult certificationResult) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("userId", userId);
+        jsonObject.addProperty("gender", certificationResult.getGender());
+        jsonObject.addProperty("nationalInfo", certificationResult.getNationalInfo());
+        jsonObject.addProperty("mobileCo", certificationResult.getMobileCo());
+        jsonObject.addProperty("name", certificationResult.getName());
+        jsonObject.addProperty("authType", certificationResult.getAuthType());
+
+        LogUtils.writeInfoLog("saveUserCertification", jsonObject.toString());
     }
 
     public CertificationRequestDataDTO getCertificationRequestData() {

@@ -35,4 +35,10 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
     @Query("SELECT u.profileImageId FROM User u WHERE u.id = :userId")
     Optional<Long> findProfileImageIdByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.id = :id AND u.type IN :types")
+    boolean existsByIdAndType(
+            @Param("id") Long id,
+            @Param("types") List<UserType> types
+    );
+
 }

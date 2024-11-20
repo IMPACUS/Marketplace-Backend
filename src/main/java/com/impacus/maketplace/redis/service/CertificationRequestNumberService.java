@@ -1,6 +1,5 @@
 package com.impacus.maketplace.redis.service;
 
-import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.redis.entity.CertificationRequestNumber;
 import com.impacus.maketplace.redis.repository.CertificationRequestNumberRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +23,6 @@ public class CertificationRequestNumberService {
     public void saveCertificationRequestNumber(String reqNumber) {
         CertificationRequestNumber certificationReqNumber = new CertificationRequestNumber(reqNumber);
         certReqNumberRepository.save(certificationReqNumber);
-
-        boolean a = existsCertificationRequestNumber(reqNumber);
-        LogUtils.writeInfoLog("saveCertificationRequestNumber", "");
     }
 
     public boolean existsCertificationRequestNumber(String reqNumber) {

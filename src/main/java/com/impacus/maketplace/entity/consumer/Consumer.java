@@ -23,4 +23,9 @@ public class Consumer extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String ci;
+
+    public Consumer(Long userId, String ci) {
+        this.userId = userId;
+        this.ci = ci;
+    }
 }

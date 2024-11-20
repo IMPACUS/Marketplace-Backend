@@ -5,13 +5,16 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
+import com.impacus.maketplace.dto.user.PhoneNumberDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.entity.common.QAttachFile;
+import com.impacus.maketplace.entity.consumer.QConsumer;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.levelPoint.QLevelAchievement;
@@ -52,6 +55,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final QUserStatusInfo userStatusInfo = QUserStatusInfo.userStatusInfo;
     private final QGreenLabelPointAllocation labelPointAllocation = QGreenLabelPointAllocation.greenLabelPointAllocation;
     private final QLevelAchievement levelAchievement = QLevelAchievement.levelAchievement;
+    private final QConsumer consumer = QConsumer.consumer;
 
     @Override
     public ReadUserSummaryDTO findUserSummaryByEmail(String email) {
@@ -317,5 +321,22 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 null,
                 builder
         );
+    }
+
+    @Override
+    public void saveOrUpdateCertification(Long userId, CertificationResult certificationResult) {
+        PhoneNumberDTO dto = new PhoneNumberDTO(certificationResult.getMobileNo());
+
+        // 1. User 저장 업데이트
+        queryFactory.update(user)
+                .set(user.type, UserType.ROLE_CERTIFIED_USER)
+                .set(user.jumin1, certificationResult.getBirthdate())
+                .set(user.phoneNumberPrefix, dto.getPhoneNumberPrefix())
+                .set(user.phoneNumberSuffix, dto.getPhoneNumberSuffix())
+                .set(user.isCertPhone, true)
+                .set(user.certPhoneAt, LocalDateTime.now())
+                .set(user.modifyAt, LocalDateTime.now())
+                .where(user.id.eq(userId))
+                .execute();
     }
 }
