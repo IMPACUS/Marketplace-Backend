@@ -133,36 +133,6 @@
         <setColumnRemarks tableName="user_status_info" columnName="status_reason" remarks="사용자 계정 상태 이유"/>
     </changeSet>
 
-    <!-- user_role 테이블 생성 -->
-    <changeSet id="changelog-0.03.12-240525" author="lchy0413">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="user_role"/>
-            </not>
-        </preConditions>
-        <createTable tableName="user_role">
-            <column name="user_role_id" type="BIGSERIAL">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="user_id" type="BIGINT">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="role" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="create_at" type="TIMESTAMP">
-            </column>
-            <column name="modify_at" type="TIMESTAMP">
-            </column>
-            <column name="register_id" type="VARCHAR(255)">
-            </column>
-            <column name="modify_id" type="VARCHAR(255)">
-            </column>
-        </createTable>
-
-        <setColumnRemarks tableName="user_role" columnName="user_id" remarks="user_info의 FK"/>
-    </changeSet>
-
     <!-- user_consent 테이블 생성 -->
     <changeSet id="changelog-0.03.13-240525-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">

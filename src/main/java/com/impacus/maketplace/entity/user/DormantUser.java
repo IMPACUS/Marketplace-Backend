@@ -112,9 +112,6 @@ public class DormantUser extends BaseEntity {
     private String userJumin1; //주민 번호 앞자리
 
     @Convert(converter = AES256ToStringConverter.class)
-    private String userJumin2; //주민 번호 뒷자리
-
-    @Convert(converter = AES256ToStringConverter.class)
     private String authCi;
 
     @Convert(converter = AES256ToStringConverter.class)

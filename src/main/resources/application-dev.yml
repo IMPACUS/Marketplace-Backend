@@ -35,3 +35,8 @@ spring:
   docker:
     compose:
       enabled: false
+url:
+  server-host: https://back-dev.implace.kr
+  certification:
+    success: TBD
+    fail: TBD
