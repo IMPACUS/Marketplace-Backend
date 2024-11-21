@@ -23,7 +23,7 @@ public class DevelopPageController {
         CertificationRequestDataDTO dto = authService.getCertificationRequestData(true);
 
         request.getSession().setAttribute("REQ_SEQ", dto.getReqNumber());
-        request.getSession().setAttribute("USER_ID", 17);
+        request.getSession().setAttribute("USER_ID", 1);
 
         modelMap.addAttribute("sEncData", dto.getEncData());
 
