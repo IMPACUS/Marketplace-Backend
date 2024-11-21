@@ -37,6 +37,5 @@ spring:
       thread-name-prefix: implace-async-
 url:
   server-host: http://localhost:8080
-  certification:
-    success: http://localhost:8080/api/v1/certification/response
-    fail: http://localhost:8080/api/v1/certification/response
+  uri:
+    certification: /api/v1/certification/response

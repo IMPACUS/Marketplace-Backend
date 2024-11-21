@@ -1,0 +1,32 @@
+package com.impacus.maketplace.controller.auth;
+
+import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("api/v1/certification")
+public class AuthCertificationPageController {
+
+    @GetMapping("/response")
+    public String getCertificationResponse(
+            @RequestParam(value = "result") CertificationResultCode result,
+            @RequestParam(value = "code") String code,
+            @RequestParam(value = "detail") String detail,
+            ModelMap modelMap
+    ) {
+        modelMap.addAttribute("result", result.getMessage());
+        if (result.equals(CertificationResultCode.FAIL)) {
+            modelMap.addAttribute("message",
+                    String.format("%s: %s", code, detail)
+            );
+        }
+
+        return "certification-response";
+    }
+}

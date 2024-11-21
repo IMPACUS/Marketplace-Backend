@@ -37,6 +37,5 @@ spring:
       enabled: false
 url:
   server-host: https://back-dev.implace.kr
-  certification:
-    success: TBD
-    fail: TBD
+  uri:
+    certification: /api/v1/certification/response
