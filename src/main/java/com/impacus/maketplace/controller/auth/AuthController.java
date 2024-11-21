@@ -1,4 +1,4 @@
-package com.impacus.maketplace.controller;
+package com.impacus.maketplace.controller.auth;
 
 import com.impacus.maketplace.common.constants.HeaderConstants;
 import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
