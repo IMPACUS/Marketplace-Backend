@@ -24,8 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URISyntaxException;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -127,7 +125,7 @@ public class AuthController {
             @RequestParam(value = "result") CertificationResultCode result,
             @RequestParam(value = "EncodeData") String encodeData,
             HttpServletRequest request
-    ) throws URISyntaxException {
+    ) {
         HttpHeaders httpHeaders = authService.saveUserCertification(result, encodeData, request.getSession());
 
         return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);

@@ -16,8 +16,8 @@ public class AuthCertificationPageController {
     @GetMapping("/response")
     public String getCertificationResponse(
             @RequestParam(value = "result") CertificationResultCode result,
-            @RequestParam(value = "code") String code,
-            @RequestParam(value = "detail") String detail,
+            @RequestParam(value = "code", required = false) String code,
+            @RequestParam(value = "detail", required = false) String detail,
             ModelMap modelMap
     ) {
         modelMap.addAttribute("result", result.getMessage());
