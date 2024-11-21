@@ -60,12 +60,12 @@ public class AuthService {
     private static final String REQ_NUM_KEY = "REQ_SEQ";
     private static final String USER_ID_KEY = "USER_ID";
 
-    @Value("${url.certification.success}")
-    private String certificationSuccessURL;
 
-    @Value("${url.certification.fail}")
-    private String certificationFailureURL;
+    @Value("${url.server-host}")
+    private String host;
 
+    @Value("${url.uri.certification}")
+    private String certificationURI;
 
     /**
      * JWT 토큰을 재발급하는 함수
@@ -227,7 +227,7 @@ public class AuthService {
             userService.saveCertification(userId, certificationResult);
 
             // 5. 성공 정보 전달
-            return createRedirectHeaders(certificationSuccessURL, CertificationResultCode.SUCCESS, null, null);
+            return createRedirectHeaders(getCertificationRedirectURL(), CertificationResultCode.SUCCESS, null, null);
         } catch (Exception e) {
             return handleCertificationException(e);
         }
@@ -271,7 +271,7 @@ public class AuthService {
             String detail
     ) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl)
-                .queryParam("result", result.toString());
+                .queryParam("result", result);
 
         if (code != null) builder.queryParam("code", code);
         if (detail != null) builder.queryParam("detail", detail);
@@ -294,6 +294,11 @@ public class AuthService {
             detail = e.getMessage();
         }
 
-        return createRedirectHeaders(certificationFailureURL, CertificationResultCode.FAIL, code, detail);
+        return createRedirectHeaders(getCertificationRedirectURL(), CertificationResultCode.FAIL, code, detail);
     }
+
+    private String getCertificationRedirectURL() {
+        return host + certificationURI;
+    }
+
 }
