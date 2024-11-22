@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feature/lchy/cert
 
 permissions:
   contents: read
