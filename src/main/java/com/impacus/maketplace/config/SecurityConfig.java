@@ -85,6 +85,9 @@ public class SecurityConfig {
                                 .userService(customOauth2UserService))
                         .successHandler(authenticationSuccessHandler)
                         .failureHandler(authenticationFailureHandler))
+                .sessionManagement((sessionManagement) -> sessionManagement
+                        .sessionFixation((sessionFixation) -> sessionFixation.none()
+                        ))
                 .with(new JwtSecurityConfig(jwtTokenProvider, blacklistService), withDefaults())
                 .build();
     }
