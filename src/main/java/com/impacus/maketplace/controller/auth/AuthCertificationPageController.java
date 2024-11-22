@@ -25,6 +25,10 @@ public class AuthCertificationPageController {
             modelMap.addAttribute("message",
                     String.format("%s: %s", code, detail)
             );
+        } else {
+            modelMap.addAttribute("message",
+                    "본인인증에 성공했습니다."
+            );
         }
 
         return "certification-response";
