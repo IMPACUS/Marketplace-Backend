@@ -42,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 import security.CustomUserDetails;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 
 @Slf4j
@@ -212,6 +213,14 @@ public class AuthService {
             // 2. 세션값 확인
             // - 존재하지 않는 경우: 에러 발생
             // - 존재하는 경우: 삭제
+
+            Enumeration<String> attributeNames = session.getAttributeNames();
+            while (attributeNames.hasMoreElements()) {
+                String attributeName = attributeNames.nextElement();
+                Object attributeValue = session.getAttribute(attributeName);
+                log.info("Session Attribute: " + attributeName + " = " + attributeValue);
+            }
+
             Long userId = Long.valueOf((Integer) session.getAttribute(USER_ID_KEY));
             String sessionReqNumber = (String) session.getAttribute(REQ_NUM_KEY);
             if (!certReqNumberService.existsCertificationRequestNumber(sessionReqNumber)) {
