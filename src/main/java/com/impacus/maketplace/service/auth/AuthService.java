@@ -31,6 +31,7 @@ import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAlloc
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,7 @@ import security.CustomUserDetails;
 
 import java.util.HashMap;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -229,6 +231,7 @@ public class AuthService {
             // 5. 성공 정보 전달
             return createRedirectHeaders(getCertificationRedirectURL(), CertificationResultCode.SUCCESS, null, null);
         } catch (Exception e) {
+            log.error("Fail to save certification", e);
             return handleCertificationException(e);
         }
     }
