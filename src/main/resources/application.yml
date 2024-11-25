@@ -34,4 +34,5 @@ server:
   servlet:
     session:
       cookie:
-        same-site: Lax
+        same-site: None
+        secure: false
