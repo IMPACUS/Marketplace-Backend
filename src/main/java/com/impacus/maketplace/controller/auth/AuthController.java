@@ -21,8 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import security.CustomUserDetails;
 
 @Slf4j
 @RestController
@@ -102,9 +105,12 @@ public class AuthController {
      *
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_UNCERTIFIED_USER') or hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/certification/request")
-    public ApiResponseEntity<CertificationRequestDataDTO> getCertificationRequestData() {
-        CertificationRequestDataDTO result = authService.getCertificationRequestData();
+    public ApiResponseEntity<CertificationRequestDataDTO> getCertificationRequestData(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        CertificationRequestDataDTO result = authService.getCertificationRequestData(user.getId());
         return ApiResponseEntity.<CertificationRequestDataDTO>builder()
                 .data(result)
                 .message("본인 인증 암호화 데이터 조회 성공")
@@ -123,10 +129,11 @@ public class AuthController {
     @RequestMapping(value = "/certification", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<HttpHeaders> getCertificationResult(
             @RequestParam(value = "result") CertificationResultCode result,
+            @RequestParam(value = "user-id") Long userId,
             @RequestParam(value = "EncodeData") String encodeData,
             HttpServletRequest request
     ) {
-        HttpHeaders httpHeaders = authService.saveUserCertification(result, encodeData, request.getSession());
+        HttpHeaders httpHeaders = authService.saveUserCertification(result, userId, encodeData, request.getSession());
 
         return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
     }

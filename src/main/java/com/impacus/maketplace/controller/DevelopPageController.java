@@ -20,7 +20,7 @@ public class DevelopPageController {
             HttpServletRequest request,
             ModelMap modelMap
     ) {
-        CertificationRequestDataDTO dto = authService.getCertificationRequestData(true);
+        CertificationRequestDataDTO dto = authService.getCertificationRequestData(1L, true);
 
         request.getSession().setAttribute("REQ_SEQ", dto.getReqNumber());
         request.getSession().setAttribute("USER_ID", 1);
