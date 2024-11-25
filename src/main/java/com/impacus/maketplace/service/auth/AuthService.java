@@ -204,7 +204,6 @@ public class AuthService {
             String encodeData,
             HttpSession session
     ) {
-        log.info("saveUserCertification 1");
         try {
             CPClient client = niceAPIService.getCPClient(encodeData);
 
@@ -216,7 +215,6 @@ public class AuthService {
             // - 존재하는 경우: 삭제
 
             Enumeration<String> attributeNames = session.getAttributeNames();
-            log.info("Start check session");
             while (attributeNames.hasMoreElements()) {
                 String attributeName = attributeNames.nextElement();
                 Object attributeValue = session.getAttribute(attributeName);
