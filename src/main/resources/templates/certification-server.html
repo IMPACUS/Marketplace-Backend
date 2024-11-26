@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>NICE평가정보 - CheckPlus 안심본인인증 테스트</title>
 </head>
 <body>
-<input type="text" name="encodeData" id="encode_data" value="sEncodeData">
+<input type="text" name="encodeData" th:value="${sEncodeData}" id="encode_data" >
 </body>
 <script>
     // Flutter로 메시지 전달
