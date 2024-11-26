@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class NiceAPIService {
-    private static final String CERTIFICATION_RESULT_URI = "/api/v1/auth/certification";
+    private static final String CERTIFICATION_RESULT_URI = "/api/v1/certification";
     private static final String RESULT_KEY = "result";
     private static final String USER_ID_KEY = "user-id";
     @Value("${key.nice.site-code}")

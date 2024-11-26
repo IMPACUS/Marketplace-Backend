@@ -18,6 +18,8 @@ public class WebConfiguration implements WebMvcConfigurer {
                         "https://appleid.apple.com",
                         "https://dev.implace.kr"
                 )
-                .allowedMethods("*");
+                .allowCredentials(true)
+                .allowedMethods("*")
+                .exposedHeaders("Set-Cookie");
     }
 }
