@@ -13,18 +13,21 @@ import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
+import com.impacus.maketplace.service.auth.CertificationService;
 import com.impacus.maketplace.service.seller.CreateSellerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import security.CustomUserDetails;
 
-@Slf4j
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/auth")
@@ -34,6 +37,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
     private final CreateSellerService createSellerService;
+    private final CertificationService certificationService;
 
 
     @PostMapping("sign-up")
@@ -102,9 +106,12 @@ public class AuthController {
      *
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_UNCERTIFIED_USER') or hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/certification/request")
-    public ApiResponseEntity<CertificationRequestDataDTO> getCertificationRequestData() {
-        CertificationRequestDataDTO result = authService.getCertificationRequestData();
+    public ApiResponseEntity<CertificationRequestDataDTO> getCertificationRequestData(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        CertificationRequestDataDTO result = certificationService.getCertificationRequestData(user.getId());
         return ApiResponseEntity.<CertificationRequestDataDTO>builder()
                 .data(result)
                 .message("본인 인증 암호화 데이터 조회 성공")
@@ -123,10 +130,11 @@ public class AuthController {
     @RequestMapping(value = "/certification", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<HttpHeaders> getCertificationResult(
             @RequestParam(value = "result") CertificationResultCode result,
+            @RequestParam(value = "user-id") Long userId,
             @RequestParam(value = "EncodeData") String encodeData,
             HttpServletRequest request
     ) {
-        HttpHeaders httpHeaders = authService.saveUserCertification(result, encodeData, request.getSession());
+        HttpHeaders httpHeaders = certificationService.saveUserCertification(result, userId, encodeData, request.getSession());
 
         return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
     }

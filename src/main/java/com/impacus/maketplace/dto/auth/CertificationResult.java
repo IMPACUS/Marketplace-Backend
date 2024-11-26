@@ -1,6 +1,8 @@
 package com.impacus.maketplace.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.JsonObject;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.entity.consumer.Consumer;
 import lombok.Data;
 
@@ -44,5 +46,17 @@ public class CertificationResult {
 
     public Consumer toEntity(Long userId) {
         return new Consumer(userId, this.ci);
+    }
+
+    public void writeCertificationLog(Long userId) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("userId", userId);
+        jsonObject.addProperty("gender", this.getGender());
+        jsonObject.addProperty("nationalInfo", this.getNationalInfo());
+        jsonObject.addProperty("mobileCo", this.getMobileCo());
+        jsonObject.addProperty("name", this.getName());
+        jsonObject.addProperty("authType", this.getAuthType());
+
+        LogUtils.writeInfoLog("saveUserCertification", jsonObject.toString());
     }
 }

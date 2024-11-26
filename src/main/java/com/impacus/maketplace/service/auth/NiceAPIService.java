@@ -16,8 +16,10 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class NiceAPIService {
-    private static final String CERTIFICATION_RESULT_URI = "/api/v1/certification";
+    private static final String CERTIFICATION_RESULT_URI = "/api/v1/auth/certification";
     private static final String RESULT_KEY = "result";
+    private static final String USER_ID_KEY = "user-id";
+
     @Value("${key.nice.site-code}")
     private String sSiteCode;
     @Value("${key.nice.password}")
@@ -50,7 +52,7 @@ public class NiceAPIService {
      * @param isTest test용인 경우는 웹페이지, 실사용도인 경우에는 모바일 설정을 사용
      * @return
      */
-    public CertificationRequestDataDTO getRequestData(boolean isTest) {
+    public CertificationRequestDataDTO getRequestData(Long userId, boolean isTest) {
         CPClient client = new CPClient();
 
         // 요청 번호 생성
@@ -61,8 +63,8 @@ public class NiceAPIService {
                 "REQ_SEQ", requestNumber,
                 "SITECODE", sSiteCode,
                 "AUTH_TYPE", "", // "": 기본 선택화면, M: 핸드폰, C: 신용카드, X: 공인인증서
-                "RTN_URL", buildReturnUrl(CertificationResultCode.SUCCESS),
-                "ERR_URL", buildReturnUrl(CertificationResultCode.FAIL),
+                "RTN_URL", buildReturnUrl(userId, CertificationResultCode.SUCCESS),
+                "ERR_URL", buildReturnUrl(userId, CertificationResultCode.FAIL),
                 "POPUP_GUBUN", "N", // Y : 취소버튼 있음,  N : 취소버튼 없음
                 "CUSTOMIZE", isTest ? "" : "Mobile", // "": 기본 웹페이지, Mobile : 모바일페이지
                 "GENDER", "" // "": 기본 선택 값, 0 : 여자, 1 : 남자
@@ -85,8 +87,8 @@ public class NiceAPIService {
         );
     }
 
-    private String buildReturnUrl(CertificationResultCode resultCode) {
-        return serverHost + CERTIFICATION_RESULT_URI;
+    private String buildReturnUrl(Long userId, CertificationResultCode resultCode) {
+        return serverHost + CERTIFICATION_RESULT_URI + "?" + RESULT_KEY + "=" + resultCode + "&" + USER_ID_KEY + "=" + userId;
     }
 
     private String buildPlainData(Map<String, String> dataMap) {
