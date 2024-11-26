@@ -35,4 +35,4 @@ server:
     session:
       cookie:
         same-site: None
-        secure: false
+        secure: true
