@@ -29,3 +29,10 @@ logging:
     org.apache.http: DEBUG
     httpclient.wire: DEBUG
     com.openfeign.package: DEBUG
+
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: None
+        secure: false
