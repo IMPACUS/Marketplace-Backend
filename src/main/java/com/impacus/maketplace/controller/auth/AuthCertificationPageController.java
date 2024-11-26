@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("api/v1/certification")
 public class AuthCertificationPageController {
 
-    @GetMapping
+    @RequestMapping(value = "", method = {RequestMethod.GET, RequestMethod.POST})
     public String getCertificationServer(
             @RequestParam(value = "EncodeData") String encodeData,
             ModelMap modelMap
