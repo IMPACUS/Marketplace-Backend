@@ -39,3 +39,12 @@ url:
   server-host: https://back-dev.implace.kr
   uri:
     certification: /api/v1/certification/response
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: None
+        secure: true
+        http-only: true
+        path: /
+        domain: back-dev.implace.kr
