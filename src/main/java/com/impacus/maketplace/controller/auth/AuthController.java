@@ -13,6 +13,7 @@ import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
+import com.impacus.maketplace.service.auth.CertificationService;
 import com.impacus.maketplace.service.seller.CreateSellerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -37,6 +38,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
     private final CreateSellerService createSellerService;
+    private final CertificationService certificationService;
 
 
     @PostMapping("sign-up")
@@ -110,7 +112,7 @@ public class AuthController {
     public ApiResponseEntity<CertificationRequestDataDTO> getCertificationRequestData(
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        CertificationRequestDataDTO result = authService.getCertificationRequestData(user.getId());
+        CertificationRequestDataDTO result = certificationService.getCertificationRequestData(user.getId());
         return ApiResponseEntity.<CertificationRequestDataDTO>builder()
                 .data(result)
                 .message("본인 인증 암호화 데이터 조회 성공")
@@ -133,7 +135,7 @@ public class AuthController {
             @RequestParam(value = "EncodeData") String encodeData,
             HttpServletRequest request
     ) {
-        HttpHeaders httpHeaders = authService.saveUserCertification(result, userId, encodeData, request.getSession());
+        HttpHeaders httpHeaders = certificationService.saveUserCertification(result, userId, encodeData, request.getSession());
 
         return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
     }
