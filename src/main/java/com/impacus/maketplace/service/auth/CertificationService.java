@@ -2,11 +2,9 @@ package com.impacus.maketplace.service.auth;
 
 import NiceID.Check.CPClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
 import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.auth.response.CertificationRequestDataDTO;
 import com.impacus.maketplace.redis.service.CertificationRequestNumberService;
@@ -79,7 +77,7 @@ public class CertificationService {
             // 3. 데이터 추출
             HashMap mapresult = client.fnParse(plainData);
             CertificationResult certificationResult = new ObjectMapper().convertValue(mapresult, CertificationResult.class);
-            writeCertificationLog(userId, certificationResult);
+            certificationResult.writeCertificationLog(userId);
 
             // 4. 사용자 보안인증 정보 저장
             userService.saveCertification(userId, certificationResult);
@@ -90,18 +88,6 @@ public class CertificationService {
             log.error("Fail to save certification", e);
             return handleCertificationException(e);
         }
-    }
-
-    private void writeCertificationLog(Long userId, CertificationResult certificationResult) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("userId", userId);
-        jsonObject.addProperty("gender", certificationResult.getGender());
-        jsonObject.addProperty("nationalInfo", certificationResult.getNationalInfo());
-        jsonObject.addProperty("mobileCo", certificationResult.getMobileCo());
-        jsonObject.addProperty("name", certificationResult.getName());
-        jsonObject.addProperty("authType", certificationResult.getAuthType());
-
-        LogUtils.writeInfoLog("saveUserCertification", jsonObject.toString());
     }
 
     public CertificationRequestDataDTO getCertificationRequestData(Long userId) {
