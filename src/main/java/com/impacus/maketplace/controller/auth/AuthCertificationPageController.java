@@ -26,6 +26,7 @@ public class AuthCertificationPageController {
             HttpServletRequest request,
             ModelMap modelMap
     ) {
+        log.info("IN getCertificationServer ================");
         HttpSession session = request.getSession();
         Enumeration<String> attributeNames = session.getAttributeNames();
         while (attributeNames.hasMoreElements()) {
