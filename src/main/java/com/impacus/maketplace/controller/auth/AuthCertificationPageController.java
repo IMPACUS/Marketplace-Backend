@@ -13,6 +13,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("api/v1/certification")
 public class AuthCertificationPageController {
 
+    @GetMapping
+    public String getCertificationServer(
+            @RequestParam(value = "EncodeData") String encodeData,
+            ModelMap modelMap
+    ) {
+        modelMap.addAttribute("sEncodeData",
+                encodeData
+        );
+
+        return "certification-server";
+    }
+
     @GetMapping("/response")
     public String getCertificationResponse(
             @RequestParam(value = "result") CertificationResultCode result,
