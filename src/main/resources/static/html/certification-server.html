@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NICE평가정보 - CheckPlus 안심본인인증 테스트</title>
+</head>
+<body>
+<input type="text" name="encodeData" id="encode_data" value="sEncodeData">
+</body>
+<script>
+    // Flutter로 메시지 전달
+    function completeTask() {
+        const enc_data = document.getElementById('encode_data').value; // 값 가져오기
+
+        // 메시지를 Flutter로 전송
+        window.flutter_inappwebview.callHandler('onTaskCompleted', enc_data);
+    }
+
+    // 페이지 로드 시 자동 실행
+    window.onload = function () {
+        completeTask(); // 로드 완료 시 자동 실행
+    };
+</script>
+</html>

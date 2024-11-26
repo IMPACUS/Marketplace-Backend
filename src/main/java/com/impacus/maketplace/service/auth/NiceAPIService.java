@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class NiceAPIService {
-    private static final String CERTIFICATION_RESULT_URI = "/api/v1/auth/certification";
+    private static final String CERTIFICATION_RESULT_URI = "/static/html/certification-server.html";
     private static final String RESULT_KEY = "result";
     @Value("${key.nice.site-code}")
     private String sSiteCode;
@@ -86,7 +86,7 @@ public class NiceAPIService {
     }
 
     private String buildReturnUrl(CertificationResultCode resultCode) {
-        return serverHost + CERTIFICATION_RESULT_URI + "?" + RESULT_KEY + "=" + resultCode;
+        return serverHost + CERTIFICATION_RESULT_URI;
     }
 
     private String buildPlainData(Map<String, String> dataMap) {
