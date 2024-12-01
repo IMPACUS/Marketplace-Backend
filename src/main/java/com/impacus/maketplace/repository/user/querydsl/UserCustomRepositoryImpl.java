@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
+import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.PhoneNumberDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
@@ -349,5 +350,26 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .from(user)
                 .where(builder)
                 .fetchFirst() != null;
+    }
+
+    @Override
+    public ConsumerEmailDTO findConsumerByPhoneNumber(String phoneNumber) {
+        PhoneNumberDTO dto = new PhoneNumberDTO(phoneNumber);
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(user.isDeleted.isFalse())
+                .and(user.type.in(List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)))
+                .and(user.phoneNumberPrefix.eq(dto.getPhoneNumberPrefix()))
+                .and(user.phoneNumberSuffix.eq(dto.getPhoneNumberSuffix()));
+
+        return queryFactory.select(
+                        Projections.constructor(
+                                ConsumerEmailDTO.class,
+                                user.id,
+                                user.email
+                        )
+                )
+                .from(user)
+                .where(builder)
+                .fetchFirst();
     }
 }
