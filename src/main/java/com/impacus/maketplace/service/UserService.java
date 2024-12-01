@@ -66,7 +66,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
-    private final VerificationCodeService emailVerificationCodeService;
+    private final VerificationCodeService verificationCodeService;
     private final AdminService adminService;
     private final UserStatusInfoService userStatusInfoService;
     private final PointService pointService;
@@ -412,7 +412,7 @@ public class UserService {
             String code = emailService.sendEmailVerificationMail(email, role);
 
             // 2. 이메일 인증 코드 저장
-            emailVerificationCodeService.saveVerificationCode(email, code);
+            verificationCodeService.saveVerificationCode(email, code);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -428,10 +428,10 @@ public class UserService {
         String code = request.getCode();
 
         try {
-            VerificationCode emailVerificationCode = emailVerificationCodeService
+            VerificationCode emailVerificationCode = verificationCodeService
                     .findVerificationCode(email, code);
             if (emailVerificationCode != null) {
-                emailVerificationCodeService.deleteIdentifierVerificationCode(emailVerificationCode);
+                verificationCodeService.deleteIdentifierVerificationCode(emailVerificationCode);
             }
 
             return emailVerificationCode != null;
@@ -559,6 +559,7 @@ public class UserService {
             throw new CustomException(CommonErrorType.FAIL_TO_SEND_SMS);
         } else {
             // 2. 코드 저장
+            verificationCodeService.saveVerificationCode(dto.getPhoneNumber(), code);
         }
     }
 }
