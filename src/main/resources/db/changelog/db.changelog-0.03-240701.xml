@@ -65,19 +65,6 @@
         <dropColumn tableName="user_info" columnName="shopping_benefits_alarm"/>
     </changeSet>
 
-    <changeSet id="changelog-0.03.05-240525" author="lchy0413">
-        <preConditions onFail="MARK_RAN">
-            <columnExists tableName="user_info" columnName="dormancy_months"/>
-            <columnExists tableName="user_info" columnName="first_dormancy"/>
-            <columnExists tableName="user_info" columnName="second_dormancy"/>
-            <columnExists tableName="user_info" columnName="update_dormancy_at"/>
-        </preConditions>
-        <dropColumn tableName="user_info" columnName="dormancy_months"/>
-        <dropColumn tableName="user_info" columnName="first_dormancy"/>
-        <dropColumn tableName="user_info" columnName="second_dormancy"/>
-        <dropColumn tableName="user_info" columnName="update_dormancy_at"/>
-    </changeSet>
-
     <!-- user_info 컬럼 user_jumin1 이름 변경 -->
     <changeSet id="changelog-0.03.06-240525" author="lchy0413">
         <preConditions onFail="MARK_RAN">

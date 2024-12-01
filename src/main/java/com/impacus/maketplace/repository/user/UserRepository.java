@@ -24,10 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
 
     boolean existsByEmail(String email);
 
-//    List<User> findByRecentLoginAtBeforeAndFirstDormancyIsFalse(LocalDateTime fiveMonthAgo); // 1차 휴면이 false 이고, 마지막로그인 후 5개월찾기
-//
-//    List<User> findByUpdateDormancyAtAndFirstDormancyIsTrueOrSecondDormancyIsTrue(LocalDate nowDate);
-
     @Modifying
     @Query("UPDATE User u SET u.type = :type WHERE u.id = :id")
     int updateUserType(@Param("id") Long id, @Param("type") UserType type);
