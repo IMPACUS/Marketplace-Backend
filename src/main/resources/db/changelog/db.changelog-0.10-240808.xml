@@ -141,48 +141,6 @@
         <createSequence sequenceName="attach_file_group_seq" startValue="1" incrementBy="50"/>
     </changeSet>
 
-    <!--  email_history 생성  -->
-    <changeSet id="db.changelog-0.10.04-240808" author="lchy0413">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="email_history"/>
-            </not>
-        </preConditions>
-        <createTable tableName="email_history">
-            <column name="history_id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="mail_type" type="SMALLINT" defaultValue="1">
-                <constraints nullable="false"/>
-            </column>
-            <column name="receive_email" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="receiver_id" type="VARCHAR(255)" defaultValue="implace">
-                <constraints nullable="false"/>
-            </column>
-            <column name="auth_no" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="send_at" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="create_at" type="TIMESTAMP"/>
-            <column name="modify_at" type="TIMESTAMP"/>
-            <column name="register_id" type="VARCHAR(255)"/>
-            <column name="modify_id" type="VARCHAR(255)"/>
-        </createTable>
-
-        <!-- Column Remarks -->
-        <setColumnRemarks tableName="email_history" columnName="history_id" remarks="이메일 히스토리 ID"/>
-        <setColumnRemarks tableName="email_history" columnName="mail_type" remarks="메일 타입"/>
-        <setColumnRemarks tableName="email_history" columnName="receive_email" remarks="수신인 이메일"/>
-        <setColumnRemarks tableName="email_history" columnName="receiver_id" remarks="발신인 ID"/>
-        <setColumnRemarks tableName="email_history" columnName="auth_no" remarks="인증번호"/>
-        <setColumnRemarks tableName="email_history" columnName="send_at" remarks="발송 시각"/>
-    </changeSet>
-
     <!--  sub_category 생성  -->
     <changeSet id="db.changelog-0.10.05-240808" author="lchy0413">
         <preConditions onFail="MARK_RAN">
