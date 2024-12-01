@@ -10,7 +10,8 @@ public enum UserErrorType implements ErrorType {
     SUSPENDED_USER("002_SUSPENDED_USER", "정지된 회원입니다."),
     NOT_EXISTED_USER("003_NOT_EXISTED_USER", "존재하지 않는 회원입니다."),
     FAIL_TO_ENCRYPT_CERTIFICATION("004_FAIL_TO_ENCRYPT_CERTIFICATION", "본인인증에 필요한 데이터를 암호화하는데 실패했습니다."),
-    FAIL_TO_CERTIFICATION("005_FAIL_TO_CERTIFICATION", "본인인증에 실패했습니다.");
+    FAIL_TO_CERTIFICATION("005_FAIL_TO_CERTIFICATION", "본인인증에 실패했습니다."),
+    DUPLICATED_PHONE_NUMBER("006_DUPLICATED_PHONE_NUMBER", "이미 존재하는 휴대폰 번호입니다.");
 
     private final String code;
     private final String msg;

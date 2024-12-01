@@ -75,8 +75,8 @@ public class CertificationService {
 //            }
 
             // 3. 데이터 추출
-            HashMap mapresult = client.fnParse(plainData);
-            CertificationResult certificationResult = new ObjectMapper().convertValue(mapresult, CertificationResult.class);
+            HashMap mapResult = client.fnParse(plainData);
+            CertificationResult certificationResult = new ObjectMapper().convertValue(mapResult, CertificationResult.class);
             certificationResult.writeCertificationLog(userId);
 
             // 4. 사용자 보안인증 정보 저장
@@ -130,8 +130,7 @@ public class CertificationService {
         String code;
         String detail;
 
-        if (e instanceof CustomException) {
-            CustomException customException = (CustomException) e;
+        if (e instanceof CustomException customException) {
             code = customException.getErrorType().getCode();
             detail = customException.getDetail().toString();
         } else {

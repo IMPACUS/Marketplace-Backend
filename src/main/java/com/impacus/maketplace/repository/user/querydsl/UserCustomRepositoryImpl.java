@@ -334,4 +334,20 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .where(user.id.eq(userId))
                 .execute();
     }
+
+    @Override
+    public boolean existsConsumerByPhoneNumberAndUserId(Long userId, String mobileNo) {
+        PhoneNumberDTO dto = new PhoneNumberDTO(mobileNo);
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(user.id.ne(userId))
+                .and(user.isDeleted.isFalse())
+                .and(user.type.in(List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)))
+                .and(user.phoneNumberPrefix.eq(dto.getPhoneNumberPrefix()))
+                .and(user.phoneNumberSuffix.eq(dto.getPhoneNumberSuffix()));
+
+        return queryFactory.select(user.id)
+                .from(user)
+                .where(builder)
+                .fetchFirst() != null;
+    }
 }

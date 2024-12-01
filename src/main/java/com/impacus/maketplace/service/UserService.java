@@ -498,8 +498,8 @@ public class UserService {
     /**
      * 사용자 개인 정보 저장
      *
-     * @param userId
-     * @param certificationResult
+     * @param userId 사용자 ID
+     * @param certificationResult 본인 인증 데이터
      */
     @Transactional
     public void saveCertification(Long userId, CertificationResult certificationResult) {
@@ -511,6 +511,14 @@ public class UserService {
             throw new CustomException(UserErrorType.NOT_EXISTED_USER);
         }
 
+        // 2. 이미 존재하는 핸드폰 번호인지 확인
+        if (userRepository.existsConsumerByPhoneNumberAndUserId(
+                userId,
+                certificationResult.getMobileNo())
+        ) {
+            throw new CustomException(UserErrorType.DUPLICATED_PHONE_NUMBER);
+        }
+
         // 2. 저장 혹은 업데이트
         userRepository.saveOrUpdateCertification(userId, certificationResult);
         saveOrUpdateConsumer(userId, certificationResult);
@@ -519,8 +527,8 @@ public class UserService {
     /**
      * Consumer 정보 저장 혹은 업데이트
      *
-     * @param userId
-     * @param certificationResult
+     * @param userId 사용자 ID
+     * @param certificationResult 본인 인증 데이터
      */
     @Transactional
     public void saveOrUpdateConsumer(Long userId, CertificationResult certificationResult) {
