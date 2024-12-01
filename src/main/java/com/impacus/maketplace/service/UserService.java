@@ -12,7 +12,7 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.CertificationResult;
-import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
@@ -419,7 +419,7 @@ public class UserService {
      *
      * @param request
      */
-    public boolean confirmEmail(EmailVerificationRequest request) {
+    public boolean confirmEmail(EmailVerificationDTO request) {
         String email = request.getEmail();
         String code = request.getCode();
 
