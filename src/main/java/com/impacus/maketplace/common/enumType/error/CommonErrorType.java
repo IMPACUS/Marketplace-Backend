@@ -10,6 +10,7 @@ public enum CommonErrorType implements ErrorType {
     UNKNOWN("000_UNKNOWN", "알 수 없는 에러가 발생했습니다."),
     ENCRYPTION_FAILED("001_ENCRYPTION_FAILED", "암호화에 실패하셨습니다."),
     DECRYPTION_FAILED("002_DECRYPTION_FAILED", "복호화에 실패하셨습니다."),
+    FAIL_TO_SEND_SMS("003_FAIL_TO_SEND_SMS", "SMS 전송에 실패했습니다."),
     FAIL_TO_CONVERT_FILE("010_FAIL_TO_CONVERT_FILE", "첨부된 파일을 File 타입으로 변환하는데 실패했습니다."),
     FAIL_TO_CREATE_EXCEL("011_FAIL_TO_CREATE_EXCEL", "엑셀 생성하는데 실패했습니다."),
     NOT_EXISTED_BRAND("012_NOT_EXISTED_BRAND", "존재하지 않는 브랜드입니다"),

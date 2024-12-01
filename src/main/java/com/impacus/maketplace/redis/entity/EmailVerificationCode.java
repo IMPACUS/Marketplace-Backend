@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @NoArgsConstructor
-@RedisHash(value = "emailVerificationCode", timeToLive = 180L) // 3분
+@RedisHash(value = "verificationCode", timeToLive = 180L) // 3분
 public class EmailVerificationCode {
     @Id
     private String id;
