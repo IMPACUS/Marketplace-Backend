@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.auth;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.user.User;
@@ -49,7 +49,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         // 3. 사용자, 판매자, 관리자 관련 Entity 에서 찾을 수 없는 경우 에러 발생 시킴
-        throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
+        throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
     }
 
 }

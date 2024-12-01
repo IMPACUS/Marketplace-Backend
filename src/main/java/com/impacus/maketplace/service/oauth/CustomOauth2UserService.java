@@ -2,7 +2,7 @@ package com.impacus.maketplace.service.oauth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
@@ -151,7 +151,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private void validateOauthProvider(User user, OauthProviderType oauthProviderType) throws CustomOAuth2AuthenticationException {
         if (!user.getEmail().contains(oauthProviderType.name())) {
-            throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+            throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
         }
     }
 

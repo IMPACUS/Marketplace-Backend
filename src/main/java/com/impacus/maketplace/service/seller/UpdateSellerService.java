@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.SellerErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
@@ -286,7 +287,7 @@ public class UpdateSellerService {
         try {
             // 1. 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(dto.getNewPassword()))) {
-                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+                throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 2. 판매자 로그인 정보 변경

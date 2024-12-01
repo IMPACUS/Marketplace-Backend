@@ -81,15 +81,15 @@ public class UserService {
             User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
             if (existedUser != null) {
                 if (existedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                    throw new CustomException(CommonErrorType.DUPLICATED_EMAIL);
+                    throw new CustomException(UserErrorType.DUPLICATED_EMAIL);
                 } else {
-                    throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                    throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
                 }
             }
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+                throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 3. User&UserStatus 생성 및 저장
@@ -156,7 +156,7 @@ public class UserService {
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+                throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 3. 비밀번호 확인
@@ -164,7 +164,7 @@ public class UserService {
             // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
             if (!passwordEncoder.matches(password, encodePassword(user.getPassword()))) {
                 LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
-                throw new CustomException(CommonErrorType.WRONG_PASSWORD);
+                throw new CustomException(UserErrorType.WRONG_PASSWORD);
             } else {
                 loginFailAttemptService.resetLoginFailAttempt(user);
             }
@@ -207,7 +207,7 @@ public class UserService {
 
         // 2. 비밀번호 유효성 검사
         if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-            throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+            throw new CustomException(UserErrorType.INVALID_PASSWORD);
         }
 
         // TODO User 설계 마무리된 후 수정할 예정
@@ -271,10 +271,10 @@ public class UserService {
      */
     private void validateCertifiedUser(User checkedUser) {
         if (checkedUser == null) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
+            throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
         } else {
             if (!checkedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             }
         }
     }
@@ -362,7 +362,7 @@ public class UserService {
 
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+                .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_EMAIL));
     }
 
     public CommonUserDTO findCommonUserByEmail(String email) {
@@ -458,7 +458,7 @@ public class UserService {
      */
     public User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+                .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_EMAIL));
     }
 
     /**
@@ -486,7 +486,7 @@ public class UserService {
     public void deleteConsumer(String email) {
         List<User> userList = findUsersByEmailAboutAllProvider(email);
         if (userList.isEmpty()) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
+            throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
         }
 
         // 삭제

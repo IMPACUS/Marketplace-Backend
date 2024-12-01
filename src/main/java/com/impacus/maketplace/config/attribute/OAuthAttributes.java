@@ -1,7 +1,7 @@
 package com.impacus.maketplace.config.attribute;
 
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.entity.user.User;
@@ -69,7 +69,7 @@ public class OAuthAttributes {
                                             Map<String, Object> attributes) {
 
         if (Boolean.FALSE.equals((attributes.get("email_verified")))) {
-            throw new CustomException(CommonErrorType.NOT_ALLOW_EMAIL);
+            throw new CustomException(UserErrorType.NOT_ALLOW_EMAIL);
         }
 
         return OAuthAttributes.builder()
@@ -87,7 +87,7 @@ public class OAuthAttributes {
         Map<String, Object> kakaoProperty = (Map<String, Object>) attributes.get("properties");
 
         if (Boolean.FALSE.equals((kakaoAccount.get("has_email")))) {
-            throw new CustomException(CommonErrorType.NOT_ALLOW_EMAIL);
+            throw new CustomException(UserErrorType.NOT_ALLOW_EMAIL);
         }
 
         return OAuthAttributes.builder()
@@ -107,7 +107,7 @@ public class OAuthAttributes {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
         if (Boolean.FALSE.equals((response.get("email_verified")))) {
-            throw new CustomException(CommonErrorType.NOT_ALLOW_EMAIL);
+            throw new CustomException(UserErrorType.NOT_ALLOW_EMAIL);
         }
 
         String email = (String) response.get("email");

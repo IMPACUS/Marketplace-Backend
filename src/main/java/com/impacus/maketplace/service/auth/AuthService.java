@@ -146,7 +146,7 @@ public class AuthService {
         try {
             // 1. 비밀번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+                throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 2. 일치하는지 확인
