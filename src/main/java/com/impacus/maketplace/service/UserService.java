@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service;
 
+import com.impacus.maketplace.common.constants.SMSContentsConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
@@ -13,6 +14,7 @@ import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
+import com.impacus.maketplace.dto.auth.request.SMSVerificationRequestDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
@@ -30,6 +32,7 @@ import com.impacus.maketplace.repository.ConsumerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.alarm.user.AlarmUserService;
+import com.impacus.maketplace.service.common.sms.SMSService;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
@@ -70,6 +73,7 @@ public class UserService {
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final AlarmUserService alarmUserService;
     private final ConsumerRepository consumerRepository;
+    private final SMSService smsService;
 
     @Transactional
     public UserDTO addUser(SignUpDTO signUpRequest) {
@@ -537,6 +541,24 @@ public class UserService {
         } else { // 생성
             Consumer consumer = certificationResult.toEntity(userId);
             consumerRepository.save(consumer);
+        }
+    }
+
+    /**
+     * @param dto
+     */
+    public void sendVerificationCodeToSMS(SMSVerificationRequestDTO dto) {
+        String code = StringUtils.generateRandomCode();
+        String incomingNumber = StringUtils.extractPhoneNumber(dto.getPhoneNumber());
+
+        // 1. SMS 전송
+        boolean result = smsService.sendSimpleSMS(incomingNumber,
+                String.format(SMSContentsConstants.VERIFICIATION, code)
+        );
+        if (!result) {
+            throw new CustomException(CommonErrorType.FAIL_TO_SEND_SMS);
+        } else {
+            // 2. 코드 저장
         }
     }
 }
