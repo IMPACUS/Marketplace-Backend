@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public class RegExpPatternConstants {
     public static final String PHONE_NUMBER_PATTERN = "^01(?:0|1|[6-9])-[1-9](?:\\d{2}|\\d{3})-\\d{4}$";
+    public static final String SMS_PHONE_NUMBER_PATTERN = "^010\\d{8}$";
 
     public static final String CARD_NUMBER_PATTERN = "^\\d{4}-\\d{2}-\\d{6}$";
 

@@ -29,6 +29,7 @@ public enum CommonErrorType implements ErrorType {
     NOT_EXISTED_SHOPPING_CART("019_NOT_EXISTED_SHOPPING_CART", "장바구니 데이터가 존재하지 않습니다."),
     FAIL_TO_APPLE_LOGIN("020_FAIL_TO_APPLE_LOGIN", "apple 로그인에 실패하셨습니다."),
     FAIL_TO_CONVERT_MAP("021_FAIL_TO_CONVERT_MAP", "map 변환하는데 실패하셨습니다."),
+    INVALID_SMS("022_INVALID_SMS", "유효하지 않는 SMS 데이터입니다."),
     INVALID_THUMBNAIL("024_INVALID_THUMBNAIL", "유효하지 않은 데이터에 대한 요청입니다."),
     NOT_ACTIVE_EMAIL("026_NOT_ACTIVE_EMAIL", "휴면 회원 입니다."),
     FAIL_TO_SEND_EMAIL("32_FAIL_TO_SEND_EMAIL", "이메일 전송에 실패하였습니다."),
