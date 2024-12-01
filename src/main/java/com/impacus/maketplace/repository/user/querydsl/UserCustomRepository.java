@@ -50,4 +50,6 @@ public interface UserCustomRepository {
     );
 
     void saveOrUpdateCertification(Long userId, CertificationResult certificationResult);
+
+    boolean existsConsumerByPhoneNumberAndUserId(Long userId, String mobileNo);
 }
