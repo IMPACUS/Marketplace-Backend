@@ -16,6 +16,10 @@ public class LogUtils {
         log.info(String.format("[%s] %s", header, message));
     }
 
+    public static void writeErrorLog(String header, String message) {
+        log.error(String.format("[%s] %s", header, message));
+    }
+
     public static void writeErrorLog(String header, String message, Exception e) {
         log.error(String.format("[%s] %s", header, message), e);
     }
