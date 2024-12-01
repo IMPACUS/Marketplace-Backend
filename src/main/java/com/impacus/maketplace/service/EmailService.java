@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -120,7 +121,11 @@ public class EmailService {
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
-            MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            MimeMessageHelper msgHelper = new MimeMessageHelper(
+                    mimeMessage,
+                    false,
+                    BaseConstants.ENCODING_UTF_8
+            );
             msgHelper.setTo(receiver);
             msgHelper.setSubject(mailType.getSubject());
             msgHelper.setText(setContext(authNumber, mailType.getTemplate()), true);
@@ -157,7 +162,7 @@ public class EmailService {
                     .build();
             emailHistoryRepository.save(emailHistory);
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(e);
         }
     }
 
@@ -190,22 +195,21 @@ public class EmailService {
                     .build();
             EmailHistory result = emailHistoryRepository.save(emailHistory);
 
-            return result != null ? true : false;
+            return result != null;
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(e);
         }
     }
 
     public Boolean checkAuthNumber(EmailDTO emailDto) {
-
         emailDto.setReceiveEmail(Base64.getEncoder().encodeToString(emailDto.getReceiveEmail().getBytes(StandardCharsets.UTF_8)));
 
-        // 1 안
-//        String authNumber = emailHistoryRepository.findAuthNoByReceiveEmailAndAuthNoAndSendDatetime(emailDto.getReceiveEmail(), emailDto.getAuthNo()).stream().findFirst().get();
-        // 2 안
-
         LocalDateTime threeMinutesAgoTime = LocalDateTime.now().minusMinutes(3);
-        String authNumber = emailHistoryRepository.findByReceiveEmailAndAuthNoAndSendAtGreaterThan(emailDto.getReceiveEmail(), emailDto.getAuthNo(), threeMinutesAgoTime).stream().findFirst().get();
-        return authNumber == null ? false : true;
+        Optional<String> authNumber = emailHistoryRepository.findByReceiveEmailAndAuthNoAndSendAtGreaterThan(
+                emailDto.getReceiveEmail(),
+                emailDto.getAuthNo(),
+                threeMinutesAgoTime
+        ).stream().findFirst();
+        return authNumber.isPresent();
     }
 }
