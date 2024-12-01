@@ -54,7 +54,7 @@ public class SubCategoryService {
 
             // 1. 중복된 2차 카테고리 명 확인
             if (existsBySuperCategoryName(subCategoryName)) {
-                throw new CustomException(CommonErrorType.DUPLICATED_SUB_CATEGORY);
+                throw new CustomException(CategoryErrorType.DUPLICATED_SUB_CATEGORY);
             }
 
             // 2. 1차 카테고리 존재 확인
@@ -130,7 +130,7 @@ public class SubCategoryService {
 
             // 1. 중복된 2차 카테고리 명 확인
             if (existsBySuperCategoryName(subCategoryName)) {
-                throw new CustomException(CommonErrorType.DUPLICATED_SUB_CATEGORY);
+                throw new CustomException(CategoryErrorType.DUPLICATED_SUB_CATEGORY);
             }
 
             // 2. category 찾기
