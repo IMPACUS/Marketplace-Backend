@@ -6,9 +6,11 @@ import com.impacus.maketplace.common.constants.api.BizgoAPIConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
+import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.common.request.BizgoSMSRequest;
 import com.impacus.maketplace.dto.common.response.BizgoSMSResponse;
 import com.impacus.maketplace.service.alarm.AlarmSendService;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 public class BizgoSMSService implements SMSService {
     private final AlarmSendService alarmSendService;
     private final BizgoSMSAPIService bizgoSMSAPIService;
+    private final ObjectCopyHelper objectCopyHelper;
 
     @Value("${key.bizgo.from-phone}")
     private String callingNumber;
@@ -73,8 +76,16 @@ public class BizgoSMSService implements SMSService {
                 LogUtils.writeErrorLog("sendSimpleSMS", response.toString());
                 return false;
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (FeignException e) {
+            String responseBody = e.contentUTF8();
+            BizgoSMSResponse response = objectCopyHelper.copyObject(responseBody, BizgoSMSResponse.class);
+            LogUtils.writeErrorLog("sendSimpleSMS", response.toString());
+            return false;
+        } catch (Exception ex) {
+            LogUtils.writeErrorLog("sendSimpleSMS", "Fail to send SMS", ex);
             return false;
         }
     }
+
+
 }
