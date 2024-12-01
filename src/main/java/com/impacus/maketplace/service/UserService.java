@@ -548,18 +548,22 @@ public class UserService {
      * @param dto
      */
     public void sendVerificationCodeToSMS(SMSVerificationRequestDTO dto) {
-        String code = StringUtils.generateRandomCode();
-        String incomingNumber = StringUtils.extractPhoneNumber(dto.getPhoneNumber());
+        try {
+            String code = StringUtils.generateRandomCode();
+            String incomingNumber = StringUtils.extractPhoneNumber(dto.getPhoneNumber());
 
-        // 1. SMS 전송
-        boolean result = smsService.sendSimpleSMS(incomingNumber,
-                String.format(SMSContentsConstants.VERIFICIATION, code)
-        );
-        if (!result) {
-            throw new CustomException(CommonErrorType.FAIL_TO_SEND_SMS);
-        } else {
-            // 2. 코드 저장
-            verificationCodeService.saveVerificationCode(dto.getPhoneNumber(), code);
+            // 1. SMS 전송
+            boolean result = smsService.sendSimpleSMS(incomingNumber,
+                    String.format(SMSContentsConstants.VERIFICIATION, code)
+            );
+            if (!result) {
+                throw new CustomException(CommonErrorType.FAIL_TO_SEND_SMS);
+            } else {
+                // 2. 코드 저장
+                verificationCodeService.saveVerificationCode(dto.getPhoneNumber(), code);
+            }
+        } catch (CustomException e) {
+            throw new CustomException(e);
         }
     }
 }

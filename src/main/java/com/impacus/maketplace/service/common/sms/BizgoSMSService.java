@@ -18,8 +18,8 @@ import java.io.UnsupportedEncodingException;
 @Service
 @RequiredArgsConstructor
 public class BizgoSMSService implements SMSService {
-    private AlarmSendService alarmSendService;
-    private BizgoSMSAPIService bizgoSMSAPIService;
+    private final AlarmSendService alarmSendService;
+    private final BizgoSMSAPIService bizgoSMSAPIService;
 
     @Value("${key.bizgo.from-phone}")
     private String callingNumber;
