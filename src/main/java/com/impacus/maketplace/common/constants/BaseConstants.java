@@ -70,6 +70,8 @@ public class BaseConstants {
     public final static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:ms:ss";
     public final static String DATE_FORMAT_INT  = "yyyyMMdd";
 
+    public final static String CHARSET_EUC_KR = "EUC-KR";
+
     public LocalDateTime stringToLocalDateTime(String time) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
         return LocalDateTime.parse(time, dtf);
