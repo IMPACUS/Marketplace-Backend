@@ -412,7 +412,7 @@ public class UserService {
             String code = emailService.sendEmailVerificationMail(email, role);
 
             // 2. 이메일 인증 코드 저장
-            emailVerificationCodeService.saveEmailVerificationCode(email, code);
+            emailVerificationCodeService.saveVerificationCode(email, code);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -429,9 +429,9 @@ public class UserService {
 
         try {
             VerificationCode emailVerificationCode = emailVerificationCodeService
-                    .findEmailVerificationCodeByEmailAndCode(email, code);
+                    .findVerificationCode(email, code);
             if (emailVerificationCode != null) {
-                emailVerificationCodeService.deleteEmailVerificationCode(emailVerificationCode);
+                emailVerificationCodeService.deleteIdentifierVerificationCode(emailVerificationCode);
             }
 
             return emailVerificationCode != null;
