@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.user;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.user.UserStatusInfo;
@@ -29,7 +29,7 @@ public class UserStatusInfoService {
 
     public UserStatusInfo findUserStatusInfoByUserId(Long userId) {
         return userStatusInfoRepository.findByUserId(userId)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+                .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_EMAIL));
     }
 
     @Transactional
