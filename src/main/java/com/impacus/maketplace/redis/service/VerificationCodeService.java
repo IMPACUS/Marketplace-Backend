@@ -15,47 +15,47 @@ public class VerificationCodeService {
 
     /**
      * 이메일 인증 데이터를 저장하는 함수
-     * @param email
+     * @param identifier
      * @param code
      */
     @Transactional
-    public void saveEmailVerificationCode(String email, String code) {
-        // 1. email에 대해서 인증 데이터가 존재하는지 확인
-        VerificationCode existedCode = findEmailVerificationCodeByEmail(email);
+    public void saveVerificationCode(String identifier, String code) {
+        // 1. identifier 에 대해서 인증 데이터가 존재하는지 확인
+        VerificationCode existedCode = findVerificationCodeByIdentifier(identifier);
         if (existedCode != null) {
-            deleteEmailVerificationCode(existedCode);
+            deleteIdentifierVerificationCode(existedCode);
         }
 
-        VerificationCode emailVerificationCode = VerificationCode.toEntity(email, code);
-        verificationCodeRepository.save(emailVerificationCode);
+        VerificationCode verificationCode = VerificationCode.toEntity(identifier, code);
+        verificationCodeRepository.save(verificationCode);
     }
 
     /**
-     * email에 대해서 EmailVerificationCode를 조회하는 함수
-     * @param email
+     * identifier 에 대해서 VerificationCode 를 조회하는 함수
+     * @param identifier
      * @return
      */
-    public VerificationCode findEmailVerificationCodeByEmail(String email) {
-        return verificationCodeRepository.findByEmail(email).orElse(null);
+    public VerificationCode findVerificationCodeByIdentifier(String identifier) {
+        return verificationCodeRepository.findByIdentifier(identifier).orElse(null);
     }
 
     /**
-     * 전달받은 email, code에 대해서 EmailVerificationCode를 조회하는 함수
-     * @param email
+     * 전달받은 identifier, code에 대해서 VerificationCode 를 조회하는 함수
+     * @param identifier
      * @param code
      * @return
      */
-    public VerificationCode findEmailVerificationCodeByEmailAndCode(String email, String code) {
-        return verificationCodeRepository.findByEmailAndCode(email, code).orElse(null);
+    public VerificationCode findVerificationCode(String identifier, String code) {
+        return verificationCodeRepository.findByIdentifierAndCode(identifier, code).orElse(null);
     }
 
     /**
-     * emailVerificationCode 삭제하는 함수
-     * @param emailVerificationCode
+     * VerificationCode 삭제하는 함수
+     * @param verificationCode 삭제할 VerificationCode
      */
     @Transactional
-    public void deleteEmailVerificationCode(VerificationCode emailVerificationCode) {
-        verificationCodeRepository.delete(emailVerificationCode);
+    public void deleteIdentifierVerificationCode(VerificationCode verificationCode) {
+        verificationCodeRepository.delete(verificationCode);
     }
     
 }

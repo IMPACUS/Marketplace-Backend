@@ -14,17 +14,17 @@ public class VerificationCode {
     private String id;
 
     @Indexed
-    private String email; //identifier
+    private String identifier;
     
     @Indexed
     private String code;
 
-    public VerificationCode(String email, String code) {
-        this.email = email;
+    public VerificationCode(String identifier, String code) {
+        this.identifier = identifier;
         this.code = code;
     }
 
-    public static VerificationCode toEntity(String email, String code) {
-        return new VerificationCode(email, code);
+    public static VerificationCode toEntity(String identifier, String code) {
+        return new VerificationCode(identifier, code);
     }
 }
