@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
-public class BaseConstants {
+public final class BaseConstants {
 
     public static final String BOOLEAN_TRUE  = "true";
     public static final String BOOLEAN_FALSE = "false";
@@ -71,6 +71,8 @@ public class BaseConstants {
     public final static String DATE_FORMAT_INT  = "yyyyMMdd";
 
     public final static String CHARSET_EUC_KR = "EUC-KR";
+
+    public static final String ENCODING_UTF_8 = "UTF-8";
 
     public LocalDateTime stringToLocalDateTime(String time) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);

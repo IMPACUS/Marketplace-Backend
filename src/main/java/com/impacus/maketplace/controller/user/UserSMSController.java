@@ -41,7 +41,7 @@ public class UserSMSController {
      * @param dto
      * @return
      */
-    @PostMapping("/api/v1/sms/verify-for-email")
+    @PostMapping("/verify-for-email")
     public ApiResponseEntity<Object> verifySMSCodeForEmail(
             @Valid @RequestBody SMSVerificationForEmailDTO dto
     ) {
@@ -59,7 +59,7 @@ public class UserSMSController {
      * @param dto
      * @return
      */
-    @PostMapping("/api/v1/sms/verify-for-password")
+    @PostMapping("/verify-for-password")
     public ApiResponseEntity<Object> verifySMSCodeForPassword(
             @Valid @RequestBody SMSVerificationForPasswordDTO dto
     ) {

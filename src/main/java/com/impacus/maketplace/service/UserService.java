@@ -1,6 +1,7 @@
 package com.impacus.maketplace.service;
 
 import com.impacus.maketplace.common.constants.SMSContentsConstants;
+import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
@@ -11,6 +12,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
@@ -52,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -577,21 +580,30 @@ public class UserService {
      * @return
      */
     public boolean verifySMSCodeForEmail(SMSVerificationForEmailDTO dto) {
-        String phoneNumber = dto.getPhoneNumber();
+        try {
+            String phoneNumber = dto.getPhoneNumber();
 
-        // 코드 확인
-        VerificationCode verificationCode = verificationCodeService
-                .findVerificationCode(phoneNumber, dto.getCode());
+            // 코드 확인
+            VerificationCode verificationCode = verificationCodeService
+                    .findVerificationCode(phoneNumber, dto.getCode());
+            if (verificationCode != null) {
+                verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
+            } else {
+                return false;
+            }
 
-        // 사용자 확인
-        ConsumerEmailDTO consumer = userRepository.findConsumerByPhoneNumber(phoneNumber);
-        if (verificationCode != null) {
-            verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
+            // 사용자 확인
+            ConsumerEmailDTO consumer = userRepository.findConsumerByPhoneNumber(phoneNumber);
+            if (consumer == null) {
+                throw new CustomException(UserErrorType.NOT_EXISTED_USER);
+            }
+
+            // TODO 이메일 전송
+
+            return true;
+        } catch (Exception e) {
+            throw new CustomException(e);
         }
-
-        // TODO 이메일 전송
-
-        return true;
     }
 
     /**
@@ -601,6 +613,30 @@ public class UserService {
      * @return
      */
     public boolean verifySMSCodeForPassword(SMSVerificationForPasswordDTO dto) {
+        String phoneNumber = dto.getPhoneNumber();
+        String email = dto.getEmail();
+
+        // 코드 확인
+//        VerificationCode verificationCode = verificationCodeService
+//                .findVerificationCode(phoneNumber, dto.getCode());
+//        if (verificationCode != null) {
+//            verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
+//        } else {
+//            return false;
+//        }
+
+        // 사용자 확인
+        ConsumerEmailDTO consumer = userRepository.findConsumerByPhoneNumberAndEmail(phoneNumber, email);
+        if (consumer == null) {
+            throw new CustomException(UserErrorType.NOT_EXISTED_USER);
+        }
+
+        // 이메일 전송
+        HashMap<String, String> mailHash = new HashMap<>();
+        mailHash.put("password", consumer.getPassword());
+        EmailDTO emailDTO = EmailDTO.toDTO(email, MailType.PASSWORD, mailHash);
+        emailService.sendSingleEmail(emailDTO);
+
         return true;
     }
 }

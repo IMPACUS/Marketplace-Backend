@@ -11,7 +11,7 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -98,7 +98,7 @@ public class UpdateSellerService {
                     entryApprovedAt
             );
 
-            EmailDto emailDto = EmailDto.builder()
+            EmailDTO emailDto = EmailDTO.builder()
                     .subject("입점 결과 메일 입니다.")
                     .receiveEmail(user.getEmail())
                     .build();
