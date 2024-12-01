@@ -7,8 +7,6 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.EmailDTO;
-import com.impacus.maketplace.entity.common.EmailHistory;
-import com.impacus.maketplace.repository.EmailHistoryRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +19,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -34,7 +30,6 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
-    private final EmailHistoryRepository emailHistoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
 
     /**
@@ -153,14 +148,6 @@ public class EmailService {
             emailDto.setAuthNo("");
             emailDto.setMailType("17");
 
-            EmailHistory emailHistory = EmailHistory
-                    .builder()
-                    .receiveEmail(emailDto.getReceiveEmail())
-                    .mailType(MailType.ALARM)
-                    .authNo("")
-                    .sendAt(LocalDateTime.now())
-                    .build();
-            emailHistoryRepository.save(emailHistory);
         } catch (MessagingException e) {
             throw new CustomException(e);
         }
@@ -186,30 +173,9 @@ public class EmailService {
             emailDto.setAuthNo(authNumber);
             emailDto.setMailType(mailType.getCode());
 
-            EmailHistory emailHistory = EmailHistory
-                    .builder()
-                    .receiveEmail(emailDto.getReceiveEmail())
-                    .mailType(mailType)
-                    .authNo(authNumber)
-                    .sendAt(LocalDateTime.now())
-                    .build();
-            EmailHistory result = emailHistoryRepository.save(emailHistory);
-
-            return result != null;
+            return true;
         } catch (MessagingException e) {
             throw new CustomException(e);
         }
-    }
-
-    public Boolean checkAuthNumber(EmailDTO emailDto) {
-        emailDto.setReceiveEmail(Base64.getEncoder().encodeToString(emailDto.getReceiveEmail().getBytes(StandardCharsets.UTF_8)));
-
-        LocalDateTime threeMinutesAgoTime = LocalDateTime.now().minusMinutes(3);
-        Optional<String> authNumber = emailHistoryRepository.findByReceiveEmailAndAuthNoAndSendAtGreaterThan(
-                emailDto.getReceiveEmail(),
-                emailDto.getAuthNo(),
-                threeMinutesAgoTime
-        ).stream().findFirst();
-        return authNumber.isPresent();
     }
 }

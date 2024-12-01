@@ -29,15 +29,5 @@ public class EmailController {
                 .build();
     }
 
-    @PostMapping("/check")
-    public ApiResponseEntity<?> checkAuthNumber(@RequestBody EmailDTO emailDto) {
-        Boolean result = emailService.checkAuthNumber(emailDto);
-
-        return ApiResponseEntity.builder()
-                .result(result)
-                .build();
-    }
-
-
 
 }
