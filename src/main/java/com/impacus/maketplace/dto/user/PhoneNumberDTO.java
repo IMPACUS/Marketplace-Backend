@@ -26,7 +26,7 @@ public class PhoneNumberDTO {
             }
 
         } else {
-            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "\"유효한 전화번호를 입력해주세요.\"");
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "유효한 전화번호를 입력해주세요.");
         }
     }
 }

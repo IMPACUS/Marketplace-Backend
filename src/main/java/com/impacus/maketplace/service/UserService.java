@@ -14,8 +14,11 @@ import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
+import com.impacus.maketplace.dto.auth.request.SMSVerificationForEmailDTO;
+import com.impacus.maketplace.dto.auth.request.SMSVerificationForPasswordDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationRequestDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
+import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
@@ -565,5 +568,39 @@ public class UserService {
         } catch (CustomException e) {
             throw new CustomException(e);
         }
+    }
+
+    /**
+     * 이메일 찾기를 위한 휴대폰 인증 확인
+     *
+     * @param dto
+     * @return
+     */
+    public boolean verifySMSCodeForEmail(SMSVerificationForEmailDTO dto) {
+        String phoneNumber = dto.getPhoneNumber();
+
+        // 코드 확인
+        VerificationCode verificationCode = verificationCodeService
+                .findVerificationCode(phoneNumber, dto.getCode());
+
+        // 사용자 확인
+        ConsumerEmailDTO consumer = userRepository.findConsumerByPhoneNumber(phoneNumber);
+        if (verificationCode != null) {
+            verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
+        }
+
+        // TODO 이메일 전송
+
+        return true;
+    }
+
+    /**
+     * 비밀번호 찾기를 위한 휴대폰 인증 확인
+     *
+     * @param dto
+     * @return
+     */
+    public boolean verifySMSCodeForPassword(SMSVerificationForPasswordDTO dto) {
+        return true;
     }
 }

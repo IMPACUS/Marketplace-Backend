@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
+import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
@@ -52,4 +53,6 @@ public interface UserCustomRepository {
     void saveOrUpdateCertification(Long userId, CertificationResult certificationResult);
 
     boolean existsConsumerByPhoneNumberAndUserId(Long userId, String mobileNo);
+
+    ConsumerEmailDTO findConsumerByPhoneNumber(String phoneNumber);
 }
