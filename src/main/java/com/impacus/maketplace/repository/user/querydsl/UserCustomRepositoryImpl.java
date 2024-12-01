@@ -365,7 +365,31 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                         Projections.constructor(
                                 ConsumerEmailDTO.class,
                                 user.id,
-                                user.email
+                                user.email,
+                                user.password
+                        )
+                )
+                .from(user)
+                .where(builder)
+                .fetchFirst();
+    }
+
+    @Override
+    public ConsumerEmailDTO findConsumerByPhoneNumberAndEmail(String phoneNumber, String email) {
+        PhoneNumberDTO dto = new PhoneNumberDTO(phoneNumber);
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(user.isDeleted.isFalse())
+                .and(user.type.in(List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)))
+                .and(user.email.like("%_" + email))
+                .and(user.phoneNumberPrefix.eq(dto.getPhoneNumberPrefix()))
+                .and(user.phoneNumberSuffix.eq(dto.getPhoneNumberSuffix()));
+
+        return queryFactory.select(
+                        Projections.constructor(
+                                ConsumerEmailDTO.class,
+                                user.id,
+                                user.email,
+                                user.password
                         )
                 )
                 .from(user)

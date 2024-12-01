@@ -21,7 +21,8 @@ public class PhoneNumberDTO {
                 this.phoneNumberPrefix = String.join("-", parts.subList(0, parts.size() - 1));
                 this.phoneNumberSuffix = parts.get(parts.size() - 1);
             } else {
-                this.phoneNumberPrefix = phoneNumber.substring(0, phoneNumber.length() - 4);
+                String prefix = phoneNumber.substring(0, phoneNumber.length() - 4);
+                this.phoneNumberPrefix = String.format("%s-%s", prefix.substring(0, prefix.length() - 4), prefix.substring(prefix.length() - 4));
                 this.phoneNumberSuffix = phoneNumber.substring(phoneNumber.length() - 4);
             }
 

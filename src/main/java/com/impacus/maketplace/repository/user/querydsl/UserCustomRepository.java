@@ -55,4 +55,6 @@ public interface UserCustomRepository {
     boolean existsConsumerByPhoneNumberAndUserId(Long userId, String mobileNo);
 
     ConsumerEmailDTO findConsumerByPhoneNumber(String phoneNumber);
+
+    ConsumerEmailDTO findConsumerByPhoneNumberAndEmail(String phoneNumber, String email);
 }

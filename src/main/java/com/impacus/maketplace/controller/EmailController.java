@@ -2,7 +2,7 @@ package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class EmailController {
     private final EmailService emailService;
 
     @PostMapping("/send")
-    public ApiResponseEntity<?> sendEmailCode(@RequestBody EmailDto emailDto) {
+    public ApiResponseEntity<?> sendEmailCode(@RequestBody EmailDTO emailDto) {
 
         Boolean result = emailService.sendMail(emailDto, MailType.AUTH);
 
@@ -30,7 +30,7 @@ public class EmailController {
     }
 
     @PostMapping("/check")
-    public ApiResponseEntity<?> checkAuthNumber(@RequestBody EmailDto emailDto) {
+    public ApiResponseEntity<?> checkAuthNumber(@RequestBody EmailDTO emailDto) {
         Boolean result = emailService.checkAuthNumber(emailDto);
 
         return ApiResponseEntity.builder()

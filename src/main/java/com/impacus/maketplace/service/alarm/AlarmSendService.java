@@ -7,7 +7,7 @@ import com.impacus.maketplace.common.enumType.alarm.*;
 import com.impacus.maketplace.common.enumType.error.AlarmErrorType;
 import com.impacus.maketplace.common.enumType.error.BizgoErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDTO;
 import com.impacus.maketplace.dto.alarm.common.SendTextDTO;
 import com.impacus.maketplace.dto.alarm.seller.SendSellerTextDTO;
@@ -251,7 +251,7 @@ public class AlarmSendService {
 
     private void sendMail(String receiver, String subject, String text) {
         String subjectMail = "[IMPLACE] " + subject + " 안내입니다.";
-        EmailDto emailDto = EmailDto.builder()
+        EmailDTO emailDto = EmailDTO.builder()
                 .receiveEmail(receiver)
                 .subject(subjectMail)
                 .build();
