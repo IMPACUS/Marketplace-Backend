@@ -24,10 +24,10 @@ import com.impacus.maketplace.entity.admin.AdminInfo;
 import com.impacus.maketplace.entity.consumer.Consumer;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.entity.user.UserStatusInfo;
-import com.impacus.maketplace.redis.entity.EmailVerificationCode;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
-import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
+import com.impacus.maketplace.redis.entity.VerificationCode;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
+import com.impacus.maketplace.redis.service.VerificationCodeService;
 import com.impacus.maketplace.repository.ConsumerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
@@ -66,7 +66,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
-    private final EmailVerificationCodeService emailVerificationCodeService;
+    private final VerificationCodeService emailVerificationCodeService;
     private final AdminService adminService;
     private final UserStatusInfoService userStatusInfoService;
     private final PointService pointService;
@@ -428,7 +428,7 @@ public class UserService {
         String code = request.getCode();
 
         try {
-            EmailVerificationCode emailVerificationCode = emailVerificationCodeService
+            VerificationCode emailVerificationCode = emailVerificationCodeService
                     .findEmailVerificationCodeByEmailAndCode(email, code);
             if (emailVerificationCode != null) {
                 emailVerificationCodeService.deleteEmailVerificationCode(emailVerificationCode);
