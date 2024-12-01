@@ -1,7 +1,7 @@
 package com.impacus.maketplace.redis.service;
 
-import com.impacus.maketplace.redis.entity.EmailVerificationCode;
-import com.impacus.maketplace.redis.repository.EmailVerificationCodeRepository;
+import com.impacus.maketplace.redis.entity.VerificationCode;
+import com.impacus.maketplace.redis.repository.VerificationCodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class EmailVerificationCodeService {
+public class VerificationCodeService {
 
-    private final EmailVerificationCodeRepository emailAuthenticationNumberRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
 
     /**
      * 이메일 인증 데이터를 저장하는 함수
@@ -21,13 +21,13 @@ public class EmailVerificationCodeService {
     @Transactional
     public void saveEmailVerificationCode(String email, String code) {
         // 1. email에 대해서 인증 데이터가 존재하는지 확인
-        EmailVerificationCode existedCode = findEmailVerificationCodeByEmail(email);
+        VerificationCode existedCode = findEmailVerificationCodeByEmail(email);
         if (existedCode != null) {
             deleteEmailVerificationCode(existedCode);
         }
 
-        EmailVerificationCode emailVerificationCode = EmailVerificationCode.toEntity(email, code);
-        emailAuthenticationNumberRepository.save(emailVerificationCode);
+        VerificationCode emailVerificationCode = VerificationCode.toEntity(email, code);
+        verificationCodeRepository.save(emailVerificationCode);
     }
 
     /**
@@ -35,8 +35,8 @@ public class EmailVerificationCodeService {
      * @param email
      * @return
      */
-    public EmailVerificationCode findEmailVerificationCodeByEmail(String email) {
-        return emailAuthenticationNumberRepository.findByEmail(email).orElse(null);
+    public VerificationCode findEmailVerificationCodeByEmail(String email) {
+        return verificationCodeRepository.findByEmail(email).orElse(null);
     }
 
     /**
@@ -45,8 +45,8 @@ public class EmailVerificationCodeService {
      * @param code
      * @return
      */
-    public EmailVerificationCode findEmailVerificationCodeByEmailAndCode(String email, String code) {
-        return emailAuthenticationNumberRepository.findByEmailAndCode(email, code).orElse(null);
+    public VerificationCode findEmailVerificationCodeByEmailAndCode(String email, String code) {
+        return verificationCodeRepository.findByEmailAndCode(email, code).orElse(null);
     }
 
     /**
@@ -54,8 +54,8 @@ public class EmailVerificationCodeService {
      * @param emailVerificationCode
      */
     @Transactional
-    public void deleteEmailVerificationCode(EmailVerificationCode emailVerificationCode) {
-        emailAuthenticationNumberRepository.delete(emailVerificationCode);
+    public void deleteEmailVerificationCode(VerificationCode emailVerificationCode) {
+        verificationCodeRepository.delete(emailVerificationCode);
     }
     
 }
