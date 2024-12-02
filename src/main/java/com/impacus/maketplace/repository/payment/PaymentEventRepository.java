@@ -10,4 +10,6 @@ public interface PaymentEventRepository extends JpaRepository<PaymentEvent, Long
     boolean existsByOrderId(String orderId);
 
     Optional<Long> findByOrderId(String orderId);
+
+    Optional<PaymentEvent> findByPaymentKey(String paymentKey);
 }

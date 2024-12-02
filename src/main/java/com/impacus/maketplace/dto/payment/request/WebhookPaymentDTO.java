@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WebhookPaymentConfirmDTO {
-    private WebhookEventType type;
+public class WebhookPaymentDTO {
+    private WebhookEventType eventType;
     private String timestamp;
     private PaymentData data;
 
@@ -21,6 +21,7 @@ public class WebhookPaymentConfirmDTO {
         private String paymentId;
         private String transactionId;
         private String cancellationId;
+        private String totalAmount;
     }
 
     public enum WebhookEventType {
@@ -32,7 +33,7 @@ public class WebhookPaymentConfirmDTO {
         TRANSACTION_FAILED("Transaction.Failed"),
         TRANSACTION_PAY_PENDING("Transaction.PayPending"),
         TRANSACTION_CANCEL_PENDING("Transaction.CancelPending"),
-        TRANSACTION_CONFIRM("Transaction.Confirm"); // 예시에서 사용된 타입 추가
+        TRANSACTION_CONFIRM("Transaction.Confirm");
 
         private final String value;
 

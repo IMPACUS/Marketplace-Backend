@@ -58,6 +58,15 @@ public class PaymentEvent extends BaseEntity {
     @Builder.Default
     private List<PaymentOrder> paymentOrders = new ArrayList<>();
 
+    public void setApprovedAt(LocalDateTime localDateTime) {
+        this.approvedAt = localDateTime;
+    }
+
+    public List<PaymentOrder> getPaymentOrders() {
+        if (this.paymentOrders == null) this.paymentOrders = new ArrayList<>();
+        return this.paymentOrders;
+    }
+
     /**
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 포함)
      */

@@ -1,10 +1,12 @@
 package com.impacus.maketplace.controller.payment;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.payment.request.WebhookPaymentConfirmDTO;
+import com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO;
+import com.impacus.maketplace.service.payment.PaymentWebhookService;
 import com.impacus.maketplace.service.payment.WebhookVerifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -14,18 +16,18 @@ import org.springframework.web.bind.annotation.*;
 public class WebhookPaymentController {
 
     private final WebhookVerifyService webhookVerifyService;
+    private final PaymentWebhookService paymentWebhookService;
 
-    @PostMapping("/webhook/payment-confirm")
-    public ApiResponseEntity<Void> paymnetConfirm(@RequestBody String body,
-                                                  @RequestHeader("webhook-id") String webhookId,
-                                                  @RequestHeader("webhook-timestamp") String webhookTimestamp,
-                                                  @RequestHeader("webhook-signature") String webhookSignature) {
+    @PostMapping("/webhook")
+    public ApiResponseEntity<Boolean> paymentWebhook(@RequestBody String body,
+                                                     @RequestHeader("webhook-id") String webhookId,
+                                                     @RequestHeader("webhook-timestamp") String webhookTimestamp,
+                                                     @RequestHeader("webhook-signature") String webhookSignature) {
 
-        WebhookPaymentConfirmDTO payload = webhookVerifyService.verify(body, webhookId, webhookSignature, webhookTimestamp);
+        WebhookPaymentDTO payload = webhookVerifyService.paymentVerify(body, webhookId, webhookSignature, webhookTimestamp);
 
-        return ApiResponseEntity
-                .<Void>builder()
-                .build();
+        paymentWebhookService.process(payload);
 
+        return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 }
