@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
         fallback = OAuthAPIServiceFallback.class
 )
 public interface GoogleCommonAPIService {
-    @GetMapping(GoogleAPIConstants.USER_INFO)
+    @GetMapping(value = GoogleAPIConstants.USER_INFO,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
     GoogleUserInfoResponse getUserInfo(
             @RequestHeader(HeaderConstants.AUTHORIZATION_HEADER) String authorization);
 }
