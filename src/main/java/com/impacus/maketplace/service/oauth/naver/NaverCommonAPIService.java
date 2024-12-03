@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 )
 public interface NaverCommonAPIService {
 
-    @GetMapping(NaverAPIConstants.USER_INFO)
+    @GetMapping(value = NaverAPIConstants.USER_INFO,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
     NaverUserResponse getUser(
             @RequestHeader(HeaderConstants.AUTHORIZATION_HEADER) String authorization
     );

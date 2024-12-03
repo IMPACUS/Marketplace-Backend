@@ -19,6 +19,7 @@ import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForEmailDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForPasswordDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationRequestDTO;
+import com.impacus.maketplace.dto.auth.response.SMSVerificationForEmailResultDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
@@ -553,6 +554,7 @@ public class UserService {
     /**
      * @param dto
      */
+    @Transactional
     public void sendVerificationCodeToSMS(SMSVerificationRequestDTO dto) {
         try {
             String code = StringUtils.generateRandomCode();
@@ -579,7 +581,7 @@ public class UserService {
      * @param dto
      * @return
      */
-    public boolean verifySMSCodeForEmail(SMSVerificationForEmailDTO dto) {
+    public SMSVerificationForEmailResultDTO verifySMSCodeForEmail(SMSVerificationForEmailDTO dto) {
         try {
             String phoneNumber = dto.getPhoneNumber();
 
@@ -589,7 +591,7 @@ public class UserService {
             if (verificationCode != null) {
                 verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
             } else {
-                return false;
+                return SMSVerificationForEmailResultDTO.toDTO(false);
             }
 
             // 사용자 확인
@@ -598,9 +600,7 @@ public class UserService {
                 throw new CustomException(UserErrorType.NOT_EXISTED_USER);
             }
 
-            // TODO 이메일 전송
-
-            return true;
+            return SMSVerificationForEmailResultDTO.toDTO(true, consumer.getEmail());
         } catch (Exception e) {
             throw new CustomException(e);
         }

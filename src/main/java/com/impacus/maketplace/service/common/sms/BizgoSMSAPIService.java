@@ -5,17 +5,17 @@ import com.impacus.maketplace.common.constants.api.BizgoAPIConstants;
 import com.impacus.maketplace.dto.common.request.BizgoSMSRequest;
 import com.impacus.maketplace.dto.common.response.BizgoSMSResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(name = "bizgoSMSAPICLient",
+@FeignClient(name = "bizgoSMSAPIClient",
         url = BizgoAPIConstants.COMMON_URL
 )
 public interface BizgoSMSAPIService {
 
-    @GetMapping(value = BizgoAPIConstants.SEND_SIMPLE_SMS,
-            headers = "Content-Type=application/json;Accept=application/json")
+    @PostMapping(value = BizgoAPIConstants.SEND_SIMPLE_SMS,
+            headers = "Content-Type=application/json")
     BizgoSMSResponse sendSimpleSMS(
             @RequestHeader(HeaderConstants.AUTHORIZATION_HEADER) String authorization,
             @RequestBody BizgoSMSRequest request

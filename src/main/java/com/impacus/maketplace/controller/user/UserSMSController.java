@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForEmailDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForPasswordDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationRequestDTO;
+import com.impacus.maketplace.dto.auth.response.SMSVerificationForEmailResultDTO;
 import com.impacus.maketplace.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,12 +43,12 @@ public class UserSMSController {
      * @return
      */
     @PostMapping("/verify-for-email")
-    public ApiResponseEntity<Object> verifySMSCodeForEmail(
+    public ApiResponseEntity<SMSVerificationForEmailResultDTO> verifySMSCodeForEmail(
             @Valid @RequestBody SMSVerificationForEmailDTO dto
     ) {
-        boolean result = userService.verifySMSCodeForEmail(dto);
+        SMSVerificationForEmailResultDTO result = userService.verifySMSCodeForEmail(dto);
         return ApiResponseEntity
-                .builder()
+                .<SMSVerificationForEmailResultDTO>builder()
                 .data(result)
                 .message("이메일 찾기를 위한 휴대폰 인증 확인에 성공하였습니다.")
                 .build();

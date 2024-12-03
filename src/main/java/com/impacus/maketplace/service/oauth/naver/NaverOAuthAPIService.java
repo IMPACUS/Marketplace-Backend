@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 public interface NaverOAuthAPIService {
 
-    @PostMapping(NaverAPIConstants.TOKEN)
+    @PostMapping(value = NaverAPIConstants.TOKEN,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
     NaverTokenResponse getNaverToken(
             @RequestParam("grant_type") String grantType,
             @RequestParam("client_id") String clientId,

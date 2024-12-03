@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 )
 public interface KakaoCommonAPIService {
 
-    @GetMapping(KakaoAPIConstants.USER)
+    @GetMapping(value = KakaoAPIConstants.USER,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
     KakaoUserProfileResponse getUserProfile(
             @RequestHeader(HeaderConstants.AUTHORIZATION_HEADER) String authorization
     );
