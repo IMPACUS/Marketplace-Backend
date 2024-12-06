@@ -88,7 +88,7 @@ public class NiceAPIService {
     }
 
     private String buildReturnUrl(Long userId, CertificationResultCode resultCode) {
-        return serverHost + CERTIFICATION_RESULT_URI + "?" + RESULT_KEY + "=" + resultCode + "&" + USER_ID_KEY + "=" + userId;
+        return serverHost + CERTIFICATION_RESULT_URI + "?" + USER_ID_KEY + "=" + userId;
     }
 
     private String buildPlainData(Map<String, String> dataMap) {

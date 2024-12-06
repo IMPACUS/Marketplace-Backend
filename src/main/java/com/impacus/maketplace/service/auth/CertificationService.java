@@ -40,11 +40,9 @@ public class CertificationService {
     /**
      * 사용자 인증 정보를 저장하는 함수
      *
-     * @param result
      * @param encodeData
      */
     public HttpHeaders saveUserCertification(
-            CertificationResultCode result,
             Long userId,
             String encodeData,
             HttpSession session

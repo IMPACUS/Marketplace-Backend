@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.constants.HeaderConstants;
 import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.auth.response.CertificationRequestDataDTO;
 import com.impacus.maketplace.dto.seller.request.CreateSellerDTO;
 import com.impacus.maketplace.dto.seller.response.SimpleSellerFromSellerDTO;
@@ -122,19 +123,18 @@ public class AuthController {
     /**
      * 본인인증 결과 전달 받아 APP 으로 리다이렉트 시키는 URL
      *
-     * @param result
      * @param encodeData
      * @param request
      * @return
      */
     @RequestMapping(value = "/certification", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<HttpHeaders> getCertificationResult(
-            @RequestParam(value = "result") CertificationResultCode result,
-            @RequestParam(value = "user-id") Long userId,
+            @RequestParam(value = "user-id",required = false) Long userId,
             @RequestParam(value = "EncodeData") String encodeData,
             HttpServletRequest request
     ) {
-        HttpHeaders httpHeaders = certificationService.saveUserCertification(result, userId, encodeData, request.getSession());
+        LogUtils.writeInfoLog("getCertificationResult", request.getQueryString());
+        HttpHeaders httpHeaders = certificationService.saveUserCertification(userId, encodeData, request.getSession());
 
         return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
     }

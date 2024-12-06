@@ -133,8 +133,6 @@ public class UserController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @Valid @RequestPart(value = "user") UpdateUserDTO dto
     ) {
-        LogUtils.writeInfoLog("updateUser", "Check multipartFile is null: " +
-                profileImage == null ? "null" : "not null");
         readUserService.updateUser(userId, profileImage, dto);
         return ApiResponseEntity.<Void>builder()
                 .message("소비자 정보 변경 성공")
