@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-lchy0.17.01-24-12-07" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="oauth_token"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="oauth_token">
+            <column name="oauth_token_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="consumer_id" type="BIGINT">
+                <constraints unique="true" nullable="true"/>
+            </column>
+            <column name="access_token" type="VARCHAR(255)" />
+            <column name="refresh_token" type="VARCHAR(255)">
+                <constraints  nullable="false"/>
+            </column>
+
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

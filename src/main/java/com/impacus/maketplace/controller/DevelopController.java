@@ -30,12 +30,4 @@ public class DevelopController {
     public void deleteOneFile(@RequestParam String fileName) {
         cloudFileUploadService.deleteFile(fileName);
     }
-
-    @DeleteMapping("user")
-    public ApiResponseEntity<UserDTO> addUser(@RequestParam(value = "email") String email) {
-        userService.deleteConsumer(email);
-        return ApiResponseEntity.<UserDTO>builder()
-                .message("사용자 삭제 성공")
-                .build();
-    }
 }

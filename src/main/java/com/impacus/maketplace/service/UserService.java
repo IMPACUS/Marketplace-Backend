@@ -20,6 +20,7 @@ import com.impacus.maketplace.dto.auth.request.SMSVerificationForEmailDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForPasswordDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationRequestDTO;
 import com.impacus.maketplace.dto.auth.response.SMSVerificationForEmailResultDTO;
+import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
@@ -39,6 +40,8 @@ import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.common.sms.SMSService;
+import com.impacus.maketplace.service.oauth.OAuthService;
+import com.impacus.maketplace.service.oauth.OAuthServiceFactory;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
@@ -81,6 +84,7 @@ public class UserService {
     private final AlarmUserService alarmUserService;
     private final ConsumerRepository consumerRepository;
     private final SMSService smsService;
+    private final OAuthServiceFactory oAuthServiceFactory;
 
     @Transactional
     public UserDTO addUser(SignUpDTO signUpRequest) {
@@ -489,21 +493,25 @@ public class UserService {
     }
 
     /**
-     * [앱 개발 테스트를 위해 추가한 함수] 사용자 삭제 함수
+     *  사용자 삭제
      *
      * @param email
      */
     @Transactional
     public void deleteConsumer(String email) {
-        List<User> userList = findUsersByEmailAboutAllProvider(email);
-        if (userList.isEmpty()) {
-            throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
+        CommonUserDTO userDTO = findCommonUserByEmail(email);
+        OauthProviderType oauthProviderType = userDTO.getOauthProviderType();
+
+        // 1. 연동 해제
+        if (oauthProviderType != OauthProviderType.NONE) {
+            OAuthService oAuthService = oAuthServiceFactory.getService(oauthProviderType);
+            oAuthService.unlink();
         }
 
-        // 삭제
+        // 2. 삭제
         // User, UserConsent, UserRole, UserStatusInfo
         // GreenLabelPoint, GreenLabelPointAllocation, LevelAchievement, LevelPointMaster
-        userRepository.deleteConsumer(userList.get(0).getId());
+        userRepository.deleteConsumer(userDTO.getUserId());
     }
 
     /**

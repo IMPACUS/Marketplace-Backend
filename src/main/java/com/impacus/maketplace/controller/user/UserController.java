@@ -12,6 +12,7 @@ import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
+import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.service.UserService;
@@ -25,8 +26,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import security.CustomUserDetails;
 
 import java.time.LocalDate;
 
@@ -167,6 +170,15 @@ public class UserController {
         return ApiResponseEntity.<FileGenerationStatusIdDTO>builder()
                 .message("회원 검색 목록 excel 생성 요청 성공")
                 .data(result)
+                .build();
+    }
+
+    @DeleteMapping
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    public ApiResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails user) {
+        userService.deleteConsumer(user.getEmail());
+        return ApiResponseEntity.<Void>builder()
+                .message("사용자 삭제 성공")
                 .build();
     }
 }
