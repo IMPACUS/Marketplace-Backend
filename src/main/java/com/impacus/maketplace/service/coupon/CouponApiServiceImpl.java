@@ -49,6 +49,7 @@ public class CouponApiServiceImpl implements CouponApiService {
 
         alarmCoupons.forEach(alarmCouponDTO ->
                 alarmCouponsMap.computeIfAbsent(alarmCouponDTO.getUserId(), k -> new ArrayList<>())
+                        .add(alarmCouponDTO)
         );
 
         return alarmCouponsMap;

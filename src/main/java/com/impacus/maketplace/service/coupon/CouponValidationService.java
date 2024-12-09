@@ -31,7 +31,8 @@ public class CouponValidationService {
         }
 
         // 금액 체크
-        return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalPrice;
+        return (coupon.getUseStandardType() == StandardType.UNLIMITED && totalPrice >= 1500)
+                || (coupon.getUseStandardType() == StandardType.LIMIT && totalPrice >= coupon.getUseStandardValue());
     }
 
     public void validateCouponForOrderWithException(ValidateOrderCouponInfoDTO coupon, Long totalPrice) {
@@ -46,7 +47,8 @@ public class CouponValidationService {
         }
 
         // 금액 체크
-        if (coupon.getUseStandardType() == StandardType.LIMIT && coupon.getUseStandardValue() > totalPrice) {
+        if ((coupon.getUseStandardType() == StandardType.UNLIMITED && totalPrice < 1500)
+                || (coupon.getUseStandardType() == StandardType.LIMIT && totalPrice < coupon.getUseStandardValue())) {
             throw new CustomException(CouponErrorType.INVALID_USER_COUPON_USE_STANDARD_MISMATCH);
         }
     }
@@ -68,8 +70,9 @@ public class CouponValidationService {
         }
 
         // 금액 체크
-        Long totalProductPrice = appSalesPrice * quantity;
-        return coupon.getUseStandardType() != StandardType.LIMIT || coupon.getUseStandardValue() <= totalProductPrice;
+        long totalProductPrice = appSalesPrice * quantity;
+        return (coupon.getUseStandardType() == StandardType.UNLIMITED && totalProductPrice >= 1500)
+                || (coupon.getUseStandardType() == StandardType.LIMIT && totalProductPrice >= coupon.getUseStandardValue());
     }
 
     public void validateCouponForProductWithException(ValidateProductCouponInfoDTO coupon, ProductType productType, String marketName, Long appSalesPrice, Long quantity) {
@@ -89,8 +92,9 @@ public class CouponValidationService {
         }
 
         // 금액 체크
-        Long totalProductPrice = appSalesPrice * quantity;
-        if (coupon.getUseStandardType() == StandardType.LIMIT && coupon.getUseStandardValue() > totalProductPrice) {
+        long totalProductPrice = appSalesPrice * quantity;
+        if ((coupon.getUseStandardType() == StandardType.UNLIMITED && totalProductPrice < 1500)
+                || (coupon.getUseStandardType() == StandardType.LIMIT && totalProductPrice < coupon.getUseStandardValue())) {
             throw new CustomException(CouponErrorType.INVALID_USER_COUPON_USE_STANDARD_MISMATCH);
         }
     }
