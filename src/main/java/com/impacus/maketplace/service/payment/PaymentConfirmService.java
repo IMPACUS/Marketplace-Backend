@@ -42,7 +42,7 @@ public class PaymentConfirmService {
      */
     // transactionId는 어떻게 처리되는 것인가?
     @Transactional
-    public void confirmService(WebhookPaymentDTO webhookPaymentDTO) {
+    public void confirm(WebhookPaymentDTO webhookPaymentDTO) {
         // 1. paymentId를 통해서 구매 예정인 상품 조회
         String paymentId = webhookPaymentDTO.getData().getPaymentId();
 
@@ -134,7 +134,7 @@ public class PaymentConfirmService {
         if (productOptionHistoryOpt.isEmpty()) return Optional.empty();
 
         ProductOptionHistory productOptionHistory = productOptionHistoryOpt.get();
-        ProductOption productOption = productOptionRepository.findByProductOptionIdWithWriteLock(productOptionHistory.getProductOptionId());
+        ProductOption productOption = productOptionRepository.findProductOptionWithWriteLockById(productOptionHistory.getProductOptionId());
 
         if (productOption.isDeleted()
                 || !productOption.getColor().equals(productOptionHistory.getColor())

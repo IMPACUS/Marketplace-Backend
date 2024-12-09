@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 public interface AppleOAuthAPIService {
 
-    @PostMapping(value = AppleAPIConstants.VALIDATE_CODE)
+    @PostMapping(value = AppleAPIConstants.VALIDATE_CODE,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
     AppleTokenResponse getToken(
             @RequestParam("client_id") String clientId,
             @RequestParam("client_secret") String clientSecret,
@@ -21,7 +22,8 @@ public interface AppleOAuthAPIService {
             @RequestParam("grant_type") String grantType
     );
 
-    @PostMapping(value = AppleAPIConstants.VALIDATE_CODE)
+    @PostMapping(value = AppleAPIConstants.VALIDATE_CODE,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
     AppleTokenResponse reissueToken(
             @RequestParam("client_id") String clientId,
             @RequestParam("client_secret") String clientSecret,

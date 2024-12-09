@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
         fallback = OAuthAPIServiceFallback.class
 )
 public interface KakaoOAuthAPIService {
-    @PostMapping(KakaoAPIConstants.TOKEN)
+    @PostMapping(value = KakaoAPIConstants.TOKEN,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
     KakaoTokenResponse getTokenInfo(
             @RequestParam("client_id") String clientId,
             @RequestParam("client_secret") String clientSecret,

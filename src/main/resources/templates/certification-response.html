@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>NICE평가정보 - CheckPlus 안심본인인증 테스트</title>
+</head>
+<body>
+<button id="authButton" onclick="completeTask()" style="display: none;"></button>
+<input id="result" th:value="${result}" type="hidden"/>
+<input id="message" th:value="${message}" type="hidden"/>
+</body>
+</html>
+
+<script>
+    // Flutter로 데이터 전달 함수
+    function completeTask() {
+        const result = document.getElementById('result').value; // 숨겨진 데이터 가져오기
+        const message = document.getElementById('message').value; // 숨겨진 데이터 가져오기
+
+        // Flutter 핸들러 호출
+        window.flutter_inappwebview.callHandler('onTaskCompleted', result, message);
+    }
+
+    // 페이지 로드 후 버튼 자동 클릭
+    window.onload = function () {
+        document.getElementById('authButton').click();
+    };
+</script>

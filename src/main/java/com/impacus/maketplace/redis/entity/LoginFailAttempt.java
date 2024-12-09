@@ -19,6 +19,7 @@ public class LoginFailAttempt {
 
     @Indexed
     private String email;
+
     @ColumnDefault("0")
     private int failAttemptCnt;
 

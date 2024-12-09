@@ -35,3 +35,15 @@ spring:
         max-size: 10
         queue-capacity: 500
       thread-name-prefix: implace-async-
+url:
+  server-host: http://localhost:8080
+  uri:
+    certification: /api/v1/certification/response
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: None
+        secure: true
+        http-only: true
+        path: /

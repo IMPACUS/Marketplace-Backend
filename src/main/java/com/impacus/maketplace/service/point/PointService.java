@@ -1,16 +1,14 @@
 package com.impacus.maketplace.service.point;
 
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
-import com.impacus.maketplace.common.enumType.error.PointErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointStatus;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.point.AlarmPointDTO;
 import com.impacus.maketplace.dto.point.IssuePointDTO;
 import com.impacus.maketplace.entity.point.greenLablePoint.GreenLabelPoint;
 import com.impacus.maketplace.entity.point.levelPoint.LevelAchievement;
 import com.impacus.maketplace.entity.point.levelPoint.LevelPointMaster;
-import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointAllocationRepository;
 import com.impacus.maketplace.repository.point.greenLabelPoint.GreenLabelPointRepository;
 import com.impacus.maketplace.repository.point.levelPoint.LevelAchievementRepository;
 import com.impacus.maketplace.repository.point.levelPoint.LevelPointMasterRepository;
@@ -94,7 +92,7 @@ public class PointService {
         // 2. 포인트 지급/수취
         List<Long> userIds = userRepository.findIdByEmailLike("%_" + dto.getEmail());
         if (userIds.isEmpty()) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
+            throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
         }
         issueUserRewardByUserId(userIds.get(0), dto);
         } catch (Exception ex) {

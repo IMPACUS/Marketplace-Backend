@@ -8,23 +8,23 @@ import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @NoArgsConstructor
-@RedisHash(value = "emailVerificationCode", timeToLive = 180L) // 3분
-public class EmailVerificationCode {
+@RedisHash(value = "verificationCode", timeToLive = 180L) // 3분
+public class VerificationCode {
     @Id
     private String id;
 
     @Indexed
-    private String email;
+    private String identifier;
     
     @Indexed
     private String code;
 
-    public EmailVerificationCode(String email, String code) {
-        this.email = email;
+    public VerificationCode(String identifier, String code) {
+        this.identifier = identifier;
         this.code = code;
     }
 
-    public static EmailVerificationCode toEntity(String email, String code) {
-        return new EmailVerificationCode(email, code);
+    public static VerificationCode toEntity(String identifier, String code) {
+        return new VerificationCode(identifier, code);
     }
 }

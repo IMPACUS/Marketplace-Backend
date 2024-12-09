@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.seller;
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -126,12 +127,12 @@ public class CreateSellerService {
 
         // 1. 이메일 유효성 검사
         if (userService.existUserByEmail(email)) {
-            throw new CustomException(CommonErrorType.DUPLICATED_EMAIL);
+            throw new CustomException(UserErrorType.DUPLICATED_EMAIL);
         }
 
         // 2. 비밃번호 유효성 검사
         if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-            throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+            throw new CustomException(UserErrorType.INVALID_PASSWORD);
         }
 
         // 3. 상세 데이터 유효성 검사

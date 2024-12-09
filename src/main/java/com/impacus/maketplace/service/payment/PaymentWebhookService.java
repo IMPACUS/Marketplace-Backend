@@ -9,13 +9,16 @@ import org.springframework.stereotype.Service;
 public class PaymentWebhookService {
 
     private final PaymentConfirmService paymentConfirmService;
+    private final PaymentSuccessService paymentSuccessService;
 
     public void process(WebhookPaymentDTO payload) {
 
         // 1. WebhookEventType 확인 후 이벤트 타입에 맞게 설정
-        if (payload.getEventType().equals(WebhookPaymentDTO.WebhookEventType.TRANSACTION_CONFIRM)) {
+        switch (payload.getEventType()) {
             // 결제 승인
-            paymentConfirmService.confirmService(payload);
+            case TRANSACTION_CONFIRM -> paymentConfirmService.confirm(payload);
+            // 결제 성공
+            case TRANSACTION_PAID -> paymentSuccessService.success(payload);
         }
     }
 }

@@ -19,7 +19,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOption, Lo
     List<ProductOption> findByProductId(Long productId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    ProductOption findByProductOptionIdWithWriteLock(Long productOptionId);
+    ProductOption findProductOptionWithWriteLockById(Long productOptionId);
 
     @Transactional
     @Modifying

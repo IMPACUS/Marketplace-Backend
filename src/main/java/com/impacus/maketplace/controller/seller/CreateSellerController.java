@@ -2,8 +2,8 @@ package com.impacus.maketplace.controller.seller;
 
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.auth.request.EmailRequest;
-import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.auth.request.EmailDTO;
+import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.UserService;
@@ -33,7 +33,7 @@ public class CreateSellerController {
      * @return
      */
     @PostMapping("/email/verification-request")
-    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailRequest request) {
+    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailDTO request) {
         userService.sendVerificationCodeToEmail(request.getEmail(), UserType.ROLE_APPROVED_SELLER);
         return ApiResponseEntity
                 .builder()
@@ -47,7 +47,7 @@ public class CreateSellerController {
      * @return
      */
     @PostMapping("/email/confirm")
-    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationRequest request) {
+    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationDTO request) {
         boolean result = userService.confirmEmail(request);
         return ApiResponseEntity
                 .builder()

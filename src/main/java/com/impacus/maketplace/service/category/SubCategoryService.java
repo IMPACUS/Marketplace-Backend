@@ -2,9 +2,11 @@ package com.impacus.maketplace.service.category;
 
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.constants.FileSizeConstants;
+import com.impacus.maketplace.common.enumType.SearchType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
 import com.impacus.maketplace.dto.category.request.CreateSubCategoryDTO;
@@ -12,6 +14,7 @@ import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.entity.category.SubCategory;
 import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.entity.common.AttachFile;
+import com.impacus.maketplace.redis.service.ProductSearchService;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -34,6 +37,7 @@ public class SubCategoryService {
     private final AttachFileService attachFileService;
     private final ObjectCopyHelper objectCopyHelper;
     private final ProductRepository productRepository;
+    private final ProductSearchService productSearchService;
 
     /**
      * 2차 카테고리 추가하는 함수
@@ -50,7 +54,7 @@ public class SubCategoryService {
 
             // 1. 중복된 2차 카테고리 명 확인
             if (existsBySuperCategoryName(subCategoryName)) {
-                throw new CustomException(CommonErrorType.DUPLICATED_SUB_CATEGORY);
+                throw new CustomException(CategoryErrorType.DUPLICATED_SUB_CATEGORY);
             }
 
             // 2. 1차 카테고리 존재 확인
@@ -70,14 +74,35 @@ public class SubCategoryService {
                 attachFile = attachFileService.uploadFileAndAddAttachFile(thumbnail, DirectoryConstants.THUMBNAIL_IMAGE_DIRECTORY);
             }
 
-            // 3. 2차 카테고리 저장
+            // 4. 2차 카테고리 저장
             SubCategory subCategory = subCategoryRepository.save(
                     new SubCategory(superCategoryId, attachFile.getId(), subCategoryName)
             );
 
+            // 5. 2차 카테고리 검색어 저장
+            addSubCategorySearchData(subCategory);
+
             return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 2차 카테고리 검색어 저장
+     *
+     * @param subCategory 저장할 2차 카테고리
+     */
+    @Transactional
+    public void addSubCategorySearchData(SubCategory subCategory) {
+        try {
+            productSearchService.addSearchData(
+                    SearchType.SUBCATEGORY,
+                    subCategory.getId(),
+                    subCategory.getName()
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("addSubCategorySearchData", "Fail to add search data", e);
         }
     }
 
@@ -105,7 +130,7 @@ public class SubCategoryService {
 
             // 1. 중복된 2차 카테고리 명 확인
             if (existsBySuperCategoryName(subCategoryName)) {
-                throw new CustomException(CommonErrorType.DUPLICATED_SUB_CATEGORY);
+                throw new CustomException(CategoryErrorType.DUPLICATED_SUB_CATEGORY);
             }
 
             // 2. category 찾기
@@ -124,9 +149,32 @@ public class SubCategoryService {
 
             // 4. 내용 업데이트
             subCategoryRepository.updateCategoryName(categoryId, subCategoryName);
+
+            // 5. 검색어 데이터 수정
+            updateSubCategorySearchData(categoryId, subCategoryName);
+
             return objectCopyHelper.copyObject(subCategory, SubCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 2차 카테고리 검색어 수정
+     *
+     * @param subCategoryId 수정할 2차 카테고리 ID
+     * @param name          2차 카테고리 명
+     */
+    @Transactional
+    public void updateSubCategorySearchData(Long subCategoryId, String name) {
+        try {
+            productSearchService.updateSearchData(
+                    SearchType.SUBCATEGORY,
+                    subCategoryId,
+                    name
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("updateSubCategorySearchData", "Fail to update search data", e);
         }
     }
 
@@ -177,7 +225,7 @@ public class SubCategoryService {
             }
 
             // 2. 삭제
-            subCategoryRepository.deleteAllInBatch(subCategories);
+            deleteAllSubCategory(subCategories);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -186,16 +234,16 @@ public class SubCategoryService {
     /**
      * 1차 카테고리 다중 삭제
      *
-     * @param superCategoryIdList
+     * @param superCategoryIds
      * @return
      */
     @Transactional
-    public void deleteSuperCategory(List<Long> superCategoryIdList) {
+    public void deleteSuperCategory(List<Long> superCategoryIds) {
         try {
             // 1. 2차 카테고리 존재 확인
             List<SuperCategory> superCategories = new ArrayList<>();
             List<SubCategory> subCategories = new ArrayList<>();
-            for (Long superCategoryId : superCategoryIdList) {
+            for (Long superCategoryId : superCategoryIds) {
                 if (productRepository.existsBySuperCategoryId(superCategoryId)) {
                     throw new CustomException(CategoryErrorType.CANNOT_DELETE_SUPER_CATEGORY_WITH_PRODUCT);
                 }
@@ -206,10 +254,41 @@ public class SubCategoryService {
             }
 
             // 2. 삭제
-            subCategoryRepository.deleteAllInBatch(subCategories);
+            deleteAllSubCategory(subCategories);
             superCategoryService.deleteAllInBatch(superCategories);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 2차 카테고리 다중 삭제
+     *
+     * @param subCategories 삭제할 2차 카테고리
+     */
+    @Transactional
+    public void deleteAllSubCategory(List<SubCategory> subCategories) {
+        // 1. 2차 카테고리 삭제
+        subCategoryRepository.deleteAllInBatch(subCategories);
+
+        // 2. 2차 카테고리 검색어 삭제
+        subCategories.forEach(x -> deleteSubCategorySearchData(x.getId()));
+    }
+
+    /**
+     * 2챠 카테고리 검색어 삭제
+     *
+     * @param subCategoryId 삭제할 2차 카테고리 ID
+     */
+    @Transactional
+    public void deleteSubCategorySearchData(Long subCategoryId) {
+        try {
+            productSearchService.deleteSearchData(
+                    SearchType.SUBCATEGORY,
+                    subCategoryId
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("deleteSubCategorySearchData", "Fail to delete search data", e);
         }
     }
 }

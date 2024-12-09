@@ -18,12 +18,12 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class AppProductDTO {
-    private Long productId;
-    private String name;
-    private List<AttachFileDTO> productImageList;
-    private String brandName;
+    ProductType type; // 상품 타입
+    private Long productId; // 상품 아이디
+    private String name; // 상품명
+    private List<AttachFileDTO> productImageList; // 상품 이미지 리스트
     private int appSalePrice; // 판매가
-    private DeliveryType deliveryType;
+    private String brandName; // 브랜드 명
     private int discountPrice; // 할인가
     private double discountRate; // 할인률
 
@@ -32,8 +32,7 @@ public class AppProductDTO {
 
     @JsonProperty("isFreeShipping")
     private boolean isFreeShipping; // 무료 배송 여부
-
-    ProductType type;
+    private DeliveryType deliveryType; // 배송 타입
     LocalDateTime createAt;
 
 

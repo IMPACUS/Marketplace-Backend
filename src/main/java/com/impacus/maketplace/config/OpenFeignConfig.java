@@ -1,7 +1,6 @@
 package com.impacus.maketplace.config;
 
 import feign.Logger;
-import feign.RequestInterceptor;
 import feign.Retryer;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableFeignClients(basePackages = {
-        "com.impacus.maketplace.service.oauth"
+        "com.impacus.maketplace.service.oauth",
+        "com.impacus.maketplace.service.common.sms"
 })
 public class OpenFeignConfig {
 
@@ -23,13 +23,6 @@ public class OpenFeignConfig {
 
     @Bean
     Logger.Level feignLoggerLevel() {
-        return Logger.Level.HEADERS;
-    }
-
-    @Bean
-    public RequestInterceptor requestInterceptor() {
-        return requestTemplate
-                -> requestTemplate
-                .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        return Logger.Level.FULL;
     }
 }

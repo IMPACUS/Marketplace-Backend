@@ -5,8 +5,8 @@ import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.common.utils.LogUtils;
-import com.impacus.maketplace.dto.auth.request.EmailRequest;
-import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.auth.request.EmailDTO;
+import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
@@ -46,7 +46,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/email/verification-request")
-    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailRequest request) {
+    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailDTO request) {
         userService.sendVerificationCodeToEmail(request.getEmail(), UserType.ROLE_CERTIFIED_USER);
         return ApiResponseEntity
                 .builder()
@@ -60,7 +60,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/email/confirm")
-    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationRequest request) {
+    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationDTO request) {
         boolean result = userService.confirmEmail(request);
         return ApiResponseEntity
                 .builder()
@@ -133,8 +133,6 @@ public class UserController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @Valid @RequestPart(value = "user") UpdateUserDTO dto
     ) {
-        LogUtils.writeInfoLog("updateUser", "Check multipartFile is null: " +
-                profileImage == null ? "null" : "not null");
         readUserService.updateUser(userId, profileImage, dto);
         return ApiResponseEntity.<Void>builder()
                 .message("소비자 정보 변경 성공")

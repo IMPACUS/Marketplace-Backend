@@ -64,7 +64,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         // 1-2. 검색어 조회
         BooleanBuilder searchBuilder = new BooleanBuilder();
         if (keyword != null && !keyword.isBlank()) {
-            searchBuilder.or(product.name.containsIgnoreCase(keyword)); // 검색 옵션: 상품명;
+            searchBuilder.or(product.name.containsIgnoreCase(keyword)); // 검색 옵션: 상품명
         }
 
         BooleanBuilder productOptionBuilder = new BooleanBuilder();
@@ -119,8 +119,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(productOption).on(productOptionBuilder)
                 .groupBy(product.id, productOption.id)
                 .where(product.id.in(productIds))
-                .orderBy(product.createAt.desc());
-        return query
+                .orderBy(product.createAt.desc(), productOption.id.desc());
+        List<WebProductTableDetailDTO> duplicatedProducts = query
                 .transform(
                         GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
@@ -137,7 +137,34 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         )
                 );
+
+        return removeDuplicatedProductTableDetailsForWeb(duplicatedProducts);
     }
+
+    private List<WebProductTableDetailDTO> removeDuplicatedProductTableDetailsForWeb(List<WebProductTableDetailDTO> products) {
+        // Set to keep track of added productOptionIds to avoid duplication
+        Set<Long> existingOptionIds = new HashSet<>();
+
+        // Using Stream API to remove duplicates and manage options
+        Map<Long, WebProductTableDetailDTO> productMap = products.stream()
+                .collect(Collectors.toMap(
+                        WebProductTableDetailDTO::getId,
+                        Function.identity(),
+                        (existing, replacement) -> {
+                            // Add options from replacement to existing without duplicates
+                            replacement.getOptions().forEach(option -> {
+                                if (!existingOptionIds.contains(option.getProductOptionId())) {
+                                    existing.getOptions().add(option);
+                                    existingOptionIds.add(option.getProductOptionId());
+                                }
+                            });
+                            return existing;
+                        }
+                ));
+
+        return new ArrayList<>(productMap.values());
+    }
+
 
     @Override
     public AppProductDetailDTO findProductByProductIdForApp(Long userId, Long productId) {
@@ -357,6 +384,32 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     }
 
     @Override
+    public Slice<AppProductDTO> findProductsByName(Long userId, String name, Pageable pageable) {
+        // where 조건 생성
+        BooleanBuilder productBuilder = new BooleanBuilder()
+                .and(product.name.containsIgnoreCase(name));
+
+        // 조건에 맞는 productId 리스트 조회
+        List<Long> productIds = queryFactory
+                .select(product.id)
+                .from(product)
+                .where(productBuilder)
+                .orderBy(product.createAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        // 상품 조회
+        List<AppProductDTO> dtos = findProducts(
+                userId,
+                new BooleanBuilder().and(product.id.in(productIds))
+        );
+
+        // Slice 생성
+        return PaginationUtils.toSlice(dtos, pageable);
+    }
+
+    @Override
     public Slice<AppProductDTO> findAllProductBySubCategoryId(
             Long userId,
             Long subCategoryId,
@@ -404,9 +457,11 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Long userId,
             BooleanBuilder productBuilder
     ) {
-        BooleanBuilder wishlistBuilder = new BooleanBuilder();
-        wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
+        BooleanBuilder wishlistBuilder = new BooleanBuilder()
                 .and(wishlist.productId.eq(product.id));
+        if (userId != null) {
+            wishlistBuilder.and(wishlist.registerId.eq(userId.toString()));
+        }
 
         return queryFactory
                 .selectFrom(product)

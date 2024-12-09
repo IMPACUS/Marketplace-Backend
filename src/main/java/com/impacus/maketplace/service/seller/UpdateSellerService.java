@@ -5,12 +5,13 @@ import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.SellerErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -97,7 +98,7 @@ public class UpdateSellerService {
                     entryApprovedAt
             );
 
-            EmailDto emailDto = EmailDto.builder()
+            EmailDTO emailDto = EmailDTO.builder()
                     .subject("입점 결과 메일 입니다.")
                     .receiveEmail(user.getEmail())
                     .build();
@@ -286,7 +287,7 @@ public class UpdateSellerService {
         try {
             // 1. 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(dto.getNewPassword()))) {
-                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+                throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 2. 판매자 로그인 정보 변경

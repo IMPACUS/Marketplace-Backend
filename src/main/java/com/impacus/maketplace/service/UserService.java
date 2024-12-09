@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service;
 
+import com.impacus.maketplace.common.constants.SMSContentsConstants;
+import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
@@ -10,23 +12,33 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
-import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.auth.CertificationResult;
+import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
+import com.impacus.maketplace.dto.auth.request.SMSVerificationForEmailDTO;
+import com.impacus.maketplace.dto.auth.request.SMSVerificationForPasswordDTO;
+import com.impacus.maketplace.dto.auth.request.SMSVerificationRequestDTO;
+import com.impacus.maketplace.dto.auth.response.SMSVerificationForEmailResultDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
+import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
+import com.impacus.maketplace.entity.consumer.Consumer;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.entity.user.UserStatusInfo;
-import com.impacus.maketplace.redis.entity.EmailVerificationCode;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
-import com.impacus.maketplace.redis.service.EmailVerificationCodeService;
+import com.impacus.maketplace.redis.entity.VerificationCode;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
+import com.impacus.maketplace.redis.service.VerificationCodeService;
+import com.impacus.maketplace.repository.ConsumerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.alarm.user.AlarmUserService;
+import com.impacus.maketplace.service.common.sms.SMSService;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
@@ -42,6 +54,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,12 +73,14 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final LoginFailAttemptService loginFailAttemptService;
     private final EmailService emailService;
-    private final EmailVerificationCodeService emailVerificationCodeService;
+    private final VerificationCodeService verificationCodeService;
     private final AdminService adminService;
     private final UserStatusInfoService userStatusInfoService;
     private final PointService pointService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final AlarmUserService alarmUserService;
+    private final ConsumerRepository consumerRepository;
+    private final SMSService smsService;
 
     @Transactional
     public UserDTO addUser(SignUpDTO signUpRequest) {
@@ -76,15 +92,15 @@ public class UserService {
             User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
             if (existedUser != null) {
                 if (existedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                    throw new CustomException(CommonErrorType.DUPLICATED_EMAIL);
+                    throw new CustomException(UserErrorType.DUPLICATED_EMAIL);
                 } else {
-                    throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                    throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
                 }
             }
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+                throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 3. User&UserStatus 생성 및 저장
@@ -151,7 +167,7 @@ public class UserService {
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+                throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 3. 비밀번호 확인
@@ -159,7 +175,7 @@ public class UserService {
             // 3-2 맞는 경우: 이전에 틀렸던 횟수 초기화
             if (!passwordEncoder.matches(password, encodePassword(user.getPassword()))) {
                 LoginFailAttempt loginFailAttempt = loginFailAttemptService.increaseLoginCnt(user);
-                throw new CustomException(CommonErrorType.WRONG_PASSWORD);
+                throw new CustomException(UserErrorType.WRONG_PASSWORD);
             } else {
                 loginFailAttemptService.resetLoginFailAttempt(user);
             }
@@ -202,7 +218,7 @@ public class UserService {
 
         // 2. 비밀번호 유효성 검사
         if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-            throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+            throw new CustomException(UserErrorType.INVALID_PASSWORD);
         }
 
         // TODO User 설계 마무리된 후 수정할 예정
@@ -266,10 +282,10 @@ public class UserService {
      */
     private void validateCertifiedUser(User checkedUser) {
         if (checkedUser == null) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
+            throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
         } else {
             if (!checkedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+                throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             }
         }
     }
@@ -357,7 +373,7 @@ public class UserService {
 
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+                .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_EMAIL));
     }
 
     public CommonUserDTO findCommonUserByEmail(String email) {
@@ -403,7 +419,7 @@ public class UserService {
             String code = emailService.sendEmailVerificationMail(email, role);
 
             // 2. 이메일 인증 코드 저장
-            emailVerificationCodeService.saveEmailVerificationCode(email, code);
+            verificationCodeService.saveVerificationCode(email, code);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -414,15 +430,15 @@ public class UserService {
      *
      * @param request
      */
-    public boolean confirmEmail(EmailVerificationRequest request) {
+    public boolean confirmEmail(EmailVerificationDTO request) {
         String email = request.getEmail();
         String code = request.getCode();
 
         try {
-            EmailVerificationCode emailVerificationCode = emailVerificationCodeService
-                    .findEmailVerificationCodeByEmailAndCode(email, code);
+            VerificationCode emailVerificationCode = verificationCodeService
+                    .findVerificationCode(email, code);
             if (emailVerificationCode != null) {
-                emailVerificationCodeService.deleteEmailVerificationCode(emailVerificationCode);
+                verificationCodeService.deleteIdentifierVerificationCode(emailVerificationCode);
             }
 
             return emailVerificationCode != null;
@@ -453,7 +469,7 @@ public class UserService {
      */
     public User findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_EMAIL));
+                .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_EMAIL));
     }
 
     /**
@@ -481,12 +497,146 @@ public class UserService {
     public void deleteConsumer(String email) {
         List<User> userList = findUsersByEmailAboutAllProvider(email);
         if (userList.isEmpty()) {
-            throw new CustomException(CommonErrorType.NOT_EXISTED_EMAIL);
+            throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
         }
 
         // 삭제
         // User, UserConsent, UserRole, UserStatusInfo
         // GreenLabelPoint, GreenLabelPointAllocation, LevelAchievement, LevelPointMaster
         userRepository.deleteConsumer(userList.get(0).getId());
+    }
+
+    /**
+     * 사용자 개인 정보 저장
+     *
+     * @param userId 사용자 ID
+     * @param certificationResult 본인 인증 데이터
+     */
+    @Transactional
+    public void saveCertification(Long userId, CertificationResult certificationResult) {
+        // 1. 사용자 존재하는지 확인
+        if (!userRepository.existsByIdAndType(
+                userId,
+                List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)
+        )) {
+            throw new CustomException(UserErrorType.NOT_EXISTED_USER);
+        }
+
+        // 2. 이미 존재하는 핸드폰 번호인지 확인
+        if (userRepository.existsConsumerByPhoneNumberAndUserId(
+                userId,
+                certificationResult.getMobileNo())
+        ) {
+            throw new CustomException(UserErrorType.DUPLICATED_PHONE_NUMBER);
+        }
+
+        // 2. 저장 혹은 업데이트
+        userRepository.saveOrUpdateCertification(userId, certificationResult);
+        saveOrUpdateConsumer(userId, certificationResult);
+    }
+
+    /**
+     * Consumer 정보 저장 혹은 업데이트
+     *
+     * @param userId 사용자 ID
+     * @param certificationResult 본인 인증 데이터
+     */
+    @Transactional
+    public void saveOrUpdateConsumer(Long userId, CertificationResult certificationResult) {
+        if (consumerRepository.existsByUserId(userId)) { // 업데이트
+            consumerRepository.updateConsumer(userId, certificationResult.getCi(), LocalDateTime.now());
+        } else { // 생성
+            Consumer consumer = certificationResult.toEntity(userId);
+            consumerRepository.save(consumer);
+        }
+    }
+
+    /**
+     * @param dto
+     */
+    @Transactional
+    public void sendVerificationCodeToSMS(SMSVerificationRequestDTO dto) {
+        try {
+            String code = StringUtils.generateRandomCode();
+            String incomingNumber = StringUtils.extractPhoneNumber(dto.getPhoneNumber());
+
+            // 1. SMS 전송
+            boolean result = smsService.sendSimpleSMS(incomingNumber,
+                    String.format(SMSContentsConstants.VERIFICIATION, code)
+            );
+            if (!result) {
+                throw new CustomException(CommonErrorType.FAIL_TO_SEND_SMS);
+            } else {
+                // 2. 코드 저장
+                verificationCodeService.saveVerificationCode(dto.getPhoneNumber(), code);
+            }
+        } catch (CustomException e) {
+            throw new CustomException(e);
+        }
+    }
+
+    /**
+     * 이메일 찾기를 위한 휴대폰 인증 확인
+     *
+     * @param dto
+     * @return
+     */
+    public SMSVerificationForEmailResultDTO verifySMSCodeForEmail(SMSVerificationForEmailDTO dto) {
+        try {
+            String phoneNumber = dto.getPhoneNumber();
+
+            // 코드 확인
+            VerificationCode verificationCode = verificationCodeService
+                    .findVerificationCode(phoneNumber, dto.getCode());
+            if (verificationCode != null) {
+                verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
+            } else {
+                return SMSVerificationForEmailResultDTO.toDTO(false);
+            }
+
+            // 사용자 확인
+            ConsumerEmailDTO consumer = userRepository.findConsumerByPhoneNumber(phoneNumber);
+            if (consumer == null) {
+                throw new CustomException(UserErrorType.NOT_EXISTED_USER);
+            }
+
+            return SMSVerificationForEmailResultDTO.toDTO(true, consumer.getEmail());
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
+    }
+
+    /**
+     * 비밀번호 찾기를 위한 휴대폰 인증 확인
+     *
+     * @param dto
+     * @return
+     */
+    public boolean verifySMSCodeForPassword(SMSVerificationForPasswordDTO dto) {
+        String phoneNumber = dto.getPhoneNumber();
+        String email = dto.getEmail();
+
+        // 코드 확인
+//        VerificationCode verificationCode = verificationCodeService
+//                .findVerificationCode(phoneNumber, dto.getCode());
+//        if (verificationCode != null) {
+//            verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
+//        } else {
+//            return false;
+//        }
+
+        // 사용자 확인
+        ConsumerEmailDTO consumer = userRepository.findConsumerByPhoneNumberAndEmail(phoneNumber, email);
+        if (consumer == null) {
+            throw new CustomException(UserErrorType.NOT_EXISTED_USER);
+        }
+
+        // 이메일 전송
+        HashMap<String, String> mailHash = new HashMap<>();
+        mailHash.put("password", consumer.getPassword());
+        EmailDTO emailDTO = EmailDTO.toDTO(email, MailType.PASSWORD, mailHash);
+        emailService.sendSingleEmail(emailDTO);
+
+        return true;
     }
 }

@@ -95,6 +95,9 @@ dependencies {
     implementation group: 'io.portone', name: 'server-sdk', version: '0.9.3'
 
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+    // external dependencies
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 tasks.named('test') {
