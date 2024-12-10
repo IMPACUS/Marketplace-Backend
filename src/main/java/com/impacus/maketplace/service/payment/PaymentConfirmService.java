@@ -15,6 +15,7 @@ import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
 import com.impacus.maketplace.repository.product.history.ProductOptionHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,7 +62,18 @@ public class PaymentConfirmService {
 
         paymentEvent.getPaymentOrders().addAll(paymentOrders);
 
-        // 2. 결제 금액이 totalAmount와 일치하는지 확인
+        // 2. 결제 상태 확인
+        paymentOrders.forEach(paymentOrder -> {
+            if (paymentOrder.getStatus() == PaymentOrderStatus.SUCCESS
+            || paymentOrder.getStatus() == PaymentOrderStatus.FAILURE) {
+                throw new CustomException(PaymentWebhookErrorType.ALREADY_FINISH_PAYMENT);
+            }
+            if (paymentOrder.getStatus() == PaymentOrderStatus.CONFIRM) {
+                throw new CustomException(PaymentWebhookErrorType.ALREADY_CONFIRM_PROCESS);
+            }
+        });
+
+        // 3. 결제 금액이 totalAmount와 일치하는지 확인
         if (!validateTotalAmount(paymentEvent, webhookPaymentDTO.getData().getTotalAmount())) {
             paymentEvent.getPaymentOrders()
                     .forEach(paymentOrder -> paymentOrder.changeStatus(PaymentOrderStatus.FAILURE));
@@ -70,7 +82,7 @@ public class PaymentConfirmService {
             throw new CustomException(exception);
         }
 
-        // 3. 상품의 재고가 충분한지 확인
+        // 4. 상품의 재고가 충분한지 확인
         Map<Long, Optional<ProductOption>> productOptionOpts = paymentEvent.getPaymentOrders().stream()
                 .collect(Collectors.toMap(
                         PaymentOrder::getProductOptionHistoryId,
@@ -85,21 +97,21 @@ public class PaymentConfirmService {
 
         checkProductStock(paymentEvent, productOptions);
 
-        // 4. 전부 일치한다면 변경해야 되는 상태들 변경해주기(단, 현재 시점에서 구매 확정 X)
+        // 5. 전부 일치한다면 변경해야 되는 상태들 변경해주기(단, 현재 시점에서 구매 확정 X)
         paymentEvent.getPaymentOrders().forEach(paymentOrder -> {
-            // 4.1 재고 변경
+            // 5.1 재고 변경
             ProductOption productOption = productOptions.get(paymentOrder.getProductOptionHistoryId());
             productOption.setStock(productOption.getStock() - paymentOrder.getQuantity());
         });
 
-        // 4.2 Payment Order History Update
+        // 5.2 Payment Order History Update
         paymentOrderHistoryService.updateAll(paymentEvent.getPaymentOrders(), PaymentOrderStatus.CONFIRM, "payment confirm");
 
-        // 4.3 Payment Order Status 변경
+        // 5.3 Payment Order Status 변경
         paymentEvent.getPaymentOrders().forEach(paymentOrder ->
                 paymentOrder.changeStatus(PaymentOrderStatus.CONFIRM));
 
-        // 4.4 PaymentEvent 결제 승인 시간 업데이트
+        // 5.4 PaymentEvent 결제 승인 시간 업데이트
         paymentEvent.setApprovedAt(LocalDateTime.now());
     }
 

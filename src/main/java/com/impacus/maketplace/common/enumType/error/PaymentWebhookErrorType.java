@@ -20,7 +20,8 @@ public enum PaymentWebhookErrorType implements ErrorType{
 
     OUT_OF_STOCK("OUT_OF_STOCK", "구매하려는 상품의 재고가 부족합니다."),
 
-    ALREADY_FINISH_PAYMENT("ALREADY_FINISH_PAYMENT", "이미 결제 처리가 완료된 주문입니다.");
+    ALREADY_FINISH_PAYMENT("ALREADY_FINISH_PAYMENT", "이미 결제 처리가 완료된 주문입니다."),
+    ALREADY_CONFIRM_PROCESS("ALREADY_CONFIRM_PROCESS", "이미 결제 승인 처리 작업에 들어간 주문입니다."),
 
     private final String code;
     private final String msg;
