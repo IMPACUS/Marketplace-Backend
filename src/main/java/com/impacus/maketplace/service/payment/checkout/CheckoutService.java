@@ -185,10 +185,10 @@ public class CheckoutService {
         }
 
         // 7. order_id 및 payment_id 생성
-        String orderId = getOrderId();
-        String paymentKey;
+        String paymentId = getPaymentId();
+        String idempotencyKey;
         try {
-            paymentKey = OrderUtils.generatePaymentKey(checkoutSingleDTO);
+            idempotencyKey = OrderUtils.getIdempotencyKey(checkoutSingleDTO);
         } catch (Exception e) {
             LogUtils.error(this.getClass().toString(), "Fail to generate payment id caused over threshold count", e);
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.FAIL_GENERATE_PAYMENT_ID);
@@ -200,8 +200,8 @@ public class CheckoutService {
         PaymentEvent paymentEvent = PaymentEvent.builder()
                 .buyerId(userId)
                 .isPaymentDone(false)
-                .paymentKey(paymentKey)
-                .orderId(orderId)
+                .paymentId(paymentId)
+                .idempotencyKey(idempotencyKey)
                 .type(PaymentType.NORMAL)   // 추후 수정
                 .orderName(orderName)
                 .method(checkoutSingleDTO.getMethod())
@@ -215,7 +215,7 @@ public class CheckoutService {
                 .productId(checkoutProductInfo.getProductId())
                 .productOptionHistoryId(checkoutProductInfo.getProductOptionHistoryId())
                 .quantity(checkoutSingleDTO.getPaymentProductInfo().getQuantity())
-                .orderId(orderId)
+                .paymentId(paymentId)
                 .amount((long) checkoutProductInfo.getAppSalesPrice())
                 .ecoDiscount(discountInfo.getEcoDiscountAmount())
                 .greenLabelDiscount(discountInfo.getPointDiscountAmount())
@@ -252,12 +252,12 @@ public class CheckoutService {
 
         return PaymentSingleDTO.builder()
                 .storeId(paymentConfig.getStoreId())
-                .paymentKey(orderId)
+                .paymentId(paymentId)
                 .orderName(orderName)
                 .totalDiscountedAmount(savedPaymentEvent.getTotalDiscountedAmount())
                 .currency("KRW")
                 .channelKey(paymentConfig.getChannelKeyByPaymentMethod(savedPaymentEvent.getMethod()))
-                .paymentMethod(savedPaymentEvent.getMethod())
+                .paymentMethod(savedPaymentEvent.getMethod().getValue())
                 .customer(checkoutCustomerDTO)
                 .build();
     }
@@ -405,10 +405,10 @@ public class CheckoutService {
 
         // 7. order_id 및 payment_id 생성
 //        System.out.println("7. order_id 및 payment_id 생성: " + System.currentTimeMillis());
-        String orderId = getOrderId();
-        String paymentKey;
+        String paymentId = getPaymentId();
+        String idempotencyKey;
         try {
-            paymentKey = OrderUtils.generatePaymentKey(checkoutCartDTO);
+            idempotencyKey = OrderUtils.getIdempotencyKey(checkoutCartDTO);
         } catch (Exception e) {
             LogUtils.error(this.getClass().toString(), "Fail to generate payment id caused over threshold count", e);
             throw new CustomException(PaymentErrorType.FAIL_GENERATE_PAYMENT_ID);
@@ -421,8 +421,8 @@ public class CheckoutService {
         PaymentEvent paymentEvent = PaymentEvent.builder()
                 .buyerId(userId)
                 .isPaymentDone(false)
-                .paymentKey(paymentKey)
-                .orderId(orderId)
+                .idempotencyKey(idempotencyKey)
+                .paymentId(paymentId)
                 .type(PaymentType.NORMAL)   // 추후 수정
                 .orderName(orderName)
                 .method(checkoutCartDTO.getMethod())
@@ -438,7 +438,7 @@ public class CheckoutService {
                                     .productId(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductId())
                                     .productOptionHistoryId(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductOptionHistoryId())
                                     .quantity(checkoutCartProductInfoDTO.getQuantity())
-                                    .orderId(orderId)
+                                    .paymentId(paymentId)
                                     .amount((long) checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getAppSalesPrice())
                                     .ecoDiscount(discountInfo.getEcoDiscountAmount())
                                     .greenLabelDiscount(discountInfo.getPointDiscountAmount())
@@ -483,13 +483,13 @@ public class CheckoutService {
 
         return PaymentCartDTO.builder()
                 .storeId(paymentConfig.getStoreId())
-                .paymentKey(orderId)
+                .paymentId(paymentId)
                 .shoppingBasketIdList(checkoutCartDTO.getShoppingBasketIdList())
                 .orderName(orderName)
                 .totalDiscountedAmount(savedPaymentEvent.getTotalDiscountedAmount())
                 .currency("KRW")
                 .channelKey(paymentConfig.getChannelKeyByPaymentMethod(savedPaymentEvent.getMethod()))
-                .paymentMethod(savedPaymentEvent.getMethod())
+                .paymentMethod(savedPaymentEvent.getMethod().getValue())
                 .customer(checkoutCustomerDTO)
                 .build();
     }
@@ -518,21 +518,21 @@ public class CheckoutService {
      * 주문 id 생성
      * required: 재시도 로직 수정 필요
      */
-    private String getOrderId() {
+    private String getPaymentId() {
 
         int count = 1;
-        String orderId = OrderUtils.generateOrderNumber();
+        String paymentId = OrderUtils.generateOrderNumber();
 
-        while (paymentEventRepository.existsByOrderId(orderId)) {
+        while (paymentEventRepository.existsByPaymentId(paymentId)) {
             if (count == 5) {
                 LogUtils.writeInfoLog(this.getClass().toString(), "Fail to generate order id caused over threshold count");
                 throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.FAIL_GENERATE_ORDER_ID);
             }
-            orderId = OrderUtils.generateOrderNumber();
+            paymentId = OrderUtils.generateOrderNumber();
             count++;
         }
 
-        return orderId;
+        return paymentId;
     }
 
     private void validateCheckoutProduct(boolean productIsDeleted, boolean productOptionIsDeleted, ProductStatus productStatus, Long stock, Long quantity) {

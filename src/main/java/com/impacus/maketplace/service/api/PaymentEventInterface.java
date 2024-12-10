@@ -11,6 +11,6 @@ public interface PaymentEventInterface {
      * @param orderId 주문 식별자 (주문번호)
      * @return 엔티티 PK
      */
-    Long findIdByOrderId(String orderId);
+    Long findIdByPaymentId(String orderId);
 
 }

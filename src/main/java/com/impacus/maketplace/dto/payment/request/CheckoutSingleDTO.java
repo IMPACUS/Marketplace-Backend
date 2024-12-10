@@ -29,6 +29,8 @@ public class CheckoutSingleDTO {
     private Boolean usedRegisteredCard = false; // 등록된 카드 사용 유무
     private Long registeredCardId;  // 사용한 카드의 id
     private Long calculatedTotalAmount;  // 프론트 서버에서 계산한 금액
+    @NotNull(message = "seed 값은 필수 요청 데이터입니다.")
+    private String seed;
 
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     public void setAppliedOrderCouponIds(List<Long> appliedOrderCouponIds) {

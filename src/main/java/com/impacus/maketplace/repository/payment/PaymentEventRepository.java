@@ -7,7 +7,9 @@ import java.util.Optional;
 
 public interface PaymentEventRepository extends JpaRepository<PaymentEvent, Long> {
 
-    boolean existsByOrderId(String orderId);
+    boolean existsByPaymentId(String paymentId);
 
-    Optional<Long> findByOrderId(String orderId);
+    Optional<Long> findIdByPaymentId(String paymentId);
+
+    Optional<PaymentEvent> findByPaymentId(String paymentId);
 }
