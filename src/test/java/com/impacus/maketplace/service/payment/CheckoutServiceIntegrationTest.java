@@ -21,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -238,7 +239,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 1: 10000원 짜리 일반 상품
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
@@ -264,7 +265,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 1: 10000원 짜리 일반 상품
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 30000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 30000L, UUID.randomUUID().toString());
 
             // when
             PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
@@ -293,7 +294,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 1: 10000원 짜리 일반 상품 + 10% 할인
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.KAKAO_PAY, false, null, 9000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.KAKAO_PAY, false, null, 9000L, UUID.randomUUID().toString());
 
             // when
             PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
@@ -326,7 +327,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 2: 8000원 짜리 상품 -> 결제 금액: 8000 - (10000 * 10/100 + 5000) - (10000 * 10/100) = 1000
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 1000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 1000L, UUID.randomUUID().toString());
 
             // when
             PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
@@ -356,7 +357,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 2: 8000원 상품 -> 8000 - (10000 * 10/100) - (10000 * 10/100) - (1000) = 5000
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 1000L, PaymentMethod.CARD, false, null, 5000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 1000L, PaymentMethod.CARD, false, null, 5000L, UUID.randomUUID().toString());
 
             // when
             PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
@@ -388,7 +389,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 2: 8000원 상품 -> 8000 - (10000 * 10/100 + 10000 * 20/100 + 5000) - (10000 * 10/100) = -1000 -> 0
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 0L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 0L, UUID.randomUUID().toString());
 
             // when
             PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
@@ -420,7 +421,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 2: 8000원 상품 -> 8000 - (10000 * 10/100 + 10000 * 20/100 + 5000) - (10000 * 10/100) = -1000 -> 0 then 포인트 적용 불가
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 1000L, PaymentMethod.CARD, false, null, 0L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 1000L, PaymentMethod.CARD, false, null, 0L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -447,7 +448,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 4: 판매 중지된 상품
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 8000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 8000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -474,7 +475,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 1: 옵션이 삭제된 상품
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -501,7 +502,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 1: 재고가 0인 상품
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -532,7 +533,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 1개: : 앱 판매가가 19999원짜리인 할인된 가격 16999원 상품 1개 -> 16999 - (19999 * 10/100) - (19999 * 20/100) = 16999 - 2000 - 4000 = 10999
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10999L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10999L, UUID.randomUUID().toString());
 
             // when
             PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
@@ -561,7 +562,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 8000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 8000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -589,7 +590,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 5000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 5000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -617,7 +618,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 5000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 5000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -645,7 +646,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.KAKAO_PAY, false, null, 5000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.KAKAO_PAY, false, null, 5000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -673,7 +674,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 9000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 9000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -701,7 +702,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 9000L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, null, 0L, PaymentMethod.CARD, false, null, 9000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -729,7 +730,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 0L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 0L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -762,7 +763,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 상품 3개: 앱 판매가가 19999원짜리인 할인된 가격 16999원 상품 3개 -> 16999 * 3 - (19999 * 3 * 10/100 + 5000) - (19999 * 3 * 20/100) = 50997 - (5999.7 + 5000) - 11999.4 -> 27998 - 3000 = 24998
-            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 3000L, PaymentMethod.KAKAO_PAY, false, null, 24998L);
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 3000L, PaymentMethod.KAKAO_PAY, false, null, 24998L, UUID.randomUUID().toString());
 
             // when
             PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
@@ -821,7 +822,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             PaymentCartDTO result = checkoutService.checkoutCart(userId, checkoutCartDTO);
@@ -852,7 +853,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.KAKAO_PAY, null, null, 30000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.KAKAO_PAY, null, null, 30000L, UUID.randomUUID().toString());
 
             // when
             PaymentCartDTO result = checkoutService.checkoutCart(userId, checkoutCartDTO);
@@ -902,7 +903,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // 10000 * 3 + 8000 * 3 + 16999 * 3 = 30000 + 24000 + 50997 = 104997
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 104997L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 104997L, UUID.randomUUID().toString());
 
             // when
             PaymentCartDTO result = checkoutService.checkoutCart(userId, checkoutCartDTO);
@@ -959,7 +960,7 @@ public class CheckoutServiceIntegrationTest {
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
             // TotalAmount: 10000 + 8000 + 16999 - ((10000 * 0.1) + (10000 * 0.1) + (10000)) = 34999 - 12000 = 22999
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 22999L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 22999L, UUID.randomUUID().toString());
 
             // when
             PaymentCartDTO result = checkoutService.checkoutCart(userId, checkoutCartDTO);
@@ -1028,7 +1029,7 @@ public class CheckoutServiceIntegrationTest {
             // 3. product3: 10000
             // 4. common: (10000 + 10000 + 19999) * 0.1 + 5000 = 40000(3999.9) + 5000 = 9000
             // TotalAmount = 34999 - 3000 - 2000 - 10000 - 9000 = 34999 - 23000 = 10999
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10999L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10999L, UUID.randomUUID().toString());
 
             // when
             PaymentCartDTO result = checkoutService.checkoutCart(userId, checkoutCartDTO);
@@ -1081,7 +1082,7 @@ public class CheckoutServiceIntegrationTest {
             // notDiscountedAmount = 10000 + 8000 + 16999 = 34999
             // pointDiscountAmount = 10000
             // totalAmount = 24999
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 10000L, PaymentMethod.CARD, false, null, 24999L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 10000L, PaymentMethod.CARD, false, null, 24999L, UUID.randomUUID().toString());
 
             // when
             PaymentCartDTO result = checkoutService.checkoutCart(userId, checkoutCartDTO);
@@ -1151,7 +1152,7 @@ public class CheckoutServiceIntegrationTest {
             // 4. common: (30000 + 30000 + 59997) * 0.1 + 5000 = 12000(11999.7) + 5000 = 17000
             // 5. pointAmount: 10000
             // TotalAmount = 34999 - 9000 - 6000 - 10000 - 17000 - 10000 = 104997 - 52000 = 52997
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 10000L, PaymentMethod.CARD, false, null, 52997L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 10000L, PaymentMethod.CARD, false, null, 52997L, UUID.randomUUID().toString());
 
             // when
             PaymentCartDTO result = checkoutService.checkoutCart(userId, checkoutCartDTO);
@@ -1200,7 +1201,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 5000L, PaymentMethod.CARD, false, null, 1999L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 5000L, PaymentMethod.CARD, false, null, 1999L, UUID.randomUUID().toString());
 
             // when
             PaymentCartDTO result = checkoutService.checkoutCart(userId, checkoutCartDTO);
@@ -1229,7 +1230,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1259,7 +1260,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1289,7 +1290,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1345,7 +1346,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1401,7 +1402,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1460,7 +1461,7 @@ public class CheckoutServiceIntegrationTest {
             List<Long> appliedCommonUserCouponIds = new ArrayList<>();
             appliedCommonUserCouponIds.add(11L);
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1519,7 +1520,7 @@ public class CheckoutServiceIntegrationTest {
             List<Long> appliedCommonUserCouponIds = new ArrayList<>();
             appliedCommonUserCouponIds.add(11L);
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, 0L, PaymentMethod.CARD, false, null, 10000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1557,7 +1558,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 10L, PaymentMethod.CARD, false, null, 0L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 10L, PaymentMethod.CARD, false, null, 0L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1587,7 +1588,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 15000L, PaymentMethod.CARD, false, null, 0L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 15000L, PaymentMethod.CARD, false, null, 0L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->
@@ -1617,7 +1618,7 @@ public class CheckoutServiceIntegrationTest {
 
             AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
 
-            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 5000L);
+            CheckoutCartDTO checkoutCartDTO = new CheckoutCartDTO(shppingBasketIdList, paymentProductInfos, addressInfoDTO, new ArrayList<>(), 0L, PaymentMethod.CARD, false, null, 5000L, UUID.randomUUID().toString());
 
             // when
             CustomException exception = assertThrows(CustomException.class, () ->

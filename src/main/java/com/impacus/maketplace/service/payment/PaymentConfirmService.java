@@ -46,7 +46,7 @@ public class PaymentConfirmService {
         // 1. paymentId를 통해서 구매 예정인 상품 조회
         String paymentId = webhookPaymentDTO.getData().getPaymentId();
 
-        PaymentEvent paymentEvent = paymentEventRepository.findByPaymentKey(paymentId)
+        PaymentEvent paymentEvent = paymentEventRepository.findByPaymentId(paymentId)
                 .orElseThrow(() -> new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_EVENT_BY_PAYMENT_ID));
 
         List<PaymentOrder> paymentOrders = paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())

@@ -34,10 +34,10 @@ public class PaymentEvent extends BaseEntity {
     @ColumnDefault(value = "'false'")
     private Boolean isPaymentDone;  // 결제 완료 여부
 
-    private String paymentKey;  // 멱득성을 보장하기 위한 키
+    private String idempotencyKey;  // 멱득성을 보장하기 위한 키
 
     @Column(unique = true)
-    private String orderId;     // 주문 식별자
+    private String paymentId;     // 주문 식별자
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

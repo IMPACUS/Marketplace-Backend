@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WebhookPaymentDTO {
-    private WebhookEventType eventType;
+    private WebhookEventType type;
     private String timestamp;
     private PaymentData data;
 

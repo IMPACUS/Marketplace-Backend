@@ -33,7 +33,7 @@ public class PaymentSuccessService {
 
         // 1. Payment Event 조회
         String paymentId = payload.getData().getPaymentId();
-        PaymentEvent paymentEvent = paymentEventRepository.findByPaymentKey(paymentId)
+        PaymentEvent paymentEvent = paymentEventRepository.findByPaymentId(paymentId)
                 .orElseThrow(() -> new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_EVENT_BY_PAYMENT_ID));
 
         // 2. Payment Order 조회

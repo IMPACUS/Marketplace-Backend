@@ -14,7 +14,7 @@ public class PaymentWebhookService {
     public void process(WebhookPaymentDTO payload) {
 
         // 1. WebhookEventType 확인 후 이벤트 타입에 맞게 설정
-        switch (payload.getEventType()) {
+        switch (payload.getType()) {
             // 결제 승인
             case TRANSACTION_CONFIRM -> paymentConfirmService.confirm(payload);
             // 결제 성공

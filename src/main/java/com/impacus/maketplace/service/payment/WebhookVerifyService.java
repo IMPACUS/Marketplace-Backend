@@ -24,7 +24,7 @@ public class WebhookVerifyService {
             validatePayload(webhookPaymentDTO);
             return webhookPaymentDTO;
         } catch (Exception e) {
-            LogUtils.error(this.getClass() + "verify", "Webhook 검증 과정에서 예외 발생", e);
+            LogUtils.error(this.getClass() + " verify", "Webhook 검증 과정에서 예외 발생", e);
             throw new CustomException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED, e);
         }
     }
@@ -37,7 +37,7 @@ public class WebhookVerifyService {
             throw new CustomException(PaymentWebhookErrorType.REQUIRED_TRANSACTION_ID);
         }
 
-        if (paymentDTO.getEventType().equals(WebhookPaymentDTO.WebhookEventType.TRANSACTION_CONFIRM)
+        if (paymentDTO.getType().equals(WebhookPaymentDTO.WebhookEventType.TRANSACTION_CONFIRM)
                 && paymentDTO.getData().getTotalAmount() == null) {
             throw new CustomException(PaymentWebhookErrorType.REQUIRED_TOTAL_AMOUNT);
         }

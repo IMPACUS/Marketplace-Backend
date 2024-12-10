@@ -39,7 +39,7 @@ public class PaymentOrder extends BaseEntity {
     private Long quantity;       // 구매 수량
 
     @Column(nullable = false)
-    private String orderId;     // 주문 식별자
+    private String paymentId;     // 주문 식별자
 
     @Column(nullable = false)
     private Long amount;    // 단일 상품 금액

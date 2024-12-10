@@ -31,6 +31,7 @@ public class CheckoutCartDTO {
     private Boolean usedRegisteredCard = false; // 등록된 카드 사용 유무
     private Long registeredCardId;  // 사용한 카드의 id
     private Long calculatedTotalAmount;  // 프론트 서버에서 계산한 금액
+    private String seed;
 
     @JsonSetter(nulls = Nulls.AS_EMPTY) // JSON 데이터에서 null이 들어올 경우 빈 리스트로 초기화
     public void setPaymentProductInfos(List<PaymentProductInfoDTO> paymentProductInfos) {
