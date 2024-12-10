@@ -35,12 +35,13 @@ public class PaymentConfirmService {
     private final PaymentEventRepository paymentEventRepository;
     private final ProductOptionRepository productOptionRepository;
     private final ProductOptionHistoryRepository productOptionHistoryRepository;
-
+    private final PaymentOrderHistoryService paymentOrderHistoryService;
 
     /**
      * 결제 승인 처리
      */
     // transactionId는 어떻게 처리되는 것인가?
+    // 쿠폰 발급 로직 추가
     @Transactional
     public void confirm(WebhookPaymentDTO webhookPaymentDTO) {
         // 1. paymentId를 통해서 구매 예정인 상품 조회
@@ -87,13 +88,20 @@ public class PaymentConfirmService {
             // 4.1 재고 변경
             ProductOption productOption = productOptions.get(paymentOrder.getProductOptionHistoryId());
             productOption.setStock(productOption.getStock() - paymentOrder.getQuantity());
-            // 4.2 PaymentOrder 상태 변경
-            paymentOrder.changeStatus(PaymentOrderStatus.EXECUTING);
         });
 
-        // 4.3 PaymentEvent 결제 승인 시간 업데이트
+        // 4.2 Payment Order History Update
+        paymentOrderHistoryService.updateAll(paymentEvent.getPaymentOrders(), PaymentOrderStatus.EXECUTING, "payment confirm");
+
+        // 4.3 Payment Order Status 변경
+        paymentEvent.getPaymentOrders().forEach(paymentOrder ->
+                paymentOrder.changeStatus(PaymentOrderStatus.EXECUTING
+                ));
+
+        // 4.4 PaymentEvent 결제 승인 시간 업데이트
         paymentEvent.setApprovedAt(LocalDateTime.now());
     }
+
     private void checkProductStock(PaymentEvent paymentEvent, Map<Long, ProductOption> productOptions) {
         String message = paymentEvent.getPaymentOrders().stream()
                 .filter(paymentOrder -> paymentOrder.getQuantity() > productOptions.get(paymentOrder.getProductOptionHistoryId()).getStock())
@@ -109,6 +117,7 @@ public class PaymentConfirmService {
             throw exception;
         }
     }
+
     private Map<Long, ProductOption> checkNotFoundedProductOption(PaymentEvent paymentEvent, Map<Long, Optional<ProductOption>> productOptions) {
         String message = productOptions.entrySet().stream()
                 .filter(longOptionalEntry -> longOptionalEntry.getValue().isEmpty())
@@ -143,6 +152,7 @@ public class PaymentConfirmService {
 
         return Optional.of(productOption);
     }
+
     private boolean validateTotalAmount(PaymentEvent paymentEvent, String expectedTotalAmount) {
 
         Long totalAmount = Long.parseLong(expectedTotalAmount);

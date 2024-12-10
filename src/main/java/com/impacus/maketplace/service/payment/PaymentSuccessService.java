@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
+import com.impacus.maketplace.entity.payment.PaymentOrderHistory;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.service.payment.postprocess.LedgerService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +24,7 @@ public class PaymentSuccessService {
 
     private final PaymentEventRepository paymentEventRepository;
     private final PaymentOrderRepository paymentOrderRepository;
+    private final PaymentOrderHistoryService paymentOrderHistoryService;
     private final LedgerService ledgerService;
 
     /**
@@ -40,11 +43,13 @@ public class PaymentSuccessService {
         List<PaymentOrder> paymentOrders = paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())
                 .orElseThrow(() -> new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID));
 
-        // 3. Payment Order 결제 주문 상태 변경
+        // 3.1. payment_order_history 업데이트
+        paymentOrderHistoryService.updateAll(paymentOrders, PaymentOrderStatus.SUCCESS, "payment success");
+
+        // 3.2 Payment Order 결제 주문 상태 변경
         paymentOrders.forEach(paymentOrder -> paymentOrder.changeStatus(PaymentOrderStatus.SUCCESS));
 
         // 4. 모든 Payment Order 원장/(정산) 처리 및 상태 업데이트
-
 
         // 5. 모든 Payment Order 결제 완료 상태 변경
 
