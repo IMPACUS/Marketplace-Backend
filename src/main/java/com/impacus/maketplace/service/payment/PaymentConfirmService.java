@@ -42,9 +42,6 @@ public class PaymentConfirmService {
      * 결제 승인 처리
      */
     // transactionId는 어떻게 처리되는 것인가?
-    // 쿠폰 발급 로직 추가
-    // shoppginBasket Id List 존재할 경우 제거해주는 작업
-    // 조건 불만족 시 승인 X
     @Transactional
     public void confirm(WebhookPaymentDTO webhookPaymentDTO) {
         // 1. paymentId를 통해서 구매 예정인 상품 조회

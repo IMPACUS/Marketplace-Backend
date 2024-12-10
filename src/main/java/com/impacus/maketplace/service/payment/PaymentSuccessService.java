@@ -10,6 +10,7 @@ import com.impacus.maketplace.entity.payment.PaymentOrderHistory;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.service.payment.postprocess.LedgerService;
+import com.impacus.maketplace.service.product.ShoppingBasketService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +27,14 @@ public class PaymentSuccessService {
     private final PaymentOrderRepository paymentOrderRepository;
     private final PaymentOrderHistoryService paymentOrderHistoryService;
     private final LedgerService ledgerService;
+    private final ShoppingBasketService shoppingBasketService;
 
     /**
      * 결제 성공 처리
      * 상황 부연 설명: 결제 승인 과정을 성공적으로 처리한 뒤 로직
      */
-    // 조건 불만족 시 결제 X
+    // 쿠폰 발급 로직 추가
+    // shoppginBasket Id List 존재할 경우 제거해주는 작업
     @Transactional
     public void success(WebhookPaymentDTO payload) {
 
@@ -44,11 +47,24 @@ public class PaymentSuccessService {
         List<PaymentOrder> paymentOrders = paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())
                 .orElseThrow(() -> new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID));
 
-        // 3.1. payment_order_history 업데이트
+        // 3. 결제 상태 확인
+        paymentOrders.forEach(paymentOrder -> {
+            if (paymentOrder.getStatus() == PaymentOrderStatus.SUCCESS
+                    || paymentOrder.getStatus() == PaymentOrderStatus.FAILURE) {
+                throw new CustomException(PaymentWebhookErrorType.ALREADY_FINISH_PAYMENT);
+            }
+        });
+
+        // 4.1. payment_order_history 업데이트
         paymentOrderHistoryService.updateAll(paymentOrders, PaymentOrderStatus.SUCCESS, "payment success");
 
-        // 3.2 Payment Order 결제 주문 상태 변경
+        // 4.2 Payment Order 결제 주문 상태 변경
         paymentOrders.forEach(paymentOrder -> paymentOrder.changeStatus(PaymentOrderStatus.SUCCESS));
+
+        // 5. shoppingBaset id 존재할 경우 삭제 작업
+        if (payload.getData().getShoppingBasketIdList() != null && !payload.getData().getShoppingBasketIdList().isEmpty()) {
+            shoppingBasketService.deleteAllShoppingBasket(payload.getData().getShoppingBasketIdList());
+        }
 
         // 4. 모든 Payment Order 원장/(정산) 처리 및 상태 업데이트
 
