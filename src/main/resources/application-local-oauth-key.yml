@@ -12,7 +12,7 @@ spring:
             tokenUri: https://appleid.apple.com/auth/token
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
-            token-uri: https://kauth.kakao.com/oauth/token
+            token-uri: https://kauth.kakao.com/oauth/token1
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
           naver:

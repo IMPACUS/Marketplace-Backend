@@ -1,7 +1,9 @@
 package com.impacus.maketplace.entity.consumer;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -22,4 +24,14 @@ public class OAuthToken {
 
     @Column(nullable = false)
     private String refreshToken;
+
+    public OAuthToken(
+            Long consumerId,
+            String accessToken,
+            String refreshToken
+    ) {
+        this.consumerId = consumerId;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
 }

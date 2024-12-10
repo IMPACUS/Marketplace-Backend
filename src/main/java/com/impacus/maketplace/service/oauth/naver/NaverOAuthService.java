@@ -11,6 +11,7 @@ import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
 import com.impacus.maketplace.service.oauth.OAuthService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
@@ -28,6 +29,8 @@ public class NaverOAuthService implements OAuthService {
     private final NaverCommonAPIService naverCommonAPIService;
     private final CustomOauth2UserService customOauth2UserService;
     private final JwtTokenProvider tokenProvider;
+    private final CommonOAuthService commonOAuthService;
+
 
     @Value("${spring.security.oauth2.client.registration.naver.client-id}")
     private String clientId;
@@ -63,8 +66,6 @@ public class NaverOAuthService implements OAuthService {
         );
 
         return login(tokenRequestDTO);
-
-
     }
 
     /**
@@ -87,6 +88,7 @@ public class NaverOAuthService implements OAuthService {
                 .oAuthProvider(dto.getOauthProviderType())
                 .build();
         User user = customOauth2UserService.saveOrUpdate(attribute);
+        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto);
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
         TokenInfoVO token = tokenProvider.createToken(auth);
 

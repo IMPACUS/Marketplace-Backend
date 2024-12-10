@@ -15,6 +15,7 @@ import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
 import com.impacus.maketplace.service.oauth.OAuthService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
@@ -50,6 +51,7 @@ public class AppleOAuthService implements OAuthService {
     private final AppleOAuthAPIService appleOAuthAPIService;
     private final CustomOauth2UserService customOauth2UserService;
     private final JwtTokenProvider tokenProvider;
+    private final CommonOAuthService commonOAuthService;
 
     @Value("${apple.aos-app-id}")
     private String aosClientId;
@@ -92,7 +94,8 @@ public class AppleOAuthService implements OAuthService {
         );
 
         // 2. 회원가입/로그인
-        return saveOrUpdateUser(tokenResponse.getIdToken());
+        OauthTokenDTO oauthTokenDTO = OauthTokenDTO.toDTO(tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+        return saveOrUpdateUser(tokenResponse.getIdToken(), oauthTokenDTO);
     }
 
     /**
@@ -115,7 +118,8 @@ public class AppleOAuthService implements OAuthService {
                 dto.getRefreshToken(),
                 REISSUE_GRANT_TYPE
         );
-        return saveOrUpdateUser(tokenResponse.getIdToken());
+
+        return saveOrUpdateUser(tokenResponse.getIdToken(), dto);
     }
 
     /**
@@ -125,7 +129,7 @@ public class AppleOAuthService implements OAuthService {
      * @return
      */
     @Transactional
-    public OauthLoginDTO saveOrUpdateUser(String idToken) {
+    public OauthLoginDTO saveOrUpdateUser(String idToken, OauthTokenDTO dto) {
         String email = getEmailFromIdToken(idToken);
         OAuthAttributes attribute = OAuthAttributes.builder()
                 .name(email)
@@ -133,6 +137,7 @@ public class AppleOAuthService implements OAuthService {
                 .oAuthProvider(OauthProviderType.APPLE)
                 .build();
         User user = customOauth2UserService.saveOrUpdate(attribute);
+        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto);
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
         TokenInfoVO token = tokenProvider.createToken(auth);
 
