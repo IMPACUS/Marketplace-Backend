@@ -5,8 +5,8 @@ import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.kakao.KakaoTokenResponse;
 import com.impacus.maketplace.dto.oauth.kakao.userProfile.KakaoUserProfileResponse;
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
-import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CommonOAuthService;
@@ -57,7 +57,7 @@ public class KakaoOAuthService implements OAuthService {
                 redirectUri
         );
 
-        OauthTokenDTO tokenRequestDTO = OauthTokenDTO.toDTO(
+        OAuthTokenDTO tokenRequestDTO = OAuthTokenDTO.toDTO(
                 tokenResponse.getAccessToken(),
                 tokenResponse.getRefreshToken(),
                 dto.getOauthProviderType()
@@ -73,7 +73,7 @@ public class KakaoOAuthService implements OAuthService {
      */
     @Override
     @Transactional
-    public OauthLoginDTO login(OauthTokenDTO dto) {
+    public OauthLoginDTO login(OAuthTokenDTO dto) {
         // 1. 사용자 프로필 정보 요청
         KakaoUserProfileResponse profileResponse = kakaoCommonAPIService.getUserProfile(
                 String.format("Bearer %s", dto.getAccessToken())

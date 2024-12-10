@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.oauth;
 
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
-import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 
 public interface OAuthService {
@@ -14,7 +14,7 @@ public interface OAuthService {
     /**
      * 소셜 로그인/소셜 로그인 회원가입
      */
-    OauthLoginDTO login(OauthTokenDTO dto);
+    OauthLoginDTO login(OAuthTokenDTO dto);
 
     /**
      * 소셜 로그인 토큰 재발급

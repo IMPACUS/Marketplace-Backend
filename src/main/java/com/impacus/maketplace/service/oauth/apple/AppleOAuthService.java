@@ -11,8 +11,8 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
-import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CommonOAuthService;
@@ -94,7 +94,7 @@ public class AppleOAuthService implements OAuthService {
         );
 
         // 2. 회원가입/로그인
-        OauthTokenDTO oauthTokenDTO = OauthTokenDTO.toDTO(tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+        OAuthTokenDTO oauthTokenDTO = OAuthTokenDTO.toDTO(tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
         return saveOrUpdateUser(tokenResponse.getIdToken(), oauthTokenDTO);
     }
 
@@ -105,7 +105,7 @@ public class AppleOAuthService implements OAuthService {
      */
     @Override
     @Transactional
-    public OauthLoginDTO login(OauthTokenDTO dto) {
+    public OauthLoginDTO login(OAuthTokenDTO dto) {
         if (dto.getOs() == null) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "os 데이터가 null일 수 없습니다.");
         }
@@ -129,7 +129,7 @@ public class AppleOAuthService implements OAuthService {
      * @return
      */
     @Transactional
-    public OauthLoginDTO saveOrUpdateUser(String idToken, OauthTokenDTO dto) {
+    public OauthLoginDTO saveOrUpdateUser(String idToken, OAuthTokenDTO dto) {
         String email = getEmailFromIdToken(idToken);
         OAuthAttributes attribute = OAuthAttributes.builder()
                 .name(email)

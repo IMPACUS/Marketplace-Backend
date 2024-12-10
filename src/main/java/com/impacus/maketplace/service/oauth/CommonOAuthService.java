@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.oauth;
 
-import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.entity.consumer.OAuthToken;
 import com.impacus.maketplace.repository.consumer.ConsumerRepository;
 import com.impacus.maketplace.repository.consumer.OAuthTokenRepository;
@@ -24,7 +24,7 @@ public class CommonOAuthService {
      * @param oauthTokenDTO
      */
     @Transactional
-    public void saveOrUpdateOAuthToken(Long userId, OauthTokenDTO oauthTokenDTO) {
+    public void saveOrUpdateOAuthToken(Long userId, OAuthTokenDTO oauthTokenDTO) {
         Optional<Long> consumerId = consumerRepository.findIdByUserId(userId);
         if (consumerId.isPresent()) {
             Optional<OAuthToken> optionalOAuthToken = oAuthTokenRepository.findByConsumerId(consumerId.get());

@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class OauthTokenDTO {
+public class OAuthTokenDTO {
     @NotBlank
     private String accessToken;
 
@@ -23,20 +23,20 @@ public class OauthTokenDTO {
     @ValidEnum(enumClass = OSType.class, nullable = true)
     private OSType os;
 
-    public OauthTokenDTO(String accessToken,
+    public OAuthTokenDTO(String accessToken,
                          String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
 
-    public static OauthTokenDTO toDTO(String accessToken, String refreshToken) {
-        return new OauthTokenDTO(accessToken, refreshToken);
+    public static OAuthTokenDTO toDTO(String accessToken, String refreshToken) {
+        return new OAuthTokenDTO(accessToken, refreshToken);
     }
 
-    public static OauthTokenDTO toDTO(
+    public static OAuthTokenDTO toDTO(
             String accessToken, String refreshToken, OauthProviderType oauthProviderType
     ) {
-        return new OauthTokenDTO(accessToken, refreshToken, oauthProviderType, null);
+        return new OAuthTokenDTO(accessToken, refreshToken, oauthProviderType, null);
     }
 
     public OAuthToken toEntity(Long consumerId) {
