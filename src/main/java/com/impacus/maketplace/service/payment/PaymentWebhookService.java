@@ -11,6 +11,7 @@ public class PaymentWebhookService {
     private final PaymentConfirmService paymentConfirmService;
     private final PaymentSuccessService paymentSuccessService;
     private final PaymentReadyService paymentReadyService;
+    private final PaymentCancelService paymentCancelService;
 
     public void process(WebhookPaymentDTO payload) {
 
@@ -22,6 +23,8 @@ public class PaymentWebhookService {
             case TRANSACTION_CONFIRM -> paymentConfirmService.confirm(payload);
             // 결제 성공
             case TRANSACTION_PAID -> paymentSuccessService.success(payload);
+            // 결제 실패
+            case TRANSACTION_CANCELLED -> paymentCancelService.fail(payload);
         }
     }
 }
