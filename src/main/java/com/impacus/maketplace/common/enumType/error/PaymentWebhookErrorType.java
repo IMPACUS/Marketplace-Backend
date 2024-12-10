@@ -18,7 +18,9 @@ public enum PaymentWebhookErrorType implements ErrorType{
 
     INVALID_RPODUCT_OPTION("INVALID_RPODUCT_OPTION", "더이상 해당 구매 상품의 옵션이 유효하지 않습니다."),
 
-    OUT_OF_STOCK("OUT_OF_STOCK", "구매하려는 상품의 재고가 부족합니다.");
+    OUT_OF_STOCK("OUT_OF_STOCK", "구매하려는 상품의 재고가 부족합니다."),
+
+    ALREADY_FINISH_PAYMENT("ALREADY_FINISH_PAYMENT", "이미 결제 처리가 완료된 주문입니다.")
 
     private final String code;
     private final String msg;

@@ -42,6 +42,8 @@ public class PaymentConfirmService {
      */
     // transactionId는 어떻게 처리되는 것인가?
     // 쿠폰 발급 로직 추가
+    // shoppginBasket Id List 존재할 경우 제거해주는 작업
+    // 조건 불만족 시 승인 X
     @Transactional
     public void confirm(WebhookPaymentDTO webhookPaymentDTO) {
         // 1. paymentId를 통해서 구매 예정인 상품 조회
@@ -91,12 +93,11 @@ public class PaymentConfirmService {
         });
 
         // 4.2 Payment Order History Update
-        paymentOrderHistoryService.updateAll(paymentEvent.getPaymentOrders(), PaymentOrderStatus.EXECUTING, "payment confirm");
+        paymentOrderHistoryService.updateAll(paymentEvent.getPaymentOrders(), PaymentOrderStatus.CONFIRM, "payment confirm");
 
         // 4.3 Payment Order Status 변경
         paymentEvent.getPaymentOrders().forEach(paymentOrder ->
-                paymentOrder.changeStatus(PaymentOrderStatus.EXECUTING
-                ));
+                paymentOrder.changeStatus(PaymentOrderStatus.CONFIRM));
 
         // 4.4 PaymentEvent 결제 승인 시간 업데이트
         paymentEvent.setApprovedAt(LocalDateTime.now());
