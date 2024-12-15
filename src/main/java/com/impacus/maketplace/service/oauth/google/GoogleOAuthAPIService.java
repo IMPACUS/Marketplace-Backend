@@ -23,4 +23,19 @@ public interface GoogleOAuthAPIService {
             @RequestParam("grant_type") String grantType,
             @RequestParam("redirect_uri") String redirectUri
     );
+
+    @PostMapping(value = GoogleAPIConstants.TOKEN,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
+    GoogleTokenResponse reissueGoogleToken(
+            @RequestParam("client_id") String clientId,
+            @RequestParam("client_secret") String clientSecret,
+            @RequestParam("grant_type") String grantType,
+            @RequestParam("refresh_token") String refreshToken
+    );
+
+    @PostMapping(value = GoogleAPIConstants.REVOKE,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
+    void unlinkGoogle(
+            @RequestParam("token") String token
+    );
 }

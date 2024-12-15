@@ -8,6 +8,7 @@ import com.impacus.maketplace.dto.oauth.google.GoogleUserInfoResponse;
 import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
+import com.impacus.maketplace.entity.consumer.OAuthToken;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -102,7 +103,18 @@ public class GoogleOAuthService implements OAuthService {
      */
     @Override
     public OAuthTokenDTO reissue(Long userId) {
-        return null;
+        // OAuth 토큰 조회
+        OAuthToken oAuthToken = commonOAuthService.findOAuthTokenByUserId(userId);
+
+        // 토큰 갱신 요청
+        GoogleTokenResponse tokenResponse = googleOAuthAPIService.reissueGoogleToken(
+                clientId,
+                clientSecret,
+                "refresh_token",
+                oAuthToken.getRefreshToken()
+        );
+
+        return tokenResponse.toOAuthTokenDTO();
     }
 
     /**
@@ -110,6 +122,12 @@ public class GoogleOAuthService implements OAuthService {
      */
     @Override
     public void unlink(Long userId) {
+        // 토큰 갱신
+        OAuthTokenDTO tokenDTO = this.reissue(userId);
 
+        // 연동 해제
+        googleOAuthAPIService.unlinkGoogle(
+                tokenDTO.getAccessToken()
+        );
     }
 }

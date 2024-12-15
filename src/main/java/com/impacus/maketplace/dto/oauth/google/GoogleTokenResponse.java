@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.oauth.google;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import lombok.Getter;
 
 @Getter
@@ -19,4 +20,8 @@ public class GoogleTokenResponse {
 
     @JsonProperty(value = "scope")
     private String scope;
+
+    public OAuthTokenDTO toOAuthTokenDTO() {
+        return new OAuthTokenDTO(accessToken, refreshToken);
+    }
 }

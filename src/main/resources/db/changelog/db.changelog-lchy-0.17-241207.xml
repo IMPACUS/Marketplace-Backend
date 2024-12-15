@@ -18,8 +18,8 @@
             <column name="consumer_id" type="BIGINT">
                 <constraints unique="true" nullable="true"/>
             </column>
-            <column name="access_token" type="VARCHAR(255)" />
-            <column name="refresh_token" type="VARCHAR(255)">
+            <column name="access_token" type="TEXT"/>
+            <column name="refresh_token" type="TEXT">
                 <constraints  nullable="false"/>
             </column>
             <column name="oauth_user_id" type="BIGINT"/>

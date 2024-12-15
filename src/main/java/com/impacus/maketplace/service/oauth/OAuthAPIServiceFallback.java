@@ -90,6 +90,16 @@ public class OAuthAPIServiceFallback implements
     }
 
     @Override
+    public GoogleTokenResponse reissueGoogleToken(String clientId, String clientSecret, String grantType, String refreshToken) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public void unlinkGoogle(String token) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
     public GoogleUserInfoResponse getUserInfo(String authorization) {
         return null;
     }

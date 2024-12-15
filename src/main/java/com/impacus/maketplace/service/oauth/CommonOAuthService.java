@@ -57,6 +57,7 @@ public class CommonOAuthService {
         updateOAuthToken(oAuthTokenId, oauthTokenDTO, null);
     }
 
+
     @Transactional
     public void updateOAuthToken(
             Long oAuthTokenId,
