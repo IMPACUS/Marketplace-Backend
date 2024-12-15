@@ -112,7 +112,7 @@ public class AppleOAuthService implements OAuthService {
 
         // 1. 사용자 정보 조회
         String clientId = getClientId(dto.getOs());
-        AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueToken(
+        AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueAppleToken(
                 clientId,
                 createSecret(clientId),
                 dto.getRefreshToken(),

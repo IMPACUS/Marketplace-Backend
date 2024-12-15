@@ -24,7 +24,7 @@ public interface AppleOAuthAPIService {
 
     @PostMapping(value = AppleAPIConstants.VALIDATE_CODE,
             headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
-    AppleTokenResponse reissueToken(
+    AppleTokenResponse reissueAppleToken(
             @RequestParam("client_id") String clientId,
             @RequestParam("client_secret") String clientSecret,
             @RequestParam("refresh_token") String refreshToken,

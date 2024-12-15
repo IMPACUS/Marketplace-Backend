@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -17,6 +18,10 @@ public class CommonOAuthService {
     private final ConsumerRepository consumerRepository;
     private final OAuthTokenRepository oAuthTokenRepository;
 
+    public void saveOrUpdateOAuthToken(Long userId, OAuthTokenDTO oauthTokenDTO) {
+        saveOrUpdateOAuthToken(userId, oauthTokenDTO, null);
+    }
+
     /**
      * OAuthToken 저장 함수
      *
@@ -24,7 +29,7 @@ public class CommonOAuthService {
      * @param oauthTokenDTO
      */
     @Transactional
-    public void saveOrUpdateOAuthToken(Long userId, OAuthTokenDTO oauthTokenDTO) {
+    public void saveOrUpdateOAuthToken(Long userId, OAuthTokenDTO oauthTokenDTO, LocalDate refreshTokenExpiresIn) {
         Optional<Long> consumerId = consumerRepository.findIdByUserId(userId);
         if (consumerId.isPresent()) {
             Optional<OAuthToken> optionalOAuthToken = oAuthTokenRepository.findByConsumerId(consumerId.get());
@@ -35,7 +40,7 @@ public class CommonOAuthService {
                         oauthTokenDTO.getRefreshToken()
                 );
             } else {
-                OAuthToken oAuthToken = oauthTokenDTO.toEntity(consumerId.get());
+                OAuthToken oAuthToken = oauthTokenDTO.toEntity(consumerId.get(), refreshTokenExpiresIn);
                 oAuthTokenRepository.save(oAuthToken);
             }
         }

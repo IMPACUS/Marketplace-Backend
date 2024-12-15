@@ -20,6 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -63,7 +65,7 @@ public class KakaoOAuthService implements OAuthService {
                 dto.getOauthProviderType()
         );
 
-        return login(tokenRequestDTO);
+        return this.login(tokenRequestDTO);
     }
 
     /**
@@ -86,7 +88,9 @@ public class KakaoOAuthService implements OAuthService {
                 .oAuthProvider(dto.getOauthProviderType())
                 .build();
         User user = customOauth2UserService.saveOrUpdate(attribute);
-        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto);
+
+        // 사용자 정보 저장 & 업데이트
+        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto, LocalDate.now().plusMonths(2));
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
         TokenInfoVO token = tokenProvider.createToken(auth);
 
@@ -105,6 +109,15 @@ public class KakaoOAuthService implements OAuthService {
     @Override
     public void reissue(Long memberId) {
 
+    }
+
+    private KakaoTokenResponse requestReissue(String refreshToken) {
+        return kakaoOAuthAPIService.reissueKakaoToken(
+                "refresh_token",
+                clientId,
+                refreshToken,
+                clientSecret
+        );
     }
 
     /**

@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 @AllArgsConstructor
 public class OAuthTokenDTO {
@@ -39,11 +41,12 @@ public class OAuthTokenDTO {
         return new OAuthTokenDTO(accessToken, refreshToken, oauthProviderType, null);
     }
 
-    public OAuthToken toEntity(Long consumerId) {
+    public OAuthToken toEntity(Long consumerId, LocalDate refreshTokenExpiresIn) {
         return new OAuthToken(
                 consumerId,
                 this.accessToken,
-                this.refreshToken
+                this.refreshToken,
+                refreshTokenExpiresIn
         );
     }
 }

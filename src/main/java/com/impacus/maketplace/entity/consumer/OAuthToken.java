@@ -42,4 +42,19 @@ public class OAuthToken {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
+
+    public OAuthToken(
+            Long consumerId,
+            String accessToken,
+            String refreshToken,
+            LocalDate refreshTokenExpiresIn
+    ) {
+        this.consumerId = consumerId;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+
+        if (refreshTokenExpiresIn != null) {
+            this.refreshExpiredAt = refreshTokenExpiresIn;
+        }
+    }
 }
