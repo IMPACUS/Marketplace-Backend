@@ -1,4 +1,4 @@
-package com.impacus.maketplace.entity.consumer;
+package com.impacus.maketplace.entity.consumer.oAuthToken;
 
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import jakarta.persistence.*;
@@ -11,6 +11,8 @@ import org.hibernate.annotations.Comment;
 @Getter
 @Table(name = "oauth_token")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn
 public class OAuthToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +30,6 @@ public class OAuthToken {
     @Convert(converter = AES256ToStringConverter.class)
     private String refreshToken;
 
-    @Comment("리프레시 토큰 만료 시간")
-    @Column(name = "oauth_user_id")
-    private Long oAuthUserId;
-
     public OAuthToken(
             Long consumerId,
             String accessToken,
@@ -40,20 +38,5 @@ public class OAuthToken {
         this.consumerId = consumerId;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-    }
-
-    public OAuthToken(
-            Long consumerId,
-            String accessToken,
-            String refreshToken,
-            Long oAuthUserId
-    ) {
-        this.consumerId = consumerId;
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-
-        if (oAuthUserId != null) {
-            this.oAuthUserId = oAuthUserId;
-        }
     }
 }

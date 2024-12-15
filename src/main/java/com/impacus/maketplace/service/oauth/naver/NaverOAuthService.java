@@ -11,7 +11,7 @@ import com.impacus.maketplace.dto.oauth.naver.userProfile.NaverUserResponse;
 import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
-import com.impacus.maketplace.entity.consumer.OAuthToken;
+import com.impacus.maketplace.entity.consumer.oAuthToken.OAuthToken;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -121,13 +121,7 @@ public class NaverOAuthService implements OAuthService {
         );
 
         // 토큰 업데이트
-        OAuthTokenDTO oAuthTokenDTO = tokenResponse.toOAuthTokenDTO();
-        commonOAuthService.updateOAuthToken(
-                oAuthToken.getId(),
-                oAuthTokenDTO
-        );
-
-        return oAuthTokenDTO;
+        return tokenResponse.toOAuthTokenDTO();
     }
 
     /**

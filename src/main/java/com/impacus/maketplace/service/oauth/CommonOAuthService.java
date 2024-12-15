@@ -1,9 +1,10 @@
 package com.impacus.maketplace.service.oauth;
 
+import com.impacus.maketplace.common.enumType.OSType;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
-import com.impacus.maketplace.entity.consumer.OAuthToken;
+import com.impacus.maketplace.entity.consumer.oAuthToken.OAuthToken;
 import com.impacus.maketplace.repository.consumer.ConsumerRepository;
 import com.impacus.maketplace.repository.consumer.OAuthTokenRepository;
 import jakarta.annotation.Nullable;
@@ -21,7 +22,15 @@ public class CommonOAuthService {
     private final OAuthTokenRepository oAuthTokenRepository;
 
     public void saveOrUpdateOAuthToken(Long userId, OAuthTokenDTO oauthTokenDTO) {
-        saveOrUpdateOAuthToken(userId, oauthTokenDTO, null);
+        saveOrUpdateOAuthToken(userId, oauthTokenDTO, null, null);
+    }
+
+    public void saveOrUpdateOAuthToken(Long userId, OAuthTokenDTO oauthTokenDTO, Long oAuthUserId) {
+        saveOrUpdateOAuthToken(userId, oauthTokenDTO, oAuthUserId, null);
+    }
+
+    public void saveOrUpdateOAuthToken(Long userId, OAuthTokenDTO oauthTokenDTO, OSType osType) {
+        saveOrUpdateOAuthToken(userId, oauthTokenDTO, null, osType);
     }
 
     /**
@@ -34,49 +43,37 @@ public class CommonOAuthService {
     public void saveOrUpdateOAuthToken(
             Long userId,
             OAuthTokenDTO oauthTokenDTO,
-            @Nullable Long oAuthUserId
+            @Nullable Long oAuthUserId,
+            @Nullable OSType osType
     ) {
         Optional<Long> consumerId = consumerRepository.findIdByUserId(userId);
         if (consumerId.isPresent()) {
             Optional<OAuthToken> optionalOAuthToken = oAuthTokenRepository.findByConsumerId(consumerId.get());
             if (optionalOAuthToken.isPresent()) {
-                updateOAuthToken(
+                oAuthTokenRepository.updateOAuthToken(
                         optionalOAuthToken.get().getId(),
-                        oauthTokenDTO,
-                        oAuthUserId
+                        oauthTokenDTO.getAccessToken(),
+                        oauthTokenDTO.getRefreshToken()
                 );
             } else {
-                OAuthToken oAuthToken = oauthTokenDTO.toEntity(consumerId.get(), oAuthUserId);
+                OAuthToken oAuthToken = createOAuthToken(consumerId.get(), oauthTokenDTO, oAuthUserId, osType);
                 oAuthTokenRepository.save(oAuthToken);
             }
         }
     }
 
-    @Transactional
-    public void updateOAuthToken(Long oAuthTokenId, OAuthTokenDTO oauthTokenDTO) {
-        updateOAuthToken(oAuthTokenId, oauthTokenDTO, null);
-    }
-
-
-    @Transactional
-    public void updateOAuthToken(
-            Long oAuthTokenId,
+    public OAuthToken createOAuthToken(
+            Long consumerId,
             OAuthTokenDTO oauthTokenDTO,
-            @Nullable Long oAuthUserId
+            @Nullable Long oAuthUserId,
+            @Nullable OSType osType
     ) {
         if (oAuthUserId != null) {
-            oAuthTokenRepository.updateOAuthToken(
-                    oAuthTokenId,
-                    oauthTokenDTO.getAccessToken(),
-                    oauthTokenDTO.getRefreshToken(),
-                    oAuthUserId
-            );
+            return oauthTokenDTO.toEntity(consumerId, oAuthUserId);
+        } else if (osType != null) {
+            return oauthTokenDTO.toEntity(consumerId, osType);
         } else {
-            oAuthTokenRepository.updateOAuthToken(
-                    oAuthTokenId,
-                    oauthTokenDTO.getAccessToken(),
-                    oauthTokenDTO.getRefreshToken()
-            );
+            return oauthTokenDTO.toEntity(consumerId);
         }
     }
 

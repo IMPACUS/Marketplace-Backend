@@ -1,6 +1,6 @@
 package com.impacus.maketplace.repository.consumer;
 
-import com.impacus.maketplace.entity.consumer.OAuthToken;
+import com.impacus.maketplace.entity.consumer.oAuthToken.OAuthToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

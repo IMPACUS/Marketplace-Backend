@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.oauth.apple;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import lombok.Getter;
 
 @Getter
@@ -20,4 +21,8 @@ public class AppleTokenResponse {
 
     @JsonProperty(value = "id_token")
     private String idToken;
+
+    public OAuthTokenDTO toOAuthTokenDTO() {
+        return new OAuthTokenDTO(accessToken, refreshToken);
+    }
 }

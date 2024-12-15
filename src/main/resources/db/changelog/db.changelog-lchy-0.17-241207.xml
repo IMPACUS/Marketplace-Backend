@@ -15,6 +15,9 @@
             <column name="oauth_token_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="dtype" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="consumer_id" type="BIGINT">
                 <constraints unique="true" nullable="true"/>
             </column>
@@ -23,6 +26,7 @@
                 <constraints  nullable="false"/>
             </column>
             <column name="oauth_user_id" type="BIGINT"/>
+            <column name="os_type" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
 

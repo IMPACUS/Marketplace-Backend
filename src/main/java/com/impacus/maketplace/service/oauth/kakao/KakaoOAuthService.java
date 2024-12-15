@@ -9,7 +9,8 @@ import com.impacus.maketplace.dto.oauth.kakao.userProfile.KakaoUserProfileRespon
 import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
-import com.impacus.maketplace.entity.consumer.OAuthToken;
+import com.impacus.maketplace.entity.consumer.oAuthToken.KakaoOAuthToken;
+import com.impacus.maketplace.entity.consumer.oAuthToken.OAuthToken;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -92,8 +93,10 @@ public class KakaoOAuthService implements OAuthService {
                 .build();
         User user = customOauth2UserService.saveOrUpdate(attribute);
 
-        // 사용자 정보 저장 & 업데이트
+        // OAuth token 저장
         commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto, profileResponse.getId());
+
+        // 사용자 정보 저장 & 업데이트
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
         TokenInfoVO token = tokenProvider.createToken(auth);
 
@@ -118,15 +121,7 @@ public class KakaoOAuthService implements OAuthService {
         KakaoTokenResponse tokenResponse = requestReissue(oAuthToken.getRefreshToken());
 
         // 토큰 업데이트
-        OAuthTokenDTO oAuthTokenDTO = tokenResponse.toOAuthTokenDTO();
-        if (tokenResponse.getRefreshToken() != null) {
-            commonOAuthService.updateOAuthToken(
-                    oAuthToken.getId(),
-                    oAuthTokenDTO
-            );
-        }
-
-        return oAuthTokenDTO;
+        return tokenResponse.toOAuthTokenDTO();
     }
 
     private KakaoTokenResponse requestReissue(String refreshToken) {
@@ -144,7 +139,7 @@ public class KakaoOAuthService implements OAuthService {
     @Override
     public void unlink(Long userId) {
         // 토큰 조회
-        OAuthToken oAuthToken = commonOAuthService.findOAuthTokenByUserId(userId);
+        KakaoOAuthToken oAuthToken = (KakaoOAuthToken) commonOAuthService.findOAuthTokenByUserId(userId);
 
         // 연동 해제
         KakaoUnlinkResponse response = kakaoCommonAPIService.unlinkKakao(
