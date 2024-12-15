@@ -1,14 +1,15 @@
 package com.impacus.maketplace.service.oauth.kakao;
 
-import com.impacus.maketplace.common.constants.api.KakaoAPIConstants;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.kakao.KakaoTokenResponse;
+import com.impacus.maketplace.dto.oauth.kakao.KakaoUnlinkResponse;
 import com.impacus.maketplace.dto.oauth.kakao.userProfile.KakaoUserProfileResponse;
 import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
+import com.impacus.maketplace.entity.consumer.OAuthToken;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -20,8 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 @Slf4j
 @Service
@@ -42,6 +41,9 @@ public class KakaoOAuthService implements OAuthService {
 
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
+
+    @Value("${key.kakao.admin-key}")
+    private String adminKey;
 
     /**
      * 소셜 로그인/소셜 로그인 회원가입
@@ -91,7 +93,7 @@ public class KakaoOAuthService implements OAuthService {
         User user = customOauth2UserService.saveOrUpdate(attribute);
 
         // 사용자 정보 저장 & 업데이트
-        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto, LocalDate.now().plusMonths(KakaoAPIConstants.REFRESH_TOKEN_EXPIRE_MONTH));
+        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto, profileResponse.getId());
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
         TokenInfoVO token = tokenProvider.createToken(auth);
 
@@ -109,7 +111,22 @@ public class KakaoOAuthService implements OAuthService {
      */
     @Override
     public OAuthTokenDTO reissue(Long userId) {
-        return null;
+        // OAuth 토큰 조회
+        OAuthToken oAuthToken = commonOAuthService.findOAuthTokenByUserId(userId);
+
+        // 토큰 갱신 요청
+        KakaoTokenResponse tokenResponse = requestReissue(oAuthToken.getRefreshToken());
+
+        // 토큰 업데이트
+        OAuthTokenDTO oAuthTokenDTO = tokenResponse.toOAuthTokenDTO();
+        if (tokenResponse.getRefreshToken() != null) {
+            commonOAuthService.updateOAuthToken(
+                    oAuthToken.getId(),
+                    oAuthTokenDTO
+            );
+        }
+
+        return oAuthTokenDTO;
     }
 
     private KakaoTokenResponse requestReissue(String refreshToken) {
@@ -126,6 +143,14 @@ public class KakaoOAuthService implements OAuthService {
      */
     @Override
     public void unlink(Long userId) {
+        // 토큰 조회
+        OAuthToken oAuthToken = commonOAuthService.findOAuthTokenByUserId(userId);
 
+        // 연동 해제
+        KakaoUnlinkResponse response = kakaoCommonAPIService.unlinkKakao(
+                String.format("KakaoAK %s", adminKey),
+                "user_id",
+                oAuthToken.getOAuthUserId()
+        );
     }
 }

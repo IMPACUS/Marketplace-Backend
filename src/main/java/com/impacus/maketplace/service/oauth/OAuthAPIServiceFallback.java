@@ -6,6 +6,7 @@ import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
 import com.impacus.maketplace.dto.oauth.google.GoogleTokenResponse;
 import com.impacus.maketplace.dto.oauth.google.GoogleUserInfoResponse;
 import com.impacus.maketplace.dto.oauth.kakao.KakaoTokenResponse;
+import com.impacus.maketplace.dto.oauth.kakao.KakaoUnlinkResponse;
 import com.impacus.maketplace.dto.oauth.kakao.userProfile.KakaoUserProfileResponse;
 import com.impacus.maketplace.dto.oauth.naver.NaverDeleteResponse;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
@@ -40,6 +41,11 @@ public class OAuthAPIServiceFallback implements
 
     @Override
     public KakaoUserProfileResponse getUserProfile(String authorization) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public KakaoUnlinkResponse unlinkKakao(String authorization, String targetIdType, Long targetId) {
         throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
     }
 

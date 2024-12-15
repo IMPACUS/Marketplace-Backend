@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
-import java.time.LocalDate;
-
 @Entity
 @Getter
 @Table(name = "oauth_token")
@@ -31,7 +29,8 @@ public class OAuthToken {
     private String refreshToken;
 
     @Comment("리프레시 토큰 만료 시간")
-    private LocalDate refreshExpiredAt;
+    @Column(name = "oauth_user_id")
+    private Long oAuthUserId;
 
     public OAuthToken(
             Long consumerId,
@@ -47,14 +46,14 @@ public class OAuthToken {
             Long consumerId,
             String accessToken,
             String refreshToken,
-            LocalDate refreshTokenExpiresIn
+            Long oAuthUserId
     ) {
         this.consumerId = consumerId;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
 
-        if (refreshTokenExpiresIn != null) {
-            this.refreshExpiredAt = refreshTokenExpiresIn;
+        if (oAuthUserId != null) {
+            this.oAuthUserId = oAuthUserId;
         }
     }
 }

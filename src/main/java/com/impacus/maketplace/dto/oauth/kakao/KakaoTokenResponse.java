@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.oauth.kakao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import lombok.Getter;
 
 @Getter
@@ -23,4 +24,8 @@ public class KakaoTokenResponse {
 
     @JsonProperty(value = "refresh_token_expires_in")
     private Integer refreshTokenExpiresIn;
+
+    public OAuthTokenDTO toOAuthTokenDTO() {
+        return new OAuthTokenDTO(accessToken, refreshToken);
+    }
 }

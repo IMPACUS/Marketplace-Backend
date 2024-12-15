@@ -145,6 +145,5 @@ public class NaverOAuthService implements OAuthService {
                 tokenDTO.getAccessToken(),
                 "delete"
         );
-        System.out.println(response);
     }
 }
