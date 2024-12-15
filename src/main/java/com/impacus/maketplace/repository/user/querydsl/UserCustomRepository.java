@@ -57,4 +57,6 @@ public interface UserCustomRepository {
     ConsumerEmailDTO findConsumerByPhoneNumber(String phoneNumber);
 
     ConsumerEmailDTO findConsumerByPhoneNumberAndEmail(String phoneNumber, String email);
+
+    void deactivateConsumer(Long userId);
 }

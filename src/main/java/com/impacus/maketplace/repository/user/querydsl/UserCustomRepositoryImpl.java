@@ -396,4 +396,27 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .where(builder)
                 .fetchFirst();
     }
+
+    @Override
+    public void deactivateConsumer(Long userId) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        // isDelete = true, userType 변경
+        queryFactory.update(user)
+                .set(user.isDeleted, true)
+                .set(user.type, UserType.ROLE_DEACTIVATED_USER)
+                .set(user.modifyAt, LocalDateTime.now())
+                .set(user.modifyId, currentAuditor)
+                .where(user.id.eq(userId))
+                .execute();
+
+        // status 변경
+        queryFactory.update(userStatusInfo)
+                .set(userStatusInfo.status, UserStatus.DEACTIVATED)
+                .set(userStatusInfo.statusReason, "사용자 탈퇴 요청")
+                .set(userStatusInfo.modifyAt, LocalDateTime.now())
+                .set(userStatusInfo.modifyId, currentAuditor)
+                .where(userStatusInfo.userId.eq(userId))
+                .execute();
+    }
 }

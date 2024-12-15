@@ -4,7 +4,6 @@ import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.auth.request.EmailDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
@@ -12,10 +11,10 @@ import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
-import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.user.UserDeactivationService;
 import com.impacus.maketplace.service.user.WebUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -41,6 +40,7 @@ public class UserController {
 
     private final UserService userService;
     private final WebUserService readUserService;
+    private final UserDeactivationService userDeactivationService;
 
     /**
      * 이메일 인증 코드 요청 API
@@ -176,7 +176,7 @@ public class UserController {
     @DeleteMapping
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     public ApiResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails user) {
-        userService.deleteConsumer(user.getEmail());
+        userDeactivationService.deactivateConsumer(user.getEmail());
         return ApiResponseEntity.<Void>builder()
                 .message("사용자 삭제 성공")
                 .build();

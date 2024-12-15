@@ -39,7 +39,6 @@ import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.common.sms.SMSService;
-import com.impacus.maketplace.service.oauth.OAuthService;
 import com.impacus.maketplace.service.oauth.OAuthServiceFactory;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
@@ -467,27 +466,7 @@ public class UserService {
         return CheckExistedEmailDTO.toDTO(isExited);
     }
 
-    /**
-     *  사용자 삭제
-     *
-     * @param email
-     */
-    @Transactional
-    public void deleteConsumer(String email) {
-        CommonUserDTO userDTO = findCommonUserByEmail(email);
-        OauthProviderType oauthProviderType = userDTO.getOauthProviderType();
 
-        // 1. 연동 해제
-        if (oauthProviderType != OauthProviderType.NONE) {
-            OAuthService oAuthService = oAuthServiceFactory.getService(oauthProviderType);
-            oAuthService.unlink(userDTO.getUserId());
-        }
-
-        // 2. 삭제
-        // User, UserConsent, UserRole, UserStatusInfo
-        // GreenLabelPoint, GreenLabelPointAllocation, LevelAchievement, LevelPointMaster
-        userRepository.deleteConsumer(userDTO.getUserId());
-    }
 
     /**
      * 사용자 개인 정보 저장
