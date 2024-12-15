@@ -43,10 +43,22 @@ public class UserDeactivationService {
      *
      * @param userId
      */
+    @Transactional
     public void deleteConsumer(Long userId) {
         // User, UserConsent, UserRole, UserStatusInfo, Consumer, OAuthToken
         // GreenLabelPoint, GreenLabelPointAllocation, LevelAchievement, LevelPointMaster
         userRepository.deleteConsumer(userId);
+    }
+
+    /**
+     * [개발 테스트용] 사용자 삭제
+     *
+     * @param email
+     */
+    @Transactional
+    public void deleteConsumerByEmail(String email) {
+        CommonUserDTO userDTO = userService.findCommonUserByEmail(email);
+        this.deleteConsumer(userDTO.getUserId());
     }
 
 }

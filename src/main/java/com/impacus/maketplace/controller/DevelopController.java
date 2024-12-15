@@ -3,7 +3,7 @@ package com.impacus.maketplace.controller;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.service.CloudFileUploadService;
-import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.user.UserDeactivationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ import java.nio.file.Path;
 public class DevelopController {
 
     private final CloudFileUploadService cloudFileUploadService;
-    private final UserService userService;
+    private final UserDeactivationService userDeactivationService;
 
     @PostMapping("/file")
     public URI uploadOneFile(@RequestPart MultipartFile multipartFile) {
@@ -30,4 +30,13 @@ public class DevelopController {
     public void deleteOneFile(@RequestParam String fileName) {
         cloudFileUploadService.deleteFile(fileName);
     }
+
+    @DeleteMapping("user")
+    public ApiResponseEntity<UserDTO> addUser(@RequestParam(value = "email") String email) {
+        userDeactivationService.deleteConsumerByEmail(email);
+        return ApiResponseEntity.<UserDTO>builder()
+                .message("사용자 삭제 성공")
+                .build();
+    }
+
 }
