@@ -2,6 +2,7 @@ package com.impacus.maketplace.service.oauth.naver;
 
 
 import com.impacus.maketplace.common.constants.api.NaverAPIConstants;
+import com.impacus.maketplace.dto.oauth.naver.NaverDeleteResponse;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
 import com.impacus.maketplace.service.oauth.OAuthAPIServiceFallback;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -30,6 +31,15 @@ public interface NaverOAuthAPIService {
             @RequestParam("client_id") String clientId,
             @RequestParam("client_secret") String clientSecret,
             @RequestParam("refresh_token") String refreshToken,
+            @RequestParam("grant_type") String grantType
+    );
+
+    @PostMapping(value = NaverAPIConstants.TOKEN,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
+    NaverDeleteResponse disconnectNaverToken(
+            @RequestParam("client_id") String clientId,
+            @RequestParam("client_secret") String clientSecret,
+            @RequestParam("access_token") String accessToken,
             @RequestParam("grant_type") String grantType
     );
 }

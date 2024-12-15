@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
+import com.impacus.maketplace.dto.oauth.naver.NaverDeleteResponse;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
 import com.impacus.maketplace.dto.oauth.naver.userProfile.NaverUserResponse;
 import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
@@ -135,8 +136,15 @@ public class NaverOAuthService implements OAuthService {
     @Override
     public void unlink(Long userId) {
         // 토큰 갱신
-        OAuthTokenDTO tokenDTO = reissue(userId);
+        OAuthTokenDTO tokenDTO = this.reissue(userId);
 
         // 연동 해제
+        NaverDeleteResponse response = naverOAuthAPIService.disconnectNaverToken(
+                clientId,
+                clientSecret,
+                tokenDTO.getAccessToken(),
+                "delete"
+        );
+        System.out.println(response);
     }
 }

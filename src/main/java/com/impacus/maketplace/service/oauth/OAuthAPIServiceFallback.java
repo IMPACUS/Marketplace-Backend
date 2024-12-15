@@ -7,6 +7,7 @@ import com.impacus.maketplace.dto.oauth.google.GoogleTokenResponse;
 import com.impacus.maketplace.dto.oauth.google.GoogleUserInfoResponse;
 import com.impacus.maketplace.dto.oauth.kakao.KakaoTokenResponse;
 import com.impacus.maketplace.dto.oauth.kakao.userProfile.KakaoUserProfileResponse;
+import com.impacus.maketplace.dto.oauth.naver.NaverDeleteResponse;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
 import com.impacus.maketplace.dto.oauth.naver.userProfile.NaverUserResponse;
 import com.impacus.maketplace.service.oauth.apple.AppleOAuthAPIService;
@@ -44,6 +45,16 @@ public class OAuthAPIServiceFallback implements
 
     @Override
     public NaverTokenResponse getNaverToken(String grantType, String clientId, String clientSecret, String code, String state) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public NaverTokenResponse reissueNaverToken(String clientId, String clientSecret, String refreshToken, String grantType) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public NaverDeleteResponse disconnectNaverToken(String clientId, String clientSecret, String accessToken, String grantType) {
         throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
     }
 
