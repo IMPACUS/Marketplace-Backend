@@ -34,15 +34,33 @@ public class CommonOAuthService {
         if (consumerId.isPresent()) {
             Optional<OAuthToken> optionalOAuthToken = oAuthTokenRepository.findByConsumerId(consumerId.get());
             if (optionalOAuthToken.isPresent()) {
-                oAuthTokenRepository.updateOAuthToken(
+                updateOAuthToken(
                         optionalOAuthToken.get().getId(),
-                        oauthTokenDTO.getAccessToken(),
-                        oauthTokenDTO.getRefreshToken()
+                        oauthTokenDTO,
+                        refreshTokenExpiresIn
                 );
             } else {
                 OAuthToken oAuthToken = oauthTokenDTO.toEntity(consumerId.get(), refreshTokenExpiresIn);
                 oAuthTokenRepository.save(oAuthToken);
             }
+        }
+    }
+
+    @Transactional
+    public void updateOAuthToken(Long oAuthTokenId, OAuthTokenDTO oauthTokenDTO, LocalDate refreshExpiredAt) {
+        if (refreshExpiredAt != null) {
+            oAuthTokenRepository.updateOAuthToken(
+                    oAuthTokenId,
+                    oauthTokenDTO.getAccessToken(),
+                    oauthTokenDTO.getRefreshToken(),
+                    refreshExpiredAt
+            );
+        } else {
+            oAuthTokenRepository.updateOAuthToken(
+                    oAuthTokenId,
+                    oauthTokenDTO.getAccessToken(),
+                    oauthTokenDTO.getRefreshToken()
+            );
         }
     }
 }

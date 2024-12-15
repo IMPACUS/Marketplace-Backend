@@ -9,4 +9,6 @@ public final class KakaoAPIConstants {
 
     public static final String TOKEN = "/token";
     public static final String USER = "/v2/user/me";
+
+    public static final int REFRESH_TOKEN_EXPIRE_MONTH = 2;
 }

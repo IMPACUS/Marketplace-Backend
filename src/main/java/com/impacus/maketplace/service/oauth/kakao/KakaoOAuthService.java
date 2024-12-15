@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.oauth.kakao;
 
+import com.impacus.maketplace.common.constants.api.KakaoAPIConstants;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
@@ -90,7 +91,7 @@ public class KakaoOAuthService implements OAuthService {
         User user = customOauth2UserService.saveOrUpdate(attribute);
 
         // 사용자 정보 저장 & 업데이트
-        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto, LocalDate.now().plusMonths(2));
+        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto, LocalDate.now().plusMonths(KakaoAPIConstants.REFRESH_TOKEN_EXPIRE_MONTH));
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
         TokenInfoVO token = tokenProvider.createToken(auth);
 

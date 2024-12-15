@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
@@ -21,5 +22,16 @@ public interface OAuthTokenRepository extends JpaRepository<OAuthToken, Long> {
     void updateOAuthToken(@Param("id") Long id,
                           @Param("accessToken") String accessToken,
                           @Param("refreshToken") String refreshToken
+    );
+
+    @Modifying
+    @Query("UPDATE OAuthToken o " +
+            "SET o.accessToken = :accessToken, o.refreshToken = :refreshToken, o.refreshExpiredAt = :refreshExpiredAt " +
+            "WHERE o.id = :id"
+    )
+    void updateOAuthToken(@Param("id") Long id,
+                          @Param("accessToken") String accessToken,
+                          @Param("refreshToken") String refreshToken,
+                          @Param("refreshExpiredAt") LocalDate refreshTokenExpiresIn
     );
 }
