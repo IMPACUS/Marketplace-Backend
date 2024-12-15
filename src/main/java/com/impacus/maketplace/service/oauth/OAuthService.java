@@ -19,12 +19,12 @@ public interface OAuthService {
     /**
      * 소셜 로그인 토큰 재발급
      */
-    void reissue(Long memberId);
+    OAuthTokenDTO reissue(Long memberId);
 
 
     /**
      * 소셜 로그인 연동해제
      */
-    void unlink();
+    void unlink(Long memberId);
 
 }

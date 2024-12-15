@@ -10,6 +10,7 @@ import com.impacus.maketplace.dto.oauth.naver.userProfile.NaverUserResponse;
 import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
+import com.impacus.maketplace.entity.consumer.OAuthToken;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -102,18 +103,40 @@ public class NaverOAuthService implements OAuthService {
     /**
      * 소셜 로그인 토큰 재발급
      *
-     * @param memberId
+     * @param userId
      */
     @Override
-    public void reissue(Long memberId) {
+    @Transactional
+    public OAuthTokenDTO reissue(Long userId) {
+        // OAuth 토큰 조회
+        OAuthToken oAuthToken = commonOAuthService.findOAuthTokenByUserId(userId);
 
+        // 토큰 갱신 요청
+        NaverTokenResponse tokenResponse = naverOAuthAPIService.reissueNaverToken(
+                clientId,
+                clientSecret,
+                oAuthToken.getRefreshToken(),
+                "refresh_token"
+        );
+
+        // 토큰 업데이트
+        OAuthTokenDTO oAuthTokenDTO = tokenResponse.toOAuthTokenDTO();
+        commonOAuthService.updateOAuthToken(
+                oAuthToken.getId(),
+                oAuthTokenDTO
+        );
+
+        return oAuthTokenDTO;
     }
 
     /**
      * 소셜 로그인 연동해제
      */
     @Override
-    public void unlink() {
+    public void unlink(Long userId) {
+        // 토큰 갱신
+        OAuthTokenDTO tokenDTO = reissue(userId);
 
+        // 연동 해제
     }
 }

@@ -23,4 +23,13 @@ public interface NaverOAuthAPIService {
             @RequestParam("code") String code,
             @RequestParam("state") String state
     );
+
+    @PostMapping(value = NaverAPIConstants.TOKEN,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
+    NaverTokenResponse reissueNaverToken(
+            @RequestParam("client_id") String clientId,
+            @RequestParam("client_secret") String clientSecret,
+            @RequestParam("refresh_token") String refreshToken,
+            @RequestParam("grant_type") String grantType
+    );
 }

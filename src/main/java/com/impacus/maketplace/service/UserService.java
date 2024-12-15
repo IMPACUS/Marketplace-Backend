@@ -387,30 +387,6 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-
-    @Transactional
-    public void findFistDormancyUser() {
-        // TODO user entity 정리하면서 관련 column 삭제
-//        LocalDateTime fiveMonthAgo = LocalDateTime.now().minusMonths(5).plusDays(1).truncatedTo(ChronoUnit.DAYS);
-//        List<User> firstDormancyUser = userRepository.findByRecentLoginAtBeforeAndFirstDormancyIsFalse(fiveMonthAgo);
-//        LocalDate updateDormancyAt = LocalDateTime.now().plusMonths(1).toLocalDate();
-//
-//        for (User user : firstDormancyUser) {
-//            user.setDormancyMonths(5);
-//            user.setFirstDormancy(true);
-//            user.setUpdateDormancyAt(updateDormancyAt);
-//
-//            int underscoreIndex = user.getEmail().indexOf("_") + 1;
-//            String realUserEmail = user.getEmail().substring(underscoreIndex);
-//
-//            EmailDto emailDto = EmailDto.builder()
-//                    .subject(MailType.POINT_REDUCTION.getSubject())
-//                    .receiveEmail(realUserEmail)
-//                    .build();
-//            emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
-//        }
-    }
-
     /**
      * 이메일 인증 요청 이메일을 보내는 함수
      *
@@ -504,7 +480,7 @@ public class UserService {
         // 1. 연동 해제
         if (oauthProviderType != OauthProviderType.NONE) {
             OAuthService oAuthService = oAuthServiceFactory.getService(oauthProviderType);
-            oAuthService.unlink();
+            oAuthService.unlink(userDTO.getUserId());
         }
 
         // 2. 삭제

@@ -18,7 +18,9 @@ public enum UserErrorType implements ErrorType {
     BLOCKED_EMAIL("007_BLOCKED_EMAIL", "차단된 사용자 입니다."),
     WRONG_PASSWORD("008_WRONG_PASSWORD", "틀린 비밀번호 입니다."),
     NOT_ALLOW_EMAIL("009_NOT_ALLOW_EMAIL", "이메일 사용이 허용이 되지 않은 사용자입니다."),
-    DUPLICATED_PHONE_NUMBER("010_DUPLICATED_PHONE_NUMBER", "이미 존재하는 휴대폰 번호입니다.");
+    DUPLICATED_PHONE_NUMBER("010_DUPLICATED_PHONE_NUMBER", "이미 존재하는 휴대폰 번호입니다."),
+    NOT_EXISTED_OAUTH_TOKEN("011_NOT_EXISTED_OAUTH_TOKEN", "OAuth 토큰이 존재하지 않습니다"),
+    NOT_EXISTED_CONSUMER("012_NOT_EXISTED_CONSUMER", "Consumer 가 존재하지 않습니다.");
 
     private final String code;
     private final String msg;

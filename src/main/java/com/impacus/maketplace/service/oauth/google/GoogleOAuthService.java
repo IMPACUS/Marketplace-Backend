@@ -98,18 +98,18 @@ public class GoogleOAuthService implements OAuthService {
     /**
      * 소셜 로그인 토큰 재발급
      *
-     * @param memberId
+     * @param userId
      */
     @Override
-    public void reissue(Long memberId) {
-
+    public OAuthTokenDTO reissue(Long userId) {
+        return null;
     }
 
     /**
      * 소셜 로그인 연동해제
      */
     @Override
-    public void unlink() {
+    public void unlink(Long userId) {
 
     }
 }
