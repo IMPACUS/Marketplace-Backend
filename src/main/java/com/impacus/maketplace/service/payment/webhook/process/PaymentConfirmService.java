@@ -1,4 +1,4 @@
-package com.impacus.maketplace.service.payment;
+package com.impacus.maketplace.service.payment.webhook.process;
 
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.error.PaymentWebhookErrorType;
@@ -14,6 +14,8 @@ import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
 import com.impacus.maketplace.repository.product.history.ProductOptionHistoryRepository;
+import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
+import com.impacus.maketplace.service.payment.utils.PaymentValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO.WebhookEventType.TRANSACTION_CONFIRM;
 import static java.util.stream.Collectors.joining;
 
 @Service
@@ -37,6 +40,7 @@ public class PaymentConfirmService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductOptionHistoryRepository productOptionHistoryRepository;
     private final PaymentOrderHistoryService paymentOrderHistoryService;
+    private final PaymentValidationService paymentValidationService;
 
     /**
      * 결제 승인 처리
@@ -60,15 +64,7 @@ public class PaymentConfirmService {
         paymentEvent.getPaymentOrders().addAll(paymentOrders);
 
         // 2. 결제 상태 확인
-        paymentOrders.forEach(paymentOrder -> {
-            if (paymentOrder.getStatus() == PaymentOrderStatus.SUCCESS
-            || paymentOrder.getStatus() == PaymentOrderStatus.FAILURE) {
-                throw new CustomException(PaymentWebhookErrorType.ALREADY_FINISH_PAYMENT);
-            }
-            if (paymentOrder.getStatus() == PaymentOrderStatus.CONFIRM) {
-                throw new CustomException(PaymentWebhookErrorType.ALREADY_CONFIRM_PROCESS);
-            }
-        });
+        paymentValidationService.validatePaymentStatus(TRANSACTION_CONFIRM, paymentOrders);
 
         // 3. 결제 금액이 totalAmount와 일치하는지 확인
         if (!validateTotalAmount(paymentEvent, webhookPaymentDTO.getData().getTotalAmount())) {

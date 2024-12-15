@@ -1,16 +1,20 @@
-package com.impacus.maketplace.service.payment;
+package com.impacus.maketplace.service.payment.webhook;
 
 import com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO;
+import com.impacus.maketplace.service.payment.webhook.process.PaymentCancelService;
+import com.impacus.maketplace.service.payment.webhook.process.PaymentConfirmService;
+import com.impacus.maketplace.service.payment.webhook.process.PaymentPreparationService;
+import com.impacus.maketplace.service.payment.webhook.process.PaymentCompletionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PaymentWebhookService {
+public class WebhookHandlerService {
 
     private final PaymentConfirmService paymentConfirmService;
-    private final PaymentSuccessService paymentSuccessService;
-    private final PaymentReadyService paymentReadyService;
+    private final PaymentCompletionService paymentSuccessService;
+    private final PaymentPreparationService paymentReadyService;
     private final PaymentCancelService paymentCancelService;
 
     public void process(WebhookPaymentDTO payload) {

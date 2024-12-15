@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.payment.model.DiscountInfoDTO;
 import com.impacus.maketplace.dto.payment.model.PaymentCouponDTO;
 import com.impacus.maketplace.dto.payment.model.ProductPricingDTO;
+import com.impacus.maketplace.service.payment.utils.DiscountService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.impacus.maketplace.service.payment;
+package com.impacus.maketplace.service.payment.utils;
 
 import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;

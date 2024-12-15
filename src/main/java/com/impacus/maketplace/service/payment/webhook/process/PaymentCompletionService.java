@@ -1,4 +1,4 @@
-package com.impacus.maketplace.service.payment;
+package com.impacus.maketplace.service.payment.webhook.process;
 
 import com.impacus.maketplace.common.enumType.error.PaymentWebhookErrorType;
 import com.impacus.maketplace.common.enumType.payment.PaymentOrderStatus;
@@ -6,35 +6,35 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
-import com.impacus.maketplace.entity.payment.PaymentOrderHistory;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
-import com.impacus.maketplace.service.payment.postprocess.LedgerService;
+import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
+import com.impacus.maketplace.service.payment.utils.PaymentValidationService;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO.WebhookEventType.TRANSACTION_PAID;
 
 @Service
 @AllArgsConstructor
 @Transactional(readOnly = true)
-public class PaymentSuccessService {
+public class PaymentCompletionService {
 
     private final PaymentEventRepository paymentEventRepository;
     private final PaymentOrderRepository paymentOrderRepository;
     private final PaymentOrderHistoryService paymentOrderHistoryService;
-    private final LedgerService ledgerService;
     private final ShoppingBasketService shoppingBasketService;
+    private final PaymentValidationService paymentValidationService;
 
     /**
      * 결제 성공 처리
      * 상황 부연 설명: 결제 승인 과정을 성공적으로 처리한 뒤 로직
      */
     // 쿠폰 발급 로직 추가
-    // shoppginBasket Id List 존재할 경우 제거해주는 작업
     @Transactional
     public void success(WebhookPaymentDTO payload) {
 
@@ -48,12 +48,7 @@ public class PaymentSuccessService {
                 .orElseThrow(() -> new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID));
 
         // 3. 결제 상태 확인
-        paymentOrders.forEach(paymentOrder -> {
-            if (paymentOrder.getStatus() == PaymentOrderStatus.SUCCESS
-                    || paymentOrder.getStatus() == PaymentOrderStatus.FAILURE) {
-                throw new CustomException(PaymentWebhookErrorType.ALREADY_FINISH_PAYMENT);
-            }
-        });
+        paymentValidationService.validatePaymentStatus(TRANSACTION_PAID, paymentOrders);
 
         // 4.1. payment_order_history 업데이트
         paymentOrderHistoryService.updateAll(paymentOrders, PaymentOrderStatus.SUCCESS, "payment success");

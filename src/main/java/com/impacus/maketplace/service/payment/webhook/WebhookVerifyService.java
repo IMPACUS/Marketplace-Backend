@@ -1,4 +1,4 @@
-package com.impacus.maketplace.service.payment;
+package com.impacus.maketplace.service.payment.webhook;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.impacus.maketplace.common.enumType.error.PaymentWebhookErrorType;

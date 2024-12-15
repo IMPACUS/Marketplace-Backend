@@ -31,7 +31,7 @@ import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInf
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsByCartDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsDTO;
 import com.impacus.maketplace.service.coupon.CouponRedeemService;
-import com.impacus.maketplace.service.payment.DiscountService;
+import com.impacus.maketplace.service.payment.utils.DiscountService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
