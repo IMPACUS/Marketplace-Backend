@@ -14,6 +14,7 @@ import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
 import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
+import com.impacus.maketplace.entity.consumer.oAuthToken.AppleOAuthToken;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
@@ -137,7 +138,9 @@ public class AppleOAuthService implements OAuthService {
                 .oAuthProvider(OauthProviderType.APPLE)
                 .build();
         User user = customOauth2UserService.saveOrUpdate(attribute);
-        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto);
+
+        // 사용자 정보 저장 & 업데이트
+        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto, dto.getOs());
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
         TokenInfoVO token = tokenProvider.createToken(auth);
 
@@ -197,7 +200,19 @@ public class AppleOAuthService implements OAuthService {
      */
     @Override
     public OAuthTokenDTO reissue(Long userId) {
-        return null;
+        // OAuth 토큰 조회
+        AppleOAuthToken oAuthToken = (AppleOAuthToken) commonOAuthService.findOAuthTokenByUserId(userId);
+
+        // 토큰 갱신 요청
+        String clientId = getClientId(oAuthToken.getOsType());
+        AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueAppleToken(
+                clientId,
+                createSecret(clientId),
+                oAuthToken.getRefreshToken(),
+                REISSUE_GRANT_TYPE
+        );
+
+        return tokenResponse.toOAuthTokenDTO(oAuthToken.getOsType());
     }
 
     /**
@@ -205,6 +220,15 @@ public class AppleOAuthService implements OAuthService {
      */
     @Override
     public void unlink(Long userId) {
+        // 토큰 갱신
+        OAuthTokenDTO oAuthToken = this.reissue(userId);
 
+        // 연동 해제
+        String clientId = getClientId(oAuthToken.getOs());
+        appleOAuthAPIService.unlinkApple(
+                clientId,
+                createSecret(clientId),
+                oAuthToken.getAccessToken()
+        );
     }
 }

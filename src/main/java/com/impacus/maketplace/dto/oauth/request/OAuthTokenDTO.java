@@ -31,6 +31,15 @@ public class OAuthTokenDTO {
         this.refreshToken = refreshToken;
     }
 
+    public OAuthTokenDTO(String accessToken,
+                         String refreshToken,
+                         OSType os
+    ) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.os = os;
+    }
+
     public static OAuthTokenDTO toDTO(String accessToken, String refreshToken) {
         return new OAuthTokenDTO(accessToken, refreshToken);
     }

@@ -30,4 +30,12 @@ public interface AppleOAuthAPIService {
             @RequestParam("refresh_token") String refreshToken,
             @RequestParam("grant_type") String grantType
     );
+
+    @PostMapping(value = AppleAPIConstants.REVOKE,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
+    AppleTokenResponse unlinkApple(
+            @RequestParam("client_id") String clientId,
+            @RequestParam("client_secret") String clientSecret,
+            @RequestParam("token") String token
+    );
 }

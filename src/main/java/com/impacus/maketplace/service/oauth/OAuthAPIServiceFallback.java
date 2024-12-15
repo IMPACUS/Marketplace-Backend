@@ -80,6 +80,11 @@ public class OAuthAPIServiceFallback implements
     }
 
     @Override
+    public AppleTokenResponse unlinkApple(String clientId, String clientSecret, String token) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
     public KakaoTokenResponse reissueKakaoToken(String clientId, String clientSecret, String refreshToken, String grantType) {
         throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
     }
