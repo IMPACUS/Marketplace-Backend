@@ -99,6 +99,7 @@ public class UserService {
                     throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
                 }
             }
+            // 탈퇴 14일 이내 회원 확인
 
             // 2. 비밃번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
@@ -131,8 +132,8 @@ public class UserService {
      * @param email '%@%.%' 포맷의 이메일 데이터
      * @return 매개변수로 받은 email로 등록된 User 리스트
      */
-    public List<User> findUsersByEmailAboutAllProvider(String email) {
-        return userRepository.findByEmailLike("%_" + email);
+    public Optional<User> findUsersByEmailAboutAllProvider(String email) {
+        return userRepository.findByEmailLikeAndIsDeletedFalse("%_" + email);
     }
 
     /**
@@ -143,12 +144,14 @@ public class UserService {
      * @return 요청한 데이터 기준으로 데이터가 존재하는 경우 User, 데이터가 존재하지 않은 경우 null
      */
     public User findUserByEmailAndOauthProviderType(String email, OauthProviderType providerType) {
-        List<User> userList = findUsersByEmailAboutAllProvider(email);
-        List<User> findUserList = userList.stream()
-                .filter(user -> user.getEmail().equals(providerType + "_" + email))
-                .toList();
+        Optional<User> userOptional = findUsersByEmailAboutAllProvider(email);
+        if (userOptional.isPresent()) {
+            if (userOptional.get().getEmail().equals(providerType + "_" + email)) {
+                return userOptional.get();
+            }
+        }
 
-        return (!findUserList.isEmpty()) ? findUserList.get(0) : null;
+        return null;
     }
 
     /**
