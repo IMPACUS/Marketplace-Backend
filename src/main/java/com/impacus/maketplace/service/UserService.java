@@ -527,11 +527,29 @@ public class UserService {
      */
     @Transactional
     public void saveOrUpdateConsumer(Long userId, CertificationResult certificationResult) {
+        // 회원가입 가능한 CI 인지 확인(+ 탈퇴한 회원의 CI 인지 확인)
+        validateUserRejoinable(certificationResult.getCi());
+
         if (consumerRepository.existsByUserId(userId)) { // 업데이트
             consumerRepository.updateConsumer(userId, certificationResult.getCi(), LocalDateTime.now());
         } else { // 생성
             Consumer consumer = certificationResult.toEntity(userId);
             consumerRepository.save(consumer);
+        }
+    }
+
+    private void validateUserRejoinable(String ci) {
+        User user = userRepository.findUserByCI(ci);
+        if (user == null) {
+            return;
+        }
+
+        if (user.isDeleted()) {
+            if (!user.isRejoinable()) {
+                throw new CustomException(UserErrorType.FAIL_TO_REJOIN_14);
+            }
+        } else {
+            throw new CustomException(UserErrorType.DUPLICATED_CI);
         }
     }
 

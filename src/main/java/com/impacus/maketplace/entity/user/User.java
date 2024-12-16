@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.constants.DaysConstants;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.TimestampConverter;
@@ -83,7 +84,9 @@ public class User extends BaseEntity {
     private boolean isDeleted; // 삭제 여부
 
     public boolean isRejoinable() {
-        if (this.isDeleted && this.getModifyAt().plusDays(14).isAfter(LocalDateTime.now())) {
+        if (this.isDeleted &&
+                this.getModifyAt().plusDays(DaysConstants.REJOIN_RESTRICTION_DATE).isAfter(LocalDateTime.now())
+        ) {
             return false;
         }
         return true;

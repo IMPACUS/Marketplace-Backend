@@ -11,6 +11,7 @@ import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
+import com.impacus.maketplace.entity.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -59,4 +60,6 @@ public interface UserCustomRepository {
     ConsumerEmailDTO findConsumerByPhoneNumberAndEmail(String phoneNumber, String email);
 
     void deactivateConsumer(Long userId);
+
+    User findUserByCI(String ci);
 }

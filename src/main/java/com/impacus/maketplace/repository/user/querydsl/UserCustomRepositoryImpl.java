@@ -24,6 +24,7 @@ import com.impacus.maketplace.entity.point.levelPoint.QLevelPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.entity.user.QUserConsent;
 import com.impacus.maketplace.entity.user.QUserStatusInfo;
+import com.impacus.maketplace.entity.user.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -432,5 +433,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .set(userStatusInfo.modifyId, currentAuditor)
                 .where(userStatusInfo.userId.eq(userId))
                 .execute();
+    }
+
+    @Override
+    public User findUserByCI(String ci) {
+        return queryFactory.selectFrom(user)
+                .leftJoin(consumer).on(consumer.ci.eq(ci))
+                .where(user.id.eq(consumer.userId))
+                .fetchFirst();
     }
 }
