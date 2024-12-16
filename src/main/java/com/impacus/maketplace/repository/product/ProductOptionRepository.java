@@ -18,6 +18,9 @@ public interface ProductOptionRepository extends JpaRepository<ProductOption, Lo
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<ProductOption> findByProductId(Long productId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    ProductOption findProductOptionWithWriteLockById(Long productOptionId);
+
     @Transactional
     @Modifying
     @Query("UPDATE ProductOption po SET po.isDeleted = true WHERE po.id in :ids")

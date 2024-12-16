@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.*;
 @DisplayName("Payment Event 금액 테스트")
 public class PaymentEventTest {
 
-    private final String PAYMENT_KEY = "paymentKey";
-    private final String ORDER_ID = "orderId";
+    private final String IDEMPOTENCY_KEY = "paymentKey";
+    private final String PAYMENT_ID = "orderId";
     private final String ORDER_NAME = "orderName";
 
     @Test
@@ -541,7 +541,7 @@ public class PaymentEventTest {
                 .productId(otherId)
                 .productOptionHistoryId(otherId)
                 .quantity(quantity)
-                .orderId(ORDER_ID)
+                .paymentId(PAYMENT_ID)
                 .amount(amount)
                 .ecoDiscount(ecoDiscount)
                 .greenLabelDiscount(greenLabelDiscount)
@@ -561,8 +561,8 @@ public class PaymentEventTest {
                 .id(1L)
                 .buyerId(1L)
                 .isPaymentDone(false)
-                .paymentKey(PAYMENT_KEY)
-                .orderId(ORDER_ID)
+                .idempotencyKey(IDEMPOTENCY_KEY)
+                .paymentId(PAYMENT_ID)
                 .type(PaymentType.NORMAL)
                 .orderName(ORDER_NAME)
                 .method(PaymentMethod.CARD)

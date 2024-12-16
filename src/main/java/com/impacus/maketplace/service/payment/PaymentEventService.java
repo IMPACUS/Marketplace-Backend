@@ -14,8 +14,8 @@ public class PaymentEventService implements PaymentEventInterface {
     private final PaymentEventRepository paymentEventRepository;
 
     @Override
-    public Long findIdByOrderId(String orderId) {
-        return paymentEventRepository.findByOrderId(orderId)
+    public Long findIdByPaymentId(String paymentId) {
+        return paymentEventRepository.findIdByPaymentId(paymentId)
                 .orElseThrow(() -> new CustomException(PaymentErrorType.NOT_FOUND_ORDER_ID));
     }
 }
