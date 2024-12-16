@@ -100,8 +100,11 @@ public class UserService {
                 }
             }
             // 탈퇴 14일 이내 회원 확인
+            if (!canRejoin(email)) {
+                throw new CustomException(UserErrorType.FAIL_TO_REJOIN_14);
+            }
 
-            // 2. 비밃번호 유효성 검사
+            // 2. 비밀번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
                 throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
@@ -134,6 +137,22 @@ public class UserService {
      */
     public Optional<User> findUsersByEmailAboutAllProvider(String email) {
         return userRepository.findByEmailLikeAndIsDeletedFalse("%_" + email);
+    }
+
+    /**
+     * email로 재가입 가능 여부를 확인하는 함수
+     *
+     * @param email
+     * @return
+     */
+    public boolean canRejoin(String email) {
+        Optional<User> userOptional = userRepository.findByEmailLikeAndIsDeletedTrue("%_" + email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return user.isRejoinable();
+        }
+
+        return true;
     }
 
     /**

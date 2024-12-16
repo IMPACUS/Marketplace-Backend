@@ -82,6 +82,13 @@ public class User extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
+    public boolean isRejoinable() {
+        if (this.isDeleted && this.getModifyAt().plusDays(14).isAfter(LocalDateTime.now())) {
+            return false;
+        }
+        return true;
+    }
+
     public User(String email, String password, String name) {
         this.name = name;
         this.email = email;
