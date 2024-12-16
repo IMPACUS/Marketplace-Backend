@@ -25,7 +25,7 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email; // Format: OauthProviderKey_Email
 
     @Convert(converter = AES256ToStringConverter.class)
