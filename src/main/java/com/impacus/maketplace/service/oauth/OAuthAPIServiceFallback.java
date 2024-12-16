@@ -6,7 +6,9 @@ import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
 import com.impacus.maketplace.dto.oauth.google.GoogleTokenResponse;
 import com.impacus.maketplace.dto.oauth.google.GoogleUserInfoResponse;
 import com.impacus.maketplace.dto.oauth.kakao.KakaoTokenResponse;
+import com.impacus.maketplace.dto.oauth.kakao.KakaoUnlinkResponse;
 import com.impacus.maketplace.dto.oauth.kakao.userProfile.KakaoUserProfileResponse;
+import com.impacus.maketplace.dto.oauth.naver.NaverDeleteResponse;
 import com.impacus.maketplace.dto.oauth.naver.NaverTokenResponse;
 import com.impacus.maketplace.dto.oauth.naver.userProfile.NaverUserResponse;
 import com.impacus.maketplace.service.oauth.apple.AppleOAuthAPIService;
@@ -43,7 +45,22 @@ public class OAuthAPIServiceFallback implements
     }
 
     @Override
+    public KakaoUnlinkResponse unlinkKakao(String authorization, String targetIdType, Long targetId) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
     public NaverTokenResponse getNaverToken(String grantType, String clientId, String clientSecret, String code, String state) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public NaverTokenResponse reissueNaverToken(String clientId, String clientSecret, String refreshToken, String grantType) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public NaverDeleteResponse disconnectNaverToken(String clientId, String clientSecret, String accessToken, String grantType) {
         throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
     }
 
@@ -58,12 +75,32 @@ public class OAuthAPIServiceFallback implements
     }
 
     @Override
-    public AppleTokenResponse reissueToken(String clientId, String clientSecret, String refreshToken, String grantType) {
+    public AppleTokenResponse reissueAppleToken(String clientId, String clientSecret, String refreshToken, String grantType) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public AppleTokenResponse unlinkApple(String clientId, String clientSecret, String token) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public KakaoTokenResponse reissueKakaoToken(String clientId, String clientSecret, String refreshToken, String grantType) {
         throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
     }
 
     @Override
     public GoogleTokenResponse getGoogleToken(String clientId, String clientSecret, String code, String grantType, String redirectUri) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public GoogleTokenResponse reissueGoogleToken(String clientId, String clientSecret, String grantType, String refreshToken) {
+        throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
+    }
+
+    @Override
+    public void unlinkGoogle(String token) {
         throw new CustomException(CommonErrorType.OPEN_API_REQUEST_FAIL);
     }
 

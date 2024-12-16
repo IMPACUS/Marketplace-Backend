@@ -16,6 +16,7 @@ import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.consumer.QConsumer;
+import com.impacus.maketplace.entity.consumer.oAuthToken.QOAuthToken;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.levelPoint.QLevelAchievement;
@@ -23,6 +24,7 @@ import com.impacus.maketplace.entity.point.levelPoint.QLevelPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.entity.user.QUserConsent;
 import com.impacus.maketplace.entity.user.QUserStatusInfo;
+import com.impacus.maketplace.entity.user.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -55,6 +57,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final QGreenLabelPointAllocation labelPointAllocation = QGreenLabelPointAllocation.greenLabelPointAllocation;
     private final QLevelAchievement levelAchievement = QLevelAchievement.levelAchievement;
     private final QConsumer consumer = QConsumer.consumer;
+    private final QOAuthToken oAuthToken = QOAuthToken.oAuthToken;
 
     @Override
     public ReadUserSummaryDTO findUserSummaryByEmail(String email) {
@@ -130,6 +133,18 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         queryFactory.delete(levelAchievement)
                 .where(levelAchievement.userId.eq(userId))
                 .execute();
+
+        Long consumerId = queryFactory.select(consumer.id)
+                .from(consumer)
+                .where(consumer.userId.eq(userId))
+                .fetchFirst();
+        queryFactory.delete(consumer)
+                .where(consumer.id.eq(consumerId))
+                .execute();
+        queryFactory.delete(oAuthToken)
+                .where(oAuthToken.consumerId.eq(consumerId))
+                .execute();
+
     }
 
     @Override
@@ -394,6 +409,37 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 )
                 .from(user)
                 .where(builder)
+                .fetchFirst();
+    }
+
+    @Override
+    public void deactivateConsumer(Long userId) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        // isDelete = true, userType 변경
+        queryFactory.update(user)
+                .set(user.isDeleted, true)
+                .set(user.type, UserType.ROLE_DEACTIVATED_USER)
+                .set(user.modifyAt, LocalDateTime.now())
+                .set(user.modifyId, currentAuditor)
+                .where(user.id.eq(userId))
+                .execute();
+
+        // status 변경
+        queryFactory.update(userStatusInfo)
+                .set(userStatusInfo.status, UserStatus.DEACTIVATED)
+                .set(userStatusInfo.statusReason, "사용자 탈퇴 요청")
+                .set(userStatusInfo.modifyAt, LocalDateTime.now())
+                .set(userStatusInfo.modifyId, currentAuditor)
+                .where(userStatusInfo.userId.eq(userId))
+                .execute();
+    }
+
+    @Override
+    public User findUserByCI(String ci) {
+        return queryFactory.selectFrom(user)
+                .leftJoin(consumer).on(consumer.ci.eq(ci))
+                .where(user.id.eq(consumer.userId))
                 .fetchFirst();
     }
 }

@@ -11,10 +11,12 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.oauth.apple.AppleTokenResponse;
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
-import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
+import com.impacus.maketplace.entity.consumer.oAuthToken.AppleOAuthToken;
 import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.service.oauth.CommonOAuthService;
 import com.impacus.maketplace.service.oauth.CustomOauth2UserService;
 import com.impacus.maketplace.service.oauth.OAuthService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
@@ -50,6 +52,7 @@ public class AppleOAuthService implements OAuthService {
     private final AppleOAuthAPIService appleOAuthAPIService;
     private final CustomOauth2UserService customOauth2UserService;
     private final JwtTokenProvider tokenProvider;
+    private final CommonOAuthService commonOAuthService;
 
     @Value("${apple.aos-app-id}")
     private String aosClientId;
@@ -92,7 +95,8 @@ public class AppleOAuthService implements OAuthService {
         );
 
         // 2. 회원가입/로그인
-        return saveOrUpdateUser(tokenResponse.getIdToken());
+        OAuthTokenDTO oauthTokenDTO = OAuthTokenDTO.toDTO(tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+        return saveOrUpdateUser(tokenResponse.getIdToken(), oauthTokenDTO);
     }
 
     /**
@@ -102,20 +106,21 @@ public class AppleOAuthService implements OAuthService {
      */
     @Override
     @Transactional
-    public OauthLoginDTO login(OauthTokenDTO dto) {
+    public OauthLoginDTO login(OAuthTokenDTO dto) {
         if (dto.getOs() == null) {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "os 데이터가 null일 수 없습니다.");
         }
 
         // 1. 사용자 정보 조회
         String clientId = getClientId(dto.getOs());
-        AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueToken(
+        AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueAppleToken(
                 clientId,
                 createSecret(clientId),
                 dto.getRefreshToken(),
                 REISSUE_GRANT_TYPE
         );
-        return saveOrUpdateUser(tokenResponse.getIdToken());
+
+        return saveOrUpdateUser(tokenResponse.getIdToken(), dto);
     }
 
     /**
@@ -125,7 +130,7 @@ public class AppleOAuthService implements OAuthService {
      * @return
      */
     @Transactional
-    public OauthLoginDTO saveOrUpdateUser(String idToken) {
+    public OauthLoginDTO saveOrUpdateUser(String idToken, OAuthTokenDTO dto) {
         String email = getEmailFromIdToken(idToken);
         OAuthAttributes attribute = OAuthAttributes.builder()
                 .name(email)
@@ -133,6 +138,9 @@ public class AppleOAuthService implements OAuthService {
                 .oAuthProvider(OauthProviderType.APPLE)
                 .build();
         User user = customOauth2UserService.saveOrUpdate(attribute);
+
+        // 사용자 정보 저장 & 업데이트
+        commonOAuthService.saveOrUpdateOAuthToken(user.getId(), dto, dto.getOs());
         Authentication auth = tokenProvider.createAuthenticationFromUser(user, UserType.ROLE_CERTIFIED_USER);
         TokenInfoVO token = tokenProvider.createToken(auth);
 
@@ -188,18 +196,39 @@ public class AppleOAuthService implements OAuthService {
     /**
      * 소셜 로그인 토큰 재발급
      *
-     * @param memberId
+     * @param userId
      */
     @Override
-    public void reissue(Long memberId) {
+    public OAuthTokenDTO reissue(Long userId) {
+        // OAuth 토큰 조회
+        AppleOAuthToken oAuthToken = (AppleOAuthToken) commonOAuthService.findOAuthTokenByUserId(userId);
 
+        // 토큰 갱신 요청
+        String clientId = getClientId(oAuthToken.getOsType());
+        AppleTokenResponse tokenResponse = appleOAuthAPIService.reissueAppleToken(
+                clientId,
+                createSecret(clientId),
+                oAuthToken.getRefreshToken(),
+                REISSUE_GRANT_TYPE
+        );
+
+        return tokenResponse.toOAuthTokenDTO(oAuthToken.getOsType());
     }
 
     /**
      * 소셜 로그인 연동해제
      */
     @Override
-    public void unlink() {
+    public void unlink(Long userId) {
+        // 토큰 갱신
+        OAuthTokenDTO oAuthToken = this.reissue(userId);
 
+        // 연동 해제
+        String clientId = getClientId(oAuthToken.getOs());
+        appleOAuthAPIService.unlinkApple(
+                clientId,
+                createSecret(clientId),
+                oAuthToken.getAccessToken()
+        );
     }
 }
