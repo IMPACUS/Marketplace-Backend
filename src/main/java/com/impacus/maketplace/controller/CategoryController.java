@@ -86,7 +86,7 @@ public class CategoryController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
-    @PutMapping("sub-category/{categoryId}")
+    @PutMapping("sub-category")
     public ApiResponseEntity<SubCategoryDTO> updateSubCategory(
             @RequestPart(value = "subCategoryThumbnail", required = false) MultipartFile thumbnail,
             @Valid @RequestPart(value = "subCategory") ChangeCategoryNameDTO subCategoryRequest) {
@@ -101,7 +101,7 @@ public class CategoryController {
      * 전체 카테고리 조회 API
      * @return
      */
-    @GetMapping("")
+    @GetMapping
     public ApiResponseEntity<List<CategoryDetailDTO>> getAllCategory() {
         List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(false);
         return ApiResponseEntity
@@ -115,8 +115,10 @@ public class CategoryController {
      * @return
      */
     @GetMapping("/no-brand")
-    public ApiResponseEntity<List<CategoryDetailDTO>> getAllCategoryForProduct() {
-        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(true);
+    public ApiResponseEntity<List<CategoryDetailDTO>> getAllCategoryForProduct(
+            @RequestParam(required = false) String keyword
+    ) {
+        List<CategoryDetailDTO> categoryDTOs = superCategoryService.findAllCategory(true, keyword);
         return ApiResponseEntity
                 .<List<CategoryDetailDTO>>builder()
                 .data(categoryDTOs)

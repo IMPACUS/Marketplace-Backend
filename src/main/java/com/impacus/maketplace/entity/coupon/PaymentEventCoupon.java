@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.coupon;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -21,4 +22,8 @@ public class PaymentEventCoupon {
 
     @Column(nullable = false)
     private Long userCouponId;
+
+    @Column(nullable = false)
+    @ColumnDefault("'false'")
+    private Boolean isUsed;
 }

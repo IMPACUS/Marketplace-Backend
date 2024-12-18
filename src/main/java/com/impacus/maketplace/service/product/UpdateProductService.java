@@ -1,9 +1,11 @@
 package com.impacus.maketplace.service.product;
 
+import com.impacus.maketplace.common.enumType.SearchType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.dto.CommonProductDTO;
 import com.impacus.maketplace.dto.product.request.UpdateProductDTO;
@@ -12,6 +14,7 @@ import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
 import com.impacus.maketplace.entity.seller.Seller;
+import com.impacus.maketplace.redis.service.ProductSearchService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
@@ -37,6 +40,7 @@ public class UpdateProductService {
     private final ProductHistoryService productHistoryService;
     private final ReadProductService readProductService;
     private final EntityManager entityManager;
+    private final ProductSearchService productSearchService;
 
     /**
      * 등록된 상품 정보 수정 함수
@@ -56,24 +60,23 @@ public class UpdateProductService {
             // 1. Product 찾기
             CommonProductDTO savedProduct = productRepository.findCommonProductByProductId(productId);
 
-            // 2. (요청한 사용자가 판매자인 경우) 판매자가 등록한 상품인지 확인
-            // - 판매자가 등록한 상품이 아닌 경우 에러 발생 시킴
+            // 2. 유효성 검사
             validateUserAccess(userId, savedProduct, dto);
-
-            // 3. productRequest 유효성 검사
             validateProductRequest(dto, savedProduct);
 
-            // 4. 상품 이력 저장 (조건에 부합하는 경우)
+            // 3. 상품 이력 저장 (조건에 부합하는 경우)
             addProductHistoryInUpdateMode(savedProduct, dto, savedProduct.getProductImages());
 
-            // 5. Product 수정
+            // 4. Product 수정
             Product changedProduct = applyProductChanges(savedProduct, dto, isOverwrite);
-
             entityManager.flush();
 
-            // 6. 연관된 Product 정보 수정
+            // 5. 연관된 Product 정보 수정
             updateProductRelatedInfo(productId, dto);
 
+            // 6. 상품 검색어 데이터 수정
+            updateProductSearchData(savedProduct, dto);
+            
             return ProductDTO.toDTO(changedProduct);
         } catch (ObjectOptimisticLockingFailureException ex) {
             throw new CustomException(HttpStatus.CONFLICT, ProductErrorType.PRODUCT_CONCURRENT_MODIFICATION);
@@ -83,7 +86,29 @@ public class UpdateProductService {
     }
 
     /**
+     * 상품 검색어 데이터 수정
+     *
+     * @param savedProduct 변경되기 전 상품
+     * @param dto 상품 변경 요청 데이터
+     */
+    @Transactional
+    public void updateProductSearchData(CommonProductDTO savedProduct, UpdateProductDTO dto) {
+        try {
+            if (!savedProduct.getName().equals(dto.getName())) {
+                productSearchService.updateSearchData(
+                        SearchType.PRODUCT,
+                        savedProduct.getProductId(),
+                        dto.getName()
+                );
+            }
+        } catch (Exception ex) {
+            LogUtils.writeErrorLog("updateProductSearchData", "Fail to update search data", ex);
+        }
+    }
+
+    /**
      * 상품에 사용자가 접근 가능 확인
+     * - 판매자가 등록한 상품인지 확인 (판매자가 등록한 상품이 아닌 경우 에러 발생 시킴)
      *
      * @param userId
      * @param savedProduct
@@ -114,20 +139,8 @@ public class UpdateProductService {
     private void validateProductRequest(UpdateProductDTO dto, CommonProductDTO savedProduct) {
         // 상품 이미지, 카테고리, 묶음 배송 그룹 유효성 검사
         readProductService.validateProductRequest(
-                savedProduct.getProductImages(),
-                dto.getCategoryId(),
                 savedProduct.getSellerId(),
-                dto.getBundleDeliveryOption(),
-                dto.getBundleDeliveryGroupId()
-        );
-        // 배송 및 환불 수수료 유효성 검사
-        readProductService.validateDeliveryRefundFee(
-                dto.getDeliveryFee(),
-                dto.getRefundFee(),
-                dto.getSpecialDeliveryFee(),
-                dto.getSpecialRefundFee(),
-                dto.getDeliveryFeeType(),
-                dto.getRefundFeeType()
+                dto
         );
     }
 

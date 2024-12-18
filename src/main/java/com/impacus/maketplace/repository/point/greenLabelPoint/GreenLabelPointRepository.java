@@ -14,6 +14,9 @@ import org.springframework.stereotype.Repository;
 public interface GreenLabelPointRepository extends JpaRepository<GreenLabelPoint, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT g.greenLabelPoint FROM GreenLabelPoint g WHERE g.userId = :userId")
+    Long findWriteLockGreenLablePointByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT g.greenLabelPoint FROM GreenLabelPoint g where g.userId = :userId")
     Long findGreenLabelPointByUserId(@Param("userId") Long userId);
 
     @Transactional

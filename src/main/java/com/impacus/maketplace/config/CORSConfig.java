@@ -21,7 +21,9 @@ public class CORSConfig {
                 "https://back-dev.implace.kr",
                 "https://appleid.apple.com",
                 "https://seller.dev.implace.kr",
-                "https://admin.dev.implace.kr"
+                "https://admin.dev.implace.kr",
+                "https://dev.implace.kr",
+                "https://nice.checkplus.co.kr"
         ));
         config.setAllowedHeaders(Collections.singletonList("*"));
         config.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

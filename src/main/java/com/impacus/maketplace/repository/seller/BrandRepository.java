@@ -4,6 +4,8 @@ import com.impacus.maketplace.entity.seller.Brand;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, Long> {
     /**
@@ -13,4 +15,6 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
      * @return
      */
     boolean existsBySellerId(Long sellerId);
+
+    Optional<Brand> findBySellerId(Long sellerId);
 }

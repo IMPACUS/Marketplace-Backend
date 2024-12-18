@@ -64,7 +64,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         // 1-2. 검색어 조회
         BooleanBuilder searchBuilder = new BooleanBuilder();
         if (keyword != null && !keyword.isBlank()) {
-            searchBuilder.or(product.name.containsIgnoreCase(keyword)); // 검색 옵션: 상품명;
+            searchBuilder.or(product.name.containsIgnoreCase(keyword)); // 검색 옵션: 상품명
         }
 
         BooleanBuilder productOptionBuilder = new BooleanBuilder();
@@ -119,8 +119,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(productOption).on(productOptionBuilder)
                 .groupBy(product.id, productOption.id)
                 .where(product.id.in(productIds))
-                .orderBy(product.createAt.desc());
-        return query
+                .orderBy(product.createAt.desc(), productOption.id.desc());
+        List<WebProductTableDetailDTO> duplicatedProducts = query
                 .transform(
                         GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
@@ -137,7 +137,34 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         )
                 );
+
+        return removeDuplicatedProductTableDetailsForWeb(duplicatedProducts);
     }
+
+    private List<WebProductTableDetailDTO> removeDuplicatedProductTableDetailsForWeb(List<WebProductTableDetailDTO> products) {
+        // Set to keep track of added productOptionIds to avoid duplication
+        Set<Long> existingOptionIds = new HashSet<>();
+
+        // Using Stream API to remove duplicates and manage options
+        Map<Long, WebProductTableDetailDTO> productMap = products.stream()
+                .collect(Collectors.toMap(
+                        WebProductTableDetailDTO::getId,
+                        Function.identity(),
+                        (existing, replacement) -> {
+                            // Add options from replacement to existing without duplicates
+                            replacement.getOptions().forEach(option -> {
+                                if (!existingOptionIds.contains(option.getProductOptionId())) {
+                                    existing.getOptions().add(option);
+                                    existingOptionIds.add(option.getProductOptionId());
+                                }
+                            });
+                            return existing;
+                        }
+                ));
+
+        return new ArrayList<>(productMap.values());
+    }
+
 
     @Override
     public AppProductDetailDTO findProductByProductIdForApp(Long userId, Long productId) {
@@ -147,7 +174,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         List<AppProductDetailDTO> result = queryFactory
                 .selectFrom(product)
-                .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(productOption).on(productOption.productId.eq(product.id).and(productOption.isDeleted.eq(false)))
                 .leftJoin(wishlist).on(wishlistBuilder)
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
@@ -236,6 +263,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
     @Override
     public WebProductDetailDTO findProductDetailByProductId(Long sellerId, UserType userType, Long productId) {
+        // BooleanBuilder 생성
         BooleanBuilder productBuilder = new BooleanBuilder();
         productBuilder.and(product.id.eq(productId))
                 .and(product.isDeleted.eq(false));
@@ -247,6 +275,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         productOptionBuilder.and(productOption.productId.eq(product.id))
                 .and(productOption.isDeleted.eq(false));
 
+        // 조회
         List<WebProductDetailDTO> duplicatedProducts =
                 queryFactory
                         .selectFrom(product)
@@ -255,39 +284,45 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                         .leftJoin(productOption).on(productOptionBuilder)
                         .leftJoin(productClaimInfo).on(productClaimInfo.productId.eq(product.id))
                         .where(productBuilder)
-                        .transform(GroupBy.groupBy(product.id).list(Projections.fields(
+                        .transform(GroupBy.groupBy(product.id).list(
+                                Projections.fields(
                                         WebProductDetailDTO.class,
-                                        product.id,
-                                        product.name,
-                                        product.categoryId,
-                                        product.deliveryType,
-                                        product.isCustomProduct,
-                                        product.deliveryFeeType,
-                                        product.refundFeeType,
-                                        product.deliveryFee,
-                                        product.refundFee,
-                                        product.specialDeliveryFee,
-                                        product.specialRefundFee,
-                                        product.deliveryCompany,
-                                        product.bundleDeliveryOption,
-                                        product.bundleDeliveryGroupId,
-                                        product.salesChargePercent,
-                                        product.marketPrice,
-                                        product.appSalesPrice,
-                                        product.discountPrice,
-                                        product.weight,
-                                        product.type,
-                                        product.productStatus,
-                                        product.description,
-                                        Projections.constructor(
-                                                ProductDetailInfoDTO.class,
-                                                productDetailInfo
-                                        ).as("productDetail"),
-                                        Projections.constructor(
-                                                ProductDeliveryTimeDTO.class,
-                                                productDeliveryTime.minDays,
-                                                productDeliveryTime.maxDays
-                                        ).as("deliveryTime"),
+                                        product.id.as("productId"),
+                                        product.productNumber,
+                                        product.version,
+                                        Projections.fields(
+                                                WebProductBasicDTO.class,
+                                                product.name,
+                                                product.deliveryType,
+                                                product.isCustomProduct,
+                                                product.categoryId,
+                                                product.deliveryFeeType,
+                                                product.refundFeeType,
+                                                product.deliveryFee,
+                                                product.refundFee,
+                                                product.specialDeliveryFee,
+                                                product.specialRefundFee,
+                                                product.deliveryCompany,
+                                                product.bundleDeliveryOption,
+                                                product.bundleDeliveryGroupId,
+                                                product.productImages,
+                                                product.marketPrice,
+                                                product.appSalesPrice,
+                                                product.discountPrice,
+                                                product.salesChargePercent,
+                                                Projections.constructor(
+                                                        ProductDeliveryTimeDTO.class,
+                                                        productDeliveryTime.minDays,
+                                                        productDeliveryTime.maxDays
+                                                ).as("deliveryTime")
+                                        ).as("information"),
+                                        Projections.fields(
+                                                WebProductSpecificationDTO.class,
+                                                product.description,
+                                                product.weight,
+                                                product.productStatus,
+                                                product.type
+                                        ).as("specification"),
                                         GroupBy.set(
                                                 Projections.constructor(
                                                         ProductOptionDTO.class,
@@ -296,7 +331,10 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                                         productOption.size
                                                 )
                                         ).as("productOptions"),
-                                        product.productImages,
+                                        Projections.constructor(
+                                                ProductDetailInfoDTO.class,
+                                                productDetailInfo
+                                        ).as("productDetail"),
                                         Projections.constructor(
                                                 ProductClaimInfoDTO.class,
                                                 productClaimInfo.recallInfo,
@@ -308,6 +346,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                                 )
                         );
 
+        // 중복된 상품 옵션 제거
         List<WebProductDetailDTO> products = removeDuplicatedProductDetailsForWeb(duplicatedProducts);
 
         return products.isEmpty() ? null : products.get(0);
@@ -317,7 +356,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         // Using Stream API to remove duplicates
         Map<Long, WebProductDetailDTO> productMap = products.stream()
                 .collect(Collectors.toMap(
-                        WebProductDetailDTO::getId,
+                        WebProductDetailDTO::getProductId,
                         Function.identity(),
                         (existing, replacement) -> {
                             existing.getProductOptions().addAll(replacement.getProductOptions());
@@ -342,6 +381,32 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         // 2. 판매자가 등록한 상품들인지 확인
         // sellerProductIds.size()와 productIds.size()가 다르면 판매자가 등록하지 않는 상품이 존재하는 것으로 판단
         return sellerProductIds.size() == productIds.size();
+    }
+
+    @Override
+    public Slice<AppProductDTO> findProductsByName(Long userId, String name, Pageable pageable) {
+        // where 조건 생성
+        BooleanBuilder productBuilder = new BooleanBuilder()
+                .and(product.name.containsIgnoreCase(name));
+
+        // 조건에 맞는 productId 리스트 조회
+        List<Long> productIds = queryFactory
+                .select(product.id)
+                .from(product)
+                .where(productBuilder)
+                .orderBy(product.createAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        // 상품 조회
+        List<AppProductDTO> dtos = findProducts(
+                userId,
+                new BooleanBuilder().and(product.id.in(productIds))
+        );
+
+        // Slice 생성
+        return PaginationUtils.toSlice(dtos, pageable);
     }
 
     @Override
@@ -392,9 +457,11 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
             Long userId,
             BooleanBuilder productBuilder
     ) {
-        BooleanBuilder wishlistBuilder = new BooleanBuilder();
-        wishlistBuilder.and(wishlist.registerId.eq(userId.toString()))
+        BooleanBuilder wishlistBuilder = new BooleanBuilder()
                 .and(wishlist.productId.eq(product.id));
+        if (userId != null) {
+            wishlistBuilder.and(wishlist.registerId.eq(userId.toString()));
+        }
 
         return queryFactory
                 .selectFrom(product)

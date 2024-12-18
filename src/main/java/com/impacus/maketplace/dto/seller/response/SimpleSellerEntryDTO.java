@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.seller.response;
 
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,14 +23,15 @@ public class SimpleSellerEntryDTO {
             Long id,
             LocalDateTime requestAt,
             String marketName,
-            String contactNumber,
+            String phoneNumberPrefix,
+            String phoneNumberSuffix,
             String businessCondition,
             EntryStatus entryStatus
     ) {
         this.id = id;
         this.requestAt = requestAt;
         this.marketName = marketName;
-        this.contactNumber = contactNumber;
+        this.contactNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
         this.businessCondition = businessCondition;
         this.entryStatus = entryStatus;
     }

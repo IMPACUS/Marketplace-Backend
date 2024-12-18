@@ -2,15 +2,18 @@ package com.impacus.maketplace.service.oauth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.impacus.maketplace.common.enumType.user.OauthProviderType;
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
+import com.impacus.maketplace.common.enumType.point.RewardPointType;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.exception.CustomOAuth2AuthenticationException;
 import com.impacus.maketplace.common.handler.OAuth2AuthenticationFailureHandler;
 import com.impacus.maketplace.config.attribute.OAuthAttributes;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.user.UserRepository;
+import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
@@ -45,6 +48,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private String oauthToken = "";
     private final PointService pointService;
+    private final AlarmUserService alarmUserService;
 
     public static Map<String, Object> decodeJwtTokenPayload(String jwtToken) {
         Map<String, Object> jwtClaims = new HashMap<>();
@@ -102,7 +106,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 oAuth2User.getAttributes());
         User user = saveOrUpdate(attributes);
         httpSession.setAttribute("user", new SessionUser(user));
-        return CustomUserDetails.create(user, oAuth2User.getAttributes());
+        return CustomUserDetails.toEntity(user, oAuth2User.getAttributes());
     }
 
     public User saveOrUpdate(OAuthAttributes attributes)
@@ -111,13 +115,13 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String email = attributes.getEmail();
 
         // 1. 이메일이 등록되어 있는지 확인
-        List<User> userList = userRepository.findByEmailLike("%_" + email);
+        Optional<User> userOptional = userRepository.findByEmailLikeAndIsDeletedFalse("%_" + email);
 
         // 2. 등록되지 않은 경우: 저장 / 다른 제공사로 등록되어 있는 경우 예외 발생
         User user = null;
-        if (!userList.isEmpty()) {
+        if (userOptional.isPresent()) {
             // 로그인
-            user = userList.get(0);
+            user = userOptional.get();
             validateOauthProvider(user, oauthProviderType);
 
             // 6. 소비자인 경우 출석 포인트 지급
@@ -125,7 +129,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 greenLabelPointAllocationService.payGreenLabelPoint(
                         user.getId(),
                         PointType.CHECK,
-                        PointType.CHECK.getAllocatedPoints()
+                        RewardPointType.CHECK.getAllocatedPoints()
                 );
             }
         } else {
@@ -133,6 +137,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             user = addUser(attributes);
             userStatusInfoService.addUserStatusInfo(user.getId());
             pointService.addEntityAboutPoint(user.getId());
+            alarmUserService.saveDefault(user.getId());
         }
 
         updateRecentLoginAt(user);
@@ -146,7 +151,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private void validateOauthProvider(User user, OauthProviderType oauthProviderType) throws CustomOAuth2AuthenticationException {
         if (!user.getEmail().contains(oauthProviderType.name())) {
-            throw new CustomOAuth2AuthenticationException("SERVER_ERROR", CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+            throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
         }
     }
 

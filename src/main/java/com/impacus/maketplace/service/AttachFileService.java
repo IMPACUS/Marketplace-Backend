@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service;
 
+import com.impacus.maketplace.common.constants.FileExtensionConstants;
 import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
 import com.impacus.maketplace.common.enumType.common.ImagePurpose;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class AttachFileService {
 
     private final AttachFileRepository attachFileRepository;
@@ -38,7 +39,6 @@ public class AttachFileService {
      * @param directoryPath
      * @return
      */
-    @Transactional
     public AttachFile uploadFileAndAddAttachFile(MultipartFile file, String directoryPath) {
         String fileName = cloudFileUploadService.uploadFile(file, Path.of(directoryPath)).toString();
 
@@ -61,7 +61,6 @@ public class AttachFileService {
      * @param directoryPath
      * @return
      */
-    @Transactional
     public AttachFile uploadFileAndAddAttachFile(MultipartFile file, String directoryPath, Long referencedId, ReferencedEntityType entityType) throws IOException {
         String fileName = cloudFileUploadService.uploadFile(file, Path.of(directoryPath)).toString();
 
@@ -86,6 +85,7 @@ public class AttachFileService {
      * @param referencedId
      * @param referencedEntityType
      */
+    @Transactional(readOnly = true)
     public List<AttachFile> findAllAttachFile(Long referencedId, ReferencedEntityType referencedEntityType) {
         // 1. AttachFileGroup 찾기
         List<AttachFileGroup> attachFileGroupList = attachFileGroupService.findAttachFileGroupByReferencedIdAndReferencedEntityType(referencedId, referencedEntityType);
@@ -141,6 +141,7 @@ public class AttachFileService {
      * @param attachFileId
      * @return
      */
+    @Transactional(readOnly = true)
     public AttachFile findAttachFileById(Long attachFileId) {
         return attachFileRepository.findById(attachFileId)
                 .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_ATTACH_FILE));
@@ -153,6 +154,7 @@ public class AttachFileService {
      * @param referencedEntityType
      * @return
      */
+    @Transactional(readOnly = true)
     public List<AttachFileDTO> findAllAttachFileByReferencedId(Long referencedId, ReferencedEntityType referencedEntityType) {
         return attachFileRepository.findAllAttachFileByReferencedId(referencedId, referencedEntityType);
     }
@@ -164,6 +166,7 @@ public class AttachFileService {
      * @param changedFile
      * @param directoryPath
      */
+    @Transactional
     public void updateAttachFile(Long attachFileId, MultipartFile changedFile, String directoryPath) {
         AttachFile file = findAttachFileById(attachFileId);
 
@@ -194,8 +197,15 @@ public class AttachFileService {
             // 유효성 검사
             switch (imagePurpose) {
                 case PRODUCT -> {
+                    // 파일 크기
                     if (file.getSize() > FileSizeConstants.PRODUCT_IMAGE_SIZE_LIMIT) {
                         throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 크게가 큰 파일이 존재합니다.");
+                    }
+
+                    // 확장자 확인
+                    String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+                    if (!FileExtensionConstants.PRODUCT_IMAGE_EXTENSION.contains(extension)) {
+                        throw new CustomException(ProductErrorType.INVALID_PRODUCT, "지원하지 않는 상품 이미지 확장자 입니다. " + extension);
                     }
                 }
             }

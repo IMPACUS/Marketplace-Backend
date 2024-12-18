@@ -35,7 +35,7 @@ public class CouponIssuanceService {
     private final CouponIssuanceHistoryRepository couponIssuanceHistoryRepository;
 
     @Transactional
-    public void issueCouponTargetUserByAdmin(Long couponId, User user) {
+    public void issueCouponTargetUserByAdmin(Long couponId, Long userId) {
 
         // 1. 등록되어 있는 쿠폰 조회
         Coupon coupon = couponRepository.findWriteLockById(couponId)
@@ -49,7 +49,7 @@ public class CouponIssuanceService {
 
         // 2. 쿠폰 발급하기
         // 2.1 해당 사용자에게 발급 + 발급 횟수 증가
-        UserCoupon userCoupon = issueInstantCoupon(user.getId(), coupon);
+        UserCoupon userCoupon = issueInstantCoupon(userId, coupon);
         userCouponRepository.save(userCoupon);
 
 

@@ -1,6 +1,5 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.shoppingBasket.request.ChangeShoppingBasketQuantityDTO;
@@ -11,8 +10,6 @@ import com.impacus.maketplace.entity.product.ShoppingBasket;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
 import com.impacus.maketplace.repository.product.ShoppingBasketRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,7 +72,7 @@ public class ShoppingBasketService {
      */
     public ShoppingBasket findShoppingBasketById(Long shoppingBasketId) {
         return shoppingBasketRepository.findById(shoppingBasketId)
-                .orElseThrow(() -> new CustomException(CommonErrorType.NOT_EXISTED_SHOPPING_CART));
+                .orElseThrow(() -> new CustomException(ProductErrorType.NOT_EXISTED_SHOPPING_CART));
     }
 
     /**

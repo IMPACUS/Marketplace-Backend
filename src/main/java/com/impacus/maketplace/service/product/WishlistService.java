@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.product;
 
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.wishlist.request.CreateWishlistDTO;
 import com.impacus.maketplace.dto.wishlist.response.WishlistDTO;
@@ -51,7 +51,7 @@ public class WishlistService {
 
         // 2. 요청한 유저의 Wishlist에 상품이 존재하는지 확인
         if (!findWishlistByProductIdAndUserId(productId, userId).isEmpty()) {
-            throw new CustomException(CommonErrorType.REGISTERED_WISHLIST);
+            throw new CustomException(ProductErrorType.REGISTERED_WISHLIST);
         }
 
         return true;
@@ -76,7 +76,7 @@ public class WishlistService {
      */
     public Wishlist findWishlistById(Long wishlistId) {
         return wishlistRepository.findById(wishlistId)
-                .orElseThrow(() -> new CustomException((CommonErrorType.NOT_EXISTED_WISHLIST)));
+                .orElseThrow(() -> new CustomException((ProductErrorType.NOT_EXISTED_WISHLIST)));
     }
 
     /**
@@ -112,5 +112,20 @@ public class WishlistService {
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * 찜 알림 데이터를 구성하기 위해 찜 ID로 브랜드명을 조회하는 함수
+     *
+     * @param wishlistId 조회하고자 하는 찜 ID
+     * @return 찜의 상품 브랜드명
+     */
+    public String findMarketNameByWishlistId(Long wishlistId) {
+        String marketName = wishlistRepository.findMarketNameByWishlistId(wishlistId);
+        if (marketName == null) {
+            throw new CustomException((ProductErrorType.NOT_EXISTED_WISHLIST));
+        }
+
+        return marketName;
     }
 }

@@ -4,13 +4,15 @@ import com.impacus.maketplace.common.enumType.product.DeliveryType;
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@NoArgsConstructor
 public class WebProductTableDetailDTO {
     private Long id;
     private String name;

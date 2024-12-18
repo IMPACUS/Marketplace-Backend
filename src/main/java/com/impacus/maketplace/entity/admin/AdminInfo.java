@@ -2,6 +2,7 @@ package com.impacus.maketplace.entity.admin;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,6 +47,7 @@ public class AdminInfo extends BaseEntity {
     private String adminIdName;
 
     @Column(name = "password")
+    @Convert(converter = AES256ToStringConverter.class)
     private String password;
 
     @Column(name = "recent_activity_date")

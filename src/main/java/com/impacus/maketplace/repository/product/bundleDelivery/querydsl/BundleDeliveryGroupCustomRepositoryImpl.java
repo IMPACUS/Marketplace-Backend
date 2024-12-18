@@ -115,7 +115,7 @@ public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGr
         List<BundleDeliveryGroupProductDTO> result = queryFactory
                 .selectFrom(product)
                 .innerJoin(bundleDeliveryGroup).on(bundleDeliveryGroup.id.eq(groupId))
-                .leftJoin(productOption).on(productOption.productId.eq(product.id))
+                .leftJoin(productOption).on(productOption.productId.eq(product.id).and(productOption.isDeleted.eq(false)))
                 .where(product.id.in(productIds))
                 .orderBy(product.id.asc(), productOption.id.asc())
                 .transform(
@@ -124,6 +124,8 @@ public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGr
                                         Projections.constructor(
                                                 BundleDeliveryGroupProductDTO.class,
                                                 product.id.as("productId"),
+                                                bundleDeliveryGroup.groupNumber,
+                                                product.productNumber,
                                                 product.name,
                                                 product.productImages,
                                                 bundleDeliveryGroup.deliveryFeeRule,
@@ -143,11 +145,11 @@ public class BundleDeliveryGroupCustomRepositoryImpl implements BundleDeliveryGr
     }
 
     @Override
-    public long deleteProductFromBundleGroup(Long sellerId, Long groupId, Long productId) {
+    public long deleteProductFromBundleGroup(Long groupId, Long productId) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(product.sellerId.eq(sellerId))
+        builder
                 .and(product.bundleDeliveryGroupId.eq(groupId))
                 .and(product.id.eq(productId));
 

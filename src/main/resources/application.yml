@@ -20,8 +20,12 @@ spring:
       max-request-size: 30MB
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+  web:
+    resources:
+      add-mappings: false
 
 logging:
   level:
     org.apache.http: DEBUG
     httpclient.wire: DEBUG
+    com.openfeign.package: DEBUG

@@ -15,18 +15,30 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, UserCustomRepository {
 
-    List<User> findByEmailLike(String emailWithPrefix);
+    Optional<User> findByEmailLikeAndIsDeletedFalse(String emailWithPrefix);
+
+    Optional<User> findByEmailLikeAndIsDeletedTrue(String emailWithPrefix);
+
+    @Query("SELECT u.id " +
+            "FROM User u " +
+            "WHERE u.email LIKE :emailWithPrefix and u.isDeleted = false")
+    List<Long> findIdByEmailLike(@Param("emailWithPrefix") String emailWithPrefix);
 
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
 
-//    List<User> findByRecentLoginAtBeforeAndFirstDormancyIsFalse(LocalDateTime fiveMonthAgo); // 1차 휴면이 false 이고, 마지막로그인 후 5개월찾기
-//
-//    List<User> findByUpdateDormancyAtAndFirstDormancyIsTrueOrSecondDormancyIsTrue(LocalDate nowDate);
-
     @Modifying
     @Query("UPDATE User u SET u.type = :type WHERE u.id = :id")
     int updateUserType(@Param("id") Long id, @Param("type") UserType type);
+
+    @Query("SELECT u.profileImageId FROM User u WHERE u.id = :userId")
+    Optional<Long> findProfileImageIdByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.id = :id AND u.type IN :types")
+    boolean existsByIdAndType(
+            @Param("id") Long id,
+            @Param("types") List<UserType> types
+    );
 
 }

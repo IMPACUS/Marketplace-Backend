@@ -2,7 +2,6 @@ package com.impacus.maketplace.dto.coupon.request;
 
 import com.impacus.maketplace.common.annotation.ValidEnum;
 import com.impacus.maketplace.common.enumType.coupon.*;
-import com.impacus.maketplace.entity.coupon.Coupon;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -29,8 +28,8 @@ public class CouponUpdateDTO implements CouponDTO {
     @Min(value = 0, message = "음수 입력은 허용되지 않습니다.")
     private Long benefitValue;
 
-    @ValidEnum(enumClass = ProductType.class)
-    private ProductType productType;
+    @ValidEnum(enumClass = CouponProductType.class)
+    private CouponProductType productType;
 
     @ValidEnum(enumClass = PaymentTarget.class)
     private PaymentTarget paymentTarget;
@@ -42,6 +41,8 @@ public class CouponUpdateDTO implements CouponDTO {
 
     @ValidEnum(enumClass = CouponType.class)
     private CouponType couponType;
+
+    private EventType eventType;
 
     private CouponIssueType couponIssueType;
 

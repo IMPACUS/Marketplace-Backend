@@ -1,19 +1,21 @@
 package security;
 
-import com.impacus.maketplace.common.enumType.user.UserType;
-import com.impacus.maketplace.entity.admin.AdminInfo;
-import com.impacus.maketplace.entity.user.User;
-import lombok.Builder;
-import lombok.Getter;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.entity.admin.AdminInfo;
+import com.impacus.maketplace.entity.user.User;
+
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 public class CustomUserDetails implements UserDetails, OAuth2User {
@@ -33,19 +35,43 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         this.authorities = authorities;
     }
 
-    public static CustomUserDetails create(User user) {
+    public static CustomUserDetails toEntity(User user, String password) {
         List<GrantedAuthority> authorities = Collections.
             singletonList(new SimpleGrantedAuthority(user.getType().name()));
 
         return CustomUserDetails.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .password(user.getPassword())
+                .password(password)
                 .authorities(authorities)
                 .build();
     }
 
-    public static CustomUserDetails create(AdminInfo admin) {
+    public static CustomUserDetails toEntity(User user) {
+        List<GrantedAuthority> authorities = Collections
+                .singletonList(new SimpleGrantedAuthority(user.getType().name()));
+
+        return CustomUserDetails.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .password(null)
+                .authorities(authorities)
+                .build();
+    }
+    
+    public static CustomUserDetails toEntity(User user, UserType type) {
+        List<GrantedAuthority> authorities = Collections.
+                singletonList(new SimpleGrantedAuthority(type.name()));
+
+        return CustomUserDetails.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .password(null)
+                .authorities(authorities)
+                .build();
+    }
+
+    public static CustomUserDetails toEntity(AdminInfo admin, String password) {
         UserType adminType = UserType.getAdminRole(admin.getAccountType());
         List<GrantedAuthority> authorities = Collections.
                 singletonList(new SimpleGrantedAuthority(adminType.name()));
@@ -53,13 +79,13 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return CustomUserDetails.builder()
                 .id(admin.getId())
                 .email(admin.getAdminIdName())
-                .password(admin.getPassword())
+                .password(password)
                 .authorities(authorities)
                 .build();
     }
 
-    public static CustomUserDetails create(User user, Map<String, Object> attributes) {
-        CustomUserDetails userDetails = CustomUserDetails.create(user);
+    public static CustomUserDetails toEntity(User user, Map<String, Object> attributes) {
+        CustomUserDetails userDetails = CustomUserDetails.toEntity(user);
         userDetails.setAttributes(attributes);
         return userDetails;
     }

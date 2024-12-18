@@ -25,13 +25,6 @@
         <dropColumn tableName="user_info" columnName="selected_payment_method"/>
     </changeSet>
 
-    <changeSet id="changelog-0.02.06-240525" author="lchy0413">
-        <preConditions onFail="MARK_RAN">
-            <columnExists tableName="user_info" columnName="user_jumin2"/>
-        </preConditions>
-        <dropColumn tableName="user_info" columnName="user_jumin2"/>
-    </changeSet>
-
     <changeSet id="changelog-0.02.07-240525" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="user_info" columnName="pccc"/>

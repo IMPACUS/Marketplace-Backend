@@ -25,4 +25,6 @@ public interface BundleDeliveryGroupRepository extends JpaRepository<BundleDeliv
     );
 
     boolean existsBySellerIdAndIdAndIsDeletedFalseAndIsUsedTrue(Long sellerId, Long groupId);
+
+    Optional<BundleDeliveryGroup> findByIdAndIsDeletedFalse(Long groupId);
 }

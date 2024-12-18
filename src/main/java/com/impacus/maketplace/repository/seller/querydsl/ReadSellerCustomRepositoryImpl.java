@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.seller.SellerType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
+import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.common.QAttachFile;
@@ -22,6 +23,7 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -77,13 +79,14 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
     public DetailedSellerEntryDTO findDetailedSellerEntry(Long userId) {
         DetailedSellerEntryDTO detailedSellerEntryDTO = queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 DetailedSellerEntryDTO.class,
                                 user.id,
                                 seller.marketName,
                                 seller.contactName,
                                 user.email,
-                                user.phoneNumber.as("contactNumber"),
+                                user.phoneNumberSuffix,
+                                user.phoneNumberPrefix,
                                 sellerBusinessInfo.businessRegistrationNumber,
                                 sellerBusinessInfo.mailOrderBusinessReportNumber,
                                 sellerBusinessInfo.businessAddress,
@@ -141,7 +144,8 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 user.id,
                                 seller.createAt,
                                 seller.marketName,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 sellerBusinessInfo.businessCondition,
                                 seller.entryStatus
                         )
@@ -155,6 +159,9 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
     @Override
     public DetailedSellerDTO findDetailedSellerInformationByUserId(Long userId) {
+        QAttachFile businessRegistrationFile = new QAttachFile("businessRegistrationFile");
+        QAttachFile mailOrderBusinessReportFile = new QAttachFile("mailOrderBusinessReportFile");
+        QAttachFile bankBookFile = new QAttachFile("bankBookFile");
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(seller.userId.eq(userId))
                 .and(seller.isDeleted.eq(false));
@@ -170,34 +177,41 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                 .leftJoin(sellerDeliveryAddress).on(sellerDeliveryAddress.sellerId.eq(seller.id))
                 .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .leftJoin(selectedSellerDeliveryCompany).on(selectedSellerDeliveryCompany.sellerDeliveryCompanyId.eq(sellerDeliveryCompany.id))
+                .leftJoin(businessRegistrationFile).on(businessRegistrationFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
+                .leftJoin(mailOrderBusinessReportFile).on(mailOrderBusinessReportFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
+                .leftJoin(bankBookFile).on(bankBookFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
                 .transform(
                         GroupBy.groupBy(seller.id).list(
-                                Projections.fields(
+                                Projections.constructor(
                                         DetailedSellerDTO.class,
-                                        attachFile.attachFileName.as("logoImageUrl"),
-                                        seller.marketName.as("brandName"),
+                                        attachFile.attachFileName,
+                                        seller.marketName,
                                         seller.customerServiceNumber,
-                                        sellerBusinessInfo.businessEmail.as("representativeEmail"),
-                                        brand.introduction.as("brandIntroduction"),
+                                        sellerBusinessInfo.businessEmail,
+                                        brand.introduction,
                                         brand.openingTime,
                                         brand.closingTime,
                                         brand.businessDay,
                                         brand.breakingTime,
                                         user.email,
-                                        user.phoneNumber,
+                                        user.phoneNumberPrefix,
+                                        user.phoneNumberSuffix,
                                         Projections.fields(
                                                 SellerManagerInfoDTO.class,
                                                 sellerBusinessInfo.representativeName,
-                                                sellerBusinessInfo.businessAddress.as("address"),
+                                                sellerBusinessInfo.businessAddress,
                                                 sellerBusinessInfo.businessRegistrationNumber,
-                                                sellerBusinessInfo.mailOrderBusinessReportNumber
-                                        ).as("manager"),
+                                                sellerBusinessInfo.mailOrderBusinessReportNumber,
+                                                businessRegistrationFile.attachFileName.as("businessRegistrationUrl"),
+                                                mailOrderBusinessReportFile.attachFileName.as("mailOrderBusinessReportUrl")
+                                        ),
                                         Projections.fields(
                                                 SellerAdjustmentInfoDTO.class,
                                                 sellerAdjustmentInfo.bankCode,
                                                 sellerAdjustmentInfo.accountName,
-                                                sellerAdjustmentInfo.accountNumber
-                                        ).as("adjustment"),
+                                                sellerAdjustmentInfo.accountNumber,
+                                                bankBookFile.attachFileName.as("bankBookUrl")
+                                        ),
                                         Projections.fields(
                                                 SellerDeliveryCompanyInfoDTO.class,
                                                 sellerDeliveryCompany.generalDeliveryFee,
@@ -205,17 +219,17 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                                 sellerDeliveryCompany.refundDeliveryFee,
                                                 sellerDeliveryCompany.refundSpecialDeliveryFee,
                                                 GroupBy.list(
-                                                        Projections.fields(
+                                                        Projections.constructor(
                                                                 SelectedSellerDeliveryCompanyDTO.class,
-                                                                selectedSellerDeliveryCompany.id.as("selectedSellerDeliveryCompanyId"),
+                                                                selectedSellerDeliveryCompany.id,
                                                                 selectedSellerDeliveryCompany.deliveryCompany
                                                         )
                                                 ).as("deliveryCompanies")
-                                        ).as("deliveryCompany"),
+                                        ),
                                         GroupBy.list(
                                                 Projections.fields(
                                                         SellerDeliveryAddressInfoDTO.class,
-                                                        sellerDeliveryAddress.id.as("deliveryAddressId"),
+                                                        sellerDeliveryAddress.id,
                                                         sellerDeliveryAddress.generalAddress,
                                                         sellerDeliveryAddress.generalDetailAddress,
                                                         sellerDeliveryAddress.generalBusinessName,
@@ -226,8 +240,8 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                                         sellerDeliveryAddress.refundAccountName,
                                                         sellerDeliveryAddress.refundBankCode
                                                 )
-                                        ).as("deliveryAddress"),
-                                        selectedSellerDeliveryAddress.sellerDeliveryAddressId.as("mainDeliveryAddressId")
+                                        ),
+                                        selectedSellerDeliveryAddress.sellerDeliveryAddressId
                                 )
                         )
                 );
@@ -238,36 +252,18 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             DetailedSellerDTO dto = dtos.get(0);
 
             // 1. SelectedSellerDeliveryCompanyDTO 중복 제거 및 정렬
-            List<SelectedSellerDeliveryCompanyDTO> processedDeliveryCompanies = processDeliveryCompanies(dto.getDeliveryCompany().getDeliveryCompanies());
+            List<SelectedSellerDeliveryCompanyDTO> foundDeliveryCompanies = dto.getDeliveryCompany().getDeliveryCompanies()
+                    .stream().filter(x -> !x.isNull())
+                    .toList();
+            List<SelectedSellerDeliveryCompanyDTO> processedDeliveryCompanies = processDeliveryCompanies(foundDeliveryCompanies);
             dto.getDeliveryCompany().setDeliveryCompanies(processedDeliveryCompanies);
 
             // 2. SellerDeliveryAddressInfoDTO 중복 제거 및 정렬
-            List<SellerDeliveryAddressInfoDTO> processedDeliveryAddresses = processDeliveryAddresses(dto.getDeliveryAddress());
+            List<SellerDeliveryAddressInfoDTO> foundDeliveryAddresses = dto.getDeliveryAddress()
+                    .stream().filter(x -> !x.isNull())
+                    .toList();
+            List<SellerDeliveryAddressInfoDTO> processedDeliveryAddresses = processDeliveryAddresses(foundDeliveryAddresses);
             dto.setDeliveryAddress(processedDeliveryAddresses);
-
-            // 3. manager 사본 데이터 추가
-            AttachFile businessRegistration = queryFactory.selectFrom(attachFile)
-                    .innerJoin(seller).on(seller.userId.eq(userId))
-                    .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                    .where(attachFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
-                    .fetchOne();
-
-            AttachFile mailOrderBusinessReport = queryFactory.selectFrom(attachFile)
-                    .innerJoin(seller).on(seller.userId.eq(userId))
-                    .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                    .where(attachFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
-                    .fetchOne();
-
-            dto.getManager().setBusinessRegistrationUrl(businessRegistration == null ? null : businessRegistration.getAttachFileName());
-            dto.getManager().setMailOrderBusinessReportUrl(mailOrderBusinessReport == null ? null : mailOrderBusinessReport.getAttachFileName());
-
-            // 4. adjustment 사본 데이터 추가
-            AttachFile bankBookUrl = queryFactory.selectFrom(attachFile)
-                    .innerJoin(seller).on(seller.userId.eq(userId))
-                    .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
-                    .where(attachFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
-                    .fetchOne();
-            dto.getAdjustment().setBankBookUrl(bankBookUrl == null ? null : bankBookUrl.getAttachFileName());
 
             return dto;
         }
@@ -327,67 +323,96 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
             Pageable pageable,
             String brandName,
             String contactName,
-            UserStatus status
+            UserStatus status,
+            LocalDate startAt,
+            LocalDate endAt
     ) {
         BooleanBuilder userStatusBuilder = new BooleanBuilder()
                 .and(userStatusInfo.userId.eq(seller.userId));
-
         if (status != null) {
             userStatusBuilder.and(userStatusInfo.status.eq(status));
         }
+        BooleanBuilder sellerBuilder = getBooleanBuilderInSellerDTO(brandName, contactName);
+        sellerBuilder.and(seller.entryApprovedAt.goe(startAt.atStartOfDay()).and(seller.entryApprovedAt.loe(endAt.atTime(LocalTime.MAX))));
 
         // 1. 전체 데이터 조회
-        List<SellerDTO> dtos = getSellerDTOs(userStatusBuilder, brandName, contactName, pageable);
+        List<SellerDTO> dtos = getSellerDTOs(userStatusBuilder, sellerBuilder, pageable);
 
         // 2. 페이징 처리
-        Long count = getSellerDTOCount(userStatusBuilder, brandName, contactName);
+        Long count = getSellerDTOCount(userStatusBuilder, sellerBuilder);
         return new PageImpl<>(dtos, pageable, count);
     }
 
     private List<SellerDTO> getSellerDTOs(
             BooleanBuilder userStatusBuilder,
-            String brandName,
-            String contactName,
+            BooleanBuilder sellerBuilder,
             Pageable pageable
     ) {
-        return queryFactory
-                .select(Projections.fields(
+        JPAQuery<SellerDTO> query = queryFactory
+                .select(Projections.constructor(
                         SellerDTO.class,
                         seller.id.as("sellerId"),
                         seller.marketName.as("brandName"),
                         seller.contactName,
                         user.email,
-                        user.phoneNumber,
+                        user.phoneNumberPrefix,
+                        user.phoneNumberSuffix,
                         seller.entryApprovedAt,
                         user.recentLoginAt
                 ))
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(seller.userId))
                 .innerJoin(userStatusInfo).on(userStatusBuilder)
-                .where(seller.isDeleted.eq(false)
-                        .and(checkIsContainBrandName(brandName))
-                        .and(checkIsContainContactName(contactName))
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                .where(sellerBuilder);
+
+        if (pageable != null) {
+            return query
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
+                    .fetch();
+        } else {
+            return query.fetch();
+        }
+    }
+
+    private BooleanBuilder getBooleanBuilderInSellerDTO(
+            String brandName,
+            String contactName
+    ) {
+        BooleanBuilder sellerBuilder = new BooleanBuilder();
+        sellerBuilder.and(seller.isDeleted.eq(false)
+                .and(checkIsContainBrandName(brandName))
+                .and(checkIsContainContactName(contactName))
+        );
+
+        return sellerBuilder;
     }
 
     private Long getSellerDTOCount(
             BooleanBuilder userStatusBuilder,
-            String brandName,
-            String contactName
+            BooleanBuilder sellerBuilder
     ) {
         return queryFactory
                 .select(seller.count())
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(seller.userId))
                 .innerJoin(userStatusInfo).on(userStatusBuilder)
-                .where(seller.isDeleted.eq(false)
-                        .and(checkIsContainBrandName(brandName))
-                        .and(checkIsContainContactName(contactName))
-                )
+                .where(sellerBuilder)
                 .fetchOne();
+    }
+
+    @Override
+    public List<SellerDTO> findSellersByIds(CouponIdsDTO dto) {
+        BooleanBuilder userStatusBuilder = new BooleanBuilder()
+                .and(userStatusInfo.userId.eq(seller.userId));
+        BooleanBuilder sellerBuilder = new BooleanBuilder()
+                .and(seller.id.in(dto.getIds()));
+
+        return getSellerDTOs(
+                userStatusBuilder,
+                sellerBuilder,
+                null
+        );
     }
 
     private BooleanBuilder checkIsContainBrandName(String brandName) {
@@ -411,15 +436,20 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
 
     @Override
     public SimpleSellerFromAdminDTO getSellerInformation(Long sellerId) {
-        SimpleSellerFromAdminDTO dto = queryFactory
+        QAttachFile businessRegistrationFile = new QAttachFile("businessRegistrationFile");
+        QAttachFile mailOrderBusinessReportFile = new QAttachFile("mailOrderBusinessReportFile");
+        QAttachFile bankBookFile = new QAttachFile("bankBookFile");
+
+        return queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 SimpleSellerFromAdminDTO.class,
-                                seller.id,
+                                seller.id.as("sellerId"),
                                 seller.marketName,
                                 seller.contactName,
                                 user.email,
-                                user.phoneNumber,
+                                user.phoneNumberPrefix,
+                                user.phoneNumberSuffix,
                                 seller.entryApprovedAt,
                                 sellerBusinessInfo.representativeContact,
                                 sellerBusinessInfo.businessAddress,
@@ -428,43 +458,28 @@ public class ReadSellerCustomRepositoryImpl implements ReadSellerCustomRepositor
                                 sellerAdjustmentInfo.bankCode,
                                 sellerAdjustmentInfo.accountName,
                                 sellerAdjustmentInfo.accountNumber,
-                                seller.chargePercent,
-                                userStatusInfo.status.as("userStatus")
+                                seller.chargePercent.as("charge"),
+                                userStatusInfo.status.as("userStatus"),
+                                businessRegistrationFile.attachFileName.as("businessRegistrationUrl"),
+                                mailOrderBusinessReportFile.attachFileName.as("mailOrderBusinessReportUrl"),
+                                bankBookFile.attachFileName.as("bankBookUrl"),
+                                user.password,
+                                sellerBusinessInfo.businessEmail,
+                                sellerBusinessInfo.representativeName,
+                                attachFile.attachFileName.as("logoImageId")
                         )
                 )
                 .from(seller)
                 .innerJoin(user).on(user.id.eq(seller.userId))
-                .leftJoin(userStatusInfo).on(userStatusInfo.userId.eq(seller.userId))
-                .leftJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                .leftJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
-                .where(seller.isDeleted.eq(false))
-                .fetchFirst();
-
-
-        // 사본 데이터 추가
-        AttachFile businessRegistration = queryFactory.selectFrom(attachFile)
-                .innerJoin(seller).on(seller.id.eq(sellerId))
+                .innerJoin(userStatusInfo).on(userStatusInfo.userId.eq(seller.userId))
                 .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                .where(attachFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
-                .fetchOne();
-
-        AttachFile mailOrderBusinessReport = queryFactory.selectFrom(attachFile)
-                .innerJoin(seller).on(seller.id.eq(sellerId))
-                .innerJoin(sellerBusinessInfo).on(sellerBusinessInfo.sellerId.eq(seller.id))
-                .where(attachFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
-                .fetchOne();
-
-        dto.setBusinessRegistrationUrl(businessRegistration == null ? null : businessRegistration.getAttachFileName());
-        dto.setMailOrderBusinessReportUrl(mailOrderBusinessReport == null ? null : mailOrderBusinessReport.getAttachFileName());
-
-        AttachFile bankBookUrl = queryFactory.selectFrom(attachFile)
-                .innerJoin(seller).on(seller.id.eq(sellerId))
                 .innerJoin(sellerAdjustmentInfo).on(sellerAdjustmentInfo.sellerId.eq(seller.id))
-                .where(attachFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
-                .fetchOne();
-        dto.setBankBookUrl(bankBookUrl == null ? null : bankBookUrl.getAttachFileName());
-
-        return dto;
+                .leftJoin(attachFile).on(attachFile.id.eq(seller.logoImageId))
+                .leftJoin(businessRegistrationFile).on(businessRegistrationFile.id.eq(sellerBusinessInfo.copyBusinessRegistrationCertificateId))
+                .leftJoin(mailOrderBusinessReportFile).on(mailOrderBusinessReportFile.id.eq(sellerBusinessInfo.copyMainOrderBusinessReportCardId))
+                .leftJoin(bankBookFile).on(bankBookFile.id.eq(sellerAdjustmentInfo.copyBankBookId))
+                .where(seller.isDeleted.eq(false).and(seller.id.eq(sellerId)))
+                .fetchFirst();
     }
 
     @Override

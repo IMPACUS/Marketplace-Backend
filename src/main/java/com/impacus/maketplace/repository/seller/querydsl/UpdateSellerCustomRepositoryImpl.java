@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository.seller.querydsl;
 
 import com.impacus.maketplace.dto.seller.request.*;
+import com.impacus.maketplace.dto.user.PhoneNumberDTO;
 import com.impacus.maketplace.entity.seller.QBrand;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.seller.QSellerAdjustmentInfo;
@@ -112,13 +113,15 @@ public class UpdateSellerCustomRepositoryImpl implements UpdateSellerCustomRepos
     @Override
     public void updateLoginInformationByUserId(Long userId, ChangeSellerLoginInfoDTO dto, String encodedPassword) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+        PhoneNumberDTO phoneNumberDTO = new PhoneNumberDTO(dto.getPhoneNumber());
 
         // 로그인 정보 변경
         queryFactory
                 .update(user)
                 .set(user.email, dto.getEmail())
                 .set(user.password, encodedPassword)
-                .set(user.phoneNumber, dto.getPhoneNumber())
+                .set(user.phoneNumberPrefix, phoneNumberDTO.getPhoneNumberPrefix())
+                .set(user.phoneNumberSuffix, phoneNumberDTO.getPhoneNumberSuffix())
                 .set(user.modifyAt, LocalDateTime.now())
                 .set(user.modifyId, currentAuditor)
                 .where(user.id.eq(userId))
@@ -178,16 +181,6 @@ public class UpdateSellerCustomRepositoryImpl implements UpdateSellerCustomRepos
     ) {
         String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
 
-        // 프로필 이미지 업데이트
-        queryFactory
-                .update(user)
-                .set(user.profileImageId, profileImageId)
-
-                .set(user.modifyAt, LocalDateTime.now())
-                .set(user.modifyId, currentAuditor)
-                .where(user.id.eq(userId))
-                .execute();
-
         // userStatus 정보 업데이트
         queryFactory
                 .update(userStatusInfo)
@@ -202,6 +195,7 @@ public class UpdateSellerCustomRepositoryImpl implements UpdateSellerCustomRepos
         queryFactory
                 .update(seller)
                 .set(seller.chargePercent, dto.getCharge())
+                .set(seller.logoImageId, profileImageId)
 
                 .set(seller.modifyAt, LocalDateTime.now())
                 .set(seller.modifyId, currentAuditor)

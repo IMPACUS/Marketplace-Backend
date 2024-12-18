@@ -34,10 +34,10 @@ public class PaymentEvent extends BaseEntity {
     @ColumnDefault(value = "'false'")
     private Boolean isPaymentDone;  // 결제 완료 여부
 
-    private String paymentKey;  // 멱득성을 보장하기 위한 키
+    private String idempotencyKey;  // 멱득성을 보장하기 위한 키
 
     @Column(unique = true)
-    private String orderId;     // 주문 식별자
+    private String paymentId;     // 주문 식별자
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -58,10 +58,19 @@ public class PaymentEvent extends BaseEntity {
     @Builder.Default
     private List<PaymentOrder> paymentOrders = new ArrayList<>();
 
+    public void setApprovedAt(LocalDateTime localDateTime) {
+        this.approvedAt = localDateTime;
+    }
+
+    public List<PaymentOrder> getPaymentOrders() {
+        if (this.paymentOrders == null) this.paymentOrders = new ArrayList<>();
+        return this.paymentOrders;
+    }
+
     /**
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 포함)
      */
-    public Long getTotalDiscountedAmountWithCommission() {
+    public Long getTotalDiscountedAmountWithCommissionFee() {
         return getTotalDiscountedAmount() - getTotalCommissionFee();
     }
 
@@ -70,7 +79,9 @@ public class PaymentEvent extends BaseEntity {
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 제외)
      */
     public Long getTotalDiscountedAmount() {
-        return getTotalAmount() - getTotalDiscount();
+        return this.paymentOrders.stream()
+                .mapToLong(PaymentOrder::getFinalAmount)
+                .sum();
     }
 
     /**
@@ -78,7 +89,7 @@ public class PaymentEvent extends BaseEntity {
      */
     public Long getTotalAmount() {
         return this.paymentOrders.stream()
-                .mapToLong(PaymentOrder::getAmount)
+                .mapToLong(PaymentOrder::getNotDiscountedAmount)
                 .sum();
     }
 
@@ -121,7 +132,7 @@ public class PaymentEvent extends BaseEntity {
      */
     public Long getTotalCommissionFee() {
         return this.paymentOrders.stream()
-                .mapToLong(paymentOrder -> paymentOrder.getAmount() * paymentOrder.getCommissionPercent() / 100)
+                .mapToLong(PaymentOrder::getCommisionFee)
                 .sum();
     }
 }

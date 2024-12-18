@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,6 @@ public class AdminService {
     private final AdminInfoRepository adminInfoRepository;
     private final AdminLoginLogRepository adminLoginLogRepository;
     private final AdminActivityLogRepository adminActivityLogRepository;
-    private final PasswordEncoder passwordEncoder;
 
 
     /**
@@ -134,6 +132,11 @@ public class AdminService {
      */
     @Transactional(readOnly = false)
     public AdminInfo registerAdminForm(AdminFormDTO adminFormDTO) {
+        // 1. 유효성 확인
+        if (adminInfoRepository.findByAdminIdName(adminFormDTO.getAdminIdName()).isPresent()) {
+            throw new CustomException(AdminErrorType.DUPLICATED_ADMIN_ID_NAME);
+        }
+
         // 먼저 AdminFormDTO에서 받은 정보를 AdminInfo 에 등록하고 해당 폼 삽입
         AdminInfo adminInfo
                 = AdminInfo
@@ -146,7 +149,7 @@ public class AdminService {
                 .juminNo(adminFormDTO.getJuminNo())
                 .accountType(adminFormDTO.getAccountType())
                 .adminIdName(adminFormDTO.getAdminIdName())
-                .password(passwordEncoder.encode((adminFormDTO.getPassword())))
+                .password(adminFormDTO.getPassword())
                 .build();
         AdminInfo result = adminInfoRepository.save(adminInfo);
 

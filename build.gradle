@@ -7,7 +7,7 @@ plugins {
 dependencyManagement {
     imports {
         mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2023.0.3'
-        mavenBom 'io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1'
+        mavenBom 'io.awspring.cloud:spring-cloud-aws-dependencies:3.2.0'
     }
 }
 
@@ -50,6 +50,7 @@ dependencies {
     implementation "io.jsonwebtoken:jjwt-api:$jjwtVersion"
     runtimeOnly "io.jsonwebtoken:jjwt-impl:$jjwtVersion"
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:$jjwtVersion"
+    implementation 'com.auth0:java-jwt:4.4.0'
 
     //oauth
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
@@ -81,7 +82,22 @@ dependencies {
     // liquibase
     implementation 'org.liquibase:liquibase-core'
 
+    // excel
+    implementation 'org.apache.poi:poi:5.3.0'
+    implementation 'org.apache.poi:poi-ooxml:5.3.0'
+    // fcm
+    implementation 'com.google.firebase:firebase-admin:9.3.0'
+
+    // openfeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3'
+
+    // Portone
+    implementation group: 'io.portone', name: 'server-sdk', version: '0.9.3'
+
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+    // external dependencies
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 tasks.named('test') {

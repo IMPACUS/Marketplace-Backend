@@ -1,9 +1,8 @@
 package com.impacus.maketplace.service.api;
 
-import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.product.request.ProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
-import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
 import com.impacus.maketplace.entity.product.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +14,6 @@ import java.util.List;
 /**
  * 상품 관련 인터페이스
  *
- * @author 김용현
  */
 public interface ProductInterface {
 
@@ -30,16 +28,11 @@ public interface ProductInterface {
     /**
      * ProductRequest 의 유효성 검사
      *
-     * @param productImages 상품 이미지 리스트
-     * @param categoryId       카테고리 ID
      * @throws CustomException 유효하지 않는 경우, 예외 발생
      */
     void validateProductRequest(
-            List<String> productImages,
-            Long categoryId,
             Long sellerId,
-            BundleDeliveryOption bundleDeliveryOption,
-            Long bundleDeliveryGroupId
+            ProductDTO dto
     );
 
     /**
@@ -154,4 +147,14 @@ public interface ProductInterface {
         LocalDate endAt,
         Pageable pageable
     );
+
+    /**
+     * [앱] 상품 검색어 리스트 조회
+     *
+     * @param userId   검색 요청한 사용자 ID
+     * @param name     상품명 검색어
+     * @param pageable 페이지네이션 정보
+     * @return
+     */
+    Slice<AppProductDTO> findProductsByName(Long userId, String name, Pageable pageable);
 }

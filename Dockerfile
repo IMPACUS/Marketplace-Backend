@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17-ea-33-jdk-buster
 EXPOSE 8080
 ARG JAR_FILE=build/libs/*-SNAPSHOT.jar
 COPY ${JAR_FILE} app.jar

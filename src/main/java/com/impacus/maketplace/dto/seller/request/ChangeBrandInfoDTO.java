@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.seller.request;
 
 import com.impacus.maketplace.common.annotation.ValidPhoneNumber;
+import com.impacus.maketplace.common.utils.TimeUtils;
 import com.impacus.maketplace.entity.seller.Brand;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -46,5 +47,9 @@ public class ChangeBrandInfoDTO {
                 .businessDay(businessDay)
                 .breakingTime(breakingTime)
                 .build();
+    }
+
+    public void roundOpeningTime() {
+        this.openingTime = TimeUtils.roundTimeToPolicy(this.openingTime);
     }
 }

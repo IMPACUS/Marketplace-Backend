@@ -21,6 +21,6 @@ public class WebProductOptionDTO {
         this.productOptionId = productOptionId;
         this.color = color;
         this.size = size;
-        this.name = String.format("%s/%s", color, size);
+        this.name = String.format("%s/%s", size, color);
     }
 }

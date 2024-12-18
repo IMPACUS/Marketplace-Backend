@@ -1,24 +1,28 @@
 package com.impacus.maketplace.service.temporaryProduct;
 
+import com.impacus.maketplace.common.enumType.error.BundleDeliveryGroupErrorType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
+import com.impacus.maketplace.common.enumType.product.BundleDeliveryOption;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.request.*;
-import com.impacus.maketplace.dto.product.response.WebProductDetailDTO;
-import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.product.response.WebProductBasicDTO;
+import com.impacus.maketplace.dto.product.response.WebProductOptionDetailDTO;
 import com.impacus.maketplace.dto.temporaryProduct.response.IsExistedTemporaryProductDTO;
+import com.impacus.maketplace.dto.temporaryProduct.response.TemporaryProductDTO;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import com.impacus.maketplace.repository.product.bundleDelivery.BundleDeliveryGroupRepository;
 import com.impacus.maketplace.repository.temporaryProduct.TemporaryProductRepository;
 import com.impacus.maketplace.service.category.SubCategoryService;
+import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,6 +38,7 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     private final TemporaryProductDeliveryTimeService deliveryTimeService;
     private final TemporaryProductClaimService temporaryProductClaimService;
     private final BundleDeliveryGroupRepository bundleDeliveryGroupRepository;
+    private final ReadSellerService readSellerService;
 
     @Override
     public IsExistedTemporaryProductDTO checkIsExistedTemporaryProduct(Long userId) {
@@ -49,8 +54,11 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     @Transactional
     public void addOrModifyTemporaryProductAtBasic(Long userId, BasicStepProductDTO dto) {
         try {
-            // 1. 임시 저장 상품이 존재하는지 확인
             String registerId = userId.toString();
+            // 유효성 검사
+            validateTemporaryProductAtBasic(userId, dto);
+
+            // 임시 저장 상품이 존재하는지 확인
             if (temporaryProductRepository.existsByRegisterId(registerId)) {
                 // 임시 저장 상품 수정
                 updateTemporaryProductAtBasic(registerId, dto);
@@ -63,12 +71,40 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         }
     }
 
+    private void validateTemporaryProductAtBasic(Long userId, BasicStepProductDTO dto) {
+        UserType userType = SecurityUtils.getCurrentUserType();
+
+        // 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
+        if (dto.getProductImages().size() > 5) {
+            throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
+        }
+
+        // 카테고리 존재 확인
+        if (!subCategoryService.existsBySubCategoryId(dto.getCategoryId())) {
+            throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
+        }
+
+        // 판매자 존재하는지 확인
+        if (!userType.equals(UserType.ROLE_APPROVED_SELLER) && dto.getSellerId() == null) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "sellerId는 null일 수 없습니다.");
+        }
+
+        // 판매자에 등록된 묶음 배송인지 확인
+        Long sellerId = userType.equals(UserType.ROLE_APPROVED_SELLER) ? readSellerService.findSellerIdByUserId(userId) : dto.getSellerId();
+        if (dto.getBundleDeliveryOption()  == BundleDeliveryOption.BUNDLE_DELIVERY_AVAILABLE
+                && dto.getBundleDeliveryGroupId() != null
+                && !bundleDeliveryGroupRepository.existsBySellerIdAndIdAndIsDeletedFalseAndIsUsedTrue(sellerId, dto.getBundleDeliveryGroupId())
+        ) {
+            throw new CustomException(BundleDeliveryGroupErrorType.NOT_EXISTED_BUNDLE_DELIVERY_GROUP);
+        }
+    }
+
     @Transactional
     public void addTemporaryProductAtBasic(BasicStepProductDTO dto) {
-        validateProductRequest(dto.getProductImages(), dto);
+        UserType userType = SecurityUtils.getCurrentUserType();
 
         // 상품 생성
-        TemporaryProduct temporaryProduct = dto.toEntity();
+        TemporaryProduct temporaryProduct = dto.toEntity(userType);
         temporaryProductRepository.save(temporaryProduct);
         Long temporaryProductId = temporaryProduct.getId();
 
@@ -82,11 +118,15 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
 
     @Transactional
     public void updateTemporaryProductAtBasic(String registerId, BasicStepProductDTO dto) {
-        validateProductRequest(dto.getProductImages(), dto);
         Long temporaryProductId = temporaryProductRepository.findIdByRegisterId(registerId);
+        UserType userType = SecurityUtils.getCurrentUserType();
 
         // 상품 수정
-        temporaryProductRepository.updateTemporaryProduct(temporaryProductId, dto);
+        temporaryProductRepository.updateTemporaryProduct(
+                temporaryProductId,
+                dto,
+                !userType.equals(UserType.ROLE_APPROVED_SELLER)
+        );
 
         // 배송 지연 시간 수정
         deliveryTimeService.updateTemporaryProductDeliveryTime(temporaryProductId, dto.getDeliveryTime());
@@ -182,29 +222,6 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
         temporaryProductClaimService.updateTemporaryProductClaim(temporaryProductId, dto.getClaim());
     }
 
-    /**
-     * 전달받은 ProductRequest 의 유효성 검사를 하는 함수
-     *
-     * @param productRequest
-     * @return
-     */
-    private void validateProductRequest(
-            List<String> productImageList,
-            BasicStepProductDTO productRequest
-    ) {
-        Long subCategoryId = productRequest.getCategoryId();
-
-        // 1. 상품 이미지 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
-        if (productImageList.size() > 5) {
-            throw new CustomException(ProductErrorType.INVALID_PRODUCT, "상품 이미지 등록 가능 개수를 초과하였습니다.");
-        }
-
-        // 2. 카테고리 유효성 확인 (상품 이미지 크기 & 상품 이미지 개수)
-        if (!subCategoryService.existsBySubCategoryId(subCategoryId)) {
-            throw new CustomException(CategoryErrorType.NOT_EXISTED_SUB_CATEGORY);
-        }
-    }
-
     @Override
     public TemporaryProduct findTemporaryProductByUserId(Long userId) {
         return temporaryProductRepository.findByRegisterId(userId.toString())
@@ -229,30 +246,73 @@ public class TemporaryProductServiceImpl implements TemporaryProductService {
     }
 
     @Override
-    public WebProductDetailDTO findTemporaryProduct(Long userId) {
+    public TemporaryProductDTO findTemporaryProduct(Long userId, Long sellerId) {
         try {
-            UserType userType = SecurityUtils.getCurrentUserType();
-            WebProductDetailDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
-            Long temporaryProductId = dto.getId();
+            TemporaryProductDTO dto = getTemporaryProductDTO(userId);
 
-            // categoryId와 bundleDeliveryGroupId가 존재하는지 확인
-            if (dto.getCategoryId() != null && !subCategoryService.existsBySubCategoryId(dto.getCategoryId())) {
-                dto.updateCategoryIdNull();
-            }
-            if (dto.getBundleDeliveryGroupId() != null && userType != UserType.ROLE_APPROVED_SELLER) {
-                dto.updateBundleDeliveryGroupId();
-            }
+            // 유효성 확인
+            validateCategoryAndBundleDeliveryGroup(dto, userId, sellerId);
 
             // TemporaryProductOption 값 가져오기
-            Set<ProductOptionDTO> options = temporaryProductOptionService.findTemporaryProductOptionByProductId(temporaryProductId)
-                    .stream()
-                    .map(option -> objectCopyHelper.copyObject(option, ProductOptionDTO.class))
-                    .collect(Collectors.toSet());
-            dto.setProductOption(options);
+            Set<WebProductOptionDetailDTO> options = getTemporaryProductOptions(dto.getId());
+            dto.setProductOptions(options);
 
+            // Null 처리
+            dto.processNullObject();
             return dto;
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    /**
+     * dto 데이터 유효성 확인
+     *
+     * @param dto
+     * @param sellerId
+     */
+    private void validateCategoryAndBundleDeliveryGroup(TemporaryProductDTO dto, Long userId, Long sellerId) {
+        UserType userType = SecurityUtils.getCurrentUserType();
+        WebProductBasicDTO basicDTO = dto.getInformation();
+
+        // 카테고리 존재 확인
+        if (basicDTO.getCategoryId() != null && !subCategoryService.existsBySubCategoryId(basicDTO.getCategoryId())) {
+            dto.updateCategoryNull();
+        }
+
+        // 판매자 존재하는지 확인
+        if (!userType.equals(UserType.ROLE_APPROVED_SELLER) && sellerId == null) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "sellerId는 null일 수 없습니다.");
+        }
+
+        // 판매자에 등록된 묶음 배송인지 확인
+        Long foundSellerId = userType.equals(UserType.ROLE_APPROVED_SELLER) ? readSellerService.findSellerIdByUserId(userId) : sellerId;
+        if (!bundleDeliveryGroupRepository.existsBySellerIdAndIdAndIsDeletedFalseAndIsUsedTrue(foundSellerId, basicDTO.getBundleDeliveryGroupId())) {
+            dto.updateBundleDeliveryGroupNull();
+        }
+    }
+
+    /**
+     * 사용자 ID로 임시 상품을 조회 (상품이 없으면 예외를 발생)
+     *
+     * @param userId
+     * @return
+     */
+    private TemporaryProductDTO getTemporaryProductDTO(Long userId) {
+        TemporaryProductDTO dto = temporaryProductRepository.findDetailIdByRegisterId(userId.toString());
+        if (dto == null) {
+            throw new CustomException(ProductErrorType.NOT_EXISTED_TEMPORARY_PRODUCT);
+        }
+        return dto;
+    }
+
+    /**
+     * 상품 ID로 임시 상품 옵션을 조회
+     */
+    private Set<WebProductOptionDetailDTO> getTemporaryProductOptions(Long productId) {
+        return temporaryProductOptionService.findTemporaryProductOptionByProductId(productId)
+                .stream()
+                .map(option -> objectCopyHelper.copyObject(option, WebProductOptionDetailDTO.class))
+                .collect(Collectors.toSet());
     }
 }

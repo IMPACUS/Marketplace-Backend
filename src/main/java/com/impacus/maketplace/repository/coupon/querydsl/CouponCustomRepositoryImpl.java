@@ -1,9 +1,6 @@
 package com.impacus.maketplace.repository.coupon.querydsl;
 
-import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
-import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.ProductType;
-import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
+import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.dto.coupon.response.*;
 import com.impacus.maketplace.entity.coupon.QCoupon;
 import com.impacus.maketplace.entity.coupon.QUserCoupon;
@@ -12,7 +9,6 @@ import com.impacus.maketplace.repository.coupon.querydsl.dto.*;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.Temporal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -97,10 +93,10 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public Page<IssueCouponHIstoryDTO> findIssueCouponHistoryList(String name, UserCouponStatus userCouponStatus, LocalDate startAt, LocalDate endAt, Pageable pageable) {
-        List<IssueCouponHIstoryDTO> content = queryFactory
-                .select(new QIssueCouponHIstoryDTO(
-                        userCoupon.couponId,
+    public IssueCouponHistoriesDTO findIssueCouponHistories(String name, UserCouponStatus status, LocalDate startAt, LocalDate endAt, Pageable pageable) {
+        List<IssueCouponHistoryDTO> content = queryFactory
+                .select(new QIssueCouponHistoryDTO(
+                        userCoupon.id,
                         coupon.code,
                         coupon.description,
                         coupon.name,
@@ -116,7 +112,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                 .join(user).on(user.id.eq(userCoupon.userId))
                 .where(
                         couponNameEq(name),
-                        userCouponStatusEq(userCouponStatus),
+                        userCouponStatusEq(status),
                         betweenDate(startAt, endAt))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -125,14 +121,59 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
         // Count Data
         JPAQuery<Long> countQuery = queryFactory
                 .select(coupon.count())
-                .from(coupon)
+                .from(userCoupon)
                 .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .join(user).on(user.id.eq(userCoupon.userId))
                 .where(
                         couponNameEq(name),
-                        userCouponStatusEq(userCouponStatus),
+                        userCouponStatusEq(status),
                         betweenDate(startAt, endAt));
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        // Page 변환
+        Page<IssueCouponHistoryDTO> pageContent = PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+
+        // Select Statistics
+        List<IssueCouponStatisticDTO> statistics = queryFactory
+                .select(new QIssueCouponStatisticDTO(
+                        coupon.benefitType,
+                        userCoupon.id.count(),
+                        coupon.benefitValue.sum()
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .join(user).on(user.id.eq(userCoupon.userId))
+                .where(
+                        couponNameEq(name),
+                        userCouponStatusEq(status),
+                        betweenDate(startAt, endAt)
+                )
+                .groupBy(coupon.benefitType)
+                .fetch();
+
+        // 통계 값 계산
+        Long totalCount = statistics.stream()
+                .mapToLong(IssueCouponStatisticDTO::getCount)
+                .sum();
+
+        // 금액 할인 쿠폰 통계
+        IssueCouponStatisticDTO amountStat = statistics.stream()
+                .filter(stat -> stat.getBenefitType() == BenefitType.AMOUNT)
+                .findFirst()
+                .orElse(new IssueCouponStatisticDTO(BenefitType.AMOUNT, 0L, 0L));
+
+        Long totalDiscountedPrice = amountStat.getTotalBenefitValue();
+        Long totalDiscountedPriceCount = amountStat.getCount();
+
+        // 비율 할인 쿠폰 통계
+        IssueCouponStatisticDTO percentStat = statistics.stream()
+                .filter(stat -> stat.getBenefitType() == BenefitType.PERCENTAGE)
+                .findFirst()
+                .orElse(new IssueCouponStatisticDTO(BenefitType.PERCENTAGE, 0L, 0L));
+
+        Long totalDiscountedPercent = percentStat.getTotalBenefitValue();
+        Long totalDiscountedPercentCount = percentStat.getCount();
+
+        return new IssueCouponHistoriesDTO(pageContent, totalCount, totalDiscountedPrice, totalDiscountedPriceCount, totalDiscountedPercent, totalDiscountedPercentCount);
     }
 
     @Override
@@ -206,7 +247,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     public List<UserCouponInfoForCheckoutDTO> findUserCouponInfoForCheckoutList(Long userId) {
         return queryFactory
                 .select(new QUserCouponInfoForCheckoutDTO(
-                        userCoupon.couponId,
+                        userCoupon.id,
                         coupon.name,
                         coupon.benefitType,
                         coupon.benefitValue,
@@ -244,9 +285,9 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public List<ValidateUserCouponForProductDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds) {
+    public List<PaymentUserCouponInfo> findPaymentUserCouponInfos(Long userId, List<Long> userCouponIds) {
         return queryFactory
-                .select(new QValidateUserCouponForProductDTO(
+                .select(new QPaymentUserCouponInfo(
                         userCoupon.id,
                         coupon.benefitType,
                         coupon.benefitValue,
@@ -258,39 +299,23 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                 ))
                 .from(userCoupon)
                 .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
-                .fetch();
-    }
-
-    @Override
-    public List<ValidateUserCouponForOrderDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds) {
-        return queryFactory
-                .select(new QValidateUserCouponForOrderDTO(
-                        userCoupon.id,
-                        coupon.benefitType,
-                        coupon.benefitValue,
-                        coupon.productType,
-                        coupon.useCoverageType,
-                        coupon.useStandardType,
-                        coupon.useStandardValue
-                ))
-                .from(userCoupon)
-                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
+                .where(userCoupon.id.in(userCouponIds), userCoupon.userId.eq(userId), availableCouponStatus())
                 .fetch();
     }
 
     private BooleanExpression availableCouponStatus() {
         return userCoupon.isDownload.eq(true).and(
                 userCoupon.isUsed.eq(false).and(
-                        userCoupon.expiredAt.goe(LocalDate.now())
+                        checkExpired()
+                ).and(
+                        userCoupon.status.eq(UserCouponStatus.ISSUE_SUCCESS)
                 )
         );
     }
 
     private BooleanExpression eqAllOrIsEcoProduct(Boolean isEcoProduct) {
-        return coupon.productType.eq(ProductType.ALL).or(
-                isEcoProduct ? coupon.productType.eq(ProductType.ECO_GREEN) : coupon.productType.eq(ProductType.BASIC)
+        return coupon.productType.eq(CouponProductType.ALL).or(
+                isEcoProduct ? coupon.productType.eq(CouponProductType.ECO_GREEN) : coupon.productType.eq(CouponProductType.BASIC)
         );
     }
 
@@ -315,8 +340,12 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
         return null;
     }
 
-    private BooleanExpression userCouponStatusEq(UserCouponStatus userCouponStatus) {
-        return userCouponStatus != null ? userCoupon.status.eq(userCouponStatus) : null;
+    private BooleanExpression checkExpired() {
+        return userCoupon.expiredAt.isNull().or(userCoupon.expiredAt.goe(LocalDate.now()));
+    }
+
+    private BooleanExpression userCouponStatusEq(UserCouponStatus status) {
+        return status != null ? userCoupon.status.eq(status) : null;
     }
 
     private BooleanExpression checkCanIssueCoupon() {
@@ -334,4 +363,41 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     private BooleanExpression couponIsNotDeleted() {
         return coupon.isDeleted.eq(false);
     }
+
+    /*@Override
+    public List<ValidateUserCouponDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds) {
+        return queryFactory
+                .select(new QValidateUserCouponDTO(
+                        userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useCoverageSubCategoryName,
+                        coupon.useStandardType,
+                        coupon.useStandardValue
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
+                .fetch();
+    }
+
+    @Override
+    public List<ValidateUserCouponDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds) {
+        return queryFactory
+                .select(new QValidateUserCouponDTO(
+                        userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useStandardType,
+                        coupon.useStandardValue
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
+                .fetch();
+    }*/
 }

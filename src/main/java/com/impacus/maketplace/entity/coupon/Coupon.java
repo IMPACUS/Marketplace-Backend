@@ -4,8 +4,6 @@ import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -26,6 +24,8 @@ public class Coupon extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String code;    // 쿠폰 코드
 
+    // 발급한 AdminID 추가 고려중
+
     @Column(nullable = false)
     private String name;    // 쿠폰 이름
 
@@ -40,7 +40,7 @@ public class Coupon extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProductType productType;    //  상품 적용 타입 [ ECO할인/그린태그 , 일반 상품, 구분안함(둘다 적용) ]
+    private CouponProductType productType;    //  상품 적용 타입 [ ECO할인/그린태그 , 일반 상품, 구분안함(둘다 적용) ]
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -59,6 +59,9 @@ public class Coupon extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CouponType couponType;  // 쿠폰 형식 [ 이벤트 , 지급형 ]
+
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;       // 이벤트 종류 선택
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -152,6 +155,7 @@ public class Coupon extends BaseEntity {
         this.firstCount = couponUpdateDTO.getFirstCount();
         this.issuedTimeType = couponUpdateDTO.getIssuedTimeType();
         this.couponType = couponUpdateDTO.getCouponType();
+        this.eventType = couponUpdateDTO.getEventType();
         this.couponIssueType = couponUpdateDTO.getCouponIssueType();
         this.expireTimeType = couponUpdateDTO.getExpireTimeType();
         this.expireTimeDays = couponUpdateDTO.getExpireTimeDays();

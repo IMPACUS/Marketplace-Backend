@@ -5,12 +5,13 @@ import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.MailType;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.SellerErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.seller.EntryStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.dto.seller.request.*;
 import com.impacus.maketplace.entity.seller.Seller;
 import com.impacus.maketplace.entity.seller.SellerAdjustmentInfo;
@@ -27,6 +28,7 @@ import com.impacus.maketplace.repository.seller.deliveryCompany.SellerDeliveryCo
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.alarm.seller.AlarmSellerService;
 import com.impacus.maketplace.service.seller.delivery.SelectedSellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.delivery.SellerDeliveryAddressService;
 import com.impacus.maketplace.service.seller.deliveryCompany.SelectedSellerDeliveryCompanyService;
@@ -61,6 +63,7 @@ public class UpdateSellerService {
     private final SelectedSellerDeliveryAddressService selectedSellerDeliveryAddressService;
     private final SelectedSellerDeliveryAddressRepository selectedSellerDeliveryAddressRepository;
     private final EmailService emailService;
+    private final AlarmSellerService alarmSellerService;
 
     /**
      * 판매자 입점 상태를 변경하는 함수
@@ -95,7 +98,7 @@ public class UpdateSellerService {
                     entryApprovedAt
             );
 
-            EmailDto emailDto = EmailDto.builder()
+            EmailDTO emailDto = EmailDTO.builder()
                     .subject("입점 결과 메일 입니다.")
                     .receiveEmail(user.getEmail())
                     .build();
@@ -104,6 +107,7 @@ public class UpdateSellerService {
             if (entryStatus == EntryStatus.APPROVE) {
                 userService.updateUserType(userId, UserType.ROLE_APPROVED_SELLER);
                 emailService.sendMail(emailDto, MailType.SELLER_APPROVE);
+                alarmSellerService.saveDefault(seller.getUserId());
             } else {
                 userService.updateUserType(userId, UserType.ROLE_UNAPPROVED_SELLER);
                 emailService.sendMail(emailDto, MailType.SELLER_REJECT);
@@ -154,6 +158,7 @@ public class UpdateSellerService {
             boolean isExistedBrand = brandRepository.existsBySellerId(sellerId);
 
             // 2. 스토어 정보 변경
+            dto.roundOpeningTime(); // 영업 시간 반올림
             sellerRepository.updateBrandInformationByUserId(userId, sellerId, dto, isExistedBrand);
 
             // 3. 브랜드 정보가 존재하지 않은 경우 생성
@@ -282,12 +287,11 @@ public class UpdateSellerService {
         try {
             // 1. 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(dto.getNewPassword()))) {
-                throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+                throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 2. 판매자 로그인 정보 변경
-            String encodedPassword = userService.encodePassword(dto.getNewPassword());
-            sellerRepository.updateLoginInformationByUserId(userId, dto, encodedPassword);
+            sellerRepository.updateLoginInformationByUserId(userId, dto, dto.getNewPassword());
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
@@ -448,13 +452,40 @@ public class UpdateSellerService {
             // 1. 프로필 이미지 존재하는 경우, 프로필 이미지 저장
             Long profileImageId = null;
             if (profileImage != null) {
-                profileImageId = attachFileService.uploadFileAndAddAttachFile(profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY).getId();
+                profileImageId = attachFileService.uploadFileAndAddAttachFile(
+                        profileImage, DirectoryConstants.PROFILE_IMAGE_DIRECTORY
+                ).getId();
             }
 
             // 2. 판매자 정보 업데이트
             sellerRepository.updateSellerInformation(seller.getUserId(), sellerId, dto, profileImageId);
+
+            // 판매자 상태가 변경됨에 따라 연관 데이터 업데이트
+            switch (dto.getUserStatus()) {
+                case ACTIVE -> {
+                    handleActiveSellerStatus(sellerId);
+                }
+                case SUSPENDED -> {
+                    handleSuspendedSellerStatus(sellerId);
+                }
+                case DEACTIVATED -> {
+                    handleDeactivatedSellerStatus(sellerId);
+                }
+            }
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
+    }
+
+    private void handleActiveSellerStatus(Long sellerId) {
+
+    }
+
+    private void handleSuspendedSellerStatus(Long sellerId) {
+
+    }
+
+    private void handleDeactivatedSellerStatus(Long sellerId) {
+
     }
 }

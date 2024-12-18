@@ -48,9 +48,7 @@ public class TemporaryProductOptionService {
      * @return
      */
     public List<TemporaryProductOption> findTemporaryProductOptionByProductId(Long temporaryProductId) {
-        List<TemporaryProductOption> options = temporaryProductOptionRepository.findByTemporaryProductId(temporaryProductId);
-
-        return options;
+        return temporaryProductOptionRepository.findByTemporaryProductId(temporaryProductId);
     }
 
     /**

@@ -9,7 +9,7 @@ spring:
   data:
     redis:
       client-type: lettuce
-      host: 3.39.194.239
+      host: 3.39.239.224
       port: 6379
       password: Dlavorzjtm030#z
   datasource:
@@ -35,3 +35,16 @@ spring:
   docker:
     compose:
       enabled: false
+url:
+  server-host: https://back-dev.implace.kr
+  uri:
+    certification: /api/v1/certification/response
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: None
+        secure: true
+        http-only: true
+        path: /
+        domain: back-dev.implace.kr

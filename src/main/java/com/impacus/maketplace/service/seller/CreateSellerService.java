@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.seller;
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.seller.BusinessType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -16,7 +17,6 @@ import com.impacus.maketplace.entity.seller.SellerBusinessInfo;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.AttachFileService;
-import com.impacus.maketplace.service.EmailService;
 import com.impacus.maketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,6 @@ public class CreateSellerService {
     private final SellerAdjustmentInfoService sellerAdjustmentInfoService;
     private final AttachFileService attachFileService;
     private final UserService userService;
-    private final EmailService emailService;
 
     /**
      * Seller를 저장하는 함수
@@ -82,7 +81,7 @@ public class CreateSellerService {
             // 3. User 저장
             User user = new User(
                     email,
-                    userService.encodePassword(password),
+                    password,
                     email,
                     sellerDTO.getContactNumber(),
                     UserType.ROLE_UNAPPROVED_SELLER);
@@ -128,12 +127,12 @@ public class CreateSellerService {
 
         // 1. 이메일 유효성 검사
         if (userService.existUserByEmail(email)) {
-            throw new CustomException(CommonErrorType.DUPLICATED_EMAIL);
+            throw new CustomException(UserErrorType.DUPLICATED_EMAIL);
         }
 
         // 2. 비밃번호 유효성 검사
         if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-            throw new CustomException(CommonErrorType.INVALID_PASSWORD);
+            throw new CustomException(UserErrorType.INVALID_PASSWORD);
         }
 
         // 3. 상세 데이터 유효성 검사
