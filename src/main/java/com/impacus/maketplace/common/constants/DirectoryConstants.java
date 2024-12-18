@@ -20,6 +20,9 @@ public class DirectoryConstants {
 
     public static final String PROFILE_IMAGE_DIRECTORY = "profileImage";
 
+    // 상품 문의
+    public static final String PRODUCT_QUESTION_DIRECTORY = "productQuestion";
+
     public static final String EDITOR_IMAGE_DIRECTORY = "editorImage";
 
     public static final String EXCEL_DIRECTORY = "excel";

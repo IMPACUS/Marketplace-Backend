@@ -24,6 +24,7 @@ public enum CommonErrorType implements ErrorType {
     FAIL_TO_SEND_EMAIL("32_FAIL_TO_SEND_EMAIL", "이메일 전송에 실패하였습니다."),
     INVALID_ALARM("043_INVALID_ALARM", "유효하지 않는 알림 타입입니다."),
     INVALID_ID("044_INVALID_ID", "유효하지 않은 ID 입니다."),
+    INVALID_END_DATE("060_INVALID_END_DATE", "종료날짜는 시작날짜보다 이전일 수 없습니다."),
 
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),
