@@ -3,12 +3,15 @@ package com.impacus.maketplace.repository.user.querydsl;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
+import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
+import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
+import com.impacus.maketplace.entity.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -47,4 +50,16 @@ public interface UserCustomRepository {
     List<WebUserDTO> findUsersByIds(
             CouponIdsDTO dto
     );
+
+    void saveOrUpdateCertification(Long userId, CertificationResult certificationResult);
+
+    boolean existsConsumerByPhoneNumberAndUserId(Long userId, String mobileNo);
+
+    ConsumerEmailDTO findConsumerByPhoneNumber(String phoneNumber);
+
+    ConsumerEmailDTO findConsumerByPhoneNumberAndEmail(String phoneNumber, String email);
+
+    void deactivateConsumer(Long userId);
+
+    User findUserByCI(String ci);
 }

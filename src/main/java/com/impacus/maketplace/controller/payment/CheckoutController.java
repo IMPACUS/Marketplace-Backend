@@ -9,6 +9,7 @@ import com.impacus.maketplace.dto.payment.response.CheckoutProductDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentCartDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,9 +49,9 @@ public class CheckoutController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("checkout-cart")
-    public ApiResponseEntity<CheckoutCartProductsDTO> getCheckoutCart(@RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
+    public ApiResponseEntity<CheckoutCartProductsDTO> getCheckoutCart(@AuthenticationPrincipal CustomUserDetails user, @RequestParam(name = "shopping-basket-id-list") List<Long> shoppingBasketIdList) {
 
-        List<CheckoutProductDTO> products = checkoutService.getCheckoutCart(shoppingBasketIdList);
+        List<CheckoutProductDTO> products = checkoutService.getCheckoutCart(user.getId(), shoppingBasketIdList);
         CheckoutCartProductsDTO response = CheckoutCartProductsDTO.builder()
                 .products(products)
                 .shoppingBasketIdList(shoppingBasketIdList)
@@ -67,7 +68,8 @@ public class CheckoutController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("checkout-single")
-    public ApiResponseEntity<PaymentSingleDTO> checkoutSingle(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutSingleDTO checkoutSingleDTO) {
+    public ApiResponseEntity<PaymentSingleDTO> checkoutSingle(@AuthenticationPrincipal CustomUserDetails user,
+                                                              @Valid @RequestBody CheckoutSingleDTO checkoutSingleDTO) {
         PaymentSingleDTO response = checkoutService.checkoutSingle(user.getId(), checkoutSingleDTO);
 
         return ApiResponseEntity
@@ -81,7 +83,8 @@ public class CheckoutController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("checkout-cart")
-    public ApiResponseEntity<PaymentCartDTO> checkoutCart(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutCartDTO checkoutCartDTO) {
+    public ApiResponseEntity<PaymentCartDTO> checkoutCart(@AuthenticationPrincipal CustomUserDetails user,
+                                                          @Valid @RequestBody CheckoutCartDTO checkoutCartDTO) {
 
         PaymentCartDTO response = checkoutService.checkoutCart(user.getId(), checkoutCartDTO);
 

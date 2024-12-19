@@ -20,7 +20,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "product_info")
+@Table(name = "product_info", indexes = @Index(name = "idx_p_seller_id", columnList = "seller_id"))
 @NoArgsConstructor
 public class Product extends BaseEntity {
     @Id

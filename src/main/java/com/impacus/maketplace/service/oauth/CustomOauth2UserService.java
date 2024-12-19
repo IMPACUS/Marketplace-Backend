@@ -2,7 +2,7 @@ package com.impacus.maketplace.service.oauth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.enumType.point.RewardPointType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
@@ -115,13 +115,13 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String email = attributes.getEmail();
 
         // 1. 이메일이 등록되어 있는지 확인
-        List<User> userList = userRepository.findByEmailLike("%_" + email);
+        Optional<User> userOptional = userRepository.findByEmailLikeAndIsDeletedFalse("%_" + email);
 
         // 2. 등록되지 않은 경우: 저장 / 다른 제공사로 등록되어 있는 경우 예외 발생
         User user = null;
-        if (!userList.isEmpty()) {
+        if (userOptional.isPresent()) {
             // 로그인
-            user = userList.get(0);
+            user = userOptional.get();
             validateOauthProvider(user, oauthProviderType);
 
             // 6. 소비자인 경우 출석 포인트 지급
@@ -151,7 +151,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private void validateOauthProvider(User user, OauthProviderType oauthProviderType) throws CustomOAuth2AuthenticationException {
         if (!user.getEmail().contains(oauthProviderType.name())) {
-            throw new CustomException(CommonErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
+            throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
         }
     }
 

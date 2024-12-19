@@ -1,7 +1,9 @@
 package com.impacus.maketplace.service.category;
 
+import com.impacus.maketplace.common.enumType.SearchType;
 import com.impacus.maketplace.common.enumType.error.CategoryErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.ObjectCopyHelper;
 import com.impacus.maketplace.dto.category.request.ChangeCategoryNameDTO;
 import com.impacus.maketplace.dto.category.request.CreateSuperCategoryDTO;
@@ -9,6 +11,7 @@ import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
+import com.impacus.maketplace.redis.service.ProductSearchService;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,7 @@ public class SuperCategoryService {
     private final SuperCategoryRepository superCategoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
     private final ReadSellerService readSellerService;
+    private final ProductSearchService productSearchService;
 
     /**
      * 1차 카테고리 추가하는 함수
@@ -47,9 +51,30 @@ public class SuperCategoryService {
             // 2. 1차 카테고리 저장
             SuperCategory superCategory = superCategoryRepository.save(new SuperCategory(superCategoryName));
 
+            // 3. 1차 카테고리 검색어 저장
+            addSuperCategorySearchData(superCategory);
+
             return objectCopyHelper.copyObject(superCategory, SuperCategoryDTO.class);
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 1차 카테고리 검색어 저장
+     *
+     * @param superCategory 저장할 1차 카테고리
+     */
+    @Transactional
+    public void addSuperCategorySearchData(SuperCategory superCategory) {
+        try {
+            productSearchService.addSearchData(
+                    SearchType.CATEGORY,
+                    superCategory.getId(),
+                    superCategory.getName()
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("addSuperCategorySearchData", "Fail to add search data", e);
         }
     }
 
@@ -76,15 +101,14 @@ public class SuperCategoryService {
     /**
      * 1차 카테고리 명 수정 함수
      *
-     * @param categoryNameRequest
+     * @param dto
      * @return
      */
-    // TODO update query로 변경9
     @Transactional
-    public Boolean updateSuperCategory(ChangeCategoryNameDTO categoryNameRequest) {
+    public Boolean updateSuperCategory(ChangeCategoryNameDTO dto) {
         try {
-            Long categoryId = categoryNameRequest.getCategoryId();
-            String superCategoryName = categoryNameRequest.getName();
+            Long categoryId = dto.getCategoryId();
+            String superCategoryName = dto.getName();
 
             // 1. 중복된 1차 카테고리 명 확인
             if (existsBySuperCategoryName(superCategoryName)) {
@@ -97,9 +121,30 @@ public class SuperCategoryService {
                 throw new CustomException(CategoryErrorType.NOT_EXISTED_SUPER_CATEGORY);
             }
 
+            // 3. 검색어 데이터 수정
+            updateSuperCategorySearchData(categoryId, superCategoryName);
             return true;
         } catch (Exception ex) {
             throw new CustomException(ex);
+        }
+    }
+
+    /**
+     * 1차 카테고리 검색어 수정
+     *
+     * @param superCategoryId 수정할 1차 카테고리 ID
+     * @param name            1차 카테고리 명
+     */
+    @Transactional
+    public void updateSuperCategorySearchData(Long superCategoryId, String name) {
+        try {
+            productSearchService.updateSearchData(
+                    SearchType.CATEGORY,
+                    superCategoryId,
+                    name
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("updateSuperCategorySearchData", "Fail to update search data", e);
         }
     }
 
@@ -150,7 +195,34 @@ public class SuperCategoryService {
         return dtos;
     }
 
+    /**
+     * 1차 카테고리 다중 삭제 함수
+     *
+     * @param superCategories 삭제할 1차 카테고리 리스트
+     */
+    @Transactional
     public void deleteAllInBatch(List<SuperCategory> superCategories) {
+        // 1. 1차 카테고리 삭제
         superCategoryRepository.deleteAllInBatch(superCategories);
+
+        // 2. 검색어 삭제
+        superCategories.forEach(x -> deleteSuperCategorySearchData(x.getId()));
+    }
+
+    /**
+     * 1챠 카테고리 검색어 삭제
+     *
+     * @param superCategoryId 삭제할 1차 카테고리 ID
+     */
+    @Transactional
+    public void deleteSuperCategorySearchData(Long superCategoryId) {
+        try {
+            productSearchService.deleteSearchData(
+                    SearchType.CATEGORY,
+                    superCategoryId
+            );
+        } catch (Exception e) {
+            LogUtils.writeErrorLog("deleteSuperCategorySearchData", "Fail to delete search data", e);
+        }
     }
 }

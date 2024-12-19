@@ -5,21 +5,26 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
+import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
+import com.impacus.maketplace.dto.user.PhoneNumberDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.entity.common.QAttachFile;
+import com.impacus.maketplace.entity.consumer.QConsumer;
+import com.impacus.maketplace.entity.consumer.oAuthToken.QOAuthToken;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPoint;
 import com.impacus.maketplace.entity.point.greenLablePoint.QGreenLabelPointAllocation;
 import com.impacus.maketplace.entity.point.levelPoint.QLevelAchievement;
 import com.impacus.maketplace.entity.point.levelPoint.QLevelPointMaster;
 import com.impacus.maketplace.entity.user.QUser;
 import com.impacus.maketplace.entity.user.QUserConsent;
-import com.impacus.maketplace.entity.user.QUserRole;
 import com.impacus.maketplace.entity.user.QUserStatusInfo;
+import com.impacus.maketplace.entity.user.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -48,10 +53,11 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final QGreenLabelPoint greenLabelPoint = QGreenLabelPoint.greenLabelPoint1;
     private final QAttachFile attachFile = QAttachFile.attachFile;
     private final QUserConsent userConsent = QUserConsent.userConsent;
-    private final QUserRole userRole = QUserRole.userRole;
     private final QUserStatusInfo userStatusInfo = QUserStatusInfo.userStatusInfo;
     private final QGreenLabelPointAllocation labelPointAllocation = QGreenLabelPointAllocation.greenLabelPointAllocation;
     private final QLevelAchievement levelAchievement = QLevelAchievement.levelAchievement;
+    private final QConsumer consumer = QConsumer.consumer;
+    private final QOAuthToken oAuthToken = QOAuthToken.oAuthToken;
 
     @Override
     public ReadUserSummaryDTO findUserSummaryByEmail(String email) {
@@ -112,9 +118,6 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         queryFactory.delete(userConsent)
                 .where(userConsent.userId.eq(userId))
                 .execute();
-        queryFactory.delete(userRole)
-                .where(userRole.userId.eq(userId))
-                .execute();
         queryFactory.delete(userStatusInfo)
                 .where(userStatusInfo.userId.eq(userId))
                 .execute();
@@ -130,6 +133,18 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         queryFactory.delete(levelAchievement)
                 .where(levelAchievement.userId.eq(userId))
                 .execute();
+
+        Long consumerId = queryFactory.select(consumer.id)
+                .from(consumer)
+                .where(consumer.userId.eq(userId))
+                .fetchFirst();
+        queryFactory.delete(consumer)
+                .where(consumer.id.eq(consumerId))
+                .execute();
+        queryFactory.delete(oAuthToken)
+                .where(oAuthToken.consumerId.eq(consumerId))
+                .execute();
+
     }
 
     @Override
@@ -317,5 +332,114 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 null,
                 builder
         );
+    }
+
+    @Override
+    public void saveOrUpdateCertification(Long userId, CertificationResult certificationResult) {
+        PhoneNumberDTO dto = new PhoneNumberDTO(certificationResult.getMobileNo());
+
+        // 1. User 저장 업데이트
+        queryFactory.update(user)
+                .set(user.type, UserType.ROLE_CERTIFIED_USER)
+                .set(user.jumin1, certificationResult.getBirthdate())
+                .set(user.phoneNumberPrefix, dto.getPhoneNumberPrefix())
+                .set(user.phoneNumberSuffix, dto.getPhoneNumberSuffix())
+                .set(user.isCertPhone, true)
+                .set(user.certPhoneAt, LocalDateTime.now())
+                .set(user.modifyAt, LocalDateTime.now())
+                .where(user.id.eq(userId))
+                .execute();
+    }
+
+    @Override
+    public boolean existsConsumerByPhoneNumberAndUserId(Long userId, String mobileNo) {
+        PhoneNumberDTO dto = new PhoneNumberDTO(mobileNo);
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(user.id.ne(userId))
+                .and(user.isDeleted.isFalse())
+                .and(user.type.in(List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)))
+                .and(user.phoneNumberPrefix.eq(dto.getPhoneNumberPrefix()))
+                .and(user.phoneNumberSuffix.eq(dto.getPhoneNumberSuffix()));
+
+        return queryFactory.select(user.id)
+                .from(user)
+                .where(builder)
+                .fetchFirst() != null;
+    }
+
+    @Override
+    public ConsumerEmailDTO findConsumerByPhoneNumber(String phoneNumber) {
+        PhoneNumberDTO dto = new PhoneNumberDTO(phoneNumber);
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(user.isDeleted.isFalse())
+                .and(user.type.in(List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)))
+                .and(user.phoneNumberPrefix.eq(dto.getPhoneNumberPrefix()))
+                .and(user.phoneNumberSuffix.eq(dto.getPhoneNumberSuffix()));
+
+        return queryFactory.select(
+                        Projections.constructor(
+                                ConsumerEmailDTO.class,
+                                user.id,
+                                user.email,
+                                user.password
+                        )
+                )
+                .from(user)
+                .where(builder)
+                .fetchFirst();
+    }
+
+    @Override
+    public ConsumerEmailDTO findConsumerByPhoneNumberAndEmail(String phoneNumber, String email) {
+        PhoneNumberDTO dto = new PhoneNumberDTO(phoneNumber);
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(user.isDeleted.isFalse())
+                .and(user.type.in(List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)))
+                .and(user.email.like("%_" + email))
+                .and(user.phoneNumberPrefix.eq(dto.getPhoneNumberPrefix()))
+                .and(user.phoneNumberSuffix.eq(dto.getPhoneNumberSuffix()));
+
+        return queryFactory.select(
+                        Projections.constructor(
+                                ConsumerEmailDTO.class,
+                                user.id,
+                                user.email,
+                                user.password
+                        )
+                )
+                .from(user)
+                .where(builder)
+                .fetchFirst();
+    }
+
+    @Override
+    public void deactivateConsumer(Long userId) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        // isDelete = true, userType 변경
+        queryFactory.update(user)
+                .set(user.isDeleted, true)
+                .set(user.type, UserType.ROLE_DEACTIVATED_USER)
+                .set(user.modifyAt, LocalDateTime.now())
+                .set(user.modifyId, currentAuditor)
+                .where(user.id.eq(userId))
+                .execute();
+
+        // status 변경
+        queryFactory.update(userStatusInfo)
+                .set(userStatusInfo.status, UserStatus.DEACTIVATED)
+                .set(userStatusInfo.statusReason, "사용자 탈퇴 요청")
+                .set(userStatusInfo.modifyAt, LocalDateTime.now())
+                .set(userStatusInfo.modifyId, currentAuditor)
+                .where(userStatusInfo.userId.eq(userId))
+                .execute();
+    }
+
+    @Override
+    public User findUserByCI(String ci) {
+        return queryFactory.selectFrom(user)
+                .leftJoin(consumer).on(consumer.ci.eq(ci))
+                .where(user.id.eq(consumer.userId))
+                .fetchFirst();
     }
 }

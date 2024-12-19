@@ -1,15 +1,19 @@
 package com.impacus.maketplace.common.utils;
 
 import com.impacus.maketplace.common.constants.RegExpPatternConstants;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.user.EmailInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 @Component
 public class StringUtils {
@@ -117,6 +121,31 @@ public class StringUtils {
 
     public static String getPhoneNumber(String phoneNumberPrefix, String phoneNumberSuffix) {
         return phoneNumberPrefix + "-" + phoneNumberSuffix;
+    }
+
+    /**
+     * 6자리의 난수를 반화하는 함수
+     *
+     * @return
+     */
+    public static String generateRandomCode() {
+        SecureRandom secureRandom = new SecureRandom();
+        int code = 100000 + secureRandom.nextInt(900000);
+        return String.valueOf(code);
+    }
+
+    /**
+     * 010-XXXX-XXXX 포맷에서 숫자만 추출하는 함수
+     *
+     * @param phoneNumber 010-XXXX-XXXX 형식의 번호
+     * @return
+     */
+    public static String extractPhoneNumber(String phoneNumber) {
+        if (Pattern.matches(RegExpPatternConstants.PHONE_NUMBER_PATTERN, phoneNumber)) {
+            return phoneNumber.replaceAll("[^\\d]", "");
+        } else {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "전화번호 포맷이 올바르지 않습니다.");
+        }
     }
 
 }

@@ -181,4 +181,22 @@ public class ReadProductController {
             .build();
     }
 
+    /**
+     * [판매자/관리자] 클레임 기본 정보를 요청하는 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @GetMapping("/claim")
+    public ApiResponseEntity<ProductClaimInfoDTO> findBaseClaimInformation() {
+        ProductClaimInfoDTO dto = productService.findBaseClaimInformation();
+        return ApiResponseEntity
+                .<ProductClaimInfoDTO>builder()
+                .data(dto)
+                .message("상품 클레임 초기값 조회 성공")
+                .build();
+    }
 }

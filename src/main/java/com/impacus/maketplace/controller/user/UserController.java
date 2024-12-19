@@ -4,9 +4,8 @@ import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.common.utils.LogUtils;
-import com.impacus.maketplace.dto.auth.request.EmailRequest;
-import com.impacus.maketplace.dto.auth.request.EmailVerificationRequest;
+import com.impacus.maketplace.dto.auth.request.EmailDTO;
+import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
@@ -15,6 +14,7 @@ import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
 import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.user.UserDeactivationService;
 import com.impacus.maketplace.service.user.WebUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -25,8 +25,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import security.CustomUserDetails;
 
 import java.time.LocalDate;
 
@@ -38,6 +40,7 @@ public class UserController {
 
     private final UserService userService;
     private final WebUserService readUserService;
+    private final UserDeactivationService userDeactivationService;
 
     /**
      * 이메일 인증 코드 요청 API
@@ -46,7 +49,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/email/verification-request")
-    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailRequest request) {
+    public ApiResponseEntity<Object> sendVerificationCodeToEmail(@Valid @RequestBody EmailDTO request) {
         userService.sendVerificationCodeToEmail(request.getEmail(), UserType.ROLE_CERTIFIED_USER);
         return ApiResponseEntity
                 .builder()
@@ -60,7 +63,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/email/confirm")
-    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationRequest request) {
+    public ApiResponseEntity<Object> confirmEmail(@Valid @RequestBody EmailVerificationDTO request) {
         boolean result = userService.confirmEmail(request);
         return ApiResponseEntity
                 .builder()
@@ -133,8 +136,6 @@ public class UserController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @Valid @RequestPart(value = "user") UpdateUserDTO dto
     ) {
-        LogUtils.writeInfoLog("updateUser", "Check multipartFile is null: " +
-                profileImage == null ? "null" : "not null");
         readUserService.updateUser(userId, profileImage, dto);
         return ApiResponseEntity.<Void>builder()
                 .message("소비자 정보 변경 성공")
@@ -169,6 +170,15 @@ public class UserController {
         return ApiResponseEntity.<FileGenerationStatusIdDTO>builder()
                 .message("회원 검색 목록 excel 생성 요청 성공")
                 .data(result)
+                .build();
+    }
+
+    @DeleteMapping
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
+    public ApiResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails user) {
+        userDeactivationService.deactivateConsumer(user.getEmail());
+        return ApiResponseEntity.<Void>builder()
+                .message("사용자 삭제 성공")
                 .build();
     }
 }

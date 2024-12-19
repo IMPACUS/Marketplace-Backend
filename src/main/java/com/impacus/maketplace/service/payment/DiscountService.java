@@ -3,9 +3,9 @@ package com.impacus.maketplace.service.payment;
 import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
-import com.impacus.maketplace.dto.payment.PaymentCouponDTO;
-import com.impacus.maketplace.dto.payment.ProductPricingDTO;
+import com.impacus.maketplace.dto.payment.model.DiscountInfoDTO;
+import com.impacus.maketplace.dto.payment.model.PaymentCouponDTO;
+import com.impacus.maketplace.dto.payment.model.ProductPricingDTO;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

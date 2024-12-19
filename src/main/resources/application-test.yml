@@ -40,3 +40,7 @@ spring:
 
 firebase:
   enabled: false
+url:
+  server-host: http://localhost:8080
+  uri:
+    certification: /api/v1/certification/response

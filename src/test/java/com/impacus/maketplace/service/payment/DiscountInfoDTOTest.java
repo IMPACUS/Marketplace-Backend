@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.payment;
 
 
-import com.impacus.maketplace.dto.payment.DiscountInfoDTO;
+import com.impacus.maketplace.dto.payment.model.DiscountInfoDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

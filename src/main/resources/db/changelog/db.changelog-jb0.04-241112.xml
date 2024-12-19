@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Drop orders table -->
+    <changeSet id="changelog-jb0.04-241112-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="coupon" columnName="event_type"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="coupon">
+            <column name="event_type" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    
+    <!-- Modify payment_events table -->
+    <changeSet id="changelog-jb0.04-241210-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_events" columnName="idempotency_key"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="payment_events" oldColumnName="payment_key" newColumnName="idempotency_key"/>
+    </changeSet>
+    
+    <changeSet id="changelog-jb0.04-241210-02-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_events" columnName="payment_id"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="payment_events" oldColumnName="order_id" newColumnName="payment_id"/>
+    </changeSet>
+
+    <!-- Modify payment_orders table !-->
+    <changeSet id="changelog-jb0.04-241210-03-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_orders" columnName="payment_id"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="payment_orders" oldColumnName="order_id" newColumnName="payment_id"/>
+    </changeSet>
+
+</databaseChangeLog>

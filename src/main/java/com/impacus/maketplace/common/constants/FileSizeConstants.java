@@ -3,7 +3,7 @@ package com.impacus.maketplace.common.constants;
 import lombok.Getter;
 
 @Getter
-public class FileSizeConstants {
+public final class FileSizeConstants {
     public static final int THUMBNAIL_SIZE_LIMIT = 10800; // 60 픽셀 * 60픽셀
 
     public static final int PRODUCT_IMAGE_SIZE_LIMIT = 341172; // (1080 * 1053 * 3 = 3.41172MB 341172byte)

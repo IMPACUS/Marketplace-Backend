@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.user;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.constants.DaysConstants;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.TimestampConverter;
@@ -25,7 +26,7 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email; // Format: OauthProviderKey_Email
 
     @Convert(converter = AES256ToStringConverter.class)
@@ -45,10 +46,6 @@ public class User extends BaseEntity {
     @Convert(converter = AES256ToStringConverter.class)
     @Comment("주민 번호 앞자리")
     private String jumin1;
-
-    @Convert(converter = AES256ToStringConverter.class)
-    @Comment("주민 번호 뒷자리")
-    private String jumin2;
 
     @Convert(converter = AES256ToStringConverter.class)
     @Column(nullable = false)
@@ -86,18 +83,25 @@ public class User extends BaseEntity {
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
 
+    public boolean isRejoinable() {
+        if (this.isDeleted &&
+                this.getModifyAt().plusDays(DaysConstants.REJOIN_RESTRICTION_DATE).isAfter(LocalDateTime.now())
+        ) {
+            return false;
+        }
+        return true;
+    }
+
     public User(String email, String password, String name) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.type = UserType.ROLE_CERTIFIED_USER;
-        this.isCertEmail = false;
+        this.type = UserType.ROLE_UNCERTIFIED_USER;
+        this.isCertEmail = true;
         this.isCertPhone = false;
         this.certEmailAt = LocalDateTime.now();
         this.certPhoneAt = LocalDateTime.now();
         this.isDeleted = false;
-
-        setPhoneNumber("010-0000-0000");
     }
 
     public User(String email,

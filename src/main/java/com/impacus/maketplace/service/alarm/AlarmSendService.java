@@ -7,15 +7,16 @@ import com.impacus.maketplace.common.enumType.alarm.*;
 import com.impacus.maketplace.common.enumType.error.AlarmErrorType;
 import com.impacus.maketplace.common.enumType.error.BizgoErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.EmailDto;
+import com.impacus.maketplace.dto.EmailDTO;
+import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDTO;
 import com.impacus.maketplace.dto.alarm.common.SendTextDTO;
 import com.impacus.maketplace.dto.alarm.seller.SendSellerTextDTO;
 import com.impacus.maketplace.dto.alarm.user.SendUserTextDTO;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForSeller;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForUser;
-import com.impacus.maketplace.entity.alarm.token.AlarmToken;
 import com.impacus.maketplace.entity.alarm.seller.AlarmHold;
 import com.impacus.maketplace.entity.alarm.seller.AlarmSeller;
+import com.impacus.maketplace.entity.alarm.token.AlarmToken;
 import com.impacus.maketplace.entity.alarm.user.AlarmUser;
 import com.impacus.maketplace.entity.seller.Brand;
 import com.impacus.maketplace.entity.seller.Seller;
@@ -28,7 +29,6 @@ import com.impacus.maketplace.repository.alarm.user.AlarmUserRepository;
 import com.impacus.maketplace.repository.seller.BrandRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.service.EmailService;
-import com.impacus.maketplace.dto.alarm.bizgo.BizgoTokenDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -204,7 +204,7 @@ public class AlarmSendService {
         }
     }
 
-    private String getToken() {
+    public String getToken() {
         Optional<AlarmToken> optional = alarmTokenRepository.findBizgoToken();
         String token = "";
         if (optional.isEmpty()) {
@@ -251,7 +251,7 @@ public class AlarmSendService {
 
     private void sendMail(String receiver, String subject, String text) {
         String subjectMail = "[IMPLACE] " + subject + " 안내입니다.";
-        EmailDto emailDto = EmailDto.builder()
+        EmailDTO emailDto = EmailDTO.builder()
                 .receiveEmail(receiver)
                 .subject(subjectMail)
                 .build();

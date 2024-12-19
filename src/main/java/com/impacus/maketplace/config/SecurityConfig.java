@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationC
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -62,6 +63,10 @@ public class SecurityConfig {
     protected SecurityFilterChain config(HttpSecurity http) throws Exception {
         return http
                 .csrf(CsrfConfigurer::disable)
+                .headers((headerConfig) -> headerConfig
+                        .frameOptions((frameOptionsConfig -> frameOptionsConfig.sameOrigin().addHeaderWriter(
+                                new StaticHeadersWriter("X-FRAME-OPTIONS", "ALLOW-FROM *")
+                        ))))
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler))
@@ -80,6 +85,9 @@ public class SecurityConfig {
                                 .userService(customOauth2UserService))
                         .successHandler(authenticationSuccessHandler)
                         .failureHandler(authenticationFailureHandler))
+                .sessionManagement((sessionManagement) -> sessionManagement
+                        .sessionFixation((sessionFixation) -> sessionFixation.none()
+                        ))
                 .with(new JwtSecurityConfig(jwtTokenProvider, blacklistService), withDefaults())
                 .build();
     }

@@ -1,0 +1,62 @@
+package com.impacus.maketplace.dto.auth;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.JsonObject;
+import com.impacus.maketplace.common.utils.LogUtils;
+import com.impacus.maketplace.entity.consumer.Consumer;
+import lombok.Data;
+
+@Data
+public class CertificationResult {
+    @JsonProperty("REQ_SEQ")
+    private String reqSeq;
+
+    @JsonProperty("MOBILE_NO")
+    private String mobileNo;
+
+    @JsonProperty("DI")
+    private String di;
+
+    @JsonProperty("MOBILE_CO")
+    private String mobileCo; // 통신사 정보
+
+    @JsonProperty("CI")
+    private String ci;
+
+    @JsonProperty("UTF8_NAME")
+    private String utf8Name;
+
+    @JsonProperty("GENDER")
+    private String gender; // 성별
+
+    @JsonProperty("RES_SEQ")
+    private String resSeq;
+
+    @JsonProperty("BIRTHDATE")
+    private String birthdate; // 생년월일
+
+    @JsonProperty("NATIONALINFO")
+    private String nationalInfo; // 내/외국인
+
+    @JsonProperty("AUTH_TYPE")
+    private String authType; // 인증수단
+
+    @JsonProperty("NAME")
+    private String name;
+
+    public Consumer toEntity(Long userId) {
+        return new Consumer(userId, this.ci);
+    }
+
+    public void writeCertificationLog(Long userId) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("userId", userId);
+        jsonObject.addProperty("gender", this.getGender());
+        jsonObject.addProperty("nationalInfo", this.getNationalInfo());
+        jsonObject.addProperty("mobileCo", this.getMobileCo());
+        jsonObject.addProperty("name", this.getName());
+        jsonObject.addProperty("authType", this.getAuthType());
+
+        LogUtils.writeInfoLog("saveUserCertification", jsonObject.toString());
+    }
+}

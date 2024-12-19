@@ -2,7 +2,6 @@ package com.impacus.maketplace.common.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -41,7 +40,7 @@ public class OrderUtils {
         return date + randomChars.toString();
     }
 
-    public static String generatePaymentKey(Object object) throws JsonProcessingException {
+    public static String getIdempotencyKey(Object object) throws JsonProcessingException {
         // 객체를 JSON 문자열로 직렬화
         String serializedData = objectMapper.writeValueAsString(object);
         // JSON 문자열의 바이트 배열을 사용하여 UUID 생성

@@ -11,7 +11,7 @@ import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
-@Table(name = "product_option_history")
+@Table(name = "product_option_history", indexes = @Index(name = "idx_product_option_id", columnList = "product_option_id"))
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductOptionHistory extends BaseEntity {

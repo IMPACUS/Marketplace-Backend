@@ -285,9 +285,9 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     }
 
     @Override
-    public List<ValidateUserCouponForProductDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds) {
+    public List<PaymentUserCouponInfo> findPaymentUserCouponInfos(Long userId, List<Long> userCouponIds) {
         return queryFactory
-                .select(new QValidateUserCouponForProductDTO(
+                .select(new QPaymentUserCouponInfo(
                         userCoupon.id,
                         coupon.benefitType,
                         coupon.benefitValue,
@@ -299,25 +299,7 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                 ))
                 .from(userCoupon)
                 .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
-                .fetch();
-    }
-
-    @Override
-    public List<ValidateUserCouponForOrderDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds) {
-        return queryFactory
-                .select(new QValidateUserCouponForOrderDTO(
-                        userCoupon.id,
-                        coupon.benefitType,
-                        coupon.benefitValue,
-                        coupon.productType,
-                        coupon.useCoverageType,
-                        coupon.useStandardType,
-                        coupon.useStandardValue
-                ))
-                .from(userCoupon)
-                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
+                .where(userCoupon.id.in(userCouponIds), userCoupon.userId.eq(userId), availableCouponStatus())
                 .fetch();
     }
 
@@ -381,4 +363,41 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     private BooleanExpression couponIsNotDeleted() {
         return coupon.isDeleted.eq(false);
     }
+
+    /*@Override
+    public List<ValidateUserCouponDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds) {
+        return queryFactory
+                .select(new QValidateUserCouponDTO(
+                        userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useCoverageSubCategoryName,
+                        coupon.useStandardType,
+                        coupon.useStandardValue
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
+                .fetch();
+    }
+
+    @Override
+    public List<ValidateUserCouponDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds) {
+        return queryFactory
+                .select(new QValidateUserCouponDTO(
+                        userCoupon.id,
+                        coupon.benefitType,
+                        coupon.benefitValue,
+                        coupon.productType,
+                        coupon.useCoverageType,
+                        coupon.useStandardType,
+                        coupon.useStandardValue
+                ))
+                .from(userCoupon)
+                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
+                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
+                .fetch();
+    }*/
 }

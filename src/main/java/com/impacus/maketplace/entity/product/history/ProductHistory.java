@@ -13,7 +13,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "product_history")
+@Table(name = "product_history", indexes = @Index(name = "idx_product_id", columnList = "product_id"))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductHistory extends BaseEntity {
     @Id

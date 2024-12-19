@@ -57,6 +57,10 @@ public enum CouponErrorType implements ErrorType{
     // 쿠폰 사용 조건
     INVALID_ACCESS_USER_COUPON("048_1_INVALID_ACCESS_USER_COUPON", "사용할 수 없는 사용자 쿠폰을 적용하고 있습니다."),
     INVALID_APPLIED_USER_COUPON("048_2_INVALID_APPLIED_USER_COUPON", "쿠폰 적용이 잘못되었습니다."),
+    INVALID_USER_COUPON_TYPE_MISMATCH("048_3_INVALID_USER_COUPON_TYPE_MISMATCH", "쿠폰의 적용 가능 타입 조건에 맞지 않습니다."),
+    INVALID_USER_COUPON_USE_COVERAGE_MISMATCH("048_4_INVALID_USER_COUPON_USE_COVERAGE_MISMATCH", "쿠폰의 사용 가능 범위 조건에 맞지 않습니다."),
+    INVALID_USER_COUPON_USE_STANDARD_MISMATCH("048_5_INVALID_USER_COUPON_USE_STANDARD_MISMATCH", "쿠폰의 사용 가능 금액 조건에 맞지 않습니다."),
+    USER_NOT_AUTHORIZED_FOR_COUPON_EXCEPTION("048_6_USER_NOT_AUTHORIZED_FOR_COUPON_EXCEPTION", "승인되지 않은 사용자에게 쿠폰을 발급할 수 없습니다."),
 
     // 사용 가능한 쿠폰 조회
     DUPLICATED_PRODUCDT_ID("049_01_DUPLICATED_PRODUCDT_ID", "사용 가능한 쿠폰 조회하는 과정에서 상품 ID가 중복되서 들어왔습니다.");

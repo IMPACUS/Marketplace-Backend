@@ -1,11 +1,14 @@
 package com.impacus.maketplace.service.product;
 
 import com.impacus.maketplace.common.enumType.ReferencedEntityType;
+import com.impacus.maketplace.common.enumType.SearchType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.entity.product.Product;
+import com.impacus.maketplace.redis.service.ProductSearchService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -24,6 +27,7 @@ public class DeleteProductService {
     private final AttachFileService attachFileService;
     private final WishlistRepository wishlistRepository;
     private final ReadProductService readProductService;
+    private final ProductSearchService productSearchService;
 
 
     /**
@@ -31,26 +35,27 @@ public class DeleteProductService {
      * - 판매자인 경우, 판매자가 등록한 상품만 삭제 가능
      * - 관리자인 경우, 모든 상품 삭제 가능
      *
-     * @param productIdList
+     * @param productIds
      */
     @Transactional
-    public void deleteAllProduct(Long userId, List<Long> productIdList) {
+    public void deleteAllProduct(Long userId, List<Long> productIds) {
         try {
             // 1. 권한 확인
             UserType role = SecurityUtils.getCurrentUserType();
 
             // 1-1. 판매자인 경우, 판매자 등록 상품인지 확인
-            if (role == UserType.ROLE_APPROVED_SELLER && !readProductService.verifySellerProductIds(userId, productIdList)) {
+            if (role == UserType.ROLE_APPROVED_SELLER && !readProductService.verifySellerProductIds(userId, productIds)) {
                 throw new CustomException(ProductErrorType.PRODUCT_ACCESS_DENIED);
             }
 
             // 2. 상품 삭제
-            productIdList
+            productIds
                     .forEach(this::deleteProduct);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
+
 
     /**
      * Product 삭제하는 함수 (isDelete가 true로 변경)
@@ -77,8 +82,20 @@ public class DeleteProductService {
 
             // 5. 삭제
             productRepository.updateIsDeleteTrueById(productId);
+
+            deleteProductSearchData(productId);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
+
+    @Transactional
+    public void deleteProductSearchData(Long productId) {
+        try {
+            productSearchService.deleteSearchData(SearchType.PRODUCT, productId);
+        } catch (Exception ex) {
+            LogUtils.writeErrorLog("deleteProductSearchData", "Fail to delete search data", ex);
+        }
+    }
+
 }

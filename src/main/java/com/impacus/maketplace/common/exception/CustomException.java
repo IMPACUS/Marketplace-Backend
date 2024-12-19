@@ -58,4 +58,16 @@ public class CustomException extends RuntimeException {
         }
     }
 
+    public CustomException(HttpStatus httpStatus, Exception exception) {
+        this.status = httpStatus;
+        if (exception.getClass() == CustomException.class) {
+            CustomException customException = (CustomException) exception;
+            this.detail = customException.getDetail();
+            this.errorType = customException.errorType;
+        } else {
+            this.detail = exception.getMessage();
+            this.errorType = CommonErrorType.UNKNOWN;
+        }
+    }
+
 }
