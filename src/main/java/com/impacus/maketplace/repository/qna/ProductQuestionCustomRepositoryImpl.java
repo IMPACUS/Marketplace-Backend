@@ -51,12 +51,12 @@ public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCusto
         }
 
         if (StringUtils.isNotBlank(spec.getAuthorId())) {
-            List<User> users = userRepository.findByEmailLike(spec.getAuthorId());
-            expression.and(productQuestion.userId.in(users.stream().map(User::getId).toList()));
+            User user = userRepository.findByEmailLikeAndIsDeletedFalse(spec.getAuthorId()).get();
+            expression.and(productQuestion.userId.eq(user.getId()));
         }
 
         if (StringUtils.isNotBlank(spec.getOrderNumber())) {
-            Long paymentEventId = paymentEventInterface.findIdByOrderId(spec.getOrderNumber());
+            Long paymentEventId = paymentEventInterface.findIdByPaymentId(spec.getOrderNumber());
             if (paymentEventId == null) {
                 expression.and(Expressions.asBoolean(false));
             } else {

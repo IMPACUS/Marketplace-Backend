@@ -290,7 +290,13 @@
     </changeSet>
 
     <!--  review 생성  -->
-    <changeSet id="changelog-lchy-0.09.08-240729" author="lchy0413">
+    <changeSet id="changelog-lchy-0.09.08-241225-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="review"/>
+        </preConditions>
+        <dropTable tableName="review"/>
+    </changeSet>
+    <changeSet id="changelog-lchy-0.09.08-241225-2" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="review"/>
@@ -315,7 +321,7 @@
             <column name="images" type="TEXT">
                 <constraints nullable="true"/>
             </column>
-            <column name="score" type="FLOAT">
+            <column name="rating" type="FLOAT">
                 <constraints nullable="true"/>
             </column>
             <column name="create_at" type="TIMESTAMP"/>
