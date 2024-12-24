@@ -1,52 +1,36 @@
 package com.impacus.maketplace.entity.review;
 
 
+import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
+import java.util.List;
 
 @Entity
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "review_id")
     private Long id;
 
-    @Column(name = "order_id")
+    @Column(name = "order_id", nullable = false)
     private Long orderId;
 
-    @Column(name = "seller_Id")
-    private Long sellerId;
+    @Column(name = "product_option_id", nullable = false)
+    private Long productOptionId;
 
-    @Column(name = "buyer_Id")
-    private Long buyerId;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @Column(name = "score")
-    private Integer score;
+    @Column(name = "contents", nullable = false)
+    private String contents;
 
-    @Column(name = "buyer_contents")
-    private String buyerContents;
+    @Column(columnDefinition = "TEXT", name = "images")
+    @Convert(converter = ListToJsonConverter.class)
+    private List<String> images;
 
-    @Column(name = "buyer_upload_img_id")
-    private Long buyerUploadImgId;
-
-    @Column(name = "seller_comment")
-    private String sellerComment;
-
-    @Column(name = "create_at")
-    private ZonedDateTime createAt;
-
-    @Column(name = "is_archive")
-    private Boolean isArchive;
-
-    @Column(name = "archive_at")
-    private ZonedDateTime archiveAt;
-
-    @Column(name = "is_comment")
-    private Boolean isComment;
+    @Column(name = "rating", nullable = false)
+    private float rating;
 }
