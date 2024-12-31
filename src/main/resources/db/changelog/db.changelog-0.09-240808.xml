@@ -324,6 +324,10 @@
             <column name="rating" type="FLOAT">
                 <constraints nullable="true"/>
             </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            
             <column name="create_at" type="TIMESTAMP"/>
             <column name="modify_at" type="TIMESTAMP"/>
             <column name="register_id" type="VARCHAR(255)"/>
