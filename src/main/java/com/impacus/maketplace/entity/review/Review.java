@@ -1,15 +1,18 @@
 package com.impacus.maketplace.entity.review;
 
 
+import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
-public class Review {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Review extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
@@ -33,4 +36,8 @@ public class Review {
 
     @Column(name = "rating", nullable = false)
     private float rating;
+
+    @ColumnDefault("'false'")
+    @Column(nullable = false, name = "is_deleted")
+    private boolean isDeleted; // 삭제 여부
 }
