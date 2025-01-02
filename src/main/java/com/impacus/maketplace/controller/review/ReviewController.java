@@ -47,28 +47,6 @@ public class ReviewController {
     }
 
     /**
-     * (2) 구매자 관점 - 리뷰 등록
-     *
-     * @param productImage 이미지 파일
-     * @param form         리뷰 폼
-     * @return
-     */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("buyer-review")
-    public ApiResponseEntity<Review> doWriteReview(
-            @RequestPart("product-image") @Valid MultipartFile productImage,
-            @RequestPart("form") ReviewDTO form
-    ) {
-        Review review = reviewService.doWriteReview(productImage, form);
-        return ApiResponseEntity
-                .<Review>builder()
-                .code(HttpStatus.OK)
-                .message("리뷰 리스트 조회 성공")
-                .data(review)
-                .build();
-    }
-
-    /**
      * (3) 구매자 관점 상세 리뷰
      *
      * @param userId  구매자 번호

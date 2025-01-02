@@ -3,12 +3,14 @@ package com.impacus.maketplace.entity.review;
 
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.ListToJsonConverter;
+import com.impacus.maketplace.common.converter.MapToJsonConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,8 +33,8 @@ public class Review extends BaseEntity {
     private String contents;
 
     @Column(columnDefinition = "TEXT", name = "images")
-    @Convert(converter = ListToJsonConverter.class)
-    private List<String> images;
+    @Convert(converter = MapToJsonConverter.class)
+    private Map<Long, String> images;
 
     @Column(name = "rating", nullable = false)
     private float rating;
