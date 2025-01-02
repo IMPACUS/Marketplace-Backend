@@ -33,7 +33,7 @@ public class AppReviewController {
     @PostMapping
     public ApiResponseEntity<Review> addReview(
             @Valid @RequestPart("images") List<MultipartFile> images,
-            @RequestPart("form") ReviewDTO dto
+            @RequestPart("review") ReviewDTO dto
     ) {
         reviewService.addReview(images, dto);
 

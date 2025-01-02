@@ -61,10 +61,12 @@ public class ReviewService {
      * @param images
      */
     private void validateReview(List<MultipartFile> images) {
-        // 1. 파일 사이즈 크기 유효성 검사 (5mb 정도)
+        // 1. 리뷰 이미지 유효성 검사
         if (images.getSize() > FileSizeConstants.REVIEW_PRODUCT_FILE_LIMIT) {
             new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "이미지 크기가 제한을 넘었습니다.");
         }
+
+        // 주문 확정된 주문인지 확인
 
         // 비속어 검사
     }
