@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.review;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.impacus.maketplace.entity.review.Review;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 
 @Getter
@@ -27,4 +29,14 @@ public class ReviewDTO {
     @Size(max = 500)
     private String contents; // 리뷰 내용
 
+    public Review toEntity(Long userId, Map<Long, String> reviewImages) {
+        return new Review(
+          orderId,
+          productOptionId,
+          userId,
+          contents,
+          reviewImages,
+          rating
+        );
+    }
 }

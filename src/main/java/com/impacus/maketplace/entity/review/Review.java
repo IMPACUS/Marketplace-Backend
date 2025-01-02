@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import com.impacus.maketplace.common.converter.MapToJsonConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -42,4 +43,21 @@ public class Review extends BaseEntity {
     @ColumnDefault("'false'")
     @Column(nullable = false, name = "is_deleted")
     private boolean isDeleted; // 삭제 여부
+
+    @Builder
+    public Review(
+            Long orderId,
+            Long productOptionId,
+            Long userId,
+            String contents,
+            Map<Long, String> images,
+            float rating
+    ) {
+        this.orderId = orderId;
+        this.productOptionId = productOptionId;
+        this.userId = userId;
+        this.contents = contents;
+        this.images = images;
+        this.rating = rating;
+    }
 }
