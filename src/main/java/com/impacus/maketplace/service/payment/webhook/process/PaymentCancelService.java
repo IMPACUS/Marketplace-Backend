@@ -9,7 +9,7 @@ import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
-import com.impacus.maketplace.service.payment.utils.PaymentValidationService;
+import com.impacus.maketplace.service.payment.utils.PaymentStatusValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +24,7 @@ public class PaymentCancelService {
     private final PaymentOrderRepository paymentOrderRepository;
     private final PaymentEventRepository paymentEventRepository;
     private final PaymentOrderHistoryService paymentOrderHistoryService;
-    private final PaymentValidationService paymentValidationService;
-
+    private final PaymentStatusValidationService paymentValidationService;
 
     public void fail(WebhookPaymentDTO webhookPaymentDTO) {
 
@@ -40,6 +39,8 @@ public class PaymentCancelService {
 
         // 3. 상태 검증
         paymentValidationService.validatePaymentStatus(TRANSACTION_FAILED, paymentOrders);
+
+        // Transaction ID 이용
 
         // 4. 상태를 전부 FAIL로 변경
         paymentOrderHistoryService.updateAll(paymentOrders, PaymentOrderStatus.FAILURE, "payment failed");

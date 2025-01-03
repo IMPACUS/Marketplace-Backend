@@ -26,4 +26,8 @@ public class PaymentEventCoupon {
     @Column(nullable = false)
     @ColumnDefault("'false'")
     private Boolean isUsed;
+
+    public void markAsUsed() {
+        this.isUsed = true;
+    }
 }

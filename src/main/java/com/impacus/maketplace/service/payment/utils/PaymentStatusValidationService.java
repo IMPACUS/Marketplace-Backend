@@ -11,7 +11,7 @@ import java.util.List;
 import static com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO.*;
 
 @Service
-public class PaymentValidationService {
+public class PaymentStatusValidationService {
 
     /**
      * 현재 주문 상태가 올바른지 확인하는 함수

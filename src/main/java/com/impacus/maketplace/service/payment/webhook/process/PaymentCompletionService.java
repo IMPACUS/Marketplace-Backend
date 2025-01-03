@@ -9,7 +9,7 @@ import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
-import com.impacus.maketplace.service.payment.utils.PaymentValidationService;
+import com.impacus.maketplace.service.payment.utils.PaymentStatusValidationService;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class PaymentCompletionService {
     private final PaymentOrderRepository paymentOrderRepository;
     private final PaymentOrderHistoryService paymentOrderHistoryService;
     private final ShoppingBasketService shoppingBasketService;
-    private final PaymentValidationService paymentValidationService;
+    private final PaymentStatusValidationService paymentValidationService;
 
     /**
      * 결제 성공 처리

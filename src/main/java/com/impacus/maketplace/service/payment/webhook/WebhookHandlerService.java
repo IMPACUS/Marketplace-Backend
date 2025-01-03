@@ -28,7 +28,7 @@ public class WebhookHandlerService {
             // 결제 성공
             case TRANSACTION_PAID -> paymentSuccessService.success(payload);
             // 결제 실패
-            case TRANSACTION_CANCELLED -> paymentCancelService.fail(payload);
+            case TRANSACTION_FAILED -> paymentCancelService.fail(payload);
         }
     }
 }

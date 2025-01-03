@@ -14,10 +14,10 @@ import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
 import com.impacus.maketplace.repository.product.history.ProductOptionHistoryRepository;
+import com.impacus.maketplace.service.coupon.CouponRedeemService;
 import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
-import com.impacus.maketplace.service.payment.utils.PaymentValidationService;
+import com.impacus.maketplace.service.payment.utils.PaymentStatusValidationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +25,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO.WebhookEventType.TRANSACTION_CONFIRM;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.joining;
 
 @Service
@@ -40,12 +40,12 @@ public class PaymentConfirmService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductOptionHistoryRepository productOptionHistoryRepository;
     private final PaymentOrderHistoryService paymentOrderHistoryService;
-    private final PaymentValidationService paymentValidationService;
+    private final PaymentStatusValidationService paymentValidationService;
+    private final CouponRedeemService couponRedeemService;
 
     /**
      * 결제 승인 처리
      */
-    // transactionId는 어떻게 처리되는 것인가?
     @Transactional
     public void confirm(WebhookPaymentDTO webhookPaymentDTO) {
         // 1. paymentId를 통해서 구매 예정인 상품 조회
@@ -55,11 +55,7 @@ public class PaymentConfirmService {
                 .orElseThrow(() -> new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_EVENT_BY_PAYMENT_ID));
 
         List<PaymentOrder> paymentOrders = paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())
-                .orElseThrow(() -> {
-                    CustomException exception = new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID);
-                    LogUtils.error(this.getClass() + "confirmService", "paymentEventId와 매핑되는 PaymentOrder를 찾을 수 없습니다.", exception);
-                    return exception;
-                });
+                .orElseThrow(() -> new CustomException(new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID)));
 
         paymentEvent.getPaymentOrders().addAll(paymentOrders);
 
@@ -75,20 +71,22 @@ public class PaymentConfirmService {
             throw new CustomException(exception);
         }
 
+        // 쿠폰 및 포인트 사용한 경우
+        if (paymentEvent.isUsedCoupon()) {
+            try {
+                List<Long> paymentOrderIds = paymentOrders.stream().map(PaymentOrder::getId).toList();
+                couponRedeemService.processPaymentCoupons(paymentEvent.getId(), paymentOrderIds);
+            } catch (Exception e) {
+                // 작업중!!!!!!!
+                // 히스토리 업데이트 (사유의 경우 Exception 확용)
+                // 상태 변경
+                paymentEvent.getPaymentOrders().forEach(paymentOrder ->
+                        paymentOrder.changeStatus(PaymentOrderStatus.FAILURE));
+            }
+        }
+
         // 4. 상품의 재고가 충분한지 확인
-        Map<Long, Optional<ProductOption>> productOptionOpts = paymentEvent.getPaymentOrders().stream()
-                .collect(Collectors.toMap(
-                        PaymentOrder::getProductOptionHistoryId,
-                        paymentOrder -> {
-                            Long productOptionHistoryId = paymentOrder.getProductOptionHistoryId();
-                            Optional<ProductOptionHistory> productOptionHistoryOpt = productOptionHistoryRepository.findById(productOptionHistoryId);
-                            return findValidatedProductOption(productOptionHistoryOpt);
-                        }
-                ));
-
-        Map<Long, ProductOption> productOptions = checkNotFoundedProductOption(paymentEvent, productOptionOpts);
-
-        checkProductStock(paymentEvent, productOptions);
+        Map<Long, ProductOption> productOptions = vadlitionProductStock(paymentEvent);
 
         // 5. 전부 일치한다면 변경해야 되는 상태들 변경해주기(단, 현재 시점에서 구매 확정 X)
         paymentEvent.getPaymentOrders().forEach(paymentOrder -> {
@@ -106,6 +104,25 @@ public class PaymentConfirmService {
 
         // 5.4 PaymentEvent 결제 승인 시간 업데이트
         paymentEvent.setApprovedAt(LocalDateTime.now());
+
+        // 쿠폰 사용한 경우 쿠폰 사용 처리하기
+    }
+
+    private Map<Long, ProductOption> vadlitionProductStock(PaymentEvent paymentEvent) {
+        Map<Long, Optional<ProductOption>> productOptionOpts = paymentEvent.getPaymentOrders().stream()
+                .collect(toMap(
+                        PaymentOrder::getProductOptionHistoryId,
+                        paymentOrder -> {
+                            Long productOptionHistoryId = paymentOrder.getProductOptionHistoryId();
+                            Optional<ProductOptionHistory> productOptionHistoryOpt = productOptionHistoryRepository.findById(productOptionHistoryId);
+                            return findValidatedProductOption(productOptionHistoryOpt);
+                        }
+                ));
+
+        Map<Long, ProductOption> productOptions = checkNotFoundedProductOption(paymentEvent, productOptionOpts);
+
+        checkProductStock(paymentEvent, productOptions);
+        return productOptions;
     }
 
     private void checkProductStock(PaymentEvent paymentEvent, Map<Long, ProductOption> productOptions) {
@@ -140,7 +157,7 @@ public class PaymentConfirmService {
         }
 
         return productOptions.entrySet().stream()
-                .collect(Collectors.toMap(
+                .collect(toMap(
                         Map.Entry::getKey,
                         entry -> entry.getValue().get()));
     }

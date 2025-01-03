@@ -24,7 +24,8 @@ public enum PaymentWebhookErrorType implements ErrorType{
     ALREADY_FINISH_PAYMENT("ALREADY_FINISH_PAYMENT", "이미 결제 처리가 완료된 주문입니다."),
     ALREADY_CONFIRM_PROCESS("ALREADY_CONFIRM_PROCESS", "이미 결제 승인 처리 작업에 들어간 주문입니다."),
     INVALID_STATUS_TRANSACTION("INVALID_STATUS_TRANSACTION", "요청으로 들어온 이벤트를 처리하기에 적합한 주문 상태가 아닙니다."),
-    CANNOT_CANCEL_SUCCESS_PAYMENT("CANNOT_CANCEL_SUCCESS_PAYMENT", "이미 결제 완료된 주문은 결제 처리 단계에서 취소될 수 없습니다.");
+    CANNOT_CANCEL_SUCCESS_PAYMENT("CANNOT_CANCEL_SUCCESS_PAYMENT", "이미 결제 완료된 주문은 결제 처리 단계에서 취소될 수 없습니다."),
+    ALREADY_USED_COUPON("ALREADY_USED_COUPON", "이미 사용한 쿠폰입니다.");
 
     private final String code;
     private final String msg;

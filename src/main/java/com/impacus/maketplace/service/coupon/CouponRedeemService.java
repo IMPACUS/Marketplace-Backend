@@ -1,6 +1,7 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
+import com.impacus.maketplace.common.enumType.error.PaymentWebhookErrorType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.coupon.model.ValidateOrderCouponInfoDTO;
@@ -10,8 +11,10 @@ import com.impacus.maketplace.dto.payment.model.CouponValidationRequestDTO;
 import com.impacus.maketplace.dto.payment.model.PaymentCouponDTO;
 import com.impacus.maketplace.entity.coupon.PaymentEventCoupon;
 import com.impacus.maketplace.entity.coupon.PaymentOrderCoupon;
+import com.impacus.maketplace.entity.coupon.UserCoupon;
 import com.impacus.maketplace.repository.coupon.PaymentEventCouponRepository;
 import com.impacus.maketplace.repository.coupon.PaymentOrderCouponRepository;
+import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.PaymentUserCouponInfo;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 사용자가 쿠폰을 사용하는 것과 관련된 서비스
@@ -34,6 +38,7 @@ public class CouponRedeemService {
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final PaymentEventCouponRepository paymentEventCouponRepository;
     private final PaymentOrderCouponRepository paymentOrderCouponRepository;
+    private final UserCouponRepository userCouponRepository;
     private final CouponValidationService couponValidationService;
 
     /**
@@ -79,6 +84,36 @@ public class CouponRedeemService {
     }
 
     /**
+     * paymentEventId 및 paymentOrderId의 리스트를 이용하여 사용한 쿠폰 사용 처리
+     */
+    @Transactional
+    public void processPaymentCoupons(Long paymentEventId, List<Long> paymentOrderIds) {
+        // 1. 사용한 쿠폰 이력 조회
+        List<PaymentEventCoupon> paymentEventCoupons = paymentEventCouponRepository.findByPaymentEventId(paymentEventId);
+        List<PaymentOrderCoupon> paymentOrderCoupons = paymentOrderCouponRepository.findByPaymentOrderIdIn(paymentOrderIds);
+
+        // 2. 사용한 쿠폰 이력에서 userCouponId를 추출
+        List<Long> userCouponIds = Stream.concat(
+                paymentEventCoupons.stream().map(PaymentEventCoupon::getUserCouponId),
+                paymentOrderCoupons.stream().map(PaymentOrderCoupon::getUserCouponId)
+        ).toList();
+
+        List<UserCoupon> userCoupons = userCouponRepository.findWriteLockByIdIn(userCouponIds);
+
+        // 3. 사용한 이력이 존재하는지 확인
+        if (userCoupons.stream().anyMatch(UserCoupon::getIsUsed)) {
+            throw new CustomException(PaymentWebhookErrorType.ALREADY_USED_COUPON);
+        }
+
+        // 4. 사용한 쿠폰 이력 사용 처리
+        paymentEventCoupons.forEach(PaymentEventCoupon::markAsUsed);
+        paymentOrderCoupons.forEach(PaymentOrderCoupon::markAsUsed);
+
+        // 5. 사용 처리
+        userCoupons.forEach(UserCoupon::markAsUsed);
+    }
+
+    /**
      * 단일 주문에 대해 여러 개의 쿠폰 등록
      */
     @Transactional
@@ -98,22 +133,6 @@ public class CouponRedeemService {
 
         // 2. 저장
         paymentOrderCouponRepository.saveAll(paymentOrderCoupons);
-    }
-
-    /**
-     * 여러 Payment Event에 대해 여러 개의 Payment Event Coupon 이력 등록
-     * @param paymentEventCouponMap key: productEventId / value: userCouponIds
-     */
-    @Transactional
-    public void registPaymentEventsCoupons(Map<Long, List<Long>> paymentEventCouponMap) {
-
-        // 1. paymentEventId 전부 가져오기
-        Set<Long> keys = paymentEventCouponMap.keySet();
-
-        // 2. 반복문을 통해 순차적으로 저장
-        for (Long paymentEventId : keys) {
-            registPaymentEventCoupons(paymentEventId, paymentEventCouponMap.get(paymentEventId));
-        }
     }
 
     /**
@@ -178,8 +197,10 @@ public class CouponRedeemService {
     }
 
     /**
+     * 성능 이슈로 미사용
      * 상품에 대한 쿠폰 적용 유효성 검증 후 필요한 정보 가져오기
      */
+    @Deprecated
     public List<PaymentCouponDTO> getPaymentCouponForProductAfterValidation(Long userId, List<Long> usedUserCouponIds, ProductType productType, String marketName, int appSalesPrice, Long quantity) {
 
         if (usedUserCouponIds == null || usedUserCouponIds.isEmpty()) return new ArrayList<>();
@@ -205,8 +226,10 @@ public class CouponRedeemService {
     }
 
     /**
+     * 성능 이슈로 미사용
      * 주문 대한 쿠폰 적용 유효성 검증 후 필요한 정보 가져오기
      */
+    @Deprecated
     public List<PaymentCouponDTO> getPaymentCouponForOrderAfterValidation(Long userId, List<Long> usedUserCouponsIds, Long totalPrice) {
 
         if (usedUserCouponsIds == null || usedUserCouponsIds.isEmpty()) return new ArrayList<>();

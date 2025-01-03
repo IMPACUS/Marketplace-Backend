@@ -9,7 +9,7 @@ import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
-import com.impacus.maketplace.service.payment.utils.PaymentValidationService;
+import com.impacus.maketplace.service.payment.utils.PaymentStatusValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +25,7 @@ public class PaymentPreparationService {
     private final PaymentOrderRepository paymentOrderRepository;
     private final PaymentEventRepository paymentEventRepository;
     private final PaymentOrderHistoryService paymentOrderHistoryService;
-    private final PaymentValidationService paymentValidationService;
+    private final PaymentStatusValidationService paymentValidationService;
 
     @Transactional
     public void ready(WebhookPaymentDTO webhookPaymentDTO) {
