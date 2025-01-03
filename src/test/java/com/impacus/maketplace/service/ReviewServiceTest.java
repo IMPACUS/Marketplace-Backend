@@ -4,25 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-
-import com.impacus.maketplace.common.constants.DirectoryConstants;
-import com.impacus.maketplace.dto.review.ReviewDTO;
-import com.impacus.maketplace.entity.common.AttachFile;
-import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.repository.review.ReviewRepository;
 import com.impacus.maketplace.service.review.ReviewService;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @SpringBootTest
 public class ReviewServiceTest {

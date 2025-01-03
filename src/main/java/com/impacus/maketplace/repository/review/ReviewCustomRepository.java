@@ -1,7 +1,6 @@
 package com.impacus.maketplace.repository.review;
 
 import com.impacus.maketplace.dto.review.ReviewBuyerDTO;
-import com.impacus.maketplace.dto.review.ReviewDTO;
 import com.impacus.maketplace.dto.review.ReviewSellerDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

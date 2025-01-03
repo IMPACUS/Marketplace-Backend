@@ -1,14 +1,9 @@
-package com.impacus.maketplace.dto.review;
+package com.impacus.maketplace.dto.review.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.impacus.maketplace.entity.review.Review;
-import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.constraints.*;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 
