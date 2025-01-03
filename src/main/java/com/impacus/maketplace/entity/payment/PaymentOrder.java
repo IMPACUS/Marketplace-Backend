@@ -8,6 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -85,6 +86,14 @@ public class PaymentOrder extends BaseEntity {
     @Column(nullable = false)
     @ColumnDefault("'0'")
     private Integer threshold;      // 결제 실패 허용 임계값
+
+    private LocalDateTime confirmationDueAt;    // 결제 확정 예상 날짜
+
+    @Column(nullable = false)
+    @ColumnDefault("'FALSE'")
+    private Boolean isConfirmed;    // 주문 확정 여부
+
+    private LocalDateTime confirmedAt;      // 주문 확정 날짜
 
     public void changeStatus(PaymentOrderStatus paymentOrderStatus) {
         this.status = paymentOrderStatus;

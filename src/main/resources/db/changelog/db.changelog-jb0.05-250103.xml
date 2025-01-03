@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Add columns payment_orders table -->
+    <changeSet id="changelog-jb0.05-250103-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="payment_orders" columnName="is_confirmed"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="payment_orders">
+            <column name="confirmation_due_at" type="TIMESTAMP"/>
+            <column name="is_confirmed" type="Boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="confirmed_at" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
