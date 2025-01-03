@@ -28,7 +28,9 @@
     <include file="/db/changelog/db.changelog-lchy-0.16-241031.xml"/>
     <include file="/db/changelog/db.changelog-da-0.01-241028.xml"/>
     <include file="/db/changelog/db.changelog-da-0.02-241101.xml"/>
+    <include file="/db/changelog/db.changelog-da-0.03-241119.xml"/>
     <include file="/db/changelog/db.changelog-jb0.04-241112.xml"/>
+    <include file="/db/changelog/db.changelog-lchy-0.17-241207.xml"/>
 
 </databaseChangeLog>
 
