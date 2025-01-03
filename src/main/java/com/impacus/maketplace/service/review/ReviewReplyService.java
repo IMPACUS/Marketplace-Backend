@@ -55,4 +55,25 @@ public class ReviewReplyService {
             throw new CustomException(ReviewErrorType.EXISTED_REVIEW_REPLY);
         }
     }
+
+    /**
+     * 리뷰 답변 수정
+     *
+     * @param reviewReplyId
+     * @param dto
+     */
+    @Transactional
+    public void updateReviewReply(Long reviewReplyId, @Valid ReviewReplyDTO dto) {
+        try {
+            // 유효성 확인
+            if (!reviewReplyRepository.existsById(reviewReplyId)) {
+                throw new CustomException(ReviewErrorType.NOT_EXISTED_REVIEW_ID);
+            }
+
+            // 수정
+            reviewReplyRepository.updateContentsById(reviewReplyId, dto.getContents());
+        } catch (CustomException ex) {
+            throw new CustomException(ex);
+        }
+    }
 }

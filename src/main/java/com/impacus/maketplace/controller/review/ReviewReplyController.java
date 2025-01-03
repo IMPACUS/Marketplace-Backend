@@ -37,4 +37,26 @@ public class ReviewReplyController {
                 .message("리뷰 답변 생성 성공")
                 .build();
     }
+
+    /**
+     * 리뷰 답변 수정 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @PutMapping("/reply/{reviewReplyId}")
+    public ApiResponseEntity<Review> updateReviewReply(
+            @PathVariable(name = "reviewReplyId") Long reviewReplyId,
+            @Valid @RequestBody ReviewReplyDTO dto) {
+        reviewReplyService.updateReviewReply(reviewReplyId, dto);
+
+        return ApiResponseEntity
+                .<Review>builder()
+                .code(HttpStatus.CREATED)
+                .message("리뷰 답변 수정 성공")
+                .build();
+    }
 }
