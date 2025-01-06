@@ -219,9 +219,12 @@
         <renameColumn tableName="payment_orders" oldColumnName="commision_percent" newColumnName="commission_percent"/>
     </changeSet>
 
-    <changeSet id="changelog-jb0.03-240911-10-01" author="jeongbeom4693">
+    <changeSet id="changelog-jb0.03-240911-10-02" author="jeongbeom4693">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="delivery_address" columnName="orders_id"/>
+            <not>
+                <columnExists tableName="delivery_address" columnName="payment_event_id"/>
+            </not>
         </preConditions>
         <renameColumn tableName="delivery_address" oldColumnName="orders_id" newColumnName="payment_event_id"/>
     </changeSet>
