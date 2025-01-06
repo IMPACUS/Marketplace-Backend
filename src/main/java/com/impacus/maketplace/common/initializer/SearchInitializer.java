@@ -83,7 +83,7 @@ public class SearchInitializer {
                 page++;
             } while (categories.hasNext());
         } catch (Exception e) {
-            LogUtils.error("generateProductSearchData", "Fail to generate search products", e);
+            LogUtils.error("generateSuperCategorySearchData", "Fail to generate search super categories", e);
         }
     }
 
@@ -103,7 +103,7 @@ public class SearchInitializer {
                 page++;
             } while (categories.hasNext());
         } catch (Exception e) {
-            LogUtils.error("generateProductSearchData", "Fail to generate search products", e);
+            LogUtils.error("generateSubCategorySearchData", "Fail to generate search sub categories", e);
         }
     }
 
