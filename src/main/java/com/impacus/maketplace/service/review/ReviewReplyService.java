@@ -8,7 +8,6 @@ import com.impacus.maketplace.repository.review.ReviewReplyRepository;
 import com.impacus.maketplace.repository.review.ReviewRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

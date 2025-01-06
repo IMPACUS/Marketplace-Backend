@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.review;
 import com.impacus.maketplace.common.constants.DirectoryConstants;
 import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.ReviewErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
@@ -47,7 +48,6 @@ public class ReviewService {
             // 2. 파일 업로드
             Map<Long, String> reviewImages = saveReviewImages(images);
 
-
             // 3. 엔티티 저장
             Review review = dto.toEntity(userId, reviewImages);
             reviewRepository.save(review);
@@ -75,18 +75,29 @@ public class ReviewService {
         // 1. 리뷰 이미지 유효성 검사
         if (images != null) {
             if (images.size() > 5) {
-                new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "리뷰 이미지는 최대 5장까지 등록이 가능합니다.");
+                throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "리뷰 이미지는 최대 5장까지 등록이 가능합니다.");
             }
             for (MultipartFile image : images) {
                 if (image.getSize() > FileSizeConstants.REVIEW_PRODUCT_FILE_LIMIT) {
-                    new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "리뷰 이미지는 크기 제한을 초과하였습니다.");
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "리뷰 이미지는 크기 제한을 초과하였습니다.");
                 }
             }
         }
 
-        // TODO 주문 확정된 주문인지 확인
+        // 2. 리뷰 평점 0.5 단위인지 확인
+        if ((dto.getRating() * 2) % 1 != 0) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "평점은 0.5 단위로 등록가능합니다.");
+        }
+
+        // 3. 이미 존재하는 등록된 주문 상품에 리뷰 인지 확인
+        if (reviewRepository.existsByOrderIdAndProductOptionId(dto.getOrderId(), dto.getProductOptionId())) {
+            throw new CustomException(ReviewErrorType.EXISTED_REVIEW, "이미 등록된 리뷰가 존재합니다.");
+        }
+
+        // TODO 주문 확정된 주문인지 확인 (orderId, productOptionId)
 
         // TODO 비속어 검사
+
     }
 
     /**
