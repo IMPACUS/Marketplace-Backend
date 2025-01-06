@@ -148,4 +148,19 @@ public class StringUtils {
         }
     }
 
+    public static String generateRandomString(int length) {
+        // 사용할 문자 집합 (대소문자, 숫자, 특수문자 포함)
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+";
+        SecureRandom random = new SecureRandom();
+        StringBuilder randomString = new StringBuilder();
+
+        // 지정된 길이만큼 랜덤 문자 생성
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(characters.length());
+            randomString.append(characters.charAt(randomIndex));
+        }
+
+        return randomString.toString();
+    }
+
 }
