@@ -59,10 +59,8 @@ public class DevelopController {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(value = "count") int count
     ) {
-        String productName = StringUtils.generateRandomString(10);
-
         for (int i = 0; i < count; i++) {
-            CreateProductDTO dto = ProductFactory.createProductDTO(String.format("%s-%d", productName, i));
+            CreateProductDTO dto = ProductFactory.createProductDTO(StringUtils.generateRandomString(10));
             createProductService.addProduct(user.getId(), dto);
         }
         return ApiResponseEntity.<Void>builder()
