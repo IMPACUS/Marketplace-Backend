@@ -21,7 +21,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class PopularSearchService {
+public class SearchPopularService {
     private final RedisTemplate<String, String> redisTemplate;
     private final PopularSearchRepository popularSearchRepository;
 
