@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.product.dto.SearchProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.product.*;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -407,6 +409,31 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         // Slice 생성
         return PaginationUtils.toSlice(dtos, pageable);
+    }
+
+    @Override
+    public Slice<SearchProductDTO> findAllBy(Pageable pageable) {
+        // 데이터 조회
+        List<SearchProductDTO> content = queryFactory
+                .select(Projections.fields(
+                        SearchProductDTO.class,
+                        product.id.as("productId"),
+                        product.name
+                ))
+                .from(product)
+                .offset(pageable.getOffset()) // 시작 위치
+                .limit(pageable.getPageSize() + 1) // 추가 데이터로 다음 페이지 여부 판단
+                .fetch();
+
+        // 다음 페이지 여부 체크
+        boolean hasNext = content.size() > pageable.getPageSize();
+
+        // 추가 데이터 제거
+        if (hasNext) {
+            content.remove(content.size() - 1);
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
     }
 
     @Override

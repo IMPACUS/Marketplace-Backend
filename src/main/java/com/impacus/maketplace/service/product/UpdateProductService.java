@@ -94,14 +94,13 @@ public class UpdateProductService {
     @Transactional
     public void updateProductSearchData(CommonProductDTO savedProduct, UpdateProductDTO dto) {
         // revision by shin
-        String oldSearchName = "";
-        String newSearchName = "";
+        String oldSearchName = savedProduct.getName();
+        String newSearchName = dto.getName();
         try {
-            if (!savedProduct.getName().equals(dto.getName())) {
+            if (!oldSearchName.equals(newSearchName)) {
                 searchProductService.updateSearchData(
                         SearchType.PRODUCT,
                         savedProduct.getProductId(),
-//                        dto.getName()
                         oldSearchName,
                         newSearchName
                 );
