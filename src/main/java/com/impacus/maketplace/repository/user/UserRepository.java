@@ -24,7 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
             "WHERE u.email LIKE :emailWithPrefix and u.isDeleted = false")
     List<Long> findIdByEmailLike(@Param("emailWithPrefix") String emailWithPrefix);
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailAndIsDeletedFalse(String email);
 
     boolean existsByEmail(String email);
 

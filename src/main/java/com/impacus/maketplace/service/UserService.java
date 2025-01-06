@@ -392,11 +392,11 @@ public class UserService {
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         String email = user.getEmail();
 
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmailAndIsDeletedFalse(email);
     }
 
     public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_EMAIL));
     }
 

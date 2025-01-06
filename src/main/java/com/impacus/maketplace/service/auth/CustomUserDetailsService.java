@@ -35,7 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // TODO 현재 flow 는 사용자 관련 entity 확정 후, 달라질 수 있음
         // 1. 소비자, 판매자에 대해서 확인
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+        Optional<User> optionalUser = userRepository.findByEmailAndIsDeletedFalse(email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             return CustomUserDetails.toEntity(user, passwordEncoder.encode(user.getPassword()));
