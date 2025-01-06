@@ -17,5 +17,6 @@ public interface ReviewReplyRepository extends JpaRepository<ReviewReply, Long> 
     @Transactional
     @Modifying
     @Query("UPDATE ReviewReply rr SET rr.contents = :contents WHERE rr.id = :id")
-    int updateContentsById(@Param("id") Long id, @Param("name") String contents);
+    int updateContentsById(@Param("id") Long id, @Param("contents") String contents);
+
 }
