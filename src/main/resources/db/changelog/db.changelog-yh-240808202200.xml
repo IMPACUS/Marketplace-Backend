@@ -4,7 +4,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="1723116566733-1" author="facewise">
+    <changeSet id="1723116566733-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_question"/>
+            </not>
+        </preConditions>
         <createTable tableName="product_question">
             <column name="product_question_id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -25,19 +30,34 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="1723117492912-1" author="facewise">
+    <changeSet id="1723117492912-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="product_question" indexName="product_question_product_id_index"/>
+            </not>
+        </preConditions>
         <createIndex tableName="product_question" indexName="product_question_product_id_index">
             <column name="product_id"/>
         </createIndex>
     </changeSet>
 
-    <changeSet id="1723117577915-1" author="facewise">
+    <changeSet id="1723117577915-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="product_question" indexName="product_question_user_id_index"/>
+            </not>
+        </preConditions>
         <createIndex tableName="product_question" indexName="product_question_user_id_index">
             <column name="user_id"/>
         </createIndex>
     </changeSet>
 
-    <changeSet id="1723117509570-1" author="facewise">
+    <changeSet id="1723117509570-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="answer"/>
+            </not>
+        </preConditions>
         <createTable tableName="answer">
             <column name="answer_id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -54,13 +74,24 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="1723117554636-1" author="facewise">
+    <changeSet id="1723117554636-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="answer" indexName="answer_question_id_index"/>
+            </not>
+        </preConditions>
         <createIndex tableName="answer" indexName="answer_question_id_index">
             <column name="question_id"/>
         </createIndex>
     </changeSet>
 
-    <changeSet id="1724114355691-1" author="facewise">
+    <changeSet id="1724114355691-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_question" columnName="user_name"/>
+                <columnExists tableName="product_question" columnName="seller_id"/>
+            </not>
+        </preConditions>
         <addColumn tableName="product_question">
             <column name="user_name" type="varchar(255)" remarks="주문자"/>
         </addColumn>
