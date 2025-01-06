@@ -1,109 +1,124 @@
 package com.impacus.maketplace.redis.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.impacus.maketplace.common.enumType.SearchType;
-import com.impacus.maketplace.common.enumType.error.ErrorType;
-import com.impacus.maketplace.common.enumType.error.SearchErrorType;
-import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.SearchDTO;
-import com.impacus.maketplace.redis.entity.ProductSearch;
-import com.impacus.maketplace.redis.repository.ProductSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ProductSearchService {
-    private final ProductSearchRepository productSearchRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    private final RedisTemplate<String, Object> redisTemplate;
-
-    private static final String ID_KEY = "productSearch:id"; // 자동 증가 ID를 저장할 Redis 키
+    private static final String PREFIX_KEY = "autocomplete:";
 
     public List<SearchDTO> getInitializer() {
-        List<ProductSearch> all = productSearchRepository.findAll();
-        return all.stream().map(SearchDTO::new).collect(Collectors.toList());
+        return null;
+//        List<ProductSearch> all = productSearchRepository.findAll();
+//        return all.stream().map(SearchDTO::new).collect(Collectors.toList());
     }
 
     public void addSearchData(SearchType type, Long searchId, String searchName) {
-        Optional<ProductSearch> optional = productSearchRepository.findByTypeAndSearchId(type, searchId);
-        if (optional.isPresent()) throw new CustomException(HttpStatus.BAD_REQUEST, SearchErrorType.ENTITY_EXIST);
+        List<String> prefixes = this.makePrefixes(searchName);
 
-        Long increment = redisTemplate.opsForValue().increment(ID_KEY);
-        ProductSearch productSearch = new ProductSearch(increment.toString(), searchName, type, searchId);
-        ProductSearch save = productSearchRepository.save(productSearch);
+        for (String prefix : prefixes) {
+            SearchDTO searchDTO = new SearchDTO(searchName, type, searchId);
+            String redisKey = PREFIX_KEY + prefix;
+            // ZADD 명령
+            redisTemplate.opsForZSet().add(redisKey, this.objectToString(searchDTO), 0.0);
+        }
     }
 
-    public void deleteSearchData(SearchType type, Long searchId) {
-        Optional<ProductSearch> optional = productSearchRepository.findByTypeAndSearchId(type, searchId);
-        if (optional.isEmpty()) throw new CustomException(HttpStatus.BAD_REQUEST, SearchErrorType.NOT_ENTITY);
-        productSearchRepository.deleteById(optional.get().getId());
+    private List<String> makePrefixes(String term) {
+        List<String> results = new ArrayList<>();
+        for (int i = 1; i <= term.length(); i++) {
+            if (term.charAt(i - 1) == ' ') continue;
+            results.add(term.substring(0, i));
+        }
+        getChoseong(term, results);
+        return results;
     }
+
+    private void getChoseong(String term, List<String> results) {
+        term = term.replace(" ", "");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < term.length(); i++) {
+            char c = term.charAt(i);
+            // 가(AC00) ~ 힣(D7A3) 범위 내에 있는가?
+            if (c >= 0xAC00 && c <= 0xD7A3) {
+                int base = c - 0xAC00;  // 한글 코드 기준점
+                int choseongIndex = base / (21 * 28);
+
+                // 초성 배열
+                char[] CHOSEONG_LIST = {
+                        'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+                };
+
+                sb.append(CHOSEONG_LIST[choseongIndex]);
+            } else {
+                // 아니면 그대로
+                sb.append(c);
+            }
+            results.add(sb.toString());
+        }
+    }
+
+    private <T> String objectToString(T value) {
+        Jackson2JsonRedisSerializer<T> serializer = new Jackson2JsonRedisSerializer<>((Class<T>) value.getClass());
+        byte[] jsonBytes = serializer.serialize(value);
+        return new String(jsonBytes, StandardCharsets.UTF_8);
+    }
+
+
+    public void deleteSearchData(SearchType type, Long searchId, String searchName) {
+        List<String> prefixes = this.makePrefixes(searchName);
+        SearchDTO searchDTO = new SearchDTO(searchName, type, searchId);
+        for (String prefix : prefixes) {
+            String redisKey = PREFIX_KEY + prefix;
+            redisTemplate.opsForZSet().remove(redisKey, this.objectToString(searchDTO));
+        }
+    }
+
 
     public void updateSearchData(SearchType type, Long searchId, String searchName) {
-        Optional<ProductSearch> optional = productSearchRepository.findByTypeAndSearchId(type, searchId);
-        if (optional.isEmpty()) throw new CustomException(HttpStatus.BAD_REQUEST, SearchErrorType.NOT_ENTITY);
-        ProductSearch productSearch = optional.get();
-        productSearch.setSearchName(searchName);
-        productSearchRepository.save(productSearch);
+
     }
 
-    public List<SearchDTO> getSearchData(String keyword) {
-        List<ProductSearch> all = productSearchRepository.findAll();
+    public List<SearchDTO> getAutoCompleteData(String keyword) {
+        String redisKey = PREFIX_KEY + keyword;
 
-        List<ProductSearch> result = this.searchProducts(all, keyword);
-        return result.stream().map(SearchDTO::new).collect(Collectors.toList());
-    }
+        Set<String> resultSet = redisTemplate
+                .opsForZSet()
+                .range(redisKey, 0, 9);
 
-    // 검색 및 정렬된 결과 반환
-    private List<ProductSearch> searchProducts(List<ProductSearch> products, String query) {
-        String normalizedQuery = normalize(query); // 검색어를 초성으로 변환
 
-        return products.stream()
-                .filter(product -> normalize(product.getSearchName()).contains(normalizedQuery)) // 검색 필터링
-                .sorted(Comparator
-                        .comparing(ProductSearch::getType) // category, subcategory, product 순서 정렬
-                        .thenComparingInt(product -> {
-                            String normalizedProduct = normalize(product.getSearchName());
-                            // 정렬 우선순위: 완전 일치 0, 부분 일치 1
-                            return normalizedProduct.startsWith(normalizedQuery) ? 0 : 1;
-                        })
-                        .thenComparing(product -> normalize(product.getSearchName()).length()) // 초성 길이 순 정렬
-                )
-                .collect(Collectors.toList());
-    }
-
-    // 띄어쓰기를 제거하고 초성 추출
-    private String normalize(String input) {
-        String noSpaces = input.replaceAll(" ", ""); // 띄어쓰기 제거
-        return this.extractChosung(noSpaces); // 초성 추출
-    }
-
-    // 초성을 추출하는 함수
-    private String extractChosung(String keyword) {
-        StringBuilder sb = new StringBuilder();
-        char[] CHO_SUNG = {
-                'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ',
-                'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
-        };
-        for (char ch : keyword.toCharArray()) {
-            if (ch >= 0xAC00 && ch <= 0xD7A3) { // 유니코드 한글 범위
-                int base = ch - 0xAC00;
-                int cho = base / (21 * 28); // 초성 인덱스 계산
-                sb.append(CHO_SUNG[cho]);
-            } else {
-                sb.append(ch); // 한글이 아닌 경우 그대로 추가
-            }
+        if (resultSet == null) {
+            return Collections.emptyList();
         }
+        List<SearchDTO> collect = resultSet.stream()
+                .map(r -> this.stringToObject(r, SearchDTO.class))
+                .collect(Collectors.toList());
 
-        return sb.toString();
+        // 결과를 리스트로 변환
+        return collect;
+    }
+
+    private <T> T stringToObject(String json, Class<T> clazz) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new ParameterNamesModule()); // 생성자 기반 역직렬화 지원
+
+        Jackson2JsonRedisSerializer<T> serializer = new Jackson2JsonRedisSerializer<>(objectMapper, clazz);
+        return serializer.deserialize(json.getBytes());
     }
 }

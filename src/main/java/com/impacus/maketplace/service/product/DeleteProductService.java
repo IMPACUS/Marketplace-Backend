@@ -92,7 +92,8 @@ public class DeleteProductService {
     @Transactional
     public void deleteProductSearchData(Long productId) {
         try {
-            productSearchService.deleteSearchData(SearchType.PRODUCT, productId);
+            String name = ""; // revision by shin
+            productSearchService.deleteSearchData(SearchType.PRODUCT, productId, name);
         } catch (Exception ex) {
             LogUtils.writeErrorLog("deleteProductSearchData", "Fail to delete search data", ex);
         }
