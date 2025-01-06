@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public enum RewardPointType {
     CHECK(1, "출석체크", "00시 기준 로그인시 지급", 30L, Duration.ofDays(6 * 30), GrantMethod.AUTO),
-    REVIEW(2, "리뷰 작성", "리뷰 작성시 지급", 200L, Duration.ofDays(6 * 30), GrantMethod.AUTO),
+    REVIEW(2, "리뷰 작성", "리뷰 작성시 지급", null, Duration.ofDays(6 * 30), GrantMethod.AUTO),
     SHARE_APP(3, "앱 공유", "초대 받은 유저와 같이 지급", 200L, Duration.ofDays(6 * 30), GrantMethod.AUTO),
     SHARE_PRODUCT(4, "상품 공유", "초대 받은 유저와 같이 지급", 200L, Duration.ofDays(6 * 30), GrantMethod.AUTO),
     SNS_TAG(5, "SNS 태그", "SNS 태그 시 지급", 1000L, Duration.ofDays(6 * 30), GrantMethod.MANUAL),

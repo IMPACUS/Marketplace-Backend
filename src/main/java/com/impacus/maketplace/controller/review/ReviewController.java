@@ -2,11 +2,9 @@ package com.impacus.maketplace.controller.review;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.review.ReviewBuyerDTO;
-import com.impacus.maketplace.dto.review.ReviewDTO;
 import com.impacus.maketplace.dto.review.ReviewSellerDTO;
 import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.service.review.ReviewService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +13,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -43,28 +40,6 @@ public class ReviewController {
                 .code(HttpStatus.OK)
                 .message("리뷰 리스트 조회 성공")
                 .data(reviewBuyerDTOS)
-                .build();
-    }
-
-    /**
-     * (2) 구매자 관점 - 리뷰 등록
-     *
-     * @param productImage 이미지 파일
-     * @param form         리뷰 폼
-     * @return
-     */
-    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping("buyer-review")
-    public ApiResponseEntity<Review> doWriteReview(
-            @RequestPart("product-image") @Valid MultipartFile productImage,
-            @RequestPart("form") ReviewDTO form
-    ) {
-        Review review = reviewService.doWriteReview(productImage, form);
-        return ApiResponseEntity
-                .<Review>builder()
-                .code(HttpStatus.OK)
-                .message("리뷰 리스트 조회 성공")
-                .data(review)
                 .build();
     }
 

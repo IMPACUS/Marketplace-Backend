@@ -18,4 +18,12 @@ public class ReviewReply extends BaseEntity {
 
     @Column(name = "contents", nullable = false, columnDefinition = "TEXT")
     private String contents;
+
+    public ReviewReply(
+            Long reviewId,
+            String contents
+    ) {
+        this.reviewId = reviewId;
+        this.contents = contents;
+    }
 }
