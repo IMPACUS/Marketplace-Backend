@@ -6,16 +6,33 @@ import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 
 @Repository
 @RequiredArgsConstructor
 public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     private final JPAQueryFactory queryFactory;
+    private final AuditorAware<String> auditorProvider;
+
     private final QReview review = QReview.review;
     private final QUser user = QUser.user;
     private final QSeller seller = QSeller.seller;
     private final QProduct product = QProduct.product;
+
+    @Override
+    public void deleteReview(Long reviewId) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        queryFactory.update(review)
+                .set(review.isDeleted, true)
+                .set(review.modifyAt, LocalDateTime.now())
+                .set(review.modifyId, currentAuditor)
+                .where(review.id.eq(reviewId))
+                .execute();
+    }
 
 //
 //    /**
