@@ -168,11 +168,16 @@ public class SubCategoryService {
      */
     @Transactional
     public void updateSubCategorySearchData(Long subCategoryId, String name) {
+        // revision by shin
+        String oldSearchName = "";
+        String newSearchName = "";
         try {
             productSearchService.updateSearchData(
                     SearchType.SUBCATEGORY,
                     subCategoryId,
-                    name
+//                    name
+                    oldSearchName,
+                    newSearchName
             );
         } catch (Exception e) {
             LogUtils.writeErrorLog("updateSubCategorySearchData", "Fail to update search data", e);

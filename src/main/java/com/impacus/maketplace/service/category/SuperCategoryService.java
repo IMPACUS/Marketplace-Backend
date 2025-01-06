@@ -137,11 +137,16 @@ public class SuperCategoryService {
      */
     @Transactional
     public void updateSuperCategorySearchData(Long superCategoryId, String name) {
+        // revision by shin
+        String oldSearchName = "";
+        String newSearchName = "";
         try {
             productSearchService.updateSearchData(
                     SearchType.CATEGORY,
                     superCategoryId,
-                    name
+//                    name,
+                    oldSearchName,
+                    oldSearchName
             );
         } catch (Exception e) {
             LogUtils.writeErrorLog("updateSuperCategorySearchData", "Fail to update search data", e);
