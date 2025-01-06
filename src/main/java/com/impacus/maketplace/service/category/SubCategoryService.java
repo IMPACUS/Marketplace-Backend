@@ -118,6 +118,7 @@ public class SubCategoryService {
 
     /**
      * 2차 카테고리 명 수정 함수
+     *
      * @param thumbnail
      * @param categoryNameRequest
      * @return
@@ -272,7 +273,7 @@ public class SubCategoryService {
         subCategoryRepository.deleteAllInBatch(subCategories);
 
         // 2. 2차 카테고리 검색어 삭제
-        subCategories.forEach(x -> deleteSubCategorySearchData(x.getId()));
+        subCategories.forEach(x -> deleteSubCategorySearchData(x.getId(), x.getName()));
     }
 
     /**
@@ -280,12 +281,13 @@ public class SubCategoryService {
      *
      * @param subCategoryId 삭제할 2차 카테고리 ID
      */
-    @Transactional
-    public void deleteSubCategorySearchData(Long subCategoryId) {
+    @Transactional // revision by shin
+    public void deleteSubCategorySearchData(Long subCategoryId, String name) {
         try {
             productSearchService.deleteSearchData(
                     SearchType.SUBCATEGORY,
-                    subCategoryId
+                    subCategoryId,
+                    name
             );
         } catch (Exception e) {
             LogUtils.writeErrorLog("deleteSubCategorySearchData", "Fail to delete search data", e);

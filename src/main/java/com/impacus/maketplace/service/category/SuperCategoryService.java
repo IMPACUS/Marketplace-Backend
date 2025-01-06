@@ -168,7 +168,7 @@ public class SuperCategoryService {
      * - true인 경우 brand 데이터 조회, false인 경우 brand까지 포함한 전체 데이터 조회
      *
      * @param isExceptBrand brand 데이터 포함 여부
-     * @param keyword 2차 카테고리 검색어
+     * @param keyword       2차 카테고리 검색어
      * @return
      */
     public List<CategoryDetailDTO> findAllCategory(boolean isExceptBrand, String keyword) {
@@ -176,7 +176,7 @@ public class SuperCategoryService {
 
         // 2. brand 데이터 삭제 여부 확인
         int brandSuperCategoryId = -1;
-        for(int i = 0; i < dtos.size(); i++) {
+        for (int i = 0; i < dtos.size(); i++) {
             CategoryDetailDTO category = dtos.get(i);
             if (category.getSuperCategoryName().equals(BRAND_CATEGORY_NAME)) {
                 brandSuperCategoryId = i;
@@ -206,7 +206,7 @@ public class SuperCategoryService {
         superCategoryRepository.deleteAllInBatch(superCategories);
 
         // 2. 검색어 삭제
-        superCategories.forEach(x -> deleteSuperCategorySearchData(x.getId()));
+        superCategories.forEach(x -> deleteSuperCategorySearchData(x.getId(), x.getName()));
     }
 
     /**
@@ -214,12 +214,13 @@ public class SuperCategoryService {
      *
      * @param superCategoryId 삭제할 1차 카테고리 ID
      */
-    @Transactional
-    public void deleteSuperCategorySearchData(Long superCategoryId) {
+    @Transactional // revision by shin
+    public void deleteSuperCategorySearchData(Long superCategoryId, String name) {
         try {
             productSearchService.deleteSearchData(
                     SearchType.CATEGORY,
-                    superCategoryId
+                    superCategoryId,
+                    name
             );
         } catch (Exception e) {
             LogUtils.writeErrorLog("deleteSuperCategorySearchData", "Fail to delete search data", e);

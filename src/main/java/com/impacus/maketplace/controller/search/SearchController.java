@@ -1,6 +1,7 @@
 package com.impacus.maketplace.controller.search;
 
 
+import com.impacus.maketplace.common.enumType.SearchType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.SearchDTO;
 import com.impacus.maketplace.redis.service.ProductSearchService;
@@ -25,14 +26,14 @@ public class SearchController {
 
     @GetMapping("auto-complete")
     public ApiResponseEntity<?> getAutoComplete(@RequestParam("keyword") String keyword) {
-        List<SearchDTO> searchData = productSearchService.getSearchData(keyword);
+        List<SearchDTO> searchData = productSearchService.getAutoCompleteData(keyword);
         return ApiResponseEntity.builder()
                 .message("자동완성이 조회됐습니다.")
                 .data(searchData)
                 .build();
     }
 
-    @PostMapping("")
+    @PostMapping
     public ApiResponseEntity<?> getSearchResult(@RequestParam("search") String search,
                                                 @AuthenticationPrincipal CustomUserDetails user) {
         popularSearchService.addKeyword(search);
@@ -42,7 +43,7 @@ public class SearchController {
                 .build();
     }
 
-    @GetMapping("")
+    @GetMapping
     public ApiResponseEntity<?> getSearchData(@AuthenticationPrincipal CustomUserDetails user) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("recentSearch", null);
@@ -56,6 +57,30 @@ public class SearchController {
         return ApiResponseEntity.builder()
                 .message("검색창 데이터가 조회됐습니다.")
                 .data(map)
+                .build();
+    }
+
+
+    // 1) 상품 등록 시 자동완성 인덱스 생성
+    @PostMapping("1")
+    public ApiResponseEntity<?> addProduct(@RequestParam("searchType") SearchType searchType,
+                                           @RequestParam("searchId") Long searchId,
+                                           @RequestParam("productName") String searchName) {
+        productSearchService.addSearchData(searchType, searchId, searchName);
+
+        return ApiResponseEntity.builder()
+                .message("검색창 데이터가 등록됐습니다.")
+                .build();
+    }
+
+    @PostMapping("3")
+    public ApiResponseEntity<?> dProduct(@RequestParam("searchType") SearchType searchType,
+                                           @RequestParam("searchId") Long searchId,
+                                           @RequestParam("productName") String searchName) {
+        productSearchService.deleteSearchData(searchType, searchId, searchName);
+
+        return ApiResponseEntity.builder()
+                .message("검색창 데이터가 삭제.")
                 .build();
     }
 }
