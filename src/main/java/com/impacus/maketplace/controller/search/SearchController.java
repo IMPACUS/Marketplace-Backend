@@ -44,11 +44,10 @@ public class SearchController {
                                                 @RequestParam("searchId") Long searchId,
                                                 @AuthenticationPrincipal CustomUserDetails user,
                                                 Pageable pageable) {
-        productSearchService.updateScore(searchName, searchType, searchId);
-        popularSearchService.incrementKeyword(searchName, searchType, searchId);
-
         Slice<AppProductDTO> products = null;
         if (user != null) {
+            productSearchService.updateScore(searchName, searchType, searchId);
+            popularSearchService.incrementKeyword(searchName, searchType, searchId);
             recentSearchService.addSearch(searchName, user.getId());
             products = readProductService.findProductsByName(user.getId(), searchName, pageable);
         }
