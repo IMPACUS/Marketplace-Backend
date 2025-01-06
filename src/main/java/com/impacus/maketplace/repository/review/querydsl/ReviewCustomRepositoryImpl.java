@@ -1,4 +1,4 @@
-package com.impacus.maketplace.repository.review;
+package com.impacus.maketplace.repository.review.querydsl;
 
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.review.QReview;
