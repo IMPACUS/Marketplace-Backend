@@ -93,12 +93,17 @@ public class UpdateProductService {
      */
     @Transactional
     public void updateProductSearchData(CommonProductDTO savedProduct, UpdateProductDTO dto) {
+        // revision by shin
+        String oldSearchName = "";
+        String newSearchName = "";
         try {
             if (!savedProduct.getName().equals(dto.getName())) {
                 productSearchService.updateSearchData(
                         SearchType.PRODUCT,
                         savedProduct.getProductId(),
-                        dto.getName()
+//                        dto.getName()
+                        oldSearchName,
+                        newSearchName
                 );
             }
         } catch (Exception ex) {

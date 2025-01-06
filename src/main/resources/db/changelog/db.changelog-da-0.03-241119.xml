@@ -26,4 +26,11 @@
             <column name="modify_id" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
+    <changeSet id="changelog-da-0.03-250106" author="sda0523">
+        <addColumn tableName="popular_search">
+            <column name="product_id" type="BIGINT">
+                <constraints unique="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
