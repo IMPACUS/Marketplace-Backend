@@ -25,7 +25,7 @@ import java.util.List;
 @RequestMapping("/api/v1/search")
 public class SearchController {
     private final ProductSearchService productSearchService;
-    private final RecentSearchService recentSearchService;;
+    private final RecentSearchService recentSearchService;
     private final PopularSearchService popularSearchService;
     private final ReadProductService readProductService;
 
@@ -72,30 +72,6 @@ public class SearchController {
         return ApiResponseEntity.builder()
                 .message("검색창 데이터가 조회됐습니다.")
                 .data(map)
-                .build();
-    }
-
-
-    // 1) 상품 등록 시 자동완성 인덱스 생성
-    @PostMapping("1")
-    public ApiResponseEntity<?> addProduct(@RequestParam("searchType") SearchType searchType,
-                                           @RequestParam("searchId") Long searchId,
-                                           @RequestParam("productName") String searchName) {
-        productSearchService.addSearchData(searchType, searchId, searchName);
-
-        return ApiResponseEntity.builder()
-                .message("검색창 데이터가 등록됐습니다.")
-                .build();
-    }
-
-    @PostMapping("3")
-    public ApiResponseEntity<?> dProduct(@RequestParam("searchType") SearchType searchType,
-                                         @RequestParam("searchId") Long searchId,
-                                         @RequestParam("productName") String searchName) {
-        productSearchService.deleteSearchData(searchType, searchId, searchName);
-
-        return ApiResponseEntity.builder()
-                .message("검색창 데이터가 삭제.")
                 .build();
     }
 }
