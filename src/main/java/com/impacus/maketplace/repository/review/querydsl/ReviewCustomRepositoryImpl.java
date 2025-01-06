@@ -34,6 +34,18 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .execute();
     }
 
+    @Override
+    public void restoreReview(Long reviewId) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        queryFactory.update(review)
+                .set(review.isDeleted, false)
+                .set(review.modifyAt, LocalDateTime.now())
+                .set(review.modifyId, currentAuditor)
+                .where(review.id.eq(reviewId))
+                .execute();
+    }
+
 //
 //    /**
 //     * 구매자 전용 - 해당 상품 구매한 리뷰 보기

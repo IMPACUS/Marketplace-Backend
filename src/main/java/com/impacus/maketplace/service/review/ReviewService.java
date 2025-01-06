@@ -130,6 +130,15 @@ public class ReviewService {
         reviewRepository.deleteReview(reviewId);
     }
 
+    /**
+     * 리뷰 삭제
+     * @param reviewId
+     */
+    @Transactional
+    public void restoreReview(Long reviewId) {
+        reviewRepository.restoreReview(reviewId);
+    }
+
 //    /**
 //     * 구매자 관점 - 리스트 조회
 //     * @param userId

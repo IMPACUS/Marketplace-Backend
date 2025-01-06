@@ -4,4 +4,6 @@ public interface ReviewCustomRepository {
 
 
     void deleteReview(Long reviewId);
+
+    void restoreReview(Long reviewId);
 }

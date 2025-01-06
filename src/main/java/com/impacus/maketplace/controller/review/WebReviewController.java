@@ -24,12 +24,32 @@ public class WebReviewController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
     @PutMapping("/{reviewId}")
-    public ApiResponseEntity<Review> deleteReview(
+    public ApiResponseEntity<Void> deleteReview(
             @PathVariable(name = "reviewId") Long reviewId) {
         reviewService.deleteReview(reviewId);
 
         return ApiResponseEntity
-                .<Review>builder()
+                .<Void>builder()
+                .code(HttpStatus.CREATED)
+                .message("리뷰 답변 수정 성공")
+                .build();
+    }
+
+    /**
+     * 리뷰 복구 API
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @PutMapping("/{reviewId}")
+    public ApiResponseEntity<Void> restoreReview(
+            @PathVariable(name = "reviewId") Long reviewId) {
+        reviewService.restoreReview(reviewId);
+
+        return ApiResponseEntity
+                .<Void>builder()
                 .code(HttpStatus.CREATED)
                 .message("리뷰 답변 수정 성공")
                 .build();
