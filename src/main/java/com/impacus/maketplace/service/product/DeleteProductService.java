@@ -70,6 +70,7 @@ public class DeleteProductService {
         try {
             // 1. Product 존재 확인
             Product deleteProduct = readProductService.findProductById(productId);
+            String productName = deleteProduct.getName();
 
             // 2. ProductOption 삭제
             productOptionService.deleteAllProductionOptionByProductId(deleteProduct.getId());
@@ -83,17 +84,16 @@ public class DeleteProductService {
             // 5. 삭제
             productRepository.updateIsDeleteTrueById(productId);
 
-            deleteProductSearchData(productId);
+            deleteProductSearchData(productId, productName);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
     @Transactional
-    public void deleteProductSearchData(Long productId) {
+    public void deleteProductSearchData(Long productId, String productName) {
         try {
-            String name = ""; // revision by shin
-            searchProductService.deleteSearchData(SearchType.PRODUCT, productId, name);
+            searchProductService.deleteSearchData(SearchType.PRODUCT, productId, productName);
         } catch (Exception ex) {
             LogUtils.writeErrorLog("deleteProductSearchData", "Fail to delete search data", ex);
         }
