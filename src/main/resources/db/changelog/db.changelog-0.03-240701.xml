@@ -210,32 +210,6 @@
         </sql>
     </changeSet>
 
-    <!-- user_info 테이블의 데이터에 대해서 user_consent 생성 -->
-    <changeSet id="changelog-0.03.16-240525-1" author="lchy0413">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="user_info"/>
-            <tableExists tableName="user_consent"/>
-        </preConditions>
-        <sql>
-            INSERT INTO user_consent (user_id, does_agree_service_policy, does_agree_personal_policy,
-                                      service_policy_consent_at, personal_policy_consent_at, create_at, modify_at,
-                                      register_id, modify_id)
-            SELECT user_id,
-                   true,
-                   true,
-                   NOW(),
-                   NOW(),
-                   NOW(),
-                   NOW(),
-                   'system',
-                   'system'
-            FROM user_info
-            WHERE NOT EXISTS (SELECT 1
-                              FROM user_consent
-                              WHERE user_consent.user_id = user_info.user_id);
-        </sql>
-    </changeSet>
-
     <!-- user_info 테이블의 데이터에 대해서 green_label_point 생성 -->
     <changeSet id="changelog-0.03.17-240525-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">

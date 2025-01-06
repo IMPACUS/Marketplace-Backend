@@ -26,7 +26,12 @@
             <column name="modify_id" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
-    <changeSet id="changelog-da-0.03-250106" author="sda0523">
+    <changeSet id="changelog-da-0.03-250106-01" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="popular_search" columnName="product_id"/>
+            </not>
+        </preConditions>
         <addColumn tableName="popular_search">
             <column name="product_id" type="BIGINT">
                 <constraints unique="true"/>

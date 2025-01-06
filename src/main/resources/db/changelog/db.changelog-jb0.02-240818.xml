@@ -274,7 +274,7 @@
 
     <!-- drop prev table delivery_address and create new delivery_address -->
     <changeSet id="changelog-jb0.02-240819-01-02" author="jeongbeom4693">
-        <preConditions>
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="delivery_address" columnName="id"/>
         </preConditions>
         <dropTable tableName="delivery_address"/>

@@ -188,7 +188,10 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="changelog-sda0.14.07-240924" author="sda0523">
+    <changeSet id="changelog-sda0.14.07-240924-01" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="alarm_seller" columnName="seller_id"/>
+        </preConditions>
         <renameColumn tableName="alarm_seller"
                       oldColumnName="seller_id"
                       newColumnName="user_id"
