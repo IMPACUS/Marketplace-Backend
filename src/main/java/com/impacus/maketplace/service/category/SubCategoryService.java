@@ -14,7 +14,7 @@ import com.impacus.maketplace.dto.category.response.SubCategoryDTO;
 import com.impacus.maketplace.entity.category.SubCategory;
 import com.impacus.maketplace.entity.category.SuperCategory;
 import com.impacus.maketplace.entity.common.AttachFile;
-import com.impacus.maketplace.redis.service.ProductSearchService;
+import com.impacus.maketplace.redis.service.SearchProductService;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -37,7 +37,7 @@ public class SubCategoryService {
     private final AttachFileService attachFileService;
     private final ObjectCopyHelper objectCopyHelper;
     private final ProductRepository productRepository;
-    private final ProductSearchService productSearchService;
+    private final SearchProductService searchProductService;
 
     /**
      * 2차 카테고리 추가하는 함수
@@ -96,7 +96,7 @@ public class SubCategoryService {
     @Transactional
     public void addSubCategorySearchData(SubCategory subCategory) {
         try {
-            productSearchService.addSearchData(
+            searchProductService.addSearchData(
                     SearchType.SUBCATEGORY,
                     subCategory.getId(),
                     subCategory.getName()
@@ -172,7 +172,7 @@ public class SubCategoryService {
         String oldSearchName = "";
         String newSearchName = "";
         try {
-            productSearchService.updateSearchData(
+            searchProductService.updateSearchData(
                     SearchType.SUBCATEGORY,
                     subCategoryId,
 //                    name
@@ -289,7 +289,7 @@ public class SubCategoryService {
     @Transactional // revision by shin
     public void deleteSubCategorySearchData(Long subCategoryId, String name) {
         try {
-            productSearchService.deleteSearchData(
+            searchProductService.deleteSearchData(
                     SearchType.SUBCATEGORY,
                     subCategoryId,
                     name

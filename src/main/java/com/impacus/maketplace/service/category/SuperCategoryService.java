@@ -11,7 +11,7 @@ import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
-import com.impacus.maketplace.redis.service.ProductSearchService;
+import com.impacus.maketplace.redis.service.SearchProductService;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class SuperCategoryService {
     private final SuperCategoryRepository superCategoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
     private final ReadSellerService readSellerService;
-    private final ProductSearchService productSearchService;
+    private final SearchProductService searchProductService;
 
     /**
      * 1차 카테고리 추가하는 함수
@@ -68,7 +68,7 @@ public class SuperCategoryService {
     @Transactional
     public void addSuperCategorySearchData(SuperCategory superCategory) {
         try {
-            productSearchService.addSearchData(
+            searchProductService.addSearchData(
                     SearchType.CATEGORY,
                     superCategory.getId(),
                     superCategory.getName()
@@ -141,7 +141,7 @@ public class SuperCategoryService {
         String oldSearchName = "";
         String newSearchName = "";
         try {
-            productSearchService.updateSearchData(
+            searchProductService.updateSearchData(
                     SearchType.CATEGORY,
                     superCategoryId,
 //                    name,
@@ -222,7 +222,7 @@ public class SuperCategoryService {
     @Transactional // revision by shin
     public void deleteSuperCategorySearchData(Long superCategoryId, String name) {
         try {
-            productSearchService.deleteSearchData(
+            searchProductService.deleteSearchData(
                     SearchType.CATEGORY,
                     superCategoryId,
                     name

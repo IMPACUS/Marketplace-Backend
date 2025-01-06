@@ -8,7 +8,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.redis.service.ProductSearchService;
+import com.impacus.maketplace.redis.service.SearchProductService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -27,7 +27,7 @@ public class DeleteProductService {
     private final AttachFileService attachFileService;
     private final WishlistRepository wishlistRepository;
     private final ReadProductService readProductService;
-    private final ProductSearchService productSearchService;
+    private final SearchProductService searchProductService;
 
 
     /**
@@ -93,7 +93,7 @@ public class DeleteProductService {
     public void deleteProductSearchData(Long productId) {
         try {
             String name = ""; // revision by shin
-            productSearchService.deleteSearchData(SearchType.PRODUCT, productId, name);
+            searchProductService.deleteSearchData(SearchType.PRODUCT, productId, name);
         } catch (Exception ex) {
             LogUtils.writeErrorLog("deleteProductSearchData", "Fail to delete search data", ex);
         }

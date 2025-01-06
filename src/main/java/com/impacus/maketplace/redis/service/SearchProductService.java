@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ProductSearchService {
+public class SearchProductService {
     private final RedisTemplate<String, String> redisTemplate;
 
     private static final String AUTO_COMPLETE_KEY = "autocomplete:";
