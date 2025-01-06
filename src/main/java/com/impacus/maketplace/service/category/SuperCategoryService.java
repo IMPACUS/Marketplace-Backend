@@ -11,7 +11,7 @@ import com.impacus.maketplace.dto.category.response.CategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SubCategoryDetailDTO;
 import com.impacus.maketplace.dto.category.response.SuperCategoryDTO;
 import com.impacus.maketplace.entity.category.SuperCategory;
-import com.impacus.maketplace.redis.service.ProductSearchService;
+import com.impacus.maketplace.redis.service.SearchProductService;
 import com.impacus.maketplace.repository.category.SuperCategoryRepository;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class SuperCategoryService {
     private final SuperCategoryRepository superCategoryRepository;
     private final ObjectCopyHelper objectCopyHelper;
     private final ReadSellerService readSellerService;
-    private final ProductSearchService productSearchService;
+    private final SearchProductService searchProductService;
 
     /**
      * 1차 카테고리 추가하는 함수
@@ -68,7 +68,7 @@ public class SuperCategoryService {
     @Transactional
     public void addSuperCategorySearchData(SuperCategory superCategory) {
         try {
-            productSearchService.addSearchData(
+            searchProductService.addSearchData(
                     SearchType.CATEGORY,
                     superCategory.getId(),
                     superCategory.getName()
@@ -108,21 +108,24 @@ public class SuperCategoryService {
     public Boolean updateSuperCategory(ChangeCategoryNameDTO dto) {
         try {
             Long categoryId = dto.getCategoryId();
-            String superCategoryName = dto.getName();
+            String changedCategoryName = dto.getName();
 
             // 1. 중복된 1차 카테고리 명 확인
-            if (existsBySuperCategoryName(superCategoryName)) {
+            if (existsBySuperCategoryName(changedCategoryName)) {
                 throw new CustomException(CategoryErrorType.DUPLICATED_SUPER_CATEGORY);
             }
 
             // 2. 업데이트
-            int rowCnt = superCategoryRepository.updateCategoryNameById(categoryId, superCategoryName);
+            SuperCategory category = superCategoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new CustomException(CategoryErrorType.NOT_EXISTED_SUPER_CATEGORY));
+            String preCategoryName = category.getName();
+            int rowCnt = superCategoryRepository.updateCategoryNameById(categoryId, changedCategoryName);
             if (rowCnt == 0) {
                 throw new CustomException(CategoryErrorType.NOT_EXISTED_SUPER_CATEGORY);
             }
 
             // 3. 검색어 데이터 수정
-            updateSuperCategorySearchData(categoryId, superCategoryName);
+            updateSuperCategorySearchData(categoryId, preCategoryName, changedCategoryName);
             return true;
         } catch (Exception ex) {
             throw new CustomException(ex);
@@ -133,15 +136,16 @@ public class SuperCategoryService {
      * 1차 카테고리 검색어 수정
      *
      * @param superCategoryId 수정할 1차 카테고리 ID
-     * @param name            1차 카테고리 명
+     * @param newSearchName            1차 카테고리 명
      */
     @Transactional
-    public void updateSuperCategorySearchData(Long superCategoryId, String name) {
+    public void updateSuperCategorySearchData(Long superCategoryId, String oldSearchName, String newSearchName) {
         try {
-            productSearchService.updateSearchData(
+            searchProductService.updateSearchData(
                     SearchType.CATEGORY,
                     superCategoryId,
-                    name
+                    oldSearchName,
+                    oldSearchName
             );
         } catch (Exception e) {
             LogUtils.writeErrorLog("updateSuperCategorySearchData", "Fail to update search data", e);
@@ -168,15 +172,15 @@ public class SuperCategoryService {
      * - true인 경우 brand 데이터 조회, false인 경우 brand까지 포함한 전체 데이터 조회
      *
      * @param isExceptBrand brand 데이터 포함 여부
-     * @param keyword 2차 카테고리 검색어
+     * @param keyword       2차 카테고리 검색어
      * @return
      */
     public List<CategoryDetailDTO> findAllCategory(boolean isExceptBrand, String keyword) {
-        List<CategoryDetailDTO> dtos = superCategoryRepository.findAllCategory(keyword);
+        List<CategoryDetailDTO> dtos = superCategoryRepository.findSuperCategories(keyword);
 
         // 2. brand 데이터 삭제 여부 확인
         int brandSuperCategoryId = -1;
-        for(int i = 0; i < dtos.size(); i++) {
+        for (int i = 0; i < dtos.size(); i++) {
             CategoryDetailDTO category = dtos.get(i);
             if (category.getSuperCategoryName().equals(BRAND_CATEGORY_NAME)) {
                 brandSuperCategoryId = i;
@@ -206,7 +210,7 @@ public class SuperCategoryService {
         superCategoryRepository.deleteAllInBatch(superCategories);
 
         // 2. 검색어 삭제
-        superCategories.forEach(x -> deleteSuperCategorySearchData(x.getId()));
+        superCategories.forEach(x -> this.deleteSuperCategorySearchData(x.getId(), x.getName()));
     }
 
     /**
@@ -215,11 +219,12 @@ public class SuperCategoryService {
      * @param superCategoryId 삭제할 1차 카테고리 ID
      */
     @Transactional
-    public void deleteSuperCategorySearchData(Long superCategoryId) {
+    public void deleteSuperCategorySearchData(Long superCategoryId, String name) {
         try {
-            productSearchService.deleteSearchData(
+            searchProductService.deleteSearchData(
                     SearchType.CATEGORY,
-                    superCategoryId
+                    superCategoryId,
+                    name
             );
         } catch (Exception e) {
             LogUtils.writeErrorLog("deleteSuperCategorySearchData", "Fail to delete search data", e);

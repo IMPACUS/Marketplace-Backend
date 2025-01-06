@@ -2,12 +2,12 @@ package com.impacus.maketplace.repository.search;
 
 import com.impacus.maketplace.entity.search.PopularSearch;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 public interface PopularSearchRepository extends JpaRepository<PopularSearch, Long> {
-   Optional<PopularSearch> findByKeyword(String keyword);
+    @Modifying
+    @Query(value = "truncate popular_search", nativeQuery = true)
+    void truncateTable();
 
-   List<PopularSearch> findTop10ByOrderByCountDesc();
 }
