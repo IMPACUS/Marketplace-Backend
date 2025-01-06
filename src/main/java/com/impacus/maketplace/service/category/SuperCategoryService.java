@@ -176,7 +176,7 @@ public class SuperCategoryService {
      * @return
      */
     public List<CategoryDetailDTO> findAllCategory(boolean isExceptBrand, String keyword) {
-        List<CategoryDetailDTO> dtos = superCategoryRepository.findAllCategory(keyword);
+        List<CategoryDetailDTO> dtos = superCategoryRepository.findSuperCategories(keyword);
 
         // 2. brand 데이터 삭제 여부 확인
         int brandSuperCategoryId = -1;
