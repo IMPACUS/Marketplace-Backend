@@ -25,7 +25,8 @@ import java.util.List;
 @RequestMapping("/api/v1/search")
 public class SearchController {
     private final ProductSearchService productSearchService;
-    private final RecentSearchService recentSearchService;;
+    private final RecentSearchService recentSearchService;
+    ;
     private final PopularSearchService popularSearchService;
     private final ReadProductService readProductService;
 
@@ -91,11 +92,12 @@ public class SearchController {
     @PostMapping("3")
     public ApiResponseEntity<?> dProduct(@RequestParam("searchType") SearchType searchType,
                                          @RequestParam("searchId") Long searchId,
-                                         @RequestParam("productName") String searchName) {
-        productSearchService.deleteSearchData(searchType, searchId, searchName);
+                                         @RequestParam("oldSearchName") String oldSearchName,
+                                         @RequestParam("newSearchName") String newSearchName) {
+        productSearchService.updateSearchData(searchType, searchId, oldSearchName, newSearchName);
 
         return ApiResponseEntity.builder()
-                .message("검색창 데이터가 삭제.")
+                .message("검색창 데이터가 수정")
                 .build();
     }
 }

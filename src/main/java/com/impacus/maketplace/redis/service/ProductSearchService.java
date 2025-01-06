@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.impacus.maketplace.common.enumType.SearchType;
 import com.impacus.maketplace.dto.SearchDTO;
+import com.impacus.maketplace.entity.product.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -24,12 +25,8 @@ public class ProductSearchService {
     private static final String AUTO_COMPLETE_KEY = "autocomplete:";
     private static final String POPULAR_KEYWORDS_KEY = "popular_search";
 
-    public void initializer() {
-
-    }
-
     /**
-     * redis에 자동완성 데이터 삽입
+     * redis에 자동완성과 인기검색어 데이터 삽입
      *
      * @param searchType 검색타입
      * @param searchId   검색 id
@@ -37,14 +34,17 @@ public class ProductSearchService {
      */
     public void addSearchData(SearchType searchType, Long searchId, String searchName) {
         SearchDTO searchDTO = new SearchDTO(searchName, searchType, searchId);
-
-        List<String> prefixes = this.makePrefixes(searchName);
-        for (String prefix : prefixes) {
-            String redisKey = AUTO_COMPLETE_KEY + prefix;
-            redisTemplate.opsForZSet().add(redisKey, this.objectToString(searchDTO), Integer.MAX_VALUE);
+        String str = this.objectToString(searchDTO);
+        boolean isExist = redisTemplate.opsForZSet().score(AUTO_COMPLETE_KEY + searchName, str) != null;
+        if (!isExist) {
+            List<String> prefixes = this.makePrefixes(searchName);
+            for (String prefix : prefixes) {
+                String redisKey = AUTO_COMPLETE_KEY + prefix;
+                redisTemplate.opsForZSet().add(redisKey, str, Integer.MAX_VALUE);
+            }
+            if (searchType.equals(SearchType.PRODUCT))
+                redisTemplate.opsForZSet().add(POPULAR_KEYWORDS_KEY, str, Integer.MAX_VALUE);
         }
-        if (searchType.equals(SearchType.PRODUCT))
-            redisTemplate.opsForZSet().add(POPULAR_KEYWORDS_KEY, this.objectToString(searchDTO), Integer.MAX_VALUE);
     }
 
     private List<String> makePrefixes(String term) {
@@ -87,6 +87,13 @@ public class ProductSearchService {
         return new String(jsonBytes, StandardCharsets.UTF_8);
     }
 
+    /**
+     * redis에 자동완성과 인기검색어 데이터 삭제
+     *
+     * @param searchType 검색타입
+     * @param searchId   검색 id
+     * @param searchName 검색명
+     */
     public void deleteSearchData(SearchType searchType, Long searchId, String searchName) {
         SearchDTO searchDTO = new SearchDTO(searchName, searchType, searchId);
         String str = this.objectToString(searchDTO);
@@ -98,11 +105,42 @@ public class ProductSearchService {
                 String redisKey = AUTO_COMPLETE_KEY + prefix;
                 redisTemplate.opsForZSet().remove(redisKey, str);
             }
+            redisTemplate.opsForZSet().remove(POPULAR_KEYWORDS_KEY, str);
         }
     }
 
-    public void updateSearchData(SearchType type, Long searchId, String oldSearchName, String newSearchName) {
-//        redisTemplate.opsForZSet().score(AUTO_COMPLETE_KEY + searchName, str)
+    /**
+     * redis에 자동완성과 인기검색어 데이터 수정
+     *
+     * @param searchType    검색 타입
+     * @param searchId      검색 id
+     * @param oldSearchName 기존 검색명
+     * @param newSearchName 새 검색명
+     */
+    public void updateSearchData(SearchType searchType, Long searchId, String oldSearchName, String newSearchName) {
+        SearchDTO searchDTO = new SearchDTO(oldSearchName, searchType, searchId);
+        String oldStr = this.objectToString(searchDTO);
+        Double score = redisTemplate.opsForZSet().score(AUTO_COMPLETE_KEY + oldSearchName, oldStr);
+        if (score != null) {
+            // 기존 데이터 삭제
+            List<String> prefixes = this.makePrefixes(oldSearchName);
+            for (String prefix : prefixes) {
+                String redisKey = AUTO_COMPLETE_KEY + prefix;
+                redisTemplate.opsForZSet().remove(redisKey, oldStr);
+            }
+            redisTemplate.opsForZSet().remove(POPULAR_KEYWORDS_KEY, oldStr);
+
+            // 새로 추가
+            searchDTO = new SearchDTO(newSearchName, searchType, searchId);
+            String newStr = this.objectToString(searchDTO);
+            prefixes = this.makePrefixes(newSearchName);
+            for (String prefix : prefixes) {
+                String redisKey = AUTO_COMPLETE_KEY + prefix;
+                redisTemplate.opsForZSet().add(redisKey, newStr, score);
+            }
+            if (searchType.equals(SearchType.PRODUCT))
+                redisTemplate.opsForZSet().add(POPULAR_KEYWORDS_KEY, newStr, score);
+        }
     }
 
 
