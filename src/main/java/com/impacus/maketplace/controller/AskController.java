@@ -2,15 +2,13 @@ package com.impacus.maketplace.controller;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.AskDto;
-import com.impacus.maketplace.entity.common.Ask;
 import com.impacus.maketplace.service.AskService;
-import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.config.annotation.web.configurers.ServletApiConfigurer;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -28,21 +26,6 @@ public class AskController {
                 .builder()
                 .result(result)
                 .build();
-    }
-
-    @PostMapping("/list")
-    public ApiResponseEntity<List<AskDto>> loadAskList(@RequestBody AskDto askDto) {
-        ApiResponseEntity<List<AskDto>> res = new ApiResponseEntity<>();
-
-        List<AskDto> askList = askService.loadAskListForClient(askDto);
-
-        if (CollectionUtils.isNotEmpty(askList)) {
-            res.setResult(false);
-        } else {
-            res.setData(askList);
-        }
-
-        return res;
     }
 
 

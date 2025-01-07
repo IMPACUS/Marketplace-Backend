@@ -27,7 +27,7 @@ public class WebReviewController {
 
         return ApiResponseEntity
                 .<Void>builder()
-                .code(HttpStatus.CREATED)
+                .code(HttpStatus.OK)
                 .message("리뷰 답변 수정 성공")
                 .build();
     }
@@ -47,7 +47,7 @@ public class WebReviewController {
 
         return ApiResponseEntity
                 .<Void>builder()
-                .code(HttpStatus.CREATED)
+                .code(HttpStatus.OK)
                 .message("리뷰 답변 수정 성공")
                 .build();
     }

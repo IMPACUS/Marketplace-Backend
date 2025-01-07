@@ -45,7 +45,7 @@ public class ReviewReplyService {
      */
     private void validateReviewReply(Long reviewId) {
         // 존재하는 리뷰인지 확인
-        if (reviewRepository.existsByIdAndIsDeletedFalse(reviewId)) {
+        if (!reviewRepository.existsByIdAndIsDeletedFalse(reviewId)) {
             throw new CustomException(ReviewErrorType.NOT_EXISTED_REVIEW_ID);
         }
 

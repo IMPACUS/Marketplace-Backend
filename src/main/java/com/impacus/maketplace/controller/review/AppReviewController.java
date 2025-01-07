@@ -42,7 +42,7 @@ public class AppReviewController {
 
         return ApiResponseEntity
                 .<Review>builder()
-                .code(HttpStatus.CREATED)
+                .code(HttpStatus.OK)
                 .message("리뷰 생성 성공")
                 .build();
     }
