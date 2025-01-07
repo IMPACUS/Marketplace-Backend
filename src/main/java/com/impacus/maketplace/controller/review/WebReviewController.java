@@ -1,10 +1,7 @@
 package com.impacus.maketplace.controller.review;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.review.request.ReviewReplyDTO;
-import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.service.review.ReviewService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +20,7 @@ public class WebReviewController {
     @PreAuthorize("hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PutMapping("/{reviewId}")
+    @DeleteMapping("/{reviewId}")
     public ApiResponseEntity<Void> deleteReview(
             @PathVariable(name = "reviewId") Long reviewId) {
         reviewService.deleteReview(reviewId);
@@ -43,7 +40,7 @@ public class WebReviewController {
     @PreAuthorize("hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PutMapping("/{reviewId}")
+    @PutMapping("/{reviewId}/restore")
     public ApiResponseEntity<Void> restoreReview(
             @PathVariable(name = "reviewId") Long reviewId) {
         reviewService.restoreReview(reviewId);
