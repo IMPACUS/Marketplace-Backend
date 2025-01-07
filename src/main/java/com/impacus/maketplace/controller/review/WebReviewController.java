@@ -28,7 +28,7 @@ public class WebReviewController {
         return ApiResponseEntity
                 .<Void>builder()
                 .code(HttpStatus.OK)
-                .message("리뷰 답변 수정 성공")
+                .message("리뷰 삭제 성공")
                 .build();
     }
 
@@ -40,7 +40,7 @@ public class WebReviewController {
     @PreAuthorize("hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PutMapping("/{reviewId}/restore")
+    @PatchMapping("/{reviewId}/restore")
     public ApiResponseEntity<Void> restoreReview(
             @PathVariable(name = "reviewId") Long reviewId) {
         reviewService.restoreReview(reviewId);
@@ -48,7 +48,7 @@ public class WebReviewController {
         return ApiResponseEntity
                 .<Void>builder()
                 .code(HttpStatus.OK)
-                .message("리뷰 답변 수정 성공")
+                .message("리뷰 복구 성공")
                 .build();
     }
 }

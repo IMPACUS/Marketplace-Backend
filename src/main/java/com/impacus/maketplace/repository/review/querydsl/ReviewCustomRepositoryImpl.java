@@ -67,9 +67,9 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
         // 데이터 조회
         List<ProductReviewDTO> dtos = queryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 ProductReviewDTO.class,
-                                review.id.as("reviewId"),
+                                review.id,
                                 review.orderId,
                                 review.rating,
                                 review.contents,
@@ -79,8 +79,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                                         review.productOptionId,
                                         productOption.size,
                                         productOption.color
-                                ).as("option"),
-                                user.email.as("userEmail"),
+                                ),
+                                user.email,
                                 review.createAt
                         )
                 )

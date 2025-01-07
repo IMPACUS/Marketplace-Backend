@@ -109,7 +109,7 @@ public class ReviewService {
      * @param images 리뷰 이미지
      */
     @Transactional
-    private Map<Long, String> saveReviewImages(List<MultipartFile> images) {
+    public Map<Long, String> saveReviewImages(List<MultipartFile> images) {
         Map<Long, String> reviewImages = new HashMap<>();
 
         if (images != null) {
@@ -130,7 +130,11 @@ public class ReviewService {
      */
     @Transactional
     public void deleteReview(Long reviewId) {
-        reviewRepository.deleteReview(reviewId);
+        try {
+            reviewRepository.deleteReview(reviewId);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
     }
 
     /**
@@ -139,7 +143,11 @@ public class ReviewService {
      */
     @Transactional
     public void restoreReview(Long reviewId) {
-        reviewRepository.restoreReview(reviewId);
+        try {
+            reviewRepository.restoreReview(reviewId);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
     }
 
     /**
@@ -150,7 +158,11 @@ public class ReviewService {
      * @return
      */
     public Page<ProductReviewDTO> findReviewsByProductId(Long productId, Pageable pageable) {
-        return reviewRepository.findReviewsByProductId(productId, pageable);
+        try {
+            return reviewRepository.findReviewsByProductId(productId, pageable);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
     }
 
 //    /**

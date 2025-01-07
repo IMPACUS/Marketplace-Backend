@@ -1,38 +1,29 @@
 package com.impacus.maketplace.common.utils;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-@Getter
-public class ApiResponseEntity<T> extends ResponseEntity<T> {
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ApiResponseEntity<T> {
 
-    private boolean result;
+    @Builder.Default
+    private boolean result = true;
 
+    @Builder.Default
+    private boolean isAuthError = false;
+
+    @Builder.Default
     private HttpStatus code = HttpStatus.OK;
 
     private String message;
 
     private T data;
-
-    public ApiResponseEntity() {
-        super(HttpStatus.OK);
-    }
-
-    @Builder
-    public ApiResponseEntity(
-            HttpStatus code,
-            T data,
-            Boolean result,
-            String message
-    ) {
-        super(data, code);
-        this.data = data;
-        this.code = code;
-        this.result = result == null || result;
-        this.message = message;
-    }
 
     public static ApiResponseEntity<Boolean> simpleResult(Object t, HttpStatus failHttpStatus) {
         return ApiResponseEntity.<Boolean>builder()
