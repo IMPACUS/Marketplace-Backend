@@ -1,15 +1,24 @@
 package com.impacus.maketplace.repository.review.querydsl;
 
+import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
 import com.impacus.maketplace.entity.product.QProduct;
+import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.review.QReview;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.user.QUser;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,6 +30,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     private final QUser user = QUser.user;
     private final QSeller seller = QSeller.seller;
     private final QProduct product = QProduct.product;
+    private final QProductOption productOption = QProductOption.productOption;
 
     @Override
     public void deleteReview(Long reviewId) {
@@ -44,6 +54,54 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .set(review.modifyId, currentAuditor)
                 .where(review.id.eq(reviewId))
                 .execute();
+    }
+
+    @Override
+    public Page<ProductReviewDTO> findReviewsByProductId(Long productId, Pageable pageable) {
+        BooleanBuilder reviewBoolean = new BooleanBuilder()
+                .and(review.isDeleted.isFalse());
+        BooleanBuilder productOptionBoolean = new BooleanBuilder()
+                .and(productOption.productId.eq(productId))
+                .and(productOption.id.eq(review.productOptionId));
+
+        // 데이터 조회
+        List<ProductReviewDTO> dtos = queryFactory
+                .select(
+                        Projections.fields(
+                                ProductReviewDTO.class,
+                                review.id.as("reviewId"),
+                                review.orderId,
+                                review.rating,
+                                review.contents,
+                                review.images,
+                                Projections.fields(
+                                        ProductOptionDTO.class,
+                                        review.productOptionId,
+                                        productOption.size,
+                                        productOption.color
+                                ).as("option"),
+                                user.email.as("userEmail"),
+                                review.createAt
+                        )
+                )
+                .from(review)
+                .leftJoin(user).on(user.id.eq(review.userId))
+                .innerJoin(productOption).on(productOptionBoolean)
+                .where(reviewBoolean)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(review.createAt.desc())
+                .fetch();
+
+        //  페이지 객체로 변환
+        long count = queryFactory
+                .select(review.id.count())
+                .from(review)
+                .innerJoin(productOption).on(productOptionBoolean)
+                .where(reviewBoolean)
+                .fetchFirst();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
     }
 
 //
