@@ -21,9 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +49,7 @@ public class ReviewService {
             validateReview(images, dto);
 
             // 2. 파일 업로드
-            Map<Long, String> reviewImages = saveReviewImages(images);
+            List<String> reviewImages = saveReviewImages(images);
 
             // 3. 엔티티 저장
             Review review = dto.toEntity(userId, reviewImages);
@@ -110,15 +109,15 @@ public class ReviewService {
      * @param images 리뷰 이미지
      */
     @Transactional
-    public Map<Long, String> saveReviewImages(List<MultipartFile> images) {
-        Map<Long, String> reviewImages = new HashMap<>();
+    public List<String> saveReviewImages(List<MultipartFile> images) {
+        List<String> reviewImages = new ArrayList<>();
 
         if (images != null) {
             for (MultipartFile image : images) {
                 AttachFile reviewAttachImage = attachFileService.uploadFileAndAddAttachFile(
                         image, DirectoryConstants.REVIEW_PRODUCT_IMAGE_DIRECTORY
                 );
-                reviewImages.put(reviewAttachImage.getId(), reviewAttachImage.getAttachFileName());
+                reviewImages.add(reviewAttachImage.getAttachFileName());
             }
         }
 
@@ -178,7 +177,7 @@ public class ReviewService {
             // 1. 유효성 검사
             validateSavedReview(reviewId, dto);
 
-            // 2. 엔티티 저장
+            // 2. 리뷰 수정
             reviewRepository.updateReview(reviewId, dto);
         } catch (Exception e) {
             throw new CustomException(e);
@@ -202,7 +201,30 @@ public class ReviewService {
             throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "평점은 0.5 단위로 등록가능합니다.");
         }
 
-        // 3. 리뷰 내용 비속어 확인
+        // 3. 리뷰 내용 비속어 확인 TODO
+    }
+
+    /**
+     * 리뷰 이미지 수정
+     *
+     * @param reviewId
+     * @param images
+     */
+    @Transactional
+    public void updateReviewImages(Long reviewId, List<String> images) {
+        try {
+            // 1. 유효성 검사
+            if (images != null) {
+                if (images.size() > 5) {
+                    throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "리뷰 이미지는 최대 5장까지 등록이 가능합니다.");
+                }
+            }
+
+            // 이미지 저장
+            reviewRepository.updateReviewImages(reviewId, images);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
     }
 
 //    /**

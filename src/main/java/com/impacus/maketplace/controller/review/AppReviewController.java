@@ -72,7 +72,7 @@ public class AppReviewController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PutMapping("/{reviewId}")
+    @PutMapping("/{reviewId}/images")
     public ApiResponseEntity<Review> updateReviewImages(
             @PathVariable(name = "reviewId") Long reviewId,
             @RequestBody List<String> images

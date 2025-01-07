@@ -5,6 +5,8 @@ import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ReviewCustomRepository {
 
 
@@ -15,4 +17,6 @@ public interface ReviewCustomRepository {
     Page<ProductReviewDTO> findReviewsByProductId(Long productId, Pageable pageable);
 
     void updateReview(Long reviewId, ReviewDTO dto);
+
+    void updateReviewImages(Long reviewId, List<String> images);
 }

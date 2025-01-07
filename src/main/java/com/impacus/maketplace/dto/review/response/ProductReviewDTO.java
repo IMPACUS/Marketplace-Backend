@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @NoArgsConstructor
@@ -26,7 +25,7 @@ public class ProductReviewDTO {
             Long orderId,
             float rating,
             String contents,
-            Map<String, String> images,
+            List<String> images,
             ProductOptionDTO option,
             String userEmail,
             LocalDateTime createdAt
@@ -35,7 +34,7 @@ public class ProductReviewDTO {
         this.orderId = orderId;
         this.rating = rating;
         this.contents = contents;
-        this.images = images.values().stream().toList();
+        this.images = images;
         this.option = option;
         this.userEmail = StringUtils.getEmailInfo(userEmail).getEmail();
         this.createdAt = createdAt;
