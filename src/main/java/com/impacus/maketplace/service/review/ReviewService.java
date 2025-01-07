@@ -6,6 +6,7 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ReviewErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.review.request.CreateReviewDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
@@ -43,7 +44,7 @@ public class ReviewService {
      * @return
      */
     @Transactional
-    public void addReview(Long userId, List<MultipartFile> images, ReviewDTO dto) {
+    public void addReview(Long userId, List<MultipartFile> images, CreateReviewDTO dto) {
         try {
             // 1. 유효성 검사
             validateReview(images, dto);
@@ -74,7 +75,7 @@ public class ReviewService {
      *
      * @param images
      */
-    private void validateReview(List<MultipartFile> images, ReviewDTO dto) {
+    private void validateReview(List<MultipartFile> images, CreateReviewDTO dto) {
         // 1. 리뷰 이미지 유효성 검사
         if (images != null) {
             if (images.size() > 5) {
@@ -163,6 +164,45 @@ public class ReviewService {
         } catch (Exception e) {
             throw new CustomException(e);
         }
+    }
+
+    /**
+     * 리뷰 수정
+     *
+     * @param reviewId
+     * @param dto
+     */
+    @Transactional
+    public void updateReview(Long reviewId, ReviewDTO dto) {
+        try {
+            // 1. 유효성 검사
+            validateSavedReview(reviewId, dto);
+
+            // 2. 엔티티 저장
+            reviewRepository.updateReview(reviewId, dto);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
+    }
+
+    /**
+     * 저장된 리뷰의 유효성 검사
+     *
+     * @param reviewId
+     * @param dto
+     */
+    private void validateSavedReview(Long reviewId, ReviewDTO dto) {
+        // 1. 존재하는 리뷰인지 확인
+        if (!reviewRepository.existsByIdAndIsDeletedFalse(reviewId)) {
+            throw new CustomException(ReviewErrorType.NOT_EXISTED_REVIEW_ID);
+        }
+
+        // 2. 리뷰 평점 0.5 단위인지 확인
+        if ((dto.getRating() * 2) % 1 != 0) {
+            throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "평점은 0.5 단위로 등록가능합니다.");
+        }
+
+        // 3. 리뷰 내용 비속어 확인
     }
 
 //    /**

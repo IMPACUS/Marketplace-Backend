@@ -2,6 +2,7 @@ package com.impacus.maketplace.repository.review.querydsl;
 
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
@@ -102,6 +103,19 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .fetchFirst();
 
         return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    @Override
+    public void updateReview(Long reviewId, ReviewDTO dto) {
+        String currentAuditor = auditorProvider.getCurrentAuditor().orElse(null);
+
+        queryFactory.update(review)
+                .set(review.contents, dto.getContents())
+                .set(review.rating, dto.getRating())
+                .set(review.modifyAt, LocalDateTime.now())
+                .set(review.modifyId, currentAuditor)
+                .where(review.id.eq(reviewId))
+                .execute();
     }
 
 //
