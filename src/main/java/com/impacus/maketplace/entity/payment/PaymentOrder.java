@@ -91,7 +91,8 @@ public class PaymentOrder extends BaseEntity {
 
     @Column(nullable = false)
     @ColumnDefault("'FALSE'")
-    private Boolean isConfirmed;    // 주문 확정 여부
+    @Builder.Default
+    private Boolean isConfirmed = false;    // 주문 확정 여부
 
     private LocalDateTime confirmedAt;      // 주문 확정 날짜
 
