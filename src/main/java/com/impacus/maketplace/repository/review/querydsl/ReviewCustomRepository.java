@@ -1,5 +1,6 @@
 package com.impacus.maketplace.repository.review.querydsl;
 
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
@@ -30,4 +31,6 @@ public interface ReviewCustomRepository {
     Page<WebReviewDTO> findReviews(Pageable pageable, String keyword, LocalDate startAt, LocalDate endAt);
 
     WebReviewDetailDTO findReview(Long reviewId);
+
+    List<WebReviewDTO> findReviewsByIds(IdsDTO dto);
 }

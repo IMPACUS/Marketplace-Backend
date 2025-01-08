@@ -6,6 +6,8 @@ import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.ReviewErrorType;
 import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.review.request.CreateReviewDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
@@ -16,6 +18,7 @@ import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.repository.review.ReviewRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.excel.ExcelService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +39,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final AttachFileService attachFileService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
+    private final ExcelService excelService;
 
     private static final long TEXT_REVIEW_POINT = 200L;
     private static final long PHOTO_REVIEW_POINT = 350L;
@@ -266,43 +270,20 @@ public class ReviewService {
         return reviewRepository.findReview(reviewId);
     }
 
-//    /**
-//     * 리뷰 한개만 조회
-//     * @param userId
-//     * @param orderId
-//     * @return
-//     */
-//    @Transactional(readOnly = true)
-//    public ReviewBuyerDTO displayBuyersReviewOne(Long userId, Long orderId) {
-//        return reviewRepository.displayViewBuyerReviewOne(userId, orderId);
-//    }
-//
-//    /**
-//     * 판매자용 리뷰 리스트 작성
-//     * @param pageable
-//     * @param userId
-//     * @Param search
-//     * @return
-//     */
-//    @Transactional(readOnly = true)
-//    public Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId, String search) {
-//        return reviewRepository.displaySellerReviewList(pageable, userId, search);
-//    }
-//
-//    /**
-//     * 판미자용 리뷰 상세 중 답글 달기
-//     * @param review
-//     * @return
-//     */
-//    @Transactional
-//    public Review writeSellerComment(Review review) {
-//        Long id = review.getId();
-//        String comment = review.getSellerComment();
-//
-//        Review newReview = reviewRepository.findById(id).orElse(null);
-//        newReview.setSellerComment(comment);
-//        newReview.setIsComment(true);
-//        // 여기서 review 객체를 수정할 수 있습니다.
-//        return reviewRepository.save(review);
-//    }
+    /**
+     * 리뷰 엑셀 추출
+     * @param dto
+     * @return
+     */
+    public FileGenerationStatusIdDTO exportReviews(IdsDTO dto) {
+        try {
+            List<WebReviewDTO> dtos = reviewRepository.findReviewsByIds(
+                    dto
+            );
+
+            return excelService.generateExcel(dtos, WebReviewDTO.class);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
+    }
 }

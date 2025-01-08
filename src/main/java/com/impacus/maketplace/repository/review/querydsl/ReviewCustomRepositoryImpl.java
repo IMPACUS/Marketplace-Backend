@@ -3,6 +3,7 @@ package com.impacus.maketplace.repository.review.querydsl;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.*;
@@ -181,31 +182,16 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
             LocalDate startAt,
             LocalDate endAt
     ) {
-        // 현재 사용자 정보 가져오기
-        UserType currentUserType = SecurityUtils.getCurrentUserType();
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-
         BooleanBuilder reviewBoolean = new BooleanBuilder()
                 .and(review.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
                 .and(review.contents.containsIgnoreCase(keyword));
 
-        // 데이터 조회
-        JPAQuery<WebReviewDTO> reviewQuery = queryFactory
-                .select(
-                        Projections.constructor(
-                                WebReviewDTO.class,
-                                review.id,
-                                review.rating,
-                                review.contents,
-                                user.name,
-                                user.email,
-                                review.createAt,
-                                review.isDeleted
-                        )
-                )
-                .from(review)
-                .leftJoin(user).on(user.id.eq(review.userId));
+        // 현재 사용자 정보 가져오기
+        UserType currentUserType = SecurityUtils.getCurrentUserType();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
 
+        // 데이터 조회
+        JPAQuery<WebReviewDTO> reviewQuery = getQueryToFindReviews();
         JPAQuery<Long> countQuery = queryFactory
                 .select(review.id.count())
                 .from(review);
@@ -232,6 +218,24 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .fetchFirst();
 
         return PaginationUtils.toPage(dtos, pageable, count);
+    }
+
+    private JPAQuery<WebReviewDTO> getQueryToFindReviews() {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                WebReviewDTO.class,
+                                review.id,
+                                review.rating,
+                                review.contents,
+                                user.name,
+                                user.email,
+                                review.createAt,
+                                review.isDeleted
+                        )
+                )
+                .from(review)
+                .leftJoin(user).on(user.id.eq(review.userId));
     }
 
     // 판매자 ID 가져오기
@@ -284,5 +288,18 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .from(review)
                 .where(review.id.eq(reviewId))
                 .fetchFirst();
+    }
+
+    @Override
+    public List<WebReviewDTO> findReviewsByIds(IdsDTO dto) {
+        BooleanBuilder reviewBoolean = new BooleanBuilder()
+                .and(review.id.in(dto.getIds()));
+
+        JPAQuery<WebReviewDTO> reviewQuery = getQueryToFindReviews();
+
+        return reviewQuery
+                .where(reviewBoolean)
+                .orderBy(review.createAt.desc())
+                .fetch();
     }
 }

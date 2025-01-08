@@ -1,6 +1,8 @@
 package com.impacus.maketplace.controller.review;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.review.response.WebReviewDTO;
 import com.impacus.maketplace.dto.review.response.WebReviewDetailDTO;
 import com.impacus.maketplace.service.review.ReviewService;
@@ -110,6 +112,31 @@ public class WebReviewController {
                 .<WebReviewDetailDTO>builder()
                 .code(HttpStatus.OK)
                 .message("리뷰 단건 조회 성공")
+                .data(result)
+                .build();
+    }
+
+    /**
+     * [관리자, 판매자] 리뷰 엑셀 다운
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @PutMapping("/excel")
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportReviews(
+            @RequestBody IdsDTO dto
+    ) {
+        FileGenerationStatusIdDTO result = reviewService.exportReviews(
+                dto
+        );
+
+        return ApiResponseEntity
+                .<FileGenerationStatusIdDTO>builder()
+                .code(HttpStatus.OK)
+                .message("리뷰 엑셀 다운")
                 .data(result)
                 .build();
     }
