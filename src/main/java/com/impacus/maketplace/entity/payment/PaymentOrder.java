@@ -87,7 +87,7 @@ public class PaymentOrder extends BaseEntity {
     @ColumnDefault("'0'")
     private Integer threshold;      // 결제 실패 허용 임계값
 
-    private LocalDateTime confirmationDueAt;    // 결제 확정 예상 날짜
+    private LocalDateTime confirmationDueAt;    // 주문 확정 예상 날짜
 
     @Column(nullable = false)
     @ColumnDefault("'FALSE'")

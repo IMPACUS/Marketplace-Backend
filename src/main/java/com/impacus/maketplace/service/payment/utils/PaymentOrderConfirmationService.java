@@ -14,13 +14,13 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 public class PaymentOrderConfirmationService {
 
-    private final int CONFIRMATION_DAYS = 7;
+    public final int CONFIRMATION_DAYS = 7;
 
     private final PaymentOrderRepository paymentOrderRepository;
-    private final PaymentOrderConfirmationService paymentOrderConfirmationService;
 
     /**
      * 주문 확정 조회
+     * <p>
      * 필수 동작: 주문 확정 조회할 때 확정되지 않은 상태일 경우 처리 조건 확인
      */
     public boolean isPaymentOrderConfirmed(Long paymentOrderId) {
@@ -32,7 +32,7 @@ public class PaymentOrderConfirmationService {
                     }
 
                     // 아직 확정되지 않았지만, '확정 가능' 상태라면 confirm() 후 true
-                    if (paymentOrderConfirmationService.isReadyConfirmation(paymentOrder)) {
+                    if (isReadyConfirmation(paymentOrder)) {
                         paymentOrder.confirm();
                         return true;
                     }
@@ -45,16 +45,20 @@ public class PaymentOrderConfirmationService {
 
     /**
      * 주문 확정 처리 조건 확인
+     * <p>
      * 1. 결제 완료
-     * 2. 결제 후 7일 시간 소요
+     * <p>
+     * 2. 주문 확정 예상 날짜가 현재 날짜보다 이전인 경우
      */
     private boolean isReadyConfirmation(PaymentOrder paymentOrder) {
-        return paymentOrder.getIsPaymentDone() && paymentOrder.getConfirmationDueAt().isAfter(LocalDateTime.now());
+        return paymentOrder.getIsPaymentDone() && paymentOrder.getConfirmationDueAt().isBefore(LocalDateTime.now());
     }
 
     /**
      * 주문 확정 예상 날짜 업데이트
+     * <p>
      * YY/MM/DD 00:00:00 기준으로 처리
+     * <p>
      * 현재 날짜에서 7일 뒤 주문 확정
      */
     @Transactional
