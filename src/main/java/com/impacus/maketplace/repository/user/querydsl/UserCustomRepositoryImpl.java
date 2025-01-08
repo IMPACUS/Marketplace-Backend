@@ -6,7 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.auth.CertificationResult;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.PhoneNumberDTO;
@@ -322,7 +322,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     @Override
     public List<WebUserDTO> findUsersByIds(
-            CouponIdsDTO dto
+            IdsDTO dto
     ) {
         BooleanBuilder builder = new BooleanBuilder()
                 .and(user.id.in(dto.getIds()));

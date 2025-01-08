@@ -6,7 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.PasswordDTO;
 import com.impacus.maketplace.dto.auth.response.CheckMatchedPasswordDTO;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.seller.response.*;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
@@ -200,7 +200,7 @@ public class ReadSellerController {
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     @PostMapping("/excel")
     public ApiResponseEntity<FileGenerationStatusIdDTO> exportSellers(
-            @Valid @RequestBody CouponIdsDTO dto
+            @Valid @RequestBody IdsDTO dto
     ) {
         FileGenerationStatusIdDTO result = readSellerService.exportSellers(
                 dto
