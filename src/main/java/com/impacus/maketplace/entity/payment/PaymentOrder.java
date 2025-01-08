@@ -115,4 +115,13 @@ public class PaymentOrder extends BaseEntity {
         BigDecimal commisionPercent = BigDecimal.valueOf(commissionPercent);
         return totalAmount.multiply(commisionPercent).divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR).longValue();
     }
+
+    public void confirm() {
+        this.confirmedAt = LocalDateTime.now();
+        isConfirmed = true;
+    }
+
+    public void updateConfirmationDueAt(LocalDateTime localDateTime) {
+        this.confirmationDueAt = localDateTime;
+    }
 }
