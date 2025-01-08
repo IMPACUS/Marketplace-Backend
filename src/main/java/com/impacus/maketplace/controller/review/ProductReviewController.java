@@ -1,7 +1,6 @@
 package com.impacus.maketplace.controller.review;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.review.ReviewBuyerDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
 import com.impacus.maketplace.service.review.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.review.request.CreateReviewDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
+import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.review.Review;
@@ -17,6 +18,7 @@ import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAlloc
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -227,15 +229,16 @@ public class ReviewService {
         }
     }
 
-//    /**
-//     * 구매자 관점 - 리스트 조회
-//     * @param userId
-//     * @return
-//     */
-//    @Transactional(readOnly = true)
-//    public List<ReviewBuyerDTO> displayBuyersReviewList(Long userId) {
-//        return reviewRepository.displayViewBuyerReview(userId);
-//    }
+    /**
+     * 사용자 등록 리뷰 조회
+     *
+     * @param userId 리뷰 등록자 ID
+     * @param pageable 페이지네이션 객체
+     * @return
+     */
+    public Slice<ConsumerReviewDTO> findUserReviews(Long userId, Pageable pageable) {
+        return reviewRepository.findUserReviews(userId, pageable);
+    }
 
 //    /**
 //     * 리뷰 한개만 조회
