@@ -18,6 +18,7 @@ import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.repository.review.ReviewRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.api.PaymentApiService;
 import com.impacus.maketplace.service.excel.ExcelService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class ReviewService {
     private final AttachFileService attachFileService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
     private final ExcelService excelService;
+    private final PaymentApiService paymentApiService;
 
     private static final long TEXT_REVIEW_POINT = 200L;
     private static final long PHOTO_REVIEW_POINT = 350L;
@@ -49,7 +51,6 @@ public class ReviewService {
      *
      * @param images 리뷰 이미지
      * @param dto 리뷰 데이터
-     * @return
      */
     @Transactional
     public void addReview(Long userId, List<MultipartFile> images, CreateReviewDTO dto) {
@@ -81,7 +82,6 @@ public class ReviewService {
     /**
      * 리뷰 데이터 유효성 검사
      *
-     * @param images
      */
     private void validateReview(List<MultipartFile> images, CreateReviewDTO dto) {
         // 1. 리뷰 이미지 유효성 검사
@@ -106,7 +106,10 @@ public class ReviewService {
             throw new CustomException(ReviewErrorType.EXISTED_REVIEW, "이미 등록된 리뷰가 존재합니다.");
         }
 
-        // TODO 주문 확정된 주문인지 확인 (orderId, productOptionId)
+        // 4. 확정된 주문인지 확인
+        if (paymentApiService.isPaymentOrderConfirmed(dto.getOrderId())) {
+            throw new CustomException(ReviewErrorType.ORDER_NOT_CONFIRMED_FOR_REVIEW);
+        }
 
         // TODO 비속어 검사
 
@@ -135,7 +138,7 @@ public class ReviewService {
 
     /**
      * 리뷰 삭제
-     * @param reviewId
+     * @param reviewId 삭제할 리뷰 ID
      */
     @Transactional
     public void deleteReview(Long reviewId) {
@@ -147,8 +150,8 @@ public class ReviewService {
     }
 
     /**
-     * 리뷰 삭제
-     * @param reviewId
+     * 리뷰 복구
+     * @param reviewId 복구할 리뷰 ID
      */
     @Transactional
     public void restoreReview(Long reviewId) {
@@ -164,7 +167,7 @@ public class ReviewService {
      *
      * @param productId 상품 ID
      * @param pageable 페이지네이션 객체
-     * @return
+     * @return 상품 리뷰 리스트
      */
     public Page<ProductReviewDTO> findReviewsByProductId(Long productId, Pageable pageable) {
         try {
@@ -177,8 +180,7 @@ public class ReviewService {
     /**
      * 리뷰 수정
      *
-     * @param reviewId
-     * @param dto
+     * @param reviewId 수정할 리뷰 ID
      */
     @Transactional
     public void updateReview(Long reviewId, ReviewDTO dto) {
@@ -196,8 +198,8 @@ public class ReviewService {
     /**
      * 저장된 리뷰의 유효성 검사
      *
-     * @param reviewId
-     * @param dto
+     * @param reviewId 대상 리뷰 ID
+     * @param dto 수정할 내용
      */
     private void validateSavedReview(Long reviewId, ReviewDTO dto) {
         // 1. 존재하는 리뷰인지 확인
@@ -216,8 +218,8 @@ public class ReviewService {
     /**
      * 리뷰 이미지 수정
      *
-     * @param reviewId
-     * @param images
+     * @param reviewId 수정할 리뷰 ID
+     * @param images 수정할 이미지
      */
     @Transactional
     public void updateReviewImages(Long reviewId, List<String> images) {
@@ -241,7 +243,7 @@ public class ReviewService {
      *
      * @param userId 리뷰 등록자 ID
      * @param pageable 페이지네이션 객체
-     * @return
+     * @return 사용자 리뷰 리스트
      */
     public Slice<ConsumerReviewDTO> findUserReviews(Long userId, Pageable pageable) {
         return reviewRepository.findUserReviews(userId, pageable);
@@ -250,11 +252,7 @@ public class ReviewService {
     /**
      * 리뷰 조회
      *
-     * @param pageable
-     * @param keyword
-     * @param startAt
-     * @param endAt
-     * @return
+     * @return 리뷰 리스트
      */
     public Page<WebReviewDTO> findReviews(Pageable pageable, String keyword, LocalDate startAt, LocalDate endAt) {
         return reviewRepository.findReviews(pageable, keyword, startAt, endAt);
@@ -263,8 +261,8 @@ public class ReviewService {
     /**
      * 리뷰 단건 조회
      *
-     * @param reviewId
-     * @return
+     * @param reviewId 조회할 리뷰 ID
+     * @return 리뷰 데이터
      */
     public WebReviewDetailDTO findReview(Long reviewId) {
         return reviewRepository.findReview(reviewId);
@@ -272,8 +270,9 @@ public class ReviewService {
 
     /**
      * 리뷰 엑셀 추출
-     * @param dto
-     * @return
+     * 
+     * @param dto 추출할 리뷰 ID 리스트
+     * @return 리뷰 엑셀 파일 생성 결과 데이터
      */
     public FileGenerationStatusIdDTO exportReviews(IdsDTO dto) {
         try {
