@@ -1,4 +1,4 @@
-package com.impacus.maketplace.service.payment;
+package com.impacus.maketplace.service.payment.webhook.process;
 
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.error.PaymentWebhookErrorType;
@@ -14,6 +14,9 @@ import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.product.ProductOptionRepository;
 import com.impacus.maketplace.repository.product.history.ProductOptionHistoryRepository;
+import com.impacus.maketplace.service.coupon.CouponRedeemService;
+import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
+import com.impacus.maketplace.service.payment.utils.PaymentStatusValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +25,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import static com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO.WebhookEventType.TRANSACTION_CONFIRM;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.joining;
 
 @Service
@@ -35,12 +39,13 @@ public class PaymentConfirmService {
     private final PaymentEventRepository paymentEventRepository;
     private final ProductOptionRepository productOptionRepository;
     private final ProductOptionHistoryRepository productOptionHistoryRepository;
-
+    private final PaymentOrderHistoryService paymentOrderHistoryService;
+    private final PaymentStatusValidationService paymentValidationService;
+    private final CouponRedeemService couponRedeemService;
 
     /**
      * 결제 승인 처리
      */
-    // transactionId는 어떻게 처리되는 것인가?
     @Transactional
     public void confirm(WebhookPaymentDTO webhookPaymentDTO) {
         // 1. paymentId를 통해서 구매 예정인 상품 조회
@@ -50,15 +55,14 @@ public class PaymentConfirmService {
                 .orElseThrow(() -> new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_EVENT_BY_PAYMENT_ID));
 
         List<PaymentOrder> paymentOrders = paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())
-                .orElseThrow(() -> {
-                    CustomException exception = new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID);
-                    LogUtils.error(this.getClass() + "confirmService", "paymentEventId와 매핑되는 PaymentOrder를 찾을 수 없습니다.", exception);
-                    return exception;
-                });
+                .orElseThrow(() -> new CustomException(new CustomException(PaymentWebhookErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID)));
 
         paymentEvent.getPaymentOrders().addAll(paymentOrders);
 
-        // 2. 결제 금액이 totalAmount와 일치하는지 확인
+        // 2. 결제 상태 확인
+        paymentValidationService.validatePaymentStatus(TRANSACTION_CONFIRM, paymentOrders);
+
+        // 3. 결제 금액이 totalAmount와 일치하는지 확인
         if (!validateTotalAmount(paymentEvent, webhookPaymentDTO.getData().getTotalAmount())) {
             paymentEvent.getPaymentOrders()
                     .forEach(paymentOrder -> paymentOrder.changeStatus(PaymentOrderStatus.FAILURE));
@@ -67,9 +71,46 @@ public class PaymentConfirmService {
             throw new CustomException(exception);
         }
 
-        // 3. 상품의 재고가 충분한지 확인
+        // 쿠폰 및 포인트 사용한 경우
+        if (paymentEvent.isUsedCoupon()) {
+            try {
+                List<Long> paymentOrderIds = paymentOrders.stream().map(PaymentOrder::getId).toList();
+                couponRedeemService.processPaymentCoupons(paymentEvent.getId(), paymentOrderIds);
+            } catch (Exception e) {
+                // 작업중!!!!!!!
+                // 히스토리 업데이트 (사유의 경우 Exception 확용)
+                // 상태 변경
+                paymentEvent.getPaymentOrders().forEach(paymentOrder ->
+                        paymentOrder.changeStatus(PaymentOrderStatus.FAILURE));
+            }
+        }
+
+        // 4. 상품의 재고가 충분한지 확인
+        Map<Long, ProductOption> productOptions = vadlitionProductStock(paymentEvent);
+
+        // 5. 전부 일치한다면 변경해야 되는 상태들 변경해주기(단, 현재 시점에서 구매 확정 X)
+        paymentEvent.getPaymentOrders().forEach(paymentOrder -> {
+            // 5.1 재고 변경
+            ProductOption productOption = productOptions.get(paymentOrder.getProductOptionHistoryId());
+            productOption.setStock(productOption.getStock() - paymentOrder.getQuantity());
+        });
+
+        // 5.2 Payment Order History Update
+        paymentOrderHistoryService.updateAll(paymentEvent.getPaymentOrders(), PaymentOrderStatus.CONFIRM, "payment confirm");
+
+        // 5.3 Payment Order Status 변경
+        paymentEvent.getPaymentOrders().forEach(paymentOrder ->
+                paymentOrder.changeStatus(PaymentOrderStatus.CONFIRM));
+
+        // 5.4 PaymentEvent 결제 승인 시간 업데이트
+        paymentEvent.setApprovedAt(LocalDateTime.now());
+
+        // 쿠폰 사용한 경우 쿠폰 사용 처리하기
+    }
+
+    private Map<Long, ProductOption> vadlitionProductStock(PaymentEvent paymentEvent) {
         Map<Long, Optional<ProductOption>> productOptionOpts = paymentEvent.getPaymentOrders().stream()
-                .collect(Collectors.toMap(
+                .collect(toMap(
                         PaymentOrder::getProductOptionHistoryId,
                         paymentOrder -> {
                             Long productOptionHistoryId = paymentOrder.getProductOptionHistoryId();
@@ -81,19 +122,9 @@ public class PaymentConfirmService {
         Map<Long, ProductOption> productOptions = checkNotFoundedProductOption(paymentEvent, productOptionOpts);
 
         checkProductStock(paymentEvent, productOptions);
-
-        // 4. 전부 일치한다면 변경해야 되는 상태들 변경해주기(단, 현재 시점에서 구매 확정 X)
-        paymentEvent.getPaymentOrders().forEach(paymentOrder -> {
-            // 4.1 재고 변경
-            ProductOption productOption = productOptions.get(paymentOrder.getProductOptionHistoryId());
-            productOption.setStock(productOption.getStock() - paymentOrder.getQuantity());
-            // 4.2 PaymentOrder 상태 변경
-            paymentOrder.changeStatus(PaymentOrderStatus.EXECUTING);
-        });
-
-        // 4.3 PaymentEvent 결제 승인 시간 업데이트
-        paymentEvent.setApprovedAt(LocalDateTime.now());
+        return productOptions;
     }
+
     private void checkProductStock(PaymentEvent paymentEvent, Map<Long, ProductOption> productOptions) {
         String message = paymentEvent.getPaymentOrders().stream()
                 .filter(paymentOrder -> paymentOrder.getQuantity() > productOptions.get(paymentOrder.getProductOptionHistoryId()).getStock())
@@ -109,6 +140,7 @@ public class PaymentConfirmService {
             throw exception;
         }
     }
+
     private Map<Long, ProductOption> checkNotFoundedProductOption(PaymentEvent paymentEvent, Map<Long, Optional<ProductOption>> productOptions) {
         String message = productOptions.entrySet().stream()
                 .filter(longOptionalEntry -> longOptionalEntry.getValue().isEmpty())
@@ -125,7 +157,7 @@ public class PaymentConfirmService {
         }
 
         return productOptions.entrySet().stream()
-                .collect(Collectors.toMap(
+                .collect(toMap(
                         Map.Entry::getKey,
                         entry -> entry.getValue().get()));
     }
@@ -143,6 +175,7 @@ public class PaymentConfirmService {
 
         return Optional.of(productOption);
     }
+
     private boolean validateTotalAmount(PaymentEvent paymentEvent, String expectedTotalAmount) {
 
         Long totalAmount = Long.parseLong(expectedTotalAmount);

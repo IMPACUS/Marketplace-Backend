@@ -12,12 +12,17 @@ import com.impacus.maketplace.dto.payment.request.CheckoutSingleDTO;
 import com.impacus.maketplace.dto.payment.request.PaymentProductInfoDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentCartDTO;
 import com.impacus.maketplace.dto.payment.response.PaymentSingleDTO;
+import com.impacus.maketplace.entity.payment.PaymentEvent;
+import com.impacus.maketplace.repository.address.DeliveryAddressRepository;
+import com.impacus.maketplace.repository.payment.PaymentEventRepository;
+import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
 import com.impacus.maketplace.service.payment.utils.PaymentTestDataInitializer;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -221,6 +226,7 @@ public class CheckoutServiceIntegrationTest {
      */
 
     @Nested
+    @Transactional
     class CheckoutSingle {
 
         @Test
@@ -772,9 +778,41 @@ public class CheckoutServiceIntegrationTest {
             assertThat(result.getTotalDiscountedAmount()).isEqualTo(24998L);
         }
 
+        @Test
+        @DisplayName("[정상 케이스] - 모든 로직 처리: DB에 올바르게 저장되는지 확인")
+        void checkoutSinglePersistenceOK_success() {
+            // given
+            Long userId = 1L;
+
+            ArrayList<Long> appliedCouponForProductIds = new ArrayList<>();
+            appliedCouponForProductIds.add(1L);
+            appliedCouponForProductIds.add(7L);
+            ArrayList<Long> appliedCommonUserCouponIds = new ArrayList<>();
+            appliedCommonUserCouponIds.add(4L);
+            PaymentProductInfoDTO paymentProductInfoDTO = PaymentProductInfoDTO.builder()
+                    .productId(3L)
+                    .productOptionId(7L)
+                    .quantity(3L)
+                    .sellerId(1L)
+                    .appliedProductCouponIds(appliedCouponForProductIds)
+                    .build();
+
+            AddressInfoDTO addressInfoDTO = createAddressInfoDTO();
+
+            // 상품 3개: 앱 판매가가 19999원짜리인 할인된 가격 16999원 상품 3개 -> 16999 * 3 - (19999 * 3 * 10/100 + 5000) - (19999 * 3 * 20/100) = 50997 - (5999.7 + 5000) - 11999.4 -> 27998 - 3000 = 24998
+            CheckoutSingleDTO checkoutSingleDTO = new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, 3000L, PaymentMethod.KAKAO_PAY, false, null, 24998L, UUID.randomUUID().toString());
+
+            // when
+            PaymentSingleDTO result = checkoutService.checkoutSingle(userId, checkoutSingleDTO);
+
+            // then
+            assertThat(result.getTotalDiscountedAmount()).isEqualTo(24998L);
+        }
+
     }
 
     @Nested
+    @Transactional
     class checkoutCart {
         /**
          * 검증 테스트

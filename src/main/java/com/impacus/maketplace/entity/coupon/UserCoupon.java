@@ -52,4 +52,8 @@ public class UserCoupon extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserCouponStatus status;    // 발급된 쿠폰 상태
+
+    public void markAsUsed() {
+        this.isUsed = true;
+    }
 }
