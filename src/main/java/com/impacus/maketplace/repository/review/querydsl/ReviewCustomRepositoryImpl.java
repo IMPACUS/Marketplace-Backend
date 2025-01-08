@@ -1,16 +1,17 @@
 package com.impacus.maketplace.repository.review.querydsl;
 
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
+import com.impacus.maketplace.dto.review.response.WebReviewDTO;
 import com.impacus.maketplace.entity.payment.QPaymentOrder;
-import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.review.QReview;
 import com.impacus.maketplace.entity.review.QReviewReply;
-import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -20,10 +21,11 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.support.PageableUtils;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -169,6 +171,52 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
         }
 
         return PaginationUtils.toSlice(results, pageable);
+    }
+
+    @Override
+    public Page<WebReviewDTO> findReviews(
+            Pageable pageable,
+            String keyword,
+            LocalDate startAt,
+            LocalDate endAt
+    ) {
+        BooleanBuilder reviewBoolean = new BooleanBuilder()
+                .and(review.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
+                .and(review.contents.containsIgnoreCase(keyword));
+        if (SecurityUtils.getCurrentUserType() == UserType.ROLE_APPROVED_SELLER) {
+            reviewBoolean.and(review.isDeleted.isFalse());
+        }
+
+        // 데이터 조회
+        List<WebReviewDTO> dtos = queryFactory
+                .select(
+                        Projections.constructor(
+                                WebReviewDTO.class,
+                                review.id,
+                                review.rating,
+                                review.contents,
+                                user.name,
+                                user.email,
+                                review.createAt,
+                                review.isDeleted
+                        )
+                )
+                .from(review)
+                .leftJoin(user).on(user.id.eq(review.userId))
+                .where(reviewBoolean)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(review.createAt.desc())
+                .fetch();
+
+        //  페이지 객체로 변환
+        long count = queryFactory
+                .select(review.id.count())
+                .from(review)
+                .where(reviewBoolean)
+                .fetchFirst();
+
+        return PaginationUtils.toPage(dtos, pageable, count);
     }
 
 //

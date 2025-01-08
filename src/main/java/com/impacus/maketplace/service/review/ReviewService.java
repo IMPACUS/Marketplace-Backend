@@ -10,6 +10,7 @@ import com.impacus.maketplace.dto.review.request.CreateReviewDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
+import com.impacus.maketplace.dto.review.response.WebReviewDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.repository.review.ReviewRepository;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -238,6 +240,19 @@ public class ReviewService {
      */
     public Slice<ConsumerReviewDTO> findUserReviews(Long userId, Pageable pageable) {
         return reviewRepository.findUserReviews(userId, pageable);
+    }
+
+    /**
+     * 리뷰 조회
+     *
+     * @param pageable
+     * @param keyword
+     * @param startAt
+     * @param endAt
+     * @return
+     */
+    public Page<WebReviewDTO> findReviews(Pageable pageable, String keyword, LocalDate startAt, LocalDate endAt) {
+        return reviewRepository.findReviews(pageable, keyword, startAt, endAt);
     }
 
 //    /**
