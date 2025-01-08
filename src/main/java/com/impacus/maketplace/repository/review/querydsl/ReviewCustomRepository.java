@@ -4,6 +4,7 @@ import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
 import com.impacus.maketplace.dto.review.response.WebReviewDTO;
+import com.impacus.maketplace.dto.review.response.WebReviewDetailDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -27,4 +28,6 @@ public interface ReviewCustomRepository {
     Slice<ConsumerReviewDTO> findUserReviews(Long userId, Pageable pageable);
 
     Page<WebReviewDTO> findReviews(Pageable pageable, String keyword, LocalDate startAt, LocalDate endAt);
+
+    WebReviewDetailDTO findReview(Long reviewId);
 }

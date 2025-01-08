@@ -2,6 +2,7 @@ package com.impacus.maketplace.controller.review;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.review.response.WebReviewDTO;
+import com.impacus.maketplace.dto.review.response.WebReviewDetailDTO;
 import com.impacus.maketplace.service.review.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

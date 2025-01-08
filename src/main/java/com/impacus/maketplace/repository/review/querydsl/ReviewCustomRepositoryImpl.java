@@ -5,9 +5,7 @@ import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
-import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
-import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
-import com.impacus.maketplace.dto.review.response.WebReviewDTO;
+import com.impacus.maketplace.dto.review.response.*;
 import com.impacus.maketplace.entity.payment.QPaymentOrder;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
@@ -251,119 +249,40 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .innerJoin(productOption).on(productOption.productId.eq(product.id));
     }
 
-//
-//    /**
-//     * (2) 구매자용 리뷰 상세보기
-//     *
-//     * @param userId
-//     * @param orderId
-//     * @return
-//     */
-//    @Override
-//    public ReviewBuyerDTO displayViewBuyerReviewOne(Long userId, Long orderId) {
-//        BooleanBuilder builder = new BooleanBuilder();
-//        builder.and(review.orderId.eq(orderId));
-//        builder.and(review.buyerId.eq(userId)); // 추가된 조건
-//
-//        ReviewBuyerDTO reviewBuyerDTO = queryFactory.select(
-//                        new QReviewBuyerDTO(
-//                                review.id,
-//                                review.orderId,
-//                                review.score,
-//                                review.buyerContents,
-//                                review.buyerUploadImgId,
-//                                review.sellerComment
-//                        )
-//                ).from(review)
-//                .where(builder)
-//                .fetchOne();
-//        return reviewBuyerDTO;
-//    }
-//
-//
-//
-//    @Override
-//    public Slice<ReviewSellerDTO> displaySellerReviewList(Pageable pageable, Long userId, String search) {
-//        BooleanBuilder booleanBuilder = new BooleanBuilder();
-//        if (search != null && !search.trim().isEmpty()) {
-//            String searchPattern = "%" + search.trim() + "%";
-//            booleanBuilder.or(review.orderId.stringValue().likeIgnoreCase(searchPattern));
-//            booleanBuilder.or(review.sellerId.stringValue().likeIgnoreCase(searchPattern));
-//            booleanBuilder.or(review.buyerId.stringValue().likeIgnoreCase(searchPattern));
-//            booleanBuilder.or(review.score.stringValue().likeIgnoreCase(searchPattern));
-//            booleanBuilder.or(review.buyerContents.likeIgnoreCase(searchPattern));
-//            booleanBuilder.or(review.sellerComment.likeIgnoreCase(searchPattern));
-//            booleanBuilder.or(userEntity.name.likeIgnoreCase(searchPattern));
-//        }
-//
-//        List<ReviewSellerDTO> results = queryFactory.select(
-//                        Projections.fields(ReviewSellerDTO.class,
-//                                review.id,
-//                                review.orderId,
-//                                review.sellerId,
-//                                review.buyerId,
-//                                review.score,
-//                                review.buyerContents,
-//                                review.sellerComment,
-//                                review.createAt,
-//                                review.buyerContents,
-//                                review.isComment,
-//                                userEntity.name
-//                        )
-//                ).from(review).innerJoin(userEntity).on(review.sellerId.eq(userEntity.id))
-//                .where(review.sellerId.eq(userId))
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize() + 1)
-//                .orderBy(review.createAt.desc())
-//                .fetch();
-//        boolean hasNext = results.size() > pageable.getPageSize();
-//        if (hasNext) {
-//            results.remove(results.size() - 1);
-//        }
-//        return new SliceImpl<>(results, pageable, hasNext);
-//    }
-//
-//    /**
-//     * 판매자 리뷰 상세 보기 - 리뷰 답글 달기용
-//     * @param userId
-//     * @param reviewId
-//     * @param sellerComment
-//     * @return
-//     */
-//    @Override
-//    public ReviewSellerDTO displaySellerReviewDetail(Long userId, Long reviewId, String sellerComment) {
-//        BooleanBuilder builder = new BooleanBuilder();
-//        builder.and(review.id.eq(reviewId));
-//        builder.and(review.sellerId.eq(userId)); // 판매자 ID 조건 추가
-//
-//        return queryFactory.select(
-//                        Projections.fields(
-//                                ReviewSellerDTO.class,
-//                                review.id,
-//                                review.orderId,
-//                                review.sellerId,
-//                                review.buyerId,
-//                                review.score,
-//                                review.buyerContents,
-//                                review.buyerUploadImgId,
-//                                review.sellerComment,
-//                                review.createAt,
-//                                review.isArchive,
-//                                review.archiveAt,
-//                                userEntity.name.as("buyerName"),
-//                                userEntity.userIdName.as("idName"),
-//                                productDetailInfo.productColor,
-//                                product.id.as("productId"),
-//                                productDetailInfo.productMaterial,
-//                                productDetailInfo.productSize,
-//                                productDetailInfo.productType
-//                        )
-//                ).from(review)
-//                .join(userEntity).on(review.buyerId.eq(userEntity.id))
-////                .join(order).on(review.orderId.eq(order.id))
-////                .join(product).on(order.id.eq(product.id))
-//                .join(productDetailInfo).on(product.id.eq(productDetailInfo.productId))
-//                .where(builder)
-//                .fetchOne();
-//    }
+    @Override
+    public WebReviewDetailDTO findReview(Long reviewId) {
+        return queryFactory
+                .select(Projections
+                        .constructor(
+                                WebReviewDetailDTO.class,
+                                review.id,
+                                review.orderId,
+                                product.productNumber,
+                                user.name,
+                                review.rating,
+                                review.contents,
+                                product.name,
+                                review.images,
+                                Projections.fields(
+                                        ProductOptionDTO.class,
+                                        productOption.id,
+                                        productOption.color,
+                                        productOption.size
+                                ),
+                                user.email,
+                                review.createAt,
+                                Projections.fields(
+                                        WebReviewReplyDTO.class,
+                                        reviewReply.id,
+                                        reviewReply.contents
+                                )
+                        ))
+                .innerJoin(productOption).on(productOption.id.eq(review.productOptionId))
+                .innerJoin(product).on(product.id.eq(productOption.productId))
+                .leftJoin(user).on(user.id.eq(review.userId))
+                .leftJoin(reviewReply).on(reviewReply.reviewId.eq(review.id))
+                .from(review)
+                .where(review.id.eq(reviewId))
+                .fetchFirst();
+    }
 }

@@ -11,6 +11,7 @@ import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
 import com.impacus.maketplace.dto.review.response.WebReviewDTO;
+import com.impacus.maketplace.dto.review.response.WebReviewDetailDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.repository.review.ReviewRepository;
@@ -253,6 +254,16 @@ public class ReviewService {
      */
     public Page<WebReviewDTO> findReviews(Pageable pageable, String keyword, LocalDate startAt, LocalDate endAt) {
         return reviewRepository.findReviews(pageable, keyword, startAt, endAt);
+    }
+
+    /**
+     * 리뷰 단건 조회
+     *
+     * @param reviewId
+     * @return
+     */
+    public WebReviewDetailDTO findReview(Long reviewId) {
+        return reviewRepository.findReview(reviewId);
     }
 
 //    /**
