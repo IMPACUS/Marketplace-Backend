@@ -87,4 +87,29 @@ public class WebReviewController {
                 .data(result)
                 .build();
     }
+
+    /**
+     * 리뷰 단건 조회
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @PostMapping("/{reviewId}")
+    public ApiResponseEntity<WebReviewDetailDTO> findReview(
+            @PathVariable(name = "reviewId") Long reviewId
+    ) {
+        WebReviewDetailDTO result = reviewService.findReview(
+                reviewId
+        );
+
+        return ApiResponseEntity
+                .<WebReviewDetailDTO>builder()
+                .code(HttpStatus.OK)
+                .message("리뷰 단건 조회 성공")
+                .data(result)
+                .build();
+    }
 }

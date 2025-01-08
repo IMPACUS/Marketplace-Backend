@@ -33,7 +33,7 @@ public final class SecurityUtils {
         }
     }
 
-    public Long getCurrentUserId() {
+    public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) return null;
         return ((CustomUserDetails) authentication.getPrincipal()).getId();
