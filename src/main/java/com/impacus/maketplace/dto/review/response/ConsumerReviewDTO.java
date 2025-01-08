@@ -1,6 +1,7 @@
 package com.impacus.maketplace.dto.review.response;
 
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,25 @@ public class ConsumerReviewDTO {
     private LocalDateTime createdAt;
     private long quantity;
     private long amount;
+
+    public ConsumerReviewDTO(
+             Long reviewId,
+             Long orderId,
+             String contents,
+             String replyContents,
+             List<String> images,
+             ProductOptionDTO option,
+             LocalDateTime createdAt,
+             PaymentOrder order
+    ) {
+        this.reviewId = reviewId;
+        this.orderId = orderId;
+        this.contents = contents;
+        this.replyContents = replyContents;
+        this.images = images;
+        this.option = option;
+        this.createdAt = createdAt;
+        this.quantity = order.getQuantity();
+        this.amount = order.getFinalAmount();
+    }
 }

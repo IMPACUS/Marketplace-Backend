@@ -3,10 +3,13 @@ package com.impacus.maketplace.repository.review.querydsl;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
+import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
 import com.impacus.maketplace.dto.review.response.ProductReviewDTO;
+import com.impacus.maketplace.entity.payment.QPaymentOrder;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.review.QReview;
+import com.impacus.maketplace.entity.review.QReviewReply;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
@@ -16,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.support.PageableUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -29,9 +34,9 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
 
     private final QReview review = QReview.review;
     private final QUser user = QUser.user;
-    private final QSeller seller = QSeller.seller;
-    private final QProduct product = QProduct.product;
     private final QProductOption productOption = QProductOption.productOption;
+    private final QReviewReply reviewReply  = QReviewReply.reviewReply;
+    private final QPaymentOrder paymentOrder = QPaymentOrder.paymentOrder;
 
     @Override
     public void deleteReview(Long reviewId) {
@@ -130,44 +135,42 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .execute();
     }
 
-//
-//    /**
-//     * 구매자 전용 - 해당 상품 구매한 리뷰 보기
-//     *
-//     * @param userId 회원 번호 (로그인)
-//     * @return
-//     */
-//    @Override
-//    public List<ReviewBuyerDTO> displayViewBuyerReview(Long userId) {
-//        /**
-//         *     @QueryProjection
-//         *     public ReviewBuyerDTO(Long id, Long orderId, Integer score, String buyerContents,
-//         *                    String imgSrc, String sellerComment) {
-//         *         this.id = id;
-//         *         this.orderId = orderId;
-//         *         this.score = score;
-//         *         this.buyerContents = buyerContents;
-//         *         this.buyerUploadImgId = buyerUploadImgId;
-//         *         this.sellerComment = sellerComment;
-//         *     }
-//         */
-//        BooleanBuilder builder = new BooleanBuilder();
-//        builder.and(review.buyerId.eq(userId)); // 추가된 조건
-//
-//        List<ReviewBuyerDTO> reviewBuyerDTO = queryFactory.select(
-//                        new QReviewBuyerDTO(
-//                                review.id,
-//                                review.orderId,
-//                                review.score,
-//                                review.buyerContents,
-//                                review.buyerUploadImgId,
-//                                review.sellerComment
-//                        )
-//                ).from(review)
-//                .where(builder)
-//                .fetch();
-//        return reviewBuyerDTO;
-//    }
+    @Override
+    public Slice<ConsumerReviewDTO> findUserReviews(Long userId, Pageable pageable) {
+        List<ConsumerReviewDTO> results = queryFactory.select(
+                        Projections.constructor(ConsumerReviewDTO.class,
+                                review.id.as("reviewId"),
+                                review.orderId,
+                                review.contents,
+                                reviewReply.contents.as("replyContents"),
+                                review.images,
+                                Projections.fields(
+                                        ProductOptionDTO.class,
+                                        productOption.id.as("productOptionId"),
+                                        productOption.color,
+                                        productOption.size
+                                ),
+                                review.createAt,
+                                paymentOrder
+                        )
+                ).from(review)
+                .leftJoin(reviewReply).on(reviewReply.reviewId.eq(review.id))
+                .innerJoin(productOption).on(productOption.id.eq(review.productOptionId))
+                .innerJoin(paymentOrder).on(paymentOrder.id.eq(review.id))
+                .where(review.userId.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .orderBy(review.createAt.desc())
+                .fetch();
+
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.remove(results.size() - 1);
+        }
+
+        return PaginationUtils.toSlice(results, pageable);
+    }
+
 //
 //    /**
 //     * (2) 구매자용 리뷰 상세보기
