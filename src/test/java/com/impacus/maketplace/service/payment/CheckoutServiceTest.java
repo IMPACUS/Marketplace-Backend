@@ -29,6 +29,7 @@ import com.impacus.maketplace.repository.payment.checkout.dto.BuyerInfoDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInfoDTO;
 import com.impacus.maketplace.service.coupon.CouponRedeemService;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
+import com.impacus.maketplace.service.payment.utils.DiscountService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -67,6 +67,16 @@ public class PaymentEvent extends BaseEntity {
         return this.paymentOrders;
     }
 
+    public boolean isUsedCoupon() {
+        long couponAmount = paymentOrders.stream().mapToLong(PaymentOrder::getCouponDiscount).sum();
+        return couponAmount != 0L;
+    }
+
+    public boolean isUsedPoint() {
+        long pointAmount = paymentOrders.stream().mapToLong(PaymentOrder::getGreenLabelDiscount).sum();
+        return pointAmount != 0L;
+    }
+
     /**
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 포함)
      */

@@ -40,15 +40,15 @@ public class SearchController {
 
     @PostMapping
     public ApiResponseEntity<?> getSearchResult(@RequestParam("searchName") String searchName,
-                                                @RequestParam("searchType") SearchType searchType,
-                                                @RequestParam("searchId") Long searchId,
+                                                @RequestParam(name = "searchType", defaultValue = "PRODUCT") SearchType searchType,
+                                                @RequestParam(name = "searchId", defaultValue = "0") Long searchId,
                                                 @AuthenticationPrincipal CustomUserDetails user,
                                                 Pageable pageable) {
         Slice<AppProductDTO> products = null;
         if (user != null) {
             searchProductService.updateScore(searchName, searchType, searchId);
             searchPopularService.incrementKeyword(searchName, searchType, searchId);
-            searchRecentService.addSearch(searchName, user.getId());
+            searchRecentService.addSearch(searchName, searchType, searchId, user.getId());
             products = readProductService.findProductsByName(user.getId(), searchName, pageable);
         }
         return ApiResponseEntity.builder()
@@ -62,7 +62,7 @@ public class SearchController {
         HashMap<String, Object> map = new HashMap<>();
         map.put("recentSearch", null);
         if (user != null) {
-            LinkedList<String> recentSearch = searchRecentService.getSearch(user.getId());
+            List<SearchDTO> recentSearch = searchRecentService.getSearch(user.getId());
             map.put("recentSearch", recentSearch);
         }
         List<SearchDTO> popularSearch = searchPopularService.getTopKeywords();

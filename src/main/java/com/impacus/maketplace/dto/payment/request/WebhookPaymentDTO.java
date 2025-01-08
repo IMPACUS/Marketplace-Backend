@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,6 +24,7 @@ public class WebhookPaymentDTO {
         private String transactionId;
         private String cancellationId;
         private String totalAmount;
+        private List<Long> shoppingBasketIdList;
     }
 
     public enum WebhookEventType {

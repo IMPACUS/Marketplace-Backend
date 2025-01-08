@@ -32,5 +32,6 @@
     <include file="/db/changelog/db.changelog-jb0.04-241112.xml"/>
     <include file="/db/changelog/db.changelog-lchy-0.17-241207.xml"/>
     <include file="/db/changelog/db.changelog-lchy-0.18-241230.xml"/>
+    <include file="/db/changelog/db.changelog-jb0.05-250103.xml"/>
 
 </databaseChangeLog>
