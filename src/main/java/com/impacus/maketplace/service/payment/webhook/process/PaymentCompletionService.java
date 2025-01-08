@@ -9,12 +9,14 @@ import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
+import com.impacus.maketplace.service.payment.utils.PaymentOrderConfirmationService;
 import com.impacus.maketplace.service.payment.utils.PaymentStatusValidationService;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO.WebhookEventType.TRANSACTION_PAID;
@@ -29,6 +31,7 @@ public class PaymentCompletionService {
     private final PaymentOrderHistoryService paymentOrderHistoryService;
     private final ShoppingBasketService shoppingBasketService;
     private final PaymentStatusValidationService paymentValidationService;
+    private final PaymentOrderConfirmationService paymentOrderConfirmationService;
 
     /**
      * 결제 성공 처리
@@ -54,7 +57,11 @@ public class PaymentCompletionService {
         paymentOrderHistoryService.updateAll(paymentOrders, PaymentOrderStatus.SUCCESS, "payment success");
 
         // 4.2 Payment Order 결제 주문 상태 변경
-        paymentOrders.forEach(paymentOrder -> paymentOrder.changeStatus(PaymentOrderStatus.SUCCESS));
+        LocalDateTime confirmationDueAt = paymentOrderConfirmationService.calculateConfirmationDueAt();
+        paymentOrders.forEach(paymentOrder -> {
+            paymentOrder.changeStatus(PaymentOrderStatus.SUCCESS);
+            paymentOrder.updateConfirmationDueAt(confirmationDueAt);
+        });
 
         // 5. shoppingBaset id 존재할 경우 삭제 작업
         if (payload.getData().getShoppingBasketIdList() != null && !payload.getData().getShoppingBasketIdList().isEmpty()) {
