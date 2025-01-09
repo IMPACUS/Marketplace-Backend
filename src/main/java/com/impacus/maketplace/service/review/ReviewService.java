@@ -285,4 +285,11 @@ public class ReviewService {
             throw new CustomException(ex);
         }
     }
+
+    /**
+     * 삭제 후 14일이 지난 리뷰를 삭제하는 API
+     */
+    public long cleanUpReview() {
+        return reviewRepository.cleanUpReview();
+    }
 }

@@ -15,6 +15,7 @@ import com.impacus.maketplace.entity.review.QReviewReply;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -301,5 +302,28 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .where(reviewBoolean)
                 .orderBy(review.createAt.desc())
                 .fetch();
+    }
+
+    @Override
+    public long cleanUpReview() {
+        LocalDateTime now = LocalDateTime.now().minusDays(14);
+
+        BooleanBuilder reviewBoolean = new BooleanBuilder()
+                .and(review.isDeleted.isTrue())
+                .and(review.modifyAt.after(now));
+
+        // reviewReply 삭제
+        queryFactory.delete(reviewReply)
+                .where(reviewReply.reviewId.in(
+                        JPAExpressions.select(review.id)
+                                .from(review)
+                                .where(reviewBoolean)
+                ))
+                .execute();
+
+        // review 삭제
+        return queryFactory.delete(review)
+                .where(reviewBoolean)
+                .execute();
     }
 }

@@ -33,4 +33,6 @@ public interface ReviewCustomRepository {
     WebReviewDetailDTO findReview(Long reviewId);
 
     List<WebReviewDTO> findReviewsByIds(IdsDTO dto);
+
+    long cleanUpReview();
 }
