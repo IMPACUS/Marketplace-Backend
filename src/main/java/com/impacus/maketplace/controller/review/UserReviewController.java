@@ -2,10 +2,8 @@ package com.impacus.maketplace.controller.review;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
-import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.service.review.ReviewService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -13,7 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import security.CustomUserDetails;
@@ -30,7 +28,7 @@ public class UserReviewController {
      * @return
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
-    @PostMapping
+    @GetMapping
     public ApiResponseEntity<Slice<ConsumerReviewDTO>> findConsumerReviews(
             @AuthenticationPrincipal CustomUserDetails user,
             @PageableDefault(size = 2, direction = Sort.Direction.DESC, sort = "createAt") Pageable pageable

@@ -3,6 +3,7 @@ package com.impacus.maketplace.controller.review;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.review.request.CreateReviewDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
+import com.impacus.maketplace.dto.review.request.ReviewImageDTO;
 import com.impacus.maketplace.entity.review.Review;
 import com.impacus.maketplace.service.review.ReviewService;
 import jakarta.validation.Valid;
@@ -75,9 +76,9 @@ public class AppReviewController {
     @PutMapping("/{reviewId}/images")
     public ApiResponseEntity<Review> updateReviewImages(
             @PathVariable(name = "reviewId") Long reviewId,
-            @RequestBody List<String> images
+            @RequestBody ReviewImageDTO images
     ) {
-        reviewService.updateReviewImages(reviewId, images);
+        reviewService.updateReviewImages(reviewId, images.getImages());
 
         return ApiResponseEntity
                 .<Review>builder()

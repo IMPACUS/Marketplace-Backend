@@ -2,12 +2,10 @@ package com.impacus.maketplace.dto.review.response;
 
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
-import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -41,7 +39,10 @@ public class ConsumerReviewDTO {
         this.images = images;
         this.option = option;
         this.createdAt = createdAt;
-        this.quantity = order.getQuantity();
-        this.amount = order.getFinalAmount();
+
+        if (order != null) {
+            this.quantity = order.getQuantity();
+            this.amount = order.getFinalAmount();
+        }
     }
 }

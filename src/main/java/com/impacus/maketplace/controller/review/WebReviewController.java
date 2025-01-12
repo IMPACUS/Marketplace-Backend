@@ -72,7 +72,7 @@ public class WebReviewController {
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PostMapping
+    @GetMapping
     public ApiResponseEntity<Page<WebReviewDTO>> findReviews(
             @PageableDefault(size = 5, direction = Sort.Direction.DESC, sort = "createAt") Pageable pageable,
             @RequestParam(value = "keyword", required = false) String keyword,

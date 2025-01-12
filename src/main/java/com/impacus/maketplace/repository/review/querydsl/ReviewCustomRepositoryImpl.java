@@ -168,11 +168,6 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .orderBy(review.createAt.desc())
                 .fetch();
 
-        boolean hasNext = results.size() > pageable.getPageSize();
-        if (hasNext) {
-            results.remove(results.size() - 1);
-        }
-
         return PaginationUtils.toSlice(results, pageable);
     }
 
