@@ -100,7 +100,7 @@ public class WebReviewController {
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PostMapping("/{reviewId}")
+    @GetMapping("/{reviewId}")
     public ApiResponseEntity<WebReviewDetailDTO> findReview(
             @PathVariable(name = "reviewId") Long reviewId
     ) {
@@ -125,7 +125,7 @@ public class WebReviewController {
             "or hasRole('ROLE_ADMIN') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
             "or hasRole('ROLE_OWNER')")
-    @PutMapping("/excel")
+    @PostMapping("/excel")
     public ApiResponseEntity<FileGenerationStatusIdDTO> exportReviews(
             @RequestBody IdsDTO dto
     ) {

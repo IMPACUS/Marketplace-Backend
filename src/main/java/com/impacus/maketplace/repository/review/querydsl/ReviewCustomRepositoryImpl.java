@@ -12,6 +12,7 @@ import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.review.QReview;
 import com.impacus.maketplace.entity.review.QReviewReply;
+import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -42,6 +43,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     private final QReviewReply reviewReply  = QReviewReply.reviewReply;
     private final QPaymentOrder paymentOrder = QPaymentOrder.paymentOrder;
     private final QProduct product = QProduct.product;
+    private final QSeller seller = QSeller.seller;
 
     @Override
     public void deleteReview(Long reviewId) {
@@ -179,8 +181,12 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
             LocalDate endAt
     ) {
         BooleanBuilder reviewBoolean = new BooleanBuilder()
-                .and(review.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)))
-                .and(review.contents.containsIgnoreCase(keyword));
+                .and(review.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)));
+
+
+        if (keyword != null && !keyword.isBlank()) {
+            reviewBoolean.and(review.contents.containsIgnoreCase(keyword));
+        }
 
         // 현재 사용자 정보 가져오기
         UserType currentUserType = SecurityUtils.getCurrentUserType();
@@ -192,7 +198,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .select(review.id.count())
                 .from(review);
 
-        if (SecurityUtils.getCurrentUserType() == currentUserType) {
+        if (currentUserType == UserType.ROLE_APPROVED_SELLER) {
             reviewBoolean.and(review.isDeleted.isFalse());
 
             Long sellerId = fetchSellerId(currentUserId);
@@ -227,7 +233,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                                 user.name,
                                 user.email,
                                 review.createAt,
-                                review.isDeleted
+                                review.isDeleted,
+                                review.images
                         )
                 )
                 .from(review)
@@ -237,16 +244,17 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     // 판매자 ID 가져오기
     private Long fetchSellerId(Long userId) {
         return queryFactory
-                .select(user.id)
-                .from(user)
-                .where(user.id.eq(userId))
+                .select(seller.id)
+                .from(seller)
+                .where(seller.userId.eq(userId))
                 .fetchFirst();
     }
 
     // 판매자 조건 및 조인 추가
     private void addSellerConditions(JPAQuery<?> query, Long sellerId) {
         query.innerJoin(product).on(product.sellerId.eq(sellerId))
-                .innerJoin(productOption).on(productOption.productId.eq(product.id));
+                .innerJoin(productOption).on(productOption.productId.eq(product.id)
+                        .and(productOption.id.eq(review.productOptionId)));
     }
 
     @Override
@@ -273,15 +281,15 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                                 review.createAt,
                                 Projections.fields(
                                         WebReviewReplyDTO.class,
-                                        reviewReply.id,
+                                        reviewReply.id.as("reviewReplyId"),
                                         reviewReply.contents
                                 )
                         ))
+                .from(review)
                 .innerJoin(productOption).on(productOption.id.eq(review.productOptionId))
                 .innerJoin(product).on(product.id.eq(productOption.productId))
                 .leftJoin(user).on(user.id.eq(review.userId))
                 .leftJoin(reviewReply).on(reviewReply.reviewId.eq(review.id))
-                .from(review)
                 .where(review.id.eq(reviewId))
                 .fetchFirst();
     }

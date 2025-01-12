@@ -43,8 +43,8 @@ public class ReviewService {
     private final ExcelService excelService;
     private final PaymentApiService paymentApiService;
 
-    private static final long TEXT_REVIEW_POINT = 200L;
-    private static final long PHOTO_REVIEW_POINT = 350L;
+    public static final long TEXT_REVIEW_POINT = 200L;
+    public static final long PHOTO_REVIEW_POINT = 350L;
 
     /**
      * 리뷰 생성
@@ -246,7 +246,11 @@ public class ReviewService {
      * @return 사용자 리뷰 리스트
      */
     public Slice<ConsumerReviewDTO> findUserReviews(Long userId, Pageable pageable) {
-        return reviewRepository.findUserReviews(userId, pageable);
+        try {
+            return reviewRepository.findUserReviews(userId, pageable);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
     }
 
     /**
@@ -255,7 +259,11 @@ public class ReviewService {
      * @return 리뷰 리스트
      */
     public Page<WebReviewDTO> findReviews(Pageable pageable, String keyword, LocalDate startAt, LocalDate endAt) {
-        return reviewRepository.findReviews(pageable, keyword, startAt, endAt);
+        try {
+            return reviewRepository.findReviews(pageable, keyword, startAt, endAt);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
     }
 
     /**
