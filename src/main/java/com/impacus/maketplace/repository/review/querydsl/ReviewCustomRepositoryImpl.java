@@ -313,7 +313,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
 
         BooleanBuilder reviewBoolean = new BooleanBuilder()
                 .and(review.isDeleted.isTrue())
-                .and(review.modifyAt.after(now));
+                .and(review.modifyAt.before(now));
 
         // reviewReply 삭제
         queryFactory.delete(reviewReply)

@@ -297,6 +297,7 @@ public class ReviewService {
     /**
      * 삭제 후 14일이 지난 리뷰를 삭제하는 API
      */
+    @Transactional
     public long cleanUpReview() {
         return reviewRepository.cleanUpReview();
     }

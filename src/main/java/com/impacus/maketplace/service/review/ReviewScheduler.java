@@ -1,11 +1,8 @@
 package com.impacus.maketplace.service.review;
 
 import com.impacus.maketplace.common.utils.LogUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ReviewScheduler {
@@ -18,7 +15,8 @@ public class ReviewScheduler {
     /**
      * 삭제 후 14일이 지난 리뷰를 삭제하는 스케줄러
      */
-    @Scheduled(cron = "0 0 0 * * ?") // 자정
+    @Scheduled(cron = "0 0/2 * * * ?")
+    //@Scheduled(cron = "0 0 0 * * ?") // 자정
     public void cleanUpReview() {
         try {
             long result = reviewService.cleanUpReview();
