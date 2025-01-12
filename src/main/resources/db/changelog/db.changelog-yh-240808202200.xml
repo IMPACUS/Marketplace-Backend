@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1723116566733-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="product_question"/>
+            </not>
+        </preConditions>
+        <createTable tableName="product_question">
+            <column name="product_question_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="product_id" type="bigint" remarks="상품 PK">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_event_id" type="bigint" remarks="주문 PK"/>
+            <column name="user_id" type="bigint" remarks="사용자 PK">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contents" type="varchar(500)" remarks="문의 내용"/>
+            <column name="attach_file_id" type="bigint" remarks="첨부파일 PK"/>
+            <column name="create_at" type="timestamp"/>
+            <column name="modify_at" type="timestamp"/>
+            <column name="register_id" type="varchar(255)"/>
+            <column name="modify_id" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1723117492912-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="product_question" indexName="product_question_product_id_index"/>
+            </not>
+        </preConditions>
+        <createIndex tableName="product_question" indexName="product_question_product_id_index">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="1723117577915-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="product_question" indexName="product_question_user_id_index"/>
+            </not>
+        </preConditions>
+        <createIndex tableName="product_question" indexName="product_question_user_id_index">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="1723117509570-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="answer"/>
+            </not>
+        </preConditions>
+        <createTable tableName="answer">
+            <column name="answer_id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="question_id" type="bigint" remarks="문의 PK">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contents" type="varchar(500)" remarks="문의 내용"/>
+            <column name="attach_file_id" type="bigint" remarks="첨부파일 PK"/>
+            <column name="create_at" type="timestamp"/>
+            <column name="modify_at" type="timestamp"/>
+            <column name="register_id" type="varchar(255)"/>
+            <column name="modify_id" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1723117554636-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="answer" indexName="answer_question_id_index"/>
+            </not>
+        </preConditions>
+        <createIndex tableName="answer" indexName="answer_question_id_index">
+            <column name="question_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="1724114355691-2" author="facewise">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="product_question" columnName="user_name"/>
+                <columnExists tableName="product_question" columnName="seller_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="product_question">
+            <column name="user_name" type="varchar(255)" remarks="주문자"/>
+        </addColumn>
+        <addColumn tableName="product_question">
+            <column name="seller_id" type="bigint" remarks="판매자 PK"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

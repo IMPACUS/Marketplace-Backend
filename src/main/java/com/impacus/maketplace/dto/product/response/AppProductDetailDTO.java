@@ -7,12 +7,14 @@ import com.impacus.maketplace.common.utils.ProductUtils;
 import com.impacus.maketplace.dto.common.response.AttachFileDTO;
 import com.impacus.maketplace.entity.product.ProductOption;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@NoArgsConstructor
 public class AppProductDetailDTO {
     private Long id;
     private Long sellerId;
@@ -34,10 +36,10 @@ public class AppProductDetailDTO {
     @JsonProperty("isOutOfStock")
     private boolean isOutOfStock;
     private ProductDeliveryTimeDTO deliveryTime;
-
-    private float averageRating; // 평균 평점
-    private Long reviewCnt;
+    private double averageRating; // 평균 평점
+    private long reviewCnt;
     private Long wishlistCnt;
+
     private int maxEarnablePoints; // 최대 적립 포인트
 
 
@@ -75,8 +77,6 @@ public class AppProductDetailDTO {
         this.deliveryFee = ProductUtils.getProductDeliveryFee(deliveryFee, deliveryFeeType, sellerDeliveryFee);
 
         // TODO 관련 기능 개발 완료 되면 연결
-        this.averageRating = 5.0f;
-        this.reviewCnt = 123L;
         this.maxEarnablePoints = 100;
     }
 
@@ -102,5 +102,10 @@ public class AppProductDetailDTO {
 
     public void setWishlistCnt(Long wishlistCnt) {
         this.wishlistCnt = wishlistCnt;
+    }
+
+    public void updateReview(long reviewCnt, double averageRating) {
+        this.reviewCnt = reviewCnt;
+        this.averageRating = averageRating;
     }
 }

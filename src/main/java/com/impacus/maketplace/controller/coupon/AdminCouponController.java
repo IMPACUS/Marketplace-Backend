@@ -3,7 +3,7 @@ package com.impacus.maketplace.controller.coupon;
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.request.*;
@@ -230,7 +230,7 @@ public class AdminCouponController {
             "or hasRole('ROLE_PRINCIPAL_ADMIN') " +
             "or hasRole('ROLE_ADMIN')")
     @PostMapping("/issued-coupons/excel")
-    public ApiResponseEntity<FileGenerationStatusIdDTO> exportIssueCouponHistoryList(@Valid @RequestBody CouponIdsDTO dto) {
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportIssueCouponHistoryList(@Valid @RequestBody IdsDTO dto) {
         FileGenerationStatusIdDTO result = couponApiService.exportIssueCouponHistories(dto);
 
         return ApiResponseEntity

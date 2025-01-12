@@ -32,6 +32,8 @@ public interface ExcelFile {
             cell.setCellValue(((Enum<?>) value).toString());
         } else if (value instanceof LocalDate) {
             cell.setCellValue(((LocalDate) value).format(FORMATTER));
+        } else if (value instanceof Float) {
+            cell.setCellValue((Float) value);
         } else {
             cell.setCellValue((String) value);
         }

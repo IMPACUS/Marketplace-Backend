@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository.coupon.querydsl;
 
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.api.QAlarmCouponDTO;
@@ -67,7 +67,7 @@ public class CouponApiRepositoryImpl implements CouponApiRepository {
     }
 
     @Override
-    public List<IssueCouponHistoryDTO> findIssueCouponHistories(CouponIdsDTO dto) {
+    public List<IssueCouponHistoryDTO> findIssueCouponHistories(IdsDTO dto) {
         return queryFactory
                 .select(new QIssueCouponHistoryDTO(
                         userCoupon.id,
