@@ -1,13 +1,12 @@
 package com.impacus.maketplace.dto.product.response;
 
 import com.impacus.maketplace.common.enumType.product.ProductStatus;
-import com.impacus.maketplace.entity.product.Product;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
@@ -20,7 +19,7 @@ public class WebProductDTO {
     private List<String> productImages;
     private ProductStatus productStatus;
     private long wishlistCnt;
-    private int reviewCnt;
+    private long reviewCnt;
     private Integer appSalesPrice;
     private Integer discountPrice;
     private int orderCnt;
@@ -37,7 +36,8 @@ public class WebProductDTO {
         Integer appSalesPrice,
         Integer discountPrice,
         List<ProductOptionDTO> options,
-        LocalDateTime createAt
+        LocalDateTime createAt,
+        long reviewCnt
     ) {
         this.productId = productId;
         this.productNumber = productNumber;
@@ -48,6 +48,7 @@ public class WebProductDTO {
         this.appSalesPrice = appSalesPrice;
         this.discountPrice = discountPrice;
         this.options = options;
+        this.reviewCnt = reviewCnt;
 
         List<String> sizes = new ArrayList<>();
         List<String> colors = new ArrayList<>();

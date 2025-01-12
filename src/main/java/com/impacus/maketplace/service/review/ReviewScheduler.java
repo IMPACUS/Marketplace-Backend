@@ -15,8 +15,7 @@ public class ReviewScheduler {
     /**
      * 삭제 후 14일이 지난 리뷰를 삭제하는 스케줄러
      */
-    @Scheduled(cron = "0 0/2 * * * ?")
-    //@Scheduled(cron = "0 0 0 * * ?") // 자정
+    @Scheduled(cron = "0 0 0 * * ?") // 자정
     public void cleanUpReview() {
         try {
             long result = reviewService.cleanUpReview();

@@ -10,6 +10,7 @@ import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.QProduct;
 import com.impacus.maketplace.entity.product.QProductOption;
 import com.impacus.maketplace.entity.product.QWishlist;
+import com.impacus.maketplace.entity.review.QReview;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
@@ -36,6 +37,7 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
     private final QWishlist wishlist = QWishlist.wishlist;
     private final QSeller seller = QSeller.seller;
     private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
+    private final QReview review = QReview.review;
 
     @Override
     public CommonProductDTO findCommonProductByProductId(Long productId) {
@@ -81,6 +83,7 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
                 .selectFrom(product)
                 .leftJoin(productOption).on(productOptionBuilder)
                 .leftJoin(wishlist).on(wishlist.productId.eq(product.id))
+                    .leftJoin(review).on(review.productOptionId.eq(productOption.id))
                 .where(productBuilder)
                 .groupBy(product.id, productOption.id)
                 .transform(
@@ -103,7 +106,8 @@ public class WebProductCustomRepositoryImpl implements WebProductCustomRepositor
                                     productOption.size
                                 )
                             ),
-                            product.createAt
+                                product.createAt,
+                                review.count()
                         )
                     )
                 );
