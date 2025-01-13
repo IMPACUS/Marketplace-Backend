@@ -29,4 +29,23 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="changelog-lchy-0.18.02-25-01-13" author="lchy0413">
+        <preConditions>
+            <not>
+                <columnExists tableName="user_info" columnName="oauth_provider_type"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="user_info">
+            <column name="oauth_provider_type" type="VARCHAR(255)" defaultValue="NONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-lchy-0.18.03-25-01-14" author="lchy0413">
+        <update tableName="user_info">
+            <column name="oauth_provider_type" valueComputed="SPLIT_PART(email, '_', 1)"/>
+            <column name="email" valueComputed="SPLIT_PART(email, '_', 2)"/>
+            <where>type = 'ROLE_UNCERTIFIED_USER' OR type = 'ROLE_CERTIFIED_USER' OR type = 'ROLE_DEACTIVATED_USER'
+            </where>
+        </update>
+    </changeSet>
 </databaseChangeLog>
