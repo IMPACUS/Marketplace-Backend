@@ -1,7 +1,6 @@
 package com.impacus.maketplace.dto.review.response;
 
 import com.impacus.maketplace.common.annotation.excel.ExcelColumn;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.service.review.ReviewService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,7 +46,7 @@ public class WebReviewDTO {
         this.rating = rating;
         this.contents = contents;
         this.userName = userName;
-        this.userEmail = StringUtils.getEmailInfo(userEmail).getEmail();
+        this.userEmail = userEmail;
         this.createdAt = createdAt;
         this.isDeleted = isDeleted;
 

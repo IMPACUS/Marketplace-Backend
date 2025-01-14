@@ -1,6 +1,5 @@
 package com.impacus.maketplace.dto.review.response;
 
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,7 +35,7 @@ public class ProductReviewDTO {
         this.contents = contents;
         this.images = images;
         this.option = option;
-        this.userEmail = StringUtils.getEmailInfo(userEmail).getEmail();
+        this.userEmail = userEmail;
         this.createdAt = createdAt;
     }
 }

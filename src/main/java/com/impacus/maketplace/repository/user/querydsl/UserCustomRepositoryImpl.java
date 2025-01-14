@@ -229,7 +229,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 user.phoneNumberSuffix,
                                 levelPointMaster.userLevel,
                                 user.createAt,
-                                user.recentLoginAt
+                                user.recentLoginAt,
+                                user.oauthProviderType
                         )
                 )
                 .from(user)
@@ -311,7 +312,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 user.password,
                                 user.name,
                                 user.type,
-                                userStatusInfo.status
+                                userStatusInfo.status,
+                                user.oauthProviderType
                         )
                 )
                 .from(user)
@@ -381,7 +383,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 ConsumerEmailDTO.class,
                                 user.id,
                                 user.email,
-                                user.password
+                                user.password,
+                                user.oauthProviderType
                         )
                 )
                 .from(user)
