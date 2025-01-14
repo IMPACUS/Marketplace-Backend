@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.point;
 
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.utils.StringUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ public class AlarmPointDTO {
     private String userName; // 사용자 이름
     private String phoneNumber; // 사용자 핸드폰 번호
     private String email; // 사용자 이메일 주소
+    private OauthProviderType oauthProviderType;
     private Long remainPoint; // 소멸될 남은 포인트
     private LocalDateTime expiredAt; // 포인트 소멸 날짜
 
@@ -23,7 +25,8 @@ public class AlarmPointDTO {
             LocalDateTime expiredAt,
             String phoneNumberPrefix,
             String phoneNumberSuffix,
-            String email
+            String email,
+            OauthProviderType oauthProviderType
     ) {
         this.userId = userId;
         this.userName = userName;
@@ -31,5 +34,6 @@ public class AlarmPointDTO {
         this.email = email;
         this.remainPoint = remainPoint;
         this.expiredAt = expiredAt;
+        this.oauthProviderType = oauthProviderType;
     }
 }

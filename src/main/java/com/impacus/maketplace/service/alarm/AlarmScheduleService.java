@@ -3,7 +3,6 @@ package com.impacus.maketplace.service.alarm;
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserCategoryEnum;
 import com.impacus.maketplace.common.enumType.alarm.AlarmUserSubcategoryEnum;
 import com.impacus.maketplace.common.utils.AmountComma;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.point.AlarmPointDTO;
 import com.impacus.maketplace.entity.alarm.admin.AlarmAdminForUser;
@@ -81,7 +80,7 @@ public class AlarmScheduleService {
                     Boolean isKakao = alarmUser.getKakao();
                     Boolean isEmail = alarmUser.getEmail();
                     List<AlarmCouponDTO> alarmCouponDTOS = alarmMap.get(userId);
-                    String receiver = StringUtils.getEmailInfo(alarmCouponDTOS.get(0).getEmail()).getEmail();
+                    String receiver = alarmCouponDTOS.get(0).getEmail();
                     String userName = alarmCouponDTOS.get(0).getUserName();
                     String phone = alarmCouponDTOS.get(0).getPhoneNumber().replace("-", "");
 
@@ -133,7 +132,7 @@ public class AlarmScheduleService {
                         Boolean isEmail = alarmUser.getEmail();
                         Boolean isPush = alarmUser.getPush();
                         String userName = dto.getUserName();
-                        String receiver = StringUtils.getEmailInfo(dto.getEmail()).getEmail();
+                        String receiver = dto.getEmail();
                         String phone = dto.getPhoneNumber().replace("-", "");
                         String remainPoint = AmountComma.formatCurrency(dto.getRemainPoint());
                         String expiredStr = removeAfterDot(expiredAt.toString().replace("T", " "));

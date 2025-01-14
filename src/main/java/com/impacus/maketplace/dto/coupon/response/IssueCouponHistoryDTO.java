@@ -3,7 +3,6 @@ package com.impacus.maketplace.dto.coupon.response;
 import com.impacus.maketplace.common.annotation.excel.ExcelColumn;
 import com.impacus.maketplace.common.enumType.coupon.BenefitType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
@@ -48,7 +47,7 @@ public class IssueCouponHistoryDTO {
         this.provider = "IMPACUS";
         this.description = description;
         this.name = name;
-        this.userEmail = StringUtils.getEmailInfo(userEmail).getEmail();
+        this.userEmail = userEmail;
         this.userName = userName;
         this.status = status;
         this.issueDate = createAt.toLocalDate();
