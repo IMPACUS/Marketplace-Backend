@@ -110,7 +110,9 @@ public class UserService {
             }
 
             // 3. User&UserStatus 생성 및 저장
-            User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
+            User user = new User(
+                    email,
+                    OauthProviderType.NONE,
                     password,
                     signUpRequest.getName());
             userRepository.save(user);

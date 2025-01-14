@@ -97,9 +97,10 @@ public class User extends BaseEntity {
         return true;
     }
 
-    public User(String email, String password, String name) {
+    public User(String email, OauthProviderType oauthProviderType, String password, String name) {
         this.name = name;
         this.email = email;
+        this.oauthProviderType = oauthProviderType;
         this.password = password;
         this.type = UserType.ROLE_UNCERTIFIED_USER;
         this.isCertEmail = true;
