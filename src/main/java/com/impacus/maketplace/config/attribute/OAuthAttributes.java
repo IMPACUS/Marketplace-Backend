@@ -3,7 +3,6 @@ package com.impacus.maketplace.config.attribute;
 import com.impacus.maketplace.common.enumType.error.UserErrorType;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.entity.user.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -122,6 +121,6 @@ public class OAuthAttributes {
 
 
     public User toEntity() {
-        return new User(StringUtils.createStrEmail(email, oAuthProvider), null, name);
+        return new User(email, oAuthProvider, null, name);
     }
 }
