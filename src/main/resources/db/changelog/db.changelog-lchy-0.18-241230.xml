@@ -58,4 +58,5 @@
         </preConditions>
         <renameColumn tableName="green_label_point_history" oldColumnName="order_id" newColumnName="payment_id"/>
     </changeSet>
+    
 </databaseChangeLog>
