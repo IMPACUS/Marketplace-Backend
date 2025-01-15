@@ -48,4 +48,14 @@
             </where>
         </update>
     </changeSet>
+
+    <changeSet id="changelog-lchy-0.18.04-25-01-14" author="lchy0413">
+        <preConditions>
+            <columnExists tableName="green_label_point_history" columnName="order_id"/>
+            <not>
+                <columnExists tableName="green_label_point_history" columnName="payment_id"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="green_label_point_history" oldColumnName="order_id" newColumnName="payment_id"/>
+    </changeSet>
 </databaseChangeLog>
