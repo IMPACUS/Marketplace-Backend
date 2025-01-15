@@ -29,8 +29,8 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-lchy-0.18.02-25-01-13" author="lchy0413">
-        <preConditions>
+    <changeSet id="changelog-lchy-0.18.02-25-01-14" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="user_info" columnName="oauth_provider_type"/>
             </not>
@@ -49,8 +49,8 @@
         </update>
     </changeSet>
 
-    <changeSet id="changelog-lchy-0.18.04-25-01-14" author="lchy0413">
-        <preConditions>
+    <changeSet id="changelog-lchy-0.18.04-25-01-15" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
             <columnExists tableName="green_label_point_history" columnName="order_id"/>
             <not>
                 <columnExists tableName="green_label_point_history" columnName="payment_id"/>
