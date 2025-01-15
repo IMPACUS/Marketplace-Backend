@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.product.dto.ProductTypeDTO;
 import com.impacus.maketplace.dto.product.dto.SearchProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
@@ -448,6 +449,21 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         }
 
         return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    @Override
+    public List<ProductTypeDTO> findProductForPoint(List<Long> productIds) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                ProductTypeDTO.class,
+                                product.id.as("productId"),
+                                product.type
+                        )
+                )
+                .from(product)
+                .where(product.id.in(productIds))
+                .fetch();
     }
 
     @Override

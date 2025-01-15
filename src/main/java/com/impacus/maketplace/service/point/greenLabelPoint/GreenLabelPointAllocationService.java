@@ -47,7 +47,7 @@ public class GreenLabelPointAllocationService {
      * @param userId     포인트 지급받을 사용자 아이디
      * @param pointType  지급 포인트 타입
      * @param tradePoint 지급 포인트
-     * @param orderId    주문 아이디 (주문 포인트인 경우에만 필수)
+     * @param paymentId    PaymentEvent.id (주문 포인트인 경우에만 필수)
      * @return 포인트 지급 성공 여부
      */
     @Transactional
@@ -55,7 +55,7 @@ public class GreenLabelPointAllocationService {
             Long userId,
             PointType pointType,
             Long tradePoint,
-            @Nullable String orderId
+            @Nullable String paymentId
     ) {
         try {
             // 1. 지급 포인트 유효성 확인
@@ -92,7 +92,7 @@ public class GreenLabelPointAllocationService {
                     0L,
                     changedPoint,
                     levelPointMasterRepository.findLevelPointByUserId(userId),
-                    orderId
+                    paymentId
             );
             GreenLabelPointHistory history = greenLabelPointHistoryService.saveHistory(dto);
 

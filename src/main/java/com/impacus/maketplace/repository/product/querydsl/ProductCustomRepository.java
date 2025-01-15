@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository.product.querydsl;
 
 import com.impacus.maketplace.common.enumType.user.UserType;
+import com.impacus.maketplace.dto.product.dto.ProductTypeDTO;
 import com.impacus.maketplace.dto.product.dto.SearchProductDTO;
 import com.impacus.maketplace.dto.product.response.AppProductDTO;
 import com.impacus.maketplace.dto.product.response.AppProductDetailDTO;
@@ -44,4 +45,6 @@ public interface ProductCustomRepository {
     Slice<AppProductDTO> findProductsByName(Long userId, String name, Pageable pageable);
 
     Slice<SearchProductDTO> findAllBy(Pageable pageable);
+
+    List<ProductTypeDTO> findProductForPoint(List<Long> productIds);
 }

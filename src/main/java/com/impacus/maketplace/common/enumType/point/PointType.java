@@ -11,8 +11,7 @@ import java.util.List;
 @Getter
 @RequiredArgsConstructor
 public enum PointType {
-    PURCHASE_GENERAL_PRODUCT(0, "일반 상품 구매", RewardPointType.PURCHASE_GENERAL_PRODUCT),
-    PURCHASE_GREEN_TAG_PRODUCT(1, "그린 라벨 상품 구매", RewardPointType.PURCHASE_GREEN_TAG_PRODUCT),
+    PURCHASE_PRODUCT(0, "상품 구매", RewardPointType.PURCHASE_PRODUCT),
     USE(2, "결제 시 사용", null),
     EXPIRE(3, "소멸", null),
     CHECK(4, "출석체크", RewardPointType.CHECK),
