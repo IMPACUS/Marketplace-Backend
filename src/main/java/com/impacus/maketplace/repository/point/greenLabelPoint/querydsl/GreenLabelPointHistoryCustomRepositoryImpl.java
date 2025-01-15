@@ -198,7 +198,7 @@ public class GreenLabelPointHistoryCustomRepositoryImpl implements GreenLabelPoi
                                 history.createAt,
                                 history.pointStatus,
                                 ExpressionUtils.as(
-                                        JPAExpressions.select(orderHistory.orderId)
+                                        JPAExpressions.select(orderHistory.paymentId)
                                                 .from(orderHistory)
                                                 .where(orderHistory.id.eq(history.id)),
                                         "orderId"

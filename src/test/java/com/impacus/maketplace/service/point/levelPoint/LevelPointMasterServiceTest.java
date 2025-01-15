@@ -42,7 +42,7 @@ class LevelPointMasterServiceTest {
     void testPayLevelPoint_success_no_upgrade() {
         // given
         Long userId = 1L;
-        PointType pointType = PointType.PURCHASE_GENERAL_PRODUCT;
+        PointType pointType = PointType.PURCHASE_PRODUCT;
         Long tradePoint = 100L;
         LevelPointHistory history = LevelPointHistory.toEntity(
                 userId,
@@ -71,7 +71,7 @@ class LevelPointMasterServiceTest {
     void testPayLevelPoint_success_with_upgrade() {
         // given
         Long userId = 1L;
-        PointType pointType = PointType.PURCHASE_GENERAL_PRODUCT;
+        PointType pointType = PointType.PURCHASE_PRODUCT;
         Long tradePoint = 100L;
         LevelPointHistory history = LevelPointHistory.toEntity(
                 userId,

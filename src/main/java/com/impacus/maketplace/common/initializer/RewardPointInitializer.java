@@ -24,6 +24,8 @@ public class RewardPointInitializer {
     public void generateDummyRewardPointData() {
         try {
             List<RewardPointType> types = new ArrayList<>(Arrays.stream(RewardPointType.values()).toList());
+            rewardPointRepository.deleteByNotInRewardPointType(types);
+
             Set<RewardPointType> savedTypes = new HashSet<>(rewardPointRepository.findRewardPointType());
 
             // 1. 생성할 데이터가 존재하는지 확인
