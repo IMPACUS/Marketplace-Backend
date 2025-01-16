@@ -1,8 +1,8 @@
 package com.impacus.maketplace.controller.oauth;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.oauth.request.OAuthTokenDTO;
 import com.impacus.maketplace.dto.oauth.request.OauthCodeDTO;
-import com.impacus.maketplace.dto.oauth.request.OauthTokenDTO;
 import com.impacus.maketplace.dto.oauth.response.OauthLoginDTO;
 import com.impacus.maketplace.service.oauth.OAuthService;
 import com.impacus.maketplace.service.oauth.OAuthServiceFactory;
@@ -41,7 +41,7 @@ public class OAuthController {
      * @return
      */
     @PostMapping("/token")
-    public ApiResponseEntity<OauthLoginDTO> executeSocialLoginForToken(@Valid @RequestBody OauthTokenDTO dto) {
+    public ApiResponseEntity<OauthLoginDTO> executeSocialLoginForToken(@Valid @RequestBody OAuthTokenDTO dto) {
         OAuthService oAuthService = oAuthServiceFactory.getService(dto.getOauthProviderType());
         OauthLoginDTO response = oAuthService.login(dto);
         return ApiResponseEntity

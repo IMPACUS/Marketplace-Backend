@@ -1,6 +1,7 @@
 package com.impacus.maketplace.entity.consumer;
 
 import com.impacus.maketplace.common.BaseEntity;
+import com.impacus.maketplace.common.converter.AES256ToStringConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Consumer extends BaseEntity {
     private Long userId;
 
     @Column(nullable = false, unique = true)
+    @Convert(converter = AES256ToStringConverter.class)
     private String ci;
 
     public Consumer(Long userId, String ci) {

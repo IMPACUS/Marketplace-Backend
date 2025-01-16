@@ -1,5 +1,6 @@
 package com.impacus.maketplace.dto.user;
 
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import lombok.Getter;
@@ -14,4 +15,5 @@ public class CommonUserDTO {
     private String name;
     private UserType type;
     private UserStatus status;
+    private OauthProviderType oauthProviderType;
 }

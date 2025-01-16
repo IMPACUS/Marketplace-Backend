@@ -15,12 +15,16 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, UserCustomRepository {
 
-    List<User> findByEmailLike(String emailWithPrefix);
+    Optional<User> findByEmailLikeAndIsDeletedFalse(String emailWithPrefix);
 
-    @Query("SELECT u.id FROM User u WHERE u.email LIKE :emailWithPrefix")
+    Optional<User> findByEmailLikeAndIsDeletedTrue(String emailWithPrefix);
+
+    @Query("SELECT u.id " +
+            "FROM User u " +
+            "WHERE u.email LIKE :emailWithPrefix and u.isDeleted = false")
     List<Long> findIdByEmailLike(@Param("emailWithPrefix") String emailWithPrefix);
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailAndIsDeletedFalse(String email);
 
     boolean existsByEmail(String email);
 

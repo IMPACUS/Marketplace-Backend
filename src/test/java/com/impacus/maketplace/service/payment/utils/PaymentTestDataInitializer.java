@@ -162,7 +162,6 @@ public class PaymentTestDataInitializer {
         ProductOptionHistory productOptionHistory5 = ProductOptionHistory.toEntity(savedProductOption5);
         ProductOptionHistory productOptionHistory6 = ProductOptionHistory.toEntity(savedProductOption6);
 
-
         productOptionHistoryRepository.save(productOptionHistory4);
         productOptionHistoryRepository.save(productOptionHistory5);
         productOptionHistoryRepository.save(productOptionHistory6);

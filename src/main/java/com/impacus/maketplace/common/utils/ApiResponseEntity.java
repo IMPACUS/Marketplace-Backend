@@ -40,4 +40,11 @@ public class ApiResponseEntity<T> {
                 .code(httpStatus)
                 .build();
     }
+
+    public static <T> ApiResponseEntity<T> of(T data) {
+        return ApiResponseEntity.<T>builder()
+                .data(data)
+                .build();
+    }
+
 }

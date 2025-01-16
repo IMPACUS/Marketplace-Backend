@@ -2,7 +2,7 @@ package com.impacus.maketplace.controller.point;
 
 import com.impacus.maketplace.common.enumType.point.RewardPointStatus;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.AppGreenLabelPointDTO;
 import com.impacus.maketplace.dto.point.greenLabelPoint.GreenLabelHistoryDTO;
@@ -97,7 +97,7 @@ public class GreenLabelPointController {
     @PostMapping("/allocation/excel")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     public ApiResponseEntity<FileGenerationStatusIdDTO> exportGreenLabelPointHistories(
-            @Valid @RequestBody CouponIdsDTO dto
+            @Valid @RequestBody IdsDTO dto
     ) {
         FileGenerationStatusIdDTO result = greenLabelPointHistoryService.exportGreenLabelPointHistories(dto);
         return ApiResponseEntity.<FileGenerationStatusIdDTO>builder()

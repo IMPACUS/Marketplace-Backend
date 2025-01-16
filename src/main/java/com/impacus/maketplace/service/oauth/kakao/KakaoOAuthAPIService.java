@@ -21,4 +21,13 @@ public interface KakaoOAuthAPIService {
             @RequestParam("grant_type") String grantType,
             @RequestParam("redirect_uri") String redirectUri
     );
+
+    @PostMapping(value = KakaoAPIConstants.TOKEN,
+            headers = "Content-Type=application/x-www-form-urlencoded;charset=utf-8")
+    KakaoTokenResponse reissueKakaoToken(
+            @RequestParam("grant_type") String grantType,
+            @RequestParam("client_id") String clientId,
+            @RequestParam("refresh_token") String refreshToken,
+            @RequestParam("client_secret") String clientSecret
+    );
 }

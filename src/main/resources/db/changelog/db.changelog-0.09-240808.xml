@@ -290,64 +290,50 @@
     </changeSet>
 
     <!--  review 생성  -->
-    <changeSet id="changelog-0.09.08-240729" author="lchy0413">
+    <changeSet id="changelog-lchy-0.09.08-241225-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="review"/>
+        </preConditions>
+        <dropTable tableName="review"/>
+    </changeSet>
+    <changeSet id="changelog-lchy-0.09.08-241225-2" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="review"/>
             </not>
         </preConditions>
         <createTable tableName="review">
-            <column name="id" type="BIGINT" autoIncrement="true">
+            <column name="review_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="order_id" type="BIGINT">
                 <constraints nullable="true"/>
             </column>
-            <column name="seller_id" type="BIGINT">
+            <column name="product_option_id" type="BIGINT">
                 <constraints nullable="true"/>
             </column>
-            <column name="buyer_id" type="BIGINT">
+            <column name="user_id" type="BIGINT">
                 <constraints nullable="true"/>
             </column>
-            <column name="score" type="INTEGER">
+            <column name="contents" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="buyer_contents" type="VARCHAR(255)">
+            <column name="images" type="TEXT">
                 <constraints nullable="true"/>
             </column>
-            <column name="buyer_upload_img_id" type="BIGINT">
+            <column name="rating" type="FLOAT">
                 <constraints nullable="true"/>
             </column>
-            <column name="seller_comment" type="VARCHAR(255)">
-                <constraints nullable="true"/>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
             </column>
-            <column name="create_at" type="TIMESTAMP WITH TIME ZONE">
-                <constraints nullable="true"/>
-            </column>
-            <column name="is_archive" type="BOOLEAN">
-                <constraints nullable="true"/>
-            </column>
-            <column name="archive_at" type="TIMESTAMP WITH TIME ZONE">
-                <constraints nullable="true"/>
-            </column>
-            <column name="is_comment" type="BOOLEAN">
-                <constraints nullable="true"/>
-            </column>
+            
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
         </createTable>
 
-        <!-- Column Remarks -->
-        <setColumnRemarks tableName="review" columnName="id" remarks="리뷰 ID"/>
-        <setColumnRemarks tableName="review" columnName="order_id" remarks="주문 ID"/>
-        <setColumnRemarks tableName="review" columnName="seller_id" remarks="판매자 ID"/>
-        <setColumnRemarks tableName="review" columnName="buyer_id" remarks="구매자 ID"/>
-        <setColumnRemarks tableName="review" columnName="score" remarks="점수"/>
-        <setColumnRemarks tableName="review" columnName="buyer_contents" remarks="구매자 내용"/>
-        <setColumnRemarks tableName="review" columnName="buyer_upload_img_id" remarks="구매자 업로드 이미지 ID"/>
-        <setColumnRemarks tableName="review" columnName="seller_comment" remarks="판매자 댓글"/>
-        <setColumnRemarks tableName="review" columnName="create_at" remarks="생성일"/>
-        <setColumnRemarks tableName="review" columnName="is_archive" remarks="보관 여부"/>
-        <setColumnRemarks tableName="review" columnName="archive_at" remarks="보관일"/>
-        <setColumnRemarks tableName="review" columnName="is_comment" remarks="댓글 여부"/>
     </changeSet>
 
     <!--  orders 생성  -->

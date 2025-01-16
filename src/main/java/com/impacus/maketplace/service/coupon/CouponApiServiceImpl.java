@@ -1,7 +1,7 @@
 package com.impacus.maketplace.service.coupon;
 
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
@@ -56,7 +56,7 @@ public class CouponApiServiceImpl implements CouponApiService {
     }
 
     @Override
-    public List<IssueCouponHistoryDTO> findIssueCouponHistories(CouponIdsDTO dto) {
+    public List<IssueCouponHistoryDTO> findIssueCouponHistories(IdsDTO dto) {
         return couponApiRepository.findIssueCouponHistories(dto);
     }
 
@@ -66,7 +66,7 @@ public class CouponApiServiceImpl implements CouponApiService {
      * @return
      */
     public FileGenerationStatusIdDTO exportIssueCouponHistories(
-            CouponIdsDTO dto
+            IdsDTO dto
     ) {
         try {
             List<IssueCouponHistoryDTO> dtos = findIssueCouponHistories(dto);

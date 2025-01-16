@@ -3,9 +3,11 @@ package com.impacus.maketplace.config;
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.enumType.payment.PaymentMethod;
 import com.impacus.maketplace.common.exception.CustomException;
+import io.portone.sdk.server.webhook.WebhookVerifier;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Getter
@@ -17,6 +19,7 @@ public class PaymentConfig {
     private String storeId;
     private Smartro smartro;
     private KakaoPay kakaoPay;
+    private String webhookKey;
 
     public String getChannelKeyByPaymentMethod(PaymentMethod paymentMethod) {
         switch (paymentMethod) {
@@ -42,5 +45,10 @@ public class PaymentConfig {
     @Setter
     public static class KakaoPay {
         private String channelKey;
+    }
+
+    @Bean
+    public WebhookVerifier webhookVerifier() {
+        return new WebhookVerifier(this.webhookKey);
     }
 }

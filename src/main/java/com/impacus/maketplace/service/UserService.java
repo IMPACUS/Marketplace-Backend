@@ -34,11 +34,12 @@ import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.entity.VerificationCode;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.redis.service.VerificationCodeService;
-import com.impacus.maketplace.repository.ConsumerRepository;
+import com.impacus.maketplace.repository.consumer.ConsumerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.common.sms.SMSService;
+import com.impacus.maketplace.service.oauth.OAuthServiceFactory;
 import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
@@ -81,6 +82,7 @@ public class UserService {
     private final AlarmUserService alarmUserService;
     private final ConsumerRepository consumerRepository;
     private final SMSService smsService;
+    private final OAuthServiceFactory oAuthServiceFactory;
 
     @Transactional
     public UserDTO addUser(SignUpDTO signUpRequest) {
@@ -97,14 +99,20 @@ public class UserService {
                     throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
                 }
             }
+            // 탈퇴 14일 이내 회원 확인
+            if (!canRejoin(email)) {
+                throw new CustomException(UserErrorType.FAIL_TO_REJOIN_14);
+            }
 
-            // 2. 비밃번호 유효성 검사
+            // 2. 비밀번호 유효성 검사
             if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
                 throw new CustomException(UserErrorType.INVALID_PASSWORD);
             }
 
             // 3. User&UserStatus 생성 및 저장
-            User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
+            User user = new User(
+                    email,
+                    OauthProviderType.NONE,
                     password,
                     signUpRequest.getName());
             userRepository.save(user);
@@ -129,8 +137,24 @@ public class UserService {
      * @param email '%@%.%' 포맷의 이메일 데이터
      * @return 매개변수로 받은 email로 등록된 User 리스트
      */
-    public List<User> findUsersByEmailAboutAllProvider(String email) {
-        return userRepository.findByEmailLike("%_" + email);
+    public Optional<User> findUsersByEmailAboutAllProvider(String email) {
+        return userRepository.findByEmailLikeAndIsDeletedFalse("%_" + email);
+    }
+
+    /**
+     * email로 재가입 가능 여부를 확인하는 함수
+     *
+     * @param email
+     * @return
+     */
+    public boolean canRejoin(String email) {
+        Optional<User> userOptional = userRepository.findByEmailLikeAndIsDeletedTrue("%_" + email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return user.isRejoinable();
+        }
+
+        return true;
     }
 
     /**
@@ -141,12 +165,14 @@ public class UserService {
      * @return 요청한 데이터 기준으로 데이터가 존재하는 경우 User, 데이터가 존재하지 않은 경우 null
      */
     public User findUserByEmailAndOauthProviderType(String email, OauthProviderType providerType) {
-        List<User> userList = findUsersByEmailAboutAllProvider(email);
-        List<User> findUserList = userList.stream()
-                .filter(user -> user.getEmail().equals(providerType + "_" + email))
-                .toList();
+        Optional<User> userOptional = findUsersByEmailAboutAllProvider(email);
+        if (userOptional.isPresent()) {
+            if (userOptional.get().getEmail().equals(providerType + "_" + email)) {
+                return userOptional.get();
+            }
+        }
 
-        return (!findUserList.isEmpty()) ? findUserList.get(0) : null;
+        return null;
     }
 
     /**
@@ -368,11 +394,11 @@ public class UserService {
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         String email = user.getEmail();
 
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmailAndIsDeletedFalse(email);
     }
 
     public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_EMAIL));
     }
 
@@ -382,30 +408,6 @@ public class UserService {
 
     public boolean existUserByEmail(String email) {
         return userRepository.existsByEmail(email);
-    }
-
-
-    @Transactional
-    public void findFistDormancyUser() {
-        // TODO user entity 정리하면서 관련 column 삭제
-//        LocalDateTime fiveMonthAgo = LocalDateTime.now().minusMonths(5).plusDays(1).truncatedTo(ChronoUnit.DAYS);
-//        List<User> firstDormancyUser = userRepository.findByRecentLoginAtBeforeAndFirstDormancyIsFalse(fiveMonthAgo);
-//        LocalDate updateDormancyAt = LocalDateTime.now().plusMonths(1).toLocalDate();
-//
-//        for (User user : firstDormancyUser) {
-//            user.setDormancyMonths(5);
-//            user.setFirstDormancy(true);
-//            user.setUpdateDormancyAt(updateDormancyAt);
-//
-//            int underscoreIndex = user.getEmail().indexOf("_") + 1;
-//            String realUserEmail = user.getEmail().substring(underscoreIndex);
-//
-//            EmailDto emailDto = EmailDto.builder()
-//                    .subject(MailType.POINT_REDUCTION.getSubject())
-//                    .receiveEmail(realUserEmail)
-//                    .build();
-//            emailService.sendMail(emailDto, MailType.POINT_REDUCTION);
-//        }
     }
 
     /**
@@ -488,23 +490,7 @@ public class UserService {
         return CheckExistedEmailDTO.toDTO(isExited);
     }
 
-    /**
-     * [앱 개발 테스트를 위해 추가한 함수] 사용자 삭제 함수
-     *
-     * @param email
-     */
-    @Transactional
-    public void deleteConsumer(String email) {
-        List<User> userList = findUsersByEmailAboutAllProvider(email);
-        if (userList.isEmpty()) {
-            throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
-        }
 
-        // 삭제
-        // User, UserConsent, UserRole, UserStatusInfo
-        // GreenLabelPoint, GreenLabelPointAllocation, LevelAchievement, LevelPointMaster
-        userRepository.deleteConsumer(userList.get(0).getId());
-    }
 
     /**
      * 사용자 개인 정보 저장
@@ -543,11 +529,29 @@ public class UserService {
      */
     @Transactional
     public void saveOrUpdateConsumer(Long userId, CertificationResult certificationResult) {
+        // 회원가입 가능한 CI 인지 확인(+ 탈퇴한 회원의 CI 인지 확인)
+        validateUserRejoinable(certificationResult.getCi());
+
         if (consumerRepository.existsByUserId(userId)) { // 업데이트
             consumerRepository.updateConsumer(userId, certificationResult.getCi(), LocalDateTime.now());
         } else { // 생성
             Consumer consumer = certificationResult.toEntity(userId);
             consumerRepository.save(consumer);
+        }
+    }
+
+    private void validateUserRejoinable(String ci) {
+        User user = userRepository.findUserByCI(ci);
+        if (user == null) {
+            return;
+        }
+
+        if (user.isDeleted()) {
+            if (!user.isRejoinable()) {
+                throw new CustomException(UserErrorType.FAIL_TO_REJOIN_14);
+            }
+        } else {
+            throw new CustomException(UserErrorType.DUPLICATED_CI);
         }
     }
 

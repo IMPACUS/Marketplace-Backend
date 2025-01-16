@@ -8,6 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -39,7 +40,7 @@ public class PaymentOrder extends BaseEntity {
     private Long quantity;       // 구매 수량
 
     @Column(nullable = false)
-    private String orderId;     // 주문 식별자
+    private String paymentId;     // 주문 식별자
 
     @Column(nullable = false)
     private Long amount;    // 단일 상품 금액
@@ -63,6 +64,7 @@ public class PaymentOrder extends BaseEntity {
     @Column(name = "payment_order_status", nullable = false)
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'NOT_STARTED'")
+    @Setter
     private PaymentOrderStatus status;  // 결제 주문 상태
 
     @Column(nullable = false)
@@ -85,6 +87,19 @@ public class PaymentOrder extends BaseEntity {
     @ColumnDefault("'0'")
     private Integer threshold;      // 결제 실패 허용 임계값
 
+    private LocalDateTime confirmationDueAt;    // 주문 확정 예상 날짜
+
+    @Column(nullable = false)
+    @ColumnDefault("'FALSE'")
+    @Builder.Default
+    private Boolean isConfirmed = false;    // 주문 확정 여부
+
+    private LocalDateTime confirmedAt;      // 주문 확정 날짜
+
+    public void changeStatus(PaymentOrderStatus paymentOrderStatus) {
+        this.status = paymentOrderStatus;
+    }
+
     public Long getFinalAmount() {
         return amount * quantity
                 - ecoDiscount
@@ -100,5 +115,14 @@ public class PaymentOrder extends BaseEntity {
         BigDecimal totalAmount = BigDecimal.valueOf(getFinalAmount());
         BigDecimal commisionPercent = BigDecimal.valueOf(commissionPercent);
         return totalAmount.multiply(commisionPercent).divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR).longValue();
+    }
+
+    public void confirm() {
+        this.confirmedAt = LocalDateTime.now();
+        isConfirmed = true;
+    }
+
+    public void updateConfirmationDueAt(LocalDateTime localDateTime) {
+        this.confirmationDueAt = localDateTime;
     }
 }

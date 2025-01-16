@@ -8,7 +8,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.entity.product.Product;
-import com.impacus.maketplace.redis.service.ProductSearchService;
+import com.impacus.maketplace.redis.service.SearchProductService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.repository.product.WishlistRepository;
 import com.impacus.maketplace.service.AttachFileService;
@@ -27,7 +27,7 @@ public class DeleteProductService {
     private final AttachFileService attachFileService;
     private final WishlistRepository wishlistRepository;
     private final ReadProductService readProductService;
-    private final ProductSearchService productSearchService;
+    private final SearchProductService searchProductService;
 
 
     /**
@@ -70,6 +70,7 @@ public class DeleteProductService {
         try {
             // 1. Product 존재 확인
             Product deleteProduct = readProductService.findProductById(productId);
+            String productName = deleteProduct.getName();
 
             // 2. ProductOption 삭제
             productOptionService.deleteAllProductionOptionByProductId(deleteProduct.getId());
@@ -83,16 +84,16 @@ public class DeleteProductService {
             // 5. 삭제
             productRepository.updateIsDeleteTrueById(productId);
 
-            deleteProductSearchData(productId);
+            deleteProductSearchData(productId, productName);
         } catch (Exception ex) {
             throw new CustomException(ex);
         }
     }
 
     @Transactional
-    public void deleteProductSearchData(Long productId) {
+    public void deleteProductSearchData(Long productId, String productName) {
         try {
-            productSearchService.deleteSearchData(SearchType.PRODUCT, productId);
+            searchProductService.deleteSearchData(SearchType.PRODUCT, productId, productName);
         } catch (Exception ex) {
             LogUtils.writeErrorLog("deleteProductSearchData", "Fail to delete search data", ex);
         }

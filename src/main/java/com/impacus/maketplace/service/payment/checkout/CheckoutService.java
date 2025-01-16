@@ -31,7 +31,7 @@ import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInf
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsByCartDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductWithDetailsDTO;
 import com.impacus.maketplace.service.coupon.CouponRedeemService;
-import com.impacus.maketplace.service.payment.DiscountService;
+import com.impacus.maketplace.service.payment.utils.DiscountService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -185,10 +185,10 @@ public class CheckoutService {
         }
 
         // 7. order_id 및 payment_id 생성
-        String orderId = getOrderId();
-        String paymentKey;
+        String paymentId = getPaymentId();
+        String idempotencyKey;
         try {
-            paymentKey = OrderUtils.generatePaymentKey(checkoutSingleDTO);
+            idempotencyKey = OrderUtils.getIdempotencyKey(checkoutSingleDTO);
         } catch (Exception e) {
             LogUtils.error(this.getClass().toString(), "Fail to generate payment id caused over threshold count", e);
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.FAIL_GENERATE_PAYMENT_ID);
@@ -200,8 +200,8 @@ public class CheckoutService {
         PaymentEvent paymentEvent = PaymentEvent.builder()
                 .buyerId(userId)
                 .isPaymentDone(false)
-                .paymentKey(paymentKey)
-                .orderId(orderId)
+                .paymentId(paymentId)
+                .idempotencyKey(idempotencyKey)
                 .type(PaymentType.NORMAL)   // 추후 수정
                 .orderName(orderName)
                 .method(checkoutSingleDTO.getMethod())
@@ -215,7 +215,7 @@ public class CheckoutService {
                 .productId(checkoutProductInfo.getProductId())
                 .productOptionHistoryId(checkoutProductInfo.getProductOptionHistoryId())
                 .quantity(checkoutSingleDTO.getPaymentProductInfo().getQuantity())
-                .orderId(orderId)
+                .paymentId(paymentId)
                 .amount((long) checkoutProductInfo.getAppSalesPrice())
                 .ecoDiscount(discountInfo.getEcoDiscountAmount())
                 .greenLabelDiscount(discountInfo.getPointDiscountAmount())
@@ -239,10 +239,10 @@ public class CheckoutService {
 
         // 9. PaymentEventCoupon 및 PaymentOrderCoupon에 등록 후 사용 처리를 false로 처리
         List<Long> paymentOrderCouponIds = orderCoupons.stream().map(PaymentCouponDTO::getUserCouponId).toList();
-        couponRedeemService.registPaymentOrderCoupons(savedPaymentOrder.getId(), paymentOrderCouponIds);
+        couponRedeemService.registPaymentEventCoupons(savedPaymentOrder.getId(), paymentOrderCouponIds);
 
         List<Long> paymentEventCouponIds = productCoupons.stream().map(PaymentCouponDTO::getUserCouponId).toList();
-        couponRedeemService.registPaymentEventCoupons(savedPaymentEvent.getId(), paymentEventCouponIds);
+        couponRedeemService.registPaymentOrderCoupons(savedPaymentEvent.getId(), paymentEventCouponIds);
 
         // 10. Response DTO 반환
         CheckoutCustomerDTO checkoutCustomerDTO = new CheckoutCustomerDTO(
@@ -252,12 +252,12 @@ public class CheckoutService {
 
         return PaymentSingleDTO.builder()
                 .storeId(paymentConfig.getStoreId())
-                .paymentKey(orderId)
+                .paymentId(paymentId)
                 .orderName(orderName)
                 .totalDiscountedAmount(savedPaymentEvent.getTotalDiscountedAmount())
                 .currency("KRW")
                 .channelKey(paymentConfig.getChannelKeyByPaymentMethod(savedPaymentEvent.getMethod()))
-                .paymentMethod(savedPaymentEvent.getMethod())
+                .paymentMethod(savedPaymentEvent.getMethod().getValue())
                 .customer(checkoutCustomerDTO)
                 .build();
     }
@@ -271,7 +271,6 @@ public class CheckoutService {
     public PaymentCartDTO checkoutCart(Long userId, CheckoutCartDTO checkoutCartDTO) {
 
         // 1. 중복 쿠폰 사용 체크
-//        System.out.println("1. 중복 쿠폰 사용 체크: " + System.currentTimeMillis());
         List<Long> allCouponIds = new ArrayList<>();
         if (checkoutCartDTO.getAppliedOrderCouponIds() != null) {
             allCouponIds.addAll(checkoutCartDTO.getAppliedOrderCouponIds());
@@ -289,11 +288,9 @@ public class CheckoutService {
         validateDuplicatedCoupon(allCouponIds);
 
         // 2. 필요한 사용자 정보 가져오기
-//        System.out.println("2. 필요한 사용자 정보 가져오기: " + System.currentTimeMillis());
         BuyerInfoDTO buyerInfo = checkoutCustomRepository.getBuyerInfo(userId);
 
         // 3. 필요한 정보 가져오기
-//        System.out.println("3. 필요한 정보 가져오기: " + System.currentTimeMillis());
         // 상품의 수만큼 N번의 쿼리로 조회
 //        List<CheckoutCartProductInfoDTO> checkoutCartProductList = checkoutCartDTO.getPaymentProductInfos().stream().map(paymentProductInfoDTO -> {
 //                    CheckoutProductInfoDTO checkoutProductInfo = checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId());
@@ -311,7 +308,6 @@ public class CheckoutService {
         Integer size = checkoutCartProductList.size();
 
         // 4.1 validateCheckoutCartProduct
-//        System.out.println("4. validateCheckoutCartProduct: " + System.currentTimeMillis());
         checkoutCartProductList.forEach(checkoutCartProductInfoDTO ->
                 validateCheckoutProduct(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().isProductIsDeleted(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().isOptionIsDeleted(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductStatus(), checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getStock(), checkoutCartProductInfoDTO.getQuantity())
         );
@@ -322,7 +318,6 @@ public class CheckoutService {
         }
 
         // 5. validateDiscount
-//        System.out.println("5.1 validateDiscount 포인트 가져오기: " + System.currentTimeMillis());
         Long greenLabelPoint = 0L;
         if (checkoutCartDTO.getPointAmount() >= 0L) {
             greenLabelPoint = greenLabelPointAllocationService.getGreenLabelPointAmount(userId);
@@ -337,7 +332,6 @@ public class CheckoutService {
                 chekcoutCartProductInfoDTO.getCheckoutProductInfoDTO().getAppSalesPrice() * chekcoutCartProductInfoDTO.getQuantity()
         ).sum();
 
-//        System.out.println("5.2 validateDiscount 쿠폰 가져오기: " + System.currentTimeMillis());
         // 1번의 쿼리로 모든 쿠폰 검증 방식
         List<CouponValidationRequestDTO.ProductCouponValidationData> productCouponValidationDataList = checkoutCartProductList.stream()
                 .map(item -> {
@@ -368,7 +362,6 @@ public class CheckoutService {
 //
 //        List<PaymentCouponDTO> orderCoupons = couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutCartDTO.getAppliedOrderCouponIds(), orderTotalPrice);
 
-//        System.out.println("5.3 validateDiscount: " + System.currentTimeMillis());
         Map<Long, Long> productPrices = checkoutCartProductList.stream()
                 .collect(Collectors.toMap(
                         item -> item.getCheckoutProductInfoDTO().getProductId(),
@@ -396,7 +389,6 @@ public class CheckoutService {
                 .sum();
 
         // 6. 최종 결제 금액 비교
-//        System.out.println("6. 최종 결제 금액 비교: " + System.currentTimeMillis());
         if (!totalDiscountedAmount.equals(checkoutCartDTO.getCalculatedTotalAmount())) {
             CustomException exception = new CustomException(PaymentErrorType.MISMATCH_TOTAL_AMOUNT);
             LogUtils.error(String.format("%s %s", this.getClass(), "checkoutCart()"), String.format("서버간의 최종 결제 금액 비교 불일치 -> 클라이언트 서버: %d, 현재 서버: %d", checkoutCartDTO.getCalculatedTotalAmount(), totalDiscountedAmount), exception);
@@ -404,11 +396,10 @@ public class CheckoutService {
         }
 
         // 7. order_id 및 payment_id 생성
-//        System.out.println("7. order_id 및 payment_id 생성: " + System.currentTimeMillis());
-        String orderId = getOrderId();
-        String paymentKey;
+        String paymentId = getPaymentId();
+        String idempotencyKey;
         try {
-            paymentKey = OrderUtils.generatePaymentKey(checkoutCartDTO);
+            idempotencyKey = OrderUtils.getIdempotencyKey(checkoutCartDTO);
         } catch (Exception e) {
             LogUtils.error(this.getClass().toString(), "Fail to generate payment id caused over threshold count", e);
             throw new CustomException(PaymentErrorType.FAIL_GENERATE_PAYMENT_ID);
@@ -417,12 +408,11 @@ public class CheckoutService {
         String orderName = OrderUtils.generateOrderName(checkoutCartProductList.get(0).getCheckoutProductInfoDTO().getName(), checkoutCartProductList.get(0).getQuantity(), size);
 
         // 8. PaymentEvent, PaymentOrder, DeliveyAddress 저장
-//        System.out.println("8. PaymentEvent, PaymentOrder, DeliveyAddress 저장: " + System.currentTimeMillis());
         PaymentEvent paymentEvent = PaymentEvent.builder()
                 .buyerId(userId)
                 .isPaymentDone(false)
-                .paymentKey(paymentKey)
-                .orderId(orderId)
+                .idempotencyKey(idempotencyKey)
+                .paymentId(paymentId)
                 .type(PaymentType.NORMAL)   // 추후 수정
                 .orderName(orderName)
                 .method(checkoutCartDTO.getMethod())
@@ -438,7 +428,7 @@ public class CheckoutService {
                                     .productId(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductId())
                                     .productOptionHistoryId(checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getProductOptionHistoryId())
                                     .quantity(checkoutCartProductInfoDTO.getQuantity())
-                                    .orderId(orderId)
+                                    .paymentId(paymentId)
                                     .amount((long) checkoutCartProductInfoDTO.getCheckoutProductInfoDTO().getAppSalesPrice())
                                     .ecoDiscount(discountInfo.getEcoDiscountAmount())
                                     .greenLabelDiscount(discountInfo.getPointDiscountAmount())
@@ -464,7 +454,6 @@ public class CheckoutService {
         deliveryAddressRepository.save(deliveryAddress);
 
         // 9. PaymentEventCoupon 및 PaymentOrderCoupon에 등록 후 사용 처리를 false로 처리
-//        System.out.println("9. PaymentEventCoupon 및 PaymentOrderCoupon에 등록 후 사용 처리를 false로 처리" + System.currentTimeMillis());
         savedPaymentOrders.forEach(paymentOrder -> {
             List<PaymentCouponDTO> paymentProductCoupons = productCoupons.getOrDefault(paymentOrder.getProductId(), new ArrayList<>());
             List<Long> userCouponIds = paymentProductCoupons.stream().map(PaymentCouponDTO::getUserCouponId).toList();
@@ -475,7 +464,6 @@ public class CheckoutService {
         couponRedeemService.registPaymentEventCoupons(savedPaymentEvent.getId(), paymentOrderCouponIds);
 
         // 10. Response DTO 반환
-//        System.out.println("10. Response DTO 반환" + System.currentTimeMillis());
         CheckoutCustomerDTO checkoutCustomerDTO = new CheckoutCustomerDTO(
                 buyerInfo.getUserId(), buyerInfo.getName(), buyerInfo.getPhoneNumber(), buyerInfo.getEmail(),
                 checkoutCartDTO.getAddressInfo().getAddress(), checkoutCartDTO.getAddressInfo().getDetailAddress(), checkoutCartDTO.getAddressInfo().getPostalCode()
@@ -483,13 +471,13 @@ public class CheckoutService {
 
         return PaymentCartDTO.builder()
                 .storeId(paymentConfig.getStoreId())
-                .paymentKey(orderId)
+                .paymentId(paymentId)
                 .shoppingBasketIdList(checkoutCartDTO.getShoppingBasketIdList())
                 .orderName(orderName)
                 .totalDiscountedAmount(savedPaymentEvent.getTotalDiscountedAmount())
                 .currency("KRW")
                 .channelKey(paymentConfig.getChannelKeyByPaymentMethod(savedPaymentEvent.getMethod()))
-                .paymentMethod(savedPaymentEvent.getMethod())
+                .paymentMethod(savedPaymentEvent.getMethod().getValue())
                 .customer(checkoutCustomerDTO)
                 .build();
     }
@@ -518,21 +506,21 @@ public class CheckoutService {
      * 주문 id 생성
      * required: 재시도 로직 수정 필요
      */
-    private String getOrderId() {
+    private String getPaymentId() {
 
         int count = 1;
-        String orderId = OrderUtils.generateOrderNumber();
+        String paymentId = OrderUtils.generateOrderNumber();
 
-        while (paymentEventRepository.existsByOrderId(orderId)) {
+        while (paymentEventRepository.existsByPaymentId(paymentId)) {
             if (count == 5) {
                 LogUtils.writeInfoLog(this.getClass().toString(), "Fail to generate order id caused over threshold count");
                 throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.FAIL_GENERATE_ORDER_ID);
             }
-            orderId = OrderUtils.generateOrderNumber();
+            paymentId = OrderUtils.generateOrderNumber();
             count++;
         }
 
-        return orderId;
+        return paymentId;
     }
 
     private void validateCheckoutProduct(boolean productIsDeleted, boolean productOptionIsDeleted, ProductStatus productStatus, Long stock, Long quantity) {

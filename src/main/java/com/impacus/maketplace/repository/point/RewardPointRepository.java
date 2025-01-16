@@ -6,6 +6,7 @@ import com.impacus.maketplace.repository.point.querydsl.RewardPointCustomReposit
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,8 @@ public interface RewardPointRepository extends JpaRepository<RewardPoint, Long>,
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r FROM RewardPoint r WHERE r.rewardPointType = :type")
     RewardPoint findByRewardPointType(@Param("type") RewardPointType type);
+
+    @Modifying
+    @Query("DELETE FROM RewardPoint rp WHERE rp.rewardPointType NOT IN :types")
+    void deleteByNotInRewardPointType(@Param("types") List<RewardPointType> types);
 }

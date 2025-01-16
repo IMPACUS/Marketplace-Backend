@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-da-0.03-241119" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="popular_search"/>
+            </not>
+        </preConditions>
+        <createTable tableName="popular_search">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="keyword" type="VARCHAR(255)" remarks="검색어">
+                <constraints nullable="false"/>
+            </column>
+            <column name="count" type="INT" remarks="검색어 횟수">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="changelog-da-0.03-250106-01" author="sda0523">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="popular_search" columnName="product_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="popular_search">
+            <column name="product_id" type="BIGINT">
+                <constraints unique="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

@@ -14,7 +14,7 @@ import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.ProductDetailInfo;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
 import com.impacus.maketplace.entity.seller.Seller;
-import com.impacus.maketplace.redis.service.ProductSearchService;
+import com.impacus.maketplace.redis.service.SearchProductService;
 import com.impacus.maketplace.repository.product.ProductRepository;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
@@ -40,7 +40,7 @@ public class UpdateProductService {
     private final ProductHistoryService productHistoryService;
     private final ReadProductService readProductService;
     private final EntityManager entityManager;
-    private final ProductSearchService productSearchService;
+    private final SearchProductService searchProductService;
 
     /**
      * 등록된 상품 정보 수정 함수
@@ -93,12 +93,16 @@ public class UpdateProductService {
      */
     @Transactional
     public void updateProductSearchData(CommonProductDTO savedProduct, UpdateProductDTO dto) {
+        // revision by shin
+        String oldSearchName = savedProduct.getName();
+        String newSearchName = dto.getName();
         try {
-            if (!savedProduct.getName().equals(dto.getName())) {
-                productSearchService.updateSearchData(
+            if (!oldSearchName.equals(newSearchName)) {
+                searchProductService.updateSearchData(
                         SearchType.PRODUCT,
                         savedProduct.getProductId(),
-                        dto.getName()
+                        oldSearchName,
+                        newSearchName
                 );
             }
         } catch (Exception ex) {

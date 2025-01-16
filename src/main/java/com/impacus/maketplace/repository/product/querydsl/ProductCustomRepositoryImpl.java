@@ -4,9 +4,12 @@ import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.product.dto.ProductTypeDTO;
+import com.impacus.maketplace.dto.product.dto.SearchProductDTO;
 import com.impacus.maketplace.dto.product.response.*;
 import com.impacus.maketplace.entity.category.QSubCategory;
 import com.impacus.maketplace.entity.product.*;
+import com.impacus.maketplace.entity.review.QReview;
 import com.impacus.maketplace.entity.seller.QSeller;
 import com.impacus.maketplace.entity.seller.deliveryCompany.QSellerDeliveryCompany;
 import com.querydsl.core.BooleanBuilder;
@@ -21,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -45,6 +49,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     private final QProductDetailInfo productDetailInfo = QProductDetailInfo.productDetailInfo;
     private final QProductClaimInfo productClaimInfo = QProductClaimInfo.productClaimInfo;
     private final QSellerDeliveryCompany sellerDeliveryCompany = QSellerDeliveryCompany.sellerDeliveryCompany;
+    private final QReview review = QReview.review;
 
     @Override
     public Page<WebProductTableDetailDTO> findProductDetailsForWeb(
@@ -179,6 +184,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .leftJoin(seller).on(product.sellerId.eq(seller.id))
                 .leftJoin(sellerDeliveryCompany).on(sellerDeliveryCompany.sellerId.eq(seller.id))
                 .leftJoin(productDeliveryTime).on(productDeliveryTime.productId.eq(product.id))
+                .leftJoin(review).on(review.productOptionId.eq(productOption.id))
                 .where(product.id.eq(productId))
                 .transform(GroupBy.groupBy(product.id).list(
                                 Projections.constructor(
@@ -216,8 +222,19 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .from(wishlist)
                 .where(wishlist.productId.eq(productId))
                 .fetchOne();
-
         productDTO.setWishlistCnt(wishlistCnt != null ? wishlistCnt : 0L);
+
+        Tuple reviewData = queryFactory
+                .select(count(review), review.rating.avg())
+                .from(review)
+                .leftJoin(productOption).on(productOption.productId.eq(productId))
+                .where(review.productOptionId.eq(productOption.id))
+                .fetchFirst();
+
+        long reviewCount = Optional.ofNullable(reviewData.get(count(review))).orElse(0L);
+        double avgRating = Optional.ofNullable(reviewData.get(review.rating.avg())).orElse(0.0);
+
+        productDTO.updateReview(reviewCount, avgRating);
 
         return productDTO;
     }
@@ -407,6 +424,46 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         // Slice 생성
         return PaginationUtils.toSlice(dtos, pageable);
+    }
+
+    @Override
+    public Slice<SearchProductDTO> findAllBy(Pageable pageable) {
+        // 데이터 조회
+        List<SearchProductDTO> content = queryFactory
+                .select(Projections.fields(
+                        SearchProductDTO.class,
+                        product.id.as("productId"),
+                        product.name
+                ))
+                .from(product)
+                .offset(pageable.getOffset()) // 시작 위치
+                .limit(pageable.getPageSize() + 1) // 추가 데이터로 다음 페이지 여부 판단
+                .fetch();
+
+        // 다음 페이지 여부 체크
+        boolean hasNext = content.size() > pageable.getPageSize();
+
+        // 추가 데이터 제거
+        if (hasNext) {
+            content.remove(content.size() - 1);
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    @Override
+    public List<ProductTypeDTO> findProductForPoint(List<Long> productIds) {
+        return queryFactory
+                .select(
+                        Projections.fields(
+                                ProductTypeDTO.class,
+                                product.id.as("productId"),
+                                product.type
+                        )
+                )
+                .from(product)
+                .where(product.id.in(productIds))
+                .fetch();
     }
 
     @Override

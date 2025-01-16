@@ -10,9 +10,8 @@ import com.impacus.maketplace.dto.product.request.CreateProductDTO;
 import com.impacus.maketplace.dto.product.response.ProductDTO;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.product.history.ProductHistory;
-import com.impacus.maketplace.redis.service.ProductSearchService;
+import com.impacus.maketplace.redis.service.SearchProductService;
 import com.impacus.maketplace.repository.product.ProductRepository;
-import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.product.history.ProductHistoryService;
 import com.impacus.maketplace.service.seller.ReadSellerService;
 import com.impacus.maketplace.service.temporaryProduct.TemporaryProductService;
@@ -33,7 +32,7 @@ public class CreateProductService {
     private final ProductClaimService productClaimService;
     private final ProductHistoryService productHistoryService;
     private final ReadProductService readProductService;
-    private final ProductSearchService productSearchService;
+    private final SearchProductService searchProductService;
 
     /**
      * 새로운 Product 생성 함수
@@ -137,7 +136,7 @@ public class CreateProductService {
     @Transactional
     public void addProductSearchData(Product product) {
         try {
-            productSearchService.addSearchData(
+            searchProductService.addSearchData(
                     SearchType.PRODUCT,
                     product.getId(),
                     product.getName()

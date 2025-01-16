@@ -15,7 +15,6 @@ public enum OrderErrorType implements ErrorType {
     NOT_FOUND_ORDER_PRODUCT("060_5_NOT_FOUND_ORDER_PRODUCT", "주문한 상품을 찾을 수 없습니다."),
     FAILE_GENERATE_ORDER_NUMBER("061_FAILE_GENERATE_ORDER_NUMBER", "많은 주문으로 인해 주문 번호 생성에 실패했습니다.");
 
-
     private final String code;
     private final String msg;
 }

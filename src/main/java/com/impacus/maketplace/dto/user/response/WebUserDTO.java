@@ -4,7 +4,6 @@ import com.impacus.maketplace.common.annotation.excel.ExcelColumn;
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.utils.StringUtils;
-import com.impacus.maketplace.dto.user.EmailInfoDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,13 +40,13 @@ public class WebUserDTO {
             String phoneNumberSuffix,
             UserLevel userLevel,
             LocalDateTime registerAt,
-            LocalDateTime recentLoginAt
+            LocalDateTime recentLoginAt,
+            OauthProviderType oauthProviderType
     ) {
         this.userId = userId;
         this.name = name;
-        EmailInfoDTO emailInfo = StringUtils.getEmailInfo(email);
-        this.oauthProviderType = emailInfo.getOauthProviderType();
-        this.email = emailInfo.getEmail();
+        this.oauthProviderType = oauthProviderType;
+        this.email = email;
         this.phoneNumber = StringUtils.getPhoneNumber(phoneNumberPrefix, phoneNumberSuffix);
         this.userLevel = userLevel;
         this.registerAt = registerAt;

@@ -29,6 +29,7 @@ import com.impacus.maketplace.repository.payment.checkout.dto.BuyerInfoDTO;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInfoDTO;
 import com.impacus.maketplace.service.coupon.CouponRedeemService;
 import com.impacus.maketplace.service.payment.checkout.CheckoutService;
+import com.impacus.maketplace.service.payment.utils.DiscountService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,9 +52,9 @@ import static org.mockito.Mockito.*;
 @DisplayName("[비즈니스 로직] - 결제 체크 아웃 서비스")
 public class CheckoutServiceTest {
 
-    private final String MOCKED_ORDER_ID = "mockedOrderId";
+    private final String MOCKED_PAYMENT_ID = "mockedOrderId";
     private final String MOCKED_ORDER_NAME = "mockedOrderName";
-    private final String MOCKED_PAYMENT_KEY = "mockedPaymentKey";
+    private final String MOCKED_IDEMPOTENCY_KEY = "mockedPaymentKey";
 
     @InjectMocks
     private CheckoutService checkoutService;
@@ -146,7 +147,7 @@ public class CheckoutServiceTest {
                 orderUtilsMockedStatic.when(() -> OrderUtils.generateOrderName(any(), any(), any()))
                         .thenReturn("mockedOrderName");
 
-                orderUtilsMockedStatic.when(() -> OrderUtils.generatePaymentKey(any()))
+                orderUtilsMockedStatic.when(() -> OrderUtils.getIdempotencyKey(any()))
                         .thenReturn("mockedPaymentKey");
             } catch (Exception e) {
                 System.out.println(e);
@@ -484,7 +485,7 @@ public class CheckoutServiceTest {
                 orderUtilsMockedStatic.when(() -> OrderUtils.generateOrderName(any(), any(), any()))
                         .thenReturn("mockedOrderName");
 
-                orderUtilsMockedStatic.when(() -> OrderUtils.generatePaymentKey(any()))
+                orderUtilsMockedStatic.when(() -> OrderUtils.getIdempotencyKey(any()))
                         .thenReturn("mockedPaymentKey");
             } catch (Exception e) {
                 System.out.println(e);
@@ -563,7 +564,7 @@ public class CheckoutServiceTest {
                 orderUtilsMockedStatic.when(() -> OrderUtils.generateOrderName(any(), any(), any()))
                         .thenReturn("mockedOrderName");
 
-                orderUtilsMockedStatic.when(() -> OrderUtils.generatePaymentKey(any()))
+                orderUtilsMockedStatic.when(() -> OrderUtils.getIdempotencyKey(any()))
                         .thenReturn("mockedPaymentKey");
             } catch (Exception e) {
                 System.out.println(e);
@@ -678,7 +679,7 @@ public class CheckoutServiceTest {
                 orderUtilsMockedStatic.when(() -> OrderUtils.generateOrderName(any(), any(), any()))
                         .thenReturn("mockedOrderName");
 
-                orderUtilsMockedStatic.when(() -> OrderUtils.generatePaymentKey(any()))
+                orderUtilsMockedStatic.when(() -> OrderUtils.getIdempotencyKey(any()))
                         .thenReturn("mockedPaymentKey");
             } catch (Exception e) {
                 System.out.println(e);
@@ -802,7 +803,7 @@ public class CheckoutServiceTest {
                 orderUtilsMockedStatic.when(() -> OrderUtils.generateOrderName(any(), any(), any()))
                         .thenReturn("mockedOrderName");
 
-                orderUtilsMockedStatic.when(() -> OrderUtils.generatePaymentKey(any()))
+                orderUtilsMockedStatic.when(() -> OrderUtils.getIdempotencyKey(any()))
                         .thenReturn("mockedPaymentKey");
             } catch (Exception e) {
                 System.out.println(e);
@@ -932,7 +933,7 @@ public class CheckoutServiceTest {
                 orderUtilsMockedStatic.when(() -> OrderUtils.generateOrderName(any(), any(), any()))
                         .thenReturn("mockedOrderName");
 
-                orderUtilsMockedStatic.when(() -> OrderUtils.generatePaymentKey(any()))
+                orderUtilsMockedStatic.when(() -> OrderUtils.getIdempotencyKey(any()))
                         .thenReturn("mockedPaymentKey");
             } catch (Exception e) {
                 System.out.println(e);
@@ -1002,7 +1003,7 @@ public class CheckoutServiceTest {
                 .memo(null)
                 .build();
 
-        return new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, pointAmount, paymentMethod, false, null, calculatedAmount);
+        return new CheckoutCartDTO(shoppingBasketIdList, paymentProductInfos, addressInfoDTO, appliedCommonUserCouponIds, pointAmount, paymentMethod, false, null, calculatedAmount, UUID.randomUUID().toString());
     }
 
 
@@ -1014,7 +1015,7 @@ public class CheckoutServiceTest {
                 .productId(productId)
                 .productOptionHistoryId(productOptionHistoryId)
                 .quantity(quantity)
-                .orderId(MOCKED_ORDER_ID)
+                .paymentId(MOCKED_PAYMENT_ID)
                 .amount(amount)
                 .ecoDiscount(ecoDiscount)
                 .greenLabelDiscount(discountPoint)
@@ -1034,8 +1035,8 @@ public class CheckoutServiceTest {
                 .id(id)
                 .buyerId(userId)
                 .isPaymentDone(false)
-                .paymentKey(MOCKED_PAYMENT_KEY)
-                .orderId(MOCKED_ORDER_ID)
+                .idempotencyKey(MOCKED_IDEMPOTENCY_KEY)
+                .paymentId(MOCKED_PAYMENT_ID)
                 .type(PaymentType.NORMAL)
                 .orderName(MOCKED_ORDER_NAME)
                 .method(method)
@@ -1088,6 +1089,6 @@ public class CheckoutServiceTest {
                 .memo(null)
                 .build();
 
-        return new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, pointAmount, method, false, null, calculatedTotalAmount);
+        return new CheckoutSingleDTO(paymentProductInfoDTO, addressInfoDTO, appliedCommonUserCouponIds, pointAmount, method, false, null, calculatedTotalAmount, UUID.randomUUID().toString());
     }
 }

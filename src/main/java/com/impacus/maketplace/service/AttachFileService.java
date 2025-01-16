@@ -208,6 +208,11 @@ public class AttachFileService {
                         throw new CustomException(ProductErrorType.INVALID_PRODUCT, "지원하지 않는 상품 이미지 확장자 입니다. " + extension);
                     }
                 }
+                case REVIEW -> {
+                    if (file.getSize() > FileSizeConstants.REVIEW_PRODUCT_FILE_LIMIT) {
+                        throw new CustomException(CommonErrorType.INVALID_REQUEST_DATA, "리뷰 이미지는 크기 제한을 초과하였습니다.");
+                    }
+                }
             }
 
             // 업로드

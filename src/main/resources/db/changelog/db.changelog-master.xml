@@ -16,6 +16,7 @@
     <include file="/db/changelog/db.changelog-0.09-240808.xml"/>
     <include file="/db/changelog/db.changelog-0.10-240808.xml"/>
     <include file="/db/changelog/db.changelog-0.11-240808.xml"/>
+    <include file="/db/changelog/db.changelog-yh-240808202200.xml"/>
     <include file="/db/changelog/db.changelog-0.12-240813.xml"/>
     <include file="/db/changelog/db.changelog-0.12-240818.xml"/>
     <include file="/db/changelog/db.changelog-jb0.02-240818.xml"/>
@@ -24,12 +25,13 @@
     <include file="/db/changelog/db.changelog-jb0.03-240905.xml"/>
     <include file="/db/changelog/db.changelog-lchy-0.14-240924.xml"/>
     <include file="/db/changelog/db.changelog-lchy-0.15-241010.xml"/>
-    <include file="/db/changelog/db.changelog-lchy-0.16-241013.xml"/>
     <include file="/db/changelog/db.changelog-lchy-0.16-241031.xml"/>
     <include file="/db/changelog/db.changelog-da-0.01-241028.xml"/>
     <include file="/db/changelog/db.changelog-da-0.02-241101.xml"/>
+    <include file="/db/changelog/db.changelog-da-0.03-241119.xml"/>
     <include file="/db/changelog/db.changelog-jb0.04-241112.xml"/>
+    <include file="/db/changelog/db.changelog-lchy-0.17-241207.xml"/>
+    <include file="/db/changelog/db.changelog-lchy-0.18-241230.xml"/>
+    <include file="/db/changelog/db.changelog-jb0.05-250103.xml"/>
 
 </databaseChangeLog>
-
-

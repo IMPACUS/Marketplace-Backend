@@ -68,7 +68,8 @@ public class CheckoutController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("checkout-single")
-    public ApiResponseEntity<PaymentSingleDTO> checkoutSingle(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CheckoutSingleDTO checkoutSingleDTO) {
+    public ApiResponseEntity<PaymentSingleDTO> checkoutSingle(@AuthenticationPrincipal CustomUserDetails user,
+                                                              @Valid @RequestBody CheckoutSingleDTO checkoutSingleDTO) {
         PaymentSingleDTO response = checkoutService.checkoutSingle(user.getId(), checkoutSingleDTO);
 
         return ApiResponseEntity
@@ -82,7 +83,8 @@ public class CheckoutController {
      */
     @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping("checkout-cart")
-    public ApiResponseEntity<PaymentCartDTO> checkoutCart(@AuthenticationPrincipal CustomUserDetails user, @Valid @RequestBody CheckoutCartDTO checkoutCartDTO) {
+    public ApiResponseEntity<PaymentCartDTO> checkoutCart(@AuthenticationPrincipal CustomUserDetails user,
+                                                          @Valid @RequestBody CheckoutCartDTO checkoutCartDTO) {
 
         PaymentCartDTO response = checkoutService.checkoutCart(user.getId(), checkoutCartDTO);
 

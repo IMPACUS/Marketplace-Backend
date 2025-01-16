@@ -34,10 +34,10 @@ public class PaymentEvent extends BaseEntity {
     @ColumnDefault(value = "'false'")
     private Boolean isPaymentDone;  // 결제 완료 여부
 
-    private String paymentKey;  // 멱득성을 보장하기 위한 키
+    private String idempotencyKey;  // 멱득성을 보장하기 위한 키
 
     @Column(unique = true)
-    private String orderId;     // 주문 식별자
+    private String paymentId;     // 주문 식별자
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -57,6 +57,25 @@ public class PaymentEvent extends BaseEntity {
     @Transient
     @Builder.Default
     private List<PaymentOrder> paymentOrders = new ArrayList<>();
+
+    public void setApprovedAt(LocalDateTime localDateTime) {
+        this.approvedAt = localDateTime;
+    }
+
+    public List<PaymentOrder> getPaymentOrders() {
+        if (this.paymentOrders == null) this.paymentOrders = new ArrayList<>();
+        return this.paymentOrders;
+    }
+
+    public boolean isUsedCoupon() {
+        long couponAmount = paymentOrders.stream().mapToLong(PaymentOrder::getCouponDiscount).sum();
+        return couponAmount != 0L;
+    }
+
+    public boolean isUsedPoint() {
+        long pointAmount = paymentOrders.stream().mapToLong(PaymentOrder::getGreenLabelDiscount).sum();
+        return pointAmount != 0L;
+    }
 
     /**
      * 주문 상품들의 할인이 적용된 최종 금액 합계(수수료 비용 포함)
