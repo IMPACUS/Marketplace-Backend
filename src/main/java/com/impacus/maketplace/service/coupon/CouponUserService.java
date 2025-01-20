@@ -1,8 +1,5 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.CouponProductType;
-import com.impacus.maketplace.common.enumType.coupon.StandardType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -33,7 +30,7 @@ public class CouponUserService {
     private final CouponIssuanceService couponIssuanceService;
     private final UserCouponRepository userCouponRepository;
     private final CouponProductRepository couponProductRepository;
-    private final CouponValidationService couponValidationService;
+    private final PaymentCouponValidationService couponValidationService;
 
     /**
      * 쿠폰함에서 사용자가 가지고 있는 쿠폰 리스트 조회

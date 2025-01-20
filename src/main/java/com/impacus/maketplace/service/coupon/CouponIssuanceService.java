@@ -37,27 +37,15 @@ public class CouponIssuanceService {
     @Transactional
     public void issueCouponTargetUserByAdmin(Long couponId, Long userId) {
 
-        // 1. 등록되어 있는 쿠폰 조회
-        Coupon coupon = couponRepository.findWriteLockById(couponId)
-                .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON));
+        List<Long> userIdList = List.of(userId);
 
-        // 2. 쿠폰 상태 확인
-        // 2.1 삭제된 쿠폰인지 확인
-        if (coupon.getIsDeleted()) {
-            throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
-        }
-
-        // 2. 쿠폰 발급하기
-        // 2.1 해당 사용자에게 발급 + 발급 횟수 증가
-        UserCoupon userCoupon = issueInstantCoupon(userId, coupon);
-        userCouponRepository.save(userCoupon);
-
-
-        // 3 쿠폰 발급 이력 기록
-        CouponIssuanceHistory couponIssuanceHistory = createCouponIssuanceHistory(userCoupon.getId(), userCoupon.getId(), TriggerType.ADMIN);
-        couponIssuanceHistoryRepository.save(couponIssuanceHistory);
+        issueCouponAllUserByAdmin(couponId, userIdList);
     }
 
+    /**
+     * ADMIN이 사용자에게 쿠폰 발급해주는 함수
+     * 세부 사항: 쿠폰이 삭제되어 있는 경우를 제외하면 모든 상태에서 발급 가능
+     */
     @Transactional
     public void issueCouponAllUserByAdmin(Long couponId, List<Long> userIdList) {
 
@@ -83,6 +71,11 @@ public class CouponIssuanceService {
         couponIssuanceHistoryRepository.saveAll(couponIssuanceHistoryList);
     }
 
+    /**
+     * 사용자가 쿠폰 코드를 입력하여 쿠폰을 발급받는 함수
+     * 세부 사항:
+     * - 조건: 지급형 쿠폰, 1회성 쿠폰(1번만 발급 받기 가능), 발급 받은 이력 X
+     */
     @Transactional
     public UserCouponOverviewDTO registerCouponByUser(Long userId, String code) {
         // 1. 쿠폰 조회하기
@@ -116,6 +109,9 @@ public class CouponIssuanceService {
                 .build();
     }
 
+    /**
+     * 쿠폰 발급 및 다운로드
+     */
     @Transactional
     public UserCouponDownloadDTO issueAndDownloadCoupon(Long userId, Long couponId) {
 

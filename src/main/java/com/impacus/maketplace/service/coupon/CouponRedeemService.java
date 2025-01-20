@@ -39,7 +39,7 @@ public class CouponRedeemService {
     private final PaymentEventCouponRepository paymentEventCouponRepository;
     private final PaymentOrderCouponRepository paymentOrderCouponRepository;
     private final UserCouponRepository userCouponRepository;
-    private final CouponValidationService couponValidationService;
+    private final PaymentCouponValidationService couponValidationService;
 
     /**
      * Payment Event Coupon(상품에 등록하는 쿠폰) 이력 등록

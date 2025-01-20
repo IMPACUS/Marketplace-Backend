@@ -1,8 +1,6 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.CouponProductType;
-import com.impacus.maketplace.common.enumType.coupon.StandardType;
+import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.product.ProductType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -17,7 +15,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CouponValidationService {
+public class PaymentCouponValidationService {
 
     public boolean validateCouponForOrder(ValidateOrderCouponInfoDTO coupon, Long totalPrice) {
         // 타입 체크 (상품 구분: ALL)
