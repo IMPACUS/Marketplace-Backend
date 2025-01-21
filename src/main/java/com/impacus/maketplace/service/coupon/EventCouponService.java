@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
- * 이벤트 기반 쿠폰 처리 서비스
+ * 이벤트 쿠폰 처리 서비스
  */
 @Service
 @RequiredArgsConstructor
-public class EventBasedCouponService {
-
+public class EventCouponService {
     /**
      * 회원가입 시 발행되는 쿠폰 처리
      */

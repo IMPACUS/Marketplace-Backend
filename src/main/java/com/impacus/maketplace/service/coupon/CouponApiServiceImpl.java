@@ -8,6 +8,7 @@ import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoryDTO;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponApiRepository;
 import com.impacus.maketplace.service.api.CouponApiService;
+import com.impacus.maketplace.service.coupon.utils.CouponIssuanceManager;
 import com.impacus.maketplace.service.excel.ExcelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,8 @@ import java.util.Map;
 public class CouponApiServiceImpl implements CouponApiService {
 
     private final CouponApiRepository couponApiRepository;
-    private final CouponIssuanceService couponIssuanceService;
+    private final CouponIssuanceManager couponIssuanceService;
+    private final ProvisionCouponService provisionCouponService;
     private final ExcelService excelService;
 
     /**
@@ -39,7 +41,7 @@ public class CouponApiServiceImpl implements CouponApiService {
 
     @Transactional
     public void issueCouponUser(Long userId, Long couponId) {
-        couponIssuanceService.issueCouponTargetUserByAdmin(couponId, userId);
+        provisionCouponService.issueCouponToUserByAdmin(userId, couponId);
     }
 
     public Map<Long, List<AlarmCouponDTO>> getAlarmCoupon() {

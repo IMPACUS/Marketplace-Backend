@@ -8,8 +8,14 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
-import com.impacus.maketplace.dto.coupon.request.*;
-import com.impacus.maketplace.dto.coupon.response.*;
+import com.impacus.maketplace.dto.coupon.request.CouponDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponEventTypeDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponIssueDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoriesDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.category.SubCategoryRepository;
@@ -22,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,25 +43,25 @@ import java.util.stream.Collectors;
 public class CouponAdminService {
 
     private final SellerRepository sellerRepository;
-    private final SubCategoryRepository subCategoryRepository;
     private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final UserRepository userRepository;
-    private final UserService userService;
-    private final CouponIssuanceService couponIssuanceService;
+    private final ProvisionCouponService provisionCouponService;
 
     /**
      * 쿠폰 코드 중복 검사
+     *
      * @param code
      */
     public void duplicateCheckCode(String code) {
-        if(couponRepository.existsByCode(code)) {
+        if (couponRepository.existsByCode(code)) {
             throw new CustomException(new CustomException(CouponErrorType.DUPLICATED_COUPON_CODE));
         }
     }
 
     /**
      * 관리자 페이지에서 쿠폰 등록
+     *
      * @param couponIssuedDto 쿠폰 발급 DTO
      * @return coupon 저장된 쿠폰 Entity
      */
@@ -76,6 +81,7 @@ public class CouponAdminService {
 
     /**
      * 관리자 페이지에서 쿠폰 수정
+     *
      * @param couponUpdateDTO 쿠폰 수정 DTO
      * @return coupon 수정된 쿠폰 Entity
      */
@@ -85,14 +91,14 @@ public class CouponAdminService {
         // 1. 해당 id를 가진 쿠폰의 발급 수량 가져오기(Lock)
         Coupon coupon = couponRepository.findWriteLockById(couponUpdateDTO.getCouponId()).orElseThrow(() -> {
             log.error("CouponAdminService.updateCoupon error: id값이 존재하지 않습니다. " +
-                    "id: {}",couponUpdateDTO.getCouponId());
+                    "id: {}", couponUpdateDTO.getCouponId());
             throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
         });
 
         // 2. 삭제된 쿠폰인지 확인
         if (coupon.getIsDeleted()) {
             log.error("CouponAdminService.updateCoupon error: 삭제된 쿠폰입니다. " +
-                    "id: {}",couponUpdateDTO.getCouponId());
+                    "id: {}", couponUpdateDTO.getCouponId());
             throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
         }
 
@@ -116,6 +122,7 @@ public class CouponAdminService {
 
     /**
      * 단일 쿠폰 조회
+     *
      * @param id
      * @return
      */
@@ -137,6 +144,7 @@ public class CouponAdminService {
 
     /**
      * 선택한 쿠폰 리스트 상태 변경
+     *
      * @param couponIdList
      * @param changeCouponStatus
      * @return
@@ -164,6 +172,7 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 삭제하기
+     *
      * @param couponIdList
      */
     @Transactional
@@ -187,9 +196,10 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 목록 Pagination
-     * @param name 쿠폰명/혜택
+     *
+     * @param name         쿠폰명/혜택
      * @param couponStatus 발급 상태
-     * @param pageable 페이지 숫자 및 크기
+     * @param pageable     페이지 숫자 및 크기
      * @return couponListInfoDTOList
      */
     public Page<CouponListInfoDTO> getCouponListInfoList(String name, CouponStatusType couponStatus, Pageable pageable) {
@@ -198,6 +208,7 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 지급하기 페이지: 쿠폰 정보 조회
+     *
      * @return List<PayCouponInfoDTO>
      */
     public List<IssueCouponInfoDTO> getIssueCouponInfoList() {
@@ -205,33 +216,31 @@ public class CouponAdminService {
     }
 
     /**
-     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 조건에 해당하는 모든 유저에게 쿠폰을 발급
-     * @param couponId
-     * @param userLevel
+     * <h3>쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 조건에 해당하는 모든 유저에게 쿠폰을 발급</h3>
+     * <p>사용자 조건</p>
+     * <p>1. 파라미터로 들어온 레벨이 null이 아닐 경우 레벨에 맞는 유저 조회</p>
+     * <p>2. 파라미터로 들어온 레벨이 null일 경우 모든 유저 조회</p>
+     * <p>3. 활성화 상태인 유저</p>
+     * <p>4. 인증된 회원</p>
      */
     @Transactional
     public void issueCouponAllUser(Long couponId, UserLevel userLevel) {
 
-        // 1. 아래 조건을 충족하는 유저들 id 가져오기
-        // 1.1 레벨이 있을 경우 레벨에 맞는 유저 조회
-        // 1.2 레벨이 null일 경우 모든 유저 조회
-        // 1.3 삭제되지 않은 유저에 한해서 쿠폰 발급
-        List<Long> userIdList = userRepository
+        List<Long> userIds = userRepository
                 .findUserIdByUserLevel(userLevel);
 
-        // 2, 해당하는 유저들에게 쿠폰 발급
-        couponIssuanceService.issueCouponAllUserByAdmin(couponId, userIdList);
+        // 2. 해당하는 유저들에게 쿠폰 발급
+        provisionCouponService.issueCouponToUsersByAdmin(userIds, couponId);
     }
 
 
     /**
-     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 특정 유저에게 쿠폰을 발급
-     * @param issueCouponTargetUserDTO 쿠폰 ID, email
+     * <h3>쿠폰 지급하기 페이지: ADMIN이 기존의 쿠폰 제약 조건 무시하고 특정 유저에게 쿠폰을 발급</h3>
      */
     @Transactional
-    public void issueCouponTargetUser(IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
+    public void issueCouponTargetUser(Long userId, Long couponId) {
         // 1. ID를 통해서 회원 검색
-        User user = userRepository.findById(issueCouponTargetUserDTO.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_USER));
 
         // 1.1 유저 권한 확인
@@ -240,7 +249,7 @@ public class CouponAdminService {
         }
 
         // 2. 쿠폰 지급
-        couponIssuanceService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user.getId());
+        provisionCouponService.issueCouponToUserByAdmin(user.getId(), couponId);
     }
 
 
@@ -269,6 +278,7 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 코드를 수동/자동 방식에 따라 중복 검증 후 가져오는 함수
+     *
      * @param coupontDto 쿠폰 DTO
      * @return code 검증 완료된 쿠폰 코드
      */
@@ -299,6 +309,7 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 입력 값 검증
+     *
      * @param couponDTO CouponIssueDTO, CouponUpdateDTO
      */
     private void couponInputValidation(CouponDTO couponDTO) {

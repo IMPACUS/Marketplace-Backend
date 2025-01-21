@@ -182,7 +182,7 @@ public class AdminCouponController {
     @PostMapping("/issued-coupons/user")
     public ApiResponseEntity<Boolean> issueCouponTargetUser(@Valid @RequestBody IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
 
-        couponAdminService.issueCouponTargetUser(issueCouponTargetUserDTO);
+        couponAdminService.issueCouponTargetUser(issueCouponTargetUserDTO.getUserId(), issueCouponTargetUserDTO.getCouponId());
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
