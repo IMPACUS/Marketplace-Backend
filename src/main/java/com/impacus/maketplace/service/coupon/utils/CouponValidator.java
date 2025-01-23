@@ -1,23 +1,27 @@
 package com.impacus.maketplace.service.coupon.utils;
 
-import com.impacus.maketplace.common.enumType.coupon.CouponIssueType;
-import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
-import com.impacus.maketplace.common.enumType.coupon.CouponType;
-import com.impacus.maketplace.common.enumType.coupon.PaymentTarget;
+import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.coupon.Coupon;
+import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
+import com.impacus.maketplace.repository.payment.PaymentEventRepository;
+import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CouponValidator {
 
     private final UserCouponRepository userCouponRepository;
+    private final PaymentEventRepository paymentEventRepository;
+    private final PaymentOrderRepository paymentOrderRepository;
 
     /**
      * <h3>ADMIN이 사용자에게 쿠폰을 발급해주는 경우 조건</h3>
@@ -57,18 +61,47 @@ public class CouponValidator {
         }
     }
 
+    /**
+     * <h3>이벤트 쿠폰 공통 조건</h3>
+     * <p>1. 쿠폰 공통 조건</p>
+     * <p>2. 이벤트 쿠폰</p>
+     * <p>3. 쿠폰 이벤트 타입 일치</p>
+     * <p>4. 기간 내 설정이 되어 있을 경우 기간 확인</p>
+     * <p>5. 발급 받은 이력 X(지속성일 경우에는??)</p>
+     */
+    public boolean validateEventCoupon(Long userId, Coupon coupon, EventType eventType) {
+        // 1. 쿠폰 공통 조건 검증
+        if (!isCouponEligible(coupon)) return false;
+
+        // 2. 쿠폰 형식 확인 - 이벤트
+        if (!coupon.getCouponType().equals(CouponType.EVENT)) return false;
+
+        // 3. 쿠폰 이벤트 타입 확인
+        if (!coupon.getEventType().equals(eventType)) return false;
+
+        // 4. 기간 확인
+        if (!isWithinEventPeriod(coupon)) return false;
+
+        // 5. 발급 이력 확인
+        if (userCouponRepository.existsByUserIdAndCouponId(userId, coupon.getId())) return false;
+
+        return true;
+    }
+
+    /**
+     * <h3>결제 이벤트 쿠폰 조건</h3>
+     * <p>1. </p>
+     */
+    public boolean validatePaymentEventCoupon(Coupon coupon, PaymentEvent paymentEvent) {
+        return true;
+    }
+
 
     /**
      * <h3>쿠폰 공통 조건</h3>
-     * <p>
-     * 1. 삭제되지 않은 경우
-     * </p>
-     * <p>
-     * 2. 발급 상태가 중지가 아닌 경우
-     * </p>
-     * <p>
-     * 3. 선착순 쿠폰이 아니거나 선착순 쿠폰인 경우 발급 수량에 여유가 있는 경우
-     * </p>
+     * <p>1. 삭제되지 않은 경우</p>
+     * <p>2. 발급 상태가 중지가 아닌 경우</p>
+     * <p>3. 선착순 쿠폰이 아니거나 선착순 쿠폰인 경우 발급 수량에 여유가 있는 경우</p>
      */
     private boolean isCouponEligible(Coupon coupon) {
         return !coupon.getIsDeleted()
@@ -90,8 +123,21 @@ public class CouponValidator {
         }
     }
 
+    /**
+     * <h3>선착순 검증</h3>
+     */
     private boolean isWithinQuota(Coupon coupon) {
-        // 선착순 검증 로직
         return !(coupon.getPaymentTarget().equals(PaymentTarget.FIRST) &&  coupon.getQuantityIssued() >= coupon.getFirstCount());
+    }
+
+    /**
+     * <h3>쿠폰 기간 확인</h3>
+     * <p>이벤트 쿠폰에 한해서 적용되는 조건</p>
+     */
+    private boolean isWithinEventPeriod(Coupon coupon) {
+        return !(coupon.getPeriodType() == PeriodType.SET
+                && (LocalDate.now().isBefore(coupon.getPeriodStartAt())
+                || LocalDate.now().isAfter(coupon.getPeriodEndAt()))
+        );
     }
 }

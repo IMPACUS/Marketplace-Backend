@@ -20,6 +20,7 @@ public enum CouponErrorType implements ErrorType{
     INVALID_INPUT_PERIOD_END_AT("040_9_PERIOD_END_AT", "지정 기간 설정 항목에 잘못된 종료 날짜가 들어왔습니다."),
     INVALID_INPUT_NUMBER_OF_PERIOD("040_10_NUMBER_OF_PERIOD", "기간 설정 항목의 기간 내 N회 이상 주문 시 항목에 잘못된 입력 값이 들어왔습니다."),
     INVALID_INPUT_CODE("040_11_CODE", "잘못된 코드 입력이 들어왔습니다."),
+    INVALID_INPUT_PROVISION_COUPON_RULE("040_12_PROVISION_COUPON_RULE", "쿠폰 형식이 지급형일 경우 지속성 발급 형식으로 등록할 수 없습니다."),
 
     // 쿠폰 코드
     INVALID_COUPON_FORMAT("041_INVALID_COUPON_FORMAT", "유효하지 않은 쿠폰입니다. 쿠폰코드를 다시 한번 확인해주세요"),
