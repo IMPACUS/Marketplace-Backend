@@ -13,7 +13,11 @@ import java.util.Optional;
 
 public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
 
-    boolean existsByUserIdAndCouponId(Long userId, Long couponId);
+    @Query("select count(u) > 0 from UserCoupon u where " +
+            "u.userId = :userId " +
+            "and u.couponId = :couponId " +
+            "and u.status != 'ISSUE_ERROR'")
+    boolean existsByUserIdAndCouponId(@Param("userId") Long userId, @Param("couponId") Long couponId);
 
     Optional<UserCoupon> findByIdAndUserId(Long id, Long userId);
 

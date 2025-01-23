@@ -67,7 +67,7 @@ public class CouponValidator {
      * <p>2. 이벤트 쿠폰</p>
      * <p>3. 쿠폰 이벤트 타입 일치</p>
      * <p>4. 기간 내 설정이 되어 있을 경우 기간 확인</p>
-     * <p>5. 발급 받은 이력 X(지속성일 경우에는??)</p>
+     * <p>5. 일회성 쿠폰인 경우 발급 받은 이력 X</p>
      */
     public boolean validateEventCoupon(Long userId, Coupon coupon, EventType eventType) {
         // 1. 쿠폰 공통 조건 검증
@@ -83,16 +83,17 @@ public class CouponValidator {
         if (!isWithinEventPeriod(coupon)) return false;
 
         // 5. 발급 이력 확인
-        if (userCouponRepository.existsByUserIdAndCouponId(userId, coupon.getId())) return false;
+        if (coupon.getCouponIssueType().equals(CouponIssueType.ONETIME) && userCouponRepository.existsByUserIdAndCouponId(userId, coupon.getId())) return false;
 
         return true;
     }
 
     /**
      * <h3>결제 이벤트 쿠폰 조건</h3>
-     * <p>1. </p>
+     * <p></p>
      */
     public boolean validatePaymentEventCoupon(Coupon coupon, PaymentEvent paymentEvent) {
+
         return true;
     }
 
