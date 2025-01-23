@@ -3,7 +3,7 @@ package com.impacus.maketplace.service.coupon;
 import com.impacus.maketplace.common.enumType.coupon.EventType;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
-import com.impacus.maketplace.service.coupon.utils.CouponValidator;
+import com.impacus.maketplace.service.coupon.utils.CouponIssuanceValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.util.List;
 public class EventCouponService {
 
     private final CouponRepository couponRepository;
-    private final CouponValidator couponValidator;
+    private final CouponIssuanceValidator couponValidator;
 
     /**
      * 회원가입 시 발행되는 쿠폰 처리

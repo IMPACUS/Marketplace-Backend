@@ -9,7 +9,7 @@ import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.service.coupon.utils.CouponIssuanceManager;
-import com.impacus.maketplace.service.coupon.utils.CouponValidator;
+import com.impacus.maketplace.service.coupon.utils.CouponIssuanceValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ public class ProvisionCouponService {
 
     private final CouponRepository couponRepository;
     private final CouponIssuanceManager couponIssuanceManager;
-    private final CouponValidator couponValidator;
+    private final CouponIssuanceValidator couponValidator;
 
     /**
      * <h3>ADMIN이 특정 사용자에게 쿠폰 발급해주는 함수</h3>
@@ -41,7 +41,7 @@ public class ProvisionCouponService {
         couponValidator.validateAdminIssuedCouponWithException(coupon);
 
         // 3. 쿠폰 발급
-        couponIssuanceManager.issueInstantCouponToUser(userId, coupon.getId(), TriggerType.ADMIN);
+        couponIssuanceManager.issueCouponToUser(userId, coupon.getId(), TriggerType.ADMIN);
     }
 
     /**
@@ -56,7 +56,7 @@ public class ProvisionCouponService {
         couponValidator.validateAdminIssuedCouponWithException(coupon);
 
         // 3. 쿠폰 발급
-        couponIssuanceManager.issueInstantCouponToUsers(userIds, coupon.getId(), TriggerType.ADMIN);
+        couponIssuanceManager.issueCouponToUsers(userIds, coupon.getId(), TriggerType.ADMIN);
     }
 
     /**
@@ -71,7 +71,7 @@ public class ProvisionCouponService {
         couponValidator.validateProvisionCouponWithException(userId, coupon);
 
         // 3. 쿠폰 발급
-        UserCoupon userCoupon = couponIssuanceManager.issueInstantCouponToUser(userId, coupon.getId(), TriggerType.REGISTER);
+        UserCoupon userCoupon = couponIssuanceManager.issueCouponToUser(userId, coupon.getId(), TriggerType.REGISTER);
 
         // 4. DTO 반환
         return UserCouponOverviewDTO.builder()
@@ -102,7 +102,7 @@ public class ProvisionCouponService {
         couponValidator.validateProvisionCouponWithException(userId, coupon);
 
         // 3. 쿠폰 발급
-        UserCoupon userCoupon = couponIssuanceManager.issueInstantCouponToUser(userId, coupon.getId(), TriggerType.BRAND);
+        UserCoupon userCoupon = couponIssuanceManager.issueCouponToUser(userId, coupon.getId(), TriggerType.BRAND);
 
         // 4. 쿠폰 다운로드 처리
         userCoupon.download();

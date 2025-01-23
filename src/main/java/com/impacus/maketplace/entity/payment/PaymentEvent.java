@@ -55,6 +55,7 @@ public class PaymentEvent extends BaseEntity {
     private LocalDateTime approvedAt;   // 결제 승인 시각
 
     @Transient
+    @Setter
     @Builder.Default
     private List<PaymentOrder> paymentOrders = new ArrayList<>();
 

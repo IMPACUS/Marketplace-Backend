@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+/**
+ * 결제와 관련된 로직에서 발생하는 쿠폰 유효성 검증
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

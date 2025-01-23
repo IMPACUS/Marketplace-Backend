@@ -5,6 +5,7 @@ import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
+import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
@@ -13,11 +14,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
+/**
+ * 발급하는 과정에서 발생하는 쿠폰 유효성 검증
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CouponValidator {
+public class CouponIssuanceValidator {
 
     private final UserCouponRepository userCouponRepository;
     private final PaymentEventRepository paymentEventRepository;
@@ -90,11 +97,31 @@ public class CouponValidator {
 
     /**
      * <h3>결제 이벤트 쿠폰 조건</h3>
-     * <p></p>
+     * <p>1. 쿠폰 이벤트 타입 확인</p>
      */
-    public boolean validatePaymentEventCoupon(Coupon coupon, PaymentEvent paymentEvent) {
+    public boolean validatePaymentEventCoupon(Coupon coupon, Long paymentEventId) {
+        return paymentEventRepository.findById(paymentEventId)
+                .map(paymentEvent -> {
+                    // 1. Payment Event 조회 후 관련된 PaymentOrder 전부 조회
+                    List<PaymentOrder> paymentOrders = paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())
+                            .orElse(Collections.emptyList());
 
-        return true;
+                    if (paymentOrders.isEmpty()) return false;
+
+                    paymentEvent.setPaymentOrders(paymentOrders);
+
+                    // 2. 결제 이벤트 쿠폰 조건 확인
+
+                    // 2.1 쿠폰 이벤트 타입 확인
+                    if (!coupon.getEventType().equals(EventType.ORDER)) return false;
+
+                    // 2.2
+
+
+                    return true;
+
+                })
+                .orElse(false);     // PaymentEvent가 없을 경우 false 반환
     }
 
 

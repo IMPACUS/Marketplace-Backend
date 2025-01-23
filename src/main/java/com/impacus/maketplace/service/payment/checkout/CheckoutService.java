@@ -264,8 +264,6 @@ public class CheckoutService {
 
     /**
      * 결제 처리 준비 (장바구니 상품 구매)
-     * Refactoring:
-     * 1. 쿠폰 검증 로직 수정(전체 쿠폰 가져온 뒤 쿠폰 서비스 이용)
      */
     @Transactional
     public PaymentCartDTO checkoutCart(Long userId, CheckoutCartDTO checkoutCartDTO) {
@@ -292,6 +290,7 @@ public class CheckoutService {
 
         // 3. 필요한 정보 가져오기
         // 상품의 수만큼 N번의 쿼리로 조회
+        // 해당 방식은 보류: 현배 1번의 쿼리로 날리기 위한 동적 쿼리가 좋은 성능을 보장할 수 없다.
 //        List<CheckoutCartProductInfoDTO> checkoutCartProductList = checkoutCartDTO.getPaymentProductInfos().stream().map(paymentProductInfoDTO -> {
 //                    CheckoutProductInfoDTO checkoutProductInfo = checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId());
 //                    return new CheckoutCartProductInfoDTO(checkoutProductInfo, paymentProductInfoDTO.getQuantity(), paymentProductInfoDTO.getAppliedProductCouponIds());
@@ -352,15 +351,6 @@ public class CheckoutService {
         ValidatedPaymentCouponInfosDTO validatedPaymentCouponInfos = couponRedeemService.getValidatedPaymentCouponInfos(userId, couponValidationRequestDTO);
         Map<Long, List<PaymentCouponDTO>> productCoupons = validatedPaymentCouponInfos.getProductCoupons();
         List<PaymentCouponDTO> orderCoupons = validatedPaymentCouponInfos.getOrderCoupons();
-
-        // 사용한 쿠폰의 갯수만큼 쿼리를 보내는 방식
-//        Map<Long, List<PaymentCouponDTO>> productCoupons = checkoutCartProductList.stream()
-//                .collect(Collectors.toMap(
-//                        item -> item.getCheckoutProductInfoDTO().getProductId(),
-//                        item -> couponRedeemService.getPaymentCouponForProductAfterValidation(userId, item.getAppliedCouponForProductIds(), item.getCheckoutProductInfoDTO().getProductType(), item.getCheckoutProductInfoDTO().getMarketName(), item.getCheckoutProductInfoDTO().getAppSalesPrice(), item.getQuantity())
-//                ));
-//
-//        List<PaymentCouponDTO> orderCoupons = couponRedeemService.getPaymentCouponForOrderAfterValidation(userId, checkoutCartDTO.getAppliedOrderCouponIds(), orderTotalPrice);
 
         Map<Long, Long> productPrices = checkoutCartProductList.stream()
                 .collect(Collectors.toMap(
