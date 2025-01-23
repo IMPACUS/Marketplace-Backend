@@ -127,7 +127,7 @@ public class CouponValidator {
      * <h3>선착순 검증</h3>
      */
     private boolean isWithinQuota(Coupon coupon) {
-        return !(coupon.getPaymentTarget().equals(PaymentTarget.FIRST) &&  coupon.getQuantityIssued() >= coupon.getFirstCount());
+        return !(coupon.getPaymentTarget().equals(PaymentTarget.FIRST) && coupon.getQuantityIssued() >= coupon.getFirstCount());
     }
 
     /**

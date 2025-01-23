@@ -1,14 +1,14 @@
 package com.impacus.maketplace.service.coupon.utils;
 
-import com.impacus.maketplace.common.enumType.coupon.*;
+import com.impacus.maketplace.common.enumType.coupon.ExpireTimeType;
+import com.impacus.maketplace.common.enumType.coupon.PaymentTarget;
+import com.impacus.maketplace.common.enumType.coupon.TriggerType;
+import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.coupon.response.UserCouponDownloadDTO;
-import com.impacus.maketplace.dto.coupon.response.UserCouponOverviewDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.CouponIssuanceHistory;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
-import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.coupon.CouponIssuanceHistoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -55,12 +54,17 @@ public class CouponIssuanceManager {
         Coupon coupon = couponRepository.findWriteLockById(couponId)
                 .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON));
 
-        // 2. 모든 사용자에게 발급 + 발급 횟수 증가
+        // 2. 최종 조건 확인
+        if (!triggerType.equals(TriggerType.ADMIN) && !isWithinQuota(coupon)) {
+            throw new CustomException(CouponErrorType.END_FIRST_COUNT_COUPON);
+        }
+
+        // 3. 모든 사용자에게 발급 + 발급 횟수 증가
         List<UserCoupon> userCoupons = userIds.stream()
                 .map((id) -> issueInstantCoupon(id, coupon)).toList();
         userCouponRepository.saveAll(userCoupons);
 
-        // 3. 쿠폰 발급 이력 기록
+        // 4. 쿠폰 발급 이력 기록
         List<CouponIssuanceHistory> couponIssuanceHistoryList = userCoupons.stream()
                 .map((userCoupon) -> createCouponIssuanceHistory(userCoupon.getUserId(), userCoupon.getId(), triggerType)).toList();
         couponIssuanceHistoryRepository.saveAll(couponIssuanceHistoryList);
@@ -68,8 +72,13 @@ public class CouponIssuanceManager {
         return userCoupons;
     }
 
+    private boolean isWithinQuota(Coupon coupon) {
+        return !(coupon.getPaymentTarget().equals(PaymentTarget.FIRST) && coupon.getQuantityIssued() >= coupon.getFirstCount());
+    }
+
     /**
      * 쿠폰 발급 수 업데이트 후 쿠폰 발급
+     *
      * @param userId 유저 PK
      * @param coupon 쿠폰 Entity
      * @return UserCoupon
