@@ -362,6 +362,13 @@ public class CouponAdminService {
             throw new CustomException(CouponErrorType.INVALID_INPUT_PROVISION_COUPON_RULE);
         }
 
+        if (coupon.getCouponType().equals(CouponType.EVENT)
+                && coupon.getEventType().equals(EventType.PAYMENT_ORDER)
+                && coupon.getIssueCoverageType().equals(CoverageType.BRAND)) {
+            log.error("CouponAdminService.couponInputValidation error: 결제 주문과 관련된 이벤트형 쿠폰은 발급 적용 범위가 특정 브랜드에 해당할 수 없습니다.");
+            throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_TYPE);
+        }
+
         // 6. 발급 적용 범위가 특정 브랜드일 경우 등록된 브랜드인지 확인
         if (coupon.getIssueCoverageType().equals(CoverageType.BRAND)) {
             // 해당 브랜드 명이 존재하는지 확인

@@ -34,7 +34,7 @@ public class EventCouponService {
         List<Coupon> coupons = couponRepository.findAll();
 
         List<Coupon> filterdCoupons = coupons.stream()
-                .filter(coupon -> couponValidator.validateEventCoupon(userId, coupon, EventType.ORDER))
+                .filter(coupon -> couponValidator.validateEventCoupon(userId, coupon, EventType.PAYMENT_ORDER))
                 .toList();
     }
 

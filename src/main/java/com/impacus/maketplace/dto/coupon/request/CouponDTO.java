@@ -11,6 +11,7 @@ public interface CouponDTO {
     PaymentTarget getPaymentTarget();
     Integer getFirstCount();
     CouponType getCouponType();
+    EventType getEventType();
     CouponIssueType getCouponIssueType();
     ExpireTimeType getExpireTimeType();
     Integer getExpireTimeDays();
