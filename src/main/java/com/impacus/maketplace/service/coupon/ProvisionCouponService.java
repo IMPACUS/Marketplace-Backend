@@ -41,7 +41,7 @@ public class ProvisionCouponService {
         couponValidator.validateAdminIssuedCouponWithException(coupon);
 
         // 3. 쿠폰 발급
-        couponIssuanceManager.issueCouponToUser(userId, coupon.getId(), TriggerType.ADMIN);
+        couponIssuanceManager.issueInstantCouponToUser(userId, coupon.getId(), TriggerType.ADMIN);
     }
 
     /**
@@ -56,7 +56,7 @@ public class ProvisionCouponService {
         couponValidator.validateAdminIssuedCouponWithException(coupon);
 
         // 3. 쿠폰 발급
-        couponIssuanceManager.issueCouponToUsers(userIds, coupon.getId(), TriggerType.ADMIN);
+        couponIssuanceManager.issueInstantCouponToUsers(userIds, coupon.getId(), TriggerType.ADMIN);
     }
 
     /**
@@ -71,7 +71,7 @@ public class ProvisionCouponService {
         couponValidator.validateProvisionCouponWithException(userId, coupon);
 
         // 3. 쿠폰 발급
-        UserCoupon userCoupon = couponIssuanceManager.issueCouponToUser(userId, coupon.getId(), TriggerType.REGISTER);
+        UserCoupon userCoupon = couponIssuanceManager.issueInstantCouponToUser(userId, coupon.getId(), TriggerType.REGISTER);
 
         // 4. DTO 반환
         return UserCouponOverviewDTO.builder()
@@ -102,7 +102,7 @@ public class ProvisionCouponService {
         couponValidator.validateProvisionCouponWithException(userId, coupon);
 
         // 3. 쿠폰 발급
-        UserCoupon userCoupon = couponIssuanceManager.issueCouponToUser(userId, coupon.getId(), TriggerType.BRAND);
+        UserCoupon userCoupon = couponIssuanceManager.issueInstantCouponToUser(userId, coupon.getId(), TriggerType.BRAND);
 
         // 4. 쿠폰 다운로드 처리
         userCoupon.download();

@@ -34,22 +34,42 @@ public class CouponIssuanceManager {
     private final CouponIssuanceHistoryRepository couponIssuanceHistoryRepository;
 
     @Transactional
-    public UserCoupon issueCouponToUser(Long userId, Long couponId, TriggerType triggerType) {
+    public UserCoupon issueInstantCouponToUser(Long userId, Long couponId, TriggerType triggerType) {
 
         List<Long> userIds = List.of(userId);
 
         // 1. 쿠폰 발급 함수 호출
-        List<UserCoupon> userCoupons = issueCouponToUsers(userIds, couponId, triggerType);
+        List<UserCoupon> userCoupons = issueInstantCouponToUsers(userIds, couponId, triggerType);
+
+        return userCoupons.get(0);
+    }
+
+    /**
+     * <h3>사용자들에게 즉시 사용 가능한 쿠폰 발급</h3>
+     */
+    @Transactional
+    public List<UserCoupon> issueInstantCouponToUsers(List<Long> userIds, Long couponId, TriggerType triggerType) {
+        return issueCouponToUsers(userIds, couponId, triggerType, 0);
+    }
+
+    @Transactional
+    public UserCoupon issueCouponToUser(Long userId, Long couponId, TriggerType triggerType, int daysUntilAvailable) {
+
+        List<Long> userIds = List.of(userId);
+
+        // 1. 쿠폰 발급 함수 호출
+        List<UserCoupon> userCoupons = issueCouponToUsers(userIds, couponId, triggerType, daysUntilAvailable);
 
         return userCoupons.get(0);
     }
 
     /**
      * <h3>사용자들에게 쿠폰 발급</h3>
+     * @param daysUntilAvailable 몇 일 뒤에 사용(다운로드) 가능한지
+     * @return
      */
     @Transactional
-    public List<UserCoupon> issueCouponToUsers(List<Long> userIds, Long couponId, TriggerType triggerType) {
-
+    public List<UserCoupon> issueCouponToUsers(List<Long> userIds, Long couponId, TriggerType triggerType, int daysUntilAvailable) {
         // 1. 쿠폰 조회
         Coupon coupon = couponRepository.findWriteLockById(couponId)
                 .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON));
@@ -61,7 +81,7 @@ public class CouponIssuanceManager {
 
         // 3. 모든 사용자에게 발급 + 발급 횟수 증가
         List<UserCoupon> userCoupons = userIds.stream()
-                .map((id) -> issueInstantCoupon(id, coupon)).toList();
+                .map((id) -> issueCoupon(id, coupon, daysUntilAvailable)).toList();
         userCouponRepository.saveAll(userCoupons);
 
         // 4. 쿠폰 발급 이력 기록
@@ -81,9 +101,10 @@ public class CouponIssuanceManager {
      *
      * @param userId 유저 PK
      * @param coupon 쿠폰 Entity
+     * @param daysUntilAvailable 몇 일 뒤에 쿠폰을 사용할 수 있는지
      * @return UserCoupon
      */
-    private UserCoupon issueInstantCoupon(Long userId, Coupon coupon) {
+    private UserCoupon issueCoupon(Long userId, Coupon coupon, int daysUntilAvailable) {
         LocalDate expiredAt = coupon.getExpireTimeType() == ExpireTimeType.LIMIT ?
                 LocalDate.now().plusDays(coupon.getExpireTimeDays()) : null;
         coupon.updateQuantityIssued(1);
@@ -91,7 +112,7 @@ public class CouponIssuanceManager {
         return UserCoupon.builder()
                 .userId(userId)
                 .couponId(coupon.getId())
-                .availableDownloadAt(LocalDate.now())
+                .availableDownloadAt(LocalDate.now().plusDays(daysUntilAvailable))
                 .isDownload(false)
                 .downloadAt(null)
                 .isUsed(false)
