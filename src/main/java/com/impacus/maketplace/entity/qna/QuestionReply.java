@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Getter
-public class Answer extends BaseEntity {
+public class QuestionReply extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "answer_id")
+    @Column(name = "question_reply_id")
     private Long id;
 
     @Column(nullable = false)
