@@ -1,7 +1,7 @@
 package com.impacus.maketplace.repository.qna;
 
 import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
-import com.impacus.maketplace.entity.qna.ProductQuestion;
+import com.impacus.maketplace.entity.qna.Question;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.api.PaymentEventInterface;
@@ -23,7 +23,7 @@ import static com.impacus.maketplace.entity.qna.QProductQuestion.productQuestion
 
 @Repository
 @RequiredArgsConstructor
-public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCustomRepository {
+public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -35,7 +35,7 @@ public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCusto
      * 문의 조건으로 상세 조회
      */
     @Override
-    public Page<ProductQuestion> findByParams(ProductQuestionSpec spec, Pageable pageable) {
+    public Page<Question> findByParams(ProductQuestionSpec spec, Pageable pageable) {
         BooleanExpression expression = productQuestion.sellerId.eq(spec.getSellerId());
 
         if (spec.getStartDate() != null) {
@@ -64,7 +64,7 @@ public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCusto
             }
         }
 
-        List<ProductQuestion> contents = jpaQueryFactory
+        List<Question> contents = jpaQueryFactory
                 .select(productQuestion)
                 .from(productQuestion)
                 .leftJoin(answer).on(answer.questionId.eq(productQuestion.id))
