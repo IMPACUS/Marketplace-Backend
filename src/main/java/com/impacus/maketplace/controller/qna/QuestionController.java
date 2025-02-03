@@ -7,7 +7,7 @@ import com.impacus.maketplace.dto.qna.AddProductQuestionServiceDTO;
 import com.impacus.maketplace.dto.qna.request.AddProductQuestionDTO;
 import com.impacus.maketplace.dto.qna.request.GetProductsParams;
 import com.impacus.maketplace.dto.qna.response.SellerProductQuestionResponseDTO;
-import com.impacus.maketplace.service.qna.ProductQuestionService;
+import com.impacus.maketplace.service.qna.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,9 +25,9 @@ import security.CustomUserDetails;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/question")
-public class ProductQuestionController {
+public class QuestionController {
 
-    private final ProductQuestionService productQuestionService;
+    private final QuestionService questionService;
 
     /**
      * 상품 문의 등록
@@ -38,7 +38,7 @@ public class ProductQuestionController {
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestPart(name = "body") AddProductQuestionDTO dto,
             @RequestPart(value = "image", required = false) MultipartFile image) {
-        productQuestionService.addProductQuestion(
+        questionService.addProductQuestion(
                 AddProductQuestionServiceDTO.builder()
                         .productId(dto.getProductId())
                         .orderId(dto.getOrderId())
@@ -55,7 +55,7 @@ public class ProductQuestionController {
     @PreAuthorize("hasAnyRole('CERTIFIED_USER', 'ADMIN', 'OWNER', 'PRINCIPAL_ADMIN')")
     @DeleteMapping("/{questionId}")
     public ApiResponseEntity<Boolean> deleteProductQuestion(@PathVariable long questionId) {
-        productQuestionService.deleteProductQuestionById(questionId);
+        questionService.deleteProductQuestionById(questionId);
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 
@@ -68,7 +68,7 @@ public class ProductQuestionController {
                 && params.getEndDate().isBefore(params.getStartDate())) {
             throw new CustomException(CommonErrorType.INVALID_END_DATE);
         }
-        return ApiResponseEntity.of(productQuestionService.getProducts(user.getId(), params, pageable));
+        return ApiResponseEntity.of(questionService.getProducts(user.getId(), params, pageable));
     }
 
 }

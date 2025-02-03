@@ -6,9 +6,9 @@ import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
 import com.impacus.maketplace.dto.qna.request.GetProductsParams;
 import com.impacus.maketplace.dto.qna.response.SellerProductQuestionResponseDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
-import com.impacus.maketplace.entity.qna.ProductQuestion;
-import com.impacus.maketplace.repository.qna.ProductQuestionCustomRepository;
-import com.impacus.maketplace.repository.qna.ProductQuestionRepository;
+import com.impacus.maketplace.entity.qna.Question;
+import com.impacus.maketplace.repository.qna.QuestionCustomRepository;
+import com.impacus.maketplace.repository.qna.QuestionRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.api.ProductInterface;
 import groovy.util.logging.Slf4j;
@@ -22,13 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
-public class ProductQuestionService {
+public class QuestionService {
 
     private final ProductInterface productInterface;
 
-    private final ProductQuestionRepository productQuestionRepository;
+    private final QuestionRepository productQuestionRepository;
 
-    private final ProductQuestionCustomRepository productQuestionCustomRepository;
+    private final QuestionCustomRepository productQuestionCustomRepository;
 
     private final AttachFileService attachFileService;
 
@@ -41,8 +41,8 @@ public class ProductQuestionService {
         // 1. 첨부파일 업로드
         AttachFile attachFile = attachFileService.uploadFileAndAddAttachFile(dto.getImage(), DirectoryConstants.PRODUCT_QUESTION_DIRECTORY);
         // 2. 문의 entity 저장
-        ProductQuestion newQuestion = new ProductQuestion(dto.getProductId(), dto.getOrderId(), dto.getUserId(),
-                dto.getContents(), attachFile.getId());
+        Question newQuestion = new Question(dto.getProductId(), dto.getOrderId(), dto.getUserId(),
+                dto.getContents(), null);
         productQuestionRepository.save(newQuestion);
     }
 
@@ -64,7 +64,7 @@ public class ProductQuestionService {
                 .authorId(params.getAuthorId())
                 .orderNumber(params.getOrderNumber())
                 .build();
-        Page<ProductQuestion> result = productQuestionCustomRepository.findByParams(spec, pageable);
+        Page<Question> result = productQuestionCustomRepository.findByParams(spec, pageable);
 
         return result.map(SellerProductQuestionResponseDTO::fromEntity);
     }

@@ -182,7 +182,7 @@ public class UserService {
      * @param userType
      * @return
      */
-    @Transactional(noRollbackFor = CustomException.class)
+    @Transactional
     public UserDTO login(LoginDTO loginRequest, UserType userType) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
@@ -233,7 +233,7 @@ public class UserService {
      * @param dto
      * @return
      */
-    @Transactional(noRollbackFor = CustomException.class)
+    @Transactional
     public UserDTO login(AdminLoginDTO dto) {
         String adminIdName = dto.getAdminIdName();
         String password = dto.getPassword();

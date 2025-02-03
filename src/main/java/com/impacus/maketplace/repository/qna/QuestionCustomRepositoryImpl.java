@@ -1,7 +1,9 @@
 package com.impacus.maketplace.repository.qna;
 
 import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
-import com.impacus.maketplace.entity.qna.ProductQuestion;
+import com.impacus.maketplace.entity.qna.QQuestion;
+import com.impacus.maketplace.entity.qna.QQuestionReply;
+import com.impacus.maketplace.entity.qna.Question;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.api.PaymentEventInterface;
@@ -18,12 +20,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.impacus.maketplace.entity.qna.QAnswer.answer;
-import static com.impacus.maketplace.entity.qna.QProductQuestion.productQuestion;
-
 @Repository
 @RequiredArgsConstructor
-public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCustomRepository {
+public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -31,28 +30,31 @@ public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCusto
 
     private final UserRepository userRepository;
 
+    private final QQuestion question = QQuestion.question;
+    private final QQuestionReply questionReply = QQuestionReply.questionReply;
+
     /**
      * 문의 조건으로 상세 조회
      */
     @Override
-    public Page<ProductQuestion> findByParams(ProductQuestionSpec spec, Pageable pageable) {
-        BooleanExpression expression = productQuestion.sellerId.eq(spec.getSellerId());
+    public Page<Question> findByParams(ProductQuestionSpec spec, Pageable pageable) {
+        BooleanExpression expression = question.isDeleted.isFalse();
 
         if (spec.getStartDate() != null) {
-            expression.and(productQuestion.createAt.goe(spec.getStartDate().atStartOfDay()));
+            expression.and(question.createAt.goe(spec.getStartDate().atStartOfDay()));
         }
 
         if (spec.getEndDate() != null) {
-            expression.and(productQuestion.createAt.lt(spec.getEndDate().plusDays(1).atStartOfDay()));
+            expression.and(question.createAt.lt(spec.getEndDate().plusDays(1).atStartOfDay()));
         }
 
         if (spec.getAnswered() != null) {
-            expression.and(spec.getAnswered() ? answer.questionId.isNotNull() : answer.questionId.isNull());
+            expression.and(spec.getAnswered() ? questionReply.questionId.isNotNull() : questionReply.questionId.isNull());
         }
 
         if (StringUtils.isNotBlank(spec.getAuthorId())) {
             User user = userRepository.findByEmailLikeAndIsDeletedFalse(spec.getAuthorId()).get();
-            expression.and(productQuestion.userId.eq(user.getId()));
+            expression.and(question.userId.eq(user.getId()));
         }
 
         if (StringUtils.isNotBlank(spec.getOrderNumber())) {
@@ -60,21 +62,21 @@ public class ProductQuestionCustomRepositoryImpl implements ProductQuestionCusto
             if (paymentEventId == null) {
                 expression.and(Expressions.asBoolean(false));
             } else {
-                expression.and(productQuestion.paymentEventId.eq(paymentEventId));
+                expression.and(question.orderId.eq(paymentEventId));
             }
         }
 
-        List<ProductQuestion> contents = jpaQueryFactory
-                .select(productQuestion)
-                .from(productQuestion)
-                .leftJoin(answer).on(answer.questionId.eq(productQuestion.id))
+        List<Question> contents = jpaQueryFactory
+                .select(question)
+                .from(question)
+                .leftJoin(questionReply).on(questionReply.questionId.eq(question.id))
                 .where(expression)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
 
-        JPAQuery<Long> count = jpaQueryFactory.select(productQuestion.count())
+        JPAQuery<Long> count = jpaQueryFactory.select(question.count())
                 .where(expression);
 
         return PageableExecutionUtils.getPage(contents, pageable, count::fetchOne);

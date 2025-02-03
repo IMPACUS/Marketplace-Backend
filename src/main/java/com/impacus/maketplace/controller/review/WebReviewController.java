@@ -1,8 +1,10 @@
 package com.impacus.maketplace.controller.review;
 
+import com.impacus.maketplace.common.enumType.searchCondition.QnAReviewSearchCondition;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
+import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.dto.review.response.WebReviewDTO;
 import com.impacus.maketplace.dto.review.response.WebReviewDetailDTO;
 import com.impacus.maketplace.service.review.ReviewService;
@@ -77,11 +79,13 @@ public class WebReviewController {
             @PageableDefault(size = 5, direction = Sort.Direction.DESC, sort = "createAt") Pageable pageable,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-            @RequestParam(value = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt
+            @RequestParam(value = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+            @RequestParam(value = "search-condition", required = true) QnAReviewSearchCondition searchCondition
     ) {
-        Page<WebReviewDTO> result = reviewService.findReviews(
-                pageable, keyword, startAt, endAt
+        QnaReviewSearchCondition condition = new QnaReviewSearchCondition(
+                pageable, keyword, startAt, endAt, searchCondition
         );
+        Page<WebReviewDTO> result = reviewService.findReviews(condition);
 
         return ApiResponseEntity
                 .<Page<WebReviewDTO>>builder()

@@ -1,7 +1,7 @@
 package com.impacus.maketplace.dto.qna.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.impacus.maketplace.entity.qna.ProductQuestion;
+import com.impacus.maketplace.entity.qna.Question;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -26,12 +26,11 @@ public class SellerProductQuestionResponseDTO {
     private LocalDateTime createdTime;
 
 
-    public static SellerProductQuestionResponseDTO fromEntity(ProductQuestion entity) {
+    public static SellerProductQuestionResponseDTO fromEntity(Question entity) {
         return SellerProductQuestionResponseDTO.builder()
                 .questionId(entity.getId())
                 .contents(entity.getContents())
-                .orderId(entity.getPaymentEventId())
-                .customerName(entity.getUserName())
+                .orderId(entity.getOrderId())
                 .build();
     }
 

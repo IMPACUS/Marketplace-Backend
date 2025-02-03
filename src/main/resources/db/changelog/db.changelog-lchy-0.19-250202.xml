@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-lchy-0.19.01-25-02-02" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="product_question"/>
+        </preConditions>
+        <dropTable tableName="product_question"/>
+    </changeSet>
+
+    <changeSet id="changelog-lchy-0.19.02-25-02-02" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="answer"/>
+        </preConditions>
+        <dropTable tableName="answer"/>
+    </changeSet>
+
+    <changeSet id="changelog-lchy-0.19.03-250202-1" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="question_reply"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="question_reply">
+            <column name="question_reply_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="question_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="contents" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-lchy-0.19.04-250202" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="question"/>
+            </not>
+        </preConditions>
+        <createTable tableName="question">
+            <column name="question_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="product_option_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="contents" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="images" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
