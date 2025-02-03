@@ -333,7 +333,6 @@
             <column name="register_id" type="VARCHAR(255)"/>
             <column name="modify_id" type="VARCHAR(255)"/>
         </createTable>
-
     </changeSet>
 
     <!--  orders 생성  -->

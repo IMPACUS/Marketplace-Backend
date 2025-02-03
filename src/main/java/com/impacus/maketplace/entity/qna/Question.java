@@ -3,6 +3,7 @@ package com.impacus.maketplace.entity.qna;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.converter.ListToJsonConverter;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,11 +11,12 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 상품 문의 (판매자 문의)
+ * 주문 상품 문의
  */
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Table(name = "question")
 public class Question extends BaseEntity {
 
     @Id

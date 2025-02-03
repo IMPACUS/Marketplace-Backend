@@ -42,7 +42,7 @@ public class QuestionService {
         AttachFile attachFile = attachFileService.uploadFileAndAddAttachFile(dto.getImage(), DirectoryConstants.PRODUCT_QUESTION_DIRECTORY);
         // 2. 문의 entity 저장
         Question newQuestion = new Question(dto.getProductId(), dto.getOrderId(), dto.getUserId(),
-                dto.getContents(), attachFile.getId());
+                dto.getContents(), null);
         productQuestionRepository.save(newQuestion);
     }
 
