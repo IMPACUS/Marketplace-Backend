@@ -8,6 +8,7 @@ import com.impacus.maketplace.common.enumType.point.PointType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
+import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.dto.review.request.CreateReviewDTO;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.ConsumerReviewDTO;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -258,9 +258,9 @@ public class ReviewService {
      *
      * @return 리뷰 리스트
      */
-    public Page<WebReviewDTO> findReviews(Pageable pageable, String keyword, LocalDate startAt, LocalDate endAt) {
+    public Page<WebReviewDTO> findReviews(QnaReviewSearchCondition condition) {
         try {
-            return reviewRepository.findReviews(pageable, keyword, startAt, endAt);
+            return reviewRepository.findReviews(condition);
         } catch (Exception e) {
             throw new CustomException(e);
         }

@@ -30,8 +30,7 @@ public class SellerProductQuestionResponseDTO {
         return SellerProductQuestionResponseDTO.builder()
                 .questionId(entity.getId())
                 .contents(entity.getContents())
-                .orderId(entity.getPaymentEventId())
-                .customerName(entity.getUserName())
+                .orderId(entity.getOrderId())
                 .build();
     }
 
