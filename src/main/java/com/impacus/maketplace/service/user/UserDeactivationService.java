@@ -8,6 +8,7 @@ import com.impacus.maketplace.service.oauth.OAuthService;
 import com.impacus.maketplace.service.oauth.OAuthServiceFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -61,4 +62,8 @@ public class UserDeactivationService {
         this.deleteConsumer(userDTO.getUserId());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteUncertifiedUser(Long userId) {
+        userRepository.deleteUncertifiedUser(userId);
+    }
 }
