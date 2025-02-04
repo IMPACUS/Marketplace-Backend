@@ -53,7 +53,6 @@ import security.CustomUserDetails;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -275,7 +274,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @Transactional(noRollbackFor = CustomException.class)
+    @Transactional
     public void changeUserStatus(User user, UserStatus userStatus) {
         switch (userStatus) {
             case SUSPENDED: {
@@ -303,7 +302,7 @@ public class UserService {
     }
 
     /**
-     * securityContext에 저장된 User 정보를 가져오는 함수
+     * securityContext 에 저장된 User 정보를 가져오는 함수
      *
      * @return
      */
@@ -408,37 +407,6 @@ public class UserService {
     public CheckExistedEmailDTO checkExistedEmailForSeller(String email) {
         boolean isExited = existUserByEmail(email);
         return CheckExistedEmailDTO.toDTO(isExited);
-    }
-
-
-
-    /**
-     * 사용자 개인 정보 저장
-     *
-     * @param userId 사용자 ID
-     * @param certificationResult 본인 인증 데이터
-     */
-    @Transactional
-    public void saveCertification(Long userId, CertificationResult certificationResult) {
-        // 1. 사용자 존재하는지 확인
-        if (!userRepository.existsByIdAndType(
-                userId,
-                List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)
-        )) {
-            throw new CustomException(UserErrorType.NOT_EXISTED_USER);
-        }
-
-        // 2. 이미 존재하는 핸드폰 번호인지 확인
-        if (userRepository.existsConsumerByPhoneNumberAndUserId(
-                userId,
-                certificationResult.getMobileNo())
-        ) {
-            throw new CustomException(UserErrorType.DUPLICATED_PHONE_NUMBER);
-        }
-
-        // 2. 저장 혹은 업데이트
-        userRepository.saveOrUpdateCertification(userId, certificationResult);
-        saveOrUpdateConsumer(userId, certificationResult);
     }
 
     /**
