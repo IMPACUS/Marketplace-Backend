@@ -9,6 +9,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     boolean existsByOrderIdAndProductOptionIdAndIsDeletedFalse(Long orderId, Long productOptionId);
 
+    boolean existsByIdAndIsDeletedFalse(Long id);
+
     /**
      * {@link Question#getUserId()} 기반 권한 체크 후 삭제
      */

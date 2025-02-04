@@ -11,11 +11,13 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.impacus.maketplace.entity.qna.QQuestion.question;
@@ -24,7 +26,7 @@ import static com.impacus.maketplace.entity.qna.QQuestionReply.questionReply;
 @Repository
 @RequiredArgsConstructor
 public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
-
+    private final AuditorAware<String> auditorProvider;
     private final JPAQueryFactory jpaQueryFactory;
 
     private final PaymentEventInterface paymentEventInterface;
@@ -78,6 +80,17 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
                 .where(expression);
 
         return PageableExecutionUtils.getPage(contents, pageable, count::fetchOne);
+    }
+
+    @Override
+    public void deleteQuestionById(long questionId) {
+        jpaQueryFactory.update(question)
+                .set(question.isDeleted, true)
+
+                .set(question.modifyAt, LocalDateTime.now())
+                .set(question.modifyId, auditorProvider.getCurrentAuditor().orElse(null))
+                .where(question.id.eq(questionId))
+                .execute();
     }
 
 }

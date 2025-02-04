@@ -108,9 +108,12 @@ public class QuestionService {
      * 문의 삭제
      */
     @Transactional
-    public void deleteProductQuestionById(long questionId) {
-        questionRepository.findById(questionId)
-                .ifPresent(questionRepository::deleteWithAuthority);
+    public void deleteQuestion(long questionId) {
+        if (questionRepository.existsByIdAndIsDeletedFalse(questionId)) {
+            questionCustomRepository.deleteQuestionById(questionId);
+        } else {
+            throw new CustomException(QuestionErrorType.NOT_EXISTED_QUESTION_ID, "존재하지 않는 문의입니다.");
+        }
     }
 
     public Page<SellerProductQuestionResponseDTO> getProducts(long sellerId, GetProductsParams params, Pageable pageable) {

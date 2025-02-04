@@ -7,4 +7,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface QuestionCustomRepository {
     Page<Question> findByParams(ProductQuestionSpec spec, Pageable pageable);
+
+    void deleteQuestionById(long questionId);
 }
