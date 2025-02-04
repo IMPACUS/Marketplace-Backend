@@ -9,6 +9,7 @@ import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
 import com.impacus.maketplace.dto.qna.request.CreateQuestionDTO;
 import com.impacus.maketplace.dto.qna.request.GetProductsParams;
 import com.impacus.maketplace.dto.qna.request.QuestionReplyDTO;
+import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;
 import com.impacus.maketplace.dto.qna.response.SellerProductQuestionResponseDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.qna.Question;
@@ -21,6 +22,7 @@ import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -157,6 +159,14 @@ public class QuestionService {
         // 판매자 답변이 이미 존재하는지 확인
         if (questionReplyRepository.existsByQuestionId(questionId)) {
             throw new CustomException(QuestionErrorType.EXISTED_QUESTION_REPLY, "이미 답변이 등록된 문의입니다.");
+        }
+    }
+
+    public Slice<ConsumerQuestionDTO> findConsumerQuestions(Long id, Pageable pageable) {
+        try {
+            return questionCustomRepository.findConsumerQuestions(id, pageable);
+        } catch (Exception e) {
+            throw new CustomException(e);
         }
     }
 }

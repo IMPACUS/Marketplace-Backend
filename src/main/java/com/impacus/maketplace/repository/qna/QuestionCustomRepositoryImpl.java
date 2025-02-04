@@ -1,10 +1,14 @@
 package com.impacus.maketplace.repository.qna;
 
+import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
+import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;
 import com.impacus.maketplace.entity.qna.Question;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.api.PaymentEventInterface;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -14,12 +18,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.impacus.maketplace.entity.product.QProductOption.productOption;
 import static com.impacus.maketplace.entity.qna.QQuestion.question;
 import static com.impacus.maketplace.entity.qna.QQuestionReply.questionReply;
 
@@ -27,7 +33,7 @@ import static com.impacus.maketplace.entity.qna.QQuestionReply.questionReply;
 @RequiredArgsConstructor
 public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
     private final AuditorAware<String> auditorProvider;
-    private final JPAQueryFactory jpaQueryFactory;
+    private final JPAQueryFactory queryFactory;
 
     private final PaymentEventInterface paymentEventInterface;
 
@@ -66,7 +72,7 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
             }
         }
 
-        List<Question> contents = jpaQueryFactory
+        List<Question> contents = queryFactory
                 .select(question)
                 .from(question)
                 .leftJoin(questionReply).on(questionReply.questionId.eq(question.id))
@@ -76,7 +82,7 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
                 .fetch();
 
 
-        JPAQuery<Long> count = jpaQueryFactory.select(question.count())
+        JPAQuery<Long> count = queryFactory.select(question.count())
                 .where(expression);
 
         return PageableExecutionUtils.getPage(contents, pageable, count::fetchOne);
@@ -84,13 +90,43 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
 
     @Override
     public void deleteQuestionById(long questionId) {
-        jpaQueryFactory.update(question)
+        queryFactory.update(question)
                 .set(question.isDeleted, true)
-
                 .set(question.modifyAt, LocalDateTime.now())
                 .set(question.modifyId, auditorProvider.getCurrentAuditor().orElse(null))
                 .where(question.id.eq(questionId))
                 .execute();
+    }
+
+    @Override
+    public Slice<ConsumerQuestionDTO> findConsumerQuestions(Long userId, Pageable pageable) {
+        List<ConsumerQuestionDTO> results = queryFactory.select(
+                        Projections.constructor(
+                                ConsumerQuestionDTO.class,
+                                question.id,
+                                question.orderId,
+                                question.contents,
+                                questionReply.contents,
+                                question.images,
+                                Projections.fields(
+                                        ProductOptionDTO.class,
+                                        productOption.id.as("productOptionId"),
+                                        productOption.color,
+                                        productOption.size
+                                ),
+                                question.createAt
+                        )
+                )
+                .from(question)
+                .leftJoin(questionReply).on(questionReply.questionId.eq(question.id))
+                .innerJoin(productOption).on(productOption.id.eq(question.productOptionId))
+                .where(question.userId.eq(userId).and(question.isDeleted.isFalse()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1L)
+                .orderBy(question.createAt.desc())
+                .fetch();
+
+        return PaginationUtils.toSlice(results, pageable);
     }
 
 }
