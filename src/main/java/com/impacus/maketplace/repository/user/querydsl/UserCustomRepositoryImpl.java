@@ -14,6 +14,7 @@ import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
+import com.impacus.maketplace.entity.alarm.user.QAlarmUser;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.consumer.QConsumer;
 import com.impacus.maketplace.entity.consumer.oAuthToken.QOAuthToken;
@@ -58,6 +59,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final QLevelAchievement levelAchievement = QLevelAchievement.levelAchievement;
     private final QConsumer consumer = QConsumer.consumer;
     private final QOAuthToken oAuthToken = QOAuthToken.oAuthToken;
+    private final QAlarmUser alarmUser = QAlarmUser.alarmUser;
 
     @Override
     public ReadUserSummaryDTO findUserSummaryByEmail(String email) {
@@ -444,5 +446,34 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .leftJoin(consumer).on(consumer.ci.eq(ci))
                 .where(user.id.eq(consumer.userId))
                 .fetchFirst();
+    }
+
+    @Override
+    public void deleteUncertifiedUser(Long userId) {
+        // User 삭제
+        queryFactory.delete(user)
+                .where(user.id.eq(userId))
+                .execute();
+
+        // UserStatusInfo 삭제
+        queryFactory.delete(userStatusInfo)
+                .where(userStatusInfo.userId.eq(userId))
+                .execute();
+
+        // Alarm 데이터 삭제
+        queryFactory.delete(alarmUser)
+                .where(alarmUser.userId.eq(userId))
+                .execute();
+
+        // Point 데이터 삭제
+        queryFactory.delete(levelPointMaster)
+                .where(levelPointMaster.userId.eq(userId))
+                .execute();
+        queryFactory.delete(levelAchievement)
+                .where(levelAchievement.userId.eq(userId))
+                .execute();
+        queryFactory.delete(greenLabelPoint)
+                .where(greenLabelPoint.userId.eq(userId))
+                .execute();
     }
 }

@@ -1,7 +1,6 @@
 package com.impacus.maketplace.controller.auth;
 
 import com.impacus.maketplace.common.constants.HeaderConstants;
-import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.common.utils.LogUtils;
@@ -16,6 +15,7 @@ import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.auth.CertificationService;
 import com.impacus.maketplace.service.seller.CreateSellerService;
+import com.impacus.maketplace.service.user.SignUpService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +35,7 @@ import security.CustomUserDetails;
 public class AuthController {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
+    private final SignUpService signUpService;
     private final UserService userService;
     private final AuthService authService;
     private final CreateSellerService createSellerService;
@@ -43,7 +44,7 @@ public class AuthController {
 
     @PostMapping("sign-up")
     public ApiResponseEntity<UserDTO> addUser(@Valid @RequestBody SignUpDTO signUpRequest) {
-        UserDTO userDTO = this.userService.addUser(signUpRequest);
+        UserDTO userDTO = signUpService.addUser(signUpRequest);
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
                 .build();

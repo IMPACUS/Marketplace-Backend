@@ -23,7 +23,6 @@ import com.impacus.maketplace.dto.auth.response.SMSVerificationForEmailResultDTO
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
-import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
@@ -37,10 +36,7 @@ import com.impacus.maketplace.redis.service.VerificationCodeService;
 import com.impacus.maketplace.repository.consumer.ConsumerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
-import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.common.sms.SMSService;
-import com.impacus.maketplace.service.oauth.OAuthServiceFactory;
-import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
@@ -77,97 +73,21 @@ public class UserService {
     private final VerificationCodeService verificationCodeService;
     private final AdminService adminService;
     private final UserStatusInfoService userStatusInfoService;
-    private final PointService pointService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
-    private final AlarmUserService alarmUserService;
     private final ConsumerRepository consumerRepository;
     private final SMSService smsService;
-    private final OAuthServiceFactory oAuthServiceFactory;
-
-    @Transactional
-    public UserDTO addUser(SignUpDTO signUpRequest) {
-        String email = signUpRequest.getEmail();
-        String password = signUpRequest.getPassword();
-
-        try {
-            // 1. 이메일 유효성 검사 -> redis 전에도 안됬는지 확인
-            User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
-            if (existedUser != null) {
-                if (existedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                    throw new CustomException(UserErrorType.DUPLICATED_EMAIL);
-                } else {
-                    throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
-                }
-            }
-            // 탈퇴 14일 이내 회원 확인
-            if (!canRejoin(email)) {
-                throw new CustomException(UserErrorType.FAIL_TO_REJOIN_14);
-            }
-
-            // 2. 비밀번호 유효성 검사
-            if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(UserErrorType.INVALID_PASSWORD);
-            }
-
-            // 3. User&UserStatus 생성 및 저장
-            User user = new User(
-                    email,
-                    OauthProviderType.NONE,
-                    password,
-                    signUpRequest.getName());
-            userRepository.save(user);
-            userStatusInfoService.addUserStatusInfo(user.getId());
-            alarmUserService.saveDefault(user.getId());
-
-            // 4. 포인트 관련 Entity 생성
-            // (LevelPointMaster, LevelAchievement, GreenLabelPoint)
-            pointService.addEntityAboutPoint(user.getId());
-
-            // 5. UserDTO 반환
-            return new UserDTO(user);
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
-    }
-
-
-    /**
-     * Oauth Provider와 상관없이 email로 등록된 User를 검색하는 함수
-     *
-     * @param email '%@%.%' 포맷의 이메일 데이터
-     * @return 매개변수로 받은 email로 등록된 User 리스트
-     */
-    public Optional<User> findUsersByEmailAboutAllProvider(String email) {
-        return userRepository.findByEmailLikeAndIsDeletedFalse("%_" + email);
-    }
-
-    /**
-     * email로 재가입 가능 여부를 확인하는 함수
-     *
-     * @param email
-     * @return
-     */
-    public boolean canRejoin(String email) {
-        Optional<User> userOptional = userRepository.findByEmailLikeAndIsDeletedTrue("%_" + email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            return user.isRejoinable();
-        }
-
-        return true;
-    }
 
     /**
      * 전달한 email 과 Oauth provider 로 등록된 User를 검색하는 함수
      *
-     * @param email        '%@%.%' 포맷의 이메일 데이터
+     * @param email        이메일
      * @param providerType 찾을 OauthProviderType
      * @return 요청한 데이터 기준으로 데이터가 존재하는 경우 User, 데이터가 존재하지 않은 경우 null
      */
     public User findUserByEmailAndOauthProviderType(String email, OauthProviderType providerType) {
-        Optional<User> userOptional = findUsersByEmailAboutAllProvider(email);
+        Optional<User> userOptional = userRepository.findByEmailAndIsDeletedFalse(email);
         if (userOptional.isPresent()) {
-            if (userOptional.get().getEmail().equals(providerType + "_" + email)) {
+            if (userOptional.get().getOauthProviderType() == providerType) {
                 return userOptional.get();
             }
         }
