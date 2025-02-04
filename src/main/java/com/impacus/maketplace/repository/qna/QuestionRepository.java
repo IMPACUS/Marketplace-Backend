@@ -7,6 +7,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
+    boolean existsByOrderIdAndProductOptionIdAndIsDeletedFalse(Long orderId, Long productOptionId);
+
     /**
      * {@link Question#getUserId()} 기반 권한 체크 후 삭제
      */

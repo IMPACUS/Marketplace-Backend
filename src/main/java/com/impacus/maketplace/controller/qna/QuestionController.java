@@ -3,8 +3,7 @@ package com.impacus.maketplace.controller.qna;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
-import com.impacus.maketplace.dto.qna.AddProductQuestionServiceDTO;
-import com.impacus.maketplace.dto.qna.request.AddProductQuestionDTO;
+import com.impacus.maketplace.dto.qna.request.CreateQuestionDTO;
 import com.impacus.maketplace.dto.qna.request.GetProductsParams;
 import com.impacus.maketplace.dto.qna.response.SellerProductQuestionResponseDTO;
 import com.impacus.maketplace.service.qna.QuestionService;
@@ -19,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import security.CustomUserDetails;
 
+import java.util.List;
+
 /**
  * 상품 문의 API
  */
@@ -30,22 +31,20 @@ public class QuestionController {
     private final QuestionService questionService;
 
     /**
-     * 상품 문의 등록
+     * 문의 등록
      */
-    @PreAuthorize("hasRole('CERTIFIED_USER')")
+    @PreAuthorize("hasRole('ROLE_CERTIFIED_USER')")
     @PostMapping
-    public ApiResponseEntity<Boolean> addProductQuestion(
+    public ApiResponseEntity<Boolean> addQuestion(
             @AuthenticationPrincipal CustomUserDetails user,
-            @Valid @RequestPart(name = "body") AddProductQuestionDTO dto,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
-        questionService.addProductQuestion(
-                AddProductQuestionServiceDTO.builder()
-                        .productId(dto.getProductId())
-                        .orderId(dto.getOrderId())
-                        .userId(user.getId())
-                        .contents(dto.getContents())
-                        .image(image)
-                        .build());
+            @RequestPart("images") List<MultipartFile> images,
+            @Valid @RequestPart("question") CreateQuestionDTO dto
+    ) {
+        questionService.addQuestion(
+                user.getId(),
+                images,
+                dto
+        );
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
 
