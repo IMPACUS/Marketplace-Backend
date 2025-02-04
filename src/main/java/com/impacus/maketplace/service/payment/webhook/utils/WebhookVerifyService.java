@@ -1,4 +1,4 @@
-package com.impacus.maketplace.service.payment.webhook;
+package com.impacus.maketplace.service.payment.webhook.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.impacus.maketplace.common.enumType.error.PaymentWebhookErrorType;
@@ -8,9 +8,10 @@ import com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO;
 import io.portone.sdk.server.webhook.WebhookVerifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class WebhookVerifyService {
 

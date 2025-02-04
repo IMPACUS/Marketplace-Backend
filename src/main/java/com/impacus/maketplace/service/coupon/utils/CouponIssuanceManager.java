@@ -11,6 +11,7 @@ import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ import java.util.List;
  * 시스템이 쿠폰을 지급하는 로직이 담겨있는 서비스
  */
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CouponIssuanceManager {

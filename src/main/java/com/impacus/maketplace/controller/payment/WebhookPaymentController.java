@@ -3,7 +3,7 @@ package com.impacus.maketplace.controller.payment;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO;
 import com.impacus.maketplace.service.payment.webhook.WebhookHandlerService;
-import com.impacus.maketplace.service.payment.webhook.WebhookVerifyService;
+import com.impacus.maketplace.service.payment.webhook.utils.WebhookVerifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

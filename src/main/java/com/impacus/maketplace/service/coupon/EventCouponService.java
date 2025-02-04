@@ -31,18 +31,33 @@ public class EventCouponService {
      * 주문별 이벤트 처리
      */
     public void issuePaymentEventCoupon(Long userId, Long paymentEventId) {
-        List<Coupon> coupons = couponRepository.findAll();
+        List<Coupon> coupons = couponRepository.findAllActiveCoupons();
 
         List<Coupon> filterdCoupons = coupons.stream()
                 .filter(coupon -> couponValidator.validateEventCoupon(userId, coupon, EventType.PAYMENT_ORDER))
                 .toList();
+
+        List<Coupon> availablePaymentEventCoupons = filterdCoupons.stream()
+                .filter(coupon -> couponValidator.validatePaymentEventCoupon(coupon, paymentEventId))
+                .toList();
+
+
     }
 
     /**
      * 주문 상품별 이벤트 처리
      * @param userId
      */
-    public void issuePaymentOrderCouopn(Long userId, Long paymentOrderId) {
+    public void issuePaymentOrderCoupon(Long userId, Long paymentOrderId) {
+        List<Coupon> coupons = couponRepository.findAllActiveCoupons();
+
+        List<Coupon> filterdCoupons = coupons.stream()
+                .filter(coupon -> couponValidator.validateEventCoupon(userId, coupon, EventType.PAYMENT_PRODUCT))
+                .toList();
+
+        List<Coupon> availablePaymentOrderCoupons = filterdCoupons.stream()
+                .filter(coupon -> couponValidator.validatePaymentOrderCoupon(coupon, paymentOrderId))
+                .toList();
 
     }
 
