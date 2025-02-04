@@ -8,10 +8,13 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
 import com.impacus.maketplace.dto.qna.request.CreateQuestionDTO;
 import com.impacus.maketplace.dto.qna.request.GetProductsParams;
+import com.impacus.maketplace.dto.qna.request.QuestionReplyDTO;
 import com.impacus.maketplace.dto.qna.response.SellerProductQuestionResponseDTO;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.qna.Question;
+import com.impacus.maketplace.entity.qna.QuestionReply;
 import com.impacus.maketplace.repository.qna.QuestionCustomRepository;
+import com.impacus.maketplace.repository.qna.QuestionReplyRepository;
 import com.impacus.maketplace.repository.qna.QuestionRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import groovy.util.logging.Slf4j;
@@ -33,6 +36,7 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     private final QuestionCustomRepository questionCustomRepository;
     private final AttachFileService attachFileService;
+    private final QuestionReplyRepository questionReplyRepository;
 
     /**
      * 상품 문의 등록
@@ -128,5 +132,31 @@ public class QuestionService {
         Page<Question> result = questionCustomRepository.findByParams(spec, pageable);
 
         return result.map(SellerProductQuestionResponseDTO::fromEntity);
+    }
+
+    @Transactional
+    public void addQuestionReply(Long questionId, QuestionReplyDTO dto) {
+        try {
+            // 유효성 검사
+            validateQuestionReply(questionId);
+
+            // 저장
+            QuestionReply questionReply = dto.toEntity(questionId);
+            questionReplyRepository.save(questionReply);
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
+    }
+
+    private void validateQuestionReply(Long questionId) {
+        // 존재하는 문의인지 확인
+        if (!questionRepository.existsByIdAndIsDeletedFalse(questionId)) {
+            throw new CustomException(QuestionErrorType.NOT_EXISTED_QUESTION_ID, "존재하지 않는 문의입니다.");
+        }
+
+        // 판매자 답변이 이미 존재하는지 확인
+        if (questionReplyRepository.existsByQuestionId(questionId)) {
+            throw new CustomException(QuestionErrorType.EXISTED_QUESTION_REPLY, "이미 답변이 등록된 문의입니다.");
+        }
     }
 }

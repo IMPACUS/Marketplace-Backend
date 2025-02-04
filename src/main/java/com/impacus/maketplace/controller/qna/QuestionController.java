@@ -15,7 +15,7 @@ import security.CustomUserDetails;
 import java.util.List;
 
 /**
- * 상품 문의 API
+ *  문의 API
  */
 @RestController
 @RequiredArgsConstructor
