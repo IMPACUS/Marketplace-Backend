@@ -1,8 +1,6 @@
 package com.impacus.maketplace.repository.qna;
 
 import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
-import com.impacus.maketplace.entity.qna.QQuestion;
-import com.impacus.maketplace.entity.qna.QQuestionReply;
 import com.impacus.maketplace.entity.qna.Question;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.repository.user.UserRepository;
@@ -20,6 +18,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static com.impacus.maketplace.entity.qna.QQuestion.question;
+import static com.impacus.maketplace.entity.qna.QQuestionReply.questionReply;
+
 @Repository
 @RequiredArgsConstructor
 public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
@@ -29,9 +30,6 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
     private final PaymentEventInterface paymentEventInterface;
 
     private final UserRepository userRepository;
-
-    private final QQuestion question = QQuestion.question;
-    private final QQuestionReply questionReply = QQuestionReply.questionReply;
 
     /**
      * 문의 조건으로 상세 조회
