@@ -14,7 +14,6 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
-import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForEmailDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForPasswordDTO;
@@ -26,14 +25,12 @@ import com.impacus.maketplace.dto.user.request.LoginDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
-import com.impacus.maketplace.entity.consumer.Consumer;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.entity.user.UserStatusInfo;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.entity.VerificationCode;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.redis.service.VerificationCodeService;
-import com.impacus.maketplace.repository.consumer.ConsumerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
 import com.impacus.maketplace.service.common.sms.SMSService;
@@ -51,7 +48,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -73,7 +69,6 @@ public class UserService {
     private final AdminService adminService;
     private final UserStatusInfoService userStatusInfoService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
-    private final ConsumerRepository consumerRepository;
     private final SMSService smsService;
 
     /**
@@ -407,40 +402,6 @@ public class UserService {
     public CheckExistedEmailDTO checkExistedEmailForSeller(String email) {
         boolean isExited = existUserByEmail(email);
         return CheckExistedEmailDTO.toDTO(isExited);
-    }
-
-    /**
-     * Consumer 정보 저장 혹은 업데이트
-     *
-     * @param userId 사용자 ID
-     * @param certificationResult 본인 인증 데이터
-     */
-    @Transactional
-    public void saveOrUpdateConsumer(Long userId, CertificationResult certificationResult) {
-        // 회원가입 가능한 CI 인지 확인(+ 탈퇴한 회원의 CI 인지 확인)
-        validateUserRejoinable(certificationResult.getCi());
-
-        if (consumerRepository.existsByUserId(userId)) { // 업데이트
-            consumerRepository.updateConsumer(userId, certificationResult.getCi(), LocalDateTime.now());
-        } else { // 생성
-            Consumer consumer = certificationResult.toEntity(userId);
-            consumerRepository.save(consumer);
-        }
-    }
-
-    private void validateUserRejoinable(String ci) {
-        User user = userRepository.findUserByCI(ci);
-        if (user == null) {
-            return;
-        }
-
-        if (user.isDeleted()) {
-            if (!user.isRejoinable()) {
-                throw new CustomException(UserErrorType.FAIL_TO_REJOIN_14);
-            }
-        } else {
-            throw new CustomException(UserErrorType.DUPLICATED_CI);
-        }
     }
 
     /**
