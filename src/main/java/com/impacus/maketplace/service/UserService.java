@@ -230,7 +230,7 @@ public class UserService {
         if (checkedUser == null) {
             throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
         } else {
-            if (!checkedUser.getEmail().contains(OauthProviderType.NONE.name())) {
+            if (checkedUser.getOauthProviderType() != OauthProviderType.NONE) {
                 throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             }
         }
