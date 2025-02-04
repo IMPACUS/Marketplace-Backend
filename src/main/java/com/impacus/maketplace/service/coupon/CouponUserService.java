@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 public class CouponUserService {
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final ProvisionCouponService provisionCouponService;
-    private final CouponIssuanceManager couponIssuanceService;
     private final UserCouponRepository userCouponRepository;
     private final CouponProductRepository couponProductRepository;
     private final PaymentCouponValidator couponValidationService;

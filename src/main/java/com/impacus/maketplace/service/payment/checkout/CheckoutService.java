@@ -290,7 +290,7 @@ public class CheckoutService {
 
         // 3. 필요한 정보 가져오기
         // 상품의 수만큼 N번의 쿼리로 조회
-        // 해당 방식은 보류: 현배 1번의 쿼리로 날리기 위한 동적 쿼리가 좋은 성능을 보장할 수 없다.
+        // 해당 방식은 보류: 현재 1번의 쿼리로 날리기 위한 동적 쿼리가 좋은 성능을 보장할 수 없다.
 //        List<CheckoutCartProductInfoDTO> checkoutCartProductList = checkoutCartDTO.getPaymentProductInfos().stream().map(paymentProductInfoDTO -> {
 //                    CheckoutProductInfoDTO checkoutProductInfo = checkoutCustomRepository.getPaymentProductInfo(paymentProductInfoDTO.getProductId(), paymentProductInfoDTO.getProductOptionId(), paymentProductInfoDTO.getSellerId(), checkoutCartDTO.getUsedRegisteredCard(), checkoutCartDTO.getRegisteredCardId());
 //                    return new CheckoutCartProductInfoDTO(checkoutProductInfo, paymentProductInfoDTO.getQuantity(), paymentProductInfoDTO.getAppliedProductCouponIds());

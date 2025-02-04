@@ -66,6 +66,8 @@ public class CouponIssuanceValidator {
         if (userCouponRepository.existsByUserIdAndCouponId(userId, coupon.getId())) {
             throw new CustomException(CouponErrorType.INVALID_REGISTER_ALREADY_ISSUE);
         }
+
+        // 지정 기간 구매시???
     }
 
     /**
@@ -73,7 +75,7 @@ public class CouponIssuanceValidator {
      * <p>1. 쿠폰 공통 조건</p>
      * <p>2. 이벤트 쿠폰</p>
      * <p>3. 쿠폰 이벤트 타입 일치</p>
-     * <p>4. 기간 내 설정이 되어 있을 경우 기간 확인</p>
+     * <p>4. 지정 기간 설정이 되어 있을 경우 기간 확인</p>
      * <p>5. 일회성 쿠폰인 경우 발급 받은 이력 X</p>
      */
     public boolean validateEventCoupon(Long userId, Coupon coupon, EventType eventType) {
@@ -119,9 +121,8 @@ public class CouponIssuanceValidator {
                 }
             }
 
-            // 3. 쿠폰 지급 조건 확인 (??? 현재 N만원 이상의 상품 구매의 조건 정책이 구체화되어 있지 않다.)
-//            if ()
-
+            // 3. 쿠폰 지금 조건 확인
+            if (!meetsCouponIssueCondition(coupon, paymentOrder)) return false;
 
             return true;
         }).orElse(false);
@@ -154,11 +155,34 @@ public class CouponIssuanceValidator {
             if (coupon.getIssueCoverageType() == CoverageType.BRAND)
                 return false;
 
+            // 2.3 각종 조건 추가
+
 
             return true;
         }).orElse(false);     // PaymentEvent가 없을 경우 false 반환
     }
 
+    private boolean meetsCouponIssueCondition(Coupon coupon, PaymentOrder paymentOrder) {
+        return meetsCouponIssueCondition(coupon, List.of(paymentOrder));
+    }
+
+    /**
+     * <h3>쿠폰 지급 조건 확인</h3>
+     * <p>1. 쿠폰 지급 조건이 UNLIMITED일 경우 TRUE</p>
+     * <p>2. 쿠폰 지급 조건인 LIMITED일 경우</br>
+     * 2.1. 판매가 합계 >= 쿠폰 지급 조건 금액: TRUE</br>
+     * 2.2. 판매가 합계 < 쿠폰 지급 조건 금액: FALSE</p>
+     * <p>cf) 여기서 말하는 판매가는 에코 할인 금액도 포함되지 않은 금액</p>
+     */
+    private boolean meetsCouponIssueCondition(Coupon coupon, List<PaymentOrder> paymentOrders) {
+        if (coupon.getIssueConditionType() == StandardType.LIMIT) {
+            long totalPrice = paymentOrders.stream().mapToLong(PaymentOrder::getNotDiscountedAmount).sum();
+
+            return totalPrice >= coupon.getIssueConditionValue();
+        }
+
+        return true;
+    }
 
     /**
      * <h3>쿠폰 공통 조건</h3>
