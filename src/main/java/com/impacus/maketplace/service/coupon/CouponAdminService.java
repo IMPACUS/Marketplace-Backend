@@ -306,127 +306,124 @@ public class CouponAdminService {
 
 
     /**
-     * <h3>쿠폰 발행 조건 검증</h3>
-     * <p>1. BenefitValue가 음수 X</p>
-     * <p>2. Benefit이 %일 경우, 100% 초과 값은 허용 X</p>
-     * <p>3. 쿠폰 지급 방식이 선착순일 경우 값이 음수 X</p>
-     * <p>4. 쿠폰 사용 기간이 발급일로부터 N일일 경우 음수 X</p>
-     * <p>5. 쿠폰 형식이 지급형일 경우 지속성 발급 형식으로 등록 X</p>
-     * <p>6. 발급 적용 범위가 특정 브랜드일 경우 등록된 브랜드인지 확인</p>
-     * <p>7. 쿠폰 사용 범위가 특정 브랜드일 경우 등록된 브랜드인지 확인</p>
-     * <p>8. 쿠폰 사용 기준 금액 설정한 경우 음수인지 확인</p>
-     * <p>9. 쿠폰 발급 기준 금액 설정한 경우 음수인지 확인</p>
-     * <p>10. 지정 기간 설정시<br/>
-     * 10.1. 시작 날짜가 현재 날짜보다 이전인지 확인<br/>
-     * 10.2 종료 날짜가 시작 날짜보다 이전인 경우<br/>
-     * 10.3. 기간 내 N회 이상 주문 시의 N 값이 NULL 혹은 음수인지 확인
-     * </p>
+     * 쿠폰 발행 조건 검증 메서드
+     *
+     * <p>쿠폰이 정상적으로 등록되기 위한 다양한 검증 규칙을 수행합니다.</p>
+     * <ul>
+     *     <li><b>혜택 금액 검증:</b> BenefitValue가 음수이면 예외 발생</li>
+     *     <li><b>혜택 유형 검증:</b> 혜택이 %일 경우 0% 미만 및 100% 초과 불가</li>
+     *     <li><b>선착순 쿠폰 검증:</b> 지급 방식이 선착순일 경우 firstCount가 음수이면 예외 발생</li>
+     *     <li><b>쿠폰 사용 기간 검증:</b> 발급일로부터 N일일 경우 N이 음수이면 예외 발생</li>
+     *     <li><b>지급형 쿠폰 검증:</b> 지속성 발급 형식으로 등록할 수 없음</li>
+     *     <li><b>이벤트 쿠폰 검증:</b> 결제 주문 관련 이벤트 쿠폰이 특정 브랜드 적용일 경우 예외 발생</li>
+     *     <li><b>발급 적용 범위 검증:</b> 특정 브랜드 적용 시 해당 브랜드가 존재하는지 확인</li>
+     *     <li><b>사용 적용 범위 검증:</b> 특정 브랜드 사용 시 해당 브랜드가 존재하는지 확인</li>
+     *     <li><b>사용 기준 금액 검증:</b> 설정된 사용 기준 금액이 음수이면 예외 발생</li>
+     *     <li><b>발급 기준 금액 검증:</b> 설정된 발급 기준 금액이 음수이면 예외 발생</li>
+     *     <li><b>지정 기간 검증:</b>
+     *         <ul>
+     *             <li>시작 날짜가 현재 날짜보다 이전인지 확인</li>
+     *             <li>종료 날짜가 시작 날짜보다 이전인지 확인</li>
+     *             <li>기간 내 N회 이상 주문 시의 N 값이 NULL이거나 음수인지 확인</li>
+     *         </ul>
+     *     </li>
+     * </ul>
+     *
+     * @param coupon 등록하려는 쿠폰 DTO
+     * @throws CustomException 유효성 검사에 실패한 경우 예외 발생
      */
     private void validateCouponRegistrationRules(CouponDTO coupon) {
-        // 1. BenefitValue가 음수일 경우
+        // 1. BenefitValue 검증
         if (coupon.getBenefitValue() == null || coupon.getBenefitValue() < 0) {
-            log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 benefitValue 값이 들어왔습니다. " +
-                    "benefitValue: {}", coupon.getBenefitValue());
+            log.error("Invalid benefitValue: {}", coupon.getBenefitValue());
             throw new CustomException(CouponErrorType.INVALID_INPUT_BENEFIT_VALUE);
         }
-        // 2. Benefit이 %일 경우, 100% 초과 값은 허용 X
-        if (coupon.getBenefitType().equals(BenefitType.PERCENTAGE)) {
-            if (coupon.getBenefitValue() == null || coupon.getBenefitValue() > 100) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 benefitValue 값이 들어왔습니다. " +
-                        "benefitValue: {}", coupon.getBenefitValue());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_BENEFIT_VALUE);
-            }
+
+        // 2. BenefitType이 퍼센트일 경우 0% 미만 및 100% 초과 불가
+        if (coupon.getBenefitType() == BenefitType.PERCENTAGE &&
+                (coupon.getBenefitValue() == null || coupon.getBenefitValue() < 0 || coupon.getBenefitValue() > 100)) {
+            log.error("Invalid percentage benefitValue: {}", coupon.getBenefitValue());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_BENEFIT_VALUE);
         }
 
-        // 3. 쿠폰 지급 방식이 선착순일 경우 값이 음수 X
-        if (coupon.getPaymentTarget().equals(PaymentTarget.FIRST)) {
-            if (coupon.getFirstCount() == null || coupon.getFirstCount() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 firstCount 값이 들어왔습니다. " +
-                        "firstCount: {}", coupon.getFirstCount());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_FIRST_COUNT);
-            }
+        // 3. 선착순 지급 방식일 경우 firstCount 음수 불가
+        if (coupon.getPaymentTarget() == PaymentTarget.FIRST &&
+                (coupon.getFirstCount() == null || coupon.getFirstCount() < 0)) {
+            log.error("Invalid firstCount: {}", coupon.getFirstCount());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_FIRST_COUNT);
         }
 
-        // 4. 쿠폰 사용 기간이 발급일로부터 N일일 경우 음수 X
-        if (coupon.getExpireTimeType().equals(ExpireTimeType.LIMIT)) {
-            if (coupon.getExpireTimeDays() == null || coupon.getExpireTimeDays() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 expireTimeDays 값이 들어왔습니다. " +
-                        "expireTimeDays: {}", coupon.getExpireTimeDays());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_EXPIRE_TIME_DAYS);
-            }
+        // 4. 발급일로부터 N일 사용 기한 설정 시 N일 음수 불가
+        if (coupon.getExpireTimeType() == ExpireTimeType.LIMIT &&
+                (coupon.getExpireTimeDays() == null || coupon.getExpireTimeDays() < 0)) {
+            log.error("Invalid expireTimeDays: {}", coupon.getExpireTimeDays());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_EXPIRE_TIME_DAYS);
         }
 
-        // 5. 쿠폰 형식이 지급형일 경우 지속성 발급 형식으로 등록 X
-        if (coupon.getCouponType().equals(CouponType.PROVISION) && coupon.getCouponIssueType().equals(CouponIssueType.PERSISTENCE)) {
-            log.error("CouponAdminService.couponInputValidation error: 쿠폰 형식이 지급형일 경우 지속성 발급 형식으로 등록할 수 없습니다.");
+        // 5. 지급형 쿠폰의 지속적 발급 불가
+        if (coupon.getCouponType() == CouponType.PROVISION &&
+                coupon.getCouponIssueType().equals(CouponIssueType.PERSISTENCE)) {
+            log.error("Provision coupon cannot be persistent.");
             throw new CustomException(CouponErrorType.INVALID_INPUT_PROVISION_COUPON_RULE);
         }
 
-        if (coupon.getCouponType().equals(CouponType.EVENT)
-                && coupon.getEventType().equals(EventType.PAYMENT_ORDER)
-                && coupon.getIssueCoverageType().equals(CoverageType.BRAND)) {
-            log.error("CouponAdminService.couponInputValidation error: 결제 주문과 관련된 이벤트형 쿠폰은 발급 적용 범위가 특정 브랜드에 해당할 수 없습니다.");
+        // 6. 결제 주문 이벤트 쿠폰이 특정 브랜드 적용일 경우 예외 발생
+        if (coupon.getCouponType() == CouponType.EVENT &&
+                coupon.getEventType() == EventType.PAYMENT_ORDER &&
+                coupon.getIssueCoverageType() == CoverageType.BRAND) {
+            log.error("Payment order event coupons cannot be brand-specific.");
             throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_TYPE);
         }
 
-        // 6. 발급 적용 범위가 특정 브랜드일 경우 등록된 브랜드인지 확인
-        if (coupon.getIssueCoverageType().equals(CoverageType.BRAND)) {
-            // 해당 브랜드 명이 존재하는지 확인
-            if (coupon.getIssueCoverageSubCategoryName() == null ||
-                    !sellerRepository.existsByMarketName(coupon.getIssueCoverageSubCategoryName())) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 issueConverageSubCategoryName 값이 들어왔습니다. " +
-                        "issueConverageSubCategoryName: {}", coupon.getIssueCoverageSubCategoryName());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_SUB_CATEGORY_NAME);
-            }
+        // 7. 특정 브랜드 적용 범위 검증
+        if (coupon.getIssueCoverageType() == CoverageType.BRAND &&
+                (coupon.getIssueCoverageSubCategoryName() == null ||
+                        !sellerRepository.existsByMarketName(coupon.getIssueCoverageSubCategoryName()))) {
+            log.error("Invalid issueCoverageSubCategoryName: {}", coupon.getIssueCoverageSubCategoryName());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_SUB_CATEGORY_NAME);
         }
 
-        // 7. 쿠폰 사용 범위가 특정 브랜드일 경우 등록된 브랜드인지 확인
-        if (coupon.getUseCoverageType().equals(CoverageType.BRAND)) {
-            // 해당 브랜드 명이 존재하는지 확인
-            if (coupon.getUseCoverageSubCategoryName() == null ||
-                    !sellerRepository.existsByMarketName(coupon.getUseCoverageSubCategoryName())) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 useCoverageSubCategoryName 값이 들어왔습니다. " +
-                        "useCoverageSubCategoryName: {}", coupon.getUseCoverageSubCategoryName());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_USE_COVERAGE_SUB_CATEGORY_NAME);
-            }
+
+        // 8. 특정 브랜드 사용 범위 검증
+        if (coupon.getUseCoverageType() == CoverageType.BRAND &&
+                (coupon.getUseCoverageSubCategoryName() == null ||
+                        !sellerRepository.existsByMarketName(coupon.getUseCoverageSubCategoryName()))) {
+            log.error("Invalid useCoverageSubCategoryName: {}", coupon.getUseCoverageSubCategoryName());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_USE_COVERAGE_SUB_CATEGORY_NAME);
         }
 
-        // 8. 쿠폰 사용 기준 금액 설정한 경우 음수인지 확인
-        if (coupon.getUseStandardType().equals(StandardType.LIMIT)) {
-            if (coupon.getUseStandardValue() == null || coupon.getUseStandardValue() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 useStandardValue 값이 들어왔습니다. " +
-                        "useStandardValue: {}", coupon.getUseStandardValue());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_USE_STANDARD_VALUE);
-            }
+
+        // 9. 사용 기준 금액이 음수인지 확인
+        if (coupon.getUseStandardType() == StandardType.LIMIT &&
+                (coupon.getUseStandardValue() == null || coupon.getUseStandardValue() < 0)) {
+            log.error("Invalid useStandardValue: {}", coupon.getUseStandardValue());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_USE_STANDARD_VALUE);
         }
 
-        // 9. 쿠폰 발급 기준 금액 설정한 경우 음수인지 확인
-        if (coupon.getIssueConditionType().equals(StandardType.LIMIT)) {
-            if (coupon.getIssueConditionValue() == null || coupon.getIssueConditionValue() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 issueStandardValue 값이 들어왔습니다. " +
-                        "issueStandardValue: {}", coupon.getIssueConditionValue());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_STANDARD_VALUE);
-            }
+        // 10. 발급 기준 금액이 음수인지 확인
+        if (coupon.getIssueConditionType().equals(StandardType.LIMIT) &&
+                (coupon.getIssueConditionValue() == null || coupon.getIssueConditionValue() < 0)) {
+            log.error("Invalid issueConditionValue: {}", coupon.getIssueConditionValue());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_STANDARD_VALUE);
         }
 
-        // 10. 지정 기간 설정시
-        if (coupon.getPeriodType().equals(PeriodType.SET)) {
-            // 10.1 시작 날짜가 현재 날짜보다 이전인지 확인
-            if (coupon.getPeriodStartAt() == null || coupon.getPeriodStartAt().isBefore(LocalDate.now())) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 periodStartAt 값이 들어왔습니다. " +
-                        "periodStartAt: {}, LocalDate.now(): {}", coupon.getPeriodStartAt(), LocalDate.now());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_PERIOD_START_AT);
+        // 11. 지정 기간 설정 시 검증
+        if (coupon.getPeriodType().isSetPeriod()) {
+            if (coupon.getPeriodType() == PeriodType.SET) {
+                // 11.1 시작 날짜 검증
+                if (coupon.getPeriodStartAt() == null || coupon.getPeriodStartAt().isBefore(LocalDate.now())) {
+                    log.error("Invalid periodStartAt: {}", coupon.getPeriodStartAt());
+                    throw new CustomException(CouponErrorType.INVALID_INPUT_PERIOD_START_AT);
+                }
+                // 11.2 종료 날짜 검증
+                if (coupon.getPeriodEndAt() == null || coupon.getPeriodEndAt().isBefore(coupon.getPeriodStartAt())) {
+                    log.error("Invalid periodEndAt: {} must be after periodStartAt: {}", coupon.getPeriodEndAt(), coupon.getPeriodStartAt());
+                    throw new CustomException(CouponErrorType.INVALID_INPUT_PERIOD_END_AT);
+                }
             }
-            // 10.2 종료 날짜가 시작 날짜보다 이전인 경우
-            if (coupon.getPeriodEndAt() == null || coupon.getPeriodEndAt().isBefore(coupon.getPeriodStartAt())) {
-                log.error("CouponAdminService.couponInputValidation error: periodStartAt는 periodEndAt보다 이전 혹은 같은 날짜여야 합니다. " +
-                        "periodStartAt: {}, periodEndAt: {}", coupon.getPeriodStartAt(), coupon.getPeriodEndAt());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_PERIOD_END_AT);
-            }
-            // 10.3 기간 내 N회 이상 주문 시의 N 값이 NULL 혹은 음수인지 확인
+            // 11.3 기간 내 주문 횟수 검증
             if (coupon.getNumberOfPeriod() == null || coupon.getNumberOfPeriod() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 numberOfPeriod 값이 들어왔습니다. " +
-                        "numberOfPeriod: {}", coupon.getNumberOfPeriod());
+                log.error("Invalid numberOfPeriod: {}", coupon.getNumberOfPeriod());
                 throw new CustomException(CouponErrorType.INVALID_INPUT_NUMBER_OF_PERIOD);
             }
         }

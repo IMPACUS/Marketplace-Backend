@@ -102,6 +102,9 @@ public class CouponIssuanceValidator {
         }
 
         // TODO: 지정 기간 구매 관련 추가 조건 처리 (필요 시 구현)
+        // TODO: 주간 월간이 추가되었으므로, DB 테이블 및 엔티티 수정 후 반영
+        // TODO: 1. 지정 기간 없음 및 주간 월간 무시, 2. 지정 기간 있더라도 기간 내에 현재 날짜가 포함
+
     }
 
     /**
@@ -135,6 +138,8 @@ public class CouponIssuanceValidator {
 
         // 4. 지정된 이벤트 기간 내에 있는지 확인
         if (!isWithinEventPeriod(coupon)) return false;
+        // TODO: 주간 월간 처리
+        // TODO: 1. 지정 기간 없음, 2. 지정 기간 내에 포함되어 있더라도 현재 날짜 포함, 3. 주간 월간 O
 
         // 5. 일회성 쿠폰인 경우, 이미 발급받은 이력이 없어야 함
         if (coupon.getCouponIssueType() == CouponIssueType.ONETIME
@@ -219,7 +224,8 @@ public class CouponIssuanceValidator {
                     if (coupon.getIssueCoverageType() == CoverageType.BRAND)
                         return false;
 
-                    // TODO 4. 쿠폰 지급 조건 검증 (추후 추가)
+                    // TODO: 쿠폰 지급 조건 검증
+                    // TODO: 지급 조건 만족시 지정 기간 N회 이상 주문 시 처리 혹은 주간 및 월간 처리
                     return true;
                 }).orElse(false);     // PaymentEvent가 없으면 false 반환
     }

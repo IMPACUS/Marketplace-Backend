@@ -9,8 +9,14 @@ import lombok.RequiredArgsConstructor;
 public enum PeriodType implements CouponUtils.CommonFieldInterface {
 
     SET("SET", "지정 기간 설정"),
+    WEEK("WEEK", "주간 N회 이상 주문"),
+    MONTH("MONTH", "월간 N회 이상 주문"),
     UNSET("UNSET", "지정 기간 없음 (지속적인 기준)");
 
     private final String code;
     private final String value;
+
+    public boolean isSetPeriod() {
+        return this != SET;
+    }
 }
