@@ -75,6 +75,7 @@ public class CouponIssuanceValidator {
      *   <li>쿠폰 타입이 지급형이어야 한다.</li>
      *   <li>쿠폰 발급 유형이 1회성(Onetime)이어야 한다.</li>
      *   <li>해당 사용자에게 이미 발급된 이력이 없어야 한다.</li>
+     *   <li>지정된 기간 내에 있어야 함 (기간이 설정되어 있을 경우).</li>
      * </ol>
      * </p>
      *
@@ -101,9 +102,10 @@ public class CouponIssuanceValidator {
             throw new CustomException(CouponErrorType.INVALID_REGISTER_ALREADY_ISSUE);
         }
 
-        // TODO: 지정 기간 구매 관련 추가 조건 처리 (필요 시 구현)
-        // TODO: 주간 월간이 추가되었으므로, DB 테이블 및 엔티티 수정 후 반영
-        // TODO: 1. 지정 기간 없음 및 주간 월간 무시, 2. 지정 기간 있더라도 기간 내에 현재 날짜가 포함
+        // 5. 기간 설정이 되어 있을 경우 지정된 기간 내에 있는지 확인
+        if (isWithinPeriod(coupon)) {
+            throw new CustomException(CouponErrorType.EXPIRED_PREIOD_COUPON);
+        }
 
     }
 
@@ -116,7 +118,6 @@ public class CouponIssuanceValidator {
      *   <li>쿠폰의 공통 유효성 조건을 만족해야 함.</li>
      *   <li>쿠폰 타입이 이벤트여야 함.</li>
      *   <li>쿠폰의 이벤트 타입이 전달된 이벤트 타입과 일치해야 함.</li>
-     *   <li>지정된 이벤트 기간 내에 있어야 함 (기간이 설정되어 있을 경우).</li>
      *   <li>쿠폰 발급 유형이 일회성인 경우, 사용자가 이미 발급받은 이력이 없어야 함.</li>
      * </ol>
      * </p>
@@ -136,12 +137,7 @@ public class CouponIssuanceValidator {
         // 3. 쿠폰 이벤트 타입이 일치해야 함
         if (coupon.getEventType() != eventType) return false;
 
-        // 4. 지정된 이벤트 기간 내에 있는지 확인
-        if (!isWithinEventPeriod(coupon)) return false;
-        // TODO: 주간 월간 처리
-        // TODO: 1. 지정 기간 없음, 2. 지정 기간 내에 포함되어 있더라도 현재 날짜 포함, 3. 주간 월간 O
-
-        // 5. 일회성 쿠폰인 경우, 이미 발급받은 이력이 없어야 함
+        // 4. 일회성 쿠폰인 경우, 이미 발급받은 이력이 없어야 함
         if (coupon.getCouponIssueType() == CouponIssueType.ONETIME
                 && userCouponRepository.existsByUserIdAndCouponId(userId, coupon.getId())) {
             return false;
@@ -185,6 +181,10 @@ public class CouponIssuanceValidator {
                     // 3. 쿠폰 지급 조건 확인 (판매가 합계 등)
                     if (!meetsCouponIssueCondition(coupon, paymentOrder)) return false;
 
+                    // TODO: 기간(SET, WEEKLY, MONTHLY) 설정 쿠폰인 경우 발급 가능 요건 확인 -> 이벤트 쿠폰의 경우 기간 설정 확인을 별도로 수행 -> 비지니스 로직쪽으로 일단 분리
+                    // 4. 쿠폰 기간 설정이 되어 있을 경우
+
+
                     return true;
                 }).orElse(false);   // PaymentOrder가 존재하지 않으면 false 반환
     }
@@ -224,8 +224,12 @@ public class CouponIssuanceValidator {
                     if (coupon.getIssueCoverageType() == CoverageType.BRAND)
                         return false;
 
-                    // TODO: 쿠폰 지급 조건 검증
-                    // TODO: 지급 조건 만족시 지정 기간 N회 이상 주문 시 처리 혹은 주간 및 월간 처리
+                    // 4. 쿠폰 지급 조건 검증
+                    if (coupon.getIssueConditionType() == StandardType.LIMIT && paymentEvent.getTotalAmount() < coupon.getBenefitValue())
+                        return false;
+
+                    // TODO: 지급 조건 만족시 지정 기간 N회 이상 주문 시 처리 혹은 주간 및 월간 처리 -> 비지니스 로직쪽으로 일단 분리
+
                     return true;
                 }).orElse(false);     // PaymentEvent가 없으면 false 반환
     }
@@ -317,7 +321,7 @@ public class CouponIssuanceValidator {
     }
 
     /**
-     * 이벤트 쿠폰에 적용되는 기간 조건을 확인합니다.
+     * 쿠폰에 적용되는 기간 조건을 확인합니다.
      *
      * <p>
      * 기간 타입이 SET인 경우, 현재 날짜가 시작일과 종료일 사이에 있어야 합니다.
@@ -326,7 +330,7 @@ public class CouponIssuanceValidator {
      * @param coupon 검증할 쿠폰 엔티티
      * @return 기간 조건을 만족하면 true, 아니면 false
      */
-    private boolean isWithinEventPeriod(Coupon coupon) {
+    private boolean isWithinPeriod(Coupon coupon) {
         if (coupon.getPeriodType() == PeriodType.SET) {
             LocalDate now = LocalDate.now();
             return !now.isBefore(coupon.getPeriodStartAt()) && !now.isAfter(coupon.getPeriodEndAt());

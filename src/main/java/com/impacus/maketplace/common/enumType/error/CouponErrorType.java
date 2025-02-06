@@ -64,8 +64,14 @@ public enum CouponErrorType implements ErrorType{
     INVALID_USER_COUPON_USE_STANDARD_MISMATCH("048_5_INVALID_USER_COUPON_USE_STANDARD_MISMATCH", "쿠폰의 사용 가능 금액 조건에 맞지 않습니다."),
     USER_NOT_AUTHORIZED_FOR_COUPON_EXCEPTION("048_6_USER_NOT_AUTHORIZED_FOR_COUPON_EXCEPTION", "승인되지 않은 사용자에게 쿠폰을 발급할 수 없습니다."),
 
+    // 기타 조건
+
     // 사용 가능한 쿠폰 조회
-    DUPLICATED_PRODUCDT_ID("049_01_DUPLICATED_PRODUCDT_ID", "사용 가능한 쿠폰 조회하는 과정에서 상품 ID가 중복되서 들어왔습니다.");
+    DUPLICATED_PRODUCDT_ID("049_01_DUPLICATED_PRODUCDT_ID", "사용 가능한 쿠폰 조회하는 과정에서 상품 ID가 중복되서 들어왔습니다."),
+
+    // 발급 조건
+    EXPIRED_PREIOD_COUPON("049_02_EXPIRED_PREIOD_COUPON", "쿠폰 발급 기간이 종료되었습니다.");
+
 
     private final String code;
     private final String msg;

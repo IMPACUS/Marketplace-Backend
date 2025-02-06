@@ -63,6 +63,10 @@ public class PaymentEvent extends BaseEntity {
         this.approvedAt = localDateTime;
     }
 
+    public boolean isNotUpdatedOrders() {
+        return getPaymentOrders().isEmpty();
+    }
+
     public List<PaymentOrder> getPaymentOrders() {
         if (this.paymentOrders == null) this.paymentOrders = new ArrayList<>();
         return this.paymentOrders;
