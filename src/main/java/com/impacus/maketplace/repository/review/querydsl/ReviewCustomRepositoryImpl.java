@@ -303,8 +303,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                                 user.email,
                                 review.createAt,
                                 Projections.fields(
-                                        WebReviewReplyDTO.class,
-                                        reviewReply.id.as("reviewReplyId"),
+                                        WebReplyDTO.class,
+                                        reviewReply.id.as("replyId"),
                                         reviewReply.contents
                                 )
                         ))

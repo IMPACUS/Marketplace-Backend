@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.searchCondition.QnAReviewSearchCon
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.qna.request.CreateQuestionDTO;
 import com.impacus.maketplace.dto.qna.response.WebQuestionDTO;
+import com.impacus.maketplace.dto.qna.response.WebQuestionDetailDTO;
 import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.service.qna.QuestionService;
 import jakarta.validation.Valid;
@@ -91,30 +92,30 @@ public class QuestionController {
                 .build();
     }
 
-//    /**
-//     * 문의 단건 조회
-//     *
-//     * @return
-//     */
-//    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
-//            "or hasRole('ROLE_ADMIN') " +
-//            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
-//            "or hasRole('ROLE_OWNER')")
-//    @GetMapping("/{questionId}")
-//    public ApiResponseEntity<WebReviewDetailDTO> findQuestion(
-//            @PathVariable(name = "questionId") Long questionId
-//    ) {
-//        WebQuestionDetailDTO result = questionService.findQuestion(
-//                reviewId
-//        );
-//
-//        return ApiResponseEntity
-//                .<WebQuestionDetailDTO>builder()
-//                .code(HttpStatus.OK)
-//                .message("문의 단건 조회 성공")
-//                .data(result)
-//                .build();
-//    }
+    /**
+     * 문의 단건 조회
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @GetMapping("/{questionId}")
+    public ApiResponseEntity<WebQuestionDetailDTO> findQuestion(
+            @PathVariable(name = "questionId") Long questionId
+    ) {
+        WebQuestionDetailDTO result = questionService.findQuestion(
+                questionId
+        );
+
+        return ApiResponseEntity
+                .<WebQuestionDetailDTO>builder()
+                .code(HttpStatus.OK)
+                .message("문의 단건 조회 성공")
+                .data(result)
+                .build();
+    }
 //
 //    /**
 //     * [관리자, 판매자] 문의 엑셀 다운

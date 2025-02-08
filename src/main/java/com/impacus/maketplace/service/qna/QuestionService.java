@@ -9,6 +9,7 @@ import com.impacus.maketplace.dto.qna.request.CreateQuestionDTO;
 import com.impacus.maketplace.dto.qna.request.QuestionReplyDTO;
 import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;
 import com.impacus.maketplace.dto.qna.response.WebQuestionDTO;
+import com.impacus.maketplace.dto.qna.response.WebQuestionDetailDTO;
 import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.qna.Question;
@@ -156,10 +157,20 @@ public class QuestionService {
     }
 
     public Page<WebQuestionDTO> findQuestions(QnaReviewSearchCondition condition) {
-//        try {
+        try {
         return questionCustomRepository.findQuestions(condition);
-//        } catch (Exception e) {
-//            throw new CustomException(e);
-//        }
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
+    }
+
+    public WebQuestionDetailDTO findQuestion(Long questionId) {
+        try {
+
+        } catch (Exception e) {
+            throw new CustomException(e);
+        }
+
+        return questionCustomRepository.findQuestion(questionId);
     }
 }

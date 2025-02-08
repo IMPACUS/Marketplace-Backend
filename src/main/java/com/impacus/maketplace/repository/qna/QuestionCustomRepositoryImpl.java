@@ -7,7 +7,9 @@ import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;
 import com.impacus.maketplace.dto.qna.response.WebQuestionDTO;
+import com.impacus.maketplace.dto.qna.response.WebQuestionDetailDTO;
 import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
+import com.impacus.maketplace.dto.review.response.WebReplyDTO;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
@@ -140,6 +142,43 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
                 .fetchFirst()).orElse(0L);
 
         return PaginationUtils.toPage(data, pageable, count);
+    }
+
+    @Override
+    public WebQuestionDetailDTO findQuestion(Long questionId) {
+        return queryFactory
+                .select(Projections
+                        .fields(
+                                WebQuestionDetailDTO.class,
+                                question.id.as("questionId"),
+                                question.orderId,
+                                product.productNumber,
+                                question.contents,
+                                product.name.as("productName"),
+                                question.images,
+                                product.productImages,
+                                Projections.fields(
+                                        ProductOptionDTO.class,
+                                        productOption.id,
+                                        productOption.color,
+                                        productOption.size
+                                ).as("option"),
+                                user.email.as("userEmail"),
+                                user.name.as("userName"),
+                                question.createAt.as("createdAt"),
+                                Projections.fields(
+                                        WebReplyDTO.class,
+                                        questionReply.id.as("replyId"),
+                                        questionReply.contents
+                                ).as("reply")
+                        ))
+                .from(question)
+                .innerJoin(productOption).on(productOption.id.eq(question.productOptionId))
+                .innerJoin(product).on(product.id.eq(productOption.productId))
+                .leftJoin(user).on(user.id.eq(question.userId))
+                .leftJoin(questionReply).on(questionReply.questionId.eq(question.id))
+                .where(question.id.eq(questionId))
+                .fetchFirst();
     }
 
     private JPAQuery<WebQuestionDTO> getQueryToFindQuestions(

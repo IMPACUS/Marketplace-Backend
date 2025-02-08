@@ -21,7 +21,7 @@ public class WebReviewDetailDTO {
     private ProductOptionDTO option;
     private String userEmail;
     private LocalDateTime createdAt;
-    private WebReviewReplyDTO reply;
+    private WebReplyDTO reply;
 
     public WebReviewDetailDTO(
             Long reviewId,
@@ -35,7 +35,7 @@ public class WebReviewDetailDTO {
             ProductOptionDTO option,
             String userEmail,
             LocalDateTime createdAt,
-            WebReviewReplyDTO reply
+            WebReplyDTO reply
     ) {
         this.reviewId = reviewId;
         this.orderId = orderId;
