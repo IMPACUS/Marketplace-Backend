@@ -155,7 +155,7 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
                                 question.orderId,
                                 user.name.as("userName"),
                                 user.email.as("userEmail"),
-                                question.createAt,
+                                question.createAt.as("createdAt"),
                                 questionReply.isNotNull().as("hasReply")
                         )
                 )
