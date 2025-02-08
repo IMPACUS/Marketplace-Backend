@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 public class CreateQuestionDTO {
     @NotNull
-    private Long orderId; // 주문 ID
+    private String orderId; // 주문 ID
 
     @NotNull
     private Long productOptionId; // 상품 옵션 ID

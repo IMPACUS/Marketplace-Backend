@@ -7,7 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
-    boolean existsByOrderIdAndProductOptionIdAndIsDeletedFalse(Long orderId, Long productOptionId);
+    boolean existsByOrderIdAndProductOptionIdAndIsDeletedFalse(String orderId, Long productOptionId);
 
     boolean existsByIdAndIsDeletedFalse(Long id);
 

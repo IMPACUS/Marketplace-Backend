@@ -5,12 +5,11 @@ import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.QuestionErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
-import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
 import com.impacus.maketplace.dto.qna.request.CreateQuestionDTO;
-import com.impacus.maketplace.dto.qna.request.GetProductsParams;
 import com.impacus.maketplace.dto.qna.request.QuestionReplyDTO;
 import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;
-import com.impacus.maketplace.dto.qna.response.SellerProductQuestionResponseDTO;
+import com.impacus.maketplace.dto.qna.response.WebQuestionDTO;
+import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.qna.Question;
 import com.impacus.maketplace.entity.qna.QuestionReply;
@@ -122,20 +121,6 @@ public class QuestionService {
         }
     }
 
-    public Page<SellerProductQuestionResponseDTO> getProducts(long sellerId, GetProductsParams params, Pageable pageable) {
-        var spec = ProductQuestionSpec.builder()
-                .sellerId(sellerId)
-                .startDate(params.getStartDate())
-                .endDate(params.getEndDate())
-                .answered(params.getAnswered())
-                .authorId(params.getAuthorId())
-                .orderNumber(params.getOrderNumber())
-                .build();
-        Page<Question> result = questionCustomRepository.findByParams(spec, pageable);
-
-        return result.map(SellerProductQuestionResponseDTO::fromEntity);
-    }
-
     @Transactional
     public void addQuestionReply(Long questionId, QuestionReplyDTO dto) {
         try {
@@ -168,5 +153,13 @@ public class QuestionService {
         } catch (Exception e) {
             throw new CustomException(e);
         }
+    }
+
+    public Page<WebQuestionDTO> findQuestions(QnaReviewSearchCondition condition) {
+//        try {
+        return questionCustomRepository.findQuestions(condition);
+//        } catch (Exception e) {
+//            throw new CustomException(e);
+//        }
     }
 }

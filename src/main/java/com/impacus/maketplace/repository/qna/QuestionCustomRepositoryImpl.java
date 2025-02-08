@@ -1,33 +1,38 @@
 package com.impacus.maketplace.repository.qna;
 
+import com.impacus.maketplace.common.enumType.searchCondition.QnAReviewSearchCondition;
+import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
+import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
-import com.impacus.maketplace.dto.qna.ProductQuestionSpec;
 import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;
-import com.impacus.maketplace.entity.qna.Question;
-import com.impacus.maketplace.entity.user.User;
+import com.impacus.maketplace.dto.qna.response.WebQuestionDTO;
+import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.repository.user.UserRepository;
-import com.impacus.maketplace.service.api.PaymentEventInterface;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
+import static com.impacus.maketplace.entity.product.QProduct.product;
 import static com.impacus.maketplace.entity.product.QProductOption.productOption;
 import static com.impacus.maketplace.entity.qna.QQuestion.question;
 import static com.impacus.maketplace.entity.qna.QQuestionReply.questionReply;
+import static com.impacus.maketplace.entity.seller.QSeller.seller;
+import static com.impacus.maketplace.entity.user.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,58 +40,7 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
     private final AuditorAware<String> auditorProvider;
     private final JPAQueryFactory queryFactory;
 
-    private final PaymentEventInterface paymentEventInterface;
-
     private final UserRepository userRepository;
-
-    /**
-     * 문의 조건으로 상세 조회
-     */
-    @Override
-    public Page<Question> findByParams(ProductQuestionSpec spec, Pageable pageable) {
-        BooleanExpression expression = question.isDeleted.isFalse();
-
-        if (spec.getStartDate() != null) {
-            expression.and(question.createAt.goe(spec.getStartDate().atStartOfDay()));
-        }
-
-        if (spec.getEndDate() != null) {
-            expression.and(question.createAt.lt(spec.getEndDate().plusDays(1).atStartOfDay()));
-        }
-
-        if (spec.getAnswered() != null) {
-            expression.and(spec.getAnswered() ? questionReply.questionId.isNotNull() : questionReply.questionId.isNull());
-        }
-
-        if (StringUtils.isNotBlank(spec.getAuthorId())) {
-            User user = userRepository.findByEmailLikeAndIsDeletedFalse(spec.getAuthorId()).get();
-            expression.and(question.userId.eq(user.getId()));
-        }
-
-        if (StringUtils.isNotBlank(spec.getOrderNumber())) {
-            Long paymentEventId = paymentEventInterface.findIdByPaymentId(spec.getOrderNumber());
-            if (paymentEventId == null) {
-                expression.and(Expressions.asBoolean(false));
-            } else {
-                expression.and(question.orderId.eq(paymentEventId));
-            }
-        }
-
-        List<Question> contents = queryFactory
-                .select(question)
-                .from(question)
-                .leftJoin(questionReply).on(questionReply.questionId.eq(question.id))
-                .where(expression)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-
-        JPAQuery<Long> count = queryFactory.select(question.count())
-                .where(expression);
-
-        return PageableExecutionUtils.getPage(contents, pageable, count::fetchOne);
-    }
 
     @Override
     public void deleteQuestionById(long questionId) {
@@ -127,6 +81,112 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
                 .fetch();
 
         return PaginationUtils.toSlice(results, pageable);
+    }
+
+    @Override
+    public Page<WebQuestionDTO> findQuestions(QnaReviewSearchCondition condition) {
+        // 현재 사용자 정보 가져오기
+        UserType currentUserType = SecurityUtils.getCurrentUserType();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        String keyword = condition.getKeyword();
+        Pageable pageable = condition.getPageable();
+
+        BooleanBuilder questionBoolean = new BooleanBuilder()
+                .and(question.createAt.between(condition.getStartAt().atStartOfDay(), condition.getEndAt().atTime(LocalTime.MAX)));
+        BooleanBuilder userBoolean = new BooleanBuilder();
+        BooleanBuilder productBoolean = new BooleanBuilder();
+
+        if (keyword != null && !keyword.isBlank()) {
+            if (condition.getSearchCondition() == QnAReviewSearchCondition.ID) {
+                userBoolean.and(user.email.containsIgnoreCase(keyword));
+            } else if (condition.getSearchCondition() == QnAReviewSearchCondition.PRODUCT_NAME) {
+                productBoolean.and(product.name.containsIgnoreCase(keyword));
+            }
+        }
+
+        // 데이터 조회
+        JPAQuery<WebQuestionDTO> questionQuery = getQueryToFindQuestions(userBoolean, productBoolean);
+        JPAQuery<Long> countQuery = queryFactory
+                .select(question.id.count())
+                .from(question)
+                .innerJoin(productOption).on(productOption.id.eq(question.productOptionId))
+                .innerJoin(product).on(product.id.eq(productOption.productId).and(productBoolean.getValue() != null ? productBoolean : Expressions.TRUE));
+
+        if (userBoolean.getValue() != null) {
+            countQuery.innerJoin(user).on(user.id.eq(question.userId).and(userBoolean));
+        } else {
+            countQuery.leftJoin(user).on(user.id.eq(question.userId));
+        }
+
+        if (currentUserType == UserType.ROLE_APPROVED_SELLER) {
+            questionBoolean.and(question.isDeleted.isFalse());
+
+            Long sellerId = fetchSellerId(currentUserId);
+
+            addSellerConditions(questionQuery, sellerId);
+            addSellerConditions(countQuery, sellerId);
+        }
+
+        List<WebQuestionDTO> data = questionQuery
+                .where(questionBoolean)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(question.createAt.desc())
+                .fetch();
+
+        long count = Optional.ofNullable(countQuery
+                .where(questionBoolean)
+                .fetchFirst()).orElse(0L);
+
+        return PaginationUtils.toPage(data, pageable, count);
+    }
+
+    private JPAQuery<WebQuestionDTO> getQueryToFindQuestions(
+            @Nullable BooleanBuilder userBoolean,
+            @Nullable BooleanBuilder productBoolean
+    ) {
+        JPAQuery<WebQuestionDTO> questionQuery = queryFactory
+                .select(
+                        Projections.fields(
+                                WebQuestionDTO.class,
+                                question.id.as("questionId"),
+                                question.contents,
+                                question.orderId,
+                                user.name.as("userName"),
+                                user.email.as("userEmail"),
+                                question.createAt,
+                                questionReply.isNotNull().as("hasReply")
+                        )
+                )
+                .from(question)
+                .leftJoin(questionReply).on(questionReply.questionId.eq(question.id))
+                .innerJoin(productOption).on(productOption.id.eq(question.productOptionId))
+                .innerJoin(product).on(product.id.eq(productOption.productId).and(productBoolean != null && productBoolean.getValue() != null ? productBoolean : Expressions.TRUE));
+
+        if (userBoolean != null && userBoolean.getValue() != null) {
+            questionQuery.innerJoin(user).on(user.id.eq(question.userId).and(userBoolean));
+        } else {
+            questionQuery.leftJoin(user).on(user.id.eq(question.userId));
+        }
+
+        return questionQuery;
+    }
+
+    // 판매자 ID 가져오기
+    private Long fetchSellerId(Long userId) {
+        return queryFactory
+                .select(seller.id)
+                .from(seller)
+                .where(seller.userId.eq(userId))
+                .fetchFirst();
+    }
+
+    // 판매자 조건 및 조인 추가
+    private void addSellerConditions(JPAQuery<?> query, Long sellerId) {
+        query.innerJoin(product).on(product.sellerId.eq(sellerId))
+                .innerJoin(productOption).on(productOption.productId.eq(product.id)
+                        .and(productOption.id.eq(question.productOptionId)));
     }
 
 }

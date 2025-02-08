@@ -16,7 +16,7 @@ public class SellerProductQuestionResponseDTO {
 
     private String contents;
 
-    private Long orderId;
+    private String orderId;
 
     private String customerName;
 
