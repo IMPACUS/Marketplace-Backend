@@ -1,4 +1,4 @@
-package com.impacus.maketplace.repository.qna;
+package com.impacus.maketplace.repository.qna.querydsl;
 
 import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;

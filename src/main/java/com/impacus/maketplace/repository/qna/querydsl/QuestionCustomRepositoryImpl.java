@@ -1,4 +1,4 @@
-package com.impacus.maketplace.repository.qna;
+package com.impacus.maketplace.repository.qna.querydsl;
 
 import com.impacus.maketplace.common.enumType.searchCondition.QnAReviewSearchCondition;
 import com.impacus.maketplace.common.enumType.user.UserType;
