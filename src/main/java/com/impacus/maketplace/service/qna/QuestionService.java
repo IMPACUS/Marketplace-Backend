@@ -5,6 +5,8 @@ import com.impacus.maketplace.common.constants.FileSizeConstants;
 import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.QuestionErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.qna.request.CreateQuestionDTO;
 import com.impacus.maketplace.dto.qna.request.QuestionReplyDTO;
 import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;
@@ -14,10 +16,10 @@ import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.entity.common.AttachFile;
 import com.impacus.maketplace.entity.qna.Question;
 import com.impacus.maketplace.entity.qna.QuestionReply;
-import com.impacus.maketplace.repository.qna.QuestionCustomRepository;
 import com.impacus.maketplace.repository.qna.QuestionReplyRepository;
 import com.impacus.maketplace.repository.qna.QuestionRepository;
 import com.impacus.maketplace.service.AttachFileService;
+import com.impacus.maketplace.service.excel.ExcelService;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,9 +38,9 @@ import java.util.List;
 @Slf4j
 public class QuestionService {
     private final QuestionRepository questionRepository;
-    private final QuestionCustomRepository questionCustomRepository;
     private final AttachFileService attachFileService;
     private final QuestionReplyRepository questionReplyRepository;
+    private final ExcelService excelService;
 
     /**
      * 상품 문의 등록
@@ -116,7 +118,7 @@ public class QuestionService {
     @Transactional
     public void deleteQuestion(long questionId) {
         if (questionRepository.existsByIdAndIsDeletedFalse(questionId)) {
-            questionCustomRepository.deleteQuestionById(questionId);
+            questionRepository.deleteQuestionById(questionId);
         } else {
             throw new CustomException(QuestionErrorType.NOT_EXISTED_QUESTION_ID, "존재하지 않는 문의입니다.");
         }
@@ -150,7 +152,7 @@ public class QuestionService {
 
     public Slice<ConsumerQuestionDTO> findConsumerQuestions(Long id, Pageable pageable) {
         try {
-            return questionCustomRepository.findConsumerQuestions(id, pageable);
+            return questionRepository.findConsumerQuestions(id, pageable);
         } catch (Exception e) {
             throw new CustomException(e);
         }
@@ -158,7 +160,7 @@ public class QuestionService {
 
     public Page<WebQuestionDTO> findQuestions(QnaReviewSearchCondition condition) {
         try {
-        return questionCustomRepository.findQuestions(condition);
+            return questionRepository.findQuestions(condition);
         } catch (Exception e) {
             throw new CustomException(e);
         }
@@ -166,11 +168,21 @@ public class QuestionService {
 
     public WebQuestionDetailDTO findQuestion(Long questionId) {
         try {
-
+            return questionRepository.findQuestion(questionId);
         } catch (Exception e) {
             throw new CustomException(e);
         }
+    }
 
-        return questionCustomRepository.findQuestion(questionId);
+    public FileGenerationStatusIdDTO exportQuestions(IdsDTO dto) {
+        try {
+            List<WebQuestionDTO> dtos = questionRepository.findQuestionsByIds(
+                    dto
+            );
+
+            return excelService.generateExcel(dtos, WebQuestionDTO.class);
+        } catch (Exception ex) {
+            throw new CustomException(ex);
+        }
     }
 }

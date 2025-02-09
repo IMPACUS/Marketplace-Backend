@@ -4,13 +4,13 @@ import com.impacus.maketplace.common.enumType.searchCondition.QnAReviewSearchCon
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
 import com.impacus.maketplace.dto.qna.response.ConsumerQuestionDTO;
 import com.impacus.maketplace.dto.qna.response.WebQuestionDTO;
 import com.impacus.maketplace.dto.qna.response.WebQuestionDetailDTO;
 import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.dto.review.response.WebReplyDTO;
-import com.impacus.maketplace.repository.user.UserRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -33,6 +33,7 @@ import static com.impacus.maketplace.entity.product.QProduct.product;
 import static com.impacus.maketplace.entity.product.QProductOption.productOption;
 import static com.impacus.maketplace.entity.qna.QQuestion.question;
 import static com.impacus.maketplace.entity.qna.QQuestionReply.questionReply;
+import static com.impacus.maketplace.entity.review.QReview.review;
 import static com.impacus.maketplace.entity.seller.QSeller.seller;
 import static com.impacus.maketplace.entity.user.QUser.user;
 
@@ -41,8 +42,6 @@ import static com.impacus.maketplace.entity.user.QUser.user;
 public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
     private final AuditorAware<String> auditorProvider;
     private final JPAQueryFactory queryFactory;
-
-    private final UserRepository userRepository;
 
     @Override
     public void deleteQuestionById(long questionId) {
@@ -179,6 +178,23 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
                 .leftJoin(questionReply).on(questionReply.questionId.eq(question.id))
                 .where(question.id.eq(questionId))
                 .fetchFirst();
+    }
+
+    @Override
+    public List<WebQuestionDTO> findQuestionsByIds(IdsDTO dto) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder()
+                .and(review.id.in(dto.getIds()));
+
+        JPAQuery<WebQuestionDTO> reviewQuery = getQueryToFindQuestions();
+
+        return reviewQuery
+                .where(booleanBuilder)
+                .orderBy(question.createAt.desc())
+                .fetch();
+    }
+
+    private JPAQuery<WebQuestionDTO> getQueryToFindQuestions() {
+        return getQueryToFindQuestions(new BooleanBuilder(), new BooleanBuilder());
     }
 
     private JPAQuery<WebQuestionDTO> getQueryToFindQuestions(

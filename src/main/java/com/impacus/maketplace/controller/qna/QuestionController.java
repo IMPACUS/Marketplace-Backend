@@ -2,6 +2,8 @@ package com.impacus.maketplace.controller.qna;
 
 import com.impacus.maketplace.common.enumType.searchCondition.QnAReviewSearchCondition;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
+import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.qna.request.CreateQuestionDTO;
 import com.impacus.maketplace.dto.qna.response.WebQuestionDTO;
 import com.impacus.maketplace.dto.qna.response.WebQuestionDetailDTO;
@@ -116,30 +118,30 @@ public class QuestionController {
                 .data(result)
                 .build();
     }
-//
-//    /**
-//     * [관리자, 판매자] 문의 엑셀 다운
-//     *
-//     * @return
-//     */
-//    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
-//            "or hasRole('ROLE_ADMIN') " +
-//            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
-//            "or hasRole('ROLE_OWNER')")
-//    @PostMapping("/excel")
-//    public ApiResponseEntity<FileGenerationStatusIdDTO> exportQuestions(
-//            @RequestBody IdsDTO dto
-//    ) {
-//        FileGenerationStatusIdDTO result = questionService.exportQuestions(
-//                dto
-//        );
-//
-//        return ApiResponseEntity
-//                .<FileGenerationStatusIdDTO>builder()
-//                .code(HttpStatus.OK)
-//                .message("문의 엑셀 다운")
-//                .data(result)
-//                .build();
-//    }
+
+    /**
+     * [관리자, 판매자] 문의 엑셀 다운
+     *
+     * @return
+     */
+    @PreAuthorize("hasRole('ROLE_APPROVED_SELLER') " +
+            "or hasRole('ROLE_ADMIN') " +
+            "or hasRole('ROLE_PRINCIPAL_ADMIN')" +
+            "or hasRole('ROLE_OWNER')")
+    @PostMapping("/excel")
+    public ApiResponseEntity<FileGenerationStatusIdDTO> exportQuestions(
+            @RequestBody IdsDTO dto
+    ) {
+        FileGenerationStatusIdDTO result = questionService.exportQuestions(
+                dto
+        );
+
+        return ApiResponseEntity
+                .<FileGenerationStatusIdDTO>builder()
+                .code(HttpStatus.OK)
+                .message("문의 엑셀 다운")
+                .data(result)
+                .build();
+    }
 
 }
