@@ -470,13 +470,13 @@ public class UserService {
         String email = dto.getEmail();
 
         // 코드 확인
-//        VerificationCode verificationCode = verificationCodeService
-//                .findVerificationCode(phoneNumber, dto.getCode());
-//        if (verificationCode != null) {
-//            verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
-//        } else {
-//            return false;
-//        }
+        VerificationCode verificationCode = verificationCodeService
+                .findVerificationCode(phoneNumber, dto.getCode());
+        if (verificationCode != null) {
+            verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
+        } else {
+            return false;
+        }
 
         // 사용자 확인
         ConsumerEmailDTO consumer = userRepository.findConsumerByPhoneNumberAndEmail(phoneNumber, email);

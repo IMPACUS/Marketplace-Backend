@@ -28,7 +28,7 @@ public class Question extends BaseEntity {
     private Long productOptionId;
 
     @Column(nullable = false)
-    private Long orderId;
+    private String orderId;
 
     @Column(nullable = false)
     private Long userId;
@@ -44,7 +44,7 @@ public class Question extends BaseEntity {
 
     @Builder
     public Question(
-            Long orderId,
+            String orderId,
             Long productOptionId,
             Long userId,
             String contents,

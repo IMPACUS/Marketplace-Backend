@@ -18,7 +18,7 @@
         <dropTable tableName="answer"/>
     </changeSet>
 
-    <changeSet id="changelog-lchy-0.19.03-250202-1" author="lchy0413">
+    <changeSet id="changelog-lchy-0.19.03-250202-2" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="question_reply"/>
@@ -33,7 +33,7 @@
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="contents" type="TEXT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
 
             <column name="create_at" type="TIMESTAMP"/>
@@ -43,7 +43,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="changelog-lchy-0.19.04-250202" author="lchy0413">
+    <changeSet id="changelog-lchy-0.19.04-250202-1" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="question"/>
@@ -53,17 +53,17 @@
             <column name="question_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="order_id" type="BIGINT">
-                <constraints nullable="true"/>
+            <column name="order_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
             </column>
             <column name="product_option_id" type="BIGINT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="user_id" type="BIGINT">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="contents" type="VARCHAR(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="false"/>
             </column>
             <column name="images" type="TEXT">
                 <constraints nullable="true"/>
@@ -77,5 +77,12 @@
             <column name="register_id" type="VARCHAR(255)"/>
             <column name="modify_id" type="VARCHAR(255)"/>
         </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-lchy-0.19.05-250208" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="question" columnName="order_id"/>
+        </preConditions>
+        <modifyDataType tableName="question" columnName="order_id" newDataType="VARCHAR(255)"/>
     </changeSet>
 </databaseChangeLog>

@@ -25,4 +25,9 @@ public class QuestionReply extends BaseEntity {
 
     private String contents;
 
+    public QuestionReply(Long questionId, String contents) {
+        this.questionId = questionId;
+        this.contents = contents;
+    }
+
 }
