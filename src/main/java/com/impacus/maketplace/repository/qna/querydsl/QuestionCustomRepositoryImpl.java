@@ -33,7 +33,6 @@ import static com.impacus.maketplace.entity.product.QProduct.product;
 import static com.impacus.maketplace.entity.product.QProductOption.productOption;
 import static com.impacus.maketplace.entity.qna.QQuestion.question;
 import static com.impacus.maketplace.entity.qna.QQuestionReply.questionReply;
-import static com.impacus.maketplace.entity.review.QReview.review;
 import static com.impacus.maketplace.entity.seller.QSeller.seller;
 import static com.impacus.maketplace.entity.user.QUser.user;
 
@@ -183,11 +182,11 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
     @Override
     public List<WebQuestionDTO> findQuestionsByIds(IdsDTO dto) {
         BooleanBuilder booleanBuilder = new BooleanBuilder()
-                .and(review.id.in(dto.getIds()));
+                .and(question.id.in(dto.getIds()));
 
-        JPAQuery<WebQuestionDTO> reviewQuery = getQueryToFindQuestions();
+        JPAQuery<WebQuestionDTO> query = getQueryToFindQuestions();
 
-        return reviewQuery
+        return query
                 .where(booleanBuilder)
                 .orderBy(question.createAt.desc())
                 .fetch();
@@ -211,7 +210,12 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
                                 user.name.as("userName"),
                                 user.email.as("userEmail"),
                                 question.createAt.as("createdAt"),
-                                questionReply.isNotNull().as("hasReply")
+                                questionReply.isNotNull().as("hasReply"),
+                                Expressions.cases()
+                                        .when(questionReply.isNotNull())
+                                        .then("답변완료")
+                                        .otherwise("미답변")
+                                        .as("strHasReply")
                         )
                 )
                 .from(question)

@@ -29,7 +29,5 @@ public class WebQuestionDTO {
 
     @JsonIgnore
     @ExcelColumn(headerName = "답변 여부")
-    private String getStrHasReply() {
-        return this.hasReply ? "답변완료" : "미답변";
-    }
+    private String strHasReply;
 }
