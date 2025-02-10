@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +47,7 @@ class PaymentEventCustomRepositoryTest {
     private TestEntityManager testEntityManager;
 
     private static final LocalDateTime NOW = LocalDate.of(2024, 12, 15).atStartOfDay();
+    private final List<Long> pkList = new ArrayList<>();
 
     @BeforeEach
     @Transactional
@@ -68,6 +70,7 @@ class PaymentEventCustomRepositoryTest {
                     .build();
 
             PaymentEvent savedPaymentEvent = paymentEventRepository.save(paymentEvent);
+            pkList.add(savedPaymentEvent.getId());
             // 1만원 상품 2개, 2만원 상품 1개
             for (int j = 0; j < 2; j++) {
                 PaymentOrder paymentOrder = PaymentOrder.builder()
@@ -101,8 +104,8 @@ class PaymentEventCustomRepositoryTest {
     }
 
     @Test
-    @DisplayName("6일 전 paymentEvent 3개의 paymentOrder가 전부 올바르게 매핑된다.")
-    void paymentEventMappingPaymentOrderById() {
+    @DisplayName("6일 전 paymentEvent 결제 완료된 2개의 paymentOrder가 전부 올바르게 매핑된다.")
+    void paymentEventWeeklyPeriod() {
         // given
         Long userId = 1L;
         LocalDate startDate = NOW.minusDays(6).toLocalDate();
@@ -112,8 +115,75 @@ class PaymentEventCustomRepositoryTest {
         List<PaymentEventPeriodWithOrdersDTO> result = paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, null);
 
         // then
-        assertThat(result.size()).isEqualTo(3L);
+        assertThat(result.size()).isEqualTo(2L);
     }
+
+    // 월 단위 조회 확인
+    @Test
+    @DisplayName("월 단위 PaymentEvent 조회 시 결제 이벤트가 총 6개 조회되다.")
+    void paymentEventMonthlyPeriod() {
+        // given
+        Long userId = 1L;
+        LocalDate startDate = NOW.withDayOfMonth(1).toLocalDate();
+        LocalDate endDate = NOW.toLocalDate();
+
+        // when
+        List<PaymentEventPeriodWithOrdersDTO> result = paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, null);
+
+        // then
+        assertThat(result.size()).isEqualTo(6L);
+    }
+
+    // 기간 단위 조회 확인
+    @Test
+    @DisplayName("기간 단위(12일 전) PaymentEvent 조회 시 결제 이벤트가 총 4개 조회되다.")
+    void paymentEventPeriod() {
+        // given
+        Long userId = 1L;
+        LocalDate startDate = NOW.minusDays(12).toLocalDate();
+        LocalDate endDate = NOW.toLocalDate();
+
+        // when
+        List<PaymentEventPeriodWithOrdersDTO> result = paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, null);
+
+        // then
+        assertThat(result.size()).isEqualTo(4L);
+    }
+
+    @Test
+    @DisplayName("월 단위 PaymentEvent 조회하는 과정에서 특정 PaymentEvent를 제외하고 조회되다.")
+    void paymentEventMonthlyPeriodWithoutParticularEvent() {
+        // given
+        Long userId = 1L;
+        LocalDate startDate = NOW.withDayOfMonth(1).toLocalDate();
+        LocalDate endDate = NOW.toLocalDate();
+        Long excludePaymentEventId = pkList.get(0);
+
+        // when
+        List<PaymentEventPeriodWithOrdersDTO> result = paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, excludePaymentEventId);
+
+        // then
+        for (PaymentEventPeriodWithOrdersDTO dto : result) {
+            System.out.println(dto);
+        }
+        assertThat(result.size()).isEqualTo(5L);
+    }
+
+    @Test
+    @DisplayName("userId가 맞지 않는 경우 조회에 실패한다.")
+    void shouldFailToFindPaymentEventDueToMismatchedUserId() {
+        // given
+        Long userId = 2L;
+        LocalDate startDate = NOW.withDayOfMonth(1).toLocalDate();
+        LocalDate endDate = NOW.toLocalDate();
+
+        // when
+        List<PaymentEventPeriodWithOrdersDTO> result = paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, null);
+
+        // then
+        assertThat(result.size()).isEqualTo(0L);
+    }
+
     private LocalDateTime generateApprovedAt(int i) {
         if (i < 3) {
             // 6일 전

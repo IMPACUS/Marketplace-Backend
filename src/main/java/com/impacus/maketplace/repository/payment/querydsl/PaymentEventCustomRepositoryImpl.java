@@ -35,7 +35,8 @@ public class PaymentEventCustomRepositoryImpl implements PaymentEventCustomRepos
                         paymentEvent.approvedAt.between(
                                 startDate.atStartOfDay(),
                                 endDate.plusDays(1).atStartOfDay()
-                        )
+                        ),
+                        paymentEvent.isPaymentDone.isTrue()
                 )
                 .transform(
                         groupBy(paymentEvent.id).list(

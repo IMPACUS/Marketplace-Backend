@@ -12,6 +12,6 @@ public interface PaymentEventCustomRepository {
             Long userId,
             LocalDate startDate,
             LocalDate endDate,
-            Long excludPaymentEventId
+            Long excludePaymentEventId
     );
 }
