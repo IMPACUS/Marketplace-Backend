@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class WebReviewReplyDTO {
-    private Long reviewReplyId;
+public class WebReplyDTO {
+    private Long replyId;
     private String contents;
 }

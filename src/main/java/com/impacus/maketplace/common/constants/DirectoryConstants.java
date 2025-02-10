@@ -17,6 +17,7 @@ public class DirectoryConstants {
 
     // 구매자/판매자 리뷰 사진 추가/수정 시 사용
     public static final String REVIEW_PRODUCT_IMAGE_DIRECTORY = "reviewProduct";
+    public static final String QUESTION_PRODUCT_IMAGE_DIRECTORY = "question";
 
     public static final String PROFILE_IMAGE_DIRECTORY = "profileImage";
 

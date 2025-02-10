@@ -1,24 +1,21 @@
 package com.impacus.maketplace.repository.review.querydsl;
 
+import com.impacus.maketplace.common.enumType.searchCondition.QnAReviewSearchCondition;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.common.utils.SecurityUtils;
 import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.product.response.ProductOptionDTO;
+import com.impacus.maketplace.dto.review.QnaReviewSearchCondition;
 import com.impacus.maketplace.dto.review.request.ReviewDTO;
 import com.impacus.maketplace.dto.review.response.*;
-import com.impacus.maketplace.entity.payment.QPaymentOrder;
-import com.impacus.maketplace.entity.product.QProduct;
-import com.impacus.maketplace.entity.product.QProductOption;
-import com.impacus.maketplace.entity.review.QReview;
-import com.impacus.maketplace.entity.review.QReviewReply;
-import com.impacus.maketplace.entity.seller.QSeller;
-import com.impacus.maketplace.entity.user.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
@@ -26,24 +23,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
+
+import static com.impacus.maketplace.entity.payment.QPaymentOrder.paymentOrder;
+import static com.impacus.maketplace.entity.product.QProduct.product;
+import static com.impacus.maketplace.entity.product.QProductOption.productOption;
+import static com.impacus.maketplace.entity.review.QReview.review;
+import static com.impacus.maketplace.entity.review.QReviewReply.reviewReply;
+import static com.impacus.maketplace.entity.seller.QSeller.seller;
+import static com.impacus.maketplace.entity.user.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
 public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     private final JPAQueryFactory queryFactory;
     private final AuditorAware<String> auditorProvider;
-
-    private final QReview review = QReview.review;
-    private final QUser user = QUser.user;
-    private final QProductOption productOption = QProductOption.productOption;
-    private final QReviewReply reviewReply  = QReviewReply.reviewReply;
-    private final QPaymentOrder paymentOrder = QPaymentOrder.paymentOrder;
-    private final QProduct product = QProduct.product;
-    private final QSeller seller = QSeller.seller;
 
     @Override
     public void deleteReview(Long reviewId) {
@@ -78,7 +75,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .and(productOption.id.eq(review.productOptionId));
 
         // 데이터 조회
-        List<ProductReviewDTO> dtos = queryFactory
+        List<ProductReviewDTO> data = queryFactory
                 .select(
                         Projections.constructor(
                                 ProductReviewDTO.class,
@@ -107,14 +104,14 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .fetch();
 
         //  페이지 객체로 변환
-        long count = queryFactory
+        long count = Optional.ofNullable(queryFactory
                 .select(review.id.count())
                 .from(review)
                 .innerJoin(productOption).on(productOptionBoolean)
                 .where(reviewBoolean)
-                .fetchFirst();
+                .fetchFirst()).orElse(0L);
 
-        return PaginationUtils.toPage(dtos, pageable, count);
+        return PaginationUtils.toPage(data, pageable, count);
     }
 
     @Override
@@ -166,7 +163,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                 .innerJoin(paymentOrder).on(paymentOrder.id.eq(review.id))
                 .where(review.userId.eq(userId))
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1)
+                .limit(pageable.getPageSize() + 1L)
                 .orderBy(review.createAt.desc())
                 .fetch();
 
@@ -174,18 +171,21 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
     }
 
     @Override
-    public Page<WebReviewDTO> findReviews(
-            Pageable pageable,
-            String keyword,
-            LocalDate startAt,
-            LocalDate endAt
-    ) {
-        BooleanBuilder reviewBoolean = new BooleanBuilder()
-                .and(review.createAt.between(startAt.atStartOfDay(), endAt.atTime(LocalTime.MAX)));
+    public Page<WebReviewDTO> findReviews(QnaReviewSearchCondition condition) {
+        String keyword = condition.getKeyword();
+        Pageable pageable = condition.getPageable();
 
+        BooleanBuilder reviewBoolean = new BooleanBuilder()
+                .and(review.createAt.between(condition.getStartAt().atStartOfDay(), condition.getEndAt().atTime(LocalTime.MAX)));
+        BooleanBuilder userBoolean = new BooleanBuilder();
+        BooleanBuilder productBoolean = new BooleanBuilder();
 
         if (keyword != null && !keyword.isBlank()) {
-            reviewBoolean.and(review.contents.containsIgnoreCase(keyword));
+            if (condition.getSearchCondition() == QnAReviewSearchCondition.ID) {
+                userBoolean.and(user.email.containsIgnoreCase(keyword));
+            } else if (condition.getSearchCondition() == QnAReviewSearchCondition.PRODUCT_NAME) {
+                productBoolean.and(product.name.containsIgnoreCase(keyword));
+            }
         }
 
         // 현재 사용자 정보 가져오기
@@ -193,10 +193,12 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
         Long currentUserId = SecurityUtils.getCurrentUserId();
 
         // 데이터 조회
-        JPAQuery<WebReviewDTO> reviewQuery = getQueryToFindReviews();
+        JPAQuery<WebReviewDTO> reviewQuery = getQueryToFindReviews(userBoolean, productBoolean);
         JPAQuery<Long> countQuery = queryFactory
                 .select(review.id.count())
-                .from(review);
+                .from(review)
+                .innerJoin(productOption).on(productOption.id.eq(review.productOptionId))
+                .innerJoin(product).on(product.id.eq(productOption.productId).and(productBoolean.getValue() != null ? productBoolean : Expressions.TRUE));
 
         if (currentUserType == UserType.ROLE_APPROVED_SELLER) {
             reviewBoolean.and(review.isDeleted.isFalse());
@@ -207,23 +209,35 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
             addSellerConditions(countQuery, sellerId);
         }
 
+        if (userBoolean.getValue() != null) {
+            countQuery.innerJoin(user).on(user.id.eq(review.userId).and(userBoolean));
+        } else {
+            countQuery.leftJoin(user).on(user.id.eq(review.userId));
+        }
 
-        List<WebReviewDTO> dtos = reviewQuery
+        List<WebReviewDTO> data = reviewQuery
                 .where(reviewBoolean)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(review.createAt.desc())
                 .fetch();
 
-        long count = countQuery
+        long count = Optional.ofNullable(countQuery
                 .where(reviewBoolean)
-                .fetchFirst();
+                .fetchFirst()).orElse(0L);
 
-        return PaginationUtils.toPage(dtos, pageable, count);
+        return PaginationUtils.toPage(data, pageable, count);
     }
 
     private JPAQuery<WebReviewDTO> getQueryToFindReviews() {
-        return queryFactory
+        return getQueryToFindReviews(new BooleanBuilder(), new BooleanBuilder());
+    }
+
+    private JPAQuery<WebReviewDTO> getQueryToFindReviews(
+            @Nullable BooleanBuilder userBoolean,
+            @Nullable BooleanBuilder productBoolean
+    ) {
+        JPAQuery<WebReviewDTO> reviewQuery = queryFactory
                 .select(
                         Projections.constructor(
                                 WebReviewDTO.class,
@@ -238,7 +252,16 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                         )
                 )
                 .from(review)
-                .leftJoin(user).on(user.id.eq(review.userId));
+                .innerJoin(productOption).on(productOption.id.eq(review.productOptionId))
+                .innerJoin(product).on(product.id.eq(productOption.productId).and(productBoolean != null && productBoolean.getValue() != null ? productBoolean : Expressions.TRUE));
+
+        if (userBoolean != null && userBoolean.getValue() != null) {
+            reviewQuery.innerJoin(user).on(user.id.eq(review.userId).and(userBoolean));
+        } else {
+            reviewQuery.leftJoin(user).on(user.id.eq(review.userId));
+        }
+
+        return reviewQuery;
     }
 
     // 판매자 ID 가져오기
@@ -280,8 +303,8 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
                                 user.email,
                                 review.createAt,
                                 Projections.fields(
-                                        WebReviewReplyDTO.class,
-                                        reviewReply.id.as("reviewReplyId"),
+                                        WebReplyDTO.class,
+                                        reviewReply.id.as("replyId"),
                                         reviewReply.contents
                                 )
                         ))

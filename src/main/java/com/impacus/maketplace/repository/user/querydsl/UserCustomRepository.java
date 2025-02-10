@@ -62,4 +62,6 @@ public interface UserCustomRepository {
     void deactivateConsumer(Long userId);
 
     User findUserByCI(String ci);
+
+    void deleteUncertifiedUser(Long userId);
 }
