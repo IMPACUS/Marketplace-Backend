@@ -5,6 +5,7 @@ import com.impacus.maketplace.entity.payment.QPaymentOrder;
 import com.impacus.maketplace.repository.payment.querydsl.dto.PaymentEventPeriodWithOrdersDTO;
 import com.impacus.maketplace.repository.payment.querydsl.dto.QPaymentEventPeriodWithOrdersDTO;
 import com.impacus.maketplace.repository.payment.querydsl.dto.QPaymentEventPeriodWithOrdersDTO_PaymentOrderDTO;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,7 @@ public class PaymentEventCustomRepositoryImpl implements PaymentEventCustomRepos
                 .innerJoin(paymentOrder).on(paymentOrder.paymentEventId.eq(paymentEvent.id))
                 .where(
                         paymentEvent.buyerId.eq(userId),
-                        paymentEvent.id.ne(excludePaymentEventId),
+                        excludePaymentEvent(excludePaymentEventId),
                         paymentEvent.approvedAt.between(
                                 startDate.atStartOfDay(),
                                 endDate.plusDays(1).atStartOfDay()
@@ -50,5 +51,8 @@ public class PaymentEventCustomRepositoryImpl implements PaymentEventCustomRepos
                                 )
                         )
                 );
+    }
+    private BooleanExpression excludePaymentEvent(Long excludePaymentEventId) {
+        return excludePaymentEventId != null ? paymentEvent.id.ne(excludePaymentEventId) : null;
     }
 }
