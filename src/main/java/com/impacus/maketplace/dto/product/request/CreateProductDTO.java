@@ -2,6 +2,7 @@ package com.impacus.maketplace.dto.product.request;
 
 import com.impacus.maketplace.common.enumType.DeliveryCompany;
 import com.impacus.maketplace.common.enumType.product.*;
+import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.entity.product.Product;
 import com.impacus.maketplace.entity.temporaryProduct.TemporaryProduct;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ public class CreateProductDTO extends ProductDTO {
     private List<String> productImages;
 
     public Product toEntity(Long sellerId) {
-        return new Product(sellerId, this);
+        return new Product(sellerId, this, StringUtils.generateUniqueNumber());
     }
 
     public TemporaryProduct toTemporaryEntity() {

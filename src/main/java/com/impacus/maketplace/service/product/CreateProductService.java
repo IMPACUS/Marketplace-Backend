@@ -47,7 +47,7 @@ public class CreateProductService {
             Long userId,
             CreateProductDTO dto
     ) {
-        try {
+//        try {
             // 1. 유효성 검사
             Long sellerId = getSellerId(userId, dto.getSellerId());
             readProductService.validateProductImages(dto.getProductImages());
@@ -71,9 +71,9 @@ public class CreateProductService {
             addProductSearchData(newProduct);
 
             return ProductDTO.toDTO(newProduct);
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
+//        } catch (Exception ex) {
+//            throw new CustomException(ex);
+//        }
     }
 
     /**
