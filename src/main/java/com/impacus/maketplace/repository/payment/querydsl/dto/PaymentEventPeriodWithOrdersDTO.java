@@ -25,11 +25,26 @@ public class PaymentEventPeriodWithOrdersDTO {
             this.amount = amount;
             this.status = status;
         }
+
+        public Long getTotalAmount() {
+            return quantity * amount;
+        }
+
+        public boolean isSuccess() {
+            return status == PaymentOrderStatus.SUCCESS;
+        }
     }
 
     @QueryProjection
     public PaymentEventPeriodWithOrdersDTO(Long paymentEventId, List<PaymentOrderDTO> paymentOrders) {
         this.paymentEventId = paymentEventId;
         this.paymentOrders = paymentOrders;
+    }
+
+    public Long getTotalAmount() {
+        return paymentOrders.stream()
+                .filter(PaymentOrderDTO::isSuccess)
+                .mapToLong(PaymentOrderDTO::getTotalAmount)
+                .sum();
     }
 }

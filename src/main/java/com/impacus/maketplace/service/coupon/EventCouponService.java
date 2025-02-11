@@ -42,7 +42,7 @@ public class EventCouponService {
         List<CouponConditionCheckResultDTO> availablePaymentEventCoupons = coupons.stream()
                 .filter(coupon -> couponValidator.validateEventCoupon(userId, coupon, EventType.PAYMENT_ORDER))
                 .filter(coupon -> couponValidator.validatePaymentEventCoupon(coupon, paymentEventId))
-                .map(coupon -> eventCouponPeriodConditionChecker.checkPeriodCondition(coupon, paymentEventId))
+                .map(coupon -> eventCouponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEventId))
                 .toList();
 
     }

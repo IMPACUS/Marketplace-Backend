@@ -1,5 +1,8 @@
 package com.impacus.maketplace.repository.payment.querydsl;
 
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
+import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
+import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.payment.QPaymentEvent;
 import com.impacus.maketplace.entity.payment.QPaymentOrder;
 import com.impacus.maketplace.repository.payment.querydsl.dto.PaymentEventPeriodWithOrdersDTO;
@@ -8,6 +11,7 @@ import com.impacus.maketplace.repository.payment.querydsl.dto.QPaymentEventPerio
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -26,6 +30,11 @@ public class PaymentEventCustomRepositoryImpl implements PaymentEventCustomRepos
 
     @Override
     public List<PaymentEventPeriodWithOrdersDTO> findPaymentEventsWithOrdersInPeriod(Long userId, LocalDate startDate, LocalDate endDate, Long excludePaymentEventId) {
+
+        if (startDate == null) {
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, CommonErrorType.INVALID_PARAMETER);
+        }
+
         return queryFactory
                 .from(paymentEvent)
                 .innerJoin(paymentOrder).on(paymentOrder.paymentEventId.eq(paymentEvent.id))
