@@ -25,7 +25,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import static com.impacus.maketplace.dto.coupon.model.CouponConditionCheckResultDTO.*;
+import static com.impacus.maketplace.dto.coupon.model.CouponConditionCheckResultDTO.fail;
+import static com.impacus.maketplace.dto.coupon.model.CouponConditionCheckResultDTO.pass;
 
 @Component
 @RequiredArgsConstructor
@@ -42,8 +43,8 @@ public class CouponPeriodConditionChecker {
     /**
      * Coupon과 Payment Event를 모두 조회한 후 조건 확인 함수를 실행한다.
      *
-     * @param userId 사용자 ID
-     * @param couponId 기간 설정 조건 확인 대상에 해당하는 쿠폰 ID
+     * @param userId         사용자 ID
+     * @param couponId       기간 설정 조건 확인 대상에 해당하는 쿠폰 ID
      * @param paymentEventId 이벤트 트리거가 된 결제 이벤트의 ID
      * @return 기간 설정 조건 만족 여부와 세부 사항
      */
@@ -64,8 +65,8 @@ public class CouponPeriodConditionChecker {
     /**
      * Payment Event를 조회한 후 조건 확인 함수를 실행한다.
      *
-     * @param userId 사용자 ID
-     * @param coupon 기간 설정 조건 확인 대상에 해당하는 쿠폰
+     * @param userId         사용자 ID
+     * @param coupon         기간 설정 조건 확인 대상에 해당하는 쿠폰
      * @param paymentEventId 이벤트 트리거가 된 결제 이벤트의 ID
      * @return 기간 설정 조건 만족 여부와 세부 사항
      */
@@ -79,8 +80,8 @@ public class CouponPeriodConditionChecker {
     /**
      * 기간 설정 조건을 확인한 후 조건을 충족 했는지 확인한다.
      *
-     * @param userId 사용자 ID
-     * @param coupon 기간 설정 조건 확인 대상에 해당하는 쿠폰
+     * @param userId       사용자 ID
+     * @param coupon       기간 설정 조건 확인 대상에 해당하는 쿠폰
      * @param paymentEvent 이벤트 트리거가 된 결제 이벤트
      * @return 기간 설정 조건 만족 여부와 세부 사항
      */
@@ -90,7 +91,7 @@ public class CouponPeriodConditionChecker {
         if (paymentEvent.isNotUpdatedOrders()) {
             List<PaymentOrder> paymentOrders = paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())
                     .orElseThrow(() -> {
-                        CustomException exception = new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.NOT_FOUND_MATCHED_PRODUCT_OPTION_HISTORY);
+                        CustomException exception = new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, PaymentErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID);
                         LogUtils.error("CouponPeriodConditionChecker.checkPeriodCondition", String.format("Not found payment orders by payment event id %d", paymentEvent.getId()), exception);
                         return exception;
                     });
@@ -111,14 +112,14 @@ public class CouponPeriodConditionChecker {
      * 기간 설정이 월간 N회 이상 주문으로 설정되어 있을 경우 조건을 만족하는지 확인한다.
      *
      * <p>
-     *     <b>정책</b>
-     *     <li>현재 날짜 기준으로 1일부터 현재 시점까지 발생한 주문을 사용한다.</li>
-     *     <li>쿠폰 지급 조건이 설정되어 있는 경우 해당 조건을 충족해야 해당 주문을 사용할 수 있다.</li>
-     *     <li>다른 주문 이벤트 쿠폰의 지급 조건으로 사용된 주문은 적용되지 않는다.</li>
-     *     <li>상품 이벤트 쿠폰과는 독립적인 발급 관계로 해당 쿠폰의 지급 조건으로 사용된 주문(상품)도 적용 가능하다.</li>
+     * <b>정책</b>
+     * <li>현재 날짜 기준으로 1일부터 현재 시점까지 발생한 주문을 사용한다.</li>
+     * <li>쿠폰 지급 조건이 설정되어 있는 경우 해당 조건을 충족해야 해당 주문을 사용할 수 있다.</li>
+     * <li>다른 주문 이벤트 쿠폰의 지급 조건으로 사용된 주문은 적용되지 않는다.</li>
+     * <li>상품 이벤트 쿠폰과는 독립적인 발급 관계로 해당 쿠폰의 지급 조건으로 사용된 주문(상품)도 적용 가능하다.</li>
      * </p>
      *
-     * @param coupon 기간 설정 조건을 확인하기 위한 쿠폰
+     * @param coupon       기간 설정 조건을 확인하기 위한 쿠폰
      * @param paymentEvent 발생한 결제 이벤트
      * @return 해당 쿠폰 발급 여부
      */
@@ -130,6 +131,10 @@ public class CouponPeriodConditionChecker {
 
         // 2. 기간 내 결제 이벤트 조회
         List<PaymentEventPeriodWithOrdersDTO> paymentEvents = paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId());
+        paymentEvents.add(
+                new PaymentEventPeriodWithOrdersDTO(paymentEvent.getId(),
+                        paymentEvent.getPaymentOrders().stream().map(PaymentEventPeriodWithOrdersDTO.PaymentOrderDTO::new).toList())
+        );
 
         // 3. 쿠폰 지급 조건 금액 확인
         List<PaymentEventPeriodWithOrdersDTO> filteredPaymentEvents = paymentEvents.stream()
@@ -163,8 +168,8 @@ public class CouponPeriodConditionChecker {
      * 기간 설정이 주간 N회 이상 주문으로 설정되어 있을 경우 조건을 만족하는지 확인한다.
      *
      * <p>
-     *     <b>정책</b>
-     *     <li>현재 날짜 기준으로 6일 전 00:00부터 발생한 주문을 기준으로 </li>
+     * <b>정책</b>
+     * <li>현재 날짜 기준으로 6일 전 00:00부터 발생한 주문을 기준으로 </li>
      * </p>
      *
      * @param coupon

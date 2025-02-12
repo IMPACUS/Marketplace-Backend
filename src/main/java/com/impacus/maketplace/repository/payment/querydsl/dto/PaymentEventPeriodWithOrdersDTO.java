@@ -1,6 +1,7 @@
 package com.impacus.maketplace.repository.payment.querydsl.dto;
 
 import com.impacus.maketplace.common.enumType.payment.PaymentOrderStatus;
+import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
@@ -24,6 +25,13 @@ public class PaymentEventPeriodWithOrdersDTO {
             this.quantity = quantity;
             this.amount = amount;
             this.status = status;
+        }
+
+        public PaymentOrderDTO(PaymentOrder paymentOrder) {
+            this.paymentOrderId = paymentOrder.getId();
+            this.quantity = paymentOrder.getQuantity();
+            this.amount = paymentOrder.getAmount();
+            this.status = paymentOrder.getStatus();
         }
 
         public Long getTotalAmount() {
