@@ -10,6 +10,7 @@ import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
+import com.impacus.maketplace.repository.coupon.CouponTriggerRepository;
 import com.impacus.maketplace.repository.coupon.PaymentEventCouponRepository;
 import com.impacus.maketplace.repository.coupon.PaymentOrderCouponRepository;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
@@ -38,8 +39,8 @@ public class CouponPeriodConditionChecker {
     private final PaymentOrderRepository paymentOrderRepository;
     private final CouponRepository couponRepository;
     private final PaymentEventCustomRepository paymentEventCustomRepository;
-    private final PaymentEventCouponRepository paymentEventCouponRepository;
-    private final PaymentOrderCouponRepository paymentOrderCouponRepository;
+    private final CouponTriggerRepository couponTriggerRepository;
+
 
     /**
      * Coupon과 Payment Event를 모두 조회한 후 조건 확인 함수를 실행한다.
@@ -215,7 +216,7 @@ public class CouponPeriodConditionChecker {
                 .map(PaymentEventPeriodWithOrdersDTO::getPaymentEventId)
                 .toList();
 
-        Set<Long> alreadyUsedPaymentEventIds = paymentEventCouponRepository.findIdByPaymentEventIdIn(paymentEventIds);
+        Set<Long> alreadyUsedPaymentEventIds = couponTriggerRepository.findPaymentEventId(userId);
 
         List<Long> resultIds = paymentEventIds.stream()
                 .filter(id -> !alreadyUsedPaymentEventIds.contains(id))
