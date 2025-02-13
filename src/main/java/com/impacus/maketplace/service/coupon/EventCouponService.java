@@ -1,12 +1,15 @@
 package com.impacus.maketplace.service.coupon;
 
+import com.impacus.maketplace.common.enumType.coupon.CouponTriggerType;
 import com.impacus.maketplace.common.enumType.coupon.EventType;
 import com.impacus.maketplace.common.enumType.coupon.TriggerType;
 import com.impacus.maketplace.dto.coupon.model.CouponConditionCheckResultDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
+import com.impacus.maketplace.entity.coupon.CouponTrigger;
 import com.impacus.maketplace.entity.coupon.PaymentOrderCoupon;
 import com.impacus.maketplace.entity.coupon.UserCoupon;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
+import com.impacus.maketplace.repository.coupon.CouponTriggerRepository;
 import com.impacus.maketplace.repository.coupon.PaymentOrderCouponRepository;
 import com.impacus.maketplace.service.coupon.utils.CouponIssuanceManager;
 import com.impacus.maketplace.service.coupon.utils.CouponIssuanceValidator;
@@ -31,7 +34,7 @@ public class EventCouponService {
     private final CouponPeriodConditionChecker eventCouponPeriodConditionChecker;
     private final CouponPrioritySelector couponPrioritySelector;
     private final CouponIssuanceManager couponIssuanceManager;
-    private final PaymentOrderCouponRepository paymentOrderCouponRepository;
+    private final CouponTriggerRepository couponTriggerRepository;
 
     /**
      * 회원가입 시 발행되는 쿠폰 처리
@@ -64,7 +67,10 @@ public class EventCouponService {
         UserCoupon userCoupon = couponIssuanceManager.issueCouponToUser(userId, selectedCouponInfo.getCoupon().getId(), TriggerType.ORDER);
 
         // 5. 주문 쿠폰 발급 이력 저장
-
+        for (Long triggerId : selectedCouponInfo.getPaymentEventIds()) {
+            CouponTrigger couponTrigger = CouponTrigger.builder().userCouponId(userCoupon.getId()).userId(userId).triggerType(CouponTriggerType.ORDER).triggerId(triggerId).build();
+            couponTriggerRepository.save(couponTrigger);
+        }
     }
 
     /**
