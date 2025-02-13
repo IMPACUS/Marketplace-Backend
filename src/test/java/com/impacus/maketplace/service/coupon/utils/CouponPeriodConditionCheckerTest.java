@@ -11,7 +11,9 @@ import com.impacus.maketplace.dto.coupon.model.CouponConditionCheckResultDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
+import com.impacus.maketplace.repository.coupon.CouponTriggerRepository;
 import com.impacus.maketplace.repository.coupon.PaymentEventCouponRepository;
+import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.payment.querydsl.PaymentEventCustomRepository;
 import com.impacus.maketplace.repository.payment.querydsl.dto.PaymentEventPeriodWithOrdersDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +46,12 @@ class CouponPeriodConditionCheckerTest {
 
     @Mock
     private PaymentEventCouponRepository paymentEventCouponRepository;
+
+    @Mock
+    private CouponTriggerRepository couponTriggerRepository;
+
+    @Mock
+    private PaymentOrderRepository paymentOrderRepository;
 
     @BeforeEach
     void setup() {
@@ -99,7 +107,7 @@ class CouponPeriodConditionCheckerTest {
         List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
         when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
+        when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(new HashSet());
 
 
         // when
@@ -126,7 +134,7 @@ class CouponPeriodConditionCheckerTest {
         List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
         when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
+        when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(new HashSet());
 
 
         // when
@@ -153,7 +161,7 @@ class CouponPeriodConditionCheckerTest {
         List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
         when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
+        when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(new HashSet());
 
         // when
         CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
@@ -175,7 +183,7 @@ class CouponPeriodConditionCheckerTest {
         List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
         when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
+        when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(new HashSet());
 
         // when
         CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
@@ -200,7 +208,7 @@ class CouponPeriodConditionCheckerTest {
         paymentEventDTOs.stream().limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
 
         when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+        when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(alreadyUsedPaymentEventIds);
 
         // when
         CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
@@ -228,7 +236,7 @@ class CouponPeriodConditionCheckerTest {
         paymentEventDTOs.stream().limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
 
         when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+        when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(alreadyUsedPaymentEventIds);
 
         // when
         CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
@@ -256,7 +264,7 @@ class CouponPeriodConditionCheckerTest {
         paymentEventDTOs.stream().filter(item -> item.getTotalAmount() >= 30000L).limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
 
         when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+        when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(alreadyUsedPaymentEventIds);
 
         // when
         CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
@@ -282,7 +290,7 @@ class CouponPeriodConditionCheckerTest {
         paymentEventDTOs.stream().filter(item -> item.getTotalAmount() >= 50000L).limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
 
         when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+        when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(alreadyUsedPaymentEventIds);
 
         // when
         CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
