@@ -17,6 +17,7 @@ import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.payment.querydsl.PaymentEventCustomRepository;
 import com.impacus.maketplace.repository.payment.querydsl.dto.PaymentEventPeriodWithOrdersDTO;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,6 +130,40 @@ public class CouponPeriodConditionChecker {
         LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
         LocalDate endDate = LocalDate.now();
 
+        return checkCondition(userId, coupon, paymentEvent, startDate, endDate);
+    }
+
+    /**
+     * 기간 설정이 주간 N회 이상 주문으로 설정되어 있을 경우 조건을 만족하는지 확인한다.
+     *
+     * <p>
+     * <b>정책</b>
+     * <li>현재 날짜 기준으로 6일 전 00:00부터 발생한 주문을 기준으로 </li>
+     * </p>
+     *
+     * @param coupon
+     * @param paymentEvent
+     * @return
+     */
+    private CouponConditionCheckResultDTO checkWeeklyCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
+
+        // 1. 조회 기간 날짜 설정
+        LocalDate startDate = DateUtils.getEventWeekReferenceDate();
+        LocalDate endDate = LocalDate.now();
+
+        return checkCondition(userId, coupon, paymentEvent, startDate, endDate);
+    }
+
+    private CouponConditionCheckResultDTO checkSetPeriodCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
+
+        // 1. 조회 기간 날짜 설정
+        LocalDate startDate = coupon.getPeriodStartAt();
+        LocalDate endDate = coupon.getPeriodEndAt();
+
+        return checkCondition(userId, coupon, paymentEvent, startDate, endDate);
+    }
+
+    private CouponConditionCheckResultDTO checkCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent, LocalDate startDate, LocalDate endDate) {
         // 2. 기간 내 결제 이벤트 조회
         List<PaymentEventPeriodWithOrdersDTO> paymentEvents = paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId());
         paymentEvents.add(
@@ -162,27 +197,6 @@ public class CouponPeriodConditionChecker {
 
         // 6. DTO 변환 후 반환
         return CouponConditionCheckResultDTO.getSuccessDTO(coupon, resultIds);
-    }
-
-    /**
-     * 기간 설정이 주간 N회 이상 주문으로 설정되어 있을 경우 조건을 만족하는지 확인한다.
-     *
-     * <p>
-     * <b>정책</b>
-     * <li>현재 날짜 기준으로 6일 전 00:00부터 발생한 주문을 기준으로 </li>
-     * </p>
-     *
-     * @param coupon
-     * @param paymentEvent
-     * @return
-     */
-    private CouponConditionCheckResultDTO checkWeeklyCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
-        return fail();
-    }
-
-    private CouponConditionCheckResultDTO checkSetPeriodCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
-
-        return fail();
     }
 
 }

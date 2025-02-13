@@ -11,15 +11,11 @@ import com.impacus.maketplace.dto.coupon.model.CouponConditionCheckResultDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
-import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.PaymentEventCouponRepository;
-import com.impacus.maketplace.repository.payment.PaymentEventRepository;
-import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.payment.querydsl.PaymentEventCustomRepository;
 import com.impacus.maketplace.repository.payment.querydsl.dto.PaymentEventPeriodWithOrdersDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,19 +40,17 @@ class CouponPeriodConditionCheckerTest {
     private CouponPeriodConditionChecker couponPeriodConditionChecker;
 
     @Mock
-    private PaymentEventRepository paymentEventRepository;
-
-    @Mock
-    private PaymentOrderRepository paymentOrderRepository;
-
-    @Mock
-    private CouponRepository couponRepository;
-
-    @Mock
     private PaymentEventCustomRepository paymentEventCustomRepository;
 
     @Mock
     private PaymentEventCouponRepository paymentEventCouponRepository;
+
+    @BeforeEach
+    void setup() {
+        try (MockedStatic<DateUtils> dateUtils = mockStatic(DateUtils.class)) {
+            dateUtils.when(DateUtils::getFirstDayOfCurrentMonth).thenReturn(LocalDate.now().withDayOfMonth(1));
+        }
+    }
 
     @Test
     @DisplayName("기간 설정 조건이 UNSET일 경우 pass() 정적 팩토리 메서드로 반환된다.")
@@ -91,223 +85,211 @@ class CouponPeriodConditionCheckerTest {
         assertThatThrownBy(() -> couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent)).isInstanceOf(CustomException.class).extracting(e -> ((CustomException) e).getErrorType()).isEqualTo(PaymentErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID);
     }
 
-    @Nested
-    @DisplayName("월간 기간 조건 검증 테스트")
-    class Monthly {
-
-        @BeforeEach
-        void setup() {
-            try (MockedStatic<DateUtils> dateUtils = mockStatic(DateUtils.class)) {
-                dateUtils.when(DateUtils::getFirstDayOfCurrentMonth).thenReturn(LocalDate.now().withDayOfMonth(1));
-            }
-        }
-
-        @Test
-        @DisplayName("쿠폰 발급 이력이 없은 상황에서 기간 조건 검증 통과 - 지급 조건 없는 쿠폰")
-        void testNoCouponHistoryPassWithoutCondition() {
-            // given
-            Long userId = 1L;
-            Coupon coupon = createMonthlyCoupon(1L, StandardType.UNLIMITED, null, 1L);
-            PaymentEvent paymentEvent = createPaymentEvent(1L);
-            LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDate endDate = LocalDate.now();
+    @Test
+    @DisplayName("쿠폰 발급 이력이 없은 상황에서 기간 조건 검증 통과 - 지급 조건 없는 쿠폰")
+    void testNoCouponHistoryPassWithoutCondition() {
+        // given
+        Long userId = 1L;
+        Coupon coupon = createMonthlyCoupon(1L, StandardType.UNLIMITED, null, 1L);
+        PaymentEvent paymentEvent = createPaymentEvent(1L);
+        LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
+        LocalDate endDate = LocalDate.now();
 
 
-            List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+        List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
-            when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-            when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
-
-
-            // when
-            CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
-
-            // then
-            assertThat(result.isValid()).isTrue();
-            assertThat(result.isConditionSet()).isTrue();
-            assertThat(result.getCoupon()).isEqualTo(coupon);
-            assertThat(result.getPaymentEventIds().size()).isEqualTo(7);
-        }
-
-        @Test
-        @DisplayName("쿠폰 이력이 없은 상황에서 기간 조건 검증 통과 - 지급 조건 있는 쿠폰")
-        void testNoCouponHistoryPassWithCondition() {
-            // given
-            Long userId = 1L;
-            Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 20000L, 3L);
-            PaymentEvent paymentEvent = createPaymentEvent(1L);
-            LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDate endDate = LocalDate.now();
+        when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
+        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
 
 
-            List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+        // when
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
 
-            when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-            when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
+        // then
+        assertThat(result.isValid()).isTrue();
+        assertThat(result.isConditionSet()).isTrue();
+        assertThat(result.getCoupon()).isEqualTo(coupon);
+        assertThat(result.getPaymentEventIds().size()).isEqualTo(7);
+    }
 
-
-            // when
-            CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
-
-            // then
-            assertThat(result.isValid()).isTrue();
-            assertThat(result.isConditionSet()).isTrue();
-            assertThat(result.getCoupon()).isEqualTo(coupon);
-            assertThat(result.getPaymentEventIds().size()).isEqualTo(7);
-        }
-
-        @Test
-        @DisplayName("쿠폰 발급 이력이 없는 상황에서 기간 조건 검증 실패 - 지급 조건 불만족")
-        void testNoCouponHistoryFailDueToCondition() {
-            // given
-            Long userId = 1L;
-            Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 50000L, 4L);
-            PaymentEvent paymentEvent = createPaymentEvent(1L);
-            LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDate endDate = LocalDate.now();
+    @Test
+    @DisplayName("쿠폰 이력이 없은 상황에서 기간 조건 검증 통과 - 지급 조건 있는 쿠폰")
+    void testNoCouponHistoryPassWithCondition() {
+        // given
+        Long userId = 1L;
+        Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 20000L, 3L);
+        PaymentEvent paymentEvent = createPaymentEvent(1L);
+        LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
+        LocalDate endDate = LocalDate.now();
 
 
-            List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+        List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
-            when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-            when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
+        when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
+        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
 
-            // when
-            CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
 
-            // then
-            assertThat(result.isValid()).isFalse();
-        }
+        // when
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
 
-        @Test
-        @DisplayName("쿠폰 발급 이력이 없는 상황에서 기간 조건 검증 실패 - 트리거 이벤트 수 부족")
-        void testNoCouponHistoryFailDueToInsufficientEvents() {
-            // given
-            Long userId = 1L;
-            Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 10000L, 8L);
-            PaymentEvent paymentEvent = createPaymentEvent(1L);
-            LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDate endDate = LocalDate.now();
+        // then
+        assertThat(result.isValid()).isTrue();
+        assertThat(result.isConditionSet()).isTrue();
+        assertThat(result.getCoupon()).isEqualTo(coupon);
+        assertThat(result.getPaymentEventIds().size()).isEqualTo(7);
+    }
 
-            List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+    @Test
+    @DisplayName("쿠폰 발급 이력이 없는 상황에서 기간 조건 검증 실패 - 지급 조건 불만족")
+    void testNoCouponHistoryFailDueToCondition() {
+        // given
+        Long userId = 1L;
+        Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 50000L, 4L);
+        PaymentEvent paymentEvent = createPaymentEvent(1L);
+        LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
+        LocalDate endDate = LocalDate.now();
 
-            when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-            when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
 
-            // when
-            CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
-            // then
-            assertThat(result.isValid()).isFalse();
-        }
+        when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
+        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
 
-        @Test
-        @DisplayName("쿠폰 발급 이력이 있는 상황에서 기간 조건 검증 성공 - 지급 조건 없는 쿠폰")
-        void testCouponHistoryPassWithoutCondition() {
-            // given
-            Long userId = 1L;
-            Coupon coupon = createMonthlyCoupon(1L, StandardType.UNLIMITED, null, 3L);
-            PaymentEvent paymentEvent = createPaymentEvent(1L);
-            LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDate endDate = LocalDate.now();
+        // when
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
 
-            List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+        // then
+        assertThat(result.isValid()).isFalse();
+    }
 
-            Set<Long> alreadyUsedPaymentEventIds = new HashSet<>();
-            paymentEventDTOs.stream().limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
+    @Test
+    @DisplayName("쿠폰 발급 이력이 없는 상황에서 기간 조건 검증 실패 - 트리거 이벤트 수 부족")
+    void testNoCouponHistoryFailDueToInsufficientEvents() {
+        // given
+        Long userId = 1L;
+        Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 10000L, 8L);
+        PaymentEvent paymentEvent = createPaymentEvent(1L);
+        LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
+        LocalDate endDate = LocalDate.now();
 
-            when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-            when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+        List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
-            // when
-            CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
+        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(new HashSet());
 
-            // then
-            assertThat(result.isValid()).isTrue();
-            assertThat(result.isConditionSet()).isTrue();
-            assertThat(result.getCoupon()).isEqualTo(coupon);
-            assertThat(result.getPaymentEventIds().size()).isEqualTo(4);
-        }
+        // when
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
 
-        @Test
-        @DisplayName("쿠폰 발급 이력이 있는 상황에서 기간 조건 검증 성공 - 지급 조건 있는 쿠폰")
-        void testCouponHistoryPassWithCondition() {
-            // given
-            Long userId = 1L;
-            Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 20000L, 3L);
-            PaymentEvent paymentEvent = createPaymentEvent(1L);
-            LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDate endDate = LocalDate.now();
+        // then
+        assertThat(result.isValid()).isFalse();
+    }
 
-            List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+    @Test
+    @DisplayName("쿠폰 발급 이력이 있는 상황에서 기간 조건 검증 성공 - 지급 조건 없는 쿠폰")
+    void testCouponHistoryPassWithoutCondition() {
+        // given
+        Long userId = 1L;
+        Coupon coupon = createWeeklyCouopn(1L, StandardType.UNLIMITED, null, 3L);
+        PaymentEvent paymentEvent = createPaymentEvent(1L);
+        LocalDate startDate = DateUtils.getEventWeekReferenceDate();
+        LocalDate endDate = LocalDate.now();
 
-            Set<Long> alreadyUsedPaymentEventIds = new HashSet<>();
-            paymentEventDTOs.stream().limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
+        List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
-            when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-            when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+        Set<Long> alreadyUsedPaymentEventIds = new HashSet<>();
+        paymentEventDTOs.stream().limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
 
-            // when
-            CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
+        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
 
-            // then
-            assertThat(result.isValid()).isTrue();
-            assertThat(result.isConditionSet()).isTrue();
-            assertThat(result.getCoupon()).isEqualTo(coupon);
-            assertThat(result.getPaymentEventIds().size()).isEqualTo(4);
-        }
+        // when
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
 
-        @Test
-        @DisplayName("쿠폰 발급 이력이 있는 상황에서 기간 조건 검증 실패 - 지급 조건 불만족")
-        void testCouponHistoryFailDueToCondition() {
-            // given
-            Long userId = 1L;
-            Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 30000L, 3L);
-            PaymentEvent paymentEvent = createPaymentEvent(1L);
-            LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDate endDate = LocalDate.now();
+        // then
+        assertThat(result.isValid()).isTrue();
+        assertThat(result.isConditionSet()).isTrue();
+        assertThat(result.getCoupon()).isEqualTo(coupon);
+        assertThat(result.getPaymentEventIds().size()).isEqualTo(4);
+    }
 
-            List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+    @Test
+    @DisplayName("쿠폰 발급 이력이 있는 상황에서 기간 조건 검증 성공 - 지급 조건 있는 쿠폰")
+    void testCouponHistoryPassWithCondition() {
+        // given
+        Long userId = 1L;
+        Coupon coupon = createWeeklyCouopn(1L, StandardType.LIMIT, 20000L, 3L);
+        PaymentEvent paymentEvent = createPaymentEvent(1L);
+        LocalDate startDate = DateUtils.getEventWeekReferenceDate();
+        LocalDate endDate = LocalDate.now();
 
-            Set<Long> alreadyUsedPaymentEventIds = new HashSet<>();
-            paymentEventDTOs.stream().filter(item -> item.getTotalAmount() >= 30000L).limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
+        List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
-            when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-            when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+        Set<Long> alreadyUsedPaymentEventIds = new HashSet<>();
+        paymentEventDTOs.stream().limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
 
-            // when
-            CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
+        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
 
-            // then
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.isConditionSet()).isTrue();
-        }
+        // when
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
 
-        @Test
-        @DisplayName("쿠폰 발급 이력이 있는 상황에서 기간 조건 검증 실패 - 트리거 이벤트 수 부족")
-        void testCouponHistoryFailDueToInsufficientEvents() {
-            // given
-            Long userId = 1L;
-            Coupon coupon = createMonthlyCoupon(1L, StandardType.LIMIT, 20000L, 5L);
-            PaymentEvent paymentEvent = createPaymentEvent(1L);
-            LocalDate startDate = DateUtils.getFirstDayOfCurrentMonth();
-            LocalDate endDate = LocalDate.now();
+        // then
+        assertThat(result.isValid()).isTrue();
+        assertThat(result.isConditionSet()).isTrue();
+        assertThat(result.getCoupon()).isEqualTo(coupon);
+        assertThat(result.getPaymentEventIds().size()).isEqualTo(4);
+    }
 
-            List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+    @Test
+    @DisplayName("쿠폰 발급 이력이 있는 상황에서 기간 조건 검증 실패 - 지급 조건 불만족")
+    void testCouponHistoryFailDueToCondition() {
+        // given
+        Long userId = 1L;
+        Coupon coupon = createWeeklyCouopn(1L, StandardType.LIMIT, 30000L, 3L);
+        PaymentEvent paymentEvent = createPaymentEvent(1L);
+        LocalDate startDate = DateUtils.getEventWeekReferenceDate();
+        LocalDate endDate = LocalDate.now();
 
-            Set<Long> alreadyUsedPaymentEventIds = new HashSet<>();
-            paymentEventDTOs.stream().filter(item -> item.getTotalAmount() >= 50000L).limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
+        List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
 
-            when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
-            when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+        Set<Long> alreadyUsedPaymentEventIds = new HashSet<>();
+        paymentEventDTOs.stream().filter(item -> item.getTotalAmount() >= 30000L).limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
 
-            // when
-            CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
+        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
 
-            // then
-            assertThat(result.isValid()).isFalse();
-            assertThat(result.isConditionSet()).isTrue();
-        }
+        // when
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+
+        // then
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.isConditionSet()).isTrue();
+    }
+
+    @Test
+    @DisplayName("쿠폰 발급 이력이 있는 상황에서 기간 조건 검증 실패 - 트리거 이벤트 수 부족")
+    void testCouponHistoryFailDueToInsufficientEvents() {
+        // given
+        Long userId = 1L;
+        Coupon coupon = createPeriodCoupon(1L, StandardType.LIMIT, 20000L, LocalDate.now().minusDays(6), LocalDate.now().plusDays(6L), 5L);
+        PaymentEvent paymentEvent = createPaymentEvent(1L);
+        LocalDate startDate = coupon.getPeriodStartAt();
+        LocalDate endDate = coupon.getPeriodEndAt();
+
+        List<PaymentEventPeriodWithOrdersDTO> paymentEventDTOs = createTestPaymentEvents();
+
+        Set<Long> alreadyUsedPaymentEventIds = new HashSet<>();
+        paymentEventDTOs.stream().filter(item -> item.getTotalAmount() >= 50000L).limit(3).forEach(item -> alreadyUsedPaymentEventIds.add(item.getPaymentEventId()));
+
+        when(paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId())).thenReturn(paymentEventDTOs);
+        when(paymentEventCouponRepository.findIdByPaymentEventIdIn(any(List.class))).thenReturn(alreadyUsedPaymentEventIds);
+
+        // when
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+
+        // then
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.isConditionSet()).isTrue();
     }
 
     /**
@@ -378,5 +360,13 @@ class CouponPeriodConditionCheckerTest {
 
     private Coupon createMonthlyCoupon(Long id, StandardType issueConditionType, Long issueConditionValue, Long numberOfPeriod) {
         return Coupon.builder().id(id).code("test_code_" + id).name("test_name").description("").benefitType(BenefitType.AMOUNT).benefitValue(10000L).productType(CouponProductType.ALL).paymentTarget(PaymentTarget.ALL).firstCount(null).quantityIssued(0L).issuedTimeType(IssuedTimeType.IMMEDIATE).couponType(CouponType.EVENT).couponIssueType(CouponIssueType.ONETIME).expireTimeType(ExpireTimeType.LIMIT).expireTimeDays(7).issueCoverageType(CoverageType.ALL).issueCoverageSubCategoryName(null).useCoverageType(CoverageType.ALL).useCoverageSubCategoryName(null).useStandardType(StandardType.UNLIMITED).useStandardValue(null).issueConditionType(issueConditionType).issueConditionValue(issueConditionValue).periodType(PeriodType.MONTHLY).periodStartAt(null).periodEndAt(null).numberOfPeriod(numberOfPeriod).autoManualType(AutoManualType.AUTO).loginAlarm(false).smsAlarm(false).emailAlarm(false).kakaoAlarm(false).statusType(CouponStatusType.ISSUED).isDeleted(false).build();
+    }
+
+    private Coupon createWeeklyCouopn(Long id, StandardType issueConditionType, Long issueConditionValue, Long numberOfPeriod) {
+        return Coupon.builder().id(id).code("test_code_" + id).name("test_name").description("").benefitType(BenefitType.AMOUNT).benefitValue(10000L).productType(CouponProductType.ALL).paymentTarget(PaymentTarget.ALL).firstCount(null).quantityIssued(0L).issuedTimeType(IssuedTimeType.IMMEDIATE).couponType(CouponType.EVENT).couponIssueType(CouponIssueType.ONETIME).expireTimeType(ExpireTimeType.LIMIT).expireTimeDays(7).issueCoverageType(CoverageType.ALL).issueCoverageSubCategoryName(null).useCoverageType(CoverageType.ALL).useCoverageSubCategoryName(null).useStandardType(StandardType.UNLIMITED).useStandardValue(null).issueConditionType(issueConditionType).issueConditionValue(issueConditionValue).periodType(PeriodType.WEEKLY).periodStartAt(null).periodEndAt(null).numberOfPeriod(numberOfPeriod).autoManualType(AutoManualType.AUTO).loginAlarm(false).smsAlarm(false).emailAlarm(false).kakaoAlarm(false).statusType(CouponStatusType.ISSUED).isDeleted(false).build();
+    }
+
+    private Coupon createPeriodCoupon(Long id, StandardType issueConditionType, Long issueConditionValue, LocalDate periodStartAt, LocalDate periodEndAt, Long numberOfPeriod) {
+        return Coupon.builder().id(id).code("test_code_" + id).name("test_name").description("").benefitType(BenefitType.AMOUNT).benefitValue(10000L).productType(CouponProductType.ALL).paymentTarget(PaymentTarget.ALL).firstCount(null).quantityIssued(0L).issuedTimeType(IssuedTimeType.IMMEDIATE).couponType(CouponType.EVENT).couponIssueType(CouponIssueType.ONETIME).expireTimeType(ExpireTimeType.LIMIT).expireTimeDays(7).issueCoverageType(CoverageType.ALL).issueCoverageSubCategoryName(null).useCoverageType(CoverageType.ALL).useCoverageSubCategoryName(null).useStandardType(StandardType.UNLIMITED).useStandardValue(null).issueConditionType(issueConditionType).issueConditionValue(issueConditionValue).periodType(PeriodType.SET).periodStartAt(periodStartAt).periodEndAt(periodEndAt).numberOfPeriod(numberOfPeriod).autoManualType(AutoManualType.AUTO).loginAlarm(false).smsAlarm(false).emailAlarm(false).kakaoAlarm(false).statusType(CouponStatusType.ISSUED).isDeleted(false).build();
     }
 }
