@@ -16,6 +16,9 @@ public class CouponTrigger {
     private Long id;
 
     @Column(nullable = false)
+    private Long userId;
+
+    @Column(nullable = false)
     private Long issuedCouponHistoryId;
 
     @Column(nullable = false)

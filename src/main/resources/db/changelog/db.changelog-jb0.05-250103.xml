@@ -19,4 +19,36 @@
             <column name="confirmed_at" type="TIMESTAMP"/>
         </addColumn>
     </changeSet>
+
+    <!-- Add column coupon_trigger table -->
+    <changeSet id="changelog-jb0.05-250213-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="coupon_trigger" columnName="user_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="coupon_trigger">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- Add composite index to coupon_trigger table -->
+    <changeSet id="changelog-jb0.05-250213-01-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="coupon_trigger" indexName="ix_coupon_trigger_user_type_entity"/>
+            </not>
+        </preConditions>
+        <createIndex indexName="ix_coupon_trigger_user_type_entity"
+                     tableName="coupon_trigger"
+                     unique="false">
+            <!-- 순서대로 컬럼을 정의하면, 해당 순서로 복합 인덱스 생성됨 -->
+            <column name="user_id"/>
+            <column name="trigger_entity_type"/>
+            <column name="trigger_entity_id"/>
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>
