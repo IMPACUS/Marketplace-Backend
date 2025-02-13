@@ -115,14 +115,12 @@ public class CouponPeriodConditionChecker {
      * <p>
      * <b>정책</b>
      * <li>현재 날짜 기준으로 1일부터 현재 시점까지 발생한 주문을 사용한다.</li>
-     * <li>쿠폰 지급 조건이 설정되어 있는 경우 해당 조건을 충족해야 해당 주문을 사용할 수 있다.</li>
-     * <li>다른 주문 이벤트 쿠폰의 지급 조건으로 사용된 주문은 적용되지 않는다.</li>
-     * <li>상품 이벤트 쿠폰과는 독립적인 발급 관계로 해당 쿠폰의 지급 조건으로 사용된 주문(상품)도 적용 가능하다.</li>
      * </p>
      *
+     * @param userId       사용자 ID
      * @param coupon       기간 설정 조건을 확인하기 위한 쿠폰
      * @param paymentEvent 발생한 결제 이벤트
-     * @return 해당 쿠폰 발급 여부
+     * @return 해당 쿠폰의 기간 조건 검증 결과
      */
     private CouponConditionCheckResultDTO checkMonthlyCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
 
@@ -138,12 +136,13 @@ public class CouponPeriodConditionChecker {
      *
      * <p>
      * <b>정책</b>
-     * <li>현재 날짜 기준으로 6일 전 00:00부터 발생한 주문을 기준으로 </li>
+     * <li>현재 날짜 기준으로 6일 전 00:00부터 발생한 주문을 사용한다. </li>
      * </p>
      *
-     * @param coupon
-     * @param paymentEvent
-     * @return
+     * @param userId       사용자 ID
+     * @param coupon       기간 설정 조건을 확인하기 위한 쿠폰
+     * @param paymentEvent 발생한 결제 이벤트
+     * @return 해당 쿠폰의 기간 조건 검증 결과
      */
     private CouponConditionCheckResultDTO checkWeeklyCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
 
@@ -154,6 +153,19 @@ public class CouponPeriodConditionChecker {
         return checkCondition(userId, coupon, paymentEvent, startDate, endDate);
     }
 
+    /**
+     * 기간 설정이 SET으로 설정되어 있을 경우 조건을 만족하는지 확인한다.
+     *
+     * <p>
+     * <b>정책</b>
+     * <li>쿠폰에 설정되어 있는 시작 날짜와 끝 날짜를 사이에 발생한 주문을 사용한다.</li>
+     * </p>
+     *
+     * @param userId       사용자 ID
+     * @param coupon       기간 설정 조건을 확인하기 위한 쿠폰
+     * @param paymentEvent 발생한 결제 이벤트
+     * @return 해당 쿠폰의 기간 조건 검증 결과
+     */
     private CouponConditionCheckResultDTO checkSetPeriodCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
 
         // 1. 조회 기간 날짜 설정
@@ -163,6 +175,23 @@ public class CouponPeriodConditionChecker {
         return checkCondition(userId, coupon, paymentEvent, startDate, endDate);
     }
 
+    /**
+     * 공통적으로 검증해야 되는 조건을 검증한다.
+     *
+     * <p>
+     * <b>공통 정책</b>
+     * <li>쿠폰 지급 조건이 설정되어 있는 경우 해당 조건을 충족해야 해당 주문을 사용할 수 있다.</li>
+     * <li>다른 주문 이벤트 쿠폰의 지급 조건으로 사용된 주문은 적용되지 않는다.</li>
+     * <li>상품 이벤트 쿠폰과는 독립적인 발급 관계로 상품 이벤트 쿠폰의 지급 조건으로 사용된 주문(상품)은 적용이 가능하다.</li>
+     * </p>
+     *
+     * @param userId       사용자 ID
+     * @param paymentEvent 발생한 결제 이벤트
+     * @param coupon       기간 설정 조건을 확인하기 위한 쿠폰
+     * @param startDate    기간 설정 조건의 시작 날짜
+     * @param endDate      기간 설정 조건의 끝 날짜
+     * @return 해당 쿠폰의 기간 조건 검증 결과
+     */
     private CouponConditionCheckResultDTO checkCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent, LocalDate startDate, LocalDate endDate) {
         // 2. 기간 내 결제 이벤트 조회
         List<PaymentEventPeriodWithOrdersDTO> paymentEvents = paymentEventCustomRepository.findPaymentEventsWithOrdersInPeriod(userId, startDate, endDate, paymentEvent.getId());
@@ -198,5 +227,4 @@ public class CouponPeriodConditionChecker {
         // 6. DTO 변환 후 반환
         return CouponConditionCheckResultDTO.getSuccessDTO(coupon, resultIds);
     }
-
 }
