@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 class CouponPeriodConditionCheckerTest {
 
     @InjectMocks
-    private CouponPeriodConditionChecker couponPeriodConditionChecker;
+    private EventCouponPeriodConditionChecker couponPeriodConditionChecker;
 
     @Mock
     private PaymentEventCustomRepository paymentEventCustomRepository;
@@ -70,7 +70,7 @@ class CouponPeriodConditionCheckerTest {
         PaymentEvent paymentEvent = createPaymentEvent(1L);
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isTrue();
@@ -90,7 +90,7 @@ class CouponPeriodConditionCheckerTest {
         paymentEvent.setPaymentOrders(Collections.emptyList());
 
         // when
-        assertThatThrownBy(() -> couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent)).isInstanceOf(CustomException.class).extracting(e -> ((CustomException) e).getErrorType()).isEqualTo(PaymentErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID);
+        assertThatThrownBy(() -> couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent)).isInstanceOf(CustomException.class).extracting(e -> ((CustomException) e).getErrorType()).isEqualTo(PaymentErrorType.NOT_FOUND_PAYMENT_ORDER_BY_PAYMENT_EVENT_ID);
     }
 
     @Test
@@ -111,13 +111,13 @@ class CouponPeriodConditionCheckerTest {
 
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isTrue();
         assertThat(result.isConditionSet()).isTrue();
         assertThat(result.getCoupon()).isEqualTo(coupon);
-        assertThat(result.getPaymentEventIds().size()).isEqualTo(7);
+        assertThat(result.getTriggerIds().size()).isEqualTo(7);
     }
 
     @Test
@@ -138,13 +138,13 @@ class CouponPeriodConditionCheckerTest {
 
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isTrue();
         assertThat(result.isConditionSet()).isTrue();
         assertThat(result.getCoupon()).isEqualTo(coupon);
-        assertThat(result.getPaymentEventIds().size()).isEqualTo(7);
+        assertThat(result.getTriggerIds().size()).isEqualTo(7);
     }
 
     @Test
@@ -164,7 +164,7 @@ class CouponPeriodConditionCheckerTest {
         when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(new HashSet());
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isFalse();
@@ -186,7 +186,7 @@ class CouponPeriodConditionCheckerTest {
         when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(new HashSet());
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isFalse();
@@ -211,13 +211,13 @@ class CouponPeriodConditionCheckerTest {
         when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(alreadyUsedPaymentEventIds);
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isTrue();
         assertThat(result.isConditionSet()).isTrue();
         assertThat(result.getCoupon()).isEqualTo(coupon);
-        assertThat(result.getPaymentEventIds().size()).isEqualTo(4);
+        assertThat(result.getTriggerIds().size()).isEqualTo(4);
     }
 
     @Test
@@ -239,13 +239,13 @@ class CouponPeriodConditionCheckerTest {
         when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(alreadyUsedPaymentEventIds);
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isTrue();
         assertThat(result.isConditionSet()).isTrue();
         assertThat(result.getCoupon()).isEqualTo(coupon);
-        assertThat(result.getPaymentEventIds().size()).isEqualTo(4);
+        assertThat(result.getTriggerIds().size()).isEqualTo(4);
     }
 
     @Test
@@ -267,7 +267,7 @@ class CouponPeriodConditionCheckerTest {
         when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(alreadyUsedPaymentEventIds);
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isFalse();
@@ -293,7 +293,7 @@ class CouponPeriodConditionCheckerTest {
         when(couponTriggerRepository.findPaymentEventId(userId)).thenReturn(alreadyUsedPaymentEventIds);
 
         // when
-        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPeriodCondition(userId, coupon, paymentEvent);
+        CouponConditionCheckResultDTO result = couponPeriodConditionChecker.checkPaymentEventPeriodCondition(userId, coupon, paymentEvent);
 
         // then
         assertThat(result.isValid()).isFalse();

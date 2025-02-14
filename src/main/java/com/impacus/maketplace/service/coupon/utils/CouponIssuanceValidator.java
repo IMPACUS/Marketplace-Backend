@@ -181,10 +181,6 @@ public class CouponIssuanceValidator {
                     // 3. 쿠폰 지급 조건 확인 (판매가 합계 등)
                     if (!meetsCouponIssueCondition(coupon, paymentOrder)) return false;
 
-                    // TODO: 기간(SET, WEEKLY, MONTHLY) 설정 쿠폰인 경우 발급 가능 요건 확인 -> 이벤트 쿠폰의 경우 기간 설정 확인을 별도로 수행 -> 비지니스 로직쪽으로 일단 분리
-                    // 4. 쿠폰 기간 설정이 되어 있을 경우
-
-
                     return true;
                 }).orElse(false);   // PaymentOrder가 존재하지 않으면 false 반환
     }
@@ -227,8 +223,6 @@ public class CouponIssuanceValidator {
                     // 4. 쿠폰 지급 조건 검증
                     if (coupon.getIssueConditionType() == StandardType.LIMIT && paymentEvent.getTotalAmount() < coupon.getBenefitValue())
                         return false;
-
-                    // TODO: 지급 조건 만족시 지정 기간 N회 이상 주문 시 처리 혹은 주간 및 월간 처리 -> 비지니스 로직쪽으로 일단 분리
 
                     return true;
                 }).orElse(false);     // PaymentEvent가 없으면 false 반환

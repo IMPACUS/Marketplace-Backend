@@ -1,5 +1,7 @@
 package com.impacus.maketplace.service.coupon.utils;
 
+import com.impacus.maketplace.common.enumType.coupon.EventType;
+import com.impacus.maketplace.common.enumType.coupon.PeriodType;
 import com.impacus.maketplace.common.enumType.coupon.StandardType;
 import com.impacus.maketplace.common.enumType.error.PaymentErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -11,14 +13,11 @@ import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.CouponTriggerRepository;
-import com.impacus.maketplace.repository.coupon.PaymentEventCouponRepository;
-import com.impacus.maketplace.repository.coupon.PaymentOrderCouponRepository;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.payment.querydsl.PaymentEventCustomRepository;
 import com.impacus.maketplace.repository.payment.querydsl.dto.PaymentEventPeriodWithOrdersDTO;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,7 @@ import static com.impacus.maketplace.dto.coupon.model.CouponConditionCheckResult
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CouponPeriodConditionChecker {
+public class EventCouponPeriodConditionChecker {
 
     private final PaymentEventRepository paymentEventRepository;
     private final PaymentOrderRepository paymentOrderRepository;
@@ -47,21 +46,13 @@ public class CouponPeriodConditionChecker {
      *
      * @param userId         사용자 ID
      * @param couponId       기간 설정 조건 확인 대상에 해당하는 쿠폰 ID
-     * @param paymentEventId 이벤트 트리거가 된 결제 이벤트의 ID
+     * @param triggerId     이벤트 트리거가 된 엔티티의 ID
      * @return 기간 설정 조건 만족 여부와 세부 사항
      */
-    public CouponConditionCheckResultDTO checkPeriodCondition(Long userId, Long couponId, Long paymentEventId) {
+    public CouponConditionCheckResultDTO checkPeriodCondition(Long userId, Long couponId, Long triggerId) {
         return couponRepository.findById(couponId)
-                .map(coupon -> {
-                    // 1. Payment Event 조회
-                    PaymentEvent paymentEvent = paymentEventRepository.findById(paymentEventId)
-                            .orElse(null);
-
-                    if (paymentEvent == null) return fail();
-
-                    // 2. 조회 성공 시 조건 확인 작업
-                    return checkPeriodCondition(userId, coupon, paymentEvent);
-                }).orElse(fail());
+                .map(coupon -> checkPeriodCondition(userId, coupon, triggerId))
+                .orElse(fail());
     }
 
     /**
@@ -69,14 +60,46 @@ public class CouponPeriodConditionChecker {
      *
      * @param userId         사용자 ID
      * @param coupon         기간 설정 조건 확인 대상에 해당하는 쿠폰
-     * @param paymentEventId 이벤트 트리거가 된 결제 이벤트의 ID
+     * @param triggerId     이벤트 트리거가 된 엔티티의 ID
      * @return 기간 설정 조건 만족 여부와 세부 사항
      */
 
-    public CouponConditionCheckResultDTO checkPeriodCondition(Long userId, Coupon coupon, Long paymentEventId) {
-        return paymentEventRepository.findById(paymentEventId)
-                .map(paymentEvent -> checkPeriodCondition(userId, coupon, paymentEvent))
-                .orElse(fail());
+    public CouponConditionCheckResultDTO checkPeriodCondition(Long userId, Coupon coupon, Long triggerId) {
+        if (coupon.getEventType() == EventType.PAYMENT_PRODUCT) {
+            return paymentOrderRepository.findById(triggerId)
+                    .map(paymentOrder -> checkPaymentOrderPeriodCondition(userId, coupon, paymentOrder))
+                    .orElse(fail());
+        }
+
+        if (coupon.getEventType() == EventType.PAYMENT_ORDER) {
+            return paymentEventRepository.findById(triggerId)
+                    .map(paymentEvent -> checkPaymentEventPeriodCondition(userId, coupon, paymentEvent))
+                    .orElse(fail());
+        }
+
+        return fail();
+    }
+
+    public CouponConditionCheckResultDTO checkPaymentOrderPeriodCondition(Long userId, Coupon coupon, PaymentOrder paymentOrder) {
+
+        // 1. 기간 설정 조건 중 허용하지 않는 설정 조건 처리
+        if (coupon.getPeriodType() == PeriodType.MONTHLY || coupon.getPeriodType() == PeriodType.WEEKLY) {
+            LogUtils.writeErrorLog(this.getClass().toString(), "A setting condition has been entered that is not allowed as a condition for setting the period of the PaymentOrder coupon.");
+        }
+
+        // 2. 기간 설정 조건 중 UNSET 처리
+        if (coupon.getPeriodType() == PeriodType.UNSET) return pass(coupon);
+
+        // 3. 기간 설정 조건 중 SET 처리
+        if (LocalDate.now().isAfter(coupon.getPeriodStartAt())
+                && coupon.getPeriodEndAt().isAfter(LocalDate.now())) fail();
+
+
+        // 4. 지급 조건 확인
+        if (coupon.getIssueConditionType() == StandardType.LIMIT
+                && coupon.getIssueConditionValue() > paymentOrder.getNotDiscountedAmount()) return fail();
+
+        return CouponConditionCheckResultDTO.getSuccessPaymentOrderDTO(coupon, paymentOrder.getId());
     }
 
     /**
@@ -87,7 +110,7 @@ public class CouponPeriodConditionChecker {
      * @param paymentEvent 이벤트 트리거가 된 결제 이벤트
      * @return 기간 설정 조건 만족 여부와 세부 사항
      */
-    public CouponConditionCheckResultDTO checkPeriodCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
+    public CouponConditionCheckResultDTO checkPaymentEventPeriodCondition(Long userId, Coupon coupon, PaymentEvent paymentEvent) {
 
         // 1. 업데이트 Payment Order
         if (paymentEvent.isNotUpdatedOrders()) {
@@ -226,6 +249,6 @@ public class CouponPeriodConditionChecker {
         if (resultIds.size() < coupon.getNumberOfPeriod()) return fail();
 
         // 6. DTO 변환 후 반환
-        return CouponConditionCheckResultDTO.getSuccessDTO(coupon, resultIds);
+        return CouponConditionCheckResultDTO.getSuccessPaymentEventDTO(coupon, resultIds);
     }
 }
