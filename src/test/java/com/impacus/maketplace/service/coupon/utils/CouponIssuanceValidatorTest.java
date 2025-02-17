@@ -4,8 +4,10 @@ import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.coupon.Coupon;
+import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
+import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -35,6 +38,9 @@ class CouponIssuanceValidatorTest {
     private PaymentEventRepository paymentEventRepository;
 
     @Mock
+    private PaymentOrderRepository paymentOrderRepository;
+
+    @Mock
     private SellerRepository sellerRepository;
 
     @Nested
@@ -43,7 +49,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 성공")
-        public void shouldPassWhenCouponIsNotDeleted() {
+        void shouldPassWhenCouponIsNotDeleted() {
             // given
             Coupon coupon = Coupon.builder().isDeleted(false).build();
 
@@ -53,7 +59,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 삭제된 쿠폰")
-        public void shouldFailWhenCouponIsDeleted() {
+        void shouldFailWhenCouponIsDeleted() {
             // given
             Coupon coupon = Coupon.builder().isDeleted(true).build();
 
@@ -83,7 +89,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 성공")
-        public void shouldPassWhenAllConditionsAreSatisfied() {
+        void shouldPassWhenAllConditionsAreSatisfied() {
             // given
             Long userId = 1L;
             Coupon coupon1 = Coupon.builder()
@@ -136,7 +142,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 삭제된 쿠폰")
-        public void shouldThrowExceptionWhenCouponIsDeleted() {
+        void shouldThrowExceptionWhenCouponIsDeleted() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder()
@@ -155,7 +161,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 선착순 설정")
-        public void shouldThrowExceptionWhenCouponIsOverFirstCount() {
+        void shouldThrowExceptionWhenCouponIsOverFirstCount() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder().isDeleted(false)   // 삭제 X
@@ -172,7 +178,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 발급 상태 중지")
-        public void shouldThrowExceptionWhenCouponStatusIsStop() {
+        void shouldThrowExceptionWhenCouponStatusIsStop() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder().isDeleted(false)   // 삭제 X
@@ -190,7 +196,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 지급형 쿠폰 X")
-        public void shouldThrowExceptionWhenCouponIsNotProvisionCoupon() {
+        void shouldThrowExceptionWhenCouponIsNotProvisionCoupon() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder().isDeleted(false)   // 삭제 X
@@ -208,7 +214,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 1회성 쿠폰 X")
-        public void shouldThrowExceptionWhenCouponIssueTypeIsNotOneTime() {
+        void shouldThrowExceptionWhenCouponIssueTypeIsNotOneTime() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder().isDeleted(false)   // 삭제 X
@@ -225,7 +231,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 발급 받은 이력 존재 O")
-        public void shouldThrowExceptionWhenCouponIsAlreadyIssuedToUser() {
+        void shouldThrowExceptionWhenCouponIsAlreadyIssuedToUser() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder().isDeleted(false)   // 삭제 X
@@ -243,7 +249,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 기간 설정 조건 불만족")
-        public void shouldThrowExceptionWhenCouponPeriodIsNotSatisfied() {
+        void shouldThrowExceptionWhenCouponPeriodIsNotSatisfied() {
             // given
             Long userId = 1L;
             Coupon coupon1 = Coupon.builder().isDeleted(false)   // 삭제 X
@@ -295,7 +301,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 성공")
-        public void shouldPassWhenAllConditionsAreSatisfied() {
+        void shouldPassWhenAllConditionsAreSatisfied() {
             // given
             Long userId = 1L;
             Coupon coupon1 = Coupon.builder()
@@ -329,7 +335,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 삭제된 쿠폰")
-        public void shouldFailWhenCouponIsDeleted() {
+        void shouldFailWhenCouponIsDeleted() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder()
@@ -347,7 +353,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 발급 중지 상태")
-        public void shouldFailWhenCouponStatusIsStop() {
+        void shouldFailWhenCouponStatusIsStop() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder()
@@ -365,7 +371,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 선착순 설정 불만족")
-        public void shouldFailWhenCouponIssuedQuantityIsOverFirstCount() {
+        void shouldFailWhenCouponIssuedQuantityIsOverFirstCount() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder()
@@ -385,7 +391,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 이벤트형 쿠폰 X")
-        public void shouldFailWhenCouponIsNotEventCoupon() {
+        void shouldFailWhenCouponIsNotEventCoupon() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder()
@@ -403,7 +409,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 발급 이력 존재")
-        public void shouldFailWhenCouponIsAlreadyIssuedToUser() {
+        void shouldFailWhenCouponIsAlreadyIssuedToUser() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder()
@@ -423,7 +429,7 @@ class CouponIssuanceValidatorTest {
 
         @Test
         @DisplayName("쿠폰 검증 실패 - 이벤트 타입 미일치")
-        public void shouldFailWhenCouponEventTypeMismatch() {
+        void shouldFailWhenCouponEventTypeMismatch() {
             // given
             Long userId = 1L;
             Coupon coupon = Coupon.builder()
@@ -437,6 +443,167 @@ class CouponIssuanceValidatorTest {
 
             // when & then
             assertThat(couponIssuanceValidator.validateEventCoupon(userId, coupon, EventType.PAYMENT_PRODUCT)).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("Payment Order 쿠폰 검증")
+    class PaymentOrderCoupon {
+        private final String TEST_BRAND_NAME = "TEST_BRAND";
+
+        /**
+         * Payment Order Coupon 검증 통과 조건
+         *
+         * <p>
+         *     <ol>
+         *         <li>이벤트형 쿠폰</li>
+         *         <li>이벤트 타입이 결제 상품과 관련된 타입</li>
+         *         <li>발급 적용 범위가 브랜드일 경우, 해당 상품의 브랜드명과 발급 적용 범위 값이 일치</li>
+         *         <li>쿠폰 지급 조건 확인</li>
+         *     </ol>
+         * </p>
+         */
+        @Test
+        @DisplayName("쿠폰 검증 성공")
+        void shouldPassWhenAllConditionsAreSatisfied() {
+            // given
+            Long paymentOrderId = 1L;
+
+            PaymentOrder paymentOrder = PaymentOrder.builder()
+                    .id(1L)
+                    .sellerId(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+
+            Coupon coupon1 = Coupon.builder()
+                    .couponType(CouponType.EVENT)       // 이벤트형 쿠폰
+                    .eventType(EventType.PAYMENT_PRODUCT)   // PRODUCT와 관련된 이벤트
+                    .issueCoverageType(CoverageType.ALL)    // 모든 브랜드 적용
+                    .issueConditionType(StandardType.UNLIMITED) // 지급 조건 X
+                    .build();
+
+            Coupon coupon2 = Coupon.builder()
+                    .couponType(CouponType.EVENT)       // 이벤트형 쿠폰
+                    .eventType(EventType.SCHEDULING_PAYMENT_PRODUCT)   // PRODUCT와 관련된 이벤트
+                    .issueCoverageType(CoverageType.BRAND)    //   특정 브랜드 적용
+                    .issueCoverageSubCategoryName(TEST_BRAND_NAME)
+                    .issueConditionType(StandardType.UNLIMITED) // 지급 조건 X
+                    .build();
+
+            Coupon coupon3 = Coupon.builder()
+                    .couponType(CouponType.EVENT)       // 이벤트형 쿠폰
+                    .eventType(EventType.PAYMENT_PRODUCT)   // RPODUCT와 관련된 이벤트
+                    .issueCoverageType(CoverageType.ALL)    // 모든 브랜드 적용
+                    .issueConditionType(StandardType.LIMIT) // 지급 조건 O
+                    .issueConditionValue(10_000L)    // 10,000원 이상 상품 구매시
+                    .build();
+
+            when(paymentOrderRepository.findById(paymentOrderId)).thenReturn(Optional.of(paymentOrder));
+            when(sellerRepository.findMarketNameBySellerId(paymentOrder.getSellerId())).thenReturn(TEST_BRAND_NAME);
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentOrderCoupon(coupon1, paymentOrderId)).isTrue();
+            assertThat(couponIssuanceValidator.validatePaymentOrderCoupon(coupon2, paymentOrderId)).isTrue();
+            assertThat(couponIssuanceValidator.validatePaymentOrderCoupon(coupon3, paymentOrderId)).isTrue();
+        }
+
+        @Test
+        @DisplayName("쿠폰 검증 실패 - 이벤트형 타입 쿠폰 X")
+        void shouldFailWhenCouponTypeIsNotEventCoupon() {
+            // given
+            Long paymentOrderId = 1L;
+
+            Coupon coupon = Coupon.builder()
+                    .couponType(CouponType.PROVISION)       // 이벤트형 쿠폰 X
+                    .eventType(EventType.PAYMENT_PRODUCT)   // PRODUCT와 관련된 이벤트
+                    .issueCoverageType(CoverageType.ALL)    // 모든 브랜드 적용
+                    .issueConditionType(StandardType.UNLIMITED) // 지급 조건 X
+                    .build();
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentOrderCoupon(coupon, paymentOrderId)).isFalse();
+        }
+
+        @Test
+        @DisplayName("쿠폰 검증 실패 - 결제 상품 관련 이벤트 X")
+        void shouldFailWhenCouponTypeIsNotRelatedPaymentProduct() {
+            // given
+            Long paymentOrderId = 1L;
+
+            PaymentOrder paymentOrder = PaymentOrder.builder()
+                    .id(1L)
+                    .sellerId(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+            Coupon coupon = Coupon.builder()
+                    .couponType(CouponType.EVENT)       // 이벤트형 쿠폰
+                    .eventType(EventType.PAYMENT_ORDER)   // PRODUCT와 관련된 이벤트 X
+                    .issueCoverageType(CoverageType.ALL)    // 모든 브랜드 적용
+                    .issueConditionType(StandardType.UNLIMITED) // 지급 조건 X
+                    .build();
+
+            when(paymentOrderRepository.findById(paymentOrderId)).thenReturn(Optional.of(paymentOrder));
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentOrderCoupon(coupon, paymentOrderId)).isFalse();
+        }
+
+        @Test
+        @DisplayName("쿠폰 검증 실패 - 브랜드명 불일치")
+        void shouldFailWhenCouponIssueCoverageValueMismatch() {
+            // given
+            Long paymentOrderId = 1L;
+
+            PaymentOrder paymentOrder = PaymentOrder.builder()
+                    .id(1L)
+                    .sellerId(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+            Coupon coupon = Coupon.builder()
+                    .couponType(CouponType.EVENT)       // 이벤트형 쿠폰
+                    .eventType(EventType.PAYMENT_PRODUCT)   // PRODUCT와 관련된 이벤트 O
+                    .issueCoverageType(CoverageType.BRAND)    // 특정 브랜드 적용
+                    .issueCoverageSubCategoryName(TEST_BRAND_NAME)
+                    .issueConditionType(StandardType.UNLIMITED) // 지급 조건 X
+                    .build();
+
+            when(paymentOrderRepository.findById(paymentOrderId)).thenReturn(Optional.of(paymentOrder));
+            when(sellerRepository.findMarketNameBySellerId(paymentOrder.getSellerId())).thenReturn("MISMATCH_BRAND_NAME");
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentOrderCoupon(coupon, paymentOrderId)).isFalse();
+        }
+
+        @Test
+        @DisplayName("쿠폰 검증 실패 - 지급 조건 불만족")
+        void shouldFailWhenCouponIssueConditionIsNotSatisfied() {
+            Long paymentOrderId = 1L;
+
+            PaymentOrder paymentOrder = PaymentOrder.builder()
+                    .id(1L)
+                    .sellerId(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+            Coupon coupon = Coupon.builder()
+                    .couponType(CouponType.EVENT)       // 이벤트형 쿠폰
+                    .eventType(EventType.PAYMENT_PRODUCT)   // PRODUCT와 관련된 이벤트 O
+                    .issueCoverageType(CoverageType.ALL)    // 모든 브랜드 적용
+                    .issueConditionType(StandardType.LIMIT) // 지급 조건 X
+                    .issueConditionValue(20000L)        // 20,000원 이상 상품 구매시
+                    .build();
+
+            when(paymentOrderRepository.findById(paymentOrderId)).thenReturn(Optional.of(paymentOrder));
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentOrderCoupon(coupon, paymentOrderId)).isFalse();
         }
     }
 }

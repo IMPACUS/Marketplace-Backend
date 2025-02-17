@@ -174,7 +174,7 @@ public class CouponIssuanceValidator {
         return paymentOrderRepository.findById(paymentOrderId)
                 .map(paymentOrder -> {
                     // 1. 쿠폰 타입이 EVENT가 아니거나, 결제 상품 관련 이벤트가 아닌 경우
-                    if (coupon.getCouponType() != CouponType.EVENT || EventType.isRelatedPaymentProduct(coupon.getEventType()))
+                    if (coupon.getCouponType() != CouponType.EVENT || !EventType.isRelatedPaymentProduct(coupon.getEventType()))
                         return false;
 
                     // 2. 발급 적용 범위가 브랜드인 경우, 판매자의 브랜드와 일치해야 함
