@@ -17,6 +17,6 @@ public enum PeriodType implements CouponUtils.CommonFieldInterface {
     private final String value;
 
     public boolean isSetPeriod() {
-        return this != SET;
+        return this != UNSET;
     }
 }

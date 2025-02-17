@@ -408,7 +408,7 @@ public class CouponAdminService {
         }
 
         // 11. 지정 기간 설정 시 검증
-        if (coupon.getPeriodType().isSetPeriod()) {
+        if (coupon.getPeriodType() != PeriodType.UNSET) {
             if (coupon.getPeriodType() == PeriodType.SET) {
                 // 11.1 시작 날짜 검증
                 if (coupon.getPeriodStartAt() == null || coupon.getPeriodStartAt().isBefore(LocalDate.now())) {

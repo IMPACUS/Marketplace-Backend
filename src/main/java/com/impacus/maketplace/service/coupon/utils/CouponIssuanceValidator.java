@@ -1,14 +1,17 @@
 package com.impacus.maketplace.service.coupon.utils;
 
 import com.impacus.maketplace.common.enumType.coupon.*;
+import com.impacus.maketplace.common.enumType.error.CommonErrorType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.repository.seller.SellerRepository;
+import liquibase.util.LogUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,24 +92,28 @@ public class CouponIssuanceValidator {
 
         // 2. 지급형 쿠폰인지 확인
         if (coupon.getCouponType() != CouponType.PROVISION) {
-            throw new CustomException(CouponErrorType.INVALID_REGISTER_EVENT_COUPON);
+            LogUtils.writeErrorLog("validateProvisionCouponWithException", "지급형 쿠폰 검증 실패: 쿠폰 타입이 PROVISION이 아님.");
+            throw new CustomException(CouponErrorType.INVALID_COUPON_REGISTER_EXCEPTION);
         }
 
         // 3. 쿠폰 발급 유형이 1회성이어야 함
         if (coupon.getCouponIssueType() != CouponIssueType.ONETIME) {
-            throw new CustomException(CouponErrorType.INVALID_REGISTER_PERSISTENCE_COUPON);
+            LogUtils.writeErrorLog("validateProvisionCouponWithException", "지급형 쿠폰 검증 실패: 쿠폰 발급 유형이 ONETIME이 아님.");
+            throw new CustomException(CouponErrorType.INVALID_COUPON_REGISTER_EXCEPTION);
         }
 
         // 4. 해당 사용자가 이미 이 쿠폰을 발급받은 이력이 없어야 함
         if (userCouponRepository.existsByUserIdAndCouponId(userId, coupon.getId())) {
-            throw new CustomException(CouponErrorType.INVALID_REGISTER_ALREADY_ISSUE);
+            LogUtils.writeErrorLog("validateProvisionCouponWithException", "지급형 쿠폰 검증 실패: 쿠폰 발급 받은 이력 존재");
+            throw new CustomException(CouponErrorType.ALREADY_ISSUED_COUPON);
         }
 
         // 5. 기간 설정이 되어 있을 경우 지정된 기간 내에 있는지 확인
-        if (isWithinPeriod(coupon)) {
-            throw new CustomException(CouponErrorType.EXPIRED_PREIOD_COUPON);
+        if (!isWithinPeriod(coupon)) {
+            LogUtils.writeErrorLog("validateProvisionCouponWithException", "지급형 쿠폰 검증 실패: 쿠폰이 유효 기간 내에 있지 않음.");
+            // TODO: 발행 시작하지 않았을 때 발행이 언제 시작하고 언제 종료되는지 프론트에 정보를 담아서 보낼지 결정
+            throw new CustomException(CouponErrorType.INVALID_COUPON_REGISTER_EXCEPTION);
         }
-
     }
 
     /**
@@ -292,14 +299,17 @@ public class CouponIssuanceValidator {
      */
     private void isCouponEligibleWithException(Coupon coupon) {
         if (coupon.getIsDeleted()) {
+            LogUtils.writeErrorLog("validateProvisionCouponWithException", "지급형 쿠폰 검증 실패: 쿠폰이 삭제됨.");
             throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
         }
 
         if (coupon.getStatusType() == CouponStatusType.STOP) {
+            LogUtils.writeErrorLog("validateProvisionCouponWithException", "지급형 쿠폰 검증 실패: 쿠폰 발행이 중지됨.");
             throw new CustomException(CouponErrorType.IS_STOP_COUPON);
         }
 
         if (!isWithinQuota(coupon)) {
+            LogUtils.writeErrorLog("validateProvisionCouponWithException", "지급형 쿠폰 검증 실패: 쿠폰 발행 수가 선착순 발행 수를 초과함.");
             throw new CustomException(CouponErrorType.END_FIRST_COUNT_COUPON);
         }
     }
