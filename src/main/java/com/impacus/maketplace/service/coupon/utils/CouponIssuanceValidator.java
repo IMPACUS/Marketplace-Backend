@@ -228,7 +228,7 @@ public class CouponIssuanceValidator {
                         return false;
 
                     // 4. 쿠폰 지급 조건 검증
-                    if (coupon.getIssueConditionType() == StandardType.LIMIT && paymentEvent.getTotalAmount() < coupon.getBenefitValue())
+                    if (coupon.getIssueConditionType() == StandardType.LIMIT && paymentEvent.getTotalAmount() < coupon.getIssueConditionValue())
                         return false;
 
                     return true;

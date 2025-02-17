@@ -4,6 +4,7 @@ import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.coupon.Coupon;
+import com.impacus.maketplace.entity.payment.PaymentEvent;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -459,7 +461,7 @@ class CouponIssuanceValidatorTest {
          *         <li>이벤트형 쿠폰</li>
          *         <li>이벤트 타입이 결제 상품과 관련된 타입</li>
          *         <li>발급 적용 범위가 브랜드일 경우, 해당 상품의 브랜드명과 발급 적용 범위 값이 일치</li>
-         *         <li>쿠폰 지급 조건 확인</li>
+         *         <li>쿠폰 지급 조건 만족</li>
          *     </ol>
          * </p>
          */
@@ -604,6 +606,204 @@ class CouponIssuanceValidatorTest {
 
             // when & then
             assertThat(couponIssuanceValidator.validatePaymentOrderCoupon(coupon, paymentOrderId)).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("Payment Event 쿠폰 검증")
+    class PaymentEventCoupon {
+
+        /**
+         * Payment Event Coupon 검증 통과 조건
+         *
+         * <p>
+         *     <ol>
+         *         <li>이벤트형 쿠폰</li>
+         *         <li>이벤트 타입이 PAYMENT_ORDER</li>
+         *         <li>발급 적용 범위: ALL</li>
+         *         <li>쿠폰 지급 조건 만족</li>
+         *     </ol>
+         * </p>
+         */
+
+        @Test
+        @DisplayName("쿠폰 검증 성공")
+        void shouldPassWhenAllConditionsAreSatisfied() {
+            Long paymentEventId = 1L;
+            PaymentEvent paymentEvent = PaymentEvent.builder().id(1L).build();
+
+            PaymentOrder paymentOrder1 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+            PaymentOrder paymentOrder2 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(20000L)
+                    .build();
+
+            List<PaymentOrder> paymentOrders = List.of(paymentOrder1, paymentOrder2);
+
+            when(paymentEventRepository.findById(paymentEventId)).thenReturn(Optional.of(paymentEvent));
+            when(paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())).thenReturn(Optional.of(paymentOrders));
+
+            Coupon coupon1 = Coupon.builder()
+                    .couponType(CouponType.EVENT)
+                    .eventType(EventType.PAYMENT_ORDER)
+                    .issueCoverageType(CoverageType.ALL)
+                    .issueConditionType(StandardType.UNLIMITED)
+                    .build();
+
+            Coupon coupon2 = Coupon.builder()
+                    .couponType(CouponType.EVENT)
+                    .eventType(EventType.PAYMENT_ORDER)
+                    .issueCoverageType(CoverageType.ALL)
+                    .issueConditionType(StandardType.LIMIT)
+                    .issueConditionValue(30000L)
+                    .build();
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentEventCoupon(coupon1, paymentEventId)).isTrue();
+            assertThat(couponIssuanceValidator.validatePaymentEventCoupon(coupon2, paymentEventId)).isTrue();
+        }
+
+        @Test
+        @DisplayName("쿠폰 검증 실패 - 이벤트형 쿠폰 X")
+        void shouldFailWhenCouponTypeIsNotEventCoupon() {
+            Long paymentEventId = 1L;
+            PaymentEvent paymentEvent = PaymentEvent.builder().id(1L).build();
+
+            PaymentOrder paymentOrder1 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+            PaymentOrder paymentOrder2 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(20000L)
+                    .build();
+
+            List<PaymentOrder> paymentOrders = List.of(paymentOrder1, paymentOrder2);
+
+            when(paymentEventRepository.findById(paymentEventId)).thenReturn(Optional.of(paymentEvent));
+            when(paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())).thenReturn(Optional.of(paymentOrders));
+
+            Coupon coupon = Coupon.builder()
+                    .couponType(CouponType.PROVISION)
+                    .eventType(EventType.PAYMENT_ORDER)
+                    .issueCoverageType(CoverageType.ALL)
+                    .issueConditionType(StandardType.UNLIMITED)
+                    .build();
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentEventCoupon(coupon, paymentEventId)).isFalse();
+        }
+
+        @Test
+        @DisplayName("쿠폰 검증 실패 - 이벤트 타입 불만족")
+        void shouldFailWhenCouponEventTypeIsNotSatisfied() {
+            Long paymentEventId = 1L;
+            PaymentEvent paymentEvent = PaymentEvent.builder().id(1L).build();
+
+            PaymentOrder paymentOrder1 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+            PaymentOrder paymentOrder2 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(20000L)
+                    .build();
+
+            List<PaymentOrder> paymentOrders = List.of(paymentOrder1, paymentOrder2);
+
+            when(paymentEventRepository.findById(paymentEventId)).thenReturn(Optional.of(paymentEvent));
+            when(paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())).thenReturn(Optional.of(paymentOrders));
+
+            Coupon coupon = Coupon.builder()
+                    .couponType(CouponType.EVENT)
+                    .eventType(EventType.PAYMENT_PRODUCT)
+                    .issueCoverageType(CoverageType.ALL)
+                    .issueConditionType(StandardType.UNLIMITED)
+                    .build();
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentEventCoupon(coupon, paymentEventId)).isFalse();
+        }
+
+        @Test
+        @DisplayName("쿠폰 검증 실패 - 발급 적용 범위")
+        void shouldFailWhenCouponIssueCoverageTypeIsNotSatisfied() {
+            Long paymentEventId = 1L;
+            PaymentEvent paymentEvent = PaymentEvent.builder().id(1L).build();
+
+            PaymentOrder paymentOrder1 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+            PaymentOrder paymentOrder2 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(20000L)
+                    .build();
+
+            List<PaymentOrder> paymentOrders = List.of(paymentOrder1, paymentOrder2);
+
+            when(paymentEventRepository.findById(paymentEventId)).thenReturn(Optional.of(paymentEvent));
+            when(paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())).thenReturn(Optional.of(paymentOrders));
+
+            Coupon coupon = Coupon.builder()
+                    .couponType(CouponType.EVENT)
+                    .eventType(EventType.PAYMENT_ORDER)
+                    .issueCoverageType(CoverageType.BRAND)
+                    .issueConditionType(StandardType.UNLIMITED)
+                    .build();
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentEventCoupon(coupon, paymentEventId)).isFalse();
+        }
+
+        @Test
+        @DisplayName("쿠폰 검증 실패 - 쿠폰 지급 조건 불만족")
+        void shouldFailWhenCouponIssueConditionValueIsNotSatisfied() {
+            Long paymentEventId = 1L;
+            PaymentEvent paymentEvent = PaymentEvent.builder().id(1L).build();
+
+            PaymentOrder paymentOrder1 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(10000L)
+                    .build();
+
+            PaymentOrder paymentOrder2 = PaymentOrder.builder()
+                    .id(1L)
+                    .quantity(1L)
+                    .amount(20000L)
+                    .build();
+
+            List<PaymentOrder> paymentOrders = List.of(paymentOrder1, paymentOrder2);
+
+            when(paymentEventRepository.findById(paymentEventId)).thenReturn(Optional.of(paymentEvent));
+            when(paymentOrderRepository.findByPaymentEventId(paymentEvent.getId())).thenReturn(Optional.of(paymentOrders));
+
+            Coupon coupon = Coupon.builder()
+                    .couponType(CouponType.EVENT)
+                    .eventType(EventType.PAYMENT_ORDER)
+                    .issueCoverageType(CoverageType.ALL)
+                    .issueConditionType(StandardType.LIMIT)
+                    .issueConditionValue(40000L)
+                    .build();
+
+            // when & then
+            assertThat(couponIssuanceValidator.validatePaymentEventCoupon(coupon, paymentEventId)).isFalse();
         }
     }
 }
