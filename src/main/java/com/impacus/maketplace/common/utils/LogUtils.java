@@ -12,8 +12,18 @@ import java.util.Map;
 @Component
 public class LogUtils {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static void writeInfoLog(String header, String message) {
         log.info(String.format("[%s] %s", header, message));
+    }
+
+    public static void writeAPIRequest(String path, Object requestBody) {
+        try {
+            String requestBodyJson = objectMapper.writeValueAsString(requestBody);
+            log.info(String.format("[Request URI] %s \n[Request body] %s", path, requestBodyJson));
+        } catch (Exception e) {
+            writeErrorLog("Logging error", "unable to serialize request body", e);
+        }
     }
 
     public static void writeErrorLog(String header, String message) {
