@@ -119,6 +119,10 @@ public class EventCouponService {
         }
     }
 
+    public void issueSchedulingCoupon(Long userId) {
+
+    }
+
     /**
      * SNS 태그 이벤트 처리
      * @param userId
