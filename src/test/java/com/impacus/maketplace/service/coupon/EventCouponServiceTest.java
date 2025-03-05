@@ -8,4 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("Event Coupon Service 테스트")
 class EventCouponServiceTest {
 
+
+
 }

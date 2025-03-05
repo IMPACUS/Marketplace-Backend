@@ -24,7 +24,6 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CouponIssuanceManager {
 
     private final CouponRepository couponRepository;
@@ -51,8 +50,8 @@ public class CouponIssuanceManager {
         Coupon coupon = couponRepository.findWriteLockById(couponId)
                 .orElseThrow(() -> new CustomException(CouponErrorType.NOT_EXISTED_COUPON));
 
-        // 2. 최종 조건 확인
-        if (!triggerType.equals(TriggerType.ADMIN) && !isWithinQuota(coupon)) {
+        // 2. 최종 조건 확인 - 선착순 쿠폰인 경우 발행 수 체크
+        if (!isWithinQuota(coupon)) {
             throw new CustomException(CouponErrorType.END_FIRST_COUNT_COUPON);
         }
 
@@ -74,11 +73,11 @@ public class CouponIssuanceManager {
     }
 
     /**
+     *
      * 쿠폰 발급 수 업데이트 후 쿠폰 발급
      *
      * @param userId 유저 PK
      * @param coupon 쿠폰 Entity
-     * @param daysUntilAvailable 몇 일 뒤에 쿠폰을 사용할 수 있는지
      * @return UserCoupon
      */
     private UserCoupon issueCoupon(Long userId, Coupon coupon) {

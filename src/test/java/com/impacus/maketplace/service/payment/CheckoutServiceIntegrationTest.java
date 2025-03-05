@@ -37,13 +37,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class CheckoutServiceIntegrationTest {
 
     @Autowired
-    CheckoutService checkoutService;
+    private CheckoutService checkoutService;
 
     @Autowired
-    PaymentTestDataInitializer paymentTestDataInitializer;
+    private PaymentTestDataInitializer paymentTestDataInitializer;
 
     @Autowired
-    PaymentConfig paymentConfig;
+    private PaymentConfig paymentConfig;
 
     @BeforeAll
     void setup() {

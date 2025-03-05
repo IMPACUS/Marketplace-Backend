@@ -141,6 +141,7 @@ public class Coupon extends BaseEntity {
     private Boolean isDeleted;
 
     public void updateQuantityIssued(int count) {
+        if (this.quantityIssued == 0L) this.statusType = CouponStatusType.ISSUED;
         this.quantityIssued += count;
     }
 
