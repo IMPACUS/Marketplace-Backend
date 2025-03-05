@@ -68,10 +68,14 @@ public class PaymentCompletionService {
             shoppingBasketService.deleteAllShoppingBasket(payload.getData().getShoppingBasketIdList());
         }
 
-        // 4. 모든 Payment Order 원장/(정산) 처리 및 상태 업데이트
+        // TODO: 4. 모든 Payment Order 원장/(정산) 처리 및 상태 업데이트
 
-        // 5. 모든 Payment Order 결제 완료 상태 변경
+        // TODO: 5. 모든 Payment Order 결제 완료 상태 변경
 
-        // 6. Payment Event 결제 완료 상태 변경
+        // TODO: 6. Payment Event 결제 완료 상태 변경
+
+        // TODO: 7. EventCouponService를 통해 쿠폰 발급
+
+        // TODO: 8. Point 지급 및 레벨 포인트 지급
     }
 }
