@@ -62,18 +62,14 @@ public class PaymentOrderConfirmationService {
      * <p>
      * 현재 날짜에서 7일 뒤 주문 확정
      */
-    @Transactional
-    public void updateConfirmationDueAt(PaymentOrder paymentOrder) {
+    public LocalDateTime calculateConfirmationDueAt() {
         // 1. 현재 시각
         LocalDateTime now = LocalDateTime.now();
 
         // 2. 현재 날짜에서 7일을 더하여 LocalDate 계산
         LocalDate targetDate = now.toLocalDate().plusDays(CONFIRMATION_DAYS);
 
-        // 3. targetDate에 대해 시간을 00:00:00으로 설정
-        LocalDateTime confirmationDueAt = LocalDateTime.of(targetDate, LocalTime.MIDNIGHT);
-
-        // 4. 엔티티에 반영
-        paymentOrder.updateConfirmationDueAt(confirmationDueAt);
+        // 3. targetDate에 대해 시간을 00:00:00으로 설정 후 반환
+        return LocalDateTime.of(targetDate, LocalTime.MIDNIGHT);
     }
 }

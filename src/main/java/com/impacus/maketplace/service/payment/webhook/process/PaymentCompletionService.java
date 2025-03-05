@@ -9,12 +9,14 @@ import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.payment.PaymentEventRepository;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import com.impacus.maketplace.service.payment.PaymentOrderHistoryService;
+import com.impacus.maketplace.service.payment.utils.PaymentOrderConfirmationService;
 import com.impacus.maketplace.service.payment.utils.PaymentStatusValidationService;
 import com.impacus.maketplace.service.product.ShoppingBasketService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO.WebhookEventType.TRANSACTION_PAID;
@@ -29,6 +31,7 @@ public class PaymentCompletionService {
     private final PaymentOrderHistoryService paymentOrderHistoryService;
     private final ShoppingBasketService shoppingBasketService;
     private final PaymentStatusValidationService paymentValidationService;
+    private final PaymentOrderConfirmationService paymentOrderConfirmationService;
 
     /**
      * 결제 성공 처리
@@ -54,17 +57,25 @@ public class PaymentCompletionService {
         paymentOrderHistoryService.updateAll(paymentOrders, PaymentOrderStatus.SUCCESS, "payment success");
 
         // 4.2 Payment Order 결제 주문 상태 변경
-        paymentOrders.forEach(paymentOrder -> paymentOrder.changeStatus(PaymentOrderStatus.SUCCESS));
+        LocalDateTime confirmationDueAt = paymentOrderConfirmationService.calculateConfirmationDueAt();
+        paymentOrders.forEach(paymentOrder -> {
+            paymentOrder.changeStatus(PaymentOrderStatus.SUCCESS);
+            paymentOrder.updateConfirmationDueAt(confirmationDueAt);
+        });
 
         // 5. shoppingBaset id 존재할 경우 삭제 작업
         if (payload.getData().getShoppingBasketIdList() != null && !payload.getData().getShoppingBasketIdList().isEmpty()) {
             shoppingBasketService.deleteAllShoppingBasket(payload.getData().getShoppingBasketIdList());
         }
 
-        // 4. 모든 Payment Order 원장/(정산) 처리 및 상태 업데이트
+        // TODO: 4. 모든 Payment Order 원장/(정산) 처리 및 상태 업데이트
 
-        // 5. 모든 Payment Order 결제 완료 상태 변경
+        // TODO: 5. 모든 Payment Order 결제 완료 상태 변경
 
-        // 6. Payment Event 결제 완료 상태 변경
+        // TODO: 6. Payment Event 결제 완료 상태 변경
+
+        // TODO: 7. EventCouponService를 통해 쿠폰 발급
+
+        // TODO: 8. Point 지급 및 레벨 포인트 지급
     }
 }
