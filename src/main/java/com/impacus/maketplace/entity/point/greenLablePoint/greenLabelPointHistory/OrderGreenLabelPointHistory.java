@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderGreenLabelPointHistory extends GreenLabelPointHistory {
 
-    private String orderId;
+    private String paymentId;
 
     public OrderGreenLabelPointHistory(
             CreateGreenLabelHistoryDTO dto
     ) {
         super(dto);
-        this.orderId = dto.getOrderId();
+        this.paymentId = dto.getOrderId();
     }
 
     public static OrderGreenLabelPointHistory of(

@@ -55,7 +55,7 @@ class GreenLabelPointAllocationServiceTest {
     void testPayGreenLabelPoint_success() {
         // give
         Long userId = 1L;
-        PointType pointType = PointType.PURCHASE_GENERAL_PRODUCT;
+        PointType pointType = PointType.PURCHASE_PRODUCT;
         Long tradePoint = 100L;
         RewardPoint rewardPoint = RewardPoint.from(pointType.getRewardPointType());
 
@@ -141,7 +141,7 @@ class GreenLabelPointAllocationServiceTest {
     void testDeductPoints_success() {
         // given
         Long userId = 1L;
-        PointType type = PointType.PURCHASE_GENERAL_PRODUCT;
+        PointType type = PointType.PURCHASE_PRODUCT;
         PointUsageStatus pointStatus = PointUsageStatus.UNUSED;
         Long usedPoints = 100L;
         boolean allowsNegativeBalance = false;
@@ -182,7 +182,7 @@ class GreenLabelPointAllocationServiceTest {
     void testDeductPoints_insufficientBalance() {
         //given
         Long userId = 1L;
-        PointType type = PointType.PURCHASE_GENERAL_PRODUCT;
+        PointType type = PointType.PURCHASE_PRODUCT;
         Long usedPoints = 300L;
         boolean allowsNegativeBalance = false;
 

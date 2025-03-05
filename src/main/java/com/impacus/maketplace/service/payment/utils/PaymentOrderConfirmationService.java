@@ -3,6 +3,7 @@ package com.impacus.maketplace.service.payment.utils;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
 import com.impacus.maketplace.repository.payment.PaymentOrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class PaymentOrderConfirmationService {
 

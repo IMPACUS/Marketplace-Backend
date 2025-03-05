@@ -6,7 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.dto.auth.request.EmailDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.common.response.FileGenerationStatusIdDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.request.UserRewardDTO;
@@ -163,7 +163,7 @@ public class UserController {
     @PostMapping("/excel")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PRINCIPAL_ADMIN')or hasRole('ROLE_OWNER')")
     public ApiResponseEntity<FileGenerationStatusIdDTO> exportUsers(
-            @RequestBody CouponIdsDTO dto
+            @RequestBody IdsDTO dto
     ) {
         FileGenerationStatusIdDTO result = readUserService.exportUsers(dto);
 

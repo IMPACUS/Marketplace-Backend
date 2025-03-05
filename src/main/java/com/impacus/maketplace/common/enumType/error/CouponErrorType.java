@@ -20,6 +20,8 @@ public enum CouponErrorType implements ErrorType{
     INVALID_INPUT_PERIOD_END_AT("040_9_PERIOD_END_AT", "지정 기간 설정 항목에 잘못된 종료 날짜가 들어왔습니다."),
     INVALID_INPUT_NUMBER_OF_PERIOD("040_10_NUMBER_OF_PERIOD", "기간 설정 항목의 기간 내 N회 이상 주문 시 항목에 잘못된 입력 값이 들어왔습니다."),
     INVALID_INPUT_CODE("040_11_CODE", "잘못된 코드 입력이 들어왔습니다."),
+    INVALID_INPUT_PROVISION_COUPON_RULE("040_12_PROVISION_COUPON_RULE", "쿠폰 형식이 지급형일 경우 지속성 발급 형식으로 등록할 수 없습니다."),
+    INVALID_INPUT_ISSUE_COVERAGE_TYPE("040_13_ISSUE_COVERAGE_TYPE", "결제 주문과 관련된 이벤트형 쿠폰은 발급 적용 범위가 특정 브랜드에 해당할 수 없습니다."),
 
     // 쿠폰 코드
     INVALID_COUPON_FORMAT("041_INVALID_COUPON_FORMAT", "유효하지 않은 쿠폰입니다. 쿠폰코드를 다시 한번 확인해주세요"),
@@ -45,9 +47,7 @@ public enum CouponErrorType implements ErrorType{
     EXPIRED_USER_COUPON("045_6_EXPIRED_USER_COUPON", "만료 기간이 지난 쿠폰입니다."),
 
     // 쿠폰 등록 조건
-    INVALID_REGISTER_EVENT_COUPON("046_INVALID_REGISTER_EVENT_COUPON", "이벤트형 쿠폰은 등록하실 수 없습니다."),
-    INVALID_REGISTER_PERSISTENCE_COUPON("046_1_INVALID_REGISTER_PERSISTENCE_COUPON", "지속형 쿠폰은 등록하실 수 없습니다."),
-    INVALID_REGISTER_ALREADY_ISSUE("046_2_INVALID_REGISTER_ALREADY_ISSUE", "해당 쿠폰을 이미 발급 받은 이력이 존재합니다."),
+    INVALID_COUPON_REGISTER_EXCEPTION("046_INVALID_COUPON_REGISTER_EXCEPTION", "유효하지 않은 쿠폰은 등록하실 수 없습니다."),
 
     // 쿠폰 다운로드 조건
     INVALID_DOWNLOAD_EVENT_COUPON("047_INVALID_DOWNLOAD_EVENT_COUPON", "이벤트형 쿠폰은 다운로드 받을 수 없습니다."),
@@ -62,8 +62,14 @@ public enum CouponErrorType implements ErrorType{
     INVALID_USER_COUPON_USE_STANDARD_MISMATCH("048_5_INVALID_USER_COUPON_USE_STANDARD_MISMATCH", "쿠폰의 사용 가능 금액 조건에 맞지 않습니다."),
     USER_NOT_AUTHORIZED_FOR_COUPON_EXCEPTION("048_6_USER_NOT_AUTHORIZED_FOR_COUPON_EXCEPTION", "승인되지 않은 사용자에게 쿠폰을 발급할 수 없습니다."),
 
+    // 기타 조건
+
     // 사용 가능한 쿠폰 조회
-    DUPLICATED_PRODUCDT_ID("049_01_DUPLICATED_PRODUCDT_ID", "사용 가능한 쿠폰 조회하는 과정에서 상품 ID가 중복되서 들어왔습니다.");
+    DUPLICATED_PRODUCDT_ID("049_01_DUPLICATED_PRODUCDT_ID", "사용 가능한 쿠폰 조회하는 과정에서 상품 ID가 중복되서 들어왔습니다."),
+
+    // 발급 조건
+    EXPIRED_PREIOD_COUPON("049_02_EXPIRED_PREIOD_COUPON", "쿠폰 발급 기간이 종료되었습니다.");
+
 
     private final String code;
     private final String msg;

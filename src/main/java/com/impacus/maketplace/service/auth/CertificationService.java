@@ -8,7 +8,7 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.auth.response.CertificationRequestDataDTO;
 import com.impacus.maketplace.redis.service.CertificationRequestNumberService;
-import com.impacus.maketplace.service.UserService;
+import com.impacus.maketplace.service.user.SignUpService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class CertificationService {
 
     private final NiceAPIService niceAPIService;
     private final CertificationRequestNumberService certReqNumberService;
-    private final UserService userService;
+    private final SignUpService signUpService;
 
     @Value("${url.server-host}")
     private String host;
@@ -78,7 +78,7 @@ public class CertificationService {
             certificationResult.writeCertificationLog(userId);
 
             // 4. 사용자 보안인증 정보 저장
-            userService.saveCertification(userId, certificationResult);
+            signUpService.saveCertification(userId, certificationResult);
 
             // 5. 성공 정보 전달
             return createRedirectHeaders(getCertificationRedirectURL(), CertificationResultCode.SUCCESS, null, null);

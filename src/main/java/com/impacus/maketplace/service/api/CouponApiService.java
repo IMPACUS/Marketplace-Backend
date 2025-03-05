@@ -1,6 +1,6 @@
 package com.impacus.maketplace.service.api;
 
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.coupon.api.AlarmCouponDTO;
 import com.impacus.maketplace.dto.coupon.api.CouponNameDTO;
 import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoryDTO;
@@ -34,5 +34,5 @@ public interface CouponApiService {
     /**
      * [쿠폰 지급 내역] 엑셀 다운로드에 사용되는 쿠폰 이력 조회
      */
-    List<IssueCouponHistoryDTO> findIssueCouponHistories(CouponIdsDTO dto);
+    List<IssueCouponHistoryDTO> findIssueCouponHistories(IdsDTO dto);
 }

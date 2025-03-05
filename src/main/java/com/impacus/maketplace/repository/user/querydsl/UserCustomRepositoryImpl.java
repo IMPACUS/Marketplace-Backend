@@ -6,7 +6,7 @@ import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.PaginationUtils;
 import com.impacus.maketplace.dto.auth.CertificationResult;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.PhoneNumberDTO;
@@ -14,6 +14,7 @@ import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
 import com.impacus.maketplace.dto.user.response.ReadUserSummaryDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDTO;
 import com.impacus.maketplace.dto.user.response.WebUserDetailDTO;
+import com.impacus.maketplace.entity.alarm.user.QAlarmUser;
 import com.impacus.maketplace.entity.common.QAttachFile;
 import com.impacus.maketplace.entity.consumer.QConsumer;
 import com.impacus.maketplace.entity.consumer.oAuthToken.QOAuthToken;
@@ -58,6 +59,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final QLevelAchievement levelAchievement = QLevelAchievement.levelAchievement;
     private final QConsumer consumer = QConsumer.consumer;
     private final QOAuthToken oAuthToken = QOAuthToken.oAuthToken;
+    private final QAlarmUser alarmUser = QAlarmUser.alarmUser;
 
     @Override
     public ReadUserSummaryDTO findUserSummaryByEmail(String email) {
@@ -229,7 +231,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 user.phoneNumberSuffix,
                                 levelPointMaster.userLevel,
                                 user.createAt,
-                                user.recentLoginAt
+                                user.recentLoginAt,
+                                user.oauthProviderType
                         )
                 )
                 .from(user)
@@ -311,7 +314,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 user.password,
                                 user.name,
                                 user.type,
-                                userStatusInfo.status
+                                userStatusInfo.status,
+                                user.oauthProviderType
                         )
                 )
                 .from(user)
@@ -322,7 +326,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     @Override
     public List<WebUserDTO> findUsersByIds(
-            CouponIdsDTO dto
+            IdsDTO dto
     ) {
         BooleanBuilder builder = new BooleanBuilder()
                 .and(user.id.in(dto.getIds()));
@@ -381,7 +385,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                                 ConsumerEmailDTO.class,
                                 user.id,
                                 user.email,
-                                user.password
+                                user.password,
+                                user.oauthProviderType
                         )
                 )
                 .from(user)
@@ -441,5 +446,34 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .leftJoin(consumer).on(consumer.ci.eq(ci))
                 .where(user.id.eq(consumer.userId))
                 .fetchFirst();
+    }
+
+    @Override
+    public void deleteUncertifiedUser(Long userId) {
+        // User 삭제
+        queryFactory.delete(user)
+                .where(user.id.eq(userId))
+                .execute();
+
+        // UserStatusInfo 삭제
+        queryFactory.delete(userStatusInfo)
+                .where(userStatusInfo.userId.eq(userId))
+                .execute();
+
+        // Alarm 데이터 삭제
+        queryFactory.delete(alarmUser)
+                .where(alarmUser.userId.eq(userId))
+                .execute();
+
+        // Point 데이터 삭제
+        queryFactory.delete(levelPointMaster)
+                .where(levelPointMaster.userId.eq(userId))
+                .execute();
+        queryFactory.delete(levelAchievement)
+                .where(levelAchievement.userId.eq(userId))
+                .execute();
+        queryFactory.delete(greenLabelPoint)
+                .where(greenLabelPoint.userId.eq(userId))
+                .execute();
     }
 }

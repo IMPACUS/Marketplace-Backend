@@ -6,13 +6,14 @@ import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.dto.payment.model.DiscountInfoDTO;
 import com.impacus.maketplace.dto.payment.model.PaymentCouponDTO;
 import com.impacus.maketplace.dto.payment.model.ProductPricingDTO;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
-@Service
+@Component
 public class DiscountService {
 
     // 단일 상품 구매시 개별 상품 쿠폰 할인 계산

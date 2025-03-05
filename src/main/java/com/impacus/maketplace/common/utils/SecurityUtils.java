@@ -33,6 +33,12 @@ public final class SecurityUtils {
         }
     }
 
+    public static Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) return null;
+        return ((CustomUserDetails) authentication.getPrincipal()).getId();
+    }
+    
     public static UserType getCurrentUserFromCustomUserDetails(CustomUserDetails customUserDetail) {
         try {
             String roles = customUserDetail.getAuthorities().stream()

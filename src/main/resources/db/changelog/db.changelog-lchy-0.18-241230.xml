@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changelog-lchy-0.18.01-24-12-30" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="review_reply"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="review_reply">
+            <column name="review_reply_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="review_id" type="BIGINT">
+                <constraints  nullable="false" unique="true"/>
+            </column>
+            <column name="contents" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="create_at" type="TIMESTAMP"/>
+            <column name="modify_at" type="TIMESTAMP"/>
+            <column name="register_id" type="VARCHAR(255)"/>
+            <column name="modify_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="changelog-lchy-0.18.02-25-01-14" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_info" columnName="oauth_provider_type"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="user_info">
+            <column name="oauth_provider_type" type="VARCHAR(255)" defaultValue="NONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="changelog-lchy-0.18.03-25-01-14" author="lchy0413">
+        <update tableName="user_info">
+            <column name="oauth_provider_type" valueComputed="SPLIT_PART(email, '_', 1)"/>
+            <column name="email" valueComputed="SPLIT_PART(email, '_', 2)"/>
+            <where>type = 'ROLE_UNCERTIFIED_USER' OR type = 'ROLE_CERTIFIED_USER' OR type = 'ROLE_DEACTIVATED_USER'
+            </where>
+        </update>
+    </changeSet>
+
+    <changeSet id="changelog-lchy-0.18.04-25-01-15" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="green_label_point_history" columnName="order_id"/>
+            <not>
+                <columnExists tableName="green_label_point_history" columnName="payment_id"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="green_label_point_history" oldColumnName="order_id" newColumnName="payment_id"/>
+    </changeSet>
+    
+</databaseChangeLog>

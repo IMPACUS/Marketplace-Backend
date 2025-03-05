@@ -1,8 +1,10 @@
 package com.impacus.maketplace.repository.coupon.querydsl;
 
 import com.impacus.maketplace.common.enumType.coupon.CouponStatusType;
+import com.impacus.maketplace.common.enumType.coupon.EventType;
 import com.impacus.maketplace.common.enumType.coupon.UserCouponStatus;
 import com.impacus.maketplace.dto.coupon.response.*;
+import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.UserCouponInfoForCheckoutDTO;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.PaymentUserCouponInfo;
 import org.springframework.data.domain.Page;
@@ -26,9 +28,7 @@ public interface CouponCustomRepositroy {
 
     List<UserCouponInfoForCheckoutDTO> findUserCouponInfoForCheckoutListByIds(Long userId, List<Long> userCouponIds);
 
-//    List<ValidateUserCouponForProductDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds);
-
-//    List<ValidateUserCouponForOrderDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds);
-
     List<PaymentUserCouponInfo> findPaymentUserCouponInfos(Long userId, List<Long> userCouponIds);
+
+    List<Coupon> findEventCoupons(EventType eventType);
 }

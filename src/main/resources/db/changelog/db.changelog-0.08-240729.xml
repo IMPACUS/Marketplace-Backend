@@ -179,7 +179,7 @@
         <setColumnRemarks tableName="green_label_point_allocation" columnName="allocated_point"
                           remarks="지급 포인트"/>
     </changeSet>
-    <changeSet id="changelog-lchy0.08.07-240729" author="lchy0413">
+    <changeSet id="changelog-lchy-0.08.07-240729" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="green_label_point_history"/>
@@ -213,7 +213,7 @@
             <column name="dtype" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="order_id" type="VARCHAR(255)"/>
+            <column name="payment_id" type="VARCHAR(255)"/>
 
             <column name="create_at" type="TIMESTAMP">
             </column>

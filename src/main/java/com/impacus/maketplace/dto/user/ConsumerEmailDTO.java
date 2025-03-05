@@ -1,7 +1,6 @@
 package com.impacus.maketplace.dto.user;
 
 import com.impacus.maketplace.common.enumType.user.OauthProviderType;
-import com.impacus.maketplace.common.utils.StringUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,12 +12,10 @@ public class ConsumerEmailDTO {
     private OauthProviderType oauthProviderType;
     private String password;
 
-    public ConsumerEmailDTO(Long userId, String email, String password) {
-        EmailInfoDTO emailInfoDTO = StringUtils.getEmailInfo(email);
-
+    public ConsumerEmailDTO(Long userId, String email, String password, OauthProviderType oauthProviderType) {
         this.userId = userId;
-        this.email = emailInfoDTO.getEmail();
-        this.oauthProviderType = emailInfoDTO.getOauthProviderType();
+        this.email = email;
+        this.oauthProviderType = oauthProviderType;
         this.password = password;
     }
 }

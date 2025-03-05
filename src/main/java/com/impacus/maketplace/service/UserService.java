@@ -14,7 +14,6 @@ import com.impacus.maketplace.common.utils.StringUtils;
 import com.impacus.maketplace.config.provider.JwtTokenProvider;
 import com.impacus.maketplace.dto.EmailDTO;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
-import com.impacus.maketplace.dto.auth.CertificationResult;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForEmailDTO;
 import com.impacus.maketplace.dto.auth.request.SMSVerificationForPasswordDTO;
@@ -23,24 +22,18 @@ import com.impacus.maketplace.dto.auth.response.SMSVerificationForEmailResultDTO
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
-import com.impacus.maketplace.dto.user.request.SignUpDTO;
 import com.impacus.maketplace.dto.user.response.CheckExistedEmailDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
 import com.impacus.maketplace.entity.admin.AdminInfo;
-import com.impacus.maketplace.entity.consumer.Consumer;
 import com.impacus.maketplace.entity.user.User;
 import com.impacus.maketplace.entity.user.UserStatusInfo;
 import com.impacus.maketplace.redis.entity.LoginFailAttempt;
 import com.impacus.maketplace.redis.entity.VerificationCode;
 import com.impacus.maketplace.redis.service.LoginFailAttemptService;
 import com.impacus.maketplace.redis.service.VerificationCodeService;
-import com.impacus.maketplace.repository.consumer.ConsumerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import com.impacus.maketplace.service.admin.AdminService;
-import com.impacus.maketplace.service.alarm.user.AlarmUserService;
 import com.impacus.maketplace.service.common.sms.SMSService;
-import com.impacus.maketplace.service.oauth.OAuthServiceFactory;
-import com.impacus.maketplace.service.point.PointService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
 import com.impacus.maketplace.service.user.UserStatusInfoService;
 import com.impacus.maketplace.vo.auth.TokenInfoVO;
@@ -55,9 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import security.CustomUserDetails;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -77,95 +68,20 @@ public class UserService {
     private final VerificationCodeService verificationCodeService;
     private final AdminService adminService;
     private final UserStatusInfoService userStatusInfoService;
-    private final PointService pointService;
     private final GreenLabelPointAllocationService greenLabelPointAllocationService;
-    private final AlarmUserService alarmUserService;
-    private final ConsumerRepository consumerRepository;
     private final SMSService smsService;
-    private final OAuthServiceFactory oAuthServiceFactory;
-
-    @Transactional
-    public UserDTO addUser(SignUpDTO signUpRequest) {
-        String email = signUpRequest.getEmail();
-        String password = signUpRequest.getPassword();
-
-        try {
-            // 1. 이메일 유효성 검사 -> redis 전에도 안됬는지 확인
-            User existedUser = findUserByEmailAndOauthProviderType(email, OauthProviderType.NONE);
-            if (existedUser != null) {
-                if (existedUser.getEmail().contains(OauthProviderType.NONE.name())) {
-                    throw new CustomException(UserErrorType.DUPLICATED_EMAIL);
-                } else {
-                    throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
-                }
-            }
-            // 탈퇴 14일 이내 회원 확인
-            if (!canRejoin(email)) {
-                throw new CustomException(UserErrorType.FAIL_TO_REJOIN_14);
-            }
-
-            // 2. 비밀번호 유효성 검사
-            if (Boolean.FALSE.equals(StringUtils.checkPasswordValidation(password))) {
-                throw new CustomException(UserErrorType.INVALID_PASSWORD);
-            }
-
-            // 3. User&UserStatus 생성 및 저장
-            User user = new User(StringUtils.createStrEmail(email, OauthProviderType.NONE),
-                    password,
-                    signUpRequest.getName());
-            userRepository.save(user);
-            userStatusInfoService.addUserStatusInfo(user.getId());
-            alarmUserService.saveDefault(user.getId());
-
-            // 4. 포인트 관련 Entity 생성
-            // (LevelPointMaster, LevelAchievement, GreenLabelPoint)
-            pointService.addEntityAboutPoint(user.getId());
-
-            // 5. UserDTO 반환
-            return new UserDTO(user);
-        } catch (Exception ex) {
-            throw new CustomException(ex);
-        }
-    }
-
-
-    /**
-     * Oauth Provider와 상관없이 email로 등록된 User를 검색하는 함수
-     *
-     * @param email '%@%.%' 포맷의 이메일 데이터
-     * @return 매개변수로 받은 email로 등록된 User 리스트
-     */
-    public Optional<User> findUsersByEmailAboutAllProvider(String email) {
-        return userRepository.findByEmailLikeAndIsDeletedFalse("%_" + email);
-    }
-
-    /**
-     * email로 재가입 가능 여부를 확인하는 함수
-     *
-     * @param email
-     * @return
-     */
-    public boolean canRejoin(String email) {
-        Optional<User> userOptional = userRepository.findByEmailLikeAndIsDeletedTrue("%_" + email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            return user.isRejoinable();
-        }
-
-        return true;
-    }
 
     /**
      * 전달한 email 과 Oauth provider 로 등록된 User를 검색하는 함수
      *
-     * @param email        '%@%.%' 포맷의 이메일 데이터
+     * @param email        이메일
      * @param providerType 찾을 OauthProviderType
      * @return 요청한 데이터 기준으로 데이터가 존재하는 경우 User, 데이터가 존재하지 않은 경우 null
      */
     public User findUserByEmailAndOauthProviderType(String email, OauthProviderType providerType) {
-        Optional<User> userOptional = findUsersByEmailAboutAllProvider(email);
+        Optional<User> userOptional = userRepository.findByEmailAndIsDeletedFalse(email);
         if (userOptional.isPresent()) {
-            if (userOptional.get().getEmail().equals(providerType + "_" + email)) {
+            if (userOptional.get().getOauthProviderType() == providerType) {
                 return userOptional.get();
             }
         }
@@ -180,7 +96,7 @@ public class UserService {
      * @param userType
      * @return
      */
-    @Transactional(noRollbackFor = CustomException.class)
+    @Transactional
     public UserDTO login(LoginDTO loginRequest, UserType userType) {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
@@ -231,7 +147,7 @@ public class UserService {
      * @param dto
      * @return
      */
-    @Transactional(noRollbackFor = CustomException.class)
+    @Transactional
     public UserDTO login(AdminLoginDTO dto) {
         String adminIdName = dto.getAdminIdName();
         String password = dto.getPassword();
@@ -308,7 +224,7 @@ public class UserService {
         if (checkedUser == null) {
             throw new CustomException(UserErrorType.NOT_EXISTED_EMAIL);
         } else {
-            if (!checkedUser.getEmail().contains(OauthProviderType.NONE.name())) {
+            if (checkedUser.getOauthProviderType() != OauthProviderType.NONE) {
                 throw new CustomException(UserErrorType.REGISTERED_EMAIL_FOR_THE_OTHER);
             }
         }
@@ -353,7 +269,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @Transactional(noRollbackFor = CustomException.class)
+    @Transactional
     public void changeUserStatus(User user, UserStatus userStatus) {
         switch (userStatus) {
             case SUSPENDED: {
@@ -381,7 +297,7 @@ public class UserService {
     }
 
     /**
-     * securityContext에 저장된 User 정보를 가져오는 함수
+     * securityContext 에 저장된 User 정보를 가져오는 함수
      *
      * @return
      */
@@ -392,11 +308,11 @@ public class UserService {
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         String email = user.getEmail();
 
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmailAndIsDeletedFalse(email);
     }
 
     public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_EMAIL));
     }
 
@@ -488,71 +404,6 @@ public class UserService {
         return CheckExistedEmailDTO.toDTO(isExited);
     }
 
-
-
-    /**
-     * 사용자 개인 정보 저장
-     *
-     * @param userId 사용자 ID
-     * @param certificationResult 본인 인증 데이터
-     */
-    @Transactional
-    public void saveCertification(Long userId, CertificationResult certificationResult) {
-        // 1. 사용자 존재하는지 확인
-        if (!userRepository.existsByIdAndType(
-                userId,
-                List.of(UserType.ROLE_CERTIFIED_USER, UserType.ROLE_UNCERTIFIED_USER)
-        )) {
-            throw new CustomException(UserErrorType.NOT_EXISTED_USER);
-        }
-
-        // 2. 이미 존재하는 핸드폰 번호인지 확인
-        if (userRepository.existsConsumerByPhoneNumberAndUserId(
-                userId,
-                certificationResult.getMobileNo())
-        ) {
-            throw new CustomException(UserErrorType.DUPLICATED_PHONE_NUMBER);
-        }
-
-        // 2. 저장 혹은 업데이트
-        userRepository.saveOrUpdateCertification(userId, certificationResult);
-        saveOrUpdateConsumer(userId, certificationResult);
-    }
-
-    /**
-     * Consumer 정보 저장 혹은 업데이트
-     *
-     * @param userId 사용자 ID
-     * @param certificationResult 본인 인증 데이터
-     */
-    @Transactional
-    public void saveOrUpdateConsumer(Long userId, CertificationResult certificationResult) {
-        // 회원가입 가능한 CI 인지 확인(+ 탈퇴한 회원의 CI 인지 확인)
-        validateUserRejoinable(certificationResult.getCi());
-
-        if (consumerRepository.existsByUserId(userId)) { // 업데이트
-            consumerRepository.updateConsumer(userId, certificationResult.getCi(), LocalDateTime.now());
-        } else { // 생성
-            Consumer consumer = certificationResult.toEntity(userId);
-            consumerRepository.save(consumer);
-        }
-    }
-
-    private void validateUserRejoinable(String ci) {
-        User user = userRepository.findUserByCI(ci);
-        if (user == null) {
-            return;
-        }
-
-        if (user.isDeleted()) {
-            if (!user.isRejoinable()) {
-                throw new CustomException(UserErrorType.FAIL_TO_REJOIN_14);
-            }
-        } else {
-            throw new CustomException(UserErrorType.DUPLICATED_CI);
-        }
-    }
-
     /**
      * @param dto
      */
@@ -619,13 +470,13 @@ public class UserService {
         String email = dto.getEmail();
 
         // 코드 확인
-//        VerificationCode verificationCode = verificationCodeService
-//                .findVerificationCode(phoneNumber, dto.getCode());
-//        if (verificationCode != null) {
-//            verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
-//        } else {
-//            return false;
-//        }
+        VerificationCode verificationCode = verificationCodeService
+                .findVerificationCode(phoneNumber, dto.getCode());
+        if (verificationCode != null) {
+            verificationCodeService.deleteIdentifierVerificationCode(verificationCode);
+        } else {
+            return false;
+        }
 
         // 사용자 확인
         ConsumerEmailDTO consumer = userRepository.findConsumerByPhoneNumberAndEmail(phoneNumber, email);

@@ -1,6 +1,7 @@
 package com.impacus.maketplace.controller.admin;
 
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.admin.*;
 import com.impacus.maketplace.dto.admin.request.AdminLoginDTO;
 import com.impacus.maketplace.dto.user.response.UserDTO;
@@ -219,6 +220,8 @@ public class AdminController {
      */
     @PostMapping("auth/login")
     public ApiResponseEntity<UserDTO> login(@Valid @RequestBody AdminLoginDTO loginDTO) {
+        LogUtils.writeAPIRequest("/api/v1/admin/auth/login", loginDTO);
+
         UserDTO userDTO = userService.login(loginDTO);
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)

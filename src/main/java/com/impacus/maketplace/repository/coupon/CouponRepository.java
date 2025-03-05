@@ -23,4 +23,9 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Coupon> findWriteLockCouponByCode(String code);
+
+    Optional<Coupon> findByCode(String code);
+
+    @Query("SELECT c FROM Coupon c WHERE c.isDeleted = false AND c.statusType <> 'STOP'")
+    List<Coupon> findAllActiveCoupons();
 }

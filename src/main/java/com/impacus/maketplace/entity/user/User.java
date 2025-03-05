@@ -3,6 +3,7 @@ package com.impacus.maketplace.entity.user;
 import com.impacus.maketplace.common.BaseEntity;
 import com.impacus.maketplace.common.constants.DaysConstants;
 import com.impacus.maketplace.common.converter.AES256ToStringConverter;
+import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.TimestampConverter;
 import com.impacus.maketplace.dto.user.PhoneNumberDTO;
@@ -28,6 +29,10 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String email; // Format: OauthProviderKey_Email
+
+    @Column(nullable = false, columnDefinition = "NONE")
+    @Enumerated(EnumType.STRING)
+    private OauthProviderType oauthProviderType; // 소셜 로그인 제공자
 
     @Convert(converter = AES256ToStringConverter.class)
     private String password; // 비밀번호
@@ -92,9 +97,10 @@ public class User extends BaseEntity {
         return true;
     }
 
-    public User(String email, String password, String name) {
+    public User(String email, OauthProviderType oauthProviderType, String password, String name) {
         this.name = name;
         this.email = email;
+        this.oauthProviderType = oauthProviderType;
         this.password = password;
         this.type = UserType.ROLE_UNCERTIFIED_USER;
         this.isCertEmail = true;

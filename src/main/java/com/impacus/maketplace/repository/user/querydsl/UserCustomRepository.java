@@ -4,7 +4,7 @@ import com.impacus.maketplace.common.enumType.user.OauthProviderType;
 import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserStatus;
 import com.impacus.maketplace.dto.auth.CertificationResult;
-import com.impacus.maketplace.dto.common.request.CouponIdsDTO;
+import com.impacus.maketplace.dto.common.request.IdsDTO;
 import com.impacus.maketplace.dto.user.CommonUserDTO;
 import com.impacus.maketplace.dto.user.ConsumerEmailDTO;
 import com.impacus.maketplace.dto.user.request.UpdateUserDTO;
@@ -48,7 +48,7 @@ public interface UserCustomRepository {
     CommonUserDTO findCommonUserByEmail(String email);
 
     List<WebUserDTO> findUsersByIds(
-            CouponIdsDTO dto
+            IdsDTO dto
     );
 
     void saveOrUpdateCertification(Long userId, CertificationResult certificationResult);
@@ -62,4 +62,6 @@ public interface UserCustomRepository {
     void deactivateConsumer(Long userId);
 
     User findUserByCI(String ci);
+
+    void deleteUncertifiedUser(Long userId);
 }

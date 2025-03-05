@@ -1,8 +1,5 @@
 package com.impacus.maketplace.service.coupon;
 
-import com.impacus.maketplace.common.enumType.coupon.CoverageType;
-import com.impacus.maketplace.common.enumType.coupon.CouponProductType;
-import com.impacus.maketplace.common.enumType.coupon.StandardType;
 import com.impacus.maketplace.common.enumType.error.CouponErrorType;
 import com.impacus.maketplace.common.enumType.error.ProductErrorType;
 import com.impacus.maketplace.common.exception.CustomException;
@@ -16,6 +13,8 @@ import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponProductRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.ProductPricingInfoDTO;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.UserCouponInfoForCheckoutDTO;
+import com.impacus.maketplace.service.coupon.utils.CouponIssuanceManager;
+import com.impacus.maketplace.service.coupon.utils.PaymentCouponValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +29,10 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CouponUserService {
     private final CouponCustomRepositroy couponCustomRepositroy;
-    private final CouponIssuanceService couponIssuanceService;
+    private final ProvisionCouponService provisionCouponService;
     private final UserCouponRepository userCouponRepository;
     private final CouponProductRepository couponProductRepository;
-    private final CouponValidationService couponValidationService;
+    private final PaymentCouponValidator couponValidationService;
 
     /**
      * 쿠폰함에서 사용자가 가지고 있는 쿠폰 리스트 조회
@@ -53,14 +52,15 @@ public class CouponUserService {
      */
     @Transactional
     public UserCouponOverviewDTO registerUserCoupon(Long userId, String couponCode) {
-        return couponIssuanceService.registerCouponByUser(userId, couponCode);
+        return provisionCouponService.registerCouponByUser(userId, couponCode);
     }
 
     /**
-     * 쿠폰함에 있는 쿠폰 다운로드
-     *
-     * @param userId       사용자 id
-     * @param userCouponId 사용자 쿠폰 id
+     * <h3>다운로드 받을 수 있는 조건</h3>
+     * <p>1. 사용하지 않은 쿠폰</p>
+     * <p>2. 다운로드되어 있지 않은 쿠폰</p>
+     * <p>3. 만료 날짜가 지나지 않은 쿠폰</p>
+     * <p>4. 다운로드 받을 수 있는 날짜가 유효한 쿠폰</p>
      */
     @Transactional
     public UserCouponDownloadDTO downloadUserCoupon(Long userId, Long userCouponId) {
@@ -90,8 +90,7 @@ public class CouponUserService {
         }
 
         // 6. 다운로드 처리 및 시간 업데이트
-        userCoupon.setIsDownload(true);
-        userCoupon.setDownloadAt(LocalDateTime.now());
+        userCoupon.download();
 
         return UserCouponDownloadDTO.builder()
                 .userCouponId(userCouponId)
@@ -115,7 +114,7 @@ public class CouponUserService {
      */
     @Transactional
     public UserCouponDownloadDTO issueAndDownloadCoupon(Long userId, Long couponId) {
-        return couponIssuanceService.issueAndDownloadCoupon(userId, couponId);
+        return provisionCouponService.issueAndDownloadCoupon(userId, couponId);
     }
 
     /**

@@ -131,7 +131,8 @@ public class GreenLabelPointAllocationCustomRepositoryImpl implements GreenLabel
                                 allocation.expiredAt,
                                 user.phoneNumberPrefix,
                                 user.phoneNumberSuffix,
-                                user.email
+                                user.email,
+                                user.oauthProviderType
                         )
                 )
                 .from(allocation)

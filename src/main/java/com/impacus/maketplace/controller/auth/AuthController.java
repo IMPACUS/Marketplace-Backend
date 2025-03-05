@@ -1,7 +1,6 @@
 package com.impacus.maketplace.controller.auth;
 
 import com.impacus.maketplace.common.constants.HeaderConstants;
-import com.impacus.maketplace.common.enumType.certification.CertificationResultCode;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
 import com.impacus.maketplace.common.utils.LogUtils;
@@ -16,6 +15,7 @@ import com.impacus.maketplace.service.UserService;
 import com.impacus.maketplace.service.auth.AuthService;
 import com.impacus.maketplace.service.auth.CertificationService;
 import com.impacus.maketplace.service.seller.CreateSellerService;
+import com.impacus.maketplace.service.user.SignUpService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,20 +35,32 @@ import security.CustomUserDetails;
 public class AuthController {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
+    private final SignUpService signUpService;
     private final UserService userService;
     private final AuthService authService;
     private final CreateSellerService createSellerService;
     private final CertificationService certificationService;
 
-
+    /**
+     * 회원가입 API
+     *
+     * @param signUpRequest 회원가입 요청 데이터
+     * @return 생성된 사용자 정보
+     */
     @PostMapping("sign-up")
     public ApiResponseEntity<UserDTO> addUser(@Valid @RequestBody SignUpDTO signUpRequest) {
-        UserDTO userDTO = this.userService.addUser(signUpRequest);
+        UserDTO userDTO = signUpService.addUser(signUpRequest);
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
                 .build();
     }
 
+    /**
+     * 로그인 API
+     *
+     * @param loginRequest 로그인 요청 데이터
+     * @return 로그인된 사용자 정보
+     */
     @PostMapping("login")
     public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginDTO loginRequest) {
         UserDTO userDTO = userService.login(loginRequest, UserType.ROLE_CERTIFIED_USER);
@@ -58,6 +70,13 @@ public class AuthController {
                 .build();
     }
 
+    /**
+     * 토큰 재발급 API
+     *
+     * @param accessToken  기존 액세스 토큰
+     * @param tokenRequest 리프레시 토큰 요청 데이터
+     * @return 재발급된 사용자 정보
+     */
     @PostMapping("reissue")
     public ApiResponseEntity<UserDTO> reissueToken(
             @RequestHeader(value = AUTHORIZATION_HEADER) String accessToken,
@@ -72,12 +91,12 @@ public class AuthController {
     /**
      * 판매자 입점 신청 API
      *
-     * @param sellerRequest
-     * @param logoImage
-     * @param businessRegistrationImage
-     * @param mailOrderBusinessReportImage
-     * @param bankBookImage
-     * @return
+     * @param sellerRequest 판매자 신청 데이터
+     * @param logoImage 로고 이미지
+     * @param businessRegistrationImage 사업자 등록증 이미지
+     * @param mailOrderBusinessReportImage 통신판매업 신고증 이미지
+     * @param bankBookImage 통장 사본 이미지
+     * @return 생성된 판매자 정보
      */
     @PostMapping("seller-entry")
     public ApiResponseEntity<SimpleSellerFromSellerDTO> addSeller(
@@ -94,6 +113,12 @@ public class AuthController {
                 .build();
     }
 
+    /**
+     * 로그아웃 API
+     *
+     * @param accessToken 액세스 토큰
+     * @return 로그아웃 결과
+     */
     @PostMapping("/logout")
     public ApiResponseEntity<Boolean> logout(
             @RequestHeader(value = HeaderConstants.AUTHORIZATION_HEADER) String accessToken
@@ -105,7 +130,8 @@ public class AuthController {
     /**
      * 본인인증에 필요한 데이터를 요청하는 API
      *
-     * @return
+     * @param user 인증된 사용자 정보
+     * @return 본인 인증 요청 데이터
      */
     @PreAuthorize("hasRole('ROLE_UNCERTIFIED_USER') or hasRole('ROLE_CERTIFIED_USER')")
     @GetMapping("/certification/request")
@@ -123,9 +149,9 @@ public class AuthController {
     /**
      * 본인인증 결과 전달 받아 APP 으로 리다이렉트 시키는 URL
      *
-     * @param encodeData
-     * @param request
-     * @return
+     * @param userId 사용자 ID
+     * @param encodeData 암호화된 데이터
+     * @param request HTTP 요청
      */
     @RequestMapping(value = "/certification", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<HttpHeaders> getCertificationResult(

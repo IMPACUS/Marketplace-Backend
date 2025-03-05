@@ -4,7 +4,7 @@ import com.impacus.maketplace.dto.payment.model.PaymentProductInfoIdDTO;
 import com.impacus.maketplace.repository.payment.checkout.CheckoutCustomRepository;
 import com.impacus.maketplace.repository.payment.checkout.dto.CheckoutProductInfoDTO;
 import com.impacus.maketplace.service.payment.utils.PaymentTestDataInitializer;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -14,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -27,7 +27,7 @@ public class CheckoutCustomRepositoryTest {
     @Autowired
     PaymentTestDataInitializer paymentTestDataInitializer;
 
-    @BeforeAll
+    @BeforeEach
     void setup() {
         paymentTestDataInitializer.deleteAllData();
         paymentTestDataInitializer.initializeTestData();
@@ -85,7 +85,7 @@ public class CheckoutCustomRepositoryTest {
         for (int i = 1; i <= 4; i++) {
             List<Long> productOptionIds = new ArrayList<>();
             for (int j = 1; j <= 3; j++) {
-                productOptionIds.add((long)(3 * (i - 1) + j));
+                productOptionIds.add((long) (3 * (i - 1) + j));
             }
             map.put((long) i, productOptionIds);
         }

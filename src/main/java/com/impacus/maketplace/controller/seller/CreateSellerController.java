@@ -2,6 +2,7 @@ package com.impacus.maketplace.controller.seller;
 
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.ApiResponseEntity;
+import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.dto.auth.request.EmailDTO;
 import com.impacus.maketplace.dto.auth.request.EmailVerificationDTO;
 import com.impacus.maketplace.dto.user.request.LoginDTO;
@@ -63,6 +64,8 @@ public class CreateSellerController {
      */
     @PostMapping("auth/login")
     public ApiResponseEntity<UserDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
+        LogUtils.writeAPIRequest("/api/v1/seller/auth/login", loginDTO);
+
         UserDTO userDTO = userService.login(loginDTO, UserType.ROLE_APPROVED_SELLER);
         return ApiResponseEntity.<UserDTO>builder()
                 .data(userDTO)
