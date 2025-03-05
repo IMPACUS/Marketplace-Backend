@@ -26,6 +26,7 @@ public enum CommonErrorType implements ErrorType {
     INVALID_ALARM("043_INVALID_ALARM", "유효하지 않는 알림 타입입니다."),
     INVALID_ID("044_INVALID_ID", "유효하지 않은 ID 입니다."),
     INVALID_END_DATE("060_INVALID_END_DATE", "종료날짜는 시작날짜보다 이전일 수 없습니다."),
+    INVALID_PARAMETER("050_INVALID_PARAMETER", "올바르지 않은 파라미터가 들어왔습니다."),
 
     // 401
     INVALID_TOKEN("101_INVALID_TOKEN", "유효하지 않은 토큰입니다."),

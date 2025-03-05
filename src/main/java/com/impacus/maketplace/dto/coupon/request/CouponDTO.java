@@ -10,6 +10,9 @@ public interface CouponDTO {
     Long getBenefitValue();
     PaymentTarget getPaymentTarget();
     Integer getFirstCount();
+    CouponType getCouponType();
+    EventType getEventType();
+    CouponIssueType getCouponIssueType();
     ExpireTimeType getExpireTimeType();
     Integer getExpireTimeDays();
     CoverageType getIssueCoverageType();

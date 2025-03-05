@@ -17,6 +17,7 @@ import com.impacus.maketplace.repository.coupon.PaymentOrderCouponRepository;
 import com.impacus.maketplace.repository.coupon.UserCouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import com.impacus.maketplace.repository.coupon.querydsl.dto.PaymentUserCouponInfo;
+import com.impacus.maketplace.service.coupon.utils.PaymentCouponValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class CouponRedeemService {
     private final PaymentEventCouponRepository paymentEventCouponRepository;
     private final PaymentOrderCouponRepository paymentOrderCouponRepository;
     private final UserCouponRepository userCouponRepository;
-    private final CouponValidationService couponValidationService;
+    private final PaymentCouponValidator couponValidationService;
 
     /**
      * Payment Event Coupon(상품에 등록하는 쿠폰) 이력 등록

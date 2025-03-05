@@ -8,7 +8,6 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableJpaAuditing
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "com.impacus.maketplace.repository")
 @EnableRedisRepositories(basePackages = "com.impacus.maketplace.redis.repository")

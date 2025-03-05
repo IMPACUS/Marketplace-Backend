@@ -2,6 +2,7 @@ package com.impacus.maketplace.repository.coupon.querydsl;
 
 import com.impacus.maketplace.common.enumType.coupon.*;
 import com.impacus.maketplace.dto.coupon.response.*;
+import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.coupon.QCoupon;
 import com.impacus.maketplace.entity.coupon.QUserCoupon;
 import com.impacus.maketplace.entity.user.QUser;
@@ -303,6 +304,12 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
                 .fetch();
     }
 
+    @Override
+    public List<Coupon> findEventCoupons(EventType eventType) {
+
+        return null;
+    }
+
     private BooleanExpression availableCouponStatus() {
         return userCoupon.isDownload.eq(true).and(
                 userCoupon.isUsed.eq(false).and(
@@ -363,41 +370,4 @@ public class CouponCustomRepositoryImpl implements CouponCustomRepositroy {
     private BooleanExpression couponIsNotDeleted() {
         return coupon.isDeleted.eq(false);
     }
-
-    /*@Override
-    public List<ValidateUserCouponDTO> findUserCouponInfoForValidateForProductByIds(Long userId, List<Long> userCouponIds) {
-        return queryFactory
-                .select(new QValidateUserCouponDTO(
-                        userCoupon.id,
-                        coupon.benefitType,
-                        coupon.benefitValue,
-                        coupon.productType,
-                        coupon.useCoverageType,
-                        coupon.useCoverageSubCategoryName,
-                        coupon.useStandardType,
-                        coupon.useStandardValue
-                ))
-                .from(userCoupon)
-                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
-                .fetch();
-    }
-
-    @Override
-    public List<ValidateUserCouponDTO> findUserCouponInfoForValidateForOrderByIds(Long userId, List<Long> userCouponIds) {
-        return queryFactory
-                .select(new QValidateUserCouponDTO(
-                        userCoupon.id,
-                        coupon.benefitType,
-                        coupon.benefitValue,
-                        coupon.productType,
-                        coupon.useCoverageType,
-                        coupon.useStandardType,
-                        coupon.useStandardValue
-                ))
-                .from(userCoupon)
-                .join(coupon).on(coupon.id.eq(userCoupon.couponId))
-                .where(userCoupon.id.in(userCouponIds), availableCouponStatus())
-                .fetch();
-    }*/
 }

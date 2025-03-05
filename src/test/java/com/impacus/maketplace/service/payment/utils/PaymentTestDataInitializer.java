@@ -68,14 +68,14 @@ public class PaymentTestDataInitializer {
     @Transactional
     public void deleteAllData() {
         // 데이터 삭제
-        userCouponRepository.deleteAll();
-        couponRepository.deleteAll();
-        greenLabelPointRepository.deleteAll();
-        productOptionHistoryRepository.deleteAll();
-        productOptionRepository.deleteAll();
-        productRepository.deleteAll();
-        sellerRepository.deleteAll();
-        userRepository.deleteAll();
+        userCouponRepository.deleteAllInBatch();
+        couponRepository.deleteAllInBatch();
+        greenLabelPointRepository.deleteAllInBatch();
+        productOptionHistoryRepository.deleteAllInBatch();
+        productOptionRepository.deleteAllInBatch();
+        productRepository.deleteAllInBatch();
+        sellerRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
 
         // 시퀀스 초기화
         entityManager.createNativeQuery("ALTER SEQUENCE user_info_user_id_seq RESTART WITH 1").executeUpdate();
@@ -113,7 +113,7 @@ public class PaymentTestDataInitializer {
 
         // 3. 테스트 상품 1 생성 및 저장
         CreateProductDTO testProductDTO1 = createProductDTO("테스트 상품1", 10000, 10000, 10000, ProductStatus.SALES_PROGRESS, ProductType.GENERAL, createProductOptionDTOs);
-        Product testProduct1 = testProductDTO1.toEntity(savedSeller.getId());
+        Product testProduct1 = new Product(savedSeller.getId(), testProductDTO1, generateProductNumber(1L));
         Product savedProduct1 = productRepository.save(testProduct1);
 
         ProductOption productOption1 = testProductDTO1.getProductOptions().get(0).toEntity(savedProduct1.getId());
@@ -141,7 +141,7 @@ public class PaymentTestDataInitializer {
 
         // 4. 테스트 상품 2 생성 및 저장
         CreateProductDTO testProductDTO2 = createProductDTO("테스트 상품2", 10000, 10000, 8000, ProductStatus.SALES_PROGRESS, ProductType.GREEN_TAG, createProductOptionDTOs);
-        Product testProduct2 = testProductDTO2.toEntity(savedSeller.getId());
+        Product testProduct2 = new Product(savedSeller.getId(), testProductDTO2, generateProductNumber(2L));
         Product savedProduct2 = productRepository.save(testProduct2);
 
         ProductOption productOption4 = testProductDTO2.getProductOptions().get(0).toEntity(savedProduct2.getId());
@@ -168,7 +168,7 @@ public class PaymentTestDataInitializer {
 
         // 5. 테스트 상품 3 생성 및 저장
         CreateProductDTO testProductDTO3 = createProductDTO("테스트 상품3", 20000, 19999, 16999, ProductStatus.SALES_PROGRESS, ProductType.GREEN_TAG, createProductOptionDTOs);
-        Product testProduct3 = testProductDTO3.toEntity(savedSeller.getId());
+        Product testProduct3 = new Product(savedSeller.getId(), testProductDTO3, generateProductNumber(3L));
         Product savedProduct3 = productRepository.save(testProduct3);
 
         ProductOption productOption7 = testProductDTO3.getProductOptions().get(0).toEntity(savedProduct3.getId());
@@ -196,7 +196,7 @@ public class PaymentTestDataInitializer {
 
         // 6. 테스트 상품 4 생성 및 저장 (판매 중지된 상품)
         CreateProductDTO testProductDTO4 = createProductDTO("테스트 상품4", 10000, 10000, 8000, ProductStatus.SALES_STOP, ProductType.GREEN_TAG, createProductOptionDTOs);
-        Product testProduct4 = testProductDTO4.toEntity(savedSeller.getId());
+        Product testProduct4 = new Product(savedSeller.getId(), testProductDTO4, generateProductNumber(4L));
         Product savedProduct4 = productRepository.save(testProduct4);
 
         ProductOption productOption10 = testProductDTO2.getProductOptions().get(0).toEntity(savedProduct4.getId());
@@ -305,6 +305,12 @@ public class PaymentTestDataInitializer {
         userCouponRepository.save(userCoupon9);
         userCouponRepository.save(userCoupon10);
         userCouponRepository.save(userCoupon11);
+
+        entityManager.flush();
+        entityManager.clear();
+    }
+    private String generateProductNumber(Long productId) {
+        return "product_number-" + productId;
     }
     private UserCoupon createUserCoupon(Long userId, Long couponId, Boolean isUsed, LocalDate expiredAt, UserCouponStatus userCouponStatus) {
         return UserCoupon.builder()

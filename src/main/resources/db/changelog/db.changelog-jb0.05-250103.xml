@@ -19,4 +19,80 @@
             <column name="confirmed_at" type="TIMESTAMP"/>
         </addColumn>
     </changeSet>
+
+    <!-- Add column coupon_trigger table -->
+    <changeSet id="changelog-jb0.05-250213-01-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="coupon_trigger" columnName="user_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="coupon_trigger">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- Add composite index to coupon_trigger table -->
+    <changeSet id="changelog-jb0.05-250213-01-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists tableName="coupon_trigger" indexName="ix_coupon_trigger_user_type_entity"/>
+            </not>
+        </preConditions>
+        <createIndex indexName="ix_coupon_trigger_user_type_entity"
+                     tableName="coupon_trigger"
+                     unique="false">
+            <!-- 순서대로 컬럼을 정의하면, 해당 순서로 복합 인덱스 생성됨 -->
+            <column name="user_id"/>
+            <column name="trigger_entity_type"/>
+            <column name="trigger_entity_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- rename trigger_entity_type to trigger_type -->
+    <changeSet id="changelog-jb0.05-250213-02-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="coupon_trigger" columnName="trigger_type"/>
+            </not>
+        </preConditions>
+        <renameColumn tableName="coupon_trigger" oldColumnName="trigger_entity_type" newColumnName="trigger_type"/>
+    </changeSet>
+
+    <!-- drop column coupon_issuance_history_id -->
+    <changeSet id="changelog-jb0.05-250213-03-02" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="coupon_trigger" columnName="coupon_issuance_history_id"/>
+        </preConditions>
+        <dropColumn tableName="coupon_trigger">
+            <column name="coupon_issuance_history_id"/>
+        </dropColumn>
+    </changeSet>
+
+    <!-- add column user_coupon_id -->
+    <changeSet id="changelog-jb0.05-250213-04-01" author="jeongbeom4693">
+        <preConditions>
+            <not>
+                <columnExists tableName="coupon_trigger" columnName="user_coupon_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="coupon_trigger">
+            <column name="user_coupon_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- drop column issued_coupon_history_id -->
+    <changeSet id="changelog-jb0.05-250213-05-01" author="jeongbeom4693">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="coupon_trigger" columnName="issued_coupon_history_id"/>
+        </preConditions>
+        <dropColumn tableName="coupon_trigger">
+            <column name="issued_coupon_history_id"/>
+        </dropColumn>
+    </changeSet>
+
 </databaseChangeLog>

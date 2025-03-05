@@ -4,13 +4,14 @@ import com.impacus.maketplace.common.enumType.error.PaymentWebhookErrorType;
 import com.impacus.maketplace.common.enumType.payment.PaymentOrderStatus;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.entity.payment.PaymentOrder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static com.impacus.maketplace.dto.payment.request.WebhookPaymentDTO.*;
 
-@Service
+@Component
 public class PaymentStatusValidationService {
 
     /**

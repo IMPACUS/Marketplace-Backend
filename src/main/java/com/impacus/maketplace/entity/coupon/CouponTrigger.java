@@ -1,5 +1,6 @@
 package com.impacus.maketplace.entity.coupon;
 
+import com.impacus.maketplace.common.enumType.coupon.CouponTriggerType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,14 @@ public class CouponTrigger {
     private Long id;
 
     @Column(nullable = false)
-    private Long issuedCouponHistoryId;
+    private Long userCouponId;
+
+    @Column(nullable = false)
+    private Long userId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CouponTriggerType triggerType;
 
     @Column(nullable = false)
     private Long triggerId;

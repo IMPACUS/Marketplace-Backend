@@ -38,7 +38,6 @@ public class UserCoupon extends BaseEntity {
     @Setter
     private Boolean isDownload; // 쿠폰 다운로드 여부
 
-    @Setter
     private LocalDateTime downloadAt;   // 쿠폰을 다운로드 받은 날짜
 
     @Column(nullable = false)
@@ -55,5 +54,10 @@ public class UserCoupon extends BaseEntity {
 
     public void markAsUsed() {
         this.isUsed = true;
+    }
+
+    public void download() {
+        this.isDownload = true;
+        this.downloadAt = LocalDateTime.now();
     }
 }

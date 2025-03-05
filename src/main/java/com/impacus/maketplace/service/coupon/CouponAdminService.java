@@ -8,21 +8,24 @@ import com.impacus.maketplace.common.enumType.user.UserLevel;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.exception.CustomException;
 import com.impacus.maketplace.common.utils.CouponUtils;
-import com.impacus.maketplace.dto.coupon.request.*;
-import com.impacus.maketplace.dto.coupon.response.*;
+import com.impacus.maketplace.dto.coupon.request.CouponDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponEventTypeDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponIssueDTO;
+import com.impacus.maketplace.dto.coupon.request.CouponUpdateDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponDetailDTO;
+import com.impacus.maketplace.dto.coupon.response.CouponListInfoDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponHistoriesDTO;
+import com.impacus.maketplace.dto.coupon.response.IssueCouponInfoDTO;
 import com.impacus.maketplace.entity.coupon.Coupon;
 import com.impacus.maketplace.entity.user.User;
-import com.impacus.maketplace.repository.category.SubCategoryRepository;
 import com.impacus.maketplace.repository.coupon.CouponRepository;
 import com.impacus.maketplace.repository.coupon.querydsl.CouponCustomRepositroy;
 import com.impacus.maketplace.repository.seller.SellerRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
-import com.impacus.maketplace.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,33 +41,33 @@ import java.util.stream.Collectors;
 public class CouponAdminService {
 
     private final SellerRepository sellerRepository;
-    private final SubCategoryRepository subCategoryRepository;
     private final CouponRepository couponRepository;
     private final CouponCustomRepositroy couponCustomRepositroy;
     private final UserRepository userRepository;
-    private final UserService userService;
-    private final CouponIssuanceService couponIssuanceService;
+    private final ProvisionCouponService provisionCouponService;
 
     /**
      * 쿠폰 코드 중복 검사
+     *
      * @param code
      */
     public void duplicateCheckCode(String code) {
-        if(couponRepository.existsByCode(code)) {
+        if (couponRepository.existsByCode(code)) {
             throw new CustomException(new CustomException(CouponErrorType.DUPLICATED_COUPON_CODE));
         }
     }
 
     /**
      * 관리자 페이지에서 쿠폰 등록
+     *
      * @param couponIssuedDto 쿠폰 발급 DTO
      * @return coupon 저장된 쿠폰 Entity
      */
     @Transactional
     public Coupon registerCoupon(CouponIssueDTO couponIssuedDto) {
 
-        // 1. 입력 값 검증
-        couponInputValidation(couponIssuedDto);
+        // 1. 쿠폰 등록 규칙 검사
+        validateCouponRegistrationRules(couponIssuedDto);
 
         // 2. 쿠폰 코드 처리
         String code = getCode(couponIssuedDto.getAutoManualType(), couponIssuedDto);
@@ -76,6 +79,7 @@ public class CouponAdminService {
 
     /**
      * 관리자 페이지에서 쿠폰 수정
+     *
      * @param couponUpdateDTO 쿠폰 수정 DTO
      * @return coupon 수정된 쿠폰 Entity
      */
@@ -85,14 +89,14 @@ public class CouponAdminService {
         // 1. 해당 id를 가진 쿠폰의 발급 수량 가져오기(Lock)
         Coupon coupon = couponRepository.findWriteLockById(couponUpdateDTO.getCouponId()).orElseThrow(() -> {
             log.error("CouponAdminService.updateCoupon error: id값이 존재하지 않습니다. " +
-                    "id: {}",couponUpdateDTO.getCouponId());
+                    "id: {}", couponUpdateDTO.getCouponId());
             throw new CustomException(CouponErrorType.NOT_EXISTED_COUPON);
         });
 
         // 2. 삭제된 쿠폰인지 확인
         if (coupon.getIsDeleted()) {
             log.error("CouponAdminService.updateCoupon error: 삭제된 쿠폰입니다. " +
-                    "id: {}",couponUpdateDTO.getCouponId());
+                    "id: {}", couponUpdateDTO.getCouponId());
             throw new CustomException(CouponErrorType.IS_DELETED_COUPON);
         }
 
@@ -103,7 +107,7 @@ public class CouponAdminService {
         }
 
         // 4. 입력 값 검증
-        couponInputValidation(couponUpdateDTO);
+        validateCouponRegistrationRules(couponUpdateDTO);
 
         // 5. 쿠폰 코드 처리
         String code = getCode(couponUpdateDTO.getAutoManualType(), couponUpdateDTO);
@@ -116,6 +120,7 @@ public class CouponAdminService {
 
     /**
      * 단일 쿠폰 조회
+     *
      * @param id
      * @return
      */
@@ -137,6 +142,7 @@ public class CouponAdminService {
 
     /**
      * 선택한 쿠폰 리스트 상태 변경
+     *
      * @param couponIdList
      * @param changeCouponStatus
      * @return
@@ -164,6 +170,7 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 삭제하기
+     *
      * @param couponIdList
      */
     @Transactional
@@ -187,9 +194,10 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 목록 Pagination
-     * @param name 쿠폰명/혜택
+     *
+     * @param name         쿠폰명/혜택
      * @param couponStatus 발급 상태
-     * @param pageable 페이지 숫자 및 크기
+     * @param pageable     페이지 숫자 및 크기
      * @return couponListInfoDTOList
      */
     public Page<CouponListInfoDTO> getCouponListInfoList(String name, CouponStatusType couponStatus, Pageable pageable) {
@@ -198,6 +206,7 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 지급하기 페이지: 쿠폰 정보 조회
+     *
      * @return List<PayCouponInfoDTO>
      */
     public List<IssueCouponInfoDTO> getIssueCouponInfoList() {
@@ -205,33 +214,31 @@ public class CouponAdminService {
     }
 
     /**
-     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 조건에 해당하는 모든 유저에게 쿠폰을 발급
-     * @param couponId
-     * @param userLevel
+     * <h3>쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 조건에 해당하는 모든 유저에게 쿠폰을 발급</h3>
+     * <p>사용자 조건</p>
+     * <p>1. 파라미터로 들어온 레벨이 null이 아닐 경우 레벨에 맞는 유저 조회</p>
+     * <p>2. 파라미터로 들어온 레벨이 null일 경우 모든 유저 조회</p>
+     * <p>3. 활성화 상태인 유저</p>
+     * <p>4. 인증된 회원</p>
      */
     @Transactional
     public void issueCouponAllUser(Long couponId, UserLevel userLevel) {
 
-        // 1. 아래 조건을 충족하는 유저들 id 가져오기
-        // 1.1 레벨이 있을 경우 레벨에 맞는 유저 조회
-        // 1.2 레벨이 null일 경우 모든 유저 조회
-        // 1.3 삭제되지 않은 유저에 한해서 쿠폰 발급
-        List<Long> userIdList = userRepository
+        List<Long> userIds = userRepository
                 .findUserIdByUserLevel(userLevel);
 
-        // 2, 해당하는 유저들에게 쿠폰 발급
-        couponIssuanceService.issueCouponAllUserByAdmin(couponId, userIdList);
+        // 2. 해당하는 유저들에게 쿠폰 발급
+        provisionCouponService.issueCouponToUsersByAdmin(userIds, couponId);
     }
 
 
     /**
-     * 쿠폰 지급하기 페이지: ADMIN이 기존의 제약 조건 무시하고 특정 유저에게 쿠폰을 발급
-     * @param issueCouponTargetUserDTO 쿠폰 ID, email
+     * <h3>쿠폰 지급하기 페이지: ADMIN이 기존의 쿠폰 제약 조건 무시하고 특정 유저에게 쿠폰을 발급</h3>
      */
     @Transactional
-    public void issueCouponTargetUser(IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
+    public void issueCouponTargetUser(Long userId, Long couponId) {
         // 1. ID를 통해서 회원 검색
-        User user = userRepository.findById(issueCouponTargetUserDTO.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserErrorType.NOT_EXISTED_USER));
 
         // 1.1 유저 권한 확인
@@ -240,7 +247,7 @@ public class CouponAdminService {
         }
 
         // 2. 쿠폰 지급
-        couponIssuanceService.issueCouponTargetUserByAdmin(issueCouponTargetUserDTO.getCouponId(), user.getId());
+        provisionCouponService.issueCouponToUserByAdmin(user.getId(), couponId);
     }
 
 
@@ -269,6 +276,7 @@ public class CouponAdminService {
 
     /**
      * 쿠폰 코드를 수동/자동 방식에 따라 중복 검증 후 가져오는 함수
+     *
      * @param coupontDto 쿠폰 DTO
      * @return code 검증 완료된 쿠폰 코드
      */
@@ -298,101 +306,124 @@ public class CouponAdminService {
 
 
     /**
-     * 쿠폰 입력 값 검증
-     * @param couponDTO CouponIssueDTO, CouponUpdateDTO
+     * 쿠폰 발행 조건 검증 메서드
+     *
+     * <p>쿠폰이 정상적으로 등록되기 위한 다양한 검증 규칙을 수행합니다.</p>
+     * <ul>
+     *     <li><b>혜택 금액 검증:</b> BenefitValue가 음수이면 예외 발생</li>
+     *     <li><b>혜택 유형 검증:</b> 혜택이 %일 경우 0% 미만 및 100% 초과 불가</li>
+     *     <li><b>선착순 쿠폰 검증:</b> 지급 방식이 선착순일 경우 firstCount가 음수이면 예외 발생</li>
+     *     <li><b>쿠폰 사용 기간 검증:</b> 발급일로부터 N일일 경우 N이 음수이면 예외 발생</li>
+     *     <li><b>지급형 쿠폰 검증:</b> 지속성 발급 형식으로 등록할 수 없음</li>
+     *     <li><b>이벤트 쿠폰 검증:</b> 결제 주문 관련 이벤트 쿠폰이 특정 브랜드 적용일 경우 예외 발생</li>
+     *     <li><b>발급 적용 범위 검증:</b> 특정 브랜드 적용 시 해당 브랜드가 존재하는지 확인</li>
+     *     <li><b>사용 적용 범위 검증:</b> 특정 브랜드 사용 시 해당 브랜드가 존재하는지 확인</li>
+     *     <li><b>사용 기준 금액 검증:</b> 설정된 사용 기준 금액이 음수이면 예외 발생</li>
+     *     <li><b>발급 기준 금액 검증:</b> 설정된 발급 기준 금액이 음수이면 예외 발생</li>
+     *     <li><b>지정 기간 검증:</b>
+     *         <ul>
+     *             <li>시작 날짜가 현재 날짜보다 이전인지 확인</li>
+     *             <li>종료 날짜가 시작 날짜보다 이전인지 확인</li>
+     *             <li>기간 내 N회 이상 주문 시의 N 값이 NULL이거나 음수인지 확인</li>
+     *         </ul>
+     *     </li>
+     * </ul>
+     *
+     * @param coupon 등록하려는 쿠폰 DTO
+     * @throws CustomException 유효성 검사에 실패한 경우 예외 발생
      */
-    private void couponInputValidation(CouponDTO couponDTO) {
-        // 2.0 BenefitValue가 음수일 경우
-        if (couponDTO.getBenefitValue() == null || couponDTO.getBenefitValue() < 0) {
-            log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 benefitValue 값이 들어왔습니다. " +
-                    "benefitValue: {}", couponDTO.getBenefitValue());
+    private void validateCouponRegistrationRules(CouponDTO coupon) {
+        // 1. BenefitValue 검증
+        if (coupon.getBenefitValue() == null || coupon.getBenefitValue() < 0) {
+            log.error("Invalid benefitValue: {}", coupon.getBenefitValue());
             throw new CustomException(CouponErrorType.INVALID_INPUT_BENEFIT_VALUE);
         }
-        // 2.1 Benefit이 %일 경우, 100% 초과 값은 허용 X
-        if (couponDTO.getBenefitType().equals(BenefitType.PERCENTAGE)) {
-            if (couponDTO.getBenefitValue() == null || couponDTO.getBenefitValue() > 100) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 benefitValue 값이 들어왔습니다. " +
-                        "benefitValue: {}", couponDTO.getBenefitValue());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_BENEFIT_VALUE);
-            }
+
+        // 2. BenefitType이 퍼센트일 경우 0% 미만 및 100% 초과 불가
+        if (coupon.getBenefitType() == BenefitType.PERCENTAGE &&
+                (coupon.getBenefitValue() == null || coupon.getBenefitValue() < 0 || coupon.getBenefitValue() > 100)) {
+            log.error("Invalid percentage benefitValue: {}", coupon.getBenefitValue());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_BENEFIT_VALUE);
         }
 
-        // 2.2 쿠폰 지급 방식이 선착순일 경우 값이 음수 X
-        if (couponDTO.getPaymentTarget().equals(PaymentTarget.FIRST)) {
-            if (couponDTO.getFirstCount() == null || couponDTO.getFirstCount() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 firstCount 값이 들어왔습니다. " +
-                        "firstCount: {}", couponDTO.getFirstCount());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_FIRST_COUNT);
-            }
+        // 3. 선착순 지급 방식일 경우 firstCount 음수 불가
+        if (coupon.getPaymentTarget() == PaymentTarget.FIRST &&
+                (coupon.getFirstCount() == null || coupon.getFirstCount() < 0)) {
+            log.error("Invalid firstCount: {}", coupon.getFirstCount());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_FIRST_COUNT);
         }
 
-        // 2.3 쿠폰 사용 기간이 발급일로부터 N일일 경우 음수 X
-        if (couponDTO.getExpireTimeType().equals(ExpireTimeType.LIMIT)) {
-            if (couponDTO.getExpireTimeDays() == null || couponDTO.getExpireTimeDays() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 expireTimeDays 값이 들어왔습니다. " +
-                        "expireTimeDays: {}", couponDTO.getExpireTimeDays());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_EXPIRE_TIME_DAYS);
-            }
+        // 4. 발급일로부터 N일 사용 기한 설정 시 N일 음수 불가
+        if (coupon.getExpireTimeType() == ExpireTimeType.LIMIT &&
+                (coupon.getExpireTimeDays() == null || coupon.getExpireTimeDays() < 0)) {
+            log.error("Invalid expireTimeDays: {}", coupon.getExpireTimeDays());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_EXPIRE_TIME_DAYS);
         }
 
-        // 2.4 발급 적용 범위가 특정 브랜드일 경우 등록된 브랜드인지 확인
-        if (couponDTO.getIssueCoverageType().equals(CoverageType.BRAND)) {
-            // 해당 브랜드 명이 존재하는지 확인
-            if (couponDTO.getIssueCoverageSubCategoryName() == null ||
-                    !sellerRepository.existsByMarketName(couponDTO.getIssueCoverageSubCategoryName())) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 issueConverageSubCategoryName 값이 들어왔습니다. " +
-                        "issueConverageSubCategoryName: {}", couponDTO.getIssueCoverageSubCategoryName());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_SUB_CATEGORY_NAME);
-            }
+        // 5. 지급형 쿠폰의 지속적 발급 불가
+        if (coupon.getCouponType() == CouponType.PROVISION &&
+                coupon.getCouponIssueType().equals(CouponIssueType.PERSISTENCE)) {
+            log.error("Provision coupon cannot be persistent.");
+            throw new CustomException(CouponErrorType.INVALID_INPUT_PROVISION_COUPON_RULE);
         }
 
-        // 2.5 쿠폰 사용 범위가 특정 브랜드일 경우 등록된 브랜드인지 확인
-        if (couponDTO.getUseCoverageType().equals(CoverageType.BRAND)) {
-            // 해당 브랜드 명이 존재하는지 확인
-            if (couponDTO.getUseCoverageSubCategoryName() == null ||
-                    !sellerRepository.existsByMarketName(couponDTO.getUseCoverageSubCategoryName())) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 useCoverageSubCategoryName 값이 들어왔습니다. " +
-                        "useCoverageSubCategoryName: {}", couponDTO.getUseCoverageSubCategoryName());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_USE_COVERAGE_SUB_CATEGORY_NAME);
-            }
+        // 6. 결제 주문 이벤트 쿠폰이 특정 브랜드 적용일 경우 예외 발생
+        if (coupon.getCouponType() == CouponType.EVENT &&
+                coupon.getEventType() == EventType.PAYMENT_ORDER &&
+                coupon.getIssueCoverageType() == CoverageType.BRAND) {
+            log.error("Payment order event coupons cannot be brand-specific.");
+            throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_TYPE);
         }
 
-        // 2.6 쿠폰 사용 기준 금액 설정한 경우 음수인지 확인
-        if (couponDTO.getUseStandardType().equals(StandardType.LIMIT)) {
-            if (couponDTO.getUseStandardValue() == null || couponDTO.getUseStandardValue() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 useStandardValue 값이 들어왔습니다. " +
-                        "useStandardValue: {}", couponDTO.getUseStandardValue());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_USE_STANDARD_VALUE);
-            }
+        // 7. 특정 브랜드 적용 범위 검증
+        if (coupon.getIssueCoverageType() == CoverageType.BRAND &&
+                (coupon.getIssueCoverageSubCategoryName() == null ||
+                        !sellerRepository.existsByMarketName(coupon.getIssueCoverageSubCategoryName()))) {
+            log.error("Invalid issueCoverageSubCategoryName: {}", coupon.getIssueCoverageSubCategoryName());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_COVERAGE_SUB_CATEGORY_NAME);
         }
 
-        // 2.7 쿠폰 발급 기준 금액 설정한 경우 음수인지 확인
-        if (couponDTO.getIssueConditionType().equals(StandardType.LIMIT)) {
-            if (couponDTO.getIssueConditionValue() == null || couponDTO.getIssueConditionValue() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 issueStandardValue 값이 들어왔습니다. " +
-                        "issueStandardValue: {}", couponDTO.getIssueConditionValue());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_STANDARD_VALUE);
-            }
+
+        // 8. 특정 브랜드 사용 범위 검증
+        if (coupon.getUseCoverageType() == CoverageType.BRAND &&
+                (coupon.getUseCoverageSubCategoryName() == null ||
+                        !sellerRepository.existsByMarketName(coupon.getUseCoverageSubCategoryName()))) {
+            log.error("Invalid useCoverageSubCategoryName: {}", coupon.getUseCoverageSubCategoryName());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_USE_COVERAGE_SUB_CATEGORY_NAME);
         }
 
-        // 2.8 지정 기간 설정시
-        if (couponDTO.getPeriodType().equals(PeriodType.SET)) {
-            // 2.8.1 시작 날짜가 현재 날짜보다 이전인지 확인
-            if (couponDTO.getPeriodStartAt() == null || couponDTO.getPeriodStartAt().isBefore(LocalDate.now())) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 periodStartAt 값이 들어왔습니다. " +
-                        "periodStartAt: {}, LocalDate.now(): {}", couponDTO.getPeriodStartAt(), LocalDate.now());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_PERIOD_START_AT);
+
+        // 9. 사용 기준 금액이 음수인지 확인
+        if (coupon.getUseStandardType() == StandardType.LIMIT &&
+                (coupon.getUseStandardValue() == null || coupon.getUseStandardValue() < 0)) {
+            log.error("Invalid useStandardValue: {}", coupon.getUseStandardValue());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_USE_STANDARD_VALUE);
+        }
+
+        // 10. 발급 기준 금액이 음수인지 확인
+        if (coupon.getIssueConditionType().equals(StandardType.LIMIT) &&
+                (coupon.getIssueConditionValue() == null || coupon.getIssueConditionValue() < 0)) {
+            log.error("Invalid issueConditionValue: {}", coupon.getIssueConditionValue());
+            throw new CustomException(CouponErrorType.INVALID_INPUT_ISSUE_STANDARD_VALUE);
+        }
+
+        // 11. 지정 기간 설정 시 검증
+        if (coupon.getPeriodType() != PeriodType.UNSET) {
+            if (coupon.getPeriodType() == PeriodType.SET) {
+                // 11.1 시작 날짜 검증
+                if (coupon.getPeriodStartAt() == null || coupon.getPeriodStartAt().isBefore(LocalDate.now())) {
+                    log.error("Invalid periodStartAt: {}", coupon.getPeriodStartAt());
+                    throw new CustomException(CouponErrorType.INVALID_INPUT_PERIOD_START_AT);
+                }
+                // 11.2 종료 날짜 검증
+                if (coupon.getPeriodEndAt() == null || coupon.getPeriodEndAt().isBefore(coupon.getPeriodStartAt())) {
+                    log.error("Invalid periodEndAt: {} must be after periodStartAt: {}", coupon.getPeriodEndAt(), coupon.getPeriodStartAt());
+                    throw new CustomException(CouponErrorType.INVALID_INPUT_PERIOD_END_AT);
+                }
             }
-            // 2.8.2 종료 날짜가 시작 날짜보다 이전인 경우
-            if (couponDTO.getPeriodEndAt() == null || couponDTO.getPeriodEndAt().isBefore(couponDTO.getPeriodStartAt())) {
-                log.error("CouponAdminService.couponInputValidation error: periodStartAt는 periodEndAt보다 이전 혹은 같은 날짜여야 합니다. " +
-                        "periodStartAt: {}, periodEndAt: {}", couponDTO.getPeriodStartAt(), couponDTO.getPeriodEndAt());
-                throw new CustomException(CouponErrorType.INVALID_INPUT_PERIOD_END_AT);
-            }
-            // 2.8.3 기간 내 N회 이상 주문 시의 N 값이 NULL 혹은 음수인지 확인
-            if (couponDTO.getNumberOfPeriod() == null || couponDTO.getNumberOfPeriod() < 0) {
-                log.error("CouponAdminService.couponInputValidation error: 올바르지 않은 numberOfPeriod 값이 들어왔습니다. " +
-                        "numberOfPeriod: {}", couponDTO.getNumberOfPeriod());
+            // 11.3 기간 내 주문 횟수 검증
+            if (coupon.getNumberOfPeriod() == null || coupon.getNumberOfPeriod() < 0) {
+                log.error("Invalid numberOfPeriod: {}", coupon.getNumberOfPeriod());
                 throw new CustomException(CouponErrorType.INVALID_INPUT_NUMBER_OF_PERIOD);
             }
         }

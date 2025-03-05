@@ -26,22 +26,27 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * ADMIN 계정 권한을 보유한 회원이 호출하는 API 컨트롤러
+ *
+ * ADMIN이 새롭게 쿠폰 등록: Register
+ * ADMIN -> USER과 같은 USER에게 지급: Issue
+ * USER가 쿠폰을 사용: Redeem
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/coupon/admin")
 public class AdminCouponController {
 
-    // 용어 정리
-    // ADMIN이 새롭게 쿠폰 등록: Register
-    // ADMIN -> USER과 같은 USER에게 지급: Issue
-    // USER가 쿠폰을 사용: Redeem
-
     private final CouponAdminService couponAdminService;
     private final CouponApiServiceImpl couponApiService;
 
     /**
-     * ADMIN: 쿠폰 등록 API
+     * ADMIN 계정 권한을 보유한 회원이 쿠폰을 등록한다.
+     *
+     * @param couponIssuedDto 쿠폰 발행에 필요한 데이터
+     * @return 쿠폰 발행 성공 유무
      */
     @PreAuthorize("hasRole('ROLE_OWNER') " +
             "or hasRole('ROLE_PRINCIPAL_ADMIN')")
@@ -182,7 +187,7 @@ public class AdminCouponController {
     @PostMapping("/issued-coupons/user")
     public ApiResponseEntity<Boolean> issueCouponTargetUser(@Valid @RequestBody IssueCouponTargetUserDTO issueCouponTargetUserDTO) {
 
-        couponAdminService.issueCouponTargetUser(issueCouponTargetUserDTO);
+        couponAdminService.issueCouponTargetUser(issueCouponTargetUserDTO.getUserId(), issueCouponTargetUserDTO.getCouponId());
 
         return ApiResponseEntity.simpleResult(HttpStatus.OK);
     }
