@@ -22,6 +22,7 @@ import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.api.PaymentApiService;
 import com.impacus.maketplace.service.excel.ExcelService;
 import com.impacus.maketplace.service.point.greenLabelPoint.GreenLabelPointAllocationService;
+import com.vane.badwordfiltering.BadWordFiltering;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -111,8 +112,10 @@ public class ReviewService {
             throw new CustomException(ReviewErrorType.ORDER_NOT_CONFIRMED_FOR_REVIEW);
         }
 
-        // TODO 비속어 검사
-
+        BadWordFiltering badWordFiltering = new BadWordFiltering();
+        if (badWordFiltering.check(dto.getContents())) {
+            throw new CustomException(CommonErrorType.CONTENTS_CONTAINS_PROFANITY);
+        }
     }
 
     /**
