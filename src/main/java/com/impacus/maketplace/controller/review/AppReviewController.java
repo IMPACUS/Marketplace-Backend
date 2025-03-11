@@ -34,7 +34,7 @@ public class AppReviewController {
     @PostMapping
     public ApiResponseEntity<Review> addReview(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart("images") List<MultipartFile> images,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @Valid @RequestPart("review") CreateReviewDTO dto
     ) {
         reviewService.addReview(user.getId(), images, dto);
