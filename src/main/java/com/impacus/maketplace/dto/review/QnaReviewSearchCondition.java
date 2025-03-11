@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Getter
 public class QnaReviewSearchCondition {
     private Pageable pageable;
+    private String detailKeyword;
     private String keyword;
     private LocalDate startAt;
     private LocalDate endAt;
@@ -16,12 +17,14 @@ public class QnaReviewSearchCondition {
 
     public QnaReviewSearchCondition(
             Pageable pageable,
+            String detailKeyword,
             String keyword,
             LocalDate startAt,
             LocalDate endAt,
             QnAReviewSearchCondition searchCondition
     ) {
         this.pageable = pageable;
+        this.detailKeyword = detailKeyword;
         this.keyword = keyword;
         this.startAt = startAt;
         this.endAt = endAt;
@@ -29,11 +32,12 @@ public class QnaReviewSearchCondition {
     }
 
     public static QnaReviewSearchCondition toDTO(Pageable pageable,
+                                                 String detailKeyword,
                                                  String keyword,
                                                  LocalDate startAt,
                                                  LocalDate endAt,
                                                  QnAReviewSearchCondition searchCondition) {
-        return new QnaReviewSearchCondition(pageable, keyword, startAt, endAt, searchCondition);
+        return new QnaReviewSearchCondition(pageable, detailKeyword, keyword, startAt, endAt, searchCondition);
     }
 
 }
