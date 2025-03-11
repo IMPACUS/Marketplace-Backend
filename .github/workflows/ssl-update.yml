@@ -1,9 +1,13 @@
 name: ssl-update
 
+#on:
+#  schedule:
+#    - cron: '00 12 1 * *'
+#  workflow_dispatch:
 on:
-  schedule:
-    - cron: '00 12 1 * *'
-  workflow_dispatch:
+  push:
+    branches:
+      - feature/lchy/ssl
 
 jobs:
   build:
