@@ -26,5 +26,5 @@ jobs:
           port: 22
           script: |
             sudo systemctl stop nginx
-            certbot renew
+            sudo certbot renew
             sudo systemctl start nginx
