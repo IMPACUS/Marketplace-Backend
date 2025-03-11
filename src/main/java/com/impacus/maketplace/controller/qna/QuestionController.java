@@ -43,7 +43,7 @@ public class QuestionController {
     @PostMapping
     public ApiResponseEntity<Boolean> addQuestion(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart("images") List<MultipartFile> images,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @Valid @RequestPart("question") CreateQuestionDTO dto
     ) {
         questionService.addQuestion(
