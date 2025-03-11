@@ -20,6 +20,7 @@ import com.impacus.maketplace.repository.qna.QuestionReplyRepository;
 import com.impacus.maketplace.repository.qna.QuestionRepository;
 import com.impacus.maketplace.service.AttachFileService;
 import com.impacus.maketplace.service.excel.ExcelService;
+import com.vane.badwordfiltering.BadWordFiltering;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -87,7 +88,10 @@ public class QuestionService {
             throw new CustomException(QuestionErrorType.EXISTED_QUESTION, "이미 등록된 문의가 있습니다.");
         }
 
-        // TODO 비속어 검사
+        BadWordFiltering badWordFiltering = new BadWordFiltering();
+        if (badWordFiltering.check(dto.getContents())) {
+            throw new CustomException(CommonErrorType.CONTENTS_CONTAINS_PROFANITY);
+        }
     }
 
     /**
