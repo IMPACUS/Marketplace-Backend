@@ -76,13 +76,14 @@ public class QuestionController {
     @GetMapping
     public ApiResponseEntity<Page<WebQuestionDTO>> findQuestions(
             @PageableDefault(size = 5, direction = Sort.Direction.DESC, sort = "createAt") Pageable pageable,
+            @RequestParam(value = "detail-keyword", required = false) String detailKeyword,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "start-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
             @RequestParam(value = "end-at", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
             @RequestParam(value = "search-condition", required = true) QnAReviewSearchCondition searchCondition
     ) {
         QnaReviewSearchCondition condition = new QnaReviewSearchCondition(
-                pageable, keyword, startAt, endAt, searchCondition
+                pageable, detailKeyword, keyword, startAt, endAt, searchCondition
         );
         Page<WebQuestionDTO> result = questionService.findQuestions(condition);
 
