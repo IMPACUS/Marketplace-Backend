@@ -181,6 +181,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
         BooleanBuilder userBoolean = new BooleanBuilder();
         BooleanBuilder productBoolean = new BooleanBuilder();
 
+        // 검색어 조회
         if (keyword != null && !keyword.isBlank()) {
             reviewBoolean.and(review.contents.containsIgnoreCase(keyword));
         }
