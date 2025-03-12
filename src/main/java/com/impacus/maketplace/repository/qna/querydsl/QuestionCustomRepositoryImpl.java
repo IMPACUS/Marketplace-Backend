@@ -33,6 +33,7 @@ import static com.impacus.maketplace.entity.product.QProduct.product;
 import static com.impacus.maketplace.entity.product.QProductOption.productOption;
 import static com.impacus.maketplace.entity.qna.QQuestion.question;
 import static com.impacus.maketplace.entity.qna.QQuestionReply.questionReply;
+import static com.impacus.maketplace.entity.review.QReview.review;
 import static com.impacus.maketplace.entity.seller.QSeller.seller;
 import static com.impacus.maketplace.entity.user.QUser.user;
 
@@ -89,6 +90,7 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
         UserType currentUserType = SecurityUtils.getCurrentUserType();
         Long currentUserId = SecurityUtils.getCurrentUserId();
 
+        String keyword = condition.getKeyword();
         String detailKeyword = condition.getDetailKeyword();
         Pageable pageable = condition.getPageable();
 
@@ -97,6 +99,10 @@ public class QuestionCustomRepositoryImpl implements QuestionCustomRepository {
         BooleanBuilder userBoolean = new BooleanBuilder();
         BooleanBuilder productBoolean = new BooleanBuilder();
 
+        // 검색어 조회
+        if (keyword != null && !keyword.isBlank()) {
+            questionBoolean.and(question.contents.containsIgnoreCase(keyword));
+        }
         if (detailKeyword != null && !detailKeyword.isBlank()) {
             if (condition.getSearchCondition() == QnAReviewSearchCondition.ID) {
                 userBoolean.and(user.email.containsIgnoreCase(detailKeyword));
