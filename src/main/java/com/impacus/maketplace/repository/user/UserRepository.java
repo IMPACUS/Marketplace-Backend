@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,4 +42,5 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
             @Param("types") List<UserType> types
     );
 
+    long countByRecentLoginAtBetweenAndType(LocalDateTime start, LocalDateTime end, UserType type);
 }

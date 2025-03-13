@@ -25,6 +25,10 @@ public class ConsumerVisitors {
 
     public ConsumerVisitors(long visitors) {
         this.visitors = visitors;
-        this.date = LocalDate.now();
+        this.date = LocalDate.now().minusDays(1);
+    }
+
+    public static ConsumerVisitors toEntity(long visitors) {
+        return new ConsumerVisitors(visitors);
     }
 }
