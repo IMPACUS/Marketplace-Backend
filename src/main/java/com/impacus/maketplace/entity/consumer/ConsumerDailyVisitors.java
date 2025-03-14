@@ -9,12 +9,12 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@Table(name = "consumer_visitors")
+@Table(name = "consumer_daily_visitors")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ConsumerVisitors {
+public class ConsumerDailyVisitors {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "consumer_visitors_id")
+    @Column(name = "consumer_daily_visitors_id")
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -23,12 +23,12 @@ public class ConsumerVisitors {
     @Column(nullable = false)
     private long visitors;
 
-    public ConsumerVisitors(long visitors) {
+    public ConsumerDailyVisitors(long visitors) {
         this.visitors = visitors;
         this.date = LocalDate.now().minusDays(1);
     }
 
-    public static ConsumerVisitors toEntity(long visitors) {
-        return new ConsumerVisitors(visitors);
+    public static ConsumerDailyVisitors toEntity(long visitors) {
+        return new ConsumerDailyVisitors(visitors);
     }
 }

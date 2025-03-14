@@ -7,12 +7,12 @@
     <changeSet id="changelog-lchy-0.20.01-25-03-17" author="lchy0413">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="consumer_visitors"/>
+                <tableExists tableName="consumer_daily_visitors"/>
             </not>
         </preConditions>
 
-        <createTable tableName="consumer_visitors">
-            <column name="consumer_visitors_id" type="BIGINT" autoIncrement="true">
+        <createTable tableName="consumer_daily_visitors">
+            <column name="consumer_daily_visitors_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="visitors" type="BIGINT">

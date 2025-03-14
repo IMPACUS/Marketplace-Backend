@@ -2,9 +2,8 @@ package com.impacus.maketplace.service.consumer;
 
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.LogUtils;
-import com.impacus.maketplace.entity.consumer.ConsumerVisitors;
-import com.impacus.maketplace.repository.consumer.ConsumerRepository;
-import com.impacus.maketplace.repository.consumer.ConsumerVisitorsRepository;
+import com.impacus.maketplace.entity.consumer.ConsumerDailyVisitors;
+import com.impacus.maketplace.repository.consumer.ConsumerDailyVisitorsRepository;
 import com.impacus.maketplace.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ import java.time.LocalTime;
 public class ConsumerVisitorsScheduler {
 
     private final UserRepository userRepository;
-    private final ConsumerVisitorsRepository consumerVisitorsRepository;
+    private final ConsumerDailyVisitorsRepository consumerDailyVisitorsRepository;
 
     @Transactional
     @Scheduled(cron = "0 0 0 * * *")
@@ -31,8 +30,8 @@ public class ConsumerVisitorsScheduler {
                     now.atTime(LocalTime.MAX),
                     UserType.ROLE_CERTIFIED_USER);
 
-            ConsumerVisitors consumerVisitors = ConsumerVisitors.toEntity(visitors);
-            consumerVisitorsRepository.save(consumerVisitors);
+            ConsumerDailyVisitors consumerVisitors = ConsumerDailyVisitors.toEntity(visitors);
+            consumerDailyVisitorsRepository.save(consumerVisitors);
 
             LogUtils.writeInfoLog("saveDailyVisitors",
                     "Save daily visitors " + visitors);
