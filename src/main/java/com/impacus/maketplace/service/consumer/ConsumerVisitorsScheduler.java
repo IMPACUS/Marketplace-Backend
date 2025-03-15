@@ -1,5 +1,6 @@
 package com.impacus.maketplace.service.consumer;
 
+import com.impacus.maketplace.common.enumType.StatisticsPeriod;
 import com.impacus.maketplace.common.enumType.user.UserType;
 import com.impacus.maketplace.common.utils.LogUtils;
 import com.impacus.maketplace.entity.consumer.ConsumerDailyVisitors;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -46,15 +49,16 @@ public class ConsumerVisitorsScheduler {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 1,5,9,13,17,21 * * *")
+    @Scheduled(cron = "0 0 0,5,9,13,17,21 * * *")
     public void saveHourlyVisitors() {
         try {
             LocalDate now = LocalDate.now();
             int hour = LocalTime.now().getHour();
+            int previousHour = StatisticsPeriod.YESTERDAY.getPreviousStatisticsValue(hour);
 
             LocalDateTime endAt = now.atTime(hour, 0);
             long visitors = userRepository.countByRecentLoginAtBetweenAndType(
-                    endAt.minusHours(4),
+                    endAt.minusHours(hour - previousHour),
                     now.atTime(hour, 0),
                     UserType.ROLE_CERTIFIED_USER);
 
