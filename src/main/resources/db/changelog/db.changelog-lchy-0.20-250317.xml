@@ -21,11 +21,29 @@
             <column name="date" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+        </createTable>
+    </changeSet>
 
-            <column name="create_at" type="TIMESTAMP"/>
-            <column name="modify_at" type="TIMESTAMP"/>
-            <column name="register_id" type="VARCHAR(255)"/>
-            <column name="modify_id" type="VARCHAR(255)"/>
+    <changeSet id="changelog-lchy-0.20.02-25-03-17" author="lchy0413">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="consumer_hourly_visitors"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="consumer_hourly_visitors">
+            <column name="consumer_hourly_visitors_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="hour" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="visitors" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="date" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>
