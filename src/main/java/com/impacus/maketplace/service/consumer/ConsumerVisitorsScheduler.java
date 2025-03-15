@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -70,6 +71,21 @@ public class ConsumerVisitorsScheduler {
         } catch (Exception ex) {
             LogUtils.writeErrorLog("saveHourlyVisitors",
                     "Fail to save hourly visitors", ex);
+        }
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteHourlyVisitors() {
+        try {
+            LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+            int visitors = consumerHourlyVisitorsRepository.deleteByVisitTimeBefore(oneMonthAgo);
+
+            LogUtils.writeInfoLog("deleteHourlyVisitors",
+                    "Delete hourly visitors " + visitors);
+        } catch (Exception ex) {
+            LogUtils.writeErrorLog("deleteHourlyVisitors",
+                    "Fail to delete hourly visitors", ex);
         }
     }
 }

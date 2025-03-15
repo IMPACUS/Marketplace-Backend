@@ -3,8 +3,6 @@ package com.impacus.maketplace.common.enumType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Getter
