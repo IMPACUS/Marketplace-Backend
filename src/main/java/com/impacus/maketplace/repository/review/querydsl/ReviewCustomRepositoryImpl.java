@@ -172,6 +172,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
 
     @Override
     public Page<WebReviewDTO> findReviews(QnaReviewSearchCondition condition) {
+        String keyword = condition.getKeyword();
         String detailKeyword = condition.getDetailKeyword();
         Pageable pageable = condition.getPageable();
 
@@ -180,6 +181,9 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository {
         BooleanBuilder userBoolean = new BooleanBuilder();
         BooleanBuilder productBoolean = new BooleanBuilder();
 
+        if (keyword != null && !keyword.isBlank()) {
+            reviewBoolean.and(review.contents.containsIgnoreCase(keyword));
+        }
         if (detailKeyword != null && !detailKeyword.isBlank()) {
             if (condition.getSearchCondition() == QnAReviewSearchCondition.ID) {
                 userBoolean.and(user.email.containsIgnoreCase(detailKeyword));
